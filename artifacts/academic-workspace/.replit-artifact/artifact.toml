@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "AI Academic Workspace"
+description = "A project-based AI workspace for managing academic assignments and research papers. Each project has its own AI context, chat history, document versions, references database, and activity timeline. The AI automatically analyzes instructor instructions, generates outlines, writes chapters, finds references, and exports documents in DOCX/PDF/Markdown formats."
+version = "1.0.0"
+id = "artifacts/academic-workspace"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18543
+
+[services.development]
+run = "pnpm --filter @workspace/academic-workspace run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/academic-workspace", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/academic-workspace/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18543"
+BASE_PATH = "/"

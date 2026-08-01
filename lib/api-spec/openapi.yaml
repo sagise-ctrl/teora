@@ -3,13 +3,31 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: AI Academic Workspace API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: projects
+    description: Project management
+  - name: messages
+    description: AI chat per project
+  - name: documents
+    description: Document versions
+  - name: references
+    description: Academic references
+  - name: attachments
+    description: File attachments
+  - name: activities
+    description: Activity timeline
+  - name: jobs
+    description: AI job queue
+  - name: exports
+    description: Document exports
+  - name: metadata
+    description: Project metadata
 paths:
   /healthz:
     get:
@@ -24,6 +42,486 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ── Projects ──────────────────────────────────────────────────────────────
+  /projects:
+    get:
+      operationId: listProjects
+      tags: [projects]
+      summary: List all projects
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+    post:
+      operationId: createProject
+      tags: [projects]
+      summary: Create a new project
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectInput"
+      responses:
+        "201":
+          description: Created project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+
+  /projects/stats:
+    get:
+      operationId: getProjectStats
+      tags: [projects]
+      summary: Dashboard summary stats
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectStats"
+
+  /projects/{projectId}:
+    get:
+      operationId: getProject
+      tags: [projects]
+      summary: Get a project by ID
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateProject
+      tags: [projects]
+      summary: Update a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectUpdate"
+      responses:
+        "200":
+          description: Updated project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+    delete:
+      operationId: deleteProject
+      tags: [projects]
+      summary: Delete a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  /projects/{projectId}/analyze:
+    post:
+      operationId: analyzeProject
+      tags: [projects]
+      summary: Trigger full AI analysis pipeline for a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "202":
+          description: Analysis started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+
+  # ── Messages (per-project chat) ───────────────────────────────────────────
+  /projects/{projectId}/messages:
+    get:
+      operationId: listMessages
+      tags: [messages]
+      summary: Get chat history for a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Message"
+    post:
+      operationId: sendMessage
+      tags: [messages]
+      summary: Send a message and get AI response
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageInput"
+      responses:
+        "201":
+          description: AI response message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+
+  # ── Documents ─────────────────────────────────────────────────────────────
+  /projects/{projectId}/documents:
+    get:
+      operationId: listDocumentVersions
+      tags: [documents]
+      summary: List all document versions for a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Document versions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DocumentVersion"
+
+  /projects/{projectId}/documents/latest:
+    get:
+      operationId: getLatestDocument
+      tags: [documents]
+      summary: Get the latest document version
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Latest document
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentVersion"
+        "404":
+          description: No document yet
+
+  # ── References ────────────────────────────────────────────────────────────
+  /projects/{projectId}/references:
+    get:
+      operationId: listReferences
+      tags: [references]
+      summary: List all references for a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: References
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Reference"
+    post:
+      operationId: createReference
+      tags: [references]
+      summary: Add a reference manually
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReferenceInput"
+      responses:
+        "201":
+          description: Created reference
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reference"
+
+  /projects/{projectId}/references/{referenceId}:
+    delete:
+      operationId: deleteReference
+      tags: [references]
+      summary: Delete a reference
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: referenceId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  /projects/{projectId}/references/regenerate:
+    post:
+      operationId: regenerateBibliography
+      tags: [references]
+      summary: Regenerate bibliography for a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Updated bibliography text
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BibliographyResult"
+
+  # ── Attachments ───────────────────────────────────────────────────────────
+  /projects/{projectId}/attachments:
+    get:
+      operationId: listAttachments
+      tags: [attachments]
+      summary: List attachments for a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Attachments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Attachment"
+    post:
+      operationId: uploadAttachment
+      tags: [attachments]
+      summary: Upload an attachment as base64 JSON
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AttachmentUpload"
+      responses:
+        "201":
+          description: Uploaded attachment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Attachment"
+
+  /projects/{projectId}/attachments/{attachmentId}:
+    delete:
+      operationId: deleteAttachment
+      tags: [attachments]
+      summary: Delete an attachment
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: attachmentId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  # ── Activities ────────────────────────────────────────────────────────────
+  /projects/{projectId}/activities:
+    get:
+      operationId: listActivities
+      tags: [activities]
+      summary: Get activity timeline for a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Activities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Activity"
+
+  # ── Jobs ──────────────────────────────────────────────────────────────────
+  /projects/{projectId}/jobs:
+    get:
+      operationId: listJobs
+      tags: [jobs]
+      summary: List AI jobs for a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Jobs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Job"
+
+  # ── Metadata ──────────────────────────────────────────────────────────────
+  /projects/{projectId}/metadata:
+    get:
+      operationId: getProjectMetadata
+      tags: [metadata]
+      summary: Get analyzed metadata for a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectMetadata"
+        "404":
+          description: No metadata yet
+
+  # ── Exports ───────────────────────────────────────────────────────────────
+  /projects/{projectId}/exports:
+    get:
+      operationId: listExports
+      tags: [exports]
+      summary: List exports for a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Exports
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Export"
+    post:
+      operationId: createExport
+      tags: [exports]
+      summary: Create a new export
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExportInput"
+      responses:
+        "201":
+          description: Created export
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Export"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +532,345 @@ components:
       required:
         - status
 
+    # ── Project ──────────────────────────────────────────────────────────────
+    Project:
+      type: object
+      required: [id, title, status, progress, createdAt, updatedAt]
+      properties:
+        id:
+          type: number
+        title:
+          type: string
+        status:
+          type: string
+          enum: [draft, analyzing, writing, waiting_revision, completed, archived]
+        progress:
+          type: number
+          description: 0-100 percent
+        instructionText:
+          type: ["string", "null"]
+        subject:
+          type: ["string", "null"]
+        taskType:
+          type: ["string", "null"]
+        citationFormat:
+          type: ["string", "null"]
+        outputFormat:
+          type: ["string", "null"]
+        minRefYear:
+          type: ["number", "null"]
+        minRefCount:
+          type: ["number", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ProjectInput:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+          minLength: 1
+        instructionText:
+          type: string
+        outputFormat:
+          type: string
+          enum: [docx, pdf, markdown]
+        minRefYear:
+          type: number
+        minRefCount:
+          type: number
+
+    ProjectUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+        status:
+          type: string
+          enum: [draft, analyzing, writing, waiting_revision, completed, archived]
+        instructionText:
+          type: string
+        outputFormat:
+          type: string
+          enum: [docx, pdf, markdown]
+        minRefYear:
+          type: number
+        minRefCount:
+          type: number
+        progress:
+          type: number
+
+    ProjectStats:
+      type: object
+      required: [total, byStatus, recentActivity]
+      properties:
+        total:
+          type: number
+        byStatus:
+          type: object
+          additionalProperties:
+            type: number
+        recentActivity:
+          type: array
+          items:
+            $ref: "#/components/schemas/Activity"
+
+    # ── Message ───────────────────────────────────────────────────────────────
+    Message:
+      type: object
+      required: [id, projectId, role, content, createdAt]
+      properties:
+        id:
+          type: number
+        projectId:
+          type: number
+        role:
+          type: string
+          enum: [user, assistant, system]
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    MessageInput:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+          minLength: 1
+
+    # ── DocumentVersion ───────────────────────────────────────────────────────
+    DocumentVersion:
+      type: object
+      required: [id, projectId, versionNumber, content, createdAt]
+      properties:
+        id:
+          type: number
+        projectId:
+          type: number
+        versionNumber:
+          type: number
+        content:
+          type: string
+        outline:
+          type: ["string", "null"]
+        changeDescription:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    # ── Reference ─────────────────────────────────────────────────────────────
+    Reference:
+      type: object
+      required: [id, projectId, title, validationStatus, createdAt]
+      properties:
+        id:
+          type: number
+        projectId:
+          type: number
+        title:
+          type: string
+        authors:
+          type: ["string", "null"]
+        year:
+          type: ["number", "null"]
+        journal:
+          type: ["string", "null"]
+        volume:
+          type: ["string", "null"]
+        issue:
+          type: ["string", "null"]
+        doi:
+          type: ["string", "null"]
+        url:
+          type: ["string", "null"]
+        validationStatus:
+          type: string
+          enum: [unverified, verified, invalid]
+        usedInChapters:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    ReferenceInput:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+          minLength: 1
+        authors:
+          type: string
+        year:
+          type: number
+        journal:
+          type: string
+        volume:
+          type: string
+        issue:
+          type: string
+        doi:
+          type: string
+        url:
+          type: string
+
+    BibliographyResult:
+      type: object
+      required: [bibliography]
+      properties:
+        bibliography:
+          type: string
+
+    # ── Attachment ────────────────────────────────────────────────────────────
+    Attachment:
+      type: object
+      required: [id, projectId, filename, attachmentType, createdAt]
+      properties:
+        id:
+          type: number
+        projectId:
+          type: number
+        filename:
+          type: string
+        originalName:
+          type: string
+        mimeType:
+          type: ["string", "null"]
+        sizeBytes:
+          type: ["number", "null"]
+        attachmentType:
+          type: string
+          enum: [instruction, supplement]
+        extractedText:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    AttachmentUpload:
+      type: object
+      required: [filename, base64Content, attachmentType]
+      properties:
+        filename:
+          type: string
+        base64Content:
+          type: string
+        mimeType:
+          type: string
+        attachmentType:
+          type: string
+          enum: [instruction, supplement]
+
+    # ── Activity ──────────────────────────────────────────────────────────────
+    Activity:
+      type: object
+      required: [id, projectId, eventType, description, createdAt]
+      properties:
+        id:
+          type: number
+        projectId:
+          type: number
+        eventType:
+          type: string
+        description:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    # ── Job ───────────────────────────────────────────────────────────────────
+    Job:
+      type: object
+      required: [id, projectId, jobType, status, createdAt, updatedAt]
+      properties:
+        id:
+          type: number
+        projectId:
+          type: number
+        jobType:
+          type: string
+          enum: [analyze, outline, references, write_chapter, citations, bibliography, export]
+        status:
+          type: string
+          enum: [pending, running, completed, failed]
+        result:
+          type: ["string", "null"]
+        errorMessage:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    # ── ProjectMetadata ───────────────────────────────────────────────────────
+    ProjectMetadata:
+      type: object
+      required: [id, projectId, createdAt, updatedAt]
+      properties:
+        id:
+          type: number
+        projectId:
+          type: number
+        detectedTitle:
+          type: ["string", "null"]
+        subject:
+          type: ["string", "null"]
+        taskType:
+          type: ["string", "null"]
+        citationFormat:
+          type: ["string", "null"]
+        language:
+          type: ["string", "null"]
+        outline:
+          type: ["string", "null"]
+        contextSummary:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    # ── Export ────────────────────────────────────────────────────────────────
+    Export:
+      type: object
+      required: [id, projectId, format, status, createdAt]
+      properties:
+        id:
+          type: number
+        projectId:
+          type: number
+        format:
+          type: string
+          enum: [docx, pdf, markdown]
+        status:
+          type: string
+          enum: [pending, completed, failed]
+        filePath:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    ExportInput:
+      type: object
+      required: [format]
+      properties:
+        format:
+          type: string
+          enum: [docx, pdf, markdown]
+        documentVersionId:
+          type: number

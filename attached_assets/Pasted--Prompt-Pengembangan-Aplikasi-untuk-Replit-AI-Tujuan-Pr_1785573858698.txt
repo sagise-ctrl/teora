@@ -1,0 +1,543 @@
+# Prompt Pengembangan Aplikasi untuk Replit AI
+
+## Tujuan Proyek
+
+Bangun sebuah aplikasi web bernama **AI Academic Workspace**.
+
+Aplikasi ini **bukan chatbot umum**, melainkan workspace khusus untuk membantu mengerjakan tugas kuliah dan karya ilmiah.
+
+Konsep utamanya adalah:
+
+> **Satu Tugas = Satu Workspace = Satu AI dengan konteks yang selalu diingat.**
+
+Aplikasi digunakan oleh **satu orang saja (single user)** sehingga **tidak memerlukan sistem autentikasi**.
+
+---
+
+# Teknologi
+
+Gunakan teknologi berikut:
+
+* Laravel 12
+* PHP 8.3+
+* MySQL
+* Tailwind CSS
+* Alpine.js
+* Vite
+
+Struktur kode harus rapi, mudah dipelihara, dan mengikuti best practice Laravel.
+
+---
+
+# Arsitektur
+
+Jangan membuat aplikasi seperti ChatGPT.
+
+Yang harus dibuat adalah sistem berbasis **Project / Workspace**.
+
+Struktur utamanya:
+
+Dashboard
+↓
+Daftar Tugas
+↓
+Buka Tugas
+↓
+Workspace Tugas
+↓
+AI bekerja berdasarkan konteks tugas tersebut.
+
+Semua data harus dipisahkan berdasarkan Project.
+
+---
+
+# Tidak Perlu Dibuat
+
+Jangan membuat:
+
+* Login
+* Register
+* Multi User
+* Role
+* Permission
+* Subscription
+* Billing
+* Admin Panel
+* Email Verification
+* Notification Email
+
+Aplikasi hanya digunakan secara lokal oleh satu pengguna.
+
+---
+
+# Dashboard
+
+Dashboard menampilkan:
+
+* Daftar seluruh tugas
+* Tombol Buat Tugas Baru
+* Search tugas
+* Filter status
+* Total tugas
+* Progress tiap tugas
+* Terakhir diubah
+
+Status project:
+
+* Draft
+* Analyzing
+* Writing
+* Waiting Revision
+* Completed
+* Archived
+
+---
+
+# Membuat Tugas Baru
+
+User hanya perlu memasukkan:
+
+## 1. Instruksi Tugas
+
+Pilihan:
+
+* Paste teks
+* Upload DOCX
+* Upload PDF
+
+Instruksi dosen dapat terdiri dari beberapa paragraf.
+
+AI harus mampu memahami seluruh isi instruksi.
+
+---
+
+## 2. Lampiran (Opsional)
+
+Upload:
+
+* PDF
+* DOCX
+
+Misalnya:
+
+* Modul
+* Contoh makalah
+* Rubrik penilaian
+* Jurnal dari dosen
+
+---
+
+## 3. Preferensi (Opsional)
+
+* Tahun minimal referensi
+* Jumlah minimal referensi
+* Format output:
+
+  * DOCX
+  * PDF
+  * Markdown
+
+Jika kosong, AI menentukan sendiri berdasarkan instruksi dosen.
+
+---
+
+# Yang Dilakukan AI Secara Otomatis
+
+AI harus:
+
+* Memahami instruksi dosen
+* Menentukan jenis tugas
+* Menentukan mata kuliah
+* Menentukan topik
+* Menentukan judul
+* Menentukan struktur dokumen
+* Menentukan format sitasi
+* Menentukan kebutuhan referensi
+* Membuat outline
+* Mencari referensi
+* Memverifikasi referensi
+* Menulis dokumen
+* Menyusun daftar pustaka
+* Membuat file output
+
+User tidak perlu mengisi:
+
+* Judul
+* Mata kuliah
+* Tema
+* Outline
+
+Semua dianalisis otomatis.
+
+---
+
+# Workspace Tugas
+
+Saat sebuah tugas dibuka, tampilkan halaman khusus.
+
+Layout terdiri dari beberapa tab.
+
+## 1. Preview
+
+Menampilkan preview dokumen terbaru.
+
+Preview harus selalu membaca versi dokumen terbaru.
+
+Bukan hasil AI mentah.
+
+---
+
+## 2. Chat AI
+
+Setiap Project memiliki chat sendiri.
+
+Chat Project A tidak boleh bercampur dengan Project B.
+
+Seluruh chat harus disimpan.
+
+Saat user mengirim prompt:
+
+"Perbaiki BAB III"
+
+AI harus memahami bahwa yang direvisi adalah dokumen pada project yang sedang dibuka.
+
+Tidak perlu bertanya ulang.
+
+---
+
+## 3. Referensi
+
+Buat halaman referensi yang lengkap.
+
+Setiap referensi menampilkan:
+
+* Judul
+* Penulis
+* Tahun
+* Nama jurnal
+* Volume
+* Nomor
+* DOI (jika ada)
+* URL asli
+* Status validasi
+* Digunakan pada BAB mana
+
+Sediakan tombol:
+
+* Buka Link
+* Cari Referensi Baru
+* Perbarui Referensi
+* Generate Ulang Daftar Pustaka
+
+Referensi harus tersimpan pada database.
+
+Bukan hanya ditampilkan di daftar pustaka.
+
+---
+
+## 4. Lampiran
+
+Semua file upload ditampilkan di sini.
+
+---
+
+## 5. Riwayat Versi
+
+Semua revisi menghasilkan versi baru.
+
+Contoh:
+
+Versi 1
+
+↓
+
+Versi 2
+
+↓
+
+Versi 3
+
+↓
+
+Final
+
+Jangan pernah overwrite dokumen lama.
+
+---
+
+## 6. Timeline Aktivitas
+
+Contoh:
+
+08:10
+Instruksi diupload
+
+08:12
+AI menganalisis
+
+08:15
+Outline selesai
+
+08:21
+BAB I selesai
+
+08:30
+BAB II selesai
+
+08:45
+Referensi diperbarui
+
+09:00
+DOCX selesai
+
+09:10
+User meminta revisi
+
+09:13
+Revisi selesai
+
+---
+
+# Progress
+
+Progress pengerjaan harus terlihat.
+
+Misalnya:
+
+✓ Analisis Instruksi
+
+✓ Membuat Outline
+
+✓ Mencari Referensi
+
+✓ Menulis BAB I
+
+✓ Menulis BAB II
+
+✓ Menulis BAB III
+
+✓ Daftar Pustaka
+
+✓ Export
+
+---
+
+# Context Project
+
+Setiap Project harus memiliki Context sendiri.
+
+Misalnya:
+
+* Instruksi dosen
+* Metadata hasil analisis
+* Referensi
+* Dokumen terbaru
+* Riwayat versi
+* Ringkasan chat
+* Lampiran
+
+Saat user mengirim prompt baru, backend harus mengirim konteks project tersebut.
+
+Jangan hanya mengirim prompt terakhir.
+
+Namun jangan juga mengirim seluruh riwayat chat mentah setiap kali request.
+
+Gunakan ringkasan konteks agar hemat token.
+
+---
+
+# Metadata Project
+
+Setelah AI menganalisis instruksi, simpan hasil analisis.
+
+Contohnya:
+
+* Judul
+* Mata kuliah
+* Jenis tugas
+* Format sitasi
+* Bahasa
+* Minimal referensi
+* Tahun referensi
+* Status
+
+Metadata digunakan sebagai context permanen project.
+
+---
+
+# AI Job
+
+Jangan membuat satu request besar.
+
+Pisahkan menjadi job.
+
+Urutan:
+
+1. Analisis Instruksi
+
+2. Membuat Outline
+
+3. Mencari Referensi
+
+4. Menulis BAB
+
+5. Membuat Sitasi
+
+6. Membuat Daftar Pustaka
+
+7. Export
+
+Setiap job memiliki status sendiri.
+
+---
+
+# Database
+
+Buat struktur database yang baik.
+
+Minimal terdapat tabel:
+
+projects
+
+messages
+
+documents
+
+document_versions
+
+references
+
+attachments
+
+activities
+
+jobs
+
+exports
+
+project_metadata
+
+Semua tabel harus berelasi menggunakan project_id.
+
+---
+
+# AI
+
+Buat service AI yang mudah diganti modelnya.
+
+Gunakan konfigurasi melalui file .env.
+
+Contoh:
+
+AI_PROVIDER=
+
+AI_BASE_URL=
+
+AI_API_KEY=
+
+AI_MODEL=
+
+Biarkan nilainya kosong.
+
+Jangan mengisi token.
+
+Jangan mengisi URL.
+
+Jangan menggunakan API hardcoded.
+
+---
+
+# Struktur Prompt AI
+
+Seluruh prompt AI harus dipisahkan dari controller.
+
+Contoh:
+
+app/AI/Prompts/
+
+system.md
+
+analyze.md
+
+outline.md
+
+writing.md
+
+revision.md
+
+references.md
+
+Jangan menulis prompt langsung di controller.
+
+---
+
+# Aturan AI (System Prompt)
+
+Siapkan system prompt yang menginstruksikan AI agar:
+
+* Selalu menggunakan Bahasa Indonesia.
+* Memahami instruksi dosen secara otomatis.
+* Menentukan struktur karya ilmiah secara otomatis.
+* Menghasilkan tulisan akademik yang natural dan mengalir.
+* Menggunakan variasi kalimat sehingga tidak terasa seperti template.
+* Menghindari pengulangan frasa yang berlebihan.
+* Menghasilkan paragraf yang saling terhubung secara logis.
+* Mengutamakan kualitas akademik dan keterbacaan.
+* Tidak membuat referensi fiktif.
+* Hanya menggunakan referensi yang dapat diverifikasi.
+* Mengutamakan referensi Indonesia apabila tersedia dan sesuai dengan topik.
+* Menggunakan referensi yang relevan dengan permintaan tugas.
+* Menjelaskan apabila referensi yang diminta tidak ditemukan daripada mengarang.
+* Mengingat konteks project saat melakukan revisi.
+* Saat revisi, selalu menggunakan versi dokumen terbaru.
+
+---
+
+# Output
+
+Minimal mendukung:
+
+* DOCX
+* PDF
+* Markdown
+
+---
+
+# UI
+
+Gunakan desain modern, bersih, profesional.
+
+Prioritaskan:
+
+* Mudah digunakan
+* Responsif
+* Tidak terlalu banyak warna
+* Tampilan mirip aplikasi workspace modern
+
+---
+
+# Kualitas Kode
+
+* Gunakan Service Layer.
+* Gunakan Repository Pattern bila diperlukan.
+* Hindari kode duplikat.
+* Ikuti best practice Laravel.
+* Berikan komentar hanya jika benar-benar diperlukan.
+* Struktur folder harus rapi dan mudah dikembangkan.
+* Jangan membuat kode yang sulit dipelihara.
+
+---
+
+# Tujuan Akhir
+
+Hasil akhirnya harus berupa aplikasi **AI Academic Workspace**, bukan chatbot biasa.
+
+Fokus utama aplikasi adalah:
+
+* Mengelola tugas kuliah dalam bentuk Project.
+* Menyimpan seluruh konteks setiap Project.
+* Memiliki AI khusus pada setiap Project.
+* Mendukung proses dari instruksi dosen hingga dokumen final.
+* Mendukung revisi tanpa kehilangan riwayat.
+* Menyimpan referensi yang valid dan dapat ditelusuri.
+* Menghasilkan dokumen ilmiah berkualitas tinggi dengan bahasa Indonesia yang natural, sesuai kaidah akademik, dan mudah dibaca.
