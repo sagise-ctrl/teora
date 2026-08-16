@@ -9,6 +9,102 @@ import * as zod from 'zod';
 
 
 /**
+ * @summary Get current authenticated user
+ */
+export const GetCurrentUserResponse = zod.object({
+  "id": zod.string(),
+  "email": zod.string(),
+  "displayName": zod.string().nullish(),
+  "avatarUrl": zod.string().nullish(),
+  "isOwner": zod.boolean(),
+  "referralCode": zod.string().nullish().describe('Unique referral code this user can share'),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Exchange Supabase token for server session
+ */
+export const LoginBody = zod.object({
+  "access_token": zod.string(),
+  "refresh_token": zod.string().optional()
+})
+
+export const LoginResponse = zod.object({
+  "id": zod.string(),
+  "email": zod.string(),
+  "displayName": zod.string().nullish(),
+  "avatarUrl": zod.string().nullish(),
+  "isOwner": zod.boolean(),
+  "referralCode": zod.string().nullish().describe('Unique referral code this user can share'),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Create a new account
+ */
+export const registerBodyEmailRegExp = new RegExp('^[^@]+@[^@]+\\.[^@]+$');
+export const registerBodyPasswordMin = 6;
+
+
+
+export const RegisterBody = zod.object({
+  "email": zod.string().regex(registerBodyEmailRegExp),
+  "password": zod.string().min(registerBodyPasswordMin),
+  "displayName": zod.string().optional(),
+  "referralCode": zod.string().optional().describe('Optional referral code used during registration')
+})
+
+export const RegisterResponse = zod.object({
+  "id": zod.string(),
+  "email": zod.string(),
+  "displayName": zod.string().nullish(),
+  "avatarUrl": zod.string().nullish(),
+  "isOwner": zod.boolean(),
+  "referralCode": zod.string().nullish().describe('Unique referral code this user can share'),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Sign out and clear session
+ */
+export const LogoutResponse = zod.unknown()
+
+
+/**
+ * @summary Refresh access token
+ */
+export const RefreshTokenResponse = zod.unknown()
+
+
+/**
+ * @summary Get referral stats and list for current user
+ */
+export const GetReferralsResponse = zod.object({
+  "stats": zod.object({
+  "total": zod.number().optional(),
+  "pending": zod.number().optional(),
+  "verified": zod.number().optional(),
+  "qualified": zod.number().optional(),
+  "rewarded": zod.number().optional(),
+  "rejected": zod.number().optional()
+}).optional(),
+  "referrals": zod.array(zod.object({
+  "id": zod.number(),
+  "referrerId": zod.string(),
+  "referredId": zod.string(),
+  "referredEmail": zod.string().optional(),
+  "referralCode": zod.string(),
+  "status": zod.enum(['pending', 'verified', 'qualified', 'rewarded', 'rejected']),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date().optional()
+})).optional()
+})
+
+
+/**
  * Returns server health status
  * @summary Health check
  */

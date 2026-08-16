@@ -5,6 +5,37 @@
  * AI Academic Workspace API
  * OpenAPI spec version: 0.1.0
  */
+export interface AuthUser {
+  id: string;
+  email: string;
+  /** @nullable */
+  displayName?: string | null;
+  /** @nullable */
+  avatarUrl?: string | null;
+  isOwner: boolean;
+  /**
+     * Unique referral code this user can share
+     * @nullable
+     */
+  referralCode?: string | null;
+  createdAt: string;
+}
+
+export interface LoginRequest {
+  access_token: string;
+  refresh_token?: string;
+}
+
+export interface RegisterRequest {
+  /** @pattern ^[^@]+@[^@]+\.[^@]+$ */
+  email: string;
+  /** @minLength 6 */
+  password: string;
+  displayName?: string;
+  /** Optional referral code used during registration */
+  referralCode?: string;
+}
+
 export interface HealthStatus {
   status: string;
 }
@@ -329,6 +360,72 @@ export const ExportInputFormat = {
 export interface ExportInput {
   format: ExportInputFormat;
   documentVersionId?: number;
+}
+
+export type ReferralStatus = typeof ReferralStatus[keyof typeof ReferralStatus];
+
+
+export const ReferralStatus = {
+  pending: 'pending',
+  verified: 'verified',
+  qualified: 'qualified',
+  rewarded: 'rewarded',
+  rejected: 'rejected',
+} as const;
+
+export interface Referral {
+  id: number;
+  referrerId: string;
+  referredId: string;
+  referredEmail?: string;
+  referralCode: string;
+  status: ReferralStatus;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export type ReferralEventActorType = typeof ReferralEventActorType[keyof typeof ReferralEventActorType];
+
+
+export const ReferralEventActorType = {
+  system: 'system',
+  user: 'user',
+  admin: 'admin',
+} as const;
+
+/**
+ * @nullable
+ */
+export type ReferralEventMetadata = { [key: string]: unknown } | null;
+
+export interface ReferralEvent {
+  id: number;
+  referralId: number;
+  /** @nullable */
+  actorId?: string | null;
+  actorType: ReferralEventActorType;
+  /** @nullable */
+  fromStatus?: string | null;
+  toStatus: string;
+  /** @nullable */
+  reason?: string | null;
+  /** @nullable */
+  metadata?: ReferralEventMetadata;
+  createdAt: string;
+}
+
+export interface ReferralStats {
+  total?: number;
+  pending?: number;
+  verified?: number;
+  qualified?: number;
+  rewarded?: number;
+  rejected?: number;
+}
+
+export interface ReferralListResponse {
+  stats?: ReferralStats;
+  referrals?: Referral[];
 }
 
 export type ListProjectsParams = {

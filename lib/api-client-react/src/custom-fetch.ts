@@ -29,6 +29,15 @@ export function setBaseUrl(url: string | null): void {
   _baseUrl = url ? url.replace(/\/+$/, "") : null;
 }
 
+function resolveBaseUrl(): string | null {
+  const env = (import.meta as unknown as Record<string, Record<string, string>>).env;
+  const baseUrl = env?.VITE_API_URL ?? null;
+  return typeof baseUrl === "string" && baseUrl.length > 0 ? baseUrl : null;
+}
+
+// Apply base URL from env at module load time
+setBaseUrl(resolveBaseUrl());
+
 /**
  * Register a getter that supplies a bearer auth token.  Before every fetch
  * the getter is invoked; when it returns a non-null string, an
