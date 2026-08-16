@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Teora - Academic Excellence Empowered by AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&amp;family=Inter:wght@400;600&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "surface-container-low": "#f6f3f5",
+                "on-primary-fixed": "#131b2e",
+                "on-secondary-fixed-variant": "#004395",
+                "error": "#ba1a1a",
+                "on-error": "#ffffff",
+                "secondary-fixed-dim": "#adc6ff",
+                "surface-container-high": "#eae7e9",
+                "surface-dim": "#dcd9db",
+                "primary-fixed-dim": "#bec6e0",
+                "tertiary-container": "#271901",
+                "on-primary-container": "#7c839b",
+                "error-container": "#ffdad6",
+                "inverse-primary": "#bec6e0",
+                "surface-variant": "#e4e2e4",
+                "surface-container": "#f0edef",
+                "primary-fixed": "#dae2fd",
+                "tertiary-fixed-dim": "#dec29a",
+                "tertiary-fixed": "#fcdeb5",
+                "on-tertiary-container": "#98805d",
+                "on-tertiary-fixed": "#271901",
+                "on-background": "#1b1b1d",
+                "secondary-fixed": "#d8e2ff",
+                "surface-muted": "#F8FAFC",
+                "surface": "#fcf8fa",
+                "on-secondary-container": "#fefcff",
+                "on-primary": "#ffffff",
+                "outline-variant": "#c6c6cd",
+                "primary-container": "#131b2e",
+                "inverse-on-surface": "#f3f0f2",
+                "tertiary": "#000000",
+                "secondary": "#0058be",
+                "on-surface-variant": "#45464d",
+                "on-secondary": "#ffffff",
+                "secondary-container": "#2170e4",
+                "outline": "#76777d",
+                "surface-bright": "#fcf8fa",
+                "surface-tint": "#565e74",
+                "accent-gradient-start": "#2D79FF",
+                "surface-container-lowest": "#ffffff",
+                "on-tertiary-fixed-variant": "#574425",
+                "surface-container-highest": "#e4e2e4",
+                "inverse-surface": "#303032",
+                "on-surface": "#1b1b1d",
+                "background": "#fcf8fa",
+                "accent-gradient-end": "#8E54E9",
+                "on-secondary-fixed": "#001a42",
+                "on-tertiary": "#ffffff",
+                "primary": "#000000",
+                "emerald-success": "#10B981",
+                "on-primary-fixed-variant": "#3f465c",
+                "on-error-container": "#93000a"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+        },
+        "spacing": {
+                "xl": "64px",
+                "sm": "16px",
+                "md": "24px",
+                "margin-desktop": "48px",
+                "base": "4px",
+                "xs": "8px",
+                "gutter": "24px",
+                "margin-mobile": "16px",
+                "lg": "40px"
+        },
+        "fontFamily": {
+                "body-md": [
+                        "Inter"
+                ],
+                "headline-lg-mobile": [
+                        "\"Source Serif 4\""
+                ],
+                "body-sm": [
+                        "Inter"
+                ],
+                "body-lg": [
+                        "Inter"
+                ],
+                "headline-lg": [
+                        "\"Source Serif 4\""
+                ],
+                "headline-md": [
+                        "\"Source Serif 4\""
+                ],
+                "code-sm": [
+                        "JetBrains Mono"
+                ],
+                "label-md": [
+                        "Hanken Grotesk"
+                ],
+                "display-lg": [
+                        "\"Source Serif 4\""
+                ]
+        },
+        "fontSize": {
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "26px",
+                        {
+                                "lineHeight": "34px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "body-sm": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-lg": [
+                        "32px",
+                        {
+                                "lineHeight": "40px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "code-sm": [
+                        "13px",
+                        {
+                                "lineHeight": "20px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "label-md": [
+                        "13px",
+                        {
+                                "lineHeight": "16px",
+                                "letterSpacing": "0.08em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "display-lg": [
+                        "48px",
+                        {
+                                "lineHeight": "56px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "700"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Ambient subtle gradient for hero */
+        .hero-gradient {
+            background: radial-gradient(circle at top right, rgba(45, 121, 255, 0.1) 0%, transparent 60%),
+                        radial-gradient(circle at bottom left, rgba(142, 84, 233, 0.05) 0%, transparent 50%);
+        }
+        
+        /* Refined shadow for interactive cards */
+        .card-hover-shadow:hover {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-surface text-[#0f172a] font-body-md antialiased selection:bg-accent-gradient-start selection:text-white">
+<!-- Navigation -->
+<nav class="fixed top-0 w-full z-50 flex justify-between items-center px-gutter py-sm max-w-screen-2xl mx-auto bg-surface-container-lowest border-b border-outline-variant shadow-sm transition-all duration-200 active:scale-95">
+<div class="flex items-center gap-sm">
+<img alt="Teora Logo" class="h-8 w-8 object-contain rounded-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2_CpXNw8hlDJPTI0jJ5Mct7KPXxxjr61Xu79b3y_5Jn5DrQKz7XQ2YanHcFQ0gT9SWmg6ciD_kihigxUWK686NZVKfkr8_YAyOlyWC3o83G9iIiJDBqsIhCQ4yQrSvaZY5KD9wqYd6x8HYX7IiRKYlRRb8B1Re4ocDEfQI3z0xYWZnLpiTriZi4dgXqLXK8mnjf34LE7xZHV5btXjEge03IqfDEGTWG2OyX2p7HP9kbZeHC8ENP5buG8bG-DfTHkTLA"/>
+<span class="font-headline-md text-headline-md font-bold text-[#0f172a]">Teora</span>
+</div>
+<div class="hidden md:flex items-center gap-md">
+<a class="text-slate-600 font-label-md text-label-md hover:text-accent-gradient-start transition-colors" href="#">Tools</a>
+<a class="text-slate-600 font-label-md text-label-md hover:text-accent-gradient-start transition-colors" href="#">Library</a>
+<a class="text-slate-600 font-label-md text-label-md hover:text-accent-gradient-start transition-colors" href="#">Community</a>
+</div>
+<div class="flex items-center gap-sm">
+<button class="hidden md:block px-sm py-xs text-slate-600 hover:text-accent-gradient-start font-label-md text-label-md transition-colors">Sign In</button>
+<button class="bg-gradient-to-r from-accent-gradient-start to-accent-gradient-end text-white px-md py-xs rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity">Get Started</button>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="pt-[88px]"> <!-- Offset for fixed nav -->
+<!-- Hero Section -->
+<section class="relative min-h-[80vh] flex items-center justify-center hero-gradient px-gutter overflow-hidden">
+<div class="max-w-4xl mx-auto text-center z-10">
+<div class="inline-flex items-center gap-xs px-sm py-xs rounded-full bg-white text-slate-600 mb-lg font-label-md text-label-md shadow-sm border border-outline-variant">
+<span class="material-symbols-outlined text-accent-gradient-start text-[16px]">bolt</span>
+                    Accelerate your academic research
+                </div>
+<h1 class="font-display-lg text-display-lg md:text-[64px] md:leading-[72px] font-bold text-[#0f172a] mb-md tracking-tight">
+                    Master Academia with <br class="hidden md:block"/><span class="text-transparent bg-clip-text bg-gradient-to-r from-accent-gradient-start to-accent-gradient-end">Intelligent Assistance</span>
+</h1>
+<p class="font-body-lg text-body-lg text-slate-600 max-w-2xl mx-auto mb-xl">
+                    Teora is the definitive AI copilot for students and researchers. Instantly outline papers, draft proposals, and manage academic tasks with unprecedented precision.
+                </p>
+<div class="flex flex-col sm:flex-row items-center justify-center gap-sm">
+<button class="w-full sm:w-auto bg-gradient-to-r from-accent-gradient-start to-accent-gradient-end text-white px-xl py-sm rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity shadow-sm flex items-center justify-center gap-xs">
+                        Start Generating
+                        <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<button class="w-full sm:w-auto bg-transparent border border-outline-variant text-[#0f172a] px-xl py-sm rounded-lg font-label-md text-label-md hover:bg-slate-50 transition-colors flex items-center justify-center gap-xs">
+<span class="material-symbols-outlined">play_circle</span>
+                        View Demo
+                    </button>
+</div>
+<div class="mt-xl pt-lg border-t border-outline-variant flex flex-wrap justify-center gap-xl opacity-80">
+<div class="flex items-center gap-xs text-slate-600 font-label-md text-label-md"><span class="material-symbols-outlined text-accent-gradient-start">check_circle</span> Plagiarism-free guarantees</div>
+<div class="flex items-center gap-xs text-slate-600 font-label-md text-label-md"><span class="material-symbols-outlined text-accent-gradient-start">check_circle</span> APA/MLA Formatting</div>
+<div class="flex items-center gap-xs text-slate-600 font-label-md text-label-md"><span class="material-symbols-outlined text-accent-gradient-start">check_circle</span> 24/7 Access</div>
+</div>
+</div>
+<!-- Abstract background decorative elements -->
+<div class="absolute top-20 right-10 w-64 h-64 bg-accent-gradient-start rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse"></div>
+<div class="absolute bottom-20 left-10 w-72 h-72 bg-accent-gradient-end rounded-full mix-blend-multiply filter blur-3xl opacity-5"></div>
+</section>
+<!-- Features Bento Grid -->
+<section class="py-[120px] px-gutter bg-surface-container-lowest">
+<div class="max-w-screen-xl mx-auto">
+<div class="mb-xl max-w-2xl">
+<h2 class="font-headline-lg text-headline-lg font-semibold text-[#0f172a] mb-sm">Comprehensive Tools for Rigorous Work</h2>
+<p class="font-body-lg text-body-lg text-slate-600">Everything you need to navigate the complexities of higher education, unified in one powerful platform.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<!-- Feature 1: Large Span -->
+<div class="col-span-1 md:col-span-2 bg-white border border-outline-variant rounded-xl p-lg card-hover-shadow relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-accent-gradient-start opacity-5 rounded-bl-full transition-transform group-hover:scale-110"></div>
+<div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center mb-md border border-blue-100">
+<span class="material-symbols-outlined text-accent-gradient-start text-[24px]">article</span>
+</div>
+<h3 class="font-headline-md text-headline-md font-semibold text-[#0f172a] mb-xs">Intelligent Paper Writer</h3>
+<p class="font-body-md text-body-md text-slate-600 mb-md max-w-md">Input your thesis statement and let Teora generate comprehensive, well-structured outlines and draft paragraphs grounded in academic principles.</p>
+<div class="mt-auto pt-sm border-t border-outline-variant flex items-center gap-sm">
+<span class="px-xs py-[2px] bg-slate-50 text-slate-500 border border-outline-variant text-[12px] rounded font-code-sm">Drafting</span>
+<span class="px-xs py-[2px] bg-slate-50 text-slate-500 border border-outline-variant text-[12px] rounded font-code-sm">Citations</span>
+</div>
+</div>
+<!-- Feature 2 -->
+<div class="bg-white border border-outline-variant rounded-xl p-lg card-hover-shadow flex flex-col">
+<div class="w-12 h-12 bg-purple-50 rounded-lg flex items-center justify-center mb-md border border-purple-100">
+<span class="material-symbols-outlined text-accent-gradient-end text-[24px]">description</span>
+</div>
+<h3 class="font-headline-md text-headline-md font-semibold text-[#0f172a] mb-xs text-[20px] leading-[28px]">Proposal Creator</h3>
+<p class="font-body-md text-body-md text-slate-600 mb-md flex-grow">Generate robust research proposals, defining methodologies, literature reviews, and timelines with precision.</p>
+<a class="text-accent-gradient-start font-label-md text-label-md flex items-center gap-xs hover:underline mt-auto" href="#">Learn more <span class="material-symbols-outlined text-[16px]">arrow_forward</span></a>
+</div>
+<!-- Feature 3 -->
+<div class="bg-white border border-outline-variant rounded-xl p-lg card-hover-shadow flex flex-col">
+<div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center mb-md border border-blue-100">
+<span class="material-symbols-outlined text-accent-gradient-start text-[24px]">task_alt</span>
+</div>
+<h3 class="font-headline-md text-headline-md font-semibold text-[#0f172a] mb-xs text-[20px] leading-[28px]">Task Helper</h3>
+<p class="font-body-md text-body-md text-slate-600 mb-md flex-grow">Break down complex assignments into manageable milestones with AI-suggested deadlines and resource tracking.</p>
+</div>
+<!-- Feature 4: Interactive Code/Data Card -->
+<div class="col-span-1 md:col-span-2 bg-[#0F172A] border border-[#1e293b] rounded-xl p-lg card-hover-shadow relative overflow-hidden flex flex-col md:flex-row items-center gap-lg">
+<div class="flex-1 z-10">
+<div class="w-12 h-12 bg-[#1e293b] rounded-lg flex items-center justify-center mb-md border border-[#334155]">
+<span class="material-symbols-outlined text-accent-gradient-start text-[24px]">data_exploration</span>
+</div>
+<h3 class="font-headline-md text-headline-md font-semibold text-white mb-xs">Data Synthesis Engine</h3>
+<p class="font-body-md text-body-md text-[#94a3b8] mb-md">Upload raw datasets or PDFs. Teora instantly extracts key findings, formats tables, and suggests statistical correlations for your methodology section.</p>
+<button class="bg-white text-[#0F172A] px-sm py-xs rounded font-label-md text-label-md hover:bg-gray-100 transition-colors">Try Beta Feature</button>
+</div>
+<div class="w-full md:w-1/2 bg-[#020617] rounded-lg p-md border border-[#334155] font-code-sm text-[13px] text-[#94a3b8] shadow-inner relative">
+<div class="absolute top-2 left-2 flex gap-1.5">
+<div class="w-2.5 h-2.5 rounded-full bg-red-500/50"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-yellow-500/50"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-green-500/50"></div>
+</div>
+<pre class="mt-4 overflow-x-auto"><code class="language-json">
+{
+  "analysis": "completed",
+  "key_findings": [
+    "P-value &lt; 0.05",
+    "Strong correlation observed"
+  ],
+  "suggested_citation": "Teora. (2024)."
+}
+                            </code></pre>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- How It Works (Process Flow) -->
+<section class="py-[120px] px-gutter bg-surface relative">
+<div class="max-w-screen-xl mx-auto">
+<div class="text-center mb-[80px]">
+<h2 class="font-headline-lg text-headline-lg font-semibold text-[#0f172a] mb-sm">A Streamlined Workflow</h2>
+<p class="font-body-lg text-body-lg text-slate-600 max-w-2xl mx-auto">From conceptualization to final draft, Teora accelerates every phase of academic production.</p>
+</div>
+<div class="flex flex-col md:flex-row gap-lg md:gap-gutter relative">
+<!-- Connecting Line -->
+<div class="hidden md:block absolute top-[40px] left-[10%] right-[10%] h-px bg-outline-variant z-0"></div>
+<!-- Step 1 -->
+<div class="flex-1 relative z-10 flex flex-col items-center text-center">
+<div class="w-20 h-20 rounded-full bg-white border-4 border-surface shadow-sm flex items-center justify-center mb-md relative">
+<div class="absolute inset-0 rounded-full border-2 border-accent-gradient-start opacity-20"></div>
+<span class="material-symbols-outlined text-accent-gradient-start text-[32px]">prompt_suggestion</span>
+</div>
+<h4 class="font-headline-md text-[20px] leading-[28px] font-semibold text-[#0f172a] mb-xs">1. Define Prompt</h4>
+<p class="font-body-md text-body-md text-slate-600">Input your academic topic, required word count, and formatting style.</p>
+</div>
+<!-- Step 2 -->
+<div class="flex-1 relative z-10 flex flex-col items-center text-center">
+<div class="w-20 h-20 rounded-full bg-white border-4 border-surface shadow-sm flex items-center justify-center mb-md relative">
+<div class="absolute inset-0 rounded-full border-2 border-accent-gradient-end opacity-20"></div>
+<span class="material-symbols-outlined text-accent-gradient-end text-[32px]">account_tree</span>
+</div>
+<h4 class="font-headline-md text-[20px] leading-[28px] font-semibold text-[#0f172a] mb-xs">2. Generate Outline</h4>
+<p class="font-body-md text-body-md text-slate-600">Review and refine the AI-generated structural blueprint for your paper.</p>
+</div>
+<!-- Step 3 -->
+<div class="flex-1 relative z-10 flex flex-col items-center text-center">
+<div class="w-20 h-20 rounded-full bg-gradient-to-r from-accent-gradient-start to-accent-gradient-end border-4 border-surface shadow-sm flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-white text-[32px]">done_all</span>
+</div>
+<h4 class="font-headline-md text-[20px] leading-[28px] font-semibold text-[#0f172a] mb-xs">3. Finalize Draft</h4>
+<p class="font-body-md text-body-md text-slate-600">Export a polished, rigorously structured draft ready for your final citations and review.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="py-[120px] px-gutter bg-surface-container-lowest border-t border-outline-variant">
+<div class="max-w-4xl mx-auto text-center bg-slate-50 rounded-xl p-[64px] border border-outline-variant relative overflow-hidden">
+<!-- Abstract BG for CTA -->
+<div class="absolute inset-0 opacity-30" style="background-image: radial-gradient(#94a3b8 1px, transparent 1px); background-size: 20px 20px;"></div>
+<div class="relative z-10">
+<h2 class="font-headline-lg text-headline-lg font-bold text-[#0f172a] mb-sm">Elevate Your Academic Output Today</h2>
+<p class="font-body-lg text-body-lg text-slate-600 mb-xl max-w-xl mx-auto">Join thousands of students and researchers leveraging Teora to produce higher quality work in less time.</p>
+<div class="flex flex-col sm:flex-row items-center justify-center gap-sm">
+<button class="w-full sm:w-auto bg-gradient-to-r from-accent-gradient-start to-accent-gradient-end text-white px-xl py-md rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity shadow-sm text-[16px]">
+                            Create Free Account
+                        </button>
+<span class="text-slate-600 font-body-sm text-body-sm mx-sm">or</span>
+<a class="text-accent-gradient-start font-label-md text-label-md hover:underline flex items-center gap-xs" href="#">
+                            View Pricing <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+</a>
+</div>
+<div class="mt-lg pt-lg border-t border-outline-variant/50">
+<p class="font-code-sm text-code-sm text-slate-500">No credit card required for standard tier. 850 complimentary tokens upon signup.</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer Component -->
+<footer class="w-full py-xl px-gutter flex flex-col md:flex-row justify-between items-center gap-md bg-white border-t border-outline-variant">
+<div class="flex items-center gap-xs"><img alt="Teora Logo" class="h-8 w-8 object-contain rounded-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA76bGzPx5Rbyv5JMBVT1FMJ9HoNiE89Bgla-Y5-iFe62K6N90okPddRLRofmnWBUxvqN913E2A8uVj3DNMYDoEdJllLL9aAxzDms8s86oEJPupronKz3gW3QAMZ1LFALTdJ51JTTam4gdE33LNIADyRh2CApapcFccDuJ9zB0uUghhvqaHxu0FbFSf7WsSc2K1qqmOn7FHUVFMPueirwE4fI6yFiL6QbOOf3RNNLavTgGvKSmlVTlEmx77Pmj-LOzv-Q"/><span class="font-headline-lg-mobile text-headline-lg-mobile text-[#0f172a] font-bold">Teora</span></div>
+<p class="font-body-sm text-body-sm text-slate-600 text-center md:text-left">© 2024 Teora - Empowering Academic Excellence</p>
+<div class="flex flex-wrap justify-center gap-md">
+<a class="font-body-sm text-body-sm text-slate-600 hover:text-accent-gradient-start transition-colors" href="#">Referral Program</a>
+<a class="font-body-sm text-body-sm text-slate-600 hover:text-accent-gradient-start transition-colors" href="#">Help Center</a>
+<a class="font-body-sm text-body-sm text-slate-600 hover:text-accent-gradient-start transition-colors" href="#">API Docs</a>
+<a class="font-body-sm text-body-sm text-slate-600 hover:text-accent-gradient-start transition-colors" href="#">Privacy Policy</a>
+</div>
+</footer>
+</body></html>

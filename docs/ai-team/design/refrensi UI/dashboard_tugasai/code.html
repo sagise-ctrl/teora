@@ -1,0 +1,272 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>TugasAI - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&amp;family=Inter:wght@400;600&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                            "primary-container": "#131b2e",
+                            "secondary": "#006c49",
+                            "tertiary-container": "#001a42",
+                            "on-surface-variant": "#45464d",
+                            "inverse-on-surface": "#eaf1ff",
+                            "surface-container": "#e5eeff",
+                            "on-primary-fixed-variant": "#3f465c",
+                            "error-container": "#ffdad6",
+                            "surface-container-high": "#dce9ff",
+                            "on-tertiary-container": "#3980f4",
+                            "on-error-container": "#93000a",
+                            "on-tertiary": "#ffffff",
+                            "tertiary-fixed": "#d8e2ff",
+                            "background": "#f8f9ff",
+                            "on-secondary-fixed": "#002113",
+                            "error": "#ba1a1a",
+                            "tertiary": "#000000",
+                            "outline-variant": "#c6c6cd",
+                            "inverse-primary": "#bec6e0",
+                            "on-primary-container": "#7c839b",
+                            "inverse-surface": "#213145",
+                            "surface-container-highest": "#d3e4fe",
+                            "on-primary-fixed": "#131b2e",
+                            "on-error": "#ffffff",
+                            "primary": "#000000",
+                            "surface-container-low": "#eff4ff",
+                            "on-secondary-container": "#00714d",
+                            "on-secondary": "#ffffff",
+                            "tertiary-fixed-dim": "#adc6ff",
+                            "outline": "#76777d",
+                            "surface-container-lowest": "#ffffff",
+                            "surface-bright": "#f8f9ff",
+                            "on-secondary-fixed-variant": "#005236",
+                            "primary-fixed": "#dae2fd",
+                            "surface": "#f8f9ff",
+                            "on-background": "#0b1c30",
+                            "on-tertiary-fixed-variant": "#004395",
+                            "surface-dim": "#cbdbf5",
+                            "primary-fixed-dim": "#bec6e0",
+                            "on-primary": "#ffffff",
+                            "secondary-fixed": "#6ffbbe",
+                            "secondary-container": "#6cf8bb",
+                            "surface-variant": "#d3e4fe",
+                            "on-tertiary-fixed": "#001a42",
+                            "on-surface": "#0b1c30",
+                            "surface-tint": "#565e74",
+                            "secondary-fixed-dim": "#4edea3"
+                    },
+                    "borderRadius": {
+                            "DEFAULT": "0.125rem",
+                            "lg": "0.25rem",
+                            "xl": "0.5rem",
+                            "full": "0.75rem"
+                    },
+                    "spacing": {
+                            "gutter": "24px",
+                            "sm": "16px",
+                            "xs": "8px",
+                            "margin-desktop": "48px",
+                            "xl": "64px",
+                            "margin-mobile": "16px",
+                            "lg": "40px",
+                            "base": "4px",
+                            "md": "24px"
+                    },
+                    "fontFamily": {
+                            "headline-lg": ["Montserrat"],
+                            "display-lg": ["Montserrat"],
+                            "headline-lg-mobile": ["Montserrat"],
+                            "body-lg": ["Inter"],
+                            "label-md": ["Inter"],
+                            "code-sm": ["JetBrains Mono"],
+                            "body-sm": ["Inter"],
+                            "headline-md": ["Montserrat"],
+                            "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                            "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                            "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                            "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                            "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                            "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                            "code-sm": ["13px", {"lineHeight": "20px", "fontWeight": "400"}],
+                            "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                            "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                            "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex selection:bg-surface-dim selection:text-on-surface">
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col h-screen sticky top-0 p-md gap-md bg-surface dark:bg-primary-container border-r border-outline-variant dark:border-outline w-64 flex-shrink-0 z-40">
+<!-- Brand / Header -->
+<div class="flex items-center gap-sm mb-md">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDri2476KK_6WXIZo7A30XXCVcWcFn7N3K20Lq0z8utf7SH1EsJqVM-1t7r-21KlP8Crr3enYNqd8RLs2TVbkG2omNoJZpP9rberlvI5c8BkhmIXiXjzC6JbycLxLqClugBibFuEgmo6r7tMS6vCXv0B3oq2BhrX7Hf2JbDrl1PB-tfg9LXNEn3Al9nVyjjCxBaaDb6BIgJQgW9CRCeJfxb0LI5gaOz04AIyCod_uJxYhz9KLG4hOcwwvpBIWo2PuZvWQ" alt="Teora Logo">
+</div>
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md text-on-surface text-lg">Teora</span>
+<span class="font-label-md text-label-md text-primary dark:text-secondary-fixed-dim text-xs">Premium Plan</span>
+</div>
+</div>
+<!-- Navigation Links -->
+<div class="flex flex-col gap-xs flex-grow">
+<!-- Active: Dashboard -->
+<a class="flex items-center gap-xs bg-secondary-container dark:bg-on-secondary-fixed-variant text-on-secondary-container dark:text-secondary-fixed rounded-xl px-sm py-xs transition-transform duration-150 ease-in-out hover:bg-surface-container-high dark:hover:bg-on-primary-fixed-variant" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center gap-xs text-on-surface-variant dark:text-on-primary-container px-sm py-xs hover:bg-surface-container-high dark:hover:bg-on-primary-fixed-variant rounded-xl transition-transform duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">edit_note</span>
+<span class="font-label-md text-label-md">Task Helper</span>
+</a>
+<a class="flex items-center gap-xs text-on-surface-variant dark:text-on-primary-container px-sm py-xs hover:bg-surface-container-high dark:hover:bg-on-primary-fixed-variant rounded-xl transition-transform duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">article</span>
+<span class="font-label-md text-label-md">Paper Writer</span>
+</a>
+<a class="flex items-center gap-xs text-on-surface-variant dark:text-on-primary-container px-sm py-xs hover:bg-surface-container-high dark:hover:bg-on-primary-fixed-variant rounded-xl transition-transform duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="font-label-md text-label-md">Proposal Creator</span>
+</a>
+<a class="flex items-center gap-xs text-on-surface-variant dark:text-on-primary-container px-sm py-xs hover:bg-surface-container-high dark:hover:bg-on-primary-fixed-variant rounded-xl transition-transform duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-label-md text-label-md">History</span>
+</a>
+</div>
+<!-- CTA & Footer Actions -->
+<div class="mt-auto flex flex-col gap-sm">
+<button class="w-full bg-[#10B981] hover:bg-[#059669] text-white font-label-md text-label-md py-xs px-sm rounded-lg transition-colors flex justify-center items-center gap-xs shadow-sm">
+<span class="material-symbols-outlined text-[18px]">bolt</span>
+                Upgrade Credits
+            </button>
+<div class="h-px bg-outline-variant w-full my-xs"></div>
+<div class="flex flex-col gap-xs">
+<a class="flex items-center gap-xs text-on-surface-variant dark:text-on-primary-container px-sm py-xs hover:bg-surface-container-high dark:hover:bg-on-primary-fixed-variant rounded-xl transition-transform duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-secondary">toll</span>
+<span class="font-label-md text-label-md">Token Balance: 850</span>
+</a>
+<a class="flex items-center gap-xs text-on-surface-variant dark:text-on-primary-container px-sm py-xs hover:bg-surface-container-high dark:hover:bg-on-primary-fixed-variant rounded-xl transition-transform duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-grow flex flex-col h-screen overflow-y-auto w-full md:w-[calc(100%-16rem)] relative">
+<!-- Mobile Header Placeholder (if needed, but task implies dashboard main view) -->
+<div class="md:hidden flex items-center justify-between p-sm border-b border-outline-variant bg-surface sticky top-0 z-30">
+<span class="font-headline-md text-headline-lg-mobile text-on-surface">Teora</span>
+<button class="p-xs text-on-surface-variant"><span class="material-symbols-outlined">menu</span></button>
+</div>
+<div class="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto w-full flex-grow flex flex-col gap-lg">
+<!-- Page Header -->
+<header class="flex flex-col gap-xs">
+<h1 class="font-display-lg text-display-lg md:text-[40px] text-on-surface leading-tight">Welcome back, <br><span class="text-secondary">Teora</span>.</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">What academic challenge are we solving today? Access your specialized AI tools below.</p>
+</header>
+<!-- Dashboard Grid Layout (Bento Grid Style) -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-sm md:gap-md">
+<!-- Token & Quick Stats Card (Spans 4 cols on desktop) -->
+<section class="md:col-span-4 bg-white border border-outline-variant rounded-xl p-md shadow-[0_4px_6px_-1px_rgb(0,0,0,0.05)] flex flex-col justify-between hover:-translate-y-[2px] hover:shadow-[0_10px_15px_-3px_rgb(0,0,0,0.1)] transition-all duration-300 relative overflow-hidden group">
+<!-- Subtle background decoration -->
+<div class="absolute top-0 right-0 w-32 h-32 bg-secondary-container rounded-bl-full opacity-20 -z-10 group-hover:scale-110 transition-transform duration-500"></div>
+<div>
+<div class="flex items-center justify-between mb-sm">
+<h2 class="font-headline-md text-[20px] text-on-surface">Token Balance</h2>
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">toll</span>
+</div>
+<div class="flex items-baseline gap-xs">
+<span class="font-display-lg text-[48px] text-on-surface">850</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">/ 1000</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Resets in 14 days.</p>
+</div>
+<div class="mt-lg">
+<div class="w-full h-[4px] bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-[#3B82F6] to-[#10B981] w-[85%] rounded-full"></div>
+</div>
+<div class="flex justify-between items-center mt-sm">
+<span class="font-label-md text-xs text-on-surface-variant">Usage: 85%</span>
+<button class="text-secondary font-label-md text-label-md hover:underline">Get more</button>
+</div>
+</div>
+</section>
+<!-- Quick Start Area (Spans 8 cols on desktop) -->
+<section class="md:col-span-8 bg-surface-container-low border border-outline-variant rounded-xl p-md shadow-[0_4px_6px_-1px_rgb(0,0,0,0.05)] flex flex-col md:flex-row gap-md items-center relative overflow-hidden">
+<div class="flex-grow z-10 flex flex-col gap-sm">
+<span class="inline-flex items-center gap-xs bg-[#e0e7ff] text-[#4338ca] font-label-md text-[12px] px-2 py-1 rounded w-max">
+<span class="material-symbols-outlined text-[14px]">auto_awesome</span> New
+                        </span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Draft a comprehensive thesis outline in seconds.</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-lg">Leverage our updated LLM fine-tuned specifically for academic structuring and rigorous outlining conventions.</p>
+<button class="mt-xs bg-primary text-white font-label-md text-label-md py-[10px] px-md rounded-lg w-max hover:bg-[#1e293b] transition-colors shadow-sm flex items-center gap-xs">
+                            Start Drafting <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+<!-- Decorative Graphic -->
+<div class="hidden md:block w-48 h-48 rounded-lg overflow-hidden border border-outline-variant/50 flex-shrink-0 z-10 shadow-sm bg-white">
+<img class="w-full h-full object-cover" data-alt="A clean, minimalist 3D rendering of floating academic papers and structural wireframes, interconnected by glowing data lines. Rendered in a high-key light mode style with a soft pastel blue and white palette, accented with subtle emerald green. Represents structured AI generation." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC2r8MFl3YiduuwWjFmZkd8vUvk7YPvt1sKrb8r6TPMTnrNbjxMfCxYm9zz-pQtYIJiL7gOsBlhubqcw4Sy8ORkpEcGlshGntPrbj-AdgNEjYLqpEGHoWz82b_y1cAduIwqdRzn8mk7_sLY1bYygc1IGIAqsoNWvLL6SNyI9nT5RY2lL9kRRrSTldfVUhrTZIX3w0lL0RWcdwgRLd-grHMHUqGBsEh3IgV4DxuGkfvnK1tlrdNhW0_A">
+</div>
+<!-- Abstract Background Pattern -->
+<div class="absolute inset-0 opacity-[0.03] pointer-events-none" style="background-image: radial-gradient(circle at 2px 2px, black 1px, transparent 0); background-size: 24px 24px;"></div>
+</section>
+<!-- Tool 1: Task Helper -->
+<a class="md:col-span-4 bg-white border border-outline-variant rounded-xl p-md shadow-[0_4px_6px_-1px_rgb(0,0,0,0.05)] hover:-translate-y-[2px] hover:shadow-[0_10px_15px_-3px_rgb(0,0,0,0.1)] transition-all duration-300 flex flex-col gap-md group" href="#">
+<div class="w-12 h-12 rounded-lg bg-[#f1f5f9] flex items-center justify-center text-[#334155] group-hover:bg-[#334155] group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[24px]">edit_note</span>
+</div>
+<div>
+<h3 class="font-headline-md text-[20px] text-on-surface mb-xs">Task Helper</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-3">Break down complex assignments, generate summaries, and clarify difficult concepts with context-aware AI assistance.</p>
+</div>
+<div class="mt-auto flex items-center justify-between pt-sm border-t border-outline-variant/30">
+<span class="text-xs font-label-md text-on-surface-variant">Est. 5-10 tokens</span>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">arrow_right_alt</span>
+</div>
+</a>
+<!-- Tool 2: Scientific Paper Writer -->
+<a class="md:col-span-4 bg-white border border-outline-variant rounded-xl p-md shadow-[0_4px_6px_-1px_rgb(0,0,0,0.05)] hover:-translate-y-[2px] hover:shadow-[0_10px_15px_-3px_rgb(0,0,0,0.1)] transition-all duration-300 flex flex-col gap-md group" href="#">
+<div class="w-12 h-12 rounded-lg bg-[#eef2ff] flex items-center justify-center text-[#4f46e5] group-hover:bg-[#4f46e5] group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[24px]">article</span>
+</div>
+<div>
+<h3 class="font-headline-md text-[20px] text-on-surface mb-xs">Scientific Paper Writer</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-3">Draft structured sections (Abstract, Methodology, Discussion) adhering to strict academic formatting and tone guidelines.</p>
+</div>
+<div class="mt-auto flex items-center justify-between pt-sm border-t border-outline-variant/30">
+<span class="text-xs font-label-md text-on-surface-variant">Est. 20-50 tokens</span>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">arrow_right_alt</span>
+</div>
+</a>
+<!-- Tool 3: Proposal Creator -->
+<a class="md:col-span-4 bg-white border border-outline-variant rounded-xl p-md shadow-[0_4px_6px_-1px_rgb(0,0,0,0.05)] hover:-translate-y-[2px] hover:shadow-[0_10px_15px_-3px_rgb(0,0,0,0.1)] transition-all duration-300 flex flex-col gap-md group border-l-4 border-l-secondary" href="#">
+<div class="w-12 h-12 rounded-lg bg-[#ecfdf5] flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[24px]">description</span>
+</div>
+<div>
+<h3 class="font-headline-md text-[20px] text-on-surface mb-xs">Proposal Creator</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-3">Construct persuasive research or project proposals with clear objectives, timelines, and compelling problem statements.</p>
+</div>
+<div class="mt-auto flex items-center justify-between pt-sm border-t border-outline-variant/30">
+<span class="text-xs font-label-md text-on-surface-variant">Est. 15-30 tokens</span>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">arrow_right_alt</span>
+</div>
+</a>
+</div>
+<!-- Footer Spacer -->
+<div class="h-xl"></div>
+</div>
+</main>
+
+
+</body></html>

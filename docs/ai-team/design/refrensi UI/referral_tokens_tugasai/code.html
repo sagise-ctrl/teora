@@ -1,0 +1,431 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Teora - Referral &amp; Pricing</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Montserrat:wght@600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary-container": "#131b2e",
+                      "secondary": "#006c49",
+                      "tertiary-container": "#001a42",
+                      "on-surface-variant": "#45464d",
+                      "inverse-on-surface": "#eaf1ff",
+                      "surface-container": "#e5eeff",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "error-container": "#ffdad6",
+                      "surface-container-high": "#dce9ff",
+                      "on-tertiary-container": "#3980f4",
+                      "on-error-container": "#93000a",
+                      "on-tertiary": "#ffffff",
+                      "tertiary-fixed": "#d8e2ff",
+                      "background": "#f8f9ff",
+                      "on-secondary-fixed": "#002113",
+                      "error": "#ba1a1a",
+                      "tertiary": "#000000",
+                      "outline-variant": "#c6c6cd",
+                      "inverse-primary": "#bec6e0",
+                      "on-primary-container": "#7c839b",
+                      "inverse-surface": "#213145",
+                      "surface-container-highest": "#d3e4fe",
+                      "on-primary-fixed": "#131b2e",
+                      "on-error": "#ffffff",
+                      "primary": "#000000",
+                      "surface-container-low": "#eff4ff",
+                      "on-secondary-container": "#00714d",
+                      "on-secondary": "#ffffff",
+                      "tertiary-fixed-dim": "#adc6ff",
+                      "outline": "#76777d",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-bright": "#f8f9ff",
+                      "on-secondary-fixed-variant": "#005236",
+                      "primary-fixed": "#dae2fd",
+                      "surface": "#f8f9ff",
+                      "on-background": "#0b1c30",
+                      "on-tertiary-fixed-variant": "#004395",
+                      "surface-dim": "#cbdbf5",
+                      "primary-fixed-dim": "#bec6e0",
+                      "on-primary": "#ffffff",
+                      "secondary-fixed": "#6ffbbe",
+                      "secondary-container": "#6cf8bb",
+                      "surface-variant": "#d3e4fe",
+                      "on-tertiary-fixed": "#001a42",
+                      "on-surface": "#0b1c30",
+                      "surface-tint": "#565e74",
+                      "secondary-fixed-dim": "#4edea3"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "gutter": "24px",
+                      "sm": "16px",
+                      "xs": "8px",
+                      "margin-desktop": "48px",
+                      "xl": "64px",
+                      "margin-mobile": "16px",
+                      "lg": "40px",
+                      "base": "4px",
+                      "md": "24px"
+              },
+              "fontFamily": {
+                      "headline-lg": [
+                              "Montserrat"
+                      ],
+                      "display-lg": [
+                              "Montserrat"
+                      ],
+                      "headline-lg-mobile": [
+                              "Montserrat"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "code-sm": [
+                              "JetBrains Mono"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Montserrat"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "code-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #0b1c30 0%, #3980f4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+      </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col antialiased">
+<!-- TopNavBar -->
+<nav class="bg-surface-container-lowest dark:bg-primary-container text-primary dark:text-inverse-primary font-body-md text-body-md docked full-width top-0 border-b border-outline-variant dark:border-outline shadow-sm transition-all duration-200 active:scale-95 fixed top-0 w-full z-50 flex justify-between items-center px-gutter py-sm max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-md">
+<img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAahUR476NGhbMGDJbaCBt-4qr91UG2hTRbwYkPD7OY8_RL5DDbYSVRDQ0Y1oFRvwTmz_qOLTVzT8fwYrqe-7io2aGYMSmhlvOTvxy2L2ijOVjpuVd9R-x3IubwDuL9r8eacvNYNhpekYJvPCzUJbxSjROY5fsQ8KMtIv4AOnZvZD7MAWRhQujOpNZnNyPZSCbfTCw31SsVQ2B3_Vw8PcKPUQeS1ZAXNUpnoaUMJ-sc9ad3U9pyv_R53WvU7M8NXVikPA" alt="Teora Logo" class="h-10 w-auto">
+<div class="hidden md:flex gap-md ml-lg">
+<a class="text-on-surface-variant dark:text-on-primary-container hover:text-primary dark:hover:text-secondary-fixed transition-colors" href="#">Tools</a>
+<a class="text-on-surface-variant dark:text-on-primary-container hover:text-primary dark:hover:text-secondary-fixed transition-colors" href="#">Library</a>
+<a class="text-primary dark:text-secondary-fixed font-bold border-b-2 border-primary dark:border-secondary-fixed pb-1 hover:text-primary dark:hover:text-secondary-fixed transition-colors" href="#">Community</a>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<button class="font-label-md text-label-md bg-transparent border border-outline-variant text-on-surface px-sm py-xs rounded-lg hover:bg-surface-container transition-colors">Sign In</button>
+<button class="font-label-md text-label-md bg-primary text-on-primary px-sm py-xs rounded-lg hover:bg-on-primary-fixed-variant transition-colors">Get Started</button>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-grow pt-[88px] flex flex-col md:flex-row max-w-screen-2xl mx-auto w-full">
+<!-- SideNavBar -->
+<aside class="bg-surface dark:bg-primary-container text-primary dark:text-secondary-fixed-dim font-label-md text-label-md docked left-0 h-full w-64 bg-surface dark:bg-primary-container border-r border-outline-variant dark:border-outline flat no shadows transition-transform duration-150 ease-in-out hidden md:flex flex-col h-screen sticky top-0 p-md gap-md">
+<div class="mb-md flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden border border-outline-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">person</span>
+</div>
+<div>
+<div class="font-headline-md text-[16px] leading-[20px] font-bold text-on-surface">Akademisi Muda</div>
+<div class="text-[12px] text-on-surface-variant">Premium Plan</div>
+</div>
+</div>
+<nav class="flex flex-col gap-xs flex-grow">
+<a class="flex items-center gap-xs text-on-surface-variant dark:text-on-primary-container px-sm py-xs hover:bg-surface-container-high dark:hover:bg-on-primary-fixed-variant rounded-xl" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">dashboard</span>
+                    Dashboard
+                </a>
+<a class="flex items-center gap-xs text-on-surface-variant dark:text-on-primary-container px-sm py-xs hover:bg-surface-container-high dark:hover:bg-on-primary-fixed-variant rounded-xl" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">edit_note</span>
+                    Task Helper
+                </a>
+<a class="flex items-center gap-xs text-on-surface-variant dark:text-on-primary-container px-sm py-xs hover:bg-surface-container-high dark:hover:bg-on-primary-fixed-variant rounded-xl" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">article</span>
+                    Paper Writer
+                </a>
+<a class="flex items-center gap-xs text-on-surface-variant dark:text-on-primary-container px-sm py-xs hover:bg-surface-container-high dark:hover:bg-on-primary-fixed-variant rounded-xl" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">description</span>
+                    Proposal Creator
+                </a>
+<a class="flex items-center gap-xs text-on-surface-variant dark:text-on-primary-container px-sm py-xs hover:bg-surface-container-high dark:hover:bg-on-primary-fixed-variant rounded-xl" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">history</span>
+                    History
+                </a>
+</nav>
+<div class="mt-auto flex flex-col gap-sm border-t border-outline-variant pt-md">
+<button class="bg-[#10B981] text-white font-label-md py-xs px-sm rounded-lg hover:opacity-90 transition-opacity w-full flex items-center justify-center gap-xs">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+                    Upgrade Credits
+                </button>
+<div class="flex flex-col gap-xs">
+<div class="flex items-center gap-xs text-on-surface-variant px-sm py-xs">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">toll</span>
+                        Token Balance: 850
+                    </div>
+<a class="flex items-center gap-xs bg-secondary-container dark:bg-on-secondary-fixed-variant text-on-secondary-container dark:text-secondary-fixed rounded-xl px-sm py-xs hover:bg-surface-container-high dark:hover:bg-on-primary-fixed-variant" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
+                        Settings
+                    </a>
+</div>
+</div>
+</aside>
+<!-- Content Canvas -->
+<div class="flex-grow p-margin-mobile md:p-margin-desktop overflow-y-auto">
+<header class="mb-lg">
+<h1 class="font-display-lg text-display-lg md:text-display-lg text-headline-lg-mobile gradient-text mb-xs">Referral &amp; Pricing</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">Empower your academic journey. Earn tokens by referring peers, or top up your balance to unlock advanced AI capabilities.</p>
+</header>
+<!-- Referral Section - Bento Grid -->
+<section class="mb-xl">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-md">Refer a Friend</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<!-- Main Referral Card -->
+<div class="md:col-span-2 glass-card rounded-xl p-md flex flex-col justify-between relative overflow-hidden">
+<div class="absolute -right-10 -top-10 w-40 h-40 bg-surface-variant rounded-full opacity-50 blur-3xl"></div>
+<div>
+<h3 class="font-headline-md text-[20px] leading-[28px] text-on-surface mb-sm">Give 500, Get 500 Tokens</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-md">Share your unique link. When a friend signs up and completes their first task, you both receive 500 AI tokens to fuel your research.</p>
+<div class="mb-md">
+<label class="font-label-md text-[12px] text-on-surface-variant block mb-xs">Your Unique Link</label>
+<div class="flex border border-outline-variant rounded-lg overflow-hidden bg-surface-container-lowest focus-within:border-[#3B82F6] focus-within:ring-2 focus-within:ring-[#3B82F6]/20 transition-all">
+<input class="flex-grow bg-transparent border-none text-on-surface font-code-sm px-sm py-xs focus:ring-0" readonly="" type="text" value="https://teora.ai/ref/akademisi-muda-9x2">
+<button class="bg-surface-container-low hover:bg-surface-container border-l border-outline-variant px-sm flex items-center justify-center text-on-surface-variant transition-colors" title="Copy to clipboard">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">content_copy</span>
+</button>
+</div>
+</div>
+</div>
+<div class="flex gap-sm">
+<button class="bg-[#0F172A] text-white font-label-md py-xs px-md rounded-lg hover:opacity-90 transition-opacity flex items-center gap-xs">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">share</span>
+                                Share Now
+                            </button>
+</div>
+</div>
+<!-- Progress Card -->
+<div class="glass-card rounded-xl p-md flex flex-col justify-center">
+<h3 class="font-label-md text-label-md text-on-surface-variant mb-md text-center uppercase tracking-wider">Referral Progress</h3>
+<div class="flex flex-col items-center justify-center flex-grow">
+<div class="relative w-32 h-32 mb-sm flex items-center justify-center">
+<!-- Minimalist circular progress representation -->
+<svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+<circle cx="50" cy="50" fill="none" r="45" stroke="#E2E8F0" stroke-width="8"></circle>
+<circle class="transition-all duration-1000 ease-out" cx="50" cy="50" fill="none" r="45" stroke="#10B981" stroke-dasharray="283" stroke-dashoffset="141" stroke-width="8"></circle>
+</svg>
+<div class="absolute flex flex-col items-center">
+<span class="font-headline-lg text-[28px] font-bold text-on-surface">3</span>
+<span class="font-label-md text-[10px] text-on-surface-variant">/ 5 Referrals</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-center">2 more to unlock <strong class="text-on-surface">Elite Researcher</strong> badge.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Pricing Section -->
+<section>
+<div class="flex justify-between items-end mb-md">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-xs">Token Packages</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Top up your balance. 1 Token ≈ 1 Word generated. Complex tasks require more tokens.</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<!-- Lite Plan -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+<div class="mb-lg">
+<span class="bg-surface-container px-xs py-[2px] rounded text-[12px] font-label-md text-on-surface-variant uppercase tracking-wider mb-sm inline-block">Lite</span>
+<div class="flex items-baseline gap-xs">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">$5</span>
+<span class="font-body-sm text-on-surface-variant">/ one-time</span>
+</div>
+<div class="mt-xs text-[#10B981] font-label-md flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">toll</span>
+                                10,000 Tokens
+                            </div>
+</div>
+<ul class="flex flex-col gap-sm mb-lg border-t border-outline-variant pt-sm">
+<li class="flex items-start gap-xs font-body-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-secondary text-[18px]">check</span>
+                                ~10 Short Essays
+                            </li>
+<li class="flex items-start gap-xs font-body-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-secondary text-[18px]">check</span>
+                                Basic Grammar Checks
+                            </li>
+<li class="flex items-start gap-xs font-body-sm text-outline text-[18px]">
+<span class="material-symbols-outlined text-outline">close</span>
+                                No Plagiarism Scans
+                            </li>
+</ul>
+<button class="w-full bg-transparent border border-outline-variant text-on-surface font-label-md py-xs rounded-lg hover:bg-surface-container transition-colors">Purchase Lite</button>
+</div>
+<!-- Pro Plan -->
+<div class="bg-surface-container-lowest border-2 border-[#3B82F6] rounded-xl p-md relative hover:-translate-y-1 hover:shadow-lg transition-all duration-300 shadow-[0_10px_15px_-3px_rgb(59_130_246_/_0.1)]">
+<div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-[#3B82F6] text-white font-label-md text-[10px] px-sm py-[2px] rounded-full uppercase tracking-wider">Most Popular</div>
+<div class="mb-lg">
+<span class="bg-surface-container-high px-xs py-[2px] rounded text-[12px] font-label-md text-on-surface uppercase tracking-wider mb-sm inline-block">Pro</span>
+<div class="flex items-baseline gap-xs">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">$15</span>
+<span class="font-body-sm text-on-surface-variant">/ one-time</span>
+</div>
+<div class="mt-xs text-[#10B981] font-label-md flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">toll</span>
+                                40,000 Tokens
+                            </div>
+</div>
+<ul class="flex flex-col gap-sm mb-lg border-t border-outline-variant pt-sm">
+<li class="flex items-start gap-xs font-body-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-secondary text-[18px]">check</span>
+                                ~5 Full Research Papers
+                            </li>
+<li class="flex items-start gap-xs font-body-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-secondary text-[18px]">check</span>
+                                Advanced Citations (APA/MLA)
+                            </li>
+<li class="flex items-start gap-xs font-body-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-secondary text-[18px]">check</span>
+                                5 Plagiarism Scans
+                            </li>
+</ul>
+<button class="w-full bg-[#0F172A] text-white font-label-md py-xs rounded-lg hover:bg-on-primary-fixed-variant transition-colors">Purchase Pro</button>
+</div>
+<!-- Elite Plan -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+<div class="mb-lg">
+<span class="bg-tertiary-container text-on-tertiary-container px-xs py-[2px] rounded text-[12px] font-label-md uppercase tracking-wider mb-sm inline-block">Elite</span>
+<div class="flex items-baseline gap-xs">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">$35</span>
+<span class="font-body-sm text-on-surface-variant">/ one-time</span>
+</div>
+<div class="mt-xs text-[#10B981] font-label-md flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">toll</span>
+                                100,000 Tokens
+                            </div>
+</div>
+<ul class="flex flex-col gap-sm mb-lg border-t border-outline-variant pt-sm">
+<li class="flex items-start gap-xs font-body-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-secondary text-[18px]">check</span>
+                                Thesis-Level Generation
+                            </li>
+<li class="flex items-start gap-xs font-body-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-secondary text-[18px]">check</span>
+                                Priority Processing Speed
+                            </li>
+<li class="flex items-start gap-xs font-body-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-secondary text-[18px]">check</span>
+                                Unlimited Plagiarism Scans
+                            </li>
+</ul>
+<button class="w-full bg-transparent border border-outline-variant text-on-surface font-label-md py-xs rounded-lg hover:bg-surface-container transition-colors">Purchase Elite</button>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-low dark:bg-tertiary-container text-on-surface-variant dark:text-on-tertiary-container font-body-sm text-body-sm full-width border-t border-outline-variant dark:border-outline flat transition-opacity hover:opacity-80 w-full py-xl px-gutter flex flex-col md:flex-row justify-between items-center gap-md mt-auto z-10 relative">
+<div class="font-headline-lg-mobile text-headline-lg-mobile text-primary">Teora</div>
+<div class="text-center md:text-left">© 2024 Teora - Empowering Academic Excellence</div>
+<div class="flex flex-wrap justify-center gap-md">
+<a class="text-on-surface-variant dark:text-on-primary-container hover:text-on-surface dark:hover:text-on-secondary-container" href="#">Referral Program</a>
+<a class="text-on-surface-variant dark:text-on-primary-container hover:text-on-surface dark:hover:text-on-secondary-container" href="#">Help Center</a>
+<a class="text-on-surface-variant dark:text-on-primary-container hover:text-on-surface dark:hover:text-on-secondary-container" href="#">API Docs</a>
+<a class="text-on-surface-variant dark:text-on-primary-container hover:text-on-surface dark:hover:text-on-secondary-container" href="#">Privacy Policy</a>
+</div>
+</footer>
+
+
+</body></html>
