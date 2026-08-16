@@ -7,6 +7,7 @@ import {
   CreateExportBody,
 } from "@workspace/api-zod";
 import { logActivity } from "../lib/activity";
+import { requireProjectOwnership } from "../lib/ownership";
 import path from "path";
 import fs from "fs/promises";
 
@@ -21,6 +22,14 @@ router.get("/projects/:projectId/exports", async (req, res): Promise<void> => {
     res.status(400).json({ error: params.error.message });
     return;
   }
+
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
+  if (!ok) return;
 
   const exports = await db
     .select()
@@ -43,6 +52,14 @@ router.post("/projects/:projectId/exports", async (req, res): Promise<void> => {
     res.status(400).json({ error: params.error.message });
     return;
   }
+
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
+  if (!ok) return;
 
   const parsed = CreateExportBody.safeParse(req.body);
   if (!parsed.success) {

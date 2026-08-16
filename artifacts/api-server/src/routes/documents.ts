@@ -5,6 +5,7 @@ import {
   ListDocumentVersionsParams,
   GetLatestDocumentParams,
 } from "@workspace/api-zod";
+import { requireProjectOwnership } from "../lib/ownership";
 
 const router: IRouter = Router();
 
@@ -15,6 +16,14 @@ router.get("/projects/:projectId/documents", async (req, res): Promise<void> => 
     res.status(400).json({ error: params.error.message });
     return;
   }
+
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
+  if (!ok) return;
 
   const versions = await db
     .select()
@@ -38,6 +47,14 @@ router.get("/projects/:projectId/documents/latest", async (req, res): Promise<vo
     res.status(400).json({ error: params.error.message });
     return;
   }
+
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
+  if (!ok) return;
 
   const [doc] = await db
     .select()

@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request } from "express";
 import { eq, desc, sql } from "drizzle-orm";
 import {
   db,
@@ -23,28 +23,34 @@ import { callAI, buildSystemPrompt } from "../lib/ai";
 
 const router: IRouter = Router();
 
+function getUserId(req: Request): string {
+  if (!req.user?.id) throw new Error("User not authenticated");
+  return req.user.id;
+}
+
 // GET /projects
 router.get("/projects", async (req, res): Promise<void> => {
+  const userId = getUserId(req);
   const query = ListProjectsQueryParams.safeParse(req.query);
   if (!query.success) {
     res.status(400).json({ error: query.error.message });
     return;
   }
 
-  let q = db.select().from(projectsTable);
-  const conditions = [];
+  const conditions = [eq(projectsTable.userId, userId)];
   if (query.data.status) {
     conditions.push(eq(projectsTable.status, query.data.status));
   }
   if (query.data.search) {
     conditions.push(
-      sql`lower(${projectsTable.title}) like lower(${"%" + query.data.search + "%"})`
+      sql`lower(${projectsTable.title}) like lower(${`%${query.data.search}%`})`
     );
   }
 
-  const results = conditions.length
-    ? await q.where(sql`${conditions.reduce((a, b) => sql`${a} and ${b}`)}`)
-    : await q;
+  const results = await db
+    .select()
+    .from(projectsTable)
+    .where(sql.join(conditions.map((c, i) => (i === 0 ? c : sql` and ${c}`))));
 
   res.json(
     results.map((p) => ({
@@ -62,16 +68,20 @@ router.get("/projects", async (req, res): Promise<void> => {
 
 // GET /projects/stats
 router.get("/projects/stats", async (req, res): Promise<void> => {
-  const all = await db.select().from(projectsTable);
+  const userId = getUserId(req);
+  const all = await db.select().from(projectsTable).where(eq(projectsTable.userId, userId));
   const total = all.length;
   const byStatus: Record<string, number> = {};
   for (const p of all) {
     byStatus[p.status] = (byStatus[p.status] ?? 0) + 1;
   }
 
+  // Get recent activity for user's projects
+  const projectIds = all.map((p) => p.id);
   const recent = await db
     .select()
     .from(activitiesTable)
+    .where(sql`${activitiesTable.projectId} in (${sql.join(projectIds.map(id => sql`${id}`), sql`, `)})`)
     .orderBy(desc(activitiesTable.createdAt))
     .limit(5);
 
@@ -80,6 +90,7 @@ router.get("/projects/stats", async (req, res): Promise<void> => {
 
 // GET /projects/:projectId
 router.get("/projects/:projectId", async (req, res): Promise<void> => {
+  const userId = getUserId(req);
   const params = GetProjectParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -93,6 +104,12 @@ router.get("/projects/:projectId", async (req, res): Promise<void> => {
 
   if (!project) {
     res.status(404).json({ error: "Project not found" });
+    return;
+  }
+
+  // Ownership check
+  if (project.userId !== userId) {
+    res.status(403).json({ error: "Access denied" });
     return;
   }
 
@@ -110,6 +127,7 @@ router.get("/projects/:projectId", async (req, res): Promise<void> => {
 
 // POST /projects
 router.post("/projects", async (req, res): Promise<void> => {
+  const userId = getUserId(req);
   const parsed = CreateProjectBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -119,6 +137,7 @@ router.post("/projects", async (req, res): Promise<void> => {
   const [project] = await db
     .insert(projectsTable)
     .values({
+      userId,
       title: parsed.data.title,
       instructionText: parsed.data.instructionText,
       outputFormat: parsed.data.outputFormat,
@@ -143,9 +162,25 @@ router.post("/projects", async (req, res): Promise<void> => {
 
 // PATCH /projects/:projectId
 router.patch("/projects/:projectId", async (req, res): Promise<void> => {
+  const userId = getUserId(req);
   const params = UpdateProjectParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  const [existing] = await db
+    .select()
+    .from(projectsTable)
+    .where(eq(projectsTable.id, params.data.projectId));
+
+  if (!existing) {
+    res.status(404).json({ error: "Project not found" });
+    return;
+  }
+
+  if (existing.userId !== userId) {
+    res.status(403).json({ error: "Access denied" });
     return;
   }
 
@@ -161,11 +196,6 @@ router.patch("/projects/:projectId", async (req, res): Promise<void> => {
     .where(eq(projectsTable.id, params.data.projectId))
     .returning();
 
-  if (!project) {
-    res.status(404).json({ error: "Project not found" });
-    return;
-  }
-
   res.json({
     ...project,
     instructionText: project.instructionText ?? null,
@@ -180,27 +210,36 @@ router.patch("/projects/:projectId", async (req, res): Promise<void> => {
 
 // DELETE /projects/:projectId
 router.delete("/projects/:projectId", async (req, res): Promise<void> => {
+  const userId = getUserId(req);
   const params = DeleteProjectParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
     return;
   }
 
-  const [project] = await db
-    .delete(projectsTable)
-    .where(eq(projectsTable.id, params.data.projectId))
-    .returning();
+  const [existing] = await db
+    .select()
+    .from(projectsTable)
+    .where(eq(projectsTable.id, params.data.projectId));
 
-  if (!project) {
+  if (!existing) {
     res.status(404).json({ error: "Project not found" });
     return;
   }
+
+  if (existing.userId !== userId) {
+    res.status(403).json({ error: "Access denied" });
+    return;
+  }
+
+  await db.delete(projectsTable).where(eq(projectsTable.id, params.data.projectId));
 
   res.sendStatus(204);
 });
 
 // POST /projects/:projectId/analyze
 router.post("/projects/:projectId/analyze", async (req, res): Promise<void> => {
+  const userId = getUserId(req);
   const params = AnalyzeProjectParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -217,13 +256,16 @@ router.post("/projects/:projectId/analyze", async (req, res): Promise<void> => {
     return;
   }
 
-  // Create analyze job
+  if (project.userId !== userId) {
+    res.status(403).json({ error: "Access denied" });
+    return;
+  }
+
   const [job] = await db
     .insert(jobsTable)
     .values({ projectId: project.id, jobType: "analyze", status: "pending" })
     .returning();
 
-  // Update project status
   await db
     .update(projectsTable)
     .set({ status: "analyzing" })
@@ -231,7 +273,6 @@ router.post("/projects/:projectId/analyze", async (req, res): Promise<void> => {
 
   await logActivity(project.id, "analysis_started", "Analisis instruksi dimulai");
 
-  // Run analyze in background (no await — respond immediately)
   runAnalysisPipeline(project.id, job.id).catch((err) => {
     req.log.error({ err, projectId: project.id }, "Analysis pipeline failed");
   });
@@ -283,7 +324,6 @@ Hasilkan JSON dengan struktur berikut (HANYA JSON, tanpa teks lain):
       { role: "user", content: analysisPrompt },
     ]);
 
-    // Extract JSON from response
     const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
     let metadata: Record<string, string> = {};
     if (jsonMatch) {
@@ -294,7 +334,6 @@ Hasilkan JSON dengan struktur berikut (HANYA JSON, tanpa teks lain):
       }
     }
 
-    // Upsert project metadata
     await db
       .insert(projectMetadataTable)
       .values({
@@ -320,7 +359,6 @@ Hasilkan JSON dengan struktur berikut (HANYA JSON, tanpa teks lain):
         },
       });
 
-    // Update project with analyzed data
     await db
       .update(projectsTable)
       .set({
@@ -332,7 +370,6 @@ Hasilkan JSON dengan struktur berikut (HANYA JSON, tanpa teks lain):
       })
       .where(eq(projectsTable.id, projectId));
 
-    // Save the outline as a system message
     if (metadata.outline) {
       await db.insert(messagesTable).values({
         projectId,
@@ -341,7 +378,6 @@ Hasilkan JSON dengan struktur berikut (HANYA JSON, tanpa teks lain):
       });
     }
 
-    // Now generate the initial document
     const writeJob = await db
       .insert(jobsTable)
       .values({ projectId, jobType: "write_chapter", status: "running" })
@@ -361,7 +397,6 @@ Tulis dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan b
       { role: "user", content: writePrompt },
     ]);
 
-    // Get current version count
     const versions = await db
       .select()
       .from(documentVersionsTable)

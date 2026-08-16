@@ -4,6 +4,7 @@ import { z } from "zod/v4";
 
 export const projectsTable = pgTable("projects", {
   id: serial("id").primaryKey(),
+  userId: text("user_id").notNull(), // FK to Supabase auth user ID
   title: text("title").notNull(),
   status: text("status").notNull().default("draft"),
   progress: integer("progress").notNull().default(0),

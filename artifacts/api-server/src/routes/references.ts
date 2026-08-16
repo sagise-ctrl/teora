@@ -15,6 +15,7 @@ import {
 } from "@workspace/api-zod";
 import { callAI, buildSystemPrompt } from "../lib/ai";
 import { logActivity } from "../lib/activity";
+import { requireProjectOwnership } from "../lib/ownership";
 
 const router: IRouter = Router();
 
@@ -25,6 +26,14 @@ router.get("/projects/:projectId/references", async (req, res): Promise<void> =>
     res.status(400).json({ error: params.error.message });
     return;
   }
+
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
+  if (!ok) return;
 
   const refs = await db
     .select()
@@ -54,6 +63,14 @@ router.post("/projects/:projectId/references", async (req, res): Promise<void> =
     res.status(400).json({ error: params.error.message });
     return;
   }
+
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
+  if (!ok) return;
 
   const parsed = CreateReferenceBody.safeParse(req.body);
   if (!parsed.success) {
@@ -99,6 +116,14 @@ router.delete("/projects/:projectId/references/:referenceId", async (req, res): 
     return;
   }
 
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
+  if (!ok) return;
+
   const [ref] = await db
     .delete(referencesTable)
     .where(eq(referencesTable.id, params.data.referenceId))
@@ -120,15 +145,18 @@ router.post("/projects/:projectId/references/regenerate", async (req, res): Prom
     return;
   }
 
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
+  if (!ok) return;
+
   const [project] = await db
     .select()
     .from(projectsTable)
     .where(eq(projectsTable.id, params.data.projectId));
-
-  if (!project) {
-    res.status(404).json({ error: "Project not found" });
-    return;
-  }
 
   const [metadata] = await db
     .select()
@@ -145,7 +173,7 @@ router.post("/projects/:projectId/references/regenerate", async (req, res): Prom
     return;
   }
 
-  const citationFormat = metadata?.citationFormat ?? project.citationFormat ?? "APA";
+  const citationFormat = metadata?.citationFormat ?? project?.citationFormat ?? "APA";
   const refList = refs
     .map(
       (r, i) =>
@@ -154,8 +182,8 @@ router.post("/projects/:projectId/references/regenerate", async (req, res): Prom
     .join("\n");
 
   const systemPrompt = buildSystemPrompt({
-    title: project.title,
-    instructionText: project.instructionText,
+    title: project?.title ?? "",
+    instructionText: project?.instructionText,
     citationFormat,
   });
 

@@ -8,6 +8,7 @@ import {
   DeleteAttachmentParams,
 } from "@workspace/api-zod";
 import { logActivity } from "../lib/activity";
+import { requireProjectOwnership } from "../lib/ownership";
 import path from "path";
 import fs from "fs/promises";
 
@@ -22,6 +23,14 @@ router.get("/projects/:projectId/attachments", async (req, res): Promise<void> =
     res.status(400).json({ error: params.error.message });
     return;
   }
+
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
+  if (!ok) return;
 
   const attachments = await db
     .select()
@@ -46,22 +55,27 @@ router.post("/projects/:projectId/attachments", async (req, res): Promise<void> 
     return;
   }
 
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
+  if (!ok) return;
+
   const parsed = UploadAttachmentBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
 
-  // Ensure upload dir exists
   await fs.mkdir(UPLOAD_DIR, { recursive: true });
 
-  // Save base64 file to disk
   const buffer = Buffer.from(parsed.data.base64Content, "base64");
   const safeFilename = `${Date.now()}-${path.basename(parsed.data.filename)}`;
   const filePath = path.join(UPLOAD_DIR, safeFilename);
   await fs.writeFile(filePath, buffer);
 
-  // Simple text extraction for text-based files
   let extractedText: string | null = null;
   if (parsed.data.mimeType?.includes("text") || parsed.data.filename.endsWith(".md")) {
     extractedText = buffer.toString("utf-8").substring(0, 50000);
@@ -104,6 +118,14 @@ router.delete(
       return;
     }
 
+    if (!req.user?.id) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+
+    const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
+    if (!ok) return;
+
     const [attachment] = await db
       .delete(attachmentsTable)
       .where(eq(attachmentsTable.id, params.data.attachmentId))
@@ -114,7 +136,6 @@ router.delete(
       return;
     }
 
-    // Try to remove file
     const filePath = path.join(UPLOAD_DIR, attachment.filename);
     await fs.unlink(filePath).catch(() => {});
 

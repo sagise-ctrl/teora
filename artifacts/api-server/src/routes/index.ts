@@ -1,5 +1,7 @@
 import { Router, type IRouter } from "express";
+import { authMiddleware } from "../middlewares/auth";
 import healthRouter from "./health";
+import authRouter from "./auth";
 import projectsRouter from "./projects";
 import messagesRouter from "./messages";
 import documentsRouter from "./documents";
@@ -13,6 +15,9 @@ import exportsRouter from "./exports";
 const router: IRouter = Router();
 
 router.use(healthRouter);
+router.use(authRouter);
+// All routes below require authentication
+router.use(authMiddleware);
 router.use(projectsRouter);
 router.use(messagesRouter);
 router.use(documentsRouter);
