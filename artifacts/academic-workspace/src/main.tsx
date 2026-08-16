@@ -1,7 +1,18 @@
-import { createRoot } from 'react-dom/client';
+import { createRoot } from "react-dom/client";
 
-import App from './App';
+import App from "./App";
 
-import './index.css';
+import "./index.css";
 
-createRoot(document.getElementById('root')!).render(<App />);
+async function enableMocking() {
+  if (import.meta.env.DEV && import.meta.env.VITE_MOCK === "true") {
+    const { worker } = await import("./mocks/browser");
+    await worker.start({
+      onUnhandledRequest: "bypass",
+    });
+  }
+}
+
+enableMocking().then(() => {
+  createRoot(document.getElementById("root")!).render(<App />);
+});

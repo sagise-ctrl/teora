@@ -22,7 +22,8 @@ import {
   getListAttachmentsQueryKey,
   getListDocumentVersionsQueryKey,
   getListActivitiesQueryKey,
-  getGetProjectQueryKey
+  getGetProjectQueryKey,
+  getListJobsQueryKey
 } from "@workspace/api-client-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
@@ -82,9 +83,9 @@ export default function ProjectWorkspace() {
   const queryClient = useQueryClient()
   const { toast } = useToast()
 
-  const { data: project, isLoading: projectLoading } = useGetProject(projectId, { query: { enabled: !!projectId } })
-  const { data: latestDoc } = useGetLatestDocument(projectId, { query: { enabled: !!projectId } })
-  const { data: jobs } = useListJobs(projectId, { query: { enabled: !!projectId, refetchInterval: 5000 } })
+  const { data: project, isLoading: projectLoading } = useGetProject(projectId)
+  const { data: latestDoc } = useGetLatestDocument(projectId)
+  const { data: jobs } = useListJobs(projectId, { query: { queryKey: getListJobsQueryKey(projectId), refetchInterval: 5000 } })
 
   const analyzeProject = useAnalyzeProject()
 
@@ -221,7 +222,7 @@ export default function ProjectWorkspace() {
 }
 
 function ChatTab({ projectId }: { projectId: number }) {
-  const { data: messages, isLoading } = useListMessages(projectId, { query: { enabled: !!projectId, refetchInterval: 5000 } })
+  const { data: messages, isLoading } = useListMessages(projectId, { query: { queryKey: getListMessagesQueryKey(projectId), refetchInterval: 5000 } })
   const sendMessage = useSendMessage()
   const queryClient = useQueryClient()
   const { toast } = useToast()
@@ -324,7 +325,7 @@ function ChatTab({ projectId }: { projectId: number }) {
 }
 
 function ReferencesTab({ projectId }: { projectId: number }) {
-  const { data: references, isLoading } = useListReferences(projectId, { query: { enabled: !!projectId } })
+  const { data: references, isLoading } = useListReferences(projectId)
   const createRef = useCreateReference()
   const deleteRef = useDeleteReference()
   const regenBib = useRegenerateBibliography()
@@ -479,7 +480,7 @@ function ReferencesTab({ projectId }: { projectId: number }) {
 }
 
 function AttachmentsTab({ projectId }: { projectId: number }) {
-  const { data: attachments, isLoading } = useListAttachments(projectId, { query: { enabled: !!projectId } })
+  const { data: attachments, isLoading } = useListAttachments(projectId)
   const upload = useUploadAttachment()
   const deleteAttach = useDeleteAttachment()
   const queryClient = useQueryClient()
@@ -609,7 +610,7 @@ function AttachmentsTab({ projectId }: { projectId: number }) {
 }
 
 function HistoryTab({ projectId }: { projectId: number }) {
-  const { data: versions, isLoading } = useListDocumentVersions(projectId, { query: { enabled: !!projectId } })
+  const { data: versions, isLoading } = useListDocumentVersions(projectId)
 
   return (
     <div className="space-y-6">
@@ -663,7 +664,7 @@ function HistoryTab({ projectId }: { projectId: number }) {
 }
 
 function TimelineTab({ projectId }: { projectId: number }) {
-  const { data: activities, isLoading } = useListActivities(projectId, { query: { enabled: !!projectId, refetchInterval: 10000 } })
+  const { data: activities, isLoading } = useListActivities(projectId, { query: { queryKey: getListActivitiesQueryKey(projectId), refetchInterval: 10000 } })
 
   return (
     <div className="space-y-6 max-w-3xl">
