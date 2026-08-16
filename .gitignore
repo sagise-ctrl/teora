@@ -47,3 +47,11 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+.vercel
+
+# AI Engineering Team — operational state (gitignored, not in repo)
+.ai/
+
+# Claude Code sessions
+.claude/sessions/
