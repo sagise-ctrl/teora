@@ -30,6 +30,8 @@ tags:
     description: Document exports
   - name: metadata
     description: Project metadata
+  - name: ai-usage
+    description: AI usage tracking (FinOps)
 paths:
   # ── Auth ──────────────────────────────────────────────────────────────────
   /auth/me:
@@ -572,6 +574,85 @@ paths:
         "404":
           description: No metadata yet
 
+  # ── AI Usage (FinOps) ───────────────────────────────────────────────────
+  /ai-usage:
+    get:
+      operationId: listAIUsage
+      tags: [ai-usage]
+      summary: List AI usage records
+      parameters:
+        - name: userId
+          in: query
+          schema:
+            type: string
+          description: Filter by user (admin only, defaults to current user)
+        - name: projectId
+          in: query
+          schema:
+            type: number
+          description: Filter by project
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: limit
+          in: query
+          schema:
+            type: number
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: number
+            default: 0
+      responses:
+        "200":
+          description: AI usage records
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AIUsageLog"
+                  total:
+                    type: number
+        "401":
+          description: Unauthorized
+
+  /ai-usage/stats:
+    get:
+      operationId: getAIUsageStats
+      tags: [ai-usage]
+      summary: Get aggregated AI usage statistics
+      parameters:
+        - name: userId
+          in: query
+          schema:
+            type: string
+          description: Filter by user (admin only, defaults to current user)
+        - name: projectId
+          in: query
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Aggregated usage stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AIUsageStats"
+        "401":
+          description: Unauthorized
+
   # ── Exports ───────────────────────────────────────────────────────────────
   /projects/{projectId}/exports:
     get:
@@ -1062,7 +1143,8 @@ components:
         reason:
           type: ["string", "null"]
         metadata:
-          type: ["object", "null"]
+          type: object
+          nullable: true
         createdAt:
           type: string
           format: date-time
@@ -1092,3 +1174,62 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Referral"
+
+    # ── AI Usage ──────────────────────────────────────────────────────────────
+    AIUsageLog:
+      type: object
+      required: [id, userId, model, provider, inputTokens, outputTokens, estimatedCostUsd, requestType, createdAt]
+      properties:
+        id:
+          type: number
+        userId:
+          type: string
+        projectId:
+          type: ["number", "null"]
+        model:
+          type: string
+          example: "claude-sonnet-4-20250514"
+        provider:
+          type: string
+          example: "anthropic"
+        inputTokens:
+          type: number
+        outputTokens:
+          type: number
+        estimatedCostUsd:
+          type: number
+        requestType:
+          type: string
+          enum: [chat, analyze, outline, write, export]
+        metadata:
+          type: object
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    AIUsageStats:
+      type: object
+      required: [totalRequests, totalInputTokens, totalOutputTokens, totalCostUsd, byRequestType]
+      properties:
+        totalRequests:
+          type: number
+        totalInputTokens:
+          type: number
+        totalOutputTokens:
+          type: number
+        totalCostUsd:
+          type: number
+        byRequestType:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              requests:
+                type: number
+              inputTokens:
+                type: number
+              outputTokens:
+                type: number
+              costUsd:
+                type: number

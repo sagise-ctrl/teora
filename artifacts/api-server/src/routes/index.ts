@@ -11,6 +11,7 @@ import activitiesRouter from "./activities";
 import jobsRouter from "./jobs";
 import metadataRouter from "./metadata";
 import exportsRouter from "./exports";
+import aiUsageRouter from "./ai-usage";
 
 const router: IRouter = Router();
 
@@ -27,5 +28,6 @@ router.use(activitiesRouter);
 router.use(jobsRouter);
 router.use(metadataRouter);
 router.use(exportsRouter);
+router.use(aiUsageRouter);
 
 export default router;

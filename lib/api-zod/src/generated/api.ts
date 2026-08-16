@@ -558,6 +558,61 @@ export const GetProjectMetadataResponse = zod.object({
 
 
 /**
+ * @summary List AI usage records
+ */
+export const listAIUsageQueryLimitDefault = 50;
+export const listAIUsageQueryOffsetDefault = 0;
+
+export const ListAIUsageQueryParams = zod.object({
+  "userId": zod.coerce.string().optional().describe('Filter by user (admin only, defaults to current user)'),
+  "projectId": zod.coerce.number().optional().describe('Filter by project'),
+  "startDate": zod.date().optional(),
+  "endDate": zod.date().optional(),
+  "limit": zod.coerce.number().default(listAIUsageQueryLimitDefault),
+  "offset": zod.coerce.number().default(listAIUsageQueryOffsetDefault)
+})
+
+export const ListAIUsageResponse = zod.object({
+  "data": zod.array(zod.object({
+  "id": zod.number(),
+  "userId": zod.string(),
+  "projectId": zod.number().nullish(),
+  "model": zod.string(),
+  "provider": zod.string(),
+  "inputTokens": zod.number(),
+  "outputTokens": zod.number(),
+  "estimatedCostUsd": zod.number(),
+  "requestType": zod.enum(['chat', 'analyze', 'outline', 'write', 'export']),
+  "metadata": zod.object({}).nullish(),
+  "createdAt": zod.coerce.date()
+})).optional(),
+  "total": zod.number().optional()
+})
+
+
+/**
+ * @summary Get aggregated AI usage statistics
+ */
+export const GetAIUsageStatsQueryParams = zod.object({
+  "userId": zod.coerce.string().optional().describe('Filter by user (admin only, defaults to current user)'),
+  "projectId": zod.coerce.number().optional()
+})
+
+export const GetAIUsageStatsResponse = zod.object({
+  "totalRequests": zod.number(),
+  "totalInputTokens": zod.number(),
+  "totalOutputTokens": zod.number(),
+  "totalCostUsd": zod.number(),
+  "byRequestType": zod.record(zod.string(), zod.object({
+  "requests": zod.number().optional(),
+  "inputTokens": zod.number().optional(),
+  "outputTokens": zod.number().optional(),
+  "costUsd": zod.number().optional()
+}))
+})
+
+
+/**
  * @summary List exports for a project
  */
 export const ListExportsParams = zod.object({

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import request from "supertest";
-import express from "express";
+import express, { type Request, type Response } from "express";
 import cookieParser from "cookie-parser";
 
 // ─── All test data and helpers hoisted together (single block avoids forward-ref issues) ───
@@ -188,7 +188,7 @@ vi.mock("../routes/auth.js", () => {
       const router = Router();
 
       // GET /auth/me — return mock user
-      router.get("/auth/me", (_req, res) => {
+      router.get("/auth/me", (_req: Request, res: Response) => {
         res.json({
           id: TEST_USER_ID,
           email: "test@example.com",
@@ -200,7 +200,7 @@ vi.mock("../routes/auth.js", () => {
         });
       });
       // POST /auth/login — validate token and return mock user
-      router.post("/auth/login", (req, res) => {
+      router.post("/auth/login", (req: Request, res: Response) => {
         const { access_token } = req.body as { access_token?: unknown };
         if (!access_token) {
           res.status(400).json({ error: "access_token is required" });
@@ -233,14 +233,14 @@ vi.mock("../routes/auth.js", () => {
       });
 
       // POST /auth/logout
-      router.post("/auth/logout", (_req, res) => {
+      router.post("/auth/logout", (_req: Request, res: Response) => {
         res.clearCookie("sb_access_token", { path: "/" });
         res.clearCookie("sb_refresh_token", { path: "/" });
         res.json({ message: "Logged out" });
       });
 
       // POST /auth/refresh — reads sb_refresh_token cookie
-      router.post("/auth/refresh", (req, res) => {
+      router.post("/auth/refresh", (req: Request, res: Response) => {
         const refreshToken = req.cookies?.sb_refresh_token;
         if (!refreshToken) {
           res.status(401).json({ error: "No refresh token" });
