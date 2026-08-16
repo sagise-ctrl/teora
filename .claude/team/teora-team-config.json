@@ -1,0 +1,88 @@
+{
+  "version": "1.0",
+  "generatedBy": "teora-ai-team",
+  "profile": "full",
+  "project": {
+    "name": "Teora",
+    "type": "AI Academic Workspace",
+    "repository": "https://github.com/sagise-ctrl/teora"
+  },
+  "sharedSkills": [
+    ".claude/skills/tdd-workflow.md",
+    ".claude/skills/research-playbook.md",
+    ".claude/skills/incident-response.md"
+  ],
+  "commands": [
+    ".claude/commands/feature-development.md",
+    ".claude/commands/database-migration.md",
+    ".claude/commands/security-review.md"
+  ],
+  "divisions": [
+    {
+      "name": "Product",
+      "entry": "docs/ai-team/product/README.md",
+      "responsibilities": ["Requirements", "Roadmap", "Business Rules"]
+    },
+    {
+      "name": "Architecture",
+      "entry": "docs/ai-team/architecture/README.md",
+      "responsibilities": ["System Design", "API", "Database"]
+    },
+    {
+      "name": "Development",
+      "entry": "docs/ai-team/development/README.md",
+      "responsibilities": ["Implementation", "Patterns", "Coding Standards"]
+    },
+    {
+      "name": "QA",
+      "entry": "docs/ai-team/qa/README.md",
+      "responsibilities": ["Testing Strategy", "Test Cases", "Regression"]
+    },
+    {
+      "name": "Security",
+      "entry": "docs/ai-team/security/README.md",
+      "responsibilities": ["Auth", "Authorization", "Threat Model"]
+    },
+    {
+      "name": "Code Review",
+      "entry": "docs/ai-team/code-review/README.md",
+      "responsibilities": ["Review Checklist", "Recurring Issues"]
+    },
+    {
+      "name": "DevOps",
+      "entry": "docs/ai-team/devops/README.md",
+      "responsibilities": ["Environment", "Deployment", "CI/CD"]
+    },
+    {
+      "name": "Research",
+      "entry": "docs/ai-team/research/README.md",
+      "responsibilities": ["Library Evaluation", "Tech Decisions"]
+    },
+    {
+      "name": "Finance",
+      "entry": "docs/ai-team/finance/README.md",
+      "responsibilities": ["Token Economy", "Pricing", "Cost Analysis"]
+    },
+    {
+      "name": "Design",
+      "entry": "docs/ai-team/design/README.md",
+      "responsibilities": ["Design System", "UI Improvements"]
+    },
+    {
+      "name": "Production Admin",
+      "entry": "docs/ai-team/production-admin/README.md",
+      "responsibilities": ["Monitoring", "Incidents", "Automation"]
+    }
+  ],
+  "workflowSequence": [
+    "Product: understand requirement",
+    "Architecture: design solution",
+    "Development: implement",
+    "QA: test",
+    "Security: review",
+    "Code Review: quality gate",
+    "DevOps: deploy",
+    "Production Admin: monitor"
+  ],
+  "updatedAt": "2026-08-15"
+}

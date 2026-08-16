@@ -1,0 +1,6 @@
+{
+  "buildCommand": "pnpm --filter @workspace/academic-workspace run build",
+  "outputDirectory": "artifacts/academic-workspace/dist/public",
+  "installCommand": "pnpm install",
+  "framework": null
+}
