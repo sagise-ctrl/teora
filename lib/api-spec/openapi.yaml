@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication
   - name: projects
     description: Project management
   - name: messages
@@ -29,6 +31,99 @@ tags:
   - name: metadata
     description: Project metadata
 paths:
+  # ── Auth ──────────────────────────────────────────────────────────────────
+  /auth/me:
+    get:
+      operationId: getCurrentUser
+      tags: [auth]
+      summary: Get current authenticated user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "401":
+          description: Unauthorized
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Exchange Supabase token for server session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "401":
+          description: Invalid token
+
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Create a new account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: Account created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "400":
+          description: Invalid input
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Sign out and clear session
+      responses:
+        "200":
+          description: Logged out
+
+  /auth/refresh:
+    post:
+      operationId: refreshToken
+      tags: [auth]
+      summary: Refresh access token
+      responses:
+        "200":
+          description: Token refreshed
+        "401":
+          description: Session expired
+
+  /auth/referrals:
+    get:
+      operationId: getReferrals
+      tags: [auth]
+      summary: Get referral stats and list for current user
+      responses:
+        "200":
+          description: Referral stats and list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReferralListResponse"
+        "401":
+          description: Unauthorized
+
   /healthz:
     get:
       operationId: healthCheck
@@ -524,6 +619,53 @@ paths:
 
 components:
   schemas:
+    # ── Auth ─────────────────────────────────────────────────────────────────
+    AuthUser:
+      type: object
+      required: [id, email, isOwner, createdAt]
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        displayName:
+          type: ["string", "null"]
+        avatarUrl:
+          type: ["string", "null"]
+        isOwner:
+          type: boolean
+        referralCode:
+          type: ["string", "null"]
+          description: Unique referral code this user can share
+        createdAt:
+          type: string
+          format: date-time
+
+    LoginRequest:
+      type: object
+      required: [access_token]
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+
+    RegisterRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          pattern: "^[^@]+@[^@]+\\.[^@]+$"
+        password:
+          type: string
+          minLength: 6
+        displayName:
+          type: string
+        referralCode:
+          type: string
+          description: Optional referral code used during registration
+
     HealthStatus:
       type: object
       properties:
@@ -874,3 +1016,79 @@ components:
           enum: [docx, pdf, markdown]
         documentVersionId:
           type: number
+
+    # ── Referral ──────────────────────────────────────────────────────────────
+    Referral:
+      type: object
+      required: [id, referrerId, referredId, referralCode, status, createdAt]
+      properties:
+        id:
+          type: number
+        referrerId:
+          type: string
+        referredId:
+          type: string
+        referredEmail:
+          type: string
+        referralCode:
+          type: string
+        status:
+          type: string
+          enum: [pending, verified, qualified, rewarded, rejected]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ReferralEvent:
+      type: object
+      required: [id, referralId, actorType, toStatus, createdAt]
+      properties:
+        id:
+          type: number
+        referralId:
+          type: number
+        actorId:
+          type: ["string", "null"]
+        actorType:
+          type: string
+          enum: [system, user, admin]
+        fromStatus:
+          type: ["string", "null"]
+        toStatus:
+          type: string
+        reason:
+          type: ["string", "null"]
+        metadata:
+          type: ["object", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    ReferralStats:
+      type: object
+      properties:
+        total:
+          type: number
+        pending:
+          type: number
+        verified:
+          type: number
+        qualified:
+          type: number
+        rewarded:
+          type: number
+        rejected:
+          type: number
+
+    ReferralListResponse:
+      type: object
+      properties:
+        stats:
+          $ref: "#/components/schemas/ReferralStats"
+        referrals:
+          type: array
+          items:
+            $ref: "#/components/schemas/Referral"

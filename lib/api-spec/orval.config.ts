@@ -9,8 +9,14 @@ const apiZodSrc = path.resolve(root, "lib", "api-zod", "src");
 const titleTransformer: InputTransformerFn = (config) => {
   config.info ??= {};
   config.info.title = "Api";
-
   return config;
+};
+
+// Fix z.email() -> z.string().email() which Orval generates incorrectly
+const fixEmailTransformer: InputTransformerFn = (config) => {
+  const body = JSON.stringify(config);
+  const fixed = body.replace(/"zod\.email\(\)"/g, '"zod.string().email()"');
+  return JSON.parse(fixed);
 };
 
 export default defineConfig({
@@ -18,7 +24,7 @@ export default defineConfig({
     input: {
       target: "./openapi.yaml",
       override: {
-        transformer: titleTransformer,
+        transformer: (config) => fixEmailTransformer(titleTransformer(config)),
       },
     },
     output: {
@@ -44,7 +50,7 @@ export default defineConfig({
     input: {
       target: "./openapi.yaml",
       override: {
-        transformer: titleTransformer,
+        transformer: (config) => fixEmailTransformer(titleTransformer(config)),
       },
     },
     output: {
