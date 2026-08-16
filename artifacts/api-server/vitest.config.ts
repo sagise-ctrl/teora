@@ -1,0 +1,22 @@
+import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  test: {
+    name: "api-server",
+    environment: "node",
+    globals: false,
+    include: ["src/**/*.test.ts"],
+    exclude: ["node_modules", "dist", "build"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "html", "json-summary"],
+      include: ["src/**/*.ts"],
+      exclude: ["src/**/*.test.ts", "src/**/*.d.ts"],
+    },
+  },
+  resolve: {
+    alias: {
+      "@": "src",
+    },
+  },
+});
