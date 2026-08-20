@@ -34,7 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchMe = useCallback(async () => {
     try {
-      const data = await customFetch<AuthUser>("/auth/me");
+      const data = await customFetch<AuthUser>("/api/auth/me");
       setUser(data);
     } catch {
       setUser(null);
@@ -43,7 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refresh = useCallback(async () => {
     try {
-      await customFetch("/auth/refresh", { method: "POST" });
+      await customFetch("/api/auth/refresh", { method: "POST" });
       await fetchMe();
     } catch {
       setUser(null);
@@ -52,15 +52,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (import.meta.env.VITE_MOCK === "true") {
-      setIsLoading(false);
+      // Still call fetchMe so MSW can intercept /api/auth/me and set the user
+      fetchMe().finally(() => setIsLoading(false));
       return;
     }
     refresh().finally(() => setIsLoading(false));
-  }, [refresh]);
+  }, [refresh, fetchMe]);
 
   const login = useCallback(async (email: string, password: string) => {
     if (import.meta.env.VITE_MOCK === "true") {
-      await customFetch("/auth/login", {
+      await customFetch("/api/auth/login", {
         method: "POST",
         body: JSON.stringify({ email, password }),
       });
@@ -78,7 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const session = (data as unknown as { session?: { access_token: string; refresh_token: string } }).session;
     if (!session) throw new Error("Login failed: no session returned");
 
-    await customFetch("/auth/login", {
+    await customFetch("/api/auth/login", {
       method: "POST",
       body: JSON.stringify({
         access_token: session.access_token,
@@ -99,7 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!supabase) throw new Error("Supabase not configured");
 
     // Step 1: Call backend to create Supabase user + local record + referral
-    const newUser = await customFetch<AuthUser>("/auth/register", {
+    const newUser = await customFetch<AuthUser>("/api/auth/register", {
       method: "POST",
       body: JSON.stringify({ email, password, displayName, referralCode }),
     });

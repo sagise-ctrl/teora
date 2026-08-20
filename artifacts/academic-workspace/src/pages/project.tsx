@@ -186,10 +186,16 @@ export default function ProjectWorkspace() {
                 {latestDoc ? (
                   <div dangerouslySetInnerHTML={{ __html: latestDoc.content.replace(/\n/g, '<br/>') }} />
                 ) : (
-                  <div className="h-full flex flex-col items-center justify-center text-muted-foreground py-24">
-                    <FileText className="w-16 h-16 mb-4 opacity-20" />
-                    <p>No document generated yet.</p>
-                    {project.status === "draft" && <p className="text-sm mt-2">Begin analysis to start the writing process.</p>}
+                  <div className="h-full flex flex-col items-center justify-center py-24">
+                    <div className="w-20 h-20 rounded-full bg-muted/30 flex items-center justify-center mb-6">
+                      <FileText className="w-10 h-10 text-muted-foreground/40" />
+                    </div>
+                    <h3 className="text-lg font-medium text-foreground mb-2">Document not ready</h3>
+                    <p className="text-sm text-muted-foreground max-w-md text-center">
+                      {project.status === "draft"
+                        ? "Click Begin Analysis to start the AI writing process."
+                        : "The AI is working on your document. Check back soon."}
+                    </p>
                   </div>
                 )}
               </CardContent>
@@ -267,27 +273,37 @@ function ChatTab({ projectId }: { projectId: number }) {
             <Skeleton className="h-24 w-3/4" />
           </div>
         ) : messages?.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-muted-foreground opacity-50 py-24">
-            <MessageSquare className="w-12 h-12 mb-4" />
-            <p>No messages yet. Ask the AI for revisions or research assistance.</p>
+          <div className="h-full flex flex-col items-center justify-center text-center px-8 py-16">
+            <div className="w-20 h-20 rounded-full bg-muted/50 flex items-center justify-center mb-6">
+              <MessageSquare className="w-10 h-10 text-muted-foreground/60" />
+            </div>
+            <h3 className="text-lg font-medium text-foreground mb-2">Start the conversation</h3>
+            <p className="text-sm text-muted-foreground max-w-md mb-6">
+              Ask the AI to revise sections, clarify concepts, add citations, or help with research.
+            </p>
+            <div className="flex flex-wrap gap-2 justify-center">
+              <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-secondary/80">Revise introduction</Badge>
+              <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-secondary/80">Add citations</Badge>
+              <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-secondary/80">Explain concept</Badge>
+            </div>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-5">
             {messages?.map(msg => (
               <div key={msg.id} className={cn("flex", msg.role === "user" ? "justify-end" : "justify-start")}>
                 <div className={cn(
-                  "max-w-[85%] rounded-2xl px-5 py-3 text-sm shadow-sm",
-                  msg.role === "user" 
-                    ? "bg-primary text-primary-foreground rounded-tr-sm" 
+                  "max-w-[80%] rounded-2xl px-5 py-3.5 text-sm leading-relaxed shadow-sm",
+                  msg.role === "user"
+                    ? "bg-primary text-primary-foreground rounded-tr-sm"
                     : msg.role === "system"
-                    ? "bg-muted text-muted-foreground italic w-full text-center rounded-lg shadow-none"
-                    : "bg-secondary text-secondary-foreground rounded-tl-sm"
+                    ? "bg-muted text-muted-foreground italic w-full text-center rounded-lg shadow-none border"
+                    : "bg-secondary/80 text-secondary-foreground rounded-tl-sm border border-border/50"
                 )}>
                   {msg.role === "system" ? msg.content : (
                     <div className="whitespace-pre-wrap">{msg.content}</div>
                   )}
                   {msg.role !== "system" && (
-                    <div className={cn("text-[10px] mt-2 opacity-70", msg.role === "user" ? "text-primary-foreground/70 text-right" : "text-secondary-foreground/70")}>
+                    <div className={cn("text-[10px] mt-2.5 opacity-60", msg.role === "user" ? "text-right" : "")}>
                       {format(new Date(msg.createdAt), "h:mm a")}
                     </div>
                   )}
@@ -296,10 +312,10 @@ function ChatTab({ projectId }: { projectId: number }) {
             ))}
             {sendMessage.isPending && (
               <div className="flex justify-start">
-                <div className="max-w-[85%] rounded-2xl px-5 py-4 bg-secondary text-secondary-foreground rounded-tl-sm flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-primary/50 animate-bounce" />
-                  <div className="w-2 h-2 rounded-full bg-primary/50 animate-bounce [animation-delay:0.2s]" />
-                  <div className="w-2 h-2 rounded-full bg-primary/50 animate-bounce [animation-delay:0.4s]" />
+                <div className="max-w-[80%] rounded-2xl rounded-tl-sm px-5 py-4 bg-secondary/80 border border-border/50 flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" />
+                  <div className="w-2 h-2 rounded-full bg-primary/60 animate-bounce [animation-delay:0.15s]" />
+                  <div className="w-2 h-2 rounded-full bg-primary/60 animate-bounce [animation-delay:0.3s]" />
                 </div>
               </div>
             )}
@@ -444,7 +460,17 @@ function ReferencesTab({ projectId }: { projectId: number }) {
             {isLoading ? (
               <TableRow><TableCell colSpan={5} className="text-center py-8"><Loader2 className="w-6 h-6 animate-spin mx-auto text-muted-foreground" /></TableCell></TableRow>
             ) : references?.length === 0 ? (
-              <TableRow><TableCell colSpan={5} className="text-center py-12 text-muted-foreground">No references found.</TableCell></TableRow>
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-16">
+                  <div className="flex flex-col items-center">
+                    <div className="w-14 h-14 rounded-full bg-muted/50 flex items-center justify-center mb-4">
+                      <BookMarked className="w-7 h-7 text-muted-foreground/50" />
+                    </div>
+                    <p className="text-sm font-medium text-foreground mb-1">No references yet</p>
+                    <p className="text-xs text-muted-foreground">Add sources to cite in your document</p>
+                  </div>
+                </TableCell>
+              </TableRow>
             ) : references?.map(ref => (
               <TableRow key={ref.id}>
                 <TableCell>
@@ -576,8 +602,16 @@ function AttachmentsTab({ projectId }: { projectId: number }) {
         {isLoading ? (
           <Skeleton className="h-32 w-full" />
         ) : attachments?.length === 0 ? (
-          <div className="col-span-full text-center py-12 text-muted-foreground border border-dashed rounded-lg">
-            No attachments uploaded yet.
+          <div className="col-span-full text-center py-16 border border-dashed rounded-xl">
+            <div className="w-14 h-14 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
+              <Paperclip className="w-7 h-7 text-muted-foreground/50" />
+            </div>
+            <p className="text-sm font-medium text-foreground mb-1">No attachments yet</p>
+            <p className="text-xs text-muted-foreground mb-4">Upload PDFs, rubrics, or notes for the AI to analyze</p>
+            <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
+              <Upload className="w-4 h-4 mr-2" />
+              Upload File
+            </Button>
           </div>
         ) : attachments?.map(attach => (
           <Card key={attach.id} className="bg-card">
@@ -633,7 +667,17 @@ function HistoryTab({ projectId }: { projectId: number }) {
             {isLoading ? (
               <TableRow><TableCell colSpan={4} className="text-center py-8"><Loader2 className="w-6 h-6 animate-spin mx-auto text-muted-foreground" /></TableCell></TableRow>
             ) : versions?.length === 0 ? (
-              <TableRow><TableCell colSpan={4} className="text-center py-12 text-muted-foreground">No versions found.</TableCell></TableRow>
+              <TableRow>
+                <TableCell colSpan={4} className="text-center py-16">
+                  <div className="flex flex-col items-center">
+                    <div className="w-14 h-14 rounded-full bg-muted/50 flex items-center justify-center mb-4">
+                      <History className="w-7 h-7 text-muted-foreground/50" />
+                    </div>
+                    <p className="text-sm font-medium text-foreground mb-1">No versions yet</p>
+                    <p className="text-xs text-muted-foreground">Document versions will appear here after regeneration</p>
+                  </div>
+                </TableCell>
+              </TableRow>
             ) : versions?.map(v => (
               <TableRow key={v.id}>
                 <TableCell className="font-medium text-primary">v{v.versionNumber}.0</TableCell>
@@ -680,7 +724,13 @@ function TimelineTab({ projectId }: { projectId: number }) {
             <Skeleton className="h-16 w-full" />
           </div>
         ) : activities?.length === 0 ? (
-          <p className="text-muted-foreground pb-8">No activity yet.</p>
+          <div className="py-16 text-center">
+            <div className="w-14 h-14 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
+              <ActivitySquare className="w-7 h-7 text-muted-foreground/50" />
+            </div>
+            <p className="text-sm font-medium text-foreground mb-1">No activity yet</p>
+            <p className="text-xs text-muted-foreground">Activity will be logged here as you work</p>
+          </div>
         ) : activities?.map((act, i) => (
           <div key={act.id} className="relative">
             <div className="absolute -left-[35px] w-4 h-4 rounded-full bg-background border-2 border-primary" />

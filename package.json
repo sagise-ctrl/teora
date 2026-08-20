@@ -11,10 +11,17 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "test:api": "pnpm --filter @workspace/api-server test",
-    "test:web": "pnpm --filter @workspace/academic-workspace test"
+    "test:web": "pnpm --filter @workspace/academic-workspace test",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:install": "playwright install chromium"
   },
   "private": true,
   "devDependencies": {
+    "@playwright/browser-chromium": "^1.62.1",
+    "@playwright/browser-firefox": "^1.62.1",
+    "@playwright/browser-webkit": "^1.62.1",
+    "@playwright/test": "^1.62.1",
     "@rollup/rollup-win32-x64-msvc": "^4.62.4",
     "@vitest/coverage-v8": "^2.1.9",
     "prettier": "^3.9.6",

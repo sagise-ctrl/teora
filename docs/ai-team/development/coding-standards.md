@@ -62,8 +62,10 @@
 
 ## Dark Mode
 
-- Use `next-themes` ThemeProvider
-- CSS variables auto-switch with theme
+- Teora uses Tailwind CSS v4 with CSS-first theming
+- Theme tokens defined in `index.css` via CSS variables under `@theme`
+- No `next-themes` or Tailwind config file needed
+- Browser respects `prefers-color-scheme` automatically via CSS media queries
 
 ## Responsive Design
 

@@ -42,5 +42,8 @@ Frontend tidak boleh import dari backend (artifacts/* tidak boleh depend ke arti
 ## CI/CD
 
 - Vercel auto-deploys frontend on push (preview + production)
-- Backend: manual deploy to VPS (no CI pipeline yet)
-- No GitHub Actions yet
+- Backend: automated deploy via GitHub Actions CI/CD pipeline
+  - `.github/workflows/ci.yml` — typecheck + unit tests + E2E tests + build (runs on every push/PR)
+  - `.github/workflows/deploy-backend.yml` — build + rsync to VPS + PM2 restart + health check (runs on push to main)
+- PM2 ecosystem config: `artifacts/api-server/ecosystem.config.cjs`
+- See `devops/deployment.md` for full pipeline documentation

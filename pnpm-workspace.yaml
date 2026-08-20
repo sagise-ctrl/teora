@@ -150,5 +150,8 @@ overrides:
   esbuild: "0.27.3"
 
 allowBuilds:
+  '@playwright/browser-chromium': true
+  '@playwright/browser-firefox': true
+  '@playwright/browser-webkit': true
   esbuild: true
   msw: set this to true or false

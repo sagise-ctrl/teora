@@ -7,6 +7,7 @@ export default defineConfig({
     globals: false,
     include: ["src/**/*.test.ts"],
     exclude: ["node_modules", "dist", "build"],
+    setupFiles: ["./src/test/setup.ts"],
     coverage: {
       provider: "v8",
       reporter: ["text", "html", "json-summary"],
@@ -18,5 +19,6 @@ export default defineConfig({
     alias: {
       "@": "src",
     },
+    extensions: [".ts", ".js", ".mts", ".mtsx", ".json"],
   },
 });

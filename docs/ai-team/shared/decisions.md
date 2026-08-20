@@ -24,7 +24,7 @@ Format per decision: **Decision / Context / Options / Chosen / Reason / Conseque
 - Generated files are committed to the repo (not re-generated at build time)
 - Schema drift between YAML and implementation causes type mismatches at runtime
 
-**Date:** 2025
+**Date:** 2026
 
 ---
 
@@ -49,7 +49,7 @@ Format per decision: **Decision / Context / Options / Chosen / Reason / Conseque
 - Auth state managed client-side; JWT passed on every API request
 - Supabase project must be kept active (vendor lock-in to Supabase ecosystem)
 
-**Date:** 2025
+**Date:** 2026
 
 ---
 
@@ -75,7 +75,7 @@ Format per decision: **Decision / Context / Options / Chosen / Reason / Conseque
 - Loading and error states handled by TanStack Query (`isLoading`, `isError`)
 - Generated hooks live in `lib/api-client-react/src/generated/`
 
-**Date:** 2025
+**Date:** 2026
 
 ---
 
@@ -99,7 +99,7 @@ Format per decision: **Decision / Context / Options / Chosen / Reason / Conseque
 - Upgrade path: v4 is the current version; v3 plugins may not be compatible
 - Migration from v3 would require updating `@theme` directives
 
-**Date:** 2025
+**Date:** 2026
 
 ---
 
@@ -123,7 +123,7 @@ Format per decision: **Decision / Context / Options / Chosen / Reason / Conseque
 - Error handling via Express error middleware
 - Middleware from Express ecosystem compatible with Express 5
 
-**Date:** 2025
+**Date:** 2026
 
 ---
 
@@ -149,4 +149,4 @@ Format per decision: **Decision / Context / Options / Chosen / Reason / Conseque
 - In development, `drizzle-kit push` applies schema directly (dev-only, not for production)
 - Type safety from Drizzle queries complements Zod validation of external input
 
-**Date:** 2025
+**Date:** 2026

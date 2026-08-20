@@ -273,14 +273,12 @@ Reusable workflow patterns:
 
 ## Tooling Gaps
 
-- No Vitest (needs setup)
+- ✅ Vitest (done)
+- ✅ GitHub Actions CI/CD (done — `.github/workflows/ci.yml` + `deploy-backend.yml`)
+- ✅ API server `.env.example` (done — `artifacts/api-server/.env.example`)
 - No ESLint project-wide
-- No GitHub Actions CI/CD
-- No API server .env.example
 - No Framer Motion integration
 - UI uses shadcn defaults
-
-Priority: set up Vitest first, then implement UI improvements.
 
 ---
 

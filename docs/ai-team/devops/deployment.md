@@ -11,11 +11,62 @@
 
 ## Backend -> VPS Ubuntu 24
 
-- Manual deployment (no CI/CD yet)
-- Build: node build.mjs in artifacts/api-server/
-- Deploy: copy dist/ to VPS, restart PM2 process
-- PM2 process name: api-server
-- Restart: pm2 restart api-server
+- **Automated via GitHub Actions** (`.github/workflows/deploy-backend.yml`)
+- Triggered on push to `main` when `artifacts/api-server/` or `lib/db/` changes
+- Pipeline: build -> rsync dist/ to VPS -> `pm2 restart teora-api` -> health check
+- PM2 process: managed via `ecosystem.config.cjs`
+- PM2 process name: `teora-api`
+- Restart: `pm2 restart teora-api`
+
+### Manual Deploy (fallback)
+
+If GitHub Actions is unavailable:
+
+1. Build: `pnpm --filter @workspace/api-server run build`
+2. Copy `dist/` to VPS
+3. Restart: `pm2 restart teora-api`
+
+### Required GitHub Secrets
+
+| Secret | Description |
+|--------|-------------|
+| `VPS_HOST` | VPS IP address or hostname |
+| `VPS_USER` | SSH username |
+| `VPS_SSH_KEY` | Private SSH key (with write access to VPS) |
+| `DATABASE_URL` | PostgreSQL connection string |
+| `SUPABASE_URL` | Supabase project URL |
+| `SUPABASE_JWT_SECRET` | JWT secret |
+| `SUPABASE_SERVICE_ROLE_KEY` | Service role key |
+| `AI_API_KEY` | AI provider API key |
+| `PORT` | Server port (e.g. 8080) |
+
+### PM2 Ecosystem Config
+
+Located at `artifacts/api-server/ecosystem.config.cjs`. Use:
+```bash
+pm2 start ecosystem.config.cjs  # start
+pm2 restart teora-api           # restart
+pm2 logs teora-api              # view logs
+pm2 monit                       # monitor
+```
+
+## CI/CD Pipeline
+
+### CI Pipeline (`.github/workflows/ci.yml`)
+
+Runs on every push and PR:
+1. **typecheck** — TypeScript type checking
+2. **test** — Unit tests (Vitest, 91 tests)
+3. **test-e2e** — E2E tests (Playwright, 30+ specs)
+4. **build** — Production build
+
+All jobs run in parallel after setup. `build` is the final gate.
+
+### Deploy Pipeline (`.github/workflows/deploy-backend.yml`)
+
+Runs on push to `main` when API server or DB files change:
+1. **build** — Build API server
+2. **deploy** — rsync to VPS + PM2 restart + health check
 
 ## Database
 

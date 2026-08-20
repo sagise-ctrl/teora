@@ -11,6 +11,8 @@ import ProjectWorkspace from "@/pages/project";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
 import Confirm from "@/pages/confirm";
+import FinOps from "@/pages/finops";
+import Referral from "@/pages/referral";
 import Layout from "@/components/layout";
 
 const queryClient = new QueryClient();
@@ -39,6 +41,20 @@ function AppRouter() {
         <ProtectedRoute>
           <Layout>
             <ProjectWorkspace />
+          </Layout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/finops">
+        <ProtectedRoute>
+          <Layout>
+            <FinOps />
+          </Layout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/referral">
+        <ProtectedRoute>
+          <Layout>
+            <Referral />
           </Layout>
         </ProtectedRoute>
       </Route>

@@ -370,6 +370,68 @@ export const handlers = [
     return HttpResponse.json(meta);
   }),
 
+  // AI Usage - Stats
+  http.get("/api/ai-usage/stats", async () => {
+    await delay(200);
+    return HttpResponse.json({
+      totalRequests: 42,
+      totalInputTokens: 125000,
+      totalOutputTokens: 87500,
+      totalCostUsd: 0.1842,
+      byRequestType: {
+        chat: { requests: 20, inputTokens: 50000, outputTokens: 30000, costUsd: 0.082 },
+        analyze: { requests: 15, inputTokens: 40000, outputTokens: 25000, costUsd: 0.056 },
+        write: { requests: 7, inputTokens: 35000, outputTokens: 32500, costUsd: 0.0462 },
+      },
+    });
+  }),
+
+  // AI Usage - List
+  http.get("/api/ai-usage", async () => {
+    await delay(200);
+    return HttpResponse.json({
+      data: [
+        {
+          id: 1,
+          userId: "mock-user-001",
+          projectId: 1,
+          model: "claude-3-5-sonnet-20241022",
+          provider: "anthropic",
+          inputTokens: 2500,
+          outputTokens: 1500,
+          estimatedCostUsd: 0.0041,
+          requestType: "chat",
+          createdAt: now(),
+        },
+        {
+          id: 2,
+          userId: "mock-user-001",
+          projectId: 1,
+          model: "claude-3-5-sonnet-20241022",
+          provider: "anthropic",
+          inputTokens: 4200,
+          outputTokens: 2100,
+          estimatedCostUsd: 0.0063,
+          requestType: "analyze",
+          createdAt: new Date(Date.now() - 3600000).toISOString(),
+        },
+        {
+          id: 3,
+          userId: "mock-user-001",
+          projectId: null,
+          model: "claude-3-5-sonnet-20241022",
+          provider: "anthropic",
+          inputTokens: 800,
+          outputTokens: 320,
+          estimatedCostUsd: 0.00112,
+          requestType: "write",
+          createdAt: new Date(Date.now() - 7200000).toISOString(),
+        },
+      ],
+      total: 3,
+    });
+  }),
+
   // Exports
   http.get("/api/projects/:projectId/exports", async () => {
     await delay(200);

@@ -188,3 +188,39 @@ The shape language is **Soft (0.25rem)**. This provides a precise, tailored appe
 - **Citation Highlight:** A shaded container (#F1F5F9) with a thick 4px Oxford Blue left border to distinguish quoted text or scholarly references.
 - **Token Indicator:** A small circular pill in the top navigation using the brand gradient as a fill to show remaining AI credits.
 - **Hexagonal Badge:** Small hexagonal icons used for "Verified Source" or "Expert Peer Review" status.
+
+---
+
+## Implementation: Hybrid Approach (2026-08)
+
+Current Teora implementation uses a **hybrid design** — brand identity from this reference, parchment aesthetic from the existing codebase:
+
+### What was adopted from this reference:
+- **Hexagonal TeoraLogo** SVG component (`src/components/brand/teora-logo.tsx`) — blue-to-purple gradient (#2D79FF → #8E54E9) with circuit/signal elements
+- **Gradient accent line** on auth pages (top of form cards)
+- **Tagline**: "Empowering Academic Excellence through Artificial Intelligence"
+- **Google login button** placeholder (disabled, "Coming soon")
+
+### What was preserved from existing implementation:
+- **Parchment/warm color palette** — existing `bg-background` with warm undertones
+- **Tailwind CSS v4** with CSS-first theming (no Tailwind config file)
+- **Radix UI components** — Tabs, Dialog, Dropdown Menu, etc.
+- **shadcn/ui patterns** — existing form components, buttons, cards
+- **`Source Serif` font** — for headlines (via Tailwind `font-serif`)
+- **Inter font** — for body text
+- **Dark mode** — CSS `prefers-color-scheme` media queries
+
+### Key divergence from reference:
+- Reference uses clean white backgrounds; Teora uses warm parchment
+- Reference uses sharp `0.25rem` rounding; Teora uses shadcn defaults
+- Reference has high-fidelity glassmorphism; Teora uses subtle shadows
+
+### Design system tokens in use:
+```css
+/* Blue-purple gradient (from reference) */
+from-[#2D79FF] via-[#8E54E9] to-[#2D79FF]
+```
+
+### Pages using TeoraLogo:
+- `src/pages/login.tsx` — lg size, "Welcome to Teora" heading
+- `src/pages/register.tsx` — lg size, "Start your journey" heading

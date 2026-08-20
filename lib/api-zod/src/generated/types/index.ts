@@ -7,6 +7,11 @@
  */
 
 export * from './activity';
+export * from './aIUsageLog';
+export * from './aIUsageLogMetadata';
+export * from './aIUsageLogRequestType';
+export * from './aIUsageStats';
+export * from './aIUsageStatsByRequestType';
 export * from './attachment';
 export * from './attachmentAttachmentType';
 export * from './attachmentUpload';
@@ -19,10 +24,13 @@ export * from './exportFormat';
 export * from './exportInput';
 export * from './exportInputFormat';
 export * from './exportStatus';
+export * from './getAIUsageStatsParams';
 export * from './healthStatus';
 export * from './job';
 export * from './jobJobType';
 export * from './jobStatus';
+export * from './listAIUsage200';
+export * from './listAIUsageParams';
 export * from './listProjectsParams';
 export * from './loginRequest';
 export * from './message';

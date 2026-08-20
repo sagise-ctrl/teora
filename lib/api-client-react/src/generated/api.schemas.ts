@@ -428,8 +428,83 @@ export interface ReferralListResponse {
   referrals?: Referral[];
 }
 
+export type AIUsageLogRequestType = typeof AIUsageLogRequestType[keyof typeof AIUsageLogRequestType];
+
+
+export const AIUsageLogRequestType = {
+  chat: 'chat',
+  analyze: 'analyze',
+  outline: 'outline',
+  write: 'write',
+  export: 'export',
+} as const;
+
+/**
+ * @nullable
+ */
+export type AIUsageLogMetadata = { [key: string]: unknown } | null;
+
+export interface AIUsageLog {
+  id: number;
+  userId: string;
+  /** @nullable */
+  projectId?: number | null;
+  model: string;
+  provider: string;
+  inputTokens: number;
+  outputTokens: number;
+  estimatedCostUsd: number;
+  requestType: AIUsageLogRequestType;
+  /** @nullable */
+  metadata?: AIUsageLogMetadata;
+  createdAt: string;
+}
+
+export type AIUsageStatsByRequestType = {[key: string]: {
+  requests?: number;
+  inputTokens?: number;
+  outputTokens?: number;
+  costUsd?: number;
+}};
+
+export interface AIUsageStats {
+  totalRequests: number;
+  totalInputTokens: number;
+  totalOutputTokens: number;
+  totalCostUsd: number;
+  byRequestType: AIUsageStatsByRequestType;
+}
+
 export type ListProjectsParams = {
 status?: string;
 search?: string;
+};
+
+export type ListAIUsageParams = {
+/**
+ * Filter by user (admin only, defaults to current user)
+ */
+userId?: string;
+/**
+ * Filter by project
+ */
+projectId?: number;
+startDate?: string;
+endDate?: string;
+limit?: number;
+offset?: number;
+};
+
+export type ListAIUsage200 = {
+  data?: AIUsageLog[];
+  total?: number;
+};
+
+export type GetAIUsageStatsParams = {
+/**
+ * Filter by user (admin only, defaults to current user)
+ */
+userId?: string;
+projectId?: number;
 };
 
