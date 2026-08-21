@@ -56,3 +56,4 @@ Thumbs.db
 
 # Claude Code sessions
 .claude/sessions/
+test-results/
