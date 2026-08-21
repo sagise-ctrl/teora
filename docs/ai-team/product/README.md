@@ -49,3 +49,12 @@ Only for decisions that require owner judgment:
 - Financial commitments
 
 Technical implementation decisions: AI Product Manager decides autonomously.
+
+## Restructure Note (2026-08-21)
+
+Academic Content has been absorbed:
+- **Academic Content** (`academic-content/knowledge-base.md`) — domain knowledge documentation is a reference layer under Product, not a standalone division
+
+## Last Updated
+
+2026-08-21

@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teora Division Structure Review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F8FAFC;
+  --surface: #FFFFFF;
+  --surface-alt: #F1F5F9;
+  --border: #E2E8F0;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --accent: #2563EB;
+  --accent-light: #DBEAFE;
+  --accent-tint: #EFF6FF;
+  --danger: #DC2626;
+  --danger-light: #FEE2E2;
+  --warn: #D97706;
+  --warn-light: #FEF3C7;
+  --success: #16A34A;
+  --success-light: #DCFCE7;
+  --purple: #7C3AED;
+  --purple-light: #EDE9FE;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0B1120;
+    --surface: #111827;
+    --surface-alt: #1E293B;
+    --border: #334155;
+    --text-primary: #F1F5F9;
+    --text-secondary: #94A3B8;
+    --text-muted: #64748B;
+    --accent: #3B82F6;
+    --accent-light: #1E3A5F;
+    --accent-tint: #1E293B;
+    --danger: #F87171;
+    --danger-light: #450A0A;
+    --warn: #FBBF24;
+    --warn-light: #451A03;
+    --success: #4ADE80;
+    --success-light: #052E16;
+    --purple: #A78BFA;
+    --purple-light: #2E1065;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0B1120;
+  --surface: #111827;
+  --surface-alt: #1E293B;
+  --border: #334155;
+  --text-primary: #F1F5F9;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --accent: #3B82F6;
+  --accent-light: #1E3A5F;
+  --accent-tint: #1E293B;
+  --danger: #F87171;
+  --danger-light: #450A0A;
+  --warn: #FBBF24;
+  --warn-light: #451A03;
+  --success: #4ADE80;
+  --success-light: #052E16;
+  --purple: #A78BFA;
+  --purple-light: #2E1065;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Source Sans 3', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-size: 15px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: var(--accent); color: #fff; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* Header */
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 28px 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+header .inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+header .eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+header h1 {
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+header .meta {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Sticky nav */
+.nav-wrap {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 89px;
+  z-index: 90;
+}
+.nav-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.nav-inner::-webkit-scrollbar { display: none; }
+.nav-inner a {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 10px 12px;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+.nav-inner a:hover { color: var(--accent); border-color: var(--accent); }
+.nav-inner a.active { color: var(--accent); border-color: var(--accent); }
+
+/* Main content */
+main { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+section { padding: 48px 0; border-bottom: 1px solid var(--border); }
+section:last-of-type { border-bottom: none; }
+
+.section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+h2 {
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.section-intro {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 28px;
+  max-width: 70ch;
+}
+
+/* Verdict badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+.badge-keep { background: var(--success-light); color: var(--success); }
+.badge-merge { background: var(--warn-light); color: var(--warn); }
+.badge-split { background: var(--danger-light); color: var(--danger); }
+.badge-active { background: var(--accent-light); color: var(--accent); }
+.badge-prep { background: var(--purple-light); color: var(--purple); }
+.badge-standby { background: var(--surface-alt); color: var(--text-muted); }
+
+/* Division cards */
+.divisions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+.division-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.division-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.division-card .card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.division-card .card-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+.division-card .badges { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+.division-card .workload {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.division-card .files {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+.division-card .summary {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.division-card .overlap-note {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+
+/* Workload bar */
+.workload-bar {
+  display: flex;
+  gap: 3px;
+  margin-bottom: 6px;
+}
+.workload-pip {
+  width: 28px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+}
+.workload-pip.filled { background: var(--accent); }
+.workload-pip.filled.warn { background: var(--warn); }
+.workload-pip.filled.danger { background: var(--danger); }
+
+/* Consolidated findings table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--border);
+}
+td {
+  padding: 12px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  color: var(--text-secondary);
+}
+tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--surface-alt); }
+td .tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: var(--surface-alt);
+  color: var(--text-secondary);
+  margin-right: 4px;
+  margin-bottom: 4px;
+  display: inline-block;
+}
+td strong { color: var(--text-primary); font-weight: 600; }
+
+/* Org chart */
+.org-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 28px;
+  margin-bottom: 24px;
+}
+.org-section h3 {
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.org-layers {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+.org-layer {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.layer-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  min-width: 80px;
+  padding-top: 4px;
+}
+.layer-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.org-pill {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+  color: var(--text-secondary);
+  transition: all 0.15s;
+}
+.org-pill.merged { border-color: var(--warn); background: var(--warn-light); color: var(--warn); }
+.org-pill.removed { text-decoration: line-through; opacity: 0.5; }
+.org-pill.new { border-color: var(--accent); background: var(--accent-tint); color: var(--accent); }
+.org-pill.highlight { border-color: var(--accent); background: var(--accent-light); color: var(--accent); font-weight: 600; }
+
+/* Problems list */
+.problems-list { list-style: none; }
+.problems-list li {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.problems-list li:last-child { border-bottom: none; }
+.problem-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+  width: 24px;
+  text-align: center;
+}
+.problem-icon.critical { color: var(--danger); }
+.problem-icon.warn { color: var(--warn); }
+
+/* Principle card */
+.principle-box {
+  background: var(--accent-tint);
+  border: 1px solid var(--accent-light);
+  border-radius: 8px;
+  padding: 20px 24px;
+}
+.principle-box h4 {
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+.principle-box p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* Merge/Split tables */
+.merge-table td:first-child { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-primary); min-width: 140px; }
+
+/* Responsive */
+@media (max-width: 640px) {
+  .divisions-grid { grid-template-columns: 1fr; }
+  header h1 { font-size: 20px; }
+  .nav-wrap { top: 73px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="inner">
+    <div class="eyebrow">Teora AI Engineering Team</div>
+    <h1>Division Structure Review</h1>
+    <div class="meta">Organizational design analysis &nbsp;&middot;&nbsp; Pre-launch consolidation assessment &nbsp;&middot;&nbsp; August 2026</div>
+  </div>
+</header>
+
+<nav class="nav-wrap">
+  <div class="nav-inner">
+    <a href="#executive">Executive Summary</a>
+    <a href="#divisions">Division Analysis</a>
+    <a href="#consolidation">Consolidation</a>
+    <a href="#problems">Problems</a>
+    <a href="#recommended">Recommended Structure</a>
+    <a href="#principle">Management Principle</a>
+  </div>
+</nav>
+
+<main>
+
+<section id="executive">
+  <div class="section-label">Overview</div>
+  <h2>Executive Summary</h2>
+  <p class="section-intro">23 divisions analyzed. The current structure has too many small divisions that fragment accountability and create overlap. Most of the problems are pre-launch noise: divisions that exist before they have real work, while the divisions that are ACTIVE are doing heavy, overlapping work without clear boundaries.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Recommendation</th>
+        <th>Divisions</th>
+        <th>Reasoning</th>
+        <th>Effort</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="badge badge-merge">Merge</span></td>
+        <td><strong>Finance + FinOps</strong></td>
+        <td>Same function split in two. Both own token economy, pricing, and margin analysis. The "handoff" between them is artificial.</td>
+        <td>Low</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-merge">Merge</span></td>
+        <td><strong>Business + Marketing</strong></td>
+        <td>Business already owns positioning, pricing strategy, and marketing channels. Marketing adds nothing distinct at this stage.</td>
+        <td>Low</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-merge">Merge</span></td>
+        <td><strong>Sales + Partnership</strong></td>
+        <td>Both STANDBY. Both target institutions. Sales is transactional, Partnership is strategic — but both feed the same pipeline. Too thin to justify two divisions pre-launch.</td>
+        <td>Low</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-merge">Merge</span></td>
+        <td><strong>Operations + DevOps</strong></td>
+        <td>Operations (vendor management, runbooks) overlaps entirely with DevOps (environment, deployment). Combined they form a coherent "Infrastructure & Operations" division.</td>
+        <td>Medium</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-merge">Merge</span></td>
+        <td><strong>Code Review + QA</strong></td>
+        <td>Both review code quality. Code Review fixes issues it finds; QA tests workflows. They should be one "Quality" division that owns both test coverage and code standards.</td>
+        <td>Medium</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-merge">Merge</span></td>
+        <td><strong>Product + Architecture</strong></td>
+        <td>Architecture owns system/API design. Product owns feature requirements. Development owns implementation. The three-way split creates circular dependency — Product defines what, Architecture designs how, Development builds. This works but is over-engineered for a 3-person AI team. Merge into a single "AI Engineering" division or keep Architecture as a subdomain.</td>
+        <td>Medium</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-standby">STANDBY</span></td>
+        <td><strong>Academic Content</strong></td>
+        <td>One file (knowledge-base.md). This is domain knowledge for the AI, not a division. Absorb into Product or Research.</td>
+        <td>Low</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-standby">STANDBY</span></td>
+        <td><strong>HR</strong></td>
+        <td>STANDBY by design — activates when first human joins. No action needed now. Keep as-is.</td>
+        <td>None</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-keep">Keep</span></td>
+        <td><strong>Management</strong></td>
+        <td>The coordination layer. Essential. Keep but consider renaming to "Operations Lead" or "Chief of Staff" to avoid confusion with the Operations division.</td>
+        <td>None</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-keep">Keep</span></td>
+        <td><strong>Security</strong></td>
+        <td>Clear mandate, active post-launch responsibilities, distinct from other divisions. Keep but merge the checklist into QA division to reduce proliferation.</td>
+        <td>Low</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-keep">Keep</span></td>
+        <td><strong>Production Admin</strong></td>
+        <td>Clear mandate — production-facing, autonomous remediation. Distinct from DevOps (build/deploy) and Development (feature build). Essential post-launch.</td>
+        <td>None</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-keep">Keep</span></td>
+        <td><strong>Customer Success</strong></td>
+        <td>User-facing support, distinct from Production Admin (system). Clear scope boundaries. Keep.</td>
+        <td>None</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-keep">Keep</span></td>
+        <td><strong>Design</strong></td>
+        <td>Distinct from Development. Owns design system and visual consistency. Keep.</td>
+        <td>None</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-keep">Keep</span></td>
+        <td><strong>Legal & Compliance</strong></td>
+        <td>Active minimum scope (ToS, Privacy Policy) required before launch. Keep.</td>
+        <td>None</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-keep">Keep</span></td>
+        <td><strong>Data Analytics</strong></td>
+        <td>PREPARED, not STANDBY. Has a defined role (North Star metric, insight generation). Keep but merge with FinOps — FinOps produces the data, DA consumes it.</td>
+        <td>Low</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-standby">STANDBY</span></td>
+        <td><strong>Research</strong></td>
+        <td>Technology evaluation role is valid but overlaps with Architecture for tech decisions. Keep but clarify the boundary: Research owns library/framework evaluation; Architecture owns system design decisions.</td>
+        <td>Low</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="divisions">
+  <div class="section-label">In Depth</div>
+  <h2>Division-by-Division Analysis</h2>
+  <p class="section-intro">23 divisions assessed across workload, overlap, dependency, lifecycle, and recommendation.</p>
+
+  <div class="divisions-grid">
+
+    <!-- Product -->
+    <div class="division-card" id="product">
+      <div class="card-header">
+        <span class="card-name">product</span>
+        <div class="badges">
+          <span class="badge badge-active">ACTIVE</span>
+        </div>
+      </div>
+      <div class="workload">Workload: <strong>Heavy</strong></div>
+      <div class="workload-bar"><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip filled"></div></div>
+      <div class="files">4 files: README, requirements.md, roadmap.md, business-rules.md</div>
+      <div class="summary">Owns requirements, roadmap, and business rules. Has clear scope and active ownership of the product backlog. Core to the AI Engineering function.</div>
+      <div class="overlap-note">Overlaps with Architecture (system design) and Business (pricing strategy). Product defines WHAT; Architecture designs HOW; Business defines MARKET CONTEXT.</div>
+    </div>
+
+    <!-- Architecture -->
+    <div class="division-card" id="architecture">
+      <div class="card-header">
+        <span class="card-name">architecture</span>
+        <div class="badges">
+          <span class="badge badge-active">ACTIVE</span>
+        </div>
+      </div>
+      <div class="workload">Workload: <strong>Medium</strong></div>
+      <div class="workload-bar"><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip"></div></div>
+      <div class="files">4 files: README, api.md, database.md, system-design.md</div>
+      <div class="summary">Owns system design, API design, and database schema decisions. Full technical authority for architecture. 4 files of substantive architecture documentation.</div>
+      <div class="overlap-note">Depends on Product (requirements feed into design). Depends on Development (implementation feedback). Overlaps with Research (technology evaluation).</div>
+    </div>
+
+    <!-- Development -->
+    <div class="division-card" id="development">
+      <div class="card-header">
+        <span class="card-name">development</span>
+        <div class="badges">
+          <span class="badge badge-active">ACTIVE</span>
+        </div>
+      </div>
+      <div class="workload">Workload: <strong>Heavy</strong></div>
+      <div class="workload-bar"><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip filled"></div></div>
+      <div class="files">4 files: README, coding-standards.md, common-problems.md, project-patterns.md</div>
+      <div class="summary">AI Senior Developer — implementation authority. Full responsibility for features and fixes. Follows DECIDE→EXECUTE→VERIFY→REPORT. Owns coding standards and project patterns.</div>
+      <div class="overlap-note">Depends on Product (requirements) and Architecture (design). Overlaps with QA and Code Review (both review the output). In practice, Development does most of the work; QA and Code Review add overhead.</div>
+    </div>
+
+    <!-- QA -->
+    <div class="division-card" id="qa">
+      <div class="card-header">
+        <span class="card-name">qa</span>
+        <div class="badges">
+          <span class="badge badge-active">ACTIVE</span>
+        </div>
+      </div>
+      <div class="workload">Workload: <strong>Light</strong></div>
+      <div class="workload-bar"><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip"></div><div class="workload-pip"></div></div>
+      <div class="files">2 files: README, known-issues.md</div>
+      <div class="summary">Verifies feature completeness, tests critical workflows, identifies edge cases. 2 files — minimal documentation. Has a good testing strategy and Vitest framework guidance.</div>
+      <div class="overlap-note">Overlaps heavily with Code Review (both quality gates). Development, QA, and Code Review form a three-stage review pipeline that adds latency. Merge into a single Quality division.</div>
+    </div>
+
+    <!-- Security -->
+    <div class="division-card" id="security">
+      <div class="card-header">
+        <span class="card-name">security</span>
+        <div class="badges">
+          <span class="badge badge-active">ACTIVE</span>
+        </div>
+      </div>
+      <div class="workload">Workload: <strong>Medium</strong></div>
+      <div class="workload-bar"><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip"></div></div>
+      <div class="files">3 files: README, security-checklist.md, threat-model.md</div>
+      <div class="summary">Owns auth review, authorization, input validation, secrets management, API security. Post-launch: abuse pattern monitoring, CS AI scope enforcement, incident response. Well-defined security boundaries table.</div>
+      <div class="overlap-note">Depends on Architecture (infrastructure) and Development (implementation). Coordinates with FinOps (cost impact of security events) and Customer Success (user communication). Distinct mandate — keep separate.</div>
+    </div>
+
+    <!-- Code Review -->
+    <div class="division-card" id="code-review">
+      <div class="card-header">
+        <span class="card-name">code-review</span>
+        <div class="badges">
+          <span class="badge badge-active">ACTIVE</span>
+        </div>
+      </div>
+      <div class="workload">Workload: <strong>Light</strong></div>
+      <div class="workload-bar"><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip"></div><div class="workload-pip"></div></div>
+      <div class="files">3 files: README, review-checklist.md, recurring-issues.md</div>
+      <div class="summary">Reviews code, finds bugs/logic/security/performance issues, and FIXES them autonomously. Not just review — actively resolves issues found. 3 concise files.</div>
+      <div class="overlap-note">Overlaps with QA (both quality gates), Security (finds security issues), and Development (fixes code). At the AI team scale, having three quality divisions (QA, Code Review, Security) creates more overhead than value. Merge QA + Code Review into Quality. Security stays separate.</div>
+    </div>
+
+    <!-- DevOps -->
+    <div class="division-card" id="devops">
+      <div class="card-header">
+        <span class="card-name">devops</span>
+        <div class="badges">
+          <span class="badge badge-active">ACTIVE</span>
+        </div>
+      </div>
+      <div class="workload">Workload: <strong>Medium</strong></div>
+      <div class="workload-bar"><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip"></div></div>
+      <div class="files">3 files: README, deployment.md, environments.md</div>
+      <div class="summary">Owns environments, build/deploy pipelines, reproducibility, production monitoring, and deployment/rollback. Clear authorization table for when to deploy to each environment. 3 substantive files.</div>
+      <div class="overlap-note">Overlaps with Operations (vendor management, runbooks) and Production Admin (monitoring, health checks). These three form a cluster around "keeping the system running." Merge DevOps + Operations into Infrastructure & Operations.</div>
+    </div>
+
+    <!-- Research -->
+    <div class="division-card" id="research">
+      <div class="card-header">
+        <span class="card-name">research</span>
+        <div class="badges">
+          <span class="badge badge-prep">PREPARED</span>
+        </div>
+      </div>
+      <div class="workload">Workload: <strong>Light</strong></div>
+      <div class="workload-bar"><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip"></div><div class="workload-pip"></div></div>
+      <div class="files">2 files: README, technology-decisions.md</div>
+      <div class="summary">Evaluates libraries/frameworks, compares alternatives, checks compatibility. Post-launch extends to market/competitor research. 2 files. Has a solid "Before Adding Any Dependency" checklist.</div>
+      <div class="overlap-note">Overlaps with Architecture (tech decisions affect system design). Post-launch, overlaps with Business (market research) and Marketing (channel analysis). Keep but clarify boundary: Research owns tech evaluation; Architecture owns design decisions; Business owns market analysis.</div>
+    </div>
+
+    <!-- Finance -->
+    <div class="division-card" id="finance">
+      <div class="card-header">
+        <span class="card-name">finance</span>
+        <div class="badges">
+          <span class="badge badge-active">ACTIVE</span>
+        </div>
+      </div>
+      <div class="workload">Workload: <strong>Medium</strong></div>
+      <div class="workload-bar"><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip"></div></div>
+      <div class="files">5 files: README, token-economy.md, pricing.md, payment-flow.md, financial-rules.md</div>
+      <div class="summary">Owns token economy, pricing, payment flow, and financial rules. No financial loss on any transaction — core principle. 5 well-developed files covering the full financial stack.</div>
+      <div class="overlap-note">Overlaps completely with FinOps (same function, split in two). Finance's own README explicitly describes a handoff to FinOps for real-time cost tracking — this handoff is artificial at this scale. Merge into one "Finance & FinOps" division.</div>
+    </div>
+
+    <!-- Business -->
+    <div class="division-card" id="business">
+      <div class="card-header">
+        <span class="card-name">business</span>
+        <div class="badges">
+          <span class="badge badge-active">ACTIVE</span>
+        </div>
+      </div>
+      <div class="workload">Workload: <strong>Heavy</strong></div>
+      <div class="workload-bar"><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip filled"></div></div>
+      <div class="files">6 files: README, market-research.md, positioning.md, pricing-strategy.md, marketing-channels.md, go-to-market.md</div>
+      <div class="summary">Owns market research, positioning, pricing strategy, marketing channels, and go-to-market. Most developed division outside of engineering — 6 files with substantive content. Advisory role, not execution.</div>
+      <div class="overlap-note">Overlaps with Marketing (positioning, channels) — essentially same mandate. Marketing's own README says it coordinates with Business on positioning. Finance owns pricing; Business owns pricing strategy. Merge Business + Marketing.</div>
+    </div>
+
+    <!-- Design -->
+    <div class="division-card" id="design">
+      <div class="card-header">
+        <span class="card-name">design</span>
+        <div class="badges">
+          <span class="badge badge-active">ACTIVE</span>
+        </div>
+      </div>
+      <div class="workload">Workload: <strong>Medium</strong></div>
+      <div class="workload-bar"><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip"></div></div>
+      <div class="files">5 files: README, current-state.md, design-system.md, improvement-plan.md + 1 folder</div>
+      <div class="summary">Owns design system, visual consistency, UI improvements beyond shadcn defaults. 5 files including a full design system and improvement plan. Clear implementation notes for where design lives in code.</div>
+      <div class="overlap-note">Depends on Product (requirements feed into design). No significant overlap with other divisions. Distinct from Development (code) and Business (strategy). Keep.</div>
+    </div>
+
+    <!-- Production Admin -->
+    <div class="division-card" id="production-admin">
+      <div class="card-header">
+        <span class="card-name">production-admin</span>
+        <div class="badges">
+          <span class="badge badge-active">ACTIVE</span>
+        </div>
+      </div>
+      <div class="workload">Workload: <strong>Medium</strong></div>
+      <div class="workload-bar"><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip"></div></div>
+      <div class="files">4 files: README, monitoring.md, incident-management.md, automation.md</div>
+      <div class="summary">Owns production monitoring, error detection, incident management, autonomous remediation, and rollback. Clear distinction from Development (builds) and DevOps (deploys). 4 detailed files.</div>
+      <div class="overlap-note">Overlaps with DevOps (monitoring, health checks) and Operations (incident playbooks). But has a clearly distinct post-launch mandate: system-facing remediation vs. build/deploy vs. vendor management. Keep separate.</div>
+    </div>
+
+    <!-- Academic Content -->
+    <div class="division-card" id="academic-content">
+      <div class="card-header">
+        <span class="card-name">academic-content</span>
+        <div class="badges">
+          <span class="badge badge-standby">STANDBY</span>
+        </div>
+      </div>
+      <div class="workload">Workload: <strong>Negligible</strong></div>
+      <div class="workload-bar"><div class="workload-pip filled"></div><div class="workload-pip"></div><div class="workload-pip"></div><div class="workload-pip"></div></div>
+      <div class="files">1 file: knowledge-base.md</div>
+      <div class="summary">Single file containing domain knowledge about academic writing, citations, and references. This is not a division — it's a knowledge asset.</div>
+      <div class="overlap-note">Not a division. Absorb knowledge-base.md into Product (domain knowledge for requirements) or Research (academic domain context). Remove as a division.</div>
+    </div>
+
+    <!-- Management -->
+    <div class="division-card" id="management">
+      <div class="card-header">
+        <span class="card-name">management</span>
+        <div class="badges">
+          <span class="badge badge-active">ACTIVE</span>
+        </div>
+      </div>
+      <div class="workload">Workload: <strong>Heavy</strong></div>
+      <div class="workload-bar"><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip filled"></div></div>
+      <div class="files">1 file: README</div>
+      <div class="summary">Highest coordination layer beneath Owner. Receives reports from all divisions, prioritizes, resolves conflicts, filters decisions, generates Owner reports. Essential governance layer. KPI: autonomous decision ratio, SEV1 response time.</div>
+      <div class="overlap-note">No overlap — this is the meta-division that coordinates all others. Consider renaming to avoid confusion with the Operations division. "Operations Lead" or "Chief of Staff" would be clearer names.</div>
+    </div>
+
+    <!-- FinOps -->
+    <div class="division-card" id="finops">
+      <div class="card-header">
+        <span class="card-name">finops</span>
+        <div class="badges">
+          <span class="badge badge-active">ACTIVE</span>
+        </div>
+      </div>
+      <div class="workload">Workload: <strong>Medium</strong></div>
+      <div class="workload-bar"><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip"></div></div>
+      <div class="files">1 file: README</div>
+      <div class="summary">Owns real-time cost tracking, anomaly detection, margin analysis, circuit breaker implementation, and daily financial reporting to Management. 1 file but covers critical FinOps pipeline.</div>
+      <div class="overlap-note">Overlaps 100% with Finance. Finance describes a "handoff" to FinOps for operational cost tracking — this is the same function split unnecessarily. Merge Finance + FinOps + Data Analytics into a single "Finance & Analytics" division.</div>
+    </div>
+
+    <!-- Customer Success -->
+    <div class="division-card" id="customer-success">
+      <div class="card-header">
+        <span class="card-name">customer-success</span>
+        <div class="badges">
+          <span class="badge badge-active">ACTIVE</span>
+        </div>
+      </div>
+      <div class="workload">Workload: <strong>Light</strong></div>
+      <div class="workload-bar"><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip"></div><div class="workload-pip"></div></div>
+      <div class="files">1 file: README</div>
+      <div class="summary">User-facing support: accounts, orders, payments, service status. Strict AI scope boundaries. Churn signal detection. Minimal scope at launch — accounts/orders/payments only. PREPARED phase for retention features.</div>
+      <div class="overlap-note">Depends on Production Admin (system diagnosis for complaints) and Security (abuse patterns). User-facing (CS) vs system-facing (ProdAdmin) distinction is clear and valuable. Keep.</div>
+    </div>
+
+    <!-- Data Analytics -->
+    <div class="division-card" id="data-analytics">
+      <div class="card-header">
+        <span class="card-name">data-analytics</span>
+        <div class="badges">
+          <span class="badge badge-prep">PREPARED</span>
+        </div>
+      </div>
+      <div class="workload">Workload: <strong>Light</strong></div>
+      <div class="workload-bar"><div class="workload-pip filled"></div><div class="workload-pip"></div><div class="workload-pip"></div><div class="workload-pip"></div></div>
+      <div class="files">1 file: README</div>
+      <div class="summary">Owns metric definitions, North Star metric, insight generation. Core principle: "few but right, not many and noisy." Good KPI framework. PREPARED — needs real data volume before insights are meaningful.</div>
+      <div class="overlap-note">Depends on FinOps (data source). No other division produces structured metrics. Merge with FinOps — FinOps produces the raw numbers, DA turns them into insights. One division, two functions.</div>
+    </div>
+
+    <!-- Marketing -->
+    <div class="division-card" id="marketing">
+      <div class="card-header">
+        <span class="card-name">marketing</span>
+        <div class="badges">
+          <span class="badge badge-prep">PREPARED</span>
+        </div>
+      </div>
+      <div class="workload">Workload: <strong>Light</strong></div>
+      <div class="workload-bar"><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip"></div><div class="workload-pip"></div></div>
+      <div class="files">1 file: README</div>
+      <div class="summary">Owns content/SEO strategy, campaign management, channel analysis. Positioning statement drafted. PREPARED — waits for stable product. 1 file with clear strategy and KPI framework.</div>
+      <div class="overlap-note">Overlaps with Business (which already owns positioning, pricing strategy, marketing channels, and go-to-market). Marketing adds channel execution on top of Business's strategy. Merge into Business — they are the same division.</div>
+    </div>
+
+    <!-- Sales -->
+    <div class="division-card" id="sales">
+      <div class="card-header">
+        <span class="card-name">sales</span>
+        <div class="badges">
+          <span class="badge badge-standby">STANDBY</span>
+        </div>
+      </div>
+      <div class="workload">Workload: <strong>Negligible</strong></div>
+      <div class="workload-bar"><div class="workload-pip filled"></div><div class="workload-pip"></div><div class="workload-pip"></div><div class="workload-pip"></div></div>
+      <div class="files">1 file: README</div>
+      <div class="summary">Targets B2B/institutional customers (schools, universities). Pipeline management, proposal development. STANDBY — activates after individual/product core validated. Clear B2B vs B2C distinction table.</div>
+      <div class="overlap-note">Overlaps with Partnership (institutional targeting). Both STANDBY, both target institutions, both do outreach. Merge with Partnership into "Business Development."</div>
+    </div>
+
+    <!-- Partnership -->
+    <div class="division-card" id="partnership">
+      <div class="card-header">
+        <span class="card-name">partnership</span>
+        <div class="badges">
+          <span class="badge badge-standby">STANDBY</span>
+        </div>
+      </div>
+      <div class="workload">Workload: <strong>Negligible</strong></div>
+      <div class="workload-bar"><div class="workload-pip filled"></div><div class="workload-pip"></div><div class="workload-pip"></div><div class="workload-pip"></div></div>
+      <div class="files">1 file: README</div>
+      <div class="summary">Strategic relationships: AI providers, education institutions, technology partners, community building. STANDBY — activates when product stable and institutional interest exists. 4 partnership categories defined.</div>
+      <div class="overlap-note">Overlaps with Sales (both targeting institutions). AI provider relationships overlap with Research (evaluates AI providers). Merge with Sales into "Business Development."</div>
+    </div>
+
+    <!-- Operations -->
+    <div class="division-card" id="operations">
+      <div class="card-header">
+        <span class="card-name">operations</span>
+        <div class="badges">
+          <span class="badge badge-prep">PREPARED</span>
+        </div>
+      </div>
+      <div class="workload">Workload: <strong>Light</strong></div>
+      <div class="workload-bar"><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip"></div><div class="workload-pip"></div></div>
+      <div class="files">1 file: README</div>
+      <div class="summary">Vendor & subscription management, SOP documentation, operational efficiency. Minimal at launch: active vendor list connected to FinOps. Clear vendor table template.</div>
+      <div class="overlap-note">Overlaps entirely with DevOps (runbooks, environments, reproducibility) and Production Admin (incident playbooks). Three-way overlap on "keeping the system running." Merge DevOps + Operations into "Infrastructure & Operations."</div>
+    </div>
+
+    <!-- Legal & Compliance -->
+    <div class="division-card" id="legal-compliance">
+      <div class="card-header">
+        <span class="card-name">legal-compliance</span>
+        <div class="badges">
+          <span class="badge badge-active">ACTIVE</span>
+        </div>
+      </div>
+      <div class="workload">Workload: <strong>Medium</strong></div>
+      <div class="workload-bar"><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip filled"></div><div class="workload-pip"></div></div>
+      <div class="files">1 file: README</div>
+      <div class="summary">ToS, Privacy Policy, Refund Policy, Acceptable Use Policy. Active minimum scope — these 4 docs required before payment integration. Draft vs. binding distinction is critical. Human review required for binding commitments.</div>
+      <div class="overlap-note">Depends on Customer Success (complaint handling) and Security (data handling). No overlap with other divisions. Keep — but needs active work before launch.</div>
+    </div>
+
+    <!-- HR -->
+    <div class="division-card" id="hr">
+      <div class="card-header">
+        <span class="card-name">hr</span>
+        <div class="badges">
+          <span class="badge badge-standby">STANDBY</span>
+        </div>
+      </div>
+      <div class="workload">Workload: <strong>None</strong></div>
+      <div class="workload-bar"><div class="workload-pip filled"></div><div class="workload-pip"></div><div class="workload-pip"></div><div class="workload-pip"></div></div>
+      <div class="files">1 file: README</div>
+      <div class="summary">STANDBY by design. Activates when first human joins. Has clear AI vs. human role clarity table. No work needed now — just maintain the template for onboarding/offboarding.</div>
+      <div class="overlap-note">Depends on Management (coordination) and Operations (onboarding process). No overlap issues. Keep as STANDBY — does not need action now.</div>
+    </div>
+
+  </div>
+</section>
+
+<section id="consolidation">
+  <div class="section-label">Consolidation Plan</div>
+  <h2>Consolidation Candidates</h2>
+  <p class="section-intro">Six merge groups reduce 23 divisions to ~13.</p>
+
+  <table class="merge-table">
+    <thead>
+      <tr>
+        <th>Merge Group</th>
+        <th>From (N divisions)</th>
+        <th>To (1 division)</th>
+        <th>Combined Responsibility</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td><strong>Finance + FinOps + Data Analytics</strong></td>
+        <td><strong>Finance & Analytics</strong></td>
+        <td>Token economy, pricing, payment flow, financial rules, real-time cost tracking, margin analysis, circuit breakers, metric definitions, insight generation. Finance defines the model; FinOps runs it; DA reads it. One division owns all financial data end-to-end.</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td><strong>Business + Marketing</strong></td>
+        <td><strong>Business Strategy</strong></td>
+        <td>Market research, positioning, pricing strategy, marketing channels, go-to-market, content/SEO, campaign management. Marketing's "execution" is advisory at pre-launch scale — Business already owns strategy and channels. One division, advisory mandate.</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td><strong>Sales + Partnership</strong></td>
+        <td><strong>Business Development</strong></td>
+        <td>B2B pipeline, institutional proposals, AI provider relationships, technology partnerships, community building. Sales (transactional B2B) + Partnership (strategic relationships) = unified institutional growth function. STANDBY until product validates.</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td><strong>DevOps + Operations</strong></td>
+        <td><strong>Infrastructure & Operations</strong></td>
+        <td>Environments, build/deploy, reproducibility, vendor management, subscriptions, runbooks, SOPs. DevOps owns the pipeline; Operations owns the vendors and docs. Natural combination — both keep the system running day-to-day.</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td><strong>QA + Code Review</strong></td>
+        <td><strong>Quality</strong></td>
+        <td>Feature completeness verification, critical workflow testing, code review, security review of code, test coverage, regression testing, autonomous fix of issues found. QA (workflow testing) + Code Review (code-level testing) = one unified quality gate. Security stays separate for architectural/policy security work.</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td><strong>Academic Content</strong></td>
+        <td><strong>Absorbed</strong></td>
+        <td>knowledge-base.md moves into Product (domain knowledge) or Research (academic context). Remove as a standalone division.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="problems">
+  <div class="section-label">Problems</div>
+  <h2>Current Structural Problems</h2>
+  <p class="section-intro">Five root-cause issues driving most of the fragmentation.</p>
+
+  <ol class="problems-list">
+    <li>
+      <span class="problem-icon critical">&#9888;</span>
+      <div><strong>Over-divisioning for pre-launch scale.</strong> 23 divisions for a product that isn't launched. Many divisions have 1 file and negligible workload. The organizational overhead exceeds the organizational value. A pre-launch AI EdTech startup needs maybe 10 active divisions, not 23.</div>
+    </li>
+    <li>
+      <span class="problem-icon critical">&#9888;</span>
+      <div><strong>Same function split into multiple divisions.</strong> Finance/FinOps, Business/Marketing, Sales/Partnership, DevOps/Operations/Production Admin, QA/Code Review. Each split adds a handoff that creates friction, ambiguity, and boundary confusion. At AI-team scale, these handoffs slow everything down.</div>
+    </li>
+    <li>
+      <span class="problem-icon warn">&#8703;</span>
+      <div><strong>Lifecycle status inconsistency.</strong> Divisions have four statuses (ACTIVE, PREPARED, STANDBY) defined differently per division. "ACTIVE" means "requires work now" for Legal/Finance/Management but "will need work post-launch" for Security/Production Admin. The status system is not actionable — it doesn't tell you what to do RIGHT NOW.</div>
+    </li>
+    <li>
+      <span class="problem-icon warn">&#8703;</span>
+      <div><strong>Engineering cluster has too many quality layers.</strong> Development, QA, Code Review, Security, DevOps, Production Admin, Architecture — 7 divisions touching the same codebase with overlapping responsibilities. Development does the work; the other 6 add latency. Three quality gates (QA → Code Review → Security) before a feature ships creates a bottleneck that doesn't exist at this team size.</div>
+    </li>
+    <li>
+      <span class="problem-icon warn">&#8703;</span>
+      <div><strong>Academic Content is not a division.</strong> One file (knowledge-base.md) describing domain knowledge for the AI team is not a division. It reads as a placeholder created to fill the organizational chart, not to serve a real function.</div>
+    </li>
+  </ol>
+</section>
+
+<section id="recommended">
+  <div class="section-label">Recommendation</div>
+  <h2>Recommended Organization Structure</h2>
+  <p class="section-intro">23 divisions reduced to 14 active divisions through targeted consolidation.</p>
+
+  <div class="org-section">
+    <h3>Layer 1: Owner / Governance</h3>
+    <div class="org-layers">
+      <div class="org-layer">
+        <div class="layer-label">Owner</div>
+        <div class="layer-items">
+          <span class="org-pill highlight">Owner</span>
+        </div>
+      </div>
+      <div class="org-layer">
+        <div class="layer-label">Coordination</div>
+        <div class="layer-items">
+          <span class="org-pill">Management / Chief of Staff</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="org-section">
+    <h3>Layer 2: Core Engineering (Product, Build, Quality)</h3>
+    <div class="org-layers">
+      <div class="org-layer">
+        <div class="layer-label">Product</div>
+        <div class="layer-items">
+          <span class="org-pill">Product & Architecture <span style="font-size:10px;color:var(--text-muted)">(merged)</span></span>
+          <span class="org-pill">Design</span>
+          <span class="org-pill">Research <span style="font-size:10px;color:var(--text-muted)">(clarified boundary)</span></span>
+        </div>
+      </div>
+      <div class="org-layer">
+        <div class="layer-label">Build</div>
+        <div class="layer-items">
+          <span class="org-pill highlight">Development</span>
+        </div>
+      </div>
+      <div class="org-layer">
+        <div class="layer-label">Quality</div>
+        <div class="layer-items">
+          <span class="org-pill">Quality <span style="font-size:10px;color:var(--text-muted)">(QA + Code Review merged)</span></span>
+          <span class="org-pill">Security <span style="font-size:10px;color:var(--text-muted)">(separate)</span></span>
+        </div>
+      </div>
+      <div class="org-layer">
+        <div class="layer-label">Infrastructure</div>
+        <div class="layer-items">
+          <span class="org-pill">Infrastructure & Operations <span style="font-size:10px;color:var(--text-muted)">(DevOps + Ops merged)</span></span>
+          <span class="org-pill">Production Admin</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="org-section">
+    <h3>Layer 3: Business & Go-to-Market</h3>
+    <div class="org-layers">
+      <div class="org-layer">
+        <div class="layer-label">Finance</div>
+        <div class="layer-items">
+          <span class="org-pill">Finance & Analytics <span style="font-size:10px;color:var(--text-muted)">(Finance + FinOps + Data Analytics merged)</span></span>
+        </div>
+      </div>
+      <div class="org-layer">
+        <div class="layer-label">Strategy</div>
+        <div class="layer-items">
+          <span class="org-pill">Business Strategy <span style="font-size:10px;color:var(--text-muted)">(Business + Marketing merged)</span></span>
+          <span class="org-pill">Business Development <span style="font-size:10px;color:var(--text-muted)">(Sales + Partnership merged)</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="org-section">
+    <h3>Layer 4: Customer & Support</h3>
+    <div class="org-layers">
+      <div class="org-layer">
+        <div class="layer-label">Customer</div>
+        <div class="layer-items">
+          <span class="org-pill highlight">Customer Success</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="org-section">
+    <h3>Layer 5: Legal & HR (Standby Until Needed)</h3>
+    <div class="org-layers">
+      <div class="org-layer">
+        <div class="layer-label">Legal</div>
+        <div class="layer-items">
+          <span class="org-pill">Legal & Compliance <span style="font-size:10px;color:var(--text-muted)">(ACTIVE — needed pre-launch)</span></span>
+        </div>
+      </div>
+      <div class="org-layer">
+        <div class="layer-label">HR</div>
+        <div class="layer-items">
+          <span class="org-pill" style="opacity:0.6">HR <span style="font-size:10px;color:var(--text-muted)">(STANDBY — activates first human hire)</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="org-section">
+    <h3>Division Count: 23 &rarr; 14 (39% reduction)</h3>
+    <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;">
+      <strong style="color:var(--success);">Kept as-is (5):</strong> Management, Development, Design, Production Admin, Customer Success<br>
+      <strong style="color:var(--accent);">Merged (12):</strong> Product+Architecture, QA+CodeReview, DevOps+Operations, Finance+FinOps+DataAnalytics, Business+Marketing, Sales+Partnership<br>
+      <strong style="color:var(--text-muted);">Removed (1):</strong> Academic Content (absorbed into Product/Research)<br>
+      <strong style="color:var(--text-muted);">Standby (1):</strong> HR (activates on first human hire)<br>
+      <strong style="color:var(--text-secondary);">Kept separate (1):</strong> Security (distinct mandate)
+    </div>
+  </div>
+</section>
+
+<section id="principle">
+  <div class="section-label">Governance</div>
+  <h2>Management Principle for Future Org Decisions</h2>
+  <p class="section-intro">A decision framework for evaluating future division changes.</p>
+
+  <div class="principle-box" style="margin-bottom:16px;">
+    <h4>The 5-Person Rule</h4>
+    <p>At the scale of an AI EdTech startup with a small team, every division needs to justify its existence with work, not theory. Before creating a new division, ask:</p>
+    <ol style="margin-top:10px;padding-left:18px;font-size:13px;line-height:1.8;">
+      <li><strong>Who does the work?</strong> Can existing divisions absorb it, or does this need a dedicated owner?</li>
+      <li><strong>Does it overlap?</strong> Is another division already doing this or adjacent to it?</li>
+      <li><strong>What's the lifecycle?</strong> ACTIVE now, or PREPARED for later? Don't create divisions before the work exists.</li>
+      <li><strong>Is it a knowledge asset or a division?</strong> A README with domain knowledge is not a division. A team that produces regular output is.</li>
+      <li><strong>What's the handoff cost?</strong> If two divisions depend on each other for every decision, they should be one division.</li>
+    </ol>
+  </div>
+
+  <div class="principle-box" style="margin-bottom:16px;">
+    <h4>Lifecycle Status Definition (Standardize This)</h4>
+    <p>Standardize lifecycle definitions across all divisions so status is actionable:</p>
+    <table style="margin-top:12px;font-size:13px;">
+      <thead>
+        <tr><th>Status</th><th>Definition</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>ACTIVE</strong></td><td>Work exists NOW. Needs regular attention.</td><td>Resource immediately</td></tr>
+        <tr><td><strong>PREPARED</strong></td><td>Strategy done, waiting on prerequisite (product stability, data volume, team size).</td><td>Maintain docs, monitor trigger condition</td></tr>
+        <tr><td><strong>STANDBY</strong></td><td>No work exists yet. Activates on specific future event (first user, first human hire, first institutional deal).</td><td>Keep template only</td></tr>
+        <tr><td><strong>DORMANT</strong></td><td>Work was done, now paused. Not the same as STANDBY.</td><td>Archive, don't maintain</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="principle-box">
+    <h4>Division Creation Protocol</h4>
+    <p>Before creating a new division, the Management division must confirm:</p>
+    <ol style="margin-top:10px;padding-left:18px;font-size:13px;line-height:1.8;">
+      <li>The work is not absorbable by an existing division</li>
+      <li>The work requires a dedicated owner (not shared responsibility)</li>
+      <li>The trigger condition for activation is measurable (not "someday")</li>
+      <li>The division's boundaries are defined and don't overlap with adjacent divisions</li>
+      <li>Documentation exists in the new division's folder before it is ACTIVE</li>
+    </ol>
+  </div>
+</section>
+
+</main>
+
+<footer style="border-top:1px solid var(--border);padding:24px;text-align:center;font-size:12px;color:var(--text-muted);">
+  Teora AI Engineering Team &nbsp;&middot;&nbsp; Division Structure Review &nbsp;&middot;&nbsp; August 2026
+</footer>
+
+<script>
+document.querySelectorAll('.nav-inner a').forEach(link => {
+  link.addEventListener('click', function(e) {
+    document.querySelectorAll('.nav-inner a').forEach(l => l.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-inner a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(section => {
+    const top = section.offsetTop - 120;
+    if (scrollY >= top) current = section.getAttribute('id');
+  });
+  navLinks.forEach(link => {
+    link.classList.remove('active');
+    if (link.getAttribute('href') === '#' + current) link.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

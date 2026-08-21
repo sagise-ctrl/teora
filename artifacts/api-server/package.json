@@ -12,6 +12,9 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@citation-js/core": "^0.8.2",
+    "@citation-js/plugin-doi": "^0.8.2",
+    "@citation-js/plugin-isbn": "^0.4.0",
     "@supabase/supabase-js": "^2.112.2",
     "@workspace/api-zod": "workspace:*",
     "@workspace/db": "workspace:*",

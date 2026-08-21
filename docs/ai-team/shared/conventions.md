@@ -138,6 +138,98 @@ lib/
   db/              # Drizzle schema
 ```
 
+## Knowledge Base First Principle
+
+> Setiap tugas baru WAJIB baca knowledge base yang sudah ada sebelum tanya Owner atau bikin file baru.
+
+### Before Any Task
+
+1. **Cek knowledge base dulu** —搜索 relevant files di `docs/ai-team/`
+2. **Kalau sudah ada jawabannya** — pakai, jangan tanya ulang
+3. **Kalau jawabannya belum ada** — riset dulu (web search, code analysis, cross-check)
+4. **Baru kalau belum nemu juga** — escalate ke Owner
+
+### What to Check
+
+| Jenis tugas | Cek dulu |
+|------------|---------|
+| Fitur baru | `product/`, `business-growth/` |
+| Tech decision | `ai-engineering/` |
+| Pricing/business | `finance/`, `finops/`, `business-growth/` |
+| Security/auth | `ai-engineering/` |
+| Deployment/monitoring | `production-operations/` |
+| Design | `design/` |
+| Cross-divisi | `shared/` |
+
+### Anti-Patterns (Jangan Dilakukan)
+
+- ❌ Bikin file baru padahal sudah ada jawabannya di KB
+- ❌ Tanya Owner pertanyaan yang sudah dijawab di KB
+- ❌ Bikin meeting kalau KB sudah bisa menjawab
+- ❌ "Cek dulu" tapi nggak benar-benar baca
+
+### Catatan Penting
+
+Knowledge base adalah living document. Kalau ada informasi yang salah atau outdated, **perbaiki**, jangan diam. Owner bisa nggak sadari ada kontradiksi atau info yang perlu diupdate.
+
+---
+
+## Division Management Principle
+
+> Manajemen divisi adalah tanggung jawab Management Division. Tapi setiap divisi harus paham prinsip ini agar knowledge base tetap rapi.
+
+### 1. Bikin Divisi Baru — Cuma Kalau Lolos 4 Pertanyaan
+
+Sebelum bikin divisi baru, jawab:
+
+1. **Autonomous action?** — Apakah punya tanggung jawab yang tidak bisa dilakukan divisi lain?
+2. **Distinct expertise?** — Apakah butuh keahlian berbeda yang tidak ada di divisi lain?
+3. **Continuous operational attention?** — Apakah butuh kerja berkelanjutan (bukan cuma review periodik)?
+4. **Own escalation path?** — Apakah punya escalation path sendiri ke Management/Owner?
+
+Semua "ya" → bisa jadi divisi. Satu "tidak" → sub-function.
+
+### 2. Setiap Divisi Punya Status
+
+| Status | Arti | Kriteria |
+|--------|------|---------|
+| **ACTIVE** | Ada kerja nyata sekarang | 3+ file substantif, atau hasil kerja ongoing |
+| **PREPARED** | Strategi sudah, tunggu kondisi tertentu | README dengan activation conditions eksplisit |
+| **STANDBY** | Nggak relevan sekarang | Placeholder README; merge ke divisi terdekat |
+
+### 3. Divisi 1 File + STANDBY = Noise
+
+Divisi STANDBY > 30 hari tanpa rencana → **merge**, jangan dipertahankan.
+
+### 4. Handoff Antar Divisi Harus Jelas
+
+Kalau dua divisi berbagi pekerjaan yang sama tanpa batas jelas → **merge**.
+
+### 5. Desain untuk Sekarang, Bukan Spekulasi
+
+"We might need a Sales division" bukan alasan bikin Sales division sekarang. Tulis README STANDBY yang bagus, aktifkan nanti.
+
+### Catatan Struktur 2026-08-21
+
+```
+23 divisi → 10 divisi
+
+DIKURANGI:
+- 7 engineering divisi → 1 AI Engineering
+- Business + Marketing + Sales + Partnership → 1 Business & Growth
+- DevOps + Production Admin → 1 Production Operations
+- Data Analytics + Operations → FinOps
+- Academic Content → Product
+- HR → Management
+
+Tetap terpisah (well-justified):
+- Finance vs FinOps: Design vs Execution (different data, different mindset)
+- Customer Success vs Production Operations: User-facing vs System-facing
+- Legal: Specialized discipline
+```
+
+---
+
 ## Code Style
 
 - 2-space indentation

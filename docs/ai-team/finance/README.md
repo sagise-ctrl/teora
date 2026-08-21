@@ -92,3 +92,13 @@ The FinOps division (see `finops/README.md`) owns:
 FinOps generates the `ai_usage_log` requirements (see `finops/README.md`). AI Engineering implements the logging infrastructure. FinOps then consumes the data for monitoring and alerting.
 
 Finance provides the pricing framework. FinOps ensures costs stay within the pricing model. Management reviews the gap between pricing model and actual margins.
+
+## Restructure Note (2026-08-21)
+
+FinOps has absorbed:
+- **Data Analytics** (`data-analytics/README.md`) — analytics belongs under FinOps since Teora's primary analytics is financial (cost per request, margin per feature, revenue trends)
+- **Operations** (`operations/README.md`) — vendor management belongs under FinOps (costs are financial)
+
+## Last Updated
+
+2026-08-21

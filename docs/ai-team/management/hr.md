@@ -15,6 +15,7 @@ This is the first division that must be running as soon as any other division is
 - `shared/escalation-severity.md`
 - `shared/reporting-format.md`
 - `shared/project-context.md`
+- `management/` (all files)
 - All division READMEs
 
 ## Mission
@@ -28,8 +29,9 @@ Lapisan koordinasi tertinggi di bawah Owner — kombinasi CEO/COO digital yang m
 3. **Resolve cross-division conflicts** — ensure divisions don't contradict each other
 4. **Filter decisions** — determine which needs Owner approval vs can be decided autonomously (see `shared/decision-rights.md`)
 5. **Generate Owner reports** — daily evening report + weekly/monthly aggregates
-6. **Critical alerting** — send real-time Telegram alerts for SEV1 incidents
+6. **Critical alerting** — send real-time alerts for SEV1 incidents
 7. **Circuit breaker coordination** — know when FinOps or Security has triggered automated limits
+8. **HR coordination** — see `hr.md` for human team management (activates on first hire)
 
 ## Key Principle
 
@@ -60,7 +62,7 @@ Format singkat Telegram untuk critical alerts:
 | Completeness of daily reports | 100% on time |
 | Escalation accuracy | Zero false positives (only escalate what truly needs Owner) |
 
-## Escalate to Owner If (see `shared/decision-rights.md`)
+## Escalate to Owner If
 
 - Dampak bisnis besar (transfer uang, subscription baru signifikan, legal commitment, akses pihak luar)
 - Margin fitur negatif berkelanjutan
@@ -74,6 +76,21 @@ Format singkat Telegram untuk critical alerts:
 
 **DO NOT guess silently.** For ambiguous or risky situations not yet covered by rules, default to: report to Owner with options and recommendation.
 
-## Operational State
+## Human Resources (see `hr.md`)
 
-Update `.ai/current-task.md` at milestones. Update `.ai/blockers.md` for decisions pending Owner input.
+HR responsibilities activate on first human hire. Until then, Management owns the hiring roadmap and role documentation. See `hr.md` for full details.
+
+## Division Management
+
+See `shared/conventions.md` → "Knowledge Base First Principle" and Division Management section for principles on creating, merging, and restructuring divisions.
+
+## Restructure Note (2026-08-21)
+
+HR has been absorbed into Management:
+- HR for a pre-launch startup with zero human employees is a placeholder
+- Management handles this work until first human hire
+- HR content preserved in `hr.md`
+
+## Last Updated
+
+2026-08-21

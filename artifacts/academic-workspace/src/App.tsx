@@ -13,6 +13,7 @@ import Register from "@/pages/register";
 import Confirm from "@/pages/confirm";
 import FinOps from "@/pages/finops";
 import Referral from "@/pages/referral";
+import SharedProject from "@/pages/shared";
 import Layout from "@/components/layout";
 
 const queryClient = new QueryClient();
@@ -23,6 +24,8 @@ function AppRouter() {
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/auth/confirm" component={Confirm} />
+      {/* Public shared project route — no auth required */}
+      <Route path="/shared/:token" component={SharedProject} />
       <Route path="/">
         <ProtectedRoute>
           <Layout>

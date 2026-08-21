@@ -1,5 +1,5 @@
 {
-  "version": "1.0",
+  "version": "2.0",
   "generatedBy": "teora-ai-team",
   "profile": "full",
   "project": {
@@ -19,70 +19,71 @@
   ],
   "divisions": [
     {
+      "name": "AI Engineering",
+      "entry": "docs/ai-team/ai-engineering/architecture.md",
+      "responsibilities": ["Architecture", "Development", "QA", "Code Review", "DevOps", "Security", "Research"],
+      "note": "Single division — roles are phases in one engineering workflow"
+    },
+    {
       "name": "Product",
       "entry": "docs/ai-team/product/README.md",
-      "responsibilities": ["Requirements", "Roadmap", "Business Rules"]
-    },
-    {
-      "name": "Architecture",
-      "entry": "docs/ai-team/architecture/README.md",
-      "responsibilities": ["System Design", "API", "Database"]
-    },
-    {
-      "name": "Development",
-      "entry": "docs/ai-team/development/README.md",
-      "responsibilities": ["Implementation", "Patterns", "Coding Standards"]
-    },
-    {
-      "name": "QA",
-      "entry": "docs/ai-team/qa/README.md",
-      "responsibilities": ["Testing Strategy", "Test Cases", "Regression"]
-    },
-    {
-      "name": "Security",
-      "entry": "docs/ai-team/security/README.md",
-      "responsibilities": ["Auth", "Authorization", "Threat Model"]
-    },
-    {
-      "name": "Code Review",
-      "entry": "docs/ai-team/code-review/README.md",
-      "responsibilities": ["Review Checklist", "Recurring Issues"]
-    },
-    {
-      "name": "DevOps",
-      "entry": "docs/ai-team/devops/README.md",
-      "responsibilities": ["Environment", "Deployment", "CI/CD"]
-    },
-    {
-      "name": "Research",
-      "entry": "docs/ai-team/research/README.md",
-      "responsibilities": ["Library Evaluation", "Tech Decisions"]
-    },
-    {
-      "name": "Finance",
-      "entry": "docs/ai-team/finance/README.md",
-      "responsibilities": ["Token Economy", "Pricing", "Cost Analysis"]
+      "responsibilities": ["Requirements", "Roadmap", "Business Rules", "Academic Domain Knowledge"],
+      "note": "Absorbed: Academic Content"
     },
     {
       "name": "Design",
       "entry": "docs/ai-team/design/README.md",
-      "responsibilities": ["Design System", "UI Improvements"]
+      "responsibilities": ["Design System", "UI Improvements", "Components"]
     },
     {
-      "name": "Production Admin",
-      "entry": "docs/ai-team/production-admin/README.md",
-      "responsibilities": ["Monitoring", "Incidents", "Automation"]
+      "name": "Production Operations",
+      "entry": "docs/ai-team/production-operations/architecture.md",
+      "responsibilities": ["Build", "Deploy", "Monitoring", "Incident Response", "Automation"],
+      "note": "Merged: DevOps + Production Admin"
+    },
+    {
+      "name": "Finance",
+      "entry": "docs/ai-team/finance/README.md",
+      "responsibilities": ["Token Economy", "Pricing", "Payment Flow", "Financial Rules"]
+    },
+    {
+      "name": "FinOps",
+      "entry": "docs/ai-team/finops/README.md",
+      "responsibilities": ["Cost Tracking", "Margin Analysis", "Anomaly Detection", "Analytics"],
+      "note": "Merged: Data Analytics + Operations"
+    },
+    {
+      "name": "Business & Growth",
+      "entry": "docs/ai-team/business-growth/architecture.md",
+      "responsibilities": ["Market Research", "Positioning", "Pricing Strategy", "Marketing Channels", "Go-to-Market", "B2B", "Partnerships"],
+      "note": "Merged: Business + Marketing + Sales + Partnership"
+    },
+    {
+      "name": "Management",
+      "entry": "docs/ai-team/management/README.md",
+      "responsibilities": ["Cross-Division Coordination", "Escalation Filtering", "Owner Reporting", "HR"]
+    },
+    {
+      "name": "Customer Success",
+      "entry": "docs/ai-team/customer-success/README.md",
+      "responsibilities": ["Tier 1 User Support", "Churn Detection", "Escalation"]
+    },
+    {
+      "name": "Legal",
+      "entry": "docs/ai-team/legal-compliance/README.md",
+      "responsibilities": ["ToS", "Privacy Policy", "Refund Policy", "AI Content Copyright"],
+      "note": "Minimal viable scope for pre-launch"
     }
   ],
   "workflowSequence": [
     "Product: understand requirement",
-    "Architecture: design solution",
-    "Development: implement",
-    "QA: test",
-    "Security: review",
-    "Code Review: quality gate",
-    "DevOps: deploy",
-    "Production Admin: monitor"
+    "AI Engineering: design + implement + verify",
+    "Design: UI/UX",
+    "Production Operations: deploy + monitor",
+    "Finance + FinOps: financial oversight",
+    "Business & Growth: market strategy",
+    "Management: coordinate + report to Owner"
   ],
-  "updatedAt": "2026-08-15"
+  "updatedAt": "2026-08-21",
+  "restructureNote": "Restructured from 23 divisions to 10 divisions. See management/README.md for restructure rationale."
 }

@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import { authMiddleware } from "../middlewares/auth";
 import healthRouter from "./health";
 import authRouter from "./auth";
+import sharedRouter from "./shared";
 import projectsRouter from "./projects";
 import messagesRouter from "./messages";
 import documentsRouter from "./documents";
@@ -17,7 +18,8 @@ const router: IRouter = Router();
 
 router.use(healthRouter);
 router.use(authRouter);
-// All routes below require authentication
+// Public endpoint — no auth required for shared project access
+router.use(sharedRouter);
 router.use(authMiddleware);
 router.use(projectsRouter);
 router.use(messagesRouter);
