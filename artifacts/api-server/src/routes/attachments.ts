@@ -9,6 +9,7 @@ import {
 } from "@workspace/api-zod";
 import { logActivity } from "../lib/activity";
 import { requireProjectOwnership } from "../lib/ownership";
+import { sanitizeFileContent } from "../lib/prompt-injection";
 import path from "path";
 import fs from "fs/promises";
 
@@ -78,7 +79,8 @@ router.post("/projects/:projectId/attachments", async (req, res): Promise<void> 
 
   let extractedText: string | null = null;
   if (parsed.data.mimeType?.includes("text") || parsed.data.filename.endsWith(".md")) {
-    extractedText = buffer.toString("utf-8").substring(0, 50000);
+    const rawText = buffer.toString("utf-8").substring(0, 50000);
+    extractedText = sanitizeFileContent(rawText);
   }
 
   const [attachment] = await db

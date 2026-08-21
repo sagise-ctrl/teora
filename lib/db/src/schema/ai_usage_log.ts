@@ -31,7 +31,7 @@ export const aiUsageLogTable = pgTable(
     }),
 
     model: text("model").notNull(),
-    provider: text("provider").notNull().default("anthropic"),
+    provider: text("provider").notNull().default("openai"),
 
     inputTokens: integer("input_tokens").notNull().default(0),
     outputTokens: integer("output_tokens").notNull().default(0),
@@ -55,8 +55,8 @@ export const aiUsageLogTable = pgTable(
 export const requestTypes = [
   "chat",
   "analyze",
-  "outline",
   "write",
+  "bibliography",
   "export",
 ] as const;
 export type RequestType = (typeof requestTypes)[number];

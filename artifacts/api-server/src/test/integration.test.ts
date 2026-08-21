@@ -142,7 +142,10 @@ vi.mock("../lib/activity.js", () => ({
 }));
 
 vi.mock("../lib/ai.js", () => ({
-  callAI: vi.fn().mockResolvedValue('{"outline":"BAB I"}'),
+  callAI: vi.fn().mockResolvedValue({
+    content: '{"outline":"BAB I"}',
+    usage: { inputTokens: 100, outputTokens: 50, estimatedCostUsd: 0.00005 },
+  }),
   buildSystemPrompt: vi.fn(() => "Academic assistant"),
 }));
 

@@ -359,6 +359,62 @@ paths:
         "404":
           description: No document yet
 
+  /projects/{projectId}/outline:
+    post:
+      operationId: regenerateOutline
+      tags: [documents]
+      summary: Regenerate document outline
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userOutline:
+                  type: string
+                  description: Optional user-modified outline to refine
+      responses:
+        "200":
+          description: New outline
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  outline:
+                    type: string
+
+  /projects/{projectId}/documents/generate:
+    post:
+      operationId: generateDocument
+      tags: [documents]
+      summary: Generate a new document from the current outline
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "202":
+          description: Document generation started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jobId:
+                    type: number
+                  status:
+                    type: string
+
   # ── References ────────────────────────────────────────────────────────────
   /projects/{projectId}/references:
     get:
@@ -442,6 +498,169 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BibliographyResult"
+
+  /projects/{projectId}/references/validate:
+    post:
+      operationId: validateReferences
+      tags: [references]
+      summary: Validate all references against the citation format
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Validation results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReferenceValidationResult"
+
+  /projects/{projectId}/references/format:
+    post:
+      operationId: formatCSLBibliography
+      tags: [references]
+      summary: Format references as a CSL-formatted bibliography
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: format
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [APA, APA7, IEEE, Vancouver, Chicago, MLA, Harvard]
+      responses:
+        "200":
+          description: Formatted bibliography text
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BibliographyResult"
+
+  /references/fetch-metadata:
+    post:
+      operationId: fetchReferenceMetadata
+      tags: [references]
+      summary: Fetch reference metadata by DOI or ISBN
+      description: Accepts a DOI or ISBN identifier and fetches metadata from CrossRef or Open Library.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FetchReferenceMetadataRequest"
+      responses:
+        "200":
+          description: Fetched metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FetchedReferenceMetadata"
+        "400":
+          description: Unsupported or invalid identifier
+        "404":
+          description: Metadata not found
+        "502":
+          description: External API unavailable
+
+  /projects/{projectId}/share:
+    get:
+      operationId: listShareLinks
+      tags: [projects]
+      summary: List all share links for a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Share links
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ShareLink"
+        "401":
+          description: Unauthorized
+    post:
+      operationId: createShareLink
+      tags: [projects]
+      summary: Create a share link for a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateShareLinkRequest"
+      responses:
+        "201":
+          description: Share link created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShareLink"
+        "401":
+          description: Unauthorized
+
+  /projects/{projectId}/share/{shareId}:
+    delete:
+      operationId: deleteShareLink
+      tags: [projects]
+      summary: Revoke a share link
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: shareId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Share link revoked
+        "401":
+          description: Unauthorized
+        "404":
+          description: Share link not found
+
+  /shared/{token}:
+    get:
+      operationId: accessSharedProject
+      tags: [projects]
+      summary: Access a shared project via token
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Shared project data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SharedProject"
+        "404":
+          description: Invalid or expired share link
 
   # ── Attachments ───────────────────────────────────────────────────────────
   /projects/{projectId}/attachments:
@@ -784,6 +1003,9 @@ components:
           type: ["number", "null"]
         minRefCount:
           type: ["number", "null"]
+        aiDisclosure:
+          type: boolean
+          description: Toggle AI disclosure labels (default true)
         createdAt:
           type: string
           format: date-time
@@ -807,6 +1029,8 @@ components:
           type: number
         minRefCount:
           type: number
+        aiDisclosure:
+          type: boolean
 
     ProjectUpdate:
       type: object
@@ -828,6 +1052,8 @@ components:
           type: number
         progress:
           type: number
+        aiDisclosure:
+          type: boolean
 
     ProjectStats:
       type: object
@@ -862,6 +1088,11 @@ components:
           type: string
           format: date-time
 
+    ChatMode:
+      type: string
+      enum: [generate, revise, reflect, socratic, quiz, summary]
+      description: AI writing assistant mode
+
     MessageInput:
       type: object
       required: [content]
@@ -869,6 +1100,9 @@ components:
         content:
           type: string
           minLength: 1
+        mode:
+          $ref: "#/components/schemas/ChatMode"
+          default: revise
 
     # ── DocumentVersion ───────────────────────────────────────────────────────
     DocumentVersion:
@@ -953,6 +1187,55 @@ components:
       properties:
         bibliography:
           type: string
+        format:
+          type: string
+
+    ValidationIssue:
+      type: object
+      required: [severity, message, field]
+      properties:
+        severity:
+          type: string
+          enum: [error, warning]
+        message:
+          type: string
+        field:
+          type: string
+
+    ReferenceValidation:
+      type: object
+      required: [id, title, validation]
+      properties:
+        id:
+          type: number
+        title:
+          type: string
+        validation:
+          type: object
+          properties:
+            valid:
+              type: boolean
+            issues:
+              type: array
+              items:
+                $ref: "#/components/schemas/ValidationIssue"
+
+    ReferenceValidationResult:
+      type: object
+      required: [format, totalReferences, results]
+      properties:
+        format:
+          type: string
+        totalReferences:
+          type: number
+        totalErrors:
+          type: number
+        totalWarnings:
+          type: number
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReferenceValidation"
 
     # ── Attachment ────────────────────────────────────────────────────────────
     Attachment:
@@ -1200,9 +1483,10 @@ components:
           type: number
         requestType:
           type: string
-          enum: [chat, analyze, outline, write, export]
+          enum: [chat, analyze, outline, write, export, bibliography]
         metadata:
           type: object
+          additionalProperties: true
           nullable: true
         createdAt:
           type: string
@@ -1233,3 +1517,104 @@ components:
                 type: number
               costUsd:
                 type: number
+
+    # ── Share Link ────────────────────────────────────────────────────────────
+    FetchReferenceMetadataRequest:
+      type: object
+      required: [identifier]
+      properties:
+        identifier:
+          type: string
+          description: DOI (e.g. 10.1000/xyz123) or ISBN-10/ISBN-13
+
+    FetchedReferenceMetadata:
+      type: object
+      required: [title, source]
+      properties:
+        title:
+          type: string
+        authors:
+          type: ["string", "null"]
+        year:
+          type: ["number", "null"]
+        journal:
+          type: ["string", "null"]
+        volume:
+          type: ["string", "null"]
+        issue:
+          type: ["string", "null"]
+        doi:
+          type: ["string", "null"]
+        url:
+          type: ["string", "null"]
+        publisher:
+          type: ["string", "null"]
+        source:
+          type: string
+          enum: [crossref, openlibrary, manual]
+
+    ShareLink:
+      type: object
+      required: [id, projectId, token, accessMode, createdAt]
+      properties:
+        id:
+          type: number
+        projectId:
+          type: number
+        token:
+          type: string
+          description: Unique share token
+        accessMode:
+          type: string
+          enum: [view, comment, edit]
+        label:
+          type: ["string", "null"]
+          description: Optional label/nickname for this share link
+        expiresAt:
+          type: ["string", "null"]
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateShareLinkRequest:
+      type: object
+      required: [accessMode]
+      properties:
+        accessMode:
+          type: string
+          enum: [view, comment, edit]
+        label:
+          type: string
+        expiresInDays:
+          type: number
+          description: Days until link expires (optional, null = never)
+
+    SharedProject:
+      type: object
+      required: [id, title, status, accessMode, createdAt]
+      properties:
+        id:
+          type: number
+        title:
+          type: string
+        status:
+          type: string
+          enum: [draft, analyzing, writing, waiting_revision, completed, archived]
+        subject:
+          type: ["string", "null"]
+        taskType:
+          type: ["string", "null"]
+        latestDocument:
+          type: ["string", "null"]
+          description: Latest document content (if accessMode is view or edit)
+        accessMode:
+          type: string
+          enum: [view, comment, edit]
+        ownerEmail:
+          type: string
+          description: Owner email (for display purposes only)
+        createdAt:
+          type: string
+          format: date-time
+

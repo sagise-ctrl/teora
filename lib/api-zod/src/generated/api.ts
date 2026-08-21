@@ -7,7 +7,6 @@
  */
 import * as zod from 'zod';
 
-
 /**
  * @summary Get current authenticated user
  */
@@ -133,6 +132,7 @@ export const ListProjectsResponseItem = zod.object({
   "outputFormat": zod.string().nullish(),
   "minRefYear": zod.number().nullish(),
   "minRefCount": zod.number().nullish(),
+  "aiDisclosure": zod.boolean().optional().describe('Toggle AI disclosure labels (default true)'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -150,7 +150,8 @@ export const CreateProjectBody = zod.object({
   "instructionText": zod.string().optional(),
   "outputFormat": zod.enum(['docx', 'pdf', 'markdown']).optional(),
   "minRefYear": zod.number().optional(),
-  "minRefCount": zod.number().optional()
+  "minRefCount": zod.number().optional(),
+  "aiDisclosure": zod.boolean().optional()
 })
 
 export const CreateProjectResponse = zod.object({
@@ -165,6 +166,7 @@ export const CreateProjectResponse = zod.object({
   "outputFormat": zod.string().nullish(),
   "minRefYear": zod.number().nullish(),
   "minRefCount": zod.number().nullish(),
+  "aiDisclosure": zod.boolean().optional().describe('Toggle AI disclosure labels (default true)'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -205,6 +207,7 @@ export const GetProjectResponse = zod.object({
   "outputFormat": zod.string().nullish(),
   "minRefYear": zod.number().nullish(),
   "minRefCount": zod.number().nullish(),
+  "aiDisclosure": zod.boolean().optional().describe('Toggle AI disclosure labels (default true)'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -227,7 +230,8 @@ export const UpdateProjectBody = zod.object({
   "outputFormat": zod.enum(['docx', 'pdf', 'markdown']).optional(),
   "minRefYear": zod.number().optional(),
   "minRefCount": zod.number().optional(),
-  "progress": zod.number().optional()
+  "progress": zod.number().optional(),
+  "aiDisclosure": zod.boolean().optional()
 })
 
 export const UpdateProjectResponse = zod.object({
@@ -242,6 +246,7 @@ export const UpdateProjectResponse = zod.object({
   "outputFormat": zod.string().nullish(),
   "minRefYear": zod.number().nullish(),
   "minRefCount": zod.number().nullish(),
+  "aiDisclosure": zod.boolean().optional().describe('Toggle AI disclosure labels (default true)'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -301,10 +306,11 @@ export const SendMessageParams = zod.object({
 })
 
 
-
+export const sendMessageBodyModeDefault = `revise`;
 
 export const SendMessageBody = zod.object({
-  "content": zod.string().min(1)
+  "content": zod.string().min(1),
+  "mode": zod.enum(['generate', 'revise', 'reflect', 'socratic', 'quiz', 'summary']).default(sendMessageBodyModeDefault).describe('AI writing assistant mode')
 })
 
 export const SendMessageResponse = zod.object({
@@ -350,6 +356,35 @@ export const GetLatestDocumentResponse = zod.object({
   "outline": zod.string().nullish(),
   "changeDescription": zod.string().nullish(),
   "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Regenerate document outline
+ */
+export const RegenerateOutlineParams = zod.object({
+  "projectId": zod.coerce.number()
+})
+
+export const RegenerateOutlineBody = zod.object({
+  "userOutline": zod.string().optional().describe('Optional user-modified outline to refine')
+})
+
+export const RegenerateOutlineResponse = zod.object({
+  "outline": zod.string().optional()
+})
+
+
+/**
+ * @summary Generate a new document from the current outline
+ */
+export const GenerateDocumentParams = zod.object({
+  "projectId": zod.coerce.number()
+})
+
+export const GenerateDocumentResponse = zod.object({
+  "jobId": zod.number().optional(),
+  "status": zod.string().optional()
 })
 
 
@@ -435,7 +470,148 @@ export const RegenerateBibliographyParams = zod.object({
 })
 
 export const RegenerateBibliographyResponse = zod.object({
-  "bibliography": zod.string()
+  "bibliography": zod.string(),
+  "format": zod.string().optional()
+})
+
+
+/**
+ * @summary Validate all references against the citation format
+ */
+export const ValidateReferencesParams = zod.object({
+  "projectId": zod.coerce.number()
+})
+
+export const ValidateReferencesResponse = zod.object({
+  "format": zod.string(),
+  "totalReferences": zod.number(),
+  "totalErrors": zod.number().optional(),
+  "totalWarnings": zod.number().optional(),
+  "results": zod.array(zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "validation": zod.object({
+  "valid": zod.boolean().optional(),
+  "issues": zod.array(zod.object({
+  "severity": zod.enum(['error', 'warning']),
+  "message": zod.string(),
+  "field": zod.string()
+})).optional()
+})
+}))
+})
+
+
+/**
+ * @summary Format references as a CSL-formatted bibliography
+ */
+export const FormatCSLBibliographyParams = zod.object({
+  "projectId": zod.coerce.number()
+})
+
+export const FormatCSLBibliographyQueryParams = zod.object({
+  "format": zod.enum(['APA', 'APA7', 'IEEE', 'Vancouver', 'Chicago', 'MLA', 'Harvard']).optional()
+})
+
+export const FormatCSLBibliographyResponse = zod.object({
+  "bibliography": zod.string(),
+  "format": zod.string().optional()
+})
+
+
+/**
+ * Accepts a DOI or ISBN identifier and fetches metadata from CrossRef or Open Library.
+ * @summary Fetch reference metadata by DOI or ISBN
+ */
+export const FetchReferenceMetadataBody = zod.object({
+  "identifier": zod.string().describe('DOI (e.g. 10.1000\/xyz123) or ISBN-10\/ISBN-13')
+})
+
+export const FetchReferenceMetadataResponse = zod.object({
+  "title": zod.string(),
+  "authors": zod.string().nullish(),
+  "year": zod.number().nullish(),
+  "journal": zod.string().nullish(),
+  "volume": zod.string().nullish(),
+  "issue": zod.string().nullish(),
+  "doi": zod.string().nullish(),
+  "url": zod.string().nullish(),
+  "publisher": zod.string().nullish(),
+  "source": zod.enum(['crossref', 'openlibrary', 'manual'])
+})
+
+
+/**
+ * @summary List all share links for a project
+ */
+export const ListShareLinksParams = zod.object({
+  "projectId": zod.coerce.number()
+})
+
+export const ListShareLinksResponseItem = zod.object({
+  "id": zod.number(),
+  "projectId": zod.number(),
+  "token": zod.string().describe('Unique share token'),
+  "accessMode": zod.enum(['view', 'comment', 'edit']),
+  "label": zod.string().nullish().describe('Optional label\/nickname for this share link'),
+  "expiresAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date()
+})
+export const ListShareLinksResponse = zod.array(ListShareLinksResponseItem)
+
+
+/**
+ * @summary Create a share link for a project
+ */
+export const CreateShareLinkParams = zod.object({
+  "projectId": zod.coerce.number()
+})
+
+export const CreateShareLinkBody = zod.object({
+  "accessMode": zod.enum(['view', 'comment', 'edit']),
+  "label": zod.string().optional(),
+  "expiresInDays": zod.number().optional().describe('Days until link expires (optional, null = never)')
+})
+
+export const CreateShareLinkResponse = zod.object({
+  "id": zod.number(),
+  "projectId": zod.number(),
+  "token": zod.string().describe('Unique share token'),
+  "accessMode": zod.enum(['view', 'comment', 'edit']),
+  "label": zod.string().nullish().describe('Optional label\/nickname for this share link'),
+  "expiresAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Revoke a share link
+ */
+export const DeleteShareLinkParams = zod.object({
+  "projectId": zod.coerce.number(),
+  "shareId": zod.coerce.number()
+})
+
+export const DeleteShareLinkResponse = zod.void()
+
+
+/**
+ * @summary Access a shared project via token
+ */
+export const AccessSharedProjectParams = zod.object({
+  "token": zod.coerce.string()
+})
+
+export const AccessSharedProjectResponse = zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "status": zod.enum(['draft', 'analyzing', 'writing', 'waiting_revision', 'completed', 'archived']),
+  "subject": zod.string().nullish(),
+  "taskType": zod.string().nullish(),
+  "latestDocument": zod.string().nullish().describe('Latest document content (if accessMode is view or edit)'),
+  "accessMode": zod.enum(['view', 'comment', 'edit']),
+  "ownerEmail": zod.string().optional().describe('Owner email (for display purposes only)'),
+  "createdAt": zod.coerce.date()
 })
 
 
@@ -582,8 +758,8 @@ export const ListAIUsageResponse = zod.object({
   "inputTokens": zod.number(),
   "outputTokens": zod.number(),
   "estimatedCostUsd": zod.number(),
-  "requestType": zod.enum(['chat', 'analyze', 'outline', 'write', 'export']),
-  "metadata": zod.object({}).nullish(),
+  "requestType": zod.enum(['chat', 'analyze', 'outline', 'write', 'export', 'bibliography']),
+  "metadata": zod.record(zod.string(), zod.unknown()).nullish(),
   "createdAt": zod.coerce.date()
 })).optional(),
   "total": zod.number().optional()
@@ -650,5 +826,3 @@ export const CreateExportResponse = zod.object({
   "filePath": zod.string().nullish(),
   "createdAt": zod.coerce.date()
 })
-
-

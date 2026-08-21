@@ -239,9 +239,10 @@ vi.mock("../lib/activity.ts", () => ({
 }));
 
 vi.mock("../lib/ai.ts", () => ({
-  callAI: vi.fn().mockResolvedValue(
-    JSON.stringify({ outline: "BAB I: Introduction\nBAB II: Literature Review\nBAB III: Methodology" })
-  ),
+  callAI: vi.fn().mockResolvedValue({
+    content: JSON.stringify({ outline: "BAB I: Introduction\nBAB II: Literature Review\nBAB III: Methodology" }),
+    usage: { inputTokens: 200, outputTokens: 150, estimatedCostUsd: 0.0001 },
+  }),
   buildSystemPrompt: vi.fn(() => "Academic assistant prompt"),
 }));
 

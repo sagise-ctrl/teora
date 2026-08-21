@@ -26,9 +26,14 @@ import type {
   AttachmentUpload,
   AuthUser,
   BibliographyResult,
+  CreateShareLinkRequest,
   DocumentVersion,
   Export,
   ExportInput,
+  FetchReferenceMetadataRequest,
+  FetchedReferenceMetadata,
+  FormatCSLBibliographyParams,
+  GenerateDocument202,
   GetAIUsageStatsParams,
   HealthStatus,
   Job,
@@ -45,8 +50,13 @@ import type {
   ProjectUpdate,
   Reference,
   ReferenceInput,
+  ReferenceValidationResult,
   ReferralListResponse,
-  RegisterRequest
+  RegenerateOutline200,
+  RegenerateOutlineBody,
+  RegisterRequest,
+  ShareLink,
+  SharedProject
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -1418,6 +1428,149 @@ export function useGetLatestDocument<TData = Awaited<ReturnType<typeof getLatest
 
 
 
+export const getRegenerateOutlineUrl = (projectId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/outline`
+}
+
+/**
+ * @summary Regenerate document outline
+ */
+export const regenerateOutline = async (projectId: number,
+    regenerateOutlineBody?: RegenerateOutlineBody, options?: Parameters<typeof customFetch>[1]): Promise<RegenerateOutline200> => {
+
+  return customFetch<RegenerateOutline200>(getRegenerateOutlineUrl(projectId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(regenerateOutlineBody)
+  }
+);}
+
+
+
+
+
+export const getRegenerateOutlineMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof regenerateOutline>>, TError,{projectId: number;data?: BodyType<RegenerateOutlineBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof regenerateOutline>>, TError,{projectId: number;data?: BodyType<RegenerateOutlineBody>}, TContext> => {
+
+const mutationKey = ['regenerateOutline'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof regenerateOutline>>, {projectId: number;data?: BodyType<RegenerateOutlineBody>}> = (props) => {
+          const {projectId,data} = props ?? {};
+
+          return  regenerateOutline(projectId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RegenerateOutlineMutationResult = NonNullable<Awaited<ReturnType<typeof regenerateOutline>>>
+    export type RegenerateOutlineMutationBody = BodyType<RegenerateOutlineBody> | undefined
+    export type RegenerateOutlineMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Regenerate document outline
+ */
+export const useRegenerateOutline = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof regenerateOutline>>, TError,{projectId: number;data?: BodyType<RegenerateOutlineBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof regenerateOutline>>,
+        TError,
+        {projectId: number;data?: BodyType<RegenerateOutlineBody>},
+        TContext
+      > => {
+      return useMutation(getRegenerateOutlineMutationOptions(options));
+    }
+
+export const getGenerateDocumentUrl = (projectId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/documents/generate`
+}
+
+/**
+ * @summary Generate a new document from the current outline
+ */
+export const generateDocument = async (projectId: number, options?: Parameters<typeof customFetch>[1]): Promise<GenerateDocument202> => {
+
+  return customFetch<GenerateDocument202>(getGenerateDocumentUrl(projectId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getGenerateDocumentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateDocument>>, TError,{projectId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof generateDocument>>, TError,{projectId: number}, TContext> => {
+
+const mutationKey = ['generateDocument'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof generateDocument>>, {projectId: number}> = (props) => {
+          const {projectId} = props ?? {};
+
+          return  generateDocument(projectId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type GenerateDocumentMutationResult = NonNullable<Awaited<ReturnType<typeof generateDocument>>>
+
+    export type GenerateDocumentMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Generate a new document from the current outline
+ */
+export const useGenerateDocument = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateDocument>>, TError,{projectId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof generateDocument>>,
+        TError,
+        {projectId: number},
+        TContext
+      > => {
+      return useMutation(getGenerateDocumentMutationOptions(options));
+    }
+
 export const getListReferencesUrl = (projectId: number,) => {
 
 
@@ -1710,6 +1863,528 @@ export const useRegenerateBibliography = <TError = ErrorType<unknown>,
       > => {
       return useMutation(getRegenerateBibliographyMutationOptions(options));
     }
+
+export const getValidateReferencesUrl = (projectId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/references/validate`
+}
+
+/**
+ * @summary Validate all references against the citation format
+ */
+export const validateReferences = async (projectId: number, options?: Parameters<typeof customFetch>[1]): Promise<ReferenceValidationResult> => {
+
+  return customFetch<ReferenceValidationResult>(getValidateReferencesUrl(projectId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getValidateReferencesMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof validateReferences>>, TError,{projectId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof validateReferences>>, TError,{projectId: number}, TContext> => {
+
+const mutationKey = ['validateReferences'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof validateReferences>>, {projectId: number}> = (props) => {
+          const {projectId} = props ?? {};
+
+          return  validateReferences(projectId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ValidateReferencesMutationResult = NonNullable<Awaited<ReturnType<typeof validateReferences>>>
+
+    export type ValidateReferencesMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Validate all references against the citation format
+ */
+export const useValidateReferences = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof validateReferences>>, TError,{projectId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof validateReferences>>,
+        TError,
+        {projectId: number},
+        TContext
+      > => {
+      return useMutation(getValidateReferencesMutationOptions(options));
+    }
+
+export const getFormatCSLBibliographyUrl = (projectId: number,
+    params?: FormatCSLBibliographyParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/projects/${projectId}/references/format?${stringifiedParams}` : `/api/projects/${projectId}/references/format`
+}
+
+/**
+ * @summary Format references as a CSL-formatted bibliography
+ */
+export const formatCSLBibliography = async (projectId: number,
+    params?: FormatCSLBibliographyParams, options?: Parameters<typeof customFetch>[1]): Promise<BibliographyResult> => {
+
+  return customFetch<BibliographyResult>(getFormatCSLBibliographyUrl(projectId,params),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getFormatCSLBibliographyMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof formatCSLBibliography>>, TError,{projectId: number;params?: FormatCSLBibliographyParams}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof formatCSLBibliography>>, TError,{projectId: number;params?: FormatCSLBibliographyParams}, TContext> => {
+
+const mutationKey = ['formatCSLBibliography'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof formatCSLBibliography>>, {projectId: number;params?: FormatCSLBibliographyParams}> = (props) => {
+          const {projectId,params} = props ?? {};
+
+          return  formatCSLBibliography(projectId,params,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type FormatCSLBibliographyMutationResult = NonNullable<Awaited<ReturnType<typeof formatCSLBibliography>>>
+
+    export type FormatCSLBibliographyMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Format references as a CSL-formatted bibliography
+ */
+export const useFormatCSLBibliography = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof formatCSLBibliography>>, TError,{projectId: number;params?: FormatCSLBibliographyParams}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof formatCSLBibliography>>,
+        TError,
+        {projectId: number;params?: FormatCSLBibliographyParams},
+        TContext
+      > => {
+      return useMutation(getFormatCSLBibliographyMutationOptions(options));
+    }
+
+export const getFetchReferenceMetadataUrl = () => {
+
+
+
+
+  return `/api/references/fetch-metadata`
+}
+
+/**
+ * Accepts a DOI or ISBN identifier and fetches metadata from CrossRef or Open Library.
+ * @summary Fetch reference metadata by DOI or ISBN
+ */
+export const fetchReferenceMetadata = async (fetchReferenceMetadataRequest: FetchReferenceMetadataRequest, options?: Parameters<typeof customFetch>[1]): Promise<FetchedReferenceMetadata> => {
+
+  return customFetch<FetchedReferenceMetadata>(getFetchReferenceMetadataUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(fetchReferenceMetadataRequest)
+  }
+);}
+
+
+
+
+
+export const getFetchReferenceMetadataMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof fetchReferenceMetadata>>, TError,{data: BodyType<FetchReferenceMetadataRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof fetchReferenceMetadata>>, TError,{data: BodyType<FetchReferenceMetadataRequest>}, TContext> => {
+
+const mutationKey = ['fetchReferenceMetadata'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof fetchReferenceMetadata>>, {data: BodyType<FetchReferenceMetadataRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  fetchReferenceMetadata(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type FetchReferenceMetadataMutationResult = NonNullable<Awaited<ReturnType<typeof fetchReferenceMetadata>>>
+    export type FetchReferenceMetadataMutationBody = BodyType<FetchReferenceMetadataRequest>
+    export type FetchReferenceMetadataMutationError = ErrorType<void>
+
+    /**
+ * @summary Fetch reference metadata by DOI or ISBN
+ */
+export const useFetchReferenceMetadata = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof fetchReferenceMetadata>>, TError,{data: BodyType<FetchReferenceMetadataRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof fetchReferenceMetadata>>,
+        TError,
+        {data: BodyType<FetchReferenceMetadataRequest>},
+        TContext
+      > => {
+      return useMutation(getFetchReferenceMetadataMutationOptions(options));
+    }
+
+export const getListShareLinksUrl = (projectId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/share`
+}
+
+/**
+ * @summary List all share links for a project
+ */
+export const listShareLinks = async (projectId: number, options?: Parameters<typeof customFetch>[1]): Promise<ShareLink[]> => {
+
+  return customFetch<ShareLink[]>(getListShareLinksUrl(projectId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListShareLinksQueryKey = (projectId: number,) => {
+    return [
+    `/api/projects/${projectId}/share`
+    ] as const;
+    }
+
+
+export const getListShareLinksQueryOptions = <TData = Awaited<ReturnType<typeof listShareLinks>>, TError = ErrorType<void>>(projectId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listShareLinks>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListShareLinksQueryKey(projectId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listShareLinks>>> = ({ signal }) => listShareLinks(projectId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: projectId !== null && projectId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listShareLinks>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListShareLinksQueryResult = NonNullable<Awaited<ReturnType<typeof listShareLinks>>>
+export type ListShareLinksQueryError = ErrorType<void>
+
+
+/**
+ * @summary List all share links for a project
+ */
+
+export function useListShareLinks<TData = Awaited<ReturnType<typeof listShareLinks>>, TError = ErrorType<void>>(
+ projectId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listShareLinks>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListShareLinksQueryOptions(projectId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateShareLinkUrl = (projectId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/share`
+}
+
+/**
+ * @summary Create a share link for a project
+ */
+export const createShareLink = async (projectId: number,
+    createShareLinkRequest: CreateShareLinkRequest, options?: Parameters<typeof customFetch>[1]): Promise<ShareLink> => {
+
+  return customFetch<ShareLink>(getCreateShareLinkUrl(projectId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(createShareLinkRequest)
+  }
+);}
+
+
+
+
+
+export const getCreateShareLinkMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createShareLink>>, TError,{projectId: number;data: BodyType<CreateShareLinkRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createShareLink>>, TError,{projectId: number;data: BodyType<CreateShareLinkRequest>}, TContext> => {
+
+const mutationKey = ['createShareLink'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createShareLink>>, {projectId: number;data: BodyType<CreateShareLinkRequest>}> = (props) => {
+          const {projectId,data} = props ?? {};
+
+          return  createShareLink(projectId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateShareLinkMutationResult = NonNullable<Awaited<ReturnType<typeof createShareLink>>>
+    export type CreateShareLinkMutationBody = BodyType<CreateShareLinkRequest>
+    export type CreateShareLinkMutationError = ErrorType<void>
+
+    /**
+ * @summary Create a share link for a project
+ */
+export const useCreateShareLink = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createShareLink>>, TError,{projectId: number;data: BodyType<CreateShareLinkRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createShareLink>>,
+        TError,
+        {projectId: number;data: BodyType<CreateShareLinkRequest>},
+        TContext
+      > => {
+      return useMutation(getCreateShareLinkMutationOptions(options));
+    }
+
+export const getDeleteShareLinkUrl = (projectId: number,
+    shareId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/share/${shareId}`
+}
+
+/**
+ * @summary Revoke a share link
+ */
+export const deleteShareLink = async (projectId: number,
+    shareId: number, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteShareLinkUrl(projectId,shareId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteShareLinkMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteShareLink>>, TError,{projectId: number;shareId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteShareLink>>, TError,{projectId: number;shareId: number}, TContext> => {
+
+const mutationKey = ['deleteShareLink'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteShareLink>>, {projectId: number;shareId: number}> = (props) => {
+          const {projectId,shareId} = props ?? {};
+
+          return  deleteShareLink(projectId,shareId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteShareLinkMutationResult = NonNullable<Awaited<ReturnType<typeof deleteShareLink>>>
+
+    export type DeleteShareLinkMutationError = ErrorType<void>
+
+    /**
+ * @summary Revoke a share link
+ */
+export const useDeleteShareLink = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteShareLink>>, TError,{projectId: number;shareId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteShareLink>>,
+        TError,
+        {projectId: number;shareId: number},
+        TContext
+      > => {
+      return useMutation(getDeleteShareLinkMutationOptions(options));
+    }
+
+export const getAccessSharedProjectUrl = (token: string,) => {
+
+
+
+
+  return `/api/shared/${token}`
+}
+
+/**
+ * @summary Access a shared project via token
+ */
+export const accessSharedProject = async (token: string, options?: Parameters<typeof customFetch>[1]): Promise<SharedProject> => {
+
+  return customFetch<SharedProject>(getAccessSharedProjectUrl(token),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getAccessSharedProjectQueryKey = (token: string,) => {
+    return [
+    `/api/shared/${token}`
+    ] as const;
+    }
+
+
+export const getAccessSharedProjectQueryOptions = <TData = Awaited<ReturnType<typeof accessSharedProject>>, TError = ErrorType<void>>(token: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof accessSharedProject>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAccessSharedProjectQueryKey(token);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof accessSharedProject>>> = ({ signal }) => accessSharedProject(token, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: token !== null && token !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof accessSharedProject>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type AccessSharedProjectQueryResult = NonNullable<Awaited<ReturnType<typeof accessSharedProject>>>
+export type AccessSharedProjectQueryError = ErrorType<void>
+
+
+/**
+ * @summary Access a shared project via token
+ */
+
+export function useAccessSharedProject<TData = Awaited<ReturnType<typeof accessSharedProject>>, TError = ErrorType<void>>(
+ token: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof accessSharedProject>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getAccessSharedProjectQueryOptions(token,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getListAttachmentsUrl = (projectId: number,) => {
 

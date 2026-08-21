@@ -72,6 +72,8 @@ export interface Project {
   minRefYear?: number | null;
   /** @nullable */
   minRefCount?: number | null;
+  /** Toggle AI disclosure labels (default true) */
+  aiDisclosure?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -92,6 +94,7 @@ export interface ProjectInput {
   outputFormat?: ProjectInputOutputFormat;
   minRefYear?: number;
   minRefCount?: number;
+  aiDisclosure?: boolean;
 }
 
 export type ProjectUpdateStatus = typeof ProjectUpdateStatus[keyof typeof ProjectUpdateStatus];
@@ -124,6 +127,7 @@ export interface ProjectUpdate {
   minRefYear?: number;
   minRefCount?: number;
   progress?: number;
+  aiDisclosure?: boolean;
 }
 
 export type ProjectStatsByStatus = {[key: string]: number};
@@ -159,9 +163,25 @@ export interface Message {
   createdAt: string;
 }
 
+/**
+ * AI writing assistant mode
+ */
+export type ChatMode = typeof ChatMode[keyof typeof ChatMode];
+
+
+export const ChatMode = {
+  generate: 'generate',
+  revise: 'revise',
+  reflect: 'reflect',
+  socratic: 'socratic',
+  quiz: 'quiz',
+  summary: 'summary',
+} as const;
+
 export interface MessageInput {
   /** @minLength 1 */
   content: string;
+  mode?: ChatMode;
 }
 
 export interface DocumentVersion {
@@ -223,6 +243,40 @@ export interface ReferenceInput {
 
 export interface BibliographyResult {
   bibliography: string;
+  format?: string;
+}
+
+export type ValidationIssueSeverity = typeof ValidationIssueSeverity[keyof typeof ValidationIssueSeverity];
+
+
+export const ValidationIssueSeverity = {
+  error: 'error',
+  warning: 'warning',
+} as const;
+
+export interface ValidationIssue {
+  severity: ValidationIssueSeverity;
+  message: string;
+  field: string;
+}
+
+export type ReferenceValidationValidation = {
+  valid?: boolean;
+  issues?: ValidationIssue[];
+};
+
+export interface ReferenceValidation {
+  id: number;
+  title: string;
+  validation: ReferenceValidationValidation;
+}
+
+export interface ReferenceValidationResult {
+  format: string;
+  totalReferences: number;
+  totalErrors?: number;
+  totalWarnings?: number;
+  results: ReferenceValidation[];
 }
 
 export type AttachmentAttachmentType = typeof AttachmentAttachmentType[keyof typeof AttachmentAttachmentType];
@@ -393,9 +447,6 @@ export const ReferralEventActorType = {
   admin: 'admin',
 } as const;
 
-/**
- * @nullable
- */
 export type ReferralEventMetadata = { [key: string]: unknown } | null;
 
 export interface ReferralEvent {
@@ -409,7 +460,6 @@ export interface ReferralEvent {
   toStatus: string;
   /** @nullable */
   reason?: string | null;
-  /** @nullable */
   metadata?: ReferralEventMetadata;
   createdAt: string;
 }
@@ -437,11 +487,9 @@ export const AIUsageLogRequestType = {
   outline: 'outline',
   write: 'write',
   export: 'export',
+  bibliography: 'bibliography',
 } as const;
 
-/**
- * @nullable
- */
 export type AIUsageLogMetadata = { [key: string]: unknown } | null;
 
 export interface AIUsageLog {
@@ -455,7 +503,6 @@ export interface AIUsageLog {
   outputTokens: number;
   estimatedCostUsd: number;
   requestType: AIUsageLogRequestType;
-  /** @nullable */
   metadata?: AIUsageLogMetadata;
   createdAt: string;
 }
@@ -475,10 +522,157 @@ export interface AIUsageStats {
   byRequestType: AIUsageStatsByRequestType;
 }
 
+export interface FetchReferenceMetadataRequest {
+  /** DOI (e.g. 10.1000/xyz123) or ISBN-10/ISBN-13 */
+  identifier: string;
+}
+
+export type FetchedReferenceMetadataSource = typeof FetchedReferenceMetadataSource[keyof typeof FetchedReferenceMetadataSource];
+
+
+export const FetchedReferenceMetadataSource = {
+  crossref: 'crossref',
+  openlibrary: 'openlibrary',
+  manual: 'manual',
+} as const;
+
+export interface FetchedReferenceMetadata {
+  title: string;
+  /** @nullable */
+  authors?: string | null;
+  /** @nullable */
+  year?: number | null;
+  /** @nullable */
+  journal?: string | null;
+  /** @nullable */
+  volume?: string | null;
+  /** @nullable */
+  issue?: string | null;
+  /** @nullable */
+  doi?: string | null;
+  /** @nullable */
+  url?: string | null;
+  /** @nullable */
+  publisher?: string | null;
+  source: FetchedReferenceMetadataSource;
+}
+
+export type ShareLinkAccessMode = typeof ShareLinkAccessMode[keyof typeof ShareLinkAccessMode];
+
+
+export const ShareLinkAccessMode = {
+  view: 'view',
+  comment: 'comment',
+  edit: 'edit',
+} as const;
+
+export interface ShareLink {
+  id: number;
+  projectId: number;
+  /** Unique share token */
+  token: string;
+  accessMode: ShareLinkAccessMode;
+  /**
+     * Optional label/nickname for this share link
+     * @nullable
+     */
+  label?: string | null;
+  /** @nullable */
+  expiresAt?: string | null;
+  createdAt: string;
+}
+
+export type CreateShareLinkRequestAccessMode = typeof CreateShareLinkRequestAccessMode[keyof typeof CreateShareLinkRequestAccessMode];
+
+
+export const CreateShareLinkRequestAccessMode = {
+  view: 'view',
+  comment: 'comment',
+  edit: 'edit',
+} as const;
+
+export interface CreateShareLinkRequest {
+  accessMode: CreateShareLinkRequestAccessMode;
+  label?: string;
+  /** Days until link expires (optional, null = never) */
+  expiresInDays?: number;
+}
+
+export type SharedProjectStatus = typeof SharedProjectStatus[keyof typeof SharedProjectStatus];
+
+
+export const SharedProjectStatus = {
+  draft: 'draft',
+  analyzing: 'analyzing',
+  writing: 'writing',
+  waiting_revision: 'waiting_revision',
+  completed: 'completed',
+  archived: 'archived',
+} as const;
+
+export type SharedProjectAccessMode = typeof SharedProjectAccessMode[keyof typeof SharedProjectAccessMode];
+
+
+export const SharedProjectAccessMode = {
+  view: 'view',
+  comment: 'comment',
+  edit: 'edit',
+} as const;
+
+export interface SharedProject {
+  id: number;
+  title: string;
+  status: SharedProjectStatus;
+  /** @nullable */
+  subject?: string | null;
+  /** @nullable */
+  taskType?: string | null;
+  /**
+     * Latest document content (if accessMode is view or edit)
+     * @nullable
+     */
+  latestDocument?: string | null;
+  accessMode: SharedProjectAccessMode;
+  /** Owner email (for display purposes only) */
+  ownerEmail?: string;
+  createdAt: string;
+}
+
 export type ListProjectsParams = {
 status?: string;
 search?: string;
 };
+
+export type RegenerateOutlineBody = {
+  /** Optional user-modified outline to refine */
+  userOutline?: string;
+};
+
+export type RegenerateOutline200 = {
+  outline?: string;
+};
+
+export type GenerateDocument202 = {
+  jobId?: number;
+  status?: string;
+};
+
+export type FormatCSLBibliographyParams = {
+format?: FormatCSLBibliographyFormat;
+};
+
+export type FormatCSLBibliographyFormat = typeof FormatCSLBibliographyFormat[keyof typeof FormatCSLBibliographyFormat];
+
+
+export const FormatCSLBibliographyFormat = {
+  APA: 'APA',
+  APA7: 'APA7',
+  IEEE: 'IEEE',
+  Vancouver: 'Vancouver',
+  Chicago: 'Chicago',
+  MLA: 'MLA',
+  Harvard: 'Harvard',
+} as const;
 
 export type ListAIUsageParams = {
 /**

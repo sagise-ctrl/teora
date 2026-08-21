@@ -12,8 +12,10 @@ import {
   SendMessageParams,
   SendMessageBody,
 } from "@workspace/api-zod";
-import { callAI, buildSystemPrompt } from "../lib/ai";
+import { callAI, buildSystemPrompt, type ChatMode } from "../lib/ai";
 import { logActivity } from "../lib/activity";
+import { logAIUsage } from "../lib/ai-usage-log";
+import { sanitizeUserMessage } from "../lib/prompt-injection";
 
 const router: IRouter = Router();
 
@@ -48,6 +50,8 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
     return;
   }
 
+  const { content: messageContent, mode = "revise" } = parsed.data;
+
   const [project] = await db
     .select()
     .from(projectsTable)
@@ -58,13 +62,16 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
     return;
   }
 
+  // Sanitize user content against prompt injection
+  const sanitizedContent = sanitizeUserMessage(messageContent);
+
   // Save user message
   const [userMessage] = await db
     .insert(messagesTable)
     .values({
       projectId: params.data.projectId,
       role: "user",
-      content: parsed.data.content,
+      content: sanitizedContent,
     })
     .returning();
 
@@ -81,7 +88,7 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
     .orderBy(desc(documentVersionsTable.versionNumber))
     .limit(1);
 
-  // Get recent chat history (last 10 messages)
+  // Get recent chat history (last 10 messages) — sanitize all historical user content
   const recentMessages = await db
     .select()
     .from(messagesTable)
@@ -98,9 +105,11 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
     outline: metadata?.outline,
     latestDocument: latestDoc?.content,
     contextSummary: metadata?.contextSummary,
+    mode,
   });
 
   // Build messages for AI (reversed to chronological)
+  // All user content is sanitized against prompt injection
   const aiMessages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
     { role: "system", content: systemPrompt },
     ...recentMessages
@@ -109,13 +118,21 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
       .filter((m) => m.role === "user" || m.role === "assistant")
       .map((m) => ({
         role: m.role as "user" | "assistant",
-        content: m.content,
+        content: sanitizeUserMessage(m.content),
       })),
-    { role: "user", content: parsed.data.content },
+    { role: "user", content: sanitizedContent },
   ];
 
   // Call AI
-  const aiContent = await callAI(aiMessages);
+  const { content: aiContent, usage } = await callAI(aiMessages);
+
+  // Log AI usage (non-blocking)
+  await logAIUsage({
+    userId: project.userId,
+    projectId: params.data.projectId,
+    requestType: "chat",
+    usage,
+  });
 
   // Save AI response
   const [assistantMessage] = await db
@@ -127,15 +144,15 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
     })
     .returning();
 
-  await logActivity(params.data.projectId, "chat_message", `User bertanya: ${parsed.data.content.substring(0, 60)}...`);
+  await logActivity(params.data.projectId, "chat_message", `User bertanya: ${sanitizedContent.substring(0, 60)}...`);
 
   // Check if response contains a new document version
   if (
     aiContent.includes("# ") &&
     aiContent.length > 500 &&
-    (parsed.data.content.toLowerCase().includes("tulis") ||
-      parsed.data.content.toLowerCase().includes("perbaiki") ||
-      parsed.data.content.toLowerCase().includes("revisi"))
+    (sanitizedContent.toLowerCase().includes("tulis") ||
+      sanitizedContent.toLowerCase().includes("perbaiki") ||
+      sanitizedContent.toLowerCase().includes("revisi"))
   ) {
     const versions = await db
       .select()
@@ -147,7 +164,7 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
       projectId: params.data.projectId,
       versionNumber: newVersion,
       content: aiContent,
-      changeDescription: `Revisi berdasarkan permintaan: ${parsed.data.content.substring(0, 80)}`,
+      changeDescription: `Revisi berdasarkan permintaan: ${sanitizedContent.substring(0, 80)}`,
     });
 
     await logActivity(
