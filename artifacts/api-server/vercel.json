@@ -1,8 +1,14 @@
 {
   "framework": null,
+  "installCommand": "npm install --legacy-peer-deps",
   "buildCommand": "npm run build",
-  "installCommand": "npm install",
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api" }
+  "outputDirectory": "public",
+  "functions": {
+    "dist/api/index.mjs": {
+      "runtime": "nodejs22.x"
+    }
+  },
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/dist/api/$1" }
   ]
 }

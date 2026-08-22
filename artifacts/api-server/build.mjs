@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { build as esbuild } from "esbuild";
 import esbuildPluginPino from "esbuild-plugin-pino";
-import { rm } from "node:fs/promises";
+import { rm, mkdir } from "node:fs/promises";
 
 // Plugins (e.g. 'esbuild-plugin-pino') may use `require` to resolve dependencies
 globalThis.require = createRequire(import.meta.url);
@@ -96,30 +96,51 @@ globalThis.__dirname = __bannerPath.dirname(globalThis.__filename);
 
 const PLUGINS = [esbuildPluginPino({ transports: ["pino-pretty"] })];
 
-async function buildAll() {
+// Build the Express server (src/index.ts) -> dist/index.mjs
+async function buildServer() {
   const distDir = path.resolve(artifactDir, "dist");
   await rm(distDir, { recursive: true, force: true });
 
-  const entries = [
-    path.resolve(artifactDir, "src/index.ts"),
-    path.resolve(artifactDir, "api/index.ts"),
-  ];
+  await esbuild({
+    entryPoints: [path.resolve(artifactDir, "src/index.ts")],
+    platform: "node",
+    bundle: true,
+    format: "esm",
+    outdir: distDir,
+    outExtension: { ".js": ".mjs" },
+    logLevel: "info",
+    external: EXTERNAL,
+    sourcemap: "linked",
+    plugins: PLUGINS,
+    banner: { js: BANNER },
+  });
+}
 
-  for (const entry of entries) {
-    await esbuild({
-      entryPoints: [entry],
-      platform: "node",
-      bundle: true,
-      format: "esm",
-      outdir: distDir,
-      outExtension: { ".js": ".mjs" },
-      logLevel: "info",
-      external: EXTERNAL,
-      sourcemap: "linked",
-      plugins: PLUGINS,
-      banner: { js: BANNER },
-    });
-  }
+// Build the Vercel HTTP handler (api/index.ts) -> dist/api/index.mjs
+// Vercel auto-detects serverless functions in the dist/api/ directory
+async function buildApiHandler() {
+  const apiOutDir = path.resolve(artifactDir, "dist", "api");
+  await rm(apiOutDir, { recursive: true, force: true });
+  await mkdir(apiOutDir, { recursive: true });
+
+  await esbuild({
+    entryPoints: [path.resolve(artifactDir, "api/index.ts")],
+    platform: "node",
+    bundle: true,
+    format: "esm",
+    outdir: apiOutDir,
+    outExtension: { ".js": ".mjs" },
+    logLevel: "info",
+    external: EXTERNAL,
+    sourcemap: "linked",
+    plugins: PLUGINS,
+    banner: { js: BANNER },
+  });
+}
+
+async function buildAll() {
+  await buildServer();
+  await buildApiHandler();
 }
 
 buildAll().catch((err) => {
