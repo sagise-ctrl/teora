@@ -1,5 +1,5 @@
 {
-  "buildCommand": "pnpm install && pnpm run --filter @workspace/api-server build",
+  "buildCommand": "",
   "outputDirectory": "",
   "installCommand": "pnpm install",
   "framework": null,
