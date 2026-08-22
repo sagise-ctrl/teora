@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { build as esbuild } from "esbuild";
 import esbuildPluginPino from "esbuild-plugin-pino";
-import { rm, mkdir } from "node:fs/promises";
+import { rm } from "node:fs/promises";
 
 // Plugins (e.g. 'esbuild-plugin-pino') may use `require` to resolve dependencies
 globalThis.require = createRequire(import.meta.url);
@@ -96,7 +96,27 @@ globalThis.__dirname = __bannerPath.dirname(globalThis.__filename);
 
 const PLUGINS = [esbuildPluginPino({ transports: ["pino-pretty"] })];
 
-// Build the Express server (src/index.ts) -> dist/index.mjs
+// Build the Vercel HTTP handler (api/index.ts) -> api/index.mjs
+// Vercel auto-detects serverless functions in the api/ directory
+async function buildApiHandler() {
+  const apiDir = path.resolve(artifactDir, "api");
+
+  await esbuild({
+    entryPoints: [path.resolve(artifactDir, "api/index.ts")],
+    platform: "node",
+    bundle: true,
+    format: "esm",
+    outdir: apiDir,
+    outExtension: { ".js": ".mjs" },
+    logLevel: "info",
+    external: EXTERNAL,
+    sourcemap: "linked",
+    plugins: PLUGINS,
+    banner: { js: BANNER },
+  });
+}
+
+// Build the Express server (src/index.ts) -> dist/index.mjs (local dev)
 async function buildServer() {
   const distDir = path.resolve(artifactDir, "dist");
   await rm(distDir, { recursive: true, force: true });
@@ -116,31 +136,11 @@ async function buildServer() {
   });
 }
 
-// Build the Vercel HTTP handler (api/index.ts) -> dist/api/index.mjs
-// Vercel auto-detects serverless functions in the dist/api/ directory
-async function buildApiHandler() {
-  const apiOutDir = path.resolve(artifactDir, "dist", "api");
-  await rm(apiOutDir, { recursive: true, force: true });
-  await mkdir(apiOutDir, { recursive: true });
-
-  await esbuild({
-    entryPoints: [path.resolve(artifactDir, "api/index.ts")],
-    platform: "node",
-    bundle: true,
-    format: "esm",
-    outdir: apiOutDir,
-    outExtension: { ".js": ".mjs" },
-    logLevel: "info",
-    external: EXTERNAL,
-    sourcemap: "linked",
-    plugins: PLUGINS,
-    banner: { js: BANNER },
-  });
-}
-
 async function buildAll() {
-  await buildServer();
+  // Build API handler first (Vercel Function — auto-detected in api/ dir)
   await buildApiHandler();
+  // Build Express server for local dev
+  await buildServer();
 }
 
 buildAll().catch((err) => {
