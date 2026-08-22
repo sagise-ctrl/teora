@@ -8,6 +8,7 @@
 2. **Autonomous execution** — Technical decisions are made and executed by AI team
 3. **Quality gates** — All tasks: typecheck + build + review before complete
 4. **Security first** — No compromise on security (auth, authorization, input validation)
+5. **Proactive issue logging** — Every error, mistake, or blocker MUST be logged to `.ai/issue-tracker.md` at discovery time — no waiting, no reminders needed. Include: root cause, impact (especially owner time wasted), and prevention steps.
 5. **Documentation** — Every decision is documented, every change tracked
 
 ## Security Principles (Prompt Defense Baseline)
