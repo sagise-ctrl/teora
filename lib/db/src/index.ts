@@ -4,16 +4,18 @@ import * as schema from "./schema";
 
 const { Pool } = pg;
 
-if (!process.env.DATABASE_URL) {
-  throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
-  );
-}
-
-// Use connection pooler URL for serverless environments (Vercel Functions).
-// Falls back to direct connection for local development / VPS.
 const connectionString =
   process.env.DATABASE_POOLER_URL ?? process.env.DATABASE_URL;
+
+if (!connectionString) {
+  console.warn(
+    "DATABASE_URL / DATABASE_POOLER_URL not set. Database queries will fail.",
+  );
+  export const pool = null as unknown as import("pg").Pool;
+  export const db = null as unknown as ReturnType<typeof drizzle>;
+  export * from "./schema";
+  return;
+}
 
 export const pool = new Pool({
   connectionString,
