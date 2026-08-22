@@ -1,10 +1,11 @@
 import { Router, type IRouter } from "express";
-import { eq, asc, desc } from "drizzle-orm";
+import { eq, asc, desc, and, isNull } from "drizzle-orm";
 import {
   db,
   messagesTable,
   projectsTable,
   documentVersionsTable,
+  documentsTable,
   projectMetadataTable,
 } from "@workspace/db";
 import {
@@ -154,21 +155,34 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
       sanitizedContent.toLowerCase().includes("perbaiki") ||
       sanitizedContent.toLowerCase().includes("revisi"))
   ) {
-    const versions = await db
+    const projectId = params.data.projectId;
+
+    // Find active document or fall back to legacy
+    const [activeDoc] = await db
+      .select()
+      .from(documentsTable)
+      .where(and(eq(documentsTable.projectId, projectId), eq(documentsTable.isActive, true)));
+
+    const existingVersions = await db
       .select()
       .from(documentVersionsTable)
-      .where(eq(documentVersionsTable.projectId, params.data.projectId));
+      .where(
+        activeDoc
+          ? eq(documentVersionsTable.documentId, activeDoc.id)
+          : and(eq(documentVersionsTable.projectId, projectId), isNull(documentVersionsTable.documentId))
+      );
 
-    const newVersion = versions.length + 1;
+    const newVersion = existingVersions.length + 1;
     await db.insert(documentVersionsTable).values({
-      projectId: params.data.projectId,
+      projectId,
+      documentId: activeDoc?.id,
       versionNumber: newVersion,
       content: aiContent,
       changeDescription: `Revisi berdasarkan permintaan: ${sanitizedContent.substring(0, 80)}`,
     });
 
     await logActivity(
-      params.data.projectId,
+      projectId,
       "document_revised",
       `Versi ${newVersion} dibuat dari revisi`
     );

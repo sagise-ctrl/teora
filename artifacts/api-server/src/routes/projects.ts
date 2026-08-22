@@ -1,5 +1,5 @@
 import { Router, type IRouter, type Request } from "express";
-import { eq, desc, sql } from "drizzle-orm";
+import { eq, desc, sql, and, isNull } from "drizzle-orm";
 import {
   db,
   projectsTable,
@@ -8,6 +8,7 @@ import {
   projectMetadataTable,
   messagesTable,
   documentVersionsTable,
+  documentsTable,
   referencesTable,
   shareTokensTable,
 } from "@workspace/db";
@@ -422,7 +423,12 @@ Tulis dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan b
     const versions = await db
       .select()
       .from(documentVersionsTable)
-      .where(eq(documentVersionsTable.projectId, projectId));
+      .where(
+        and(
+          eq(documentVersionsTable.projectId, projectId),
+          isNull(documentVersionsTable.documentId)
+        )
+      );
 
     const newVersion = versions.length + 1;
 
@@ -668,7 +674,12 @@ async function runDocumentGeneration(projectId: number, jobId: number, outline: 
     const versions = await db
       .select()
       .from(documentVersionsTable)
-      .where(eq(documentVersionsTable.projectId, projectId));
+      .where(
+        and(
+          eq(documentVersionsTable.projectId, projectId),
+          isNull(documentVersionsTable.documentId)
+        )
+      );
 
     const newVersion = versions.length + 1;
 

@@ -184,9 +184,41 @@ export interface MessageInput {
   mode?: ChatMode;
 }
 
+export interface Document {
+  id: number;
+  projectId: number;
+  title: string;
+  orderIndex: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DocumentInput {
+  /**
+     * Document title (e.g., "Bab 1 Pendahuluan")
+     * @minLength 1
+     */
+  title: string;
+  /** Sort order (optional, defaults to end) */
+  orderIndex?: number;
+}
+
+export interface DocumentUpdate {
+  /** @minLength 1 */
+  title?: string;
+  orderIndex?: number;
+  isActive?: boolean;
+}
+
 export interface DocumentVersion {
   id: number;
   projectId: number;
+  /**
+     * Scoped to specific document (null = legacy/project-level)
+     * @nullable
+     */
+  documentId?: number | null;
   versionNumber: number;
   content: string;
   /** @nullable */
@@ -195,6 +227,10 @@ export interface DocumentVersion {
   changeDescription?: string | null;
   createdAt: string;
 }
+
+export type DocumentWithVersions = Document & {
+  versions?: DocumentVersion[];
+};
 
 export type ReferenceValidationStatus = typeof ReferenceValidationStatus[keyof typeof ReferenceValidationStatus];
 
@@ -644,12 +680,19 @@ search?: string;
 };
 
 export type RegenerateOutlineBody = {
+  /** Target document ID (optional, uses active document) */
+  documentId?: number;
   /** Optional user-modified outline to refine */
   userOutline?: string;
 };
 
 export type RegenerateOutline200 = {
   outline?: string;
+};
+
+export type GenerateDocumentBody = {
+  /** Target document ID (optional, uses active document if omitted) */
+  documentId?: number;
 };
 
 export type GenerateDocument202 = {

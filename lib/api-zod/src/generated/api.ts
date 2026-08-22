@@ -323,26 +323,63 @@ export const SendMessageResponse = zod.object({
 
 
 /**
- * @summary List all document versions for a project
+ * @summary List all documents in a project
  */
-export const ListDocumentVersionsParams = zod.object({
+export const ListDocumentsParams = zod.object({
   "projectId": zod.coerce.number()
 })
 
-export const ListDocumentVersionsResponseItem = zod.object({
+export const ListDocumentsResponseItem = zod.object({
   "id": zod.number(),
   "projectId": zod.number(),
+  "title": zod.string(),
+  "orderIndex": zod.number(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+}).and(zod.object({
+  "versions": zod.array(zod.object({
+  "id": zod.number(),
+  "projectId": zod.number(),
+  "documentId": zod.number().nullish().describe('Scoped to specific document (null = legacy\/project-level)'),
   "versionNumber": zod.number(),
   "content": zod.string(),
   "outline": zod.string().nullish(),
   "changeDescription": zod.string().nullish(),
   "createdAt": zod.coerce.date()
-})
-export const ListDocumentVersionsResponse = zod.array(ListDocumentVersionsResponseItem)
+})).optional()
+}))
+export const ListDocumentsResponse = zod.array(ListDocumentsResponseItem)
 
 
 /**
- * @summary Get the latest document version
+ * @summary Create a new document in a project
+ */
+export const CreateDocumentParams = zod.object({
+  "projectId": zod.coerce.number()
+})
+
+
+
+
+export const CreateDocumentBody = zod.object({
+  "title": zod.string().min(1).describe('Document title (e.g., \"Bab 1 Pendahuluan\")'),
+  "orderIndex": zod.number().optional().describe('Sort order (optional, defaults to end)')
+})
+
+export const CreateDocumentResponse = zod.object({
+  "id": zod.number(),
+  "projectId": zod.number(),
+  "title": zod.string(),
+  "orderIndex": zod.number(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Get the latest version of the active document
  */
 export const GetLatestDocumentParams = zod.object({
   "projectId": zod.coerce.number()
@@ -351,6 +388,7 @@ export const GetLatestDocumentParams = zod.object({
 export const GetLatestDocumentResponse = zod.object({
   "id": zod.number(),
   "projectId": zod.number(),
+  "documentId": zod.number().nullish().describe('Scoped to specific document (null = legacy\/project-level)'),
   "versionNumber": zod.number(),
   "content": zod.string(),
   "outline": zod.string().nullish(),
@@ -360,13 +398,83 @@ export const GetLatestDocumentResponse = zod.object({
 
 
 /**
- * @summary Regenerate document outline
+ * @summary Get a document with all its versions
+ */
+export const GetDocumentParams = zod.object({
+  "projectId": zod.coerce.number(),
+  "documentId": zod.coerce.number()
+})
+
+export const GetDocumentResponse = zod.object({
+  "id": zod.number(),
+  "projectId": zod.number(),
+  "title": zod.string(),
+  "orderIndex": zod.number(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+}).and(zod.object({
+  "versions": zod.array(zod.object({
+  "id": zod.number(),
+  "projectId": zod.number(),
+  "documentId": zod.number().nullish().describe('Scoped to specific document (null = legacy\/project-level)'),
+  "versionNumber": zod.number(),
+  "content": zod.string(),
+  "outline": zod.string().nullish(),
+  "changeDescription": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})).optional()
+}))
+
+
+/**
+ * @summary Update a document
+ */
+export const UpdateDocumentParams = zod.object({
+  "projectId": zod.coerce.number(),
+  "documentId": zod.coerce.number()
+})
+
+
+
+
+export const UpdateDocumentBody = zod.object({
+  "title": zod.string().min(1).optional(),
+  "orderIndex": zod.number().optional(),
+  "isActive": zod.boolean().optional()
+})
+
+export const UpdateDocumentResponse = zod.object({
+  "id": zod.number(),
+  "projectId": zod.number(),
+  "title": zod.string(),
+  "orderIndex": zod.number(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Delete a document and all its versions
+ */
+export const DeleteDocumentParams = zod.object({
+  "projectId": zod.coerce.number(),
+  "documentId": zod.coerce.number()
+})
+
+export const DeleteDocumentResponse = zod.void()
+
+
+/**
+ * @summary Regenerate outline for the active document
  */
 export const RegenerateOutlineParams = zod.object({
   "projectId": zod.coerce.number()
 })
 
 export const RegenerateOutlineBody = zod.object({
+  "documentId": zod.number().optional().describe('Target document ID (optional, uses active document)'),
   "userOutline": zod.string().optional().describe('Optional user-modified outline to refine')
 })
 
@@ -376,10 +484,14 @@ export const RegenerateOutlineResponse = zod.object({
 
 
 /**
- * @summary Generate a new document from the current outline
+ * @summary Generate content for a document (or active document if documentId not provided)
  */
 export const GenerateDocumentParams = zod.object({
   "projectId": zod.coerce.number()
+})
+
+export const GenerateDocumentBody = zod.object({
+  "documentId": zod.number().optional().describe('Target document ID (optional, uses active document if omitted)')
 })
 
 export const GenerateDocumentResponse = zod.object({

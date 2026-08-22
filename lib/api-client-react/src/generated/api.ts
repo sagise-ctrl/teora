@@ -27,13 +27,18 @@ import type {
   AuthUser,
   BibliographyResult,
   CreateShareLinkRequest,
+  Document,
+  DocumentInput,
+  DocumentUpdate,
   DocumentVersion,
+  DocumentWithVersions,
   Export,
   ExportInput,
   FetchReferenceMetadataRequest,
   FetchedReferenceMetadata,
   FormatCSLBibliographyParams,
   GenerateDocument202,
+  GenerateDocumentBody,
   GetAIUsageStatsParams,
   HealthStatus,
   Job,
@@ -1274,7 +1279,7 @@ export const useSendMessage = <TError = ErrorType<unknown>,
       return useMutation(getSendMessageMutationOptions(options));
     }
 
-export const getListDocumentVersionsUrl = (projectId: number,) => {
+export const getListDocumentsUrl = (projectId: number,) => {
 
 
 
@@ -1283,11 +1288,11 @@ export const getListDocumentVersionsUrl = (projectId: number,) => {
 }
 
 /**
- * @summary List all document versions for a project
+ * @summary List all documents in a project
  */
-export const listDocumentVersions = async (projectId: number, options?: Parameters<typeof customFetch>[1]): Promise<DocumentVersion[]> => {
+export const listDocuments = async (projectId: number, options?: Parameters<typeof customFetch>[1]): Promise<DocumentWithVersions[]> => {
 
-  return customFetch<DocumentVersion[]>(getListDocumentVersionsUrl(projectId),
+  return customFetch<DocumentWithVersions[]>(getListDocumentsUrl(projectId),
   {
     ...options,
     method: 'GET'
@@ -1300,45 +1305,45 @@ export const listDocumentVersions = async (projectId: number, options?: Paramete
 
 
 
-export const getListDocumentVersionsQueryKey = (projectId: number,) => {
+export const getListDocumentsQueryKey = (projectId: number,) => {
     return [
     `/api/projects/${projectId}/documents`
     ] as const;
     }
 
 
-export const getListDocumentVersionsQueryOptions = <TData = Awaited<ReturnType<typeof listDocumentVersions>>, TError = ErrorType<unknown>>(projectId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listDocumentVersions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getListDocumentsQueryOptions = <TData = Awaited<ReturnType<typeof listDocuments>>, TError = ErrorType<unknown>>(projectId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listDocuments>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getListDocumentVersionsQueryKey(projectId);
+  const queryKey =  queryOptions?.queryKey ?? getListDocumentsQueryKey(projectId);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof listDocumentVersions>>> = ({ signal }) => listDocumentVersions(projectId, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listDocuments>>> = ({ signal }) => listDocuments(projectId, { signal, ...requestOptions });
 
 
 
 
 
-   return  { queryKey, queryFn, enabled: projectId !== null && projectId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listDocumentVersions>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, enabled: projectId !== null && projectId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listDocuments>>, TError, TData> & { queryKey: QueryKey }
 }
 
-export type ListDocumentVersionsQueryResult = NonNullable<Awaited<ReturnType<typeof listDocumentVersions>>>
-export type ListDocumentVersionsQueryError = ErrorType<unknown>
+export type ListDocumentsQueryResult = NonNullable<Awaited<ReturnType<typeof listDocuments>>>
+export type ListDocumentsQueryError = ErrorType<unknown>
 
 
 /**
- * @summary List all document versions for a project
+ * @summary List all documents in a project
  */
 
-export function useListDocumentVersions<TData = Awaited<ReturnType<typeof listDocumentVersions>>, TError = ErrorType<unknown>>(
- projectId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listDocumentVersions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export function useListDocuments<TData = Awaited<ReturnType<typeof listDocuments>>, TError = ErrorType<unknown>>(
+ projectId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listDocuments>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getListDocumentVersionsQueryOptions(projectId,options)
+  const queryOptions = getListDocumentsQueryOptions(projectId,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -1351,6 +1356,78 @@ export function useListDocumentVersions<TData = Awaited<ReturnType<typeof listDo
 
 
 
+export const getCreateDocumentUrl = (projectId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/documents`
+}
+
+/**
+ * @summary Create a new document in a project
+ */
+export const createDocument = async (projectId: number,
+    documentInput: DocumentInput, options?: Parameters<typeof customFetch>[1]): Promise<Document> => {
+
+  return customFetch<Document>(getCreateDocumentUrl(projectId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(documentInput)
+  }
+);}
+
+
+
+
+
+export const getCreateDocumentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createDocument>>, TError,{projectId: number;data: BodyType<DocumentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createDocument>>, TError,{projectId: number;data: BodyType<DocumentInput>}, TContext> => {
+
+const mutationKey = ['createDocument'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createDocument>>, {projectId: number;data: BodyType<DocumentInput>}> = (props) => {
+          const {projectId,data} = props ?? {};
+
+          return  createDocument(projectId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateDocumentMutationResult = NonNullable<Awaited<ReturnType<typeof createDocument>>>
+    export type CreateDocumentMutationBody = BodyType<DocumentInput>
+    export type CreateDocumentMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Create a new document in a project
+ */
+export const useCreateDocument = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createDocument>>, TError,{projectId: number;data: BodyType<DocumentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createDocument>>,
+        TError,
+        {projectId: number;data: BodyType<DocumentInput>},
+        TContext
+      > => {
+      return useMutation(getCreateDocumentMutationOptions(options));
+    }
+
 export const getGetLatestDocumentUrl = (projectId: number,) => {
 
 
@@ -1360,7 +1437,7 @@ export const getGetLatestDocumentUrl = (projectId: number,) => {
 }
 
 /**
- * @summary Get the latest document version
+ * @summary Get the latest version of the active document
  */
 export const getLatestDocument = async (projectId: number, options?: Parameters<typeof customFetch>[1]): Promise<DocumentVersion> => {
 
@@ -1407,7 +1484,7 @@ export type GetLatestDocumentQueryError = ErrorType<void>
 
 
 /**
- * @summary Get the latest document version
+ * @summary Get the latest version of the active document
  */
 
 export function useGetLatestDocument<TData = Awaited<ReturnType<typeof getLatestDocument>>, TError = ErrorType<void>>(
@@ -1428,6 +1505,235 @@ export function useGetLatestDocument<TData = Awaited<ReturnType<typeof getLatest
 
 
 
+export const getGetDocumentUrl = (projectId: number,
+    documentId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/documents/${documentId}`
+}
+
+/**
+ * @summary Get a document with all its versions
+ */
+export const getDocument = async (projectId: number,
+    documentId: number, options?: Parameters<typeof customFetch>[1]): Promise<DocumentWithVersions> => {
+
+  return customFetch<DocumentWithVersions>(getGetDocumentUrl(projectId,documentId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetDocumentQueryKey = (projectId: number,
+    documentId: number,) => {
+    return [
+    `/api/projects/${projectId}/documents/${documentId}`
+    ] as const;
+    }
+
+
+export const getGetDocumentQueryOptions = <TData = Awaited<ReturnType<typeof getDocument>>, TError = ErrorType<void>>(projectId: number,
+    documentId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDocument>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetDocumentQueryKey(projectId,documentId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDocument>>> = ({ signal }) => getDocument(projectId,documentId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: projectId !== null && projectId !== undefined && documentId !== null && documentId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDocument>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetDocumentQueryResult = NonNullable<Awaited<ReturnType<typeof getDocument>>>
+export type GetDocumentQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get a document with all its versions
+ */
+
+export function useGetDocument<TData = Awaited<ReturnType<typeof getDocument>>, TError = ErrorType<void>>(
+ projectId: number,
+    documentId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDocument>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetDocumentQueryOptions(projectId,documentId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateDocumentUrl = (projectId: number,
+    documentId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/documents/${documentId}`
+}
+
+/**
+ * @summary Update a document
+ */
+export const updateDocument = async (projectId: number,
+    documentId: number,
+    documentUpdate: DocumentUpdate, options?: Parameters<typeof customFetch>[1]): Promise<Document> => {
+
+  return customFetch<Document>(getUpdateDocumentUrl(projectId,documentId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(documentUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateDocumentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateDocument>>, TError,{projectId: number;documentId: number;data: BodyType<DocumentUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateDocument>>, TError,{projectId: number;documentId: number;data: BodyType<DocumentUpdate>}, TContext> => {
+
+const mutationKey = ['updateDocument'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateDocument>>, {projectId: number;documentId: number;data: BodyType<DocumentUpdate>}> = (props) => {
+          const {projectId,documentId,data} = props ?? {};
+
+          return  updateDocument(projectId,documentId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateDocumentMutationResult = NonNullable<Awaited<ReturnType<typeof updateDocument>>>
+    export type UpdateDocumentMutationBody = BodyType<DocumentUpdate>
+    export type UpdateDocumentMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Update a document
+ */
+export const useUpdateDocument = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateDocument>>, TError,{projectId: number;documentId: number;data: BodyType<DocumentUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateDocument>>,
+        TError,
+        {projectId: number;documentId: number;data: BodyType<DocumentUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateDocumentMutationOptions(options));
+    }
+
+export const getDeleteDocumentUrl = (projectId: number,
+    documentId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/documents/${documentId}`
+}
+
+/**
+ * @summary Delete a document and all its versions
+ */
+export const deleteDocument = async (projectId: number,
+    documentId: number, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteDocumentUrl(projectId,documentId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteDocumentMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDocument>>, TError,{projectId: number;documentId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteDocument>>, TError,{projectId: number;documentId: number}, TContext> => {
+
+const mutationKey = ['deleteDocument'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteDocument>>, {projectId: number;documentId: number}> = (props) => {
+          const {projectId,documentId} = props ?? {};
+
+          return  deleteDocument(projectId,documentId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteDocumentMutationResult = NonNullable<Awaited<ReturnType<typeof deleteDocument>>>
+
+    export type DeleteDocumentMutationError = ErrorType<void>
+
+    /**
+ * @summary Delete a document and all its versions
+ */
+export const useDeleteDocument = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDocument>>, TError,{projectId: number;documentId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteDocument>>,
+        TError,
+        {projectId: number;documentId: number},
+        TContext
+      > => {
+      return useMutation(getDeleteDocumentMutationOptions(options));
+    }
+
 export const getRegenerateOutlineUrl = (projectId: number,) => {
 
 
@@ -1437,7 +1743,7 @@ export const getRegenerateOutlineUrl = (projectId: number,) => {
 }
 
 /**
- * @summary Regenerate document outline
+ * @summary Regenerate outline for the active document
  */
 export const regenerateOutline = async (projectId: number,
     regenerateOutlineBody?: RegenerateOutlineBody, options?: Parameters<typeof customFetch>[1]): Promise<RegenerateOutline200> => {
@@ -1487,7 +1793,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type RegenerateOutlineMutationError = ErrorType<unknown>
 
     /**
- * @summary Regenerate document outline
+ * @summary Regenerate outline for the active document
  */
 export const useRegenerateOutline = <TError = ErrorType<unknown>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof regenerateOutline>>, TError,{projectId: number;data?: BodyType<RegenerateOutlineBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
@@ -1509,16 +1815,17 @@ export const getGenerateDocumentUrl = (projectId: number,) => {
 }
 
 /**
- * @summary Generate a new document from the current outline
+ * @summary Generate content for a document (or active document if documentId not provided)
  */
-export const generateDocument = async (projectId: number, options?: Parameters<typeof customFetch>[1]): Promise<GenerateDocument202> => {
+export const generateDocument = async (projectId: number,
+    generateDocumentBody?: GenerateDocumentBody, options?: Parameters<typeof customFetch>[1]): Promise<GenerateDocument202> => {
 
   return customFetch<GenerateDocument202>(getGenerateDocumentUrl(projectId),
   {
     ...options,
-    method: 'POST'
-
-
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(generateDocumentBody)
   }
 );}
 
@@ -1527,8 +1834,8 @@ export const generateDocument = async (projectId: number, options?: Parameters<t
 
 
 export const getGenerateDocumentMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateDocument>>, TError,{projectId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof generateDocument>>, TError,{projectId: number}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateDocument>>, TError,{projectId: number;data?: BodyType<GenerateDocumentBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof generateDocument>>, TError,{projectId: number;data?: BodyType<GenerateDocumentBody>}, TContext> => {
 
 const mutationKey = ['generateDocument'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -1540,10 +1847,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof generateDocument>>, {projectId: number}> = (props) => {
-          const {projectId} = props ?? {};
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof generateDocument>>, {projectId: number;data?: BodyType<GenerateDocumentBody>}> = (props) => {
+          const {projectId,data} = props ?? {};
 
-          return  generateDocument(projectId,requestOptions)
+          return  generateDocument(projectId,data,requestOptions)
         }
 
 
@@ -1554,18 +1861,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type GenerateDocumentMutationResult = NonNullable<Awaited<ReturnType<typeof generateDocument>>>
-
+    export type GenerateDocumentMutationBody = BodyType<GenerateDocumentBody> | undefined
     export type GenerateDocumentMutationError = ErrorType<unknown>
 
     /**
- * @summary Generate a new document from the current outline
+ * @summary Generate content for a document (or active document if documentId not provided)
  */
 export const useGenerateDocument = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateDocument>>, TError,{projectId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateDocument>>, TError,{projectId: number;data?: BodyType<GenerateDocumentBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof generateDocument>>,
         TError,
-        {projectId: number},
+        {projectId: number;data?: BodyType<GenerateDocumentBody>},
         TContext
       > => {
       return useMutation(getGenerateDocumentMutationOptions(options));

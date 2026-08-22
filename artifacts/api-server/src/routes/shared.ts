@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
-import { eq, desc } from "drizzle-orm";
-import { db, shareTokensTable, projectsTable, documentVersionsTable } from "@workspace/db";
+import { eq, desc, and, isNull } from "drizzle-orm";
+import { db, shareTokensTable, projectsTable, documentVersionsTable, documentsTable } from "@workspace/db";
 
 const router: IRouter = Router();
 
@@ -36,13 +36,57 @@ router.get("/shared/:token", async (req, res): Promise<void> => {
   let latestDocument: string | null = null;
 
   if (shareToken.accessMode === "view" || shareToken.accessMode === "edit") {
-    const [latest] = await db
-      .select({ content: documentVersionsTable.content })
-      .from(documentVersionsTable)
-      .where(eq(documentVersionsTable.projectId, project.id))
-      .orderBy(desc(documentVersionsTable.versionNumber))
-      .limit(1);
-    latestDocument = latest?.content ?? null;
+    // Try active document first
+    const [activeDoc] = await db
+      .select()
+      .from(documentsTable)
+      .where(and(eq(documentsTable.projectId, project.id), eq(documentsTable.isActive, true)));
+
+    if (activeDoc) {
+      const [latest] = await db
+        .select({ content: documentVersionsTable.content })
+        .from(documentVersionsTable)
+        .where(eq(documentVersionsTable.documentId, activeDoc.id))
+        .orderBy(desc(documentVersionsTable.versionNumber))
+        .limit(1);
+      latestDocument = latest?.content ?? null;
+    }
+
+    // Fall back to any document
+    if (!latestDocument) {
+      const [anyDoc] = await db
+        .select()
+        .from(documentsTable)
+        .where(eq(documentsTable.projectId, project.id))
+        .orderBy(documentsTable.orderIndex)
+        .limit(1);
+
+      if (anyDoc) {
+        const [latest] = await db
+          .select({ content: documentVersionsTable.content })
+          .from(documentVersionsTable)
+          .where(eq(documentVersionsTable.documentId, anyDoc.id))
+          .orderBy(desc(documentVersionsTable.versionNumber))
+          .limit(1);
+        latestDocument = latest?.content ?? null;
+      }
+    }
+
+    // Legacy fallback: project-level versions
+    if (!latestDocument) {
+      const [latest] = await db
+        .select({ content: documentVersionsTable.content })
+        .from(documentVersionsTable)
+        .where(
+          and(
+            eq(documentVersionsTable.projectId, project.id),
+            isNull(documentVersionsTable.documentId)
+          )
+        )
+        .orderBy(desc(documentVersionsTable.versionNumber))
+        .limit(1);
+      latestDocument = latest?.content ?? null;
+    }
   }
 
   res.json({

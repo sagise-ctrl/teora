@@ -12,7 +12,7 @@ import {
   useListAttachments,
   useUploadAttachment,
   useDeleteAttachment,
-  useListDocumentVersions,
+  useListDocuments,
   useListActivities,
   useListJobs,
   useAnalyzeProject,
@@ -28,7 +28,7 @@ import {
   getListMessagesQueryKey,
   getListReferencesQueryKey,
   getListAttachmentsQueryKey,
-  getListDocumentVersionsQueryKey,
+  getListDocumentsQueryKey,
   getListActivitiesQueryKey,
   getGetProjectQueryKey,
   getListJobsQueryKey,
@@ -1012,7 +1012,8 @@ function AttachmentsTab({ projectId }: { projectId: number }) {
 }
 
 function HistoryTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosure: boolean }) {
-  const { data: versions, isLoading } = useListDocumentVersions(projectId)
+  const { data: documents, isLoading } = useListDocuments(projectId)
+  const allVersions = documents?.flatMap(d => d.versions ?? []).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) ?? []
 
   return (
     <div className="space-y-6">
@@ -1034,7 +1035,7 @@ function HistoryTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosu
           <TableBody>
             {isLoading ? (
               <TableRow><TableCell colSpan={4} className="text-center py-8"><Loader2 className="w-6 h-6 animate-spin mx-auto text-muted-foreground" /></TableCell></TableRow>
-            ) : versions?.length === 0 ? (
+            ) : allVersions.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={4} className="text-center py-16">
                   <div className="flex flex-col items-center">
@@ -1046,7 +1047,7 @@ function HistoryTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosu
                   </div>
                 </TableCell>
               </TableRow>
-            ) : versions?.map(v => (
+            ) : allVersions.map((v) => (
               <TableRow key={v.id}>
                 <TableCell className="font-medium text-primary">v{v.versionNumber}.0</TableCell>
                 <TableCell>{v.changeDescription || "System update"}</TableCell>

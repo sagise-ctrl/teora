@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
-import { eq, desc } from "drizzle-orm";
-import { db, exportsTable, documentVersionsTable } from "@workspace/db";
+import { eq, desc, and, isNull } from "drizzle-orm";
+import { db, exportsTable, documentVersionsTable, documentsTable } from "@workspace/db";
 import {
   ListExportsParams,
   CreateExportParams,
@@ -75,12 +75,31 @@ router.post("/projects/:projectId/exports", async (req, res): Promise<void> => {
       .from(documentVersionsTable)
       .where(eq(documentVersionsTable.id, parsed.data.documentVersionId));
   } else {
-    [doc] = await db
+    // Get latest from active document, fallback to legacy
+    const projectId = params.data.projectId;
+    const [activeDoc] = await db
       .select()
-      .from(documentVersionsTable)
-      .where(eq(documentVersionsTable.projectId, params.data.projectId))
-      .orderBy(desc(documentVersionsTable.versionNumber))
-      .limit(1);
+      .from(documentsTable)
+      .where(and(eq(documentsTable.projectId, projectId), eq(documentsTable.isActive, true)));
+
+    if (activeDoc) {
+      [doc] = await db
+        .select()
+        .from(documentVersionsTable)
+        .where(eq(documentVersionsTable.documentId, activeDoc.id))
+        .orderBy(desc(documentVersionsTable.versionNumber))
+        .limit(1);
+    }
+
+    if (!doc) {
+      // Legacy fallback: any version with no documentId
+      [doc] = await db
+        .select()
+        .from(documentVersionsTable)
+        .where(and(eq(documentVersionsTable.projectId, projectId), isNull(documentVersionsTable.documentId)))
+        .orderBy(desc(documentVersionsTable.versionNumber))
+        .limit(1);
+    }
   }
 
   if (!doc) {

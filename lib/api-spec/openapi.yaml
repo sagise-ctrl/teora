@@ -319,9 +319,9 @@ paths:
   # ── Documents ─────────────────────────────────────────────────────────────
   /projects/{projectId}/documents:
     get:
-      operationId: listDocumentVersions
+      operationId: listDocuments
       tags: [documents]
-      summary: List all document versions for a project
+      summary: List all documents in a project
       parameters:
         - name: projectId
           in: path
@@ -330,19 +330,42 @@ paths:
             type: number
       responses:
         "200":
-          description: Document versions
+          description: Documents with versions
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/DocumentVersion"
+                  $ref: "#/components/schemas/DocumentWithVersions"
+    post:
+      operationId: createDocument
+      tags: [documents]
+      summary: Create a new document in a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DocumentInput"
+      responses:
+        "201":
+          description: Document created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
 
   /projects/{projectId}/documents/latest:
     get:
       operationId: getLatestDocument
       tags: [documents]
-      summary: Get the latest document version
+      summary: Get the latest version of the active document
       parameters:
         - name: projectId
           in: path
@@ -359,11 +382,85 @@ paths:
         "404":
           description: No document yet
 
+  /projects/{projectId}/documents/{documentId}:
+    get:
+      operationId: getDocument
+      tags: [documents]
+      summary: Get a document with all its versions
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Document with versions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentWithVersions"
+        "404":
+          description: Document not found
+    patch:
+      operationId: updateDocument
+      tags: [documents]
+      summary: Update a document
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DocumentUpdate"
+      responses:
+        "200":
+          description: Document updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+    delete:
+      operationId: deleteDocument
+      tags: [documents]
+      summary: Delete a document and all its versions
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Document deleted
+        "404":
+          description: Document not found
+
   /projects/{projectId}/outline:
     post:
       operationId: regenerateOutline
       tags: [documents]
-      summary: Regenerate document outline
+      summary: Regenerate outline for the active document
       parameters:
         - name: projectId
           in: path
@@ -377,6 +474,9 @@ paths:
             schema:
               type: object
               properties:
+                documentId:
+                  type: number
+                  description: Target document ID (optional, uses active document)
                 userOutline:
                   type: string
                   description: Optional user-modified outline to refine
@@ -395,13 +495,23 @@ paths:
     post:
       operationId: generateDocument
       tags: [documents]
-      summary: Generate a new document from the current outline
+      summary: Generate content for a document (or active document if documentId not provided)
       parameters:
         - name: projectId
           in: path
           required: true
           schema:
             type: number
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                documentId:
+                  type: number
+                  description: Target document ID (optional, uses active document if omitted)
       responses:
         "202":
           description: Document generation started
@@ -1104,6 +1214,61 @@ components:
           $ref: "#/components/schemas/ChatMode"
           default: revise
 
+    # ── Document ─────────────────────────────────────────────────────────────────
+    Document:
+      type: object
+      required: [id, projectId, title, orderIndex, isActive, createdAt, updatedAt]
+      properties:
+        id:
+          type: number
+        projectId:
+          type: number
+        title:
+          type: string
+        orderIndex:
+          type: number
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    DocumentInput:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+          minLength: 1
+          description: Document title (e.g., "Bab 1 Pendahuluan")
+        orderIndex:
+          type: number
+          description: Sort order (optional, defaults to end)
+
+    DocumentUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+        orderIndex:
+          type: number
+        isActive:
+          type: boolean
+
+    DocumentWithVersions:
+      allOf:
+        - $ref: "#/components/schemas/Document"
+        - type: object
+          properties:
+            versions:
+              type: array
+              items:
+                $ref: "#/components/schemas/DocumentVersion"
+
     # ── DocumentVersion ───────────────────────────────────────────────────────
     DocumentVersion:
       type: object
@@ -1113,6 +1278,9 @@ components:
           type: number
         projectId:
           type: number
+        documentId:
+          type: ["number", "null"]
+          description: Scoped to specific document (null = legacy/project-level)
         versionNumber:
           type: number
         content:
