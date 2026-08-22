@@ -1,17 +1,9 @@
 {
-  "buildCommand": "pnpm install && pnpm --filter @workspace/api-server run build",
-  "outputDirectory": "dist",
+  "buildCommand": "pnpm install && pnpm run --filter @workspace/api-server build",
+  "outputDirectory": "",
   "installCommand": "pnpm install",
   "framework": null,
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api" }
-  ],
-  "headers": [
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "*" }
-      ]
-    }
   ]
 }
