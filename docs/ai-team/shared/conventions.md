@@ -138,6 +138,47 @@ lib/
   db/              # Drizzle schema
 ```
 
+## Deployment Compatibility Principle
+
+> Build system dan deployment target WAJIB diverifikasi kompatibilitasnya SEBELUM repo dibuat, bukan sesudah.
+
+### Sebelum Bikin Repo atau Setup Build System
+
+Jawab dulu 3 pertanyaan:
+
+1. **Deployment target apa?** (Vercel, VPS, Railway, dll.)
+2. **Build system apa yang didukung?** (npm, pnpm, bun — dan versi berapa?)
+3. **Fitur monorepo apa yang didukung?** (workspaces, overrides, catalog, dll.)
+
+### Checklist Deployment Compatibility
+
+| Pertanyaan | Kapan |
+|---|---|
+| Build system support `workspace:*` syntax? | Selalu cek dul |
+| Deployment support pnpm? | Cek apakah auto-install atau perlu config manual |
+| Fitur tertentu (`catalog:`, overrides) supported? | Baca dokumentasi deployment target |
+| Lockfile format kompatibel? | Versi lockfile harus cocok dengan versi CLI di deployment |
+| Environment variables jelas? | Environemt variabel deployment berbeda dengan local |
+
+### Anti-Patterns (Jangan Dilakukan)
+
+- ❌ Pakai fitur pnpm (`workspace:*`, `catalog:`) tanpa cek apakah deployment support
+- ❌ Setup monorepo tanpa tentukan deployment target dul
+- ❌ Pakai versi tool yang berbeda antara local dan deployment (lockfile mismatch)
+- ❌ Build system pakai syntax proprietary tanpa fallback plan
+
+### Kalau Terjadi Conflict
+
+1. Selalu pakai **standar npm** (workspaces) sebagai default — paling banyak didukung
+2. Pakai fitur proprietary (pnpm catalog, overrides) hanya kalau deployment definitely supports it
+3. Kalau tidak yakin — tanya, jangan assume
+
+### Catatan Incident (2026-08-22)
+
+pnpm workspaces dengan `workspace:*` dan `catalog:` tidak compatible dengan Vercel auto-builder yang pakai npm. Lockfile pnpm v9/v10 mismatch juga menyebabkan error. Cost: ~3 jam waktu owner + 4x build retry.
+
+---
+
 ## Knowledge Base First Principle
 
 > Setiap tugas baru WAJIB baca knowledge base yang sudah ada sebelum tanya Owner atau bikin file baru.

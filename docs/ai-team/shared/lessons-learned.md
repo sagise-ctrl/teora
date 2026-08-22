@@ -166,3 +166,32 @@ But `fetchMe()` was NOT being called in the VITE_MOCK path before the fix — it
 **Lesson:** In GitHub Actions, `if` conditions on a job can only reference `needs.*.outputs` from jobs that the job actually `needs`. If `deploy needs: build`, it cannot reference `needs.setup.outputs`.
 
 **Prevention:** Remove redundant `if` conditions on downstream jobs that already depend on upstream jobs via `needs`. The `build` job's `if` already gates whether it runs, so `deploy` doesn't need a second check.
+
+---
+
+## 11. pnpm Workspace + Vercel Incompatibility
+
+**Date:** 2026-08-22
+
+**Problem:** Vercel build failed with multiple errors:
+1. `settings.onlyBuiltDependencies.push is not a function` — pnpm-workspace.yaml had `onlyBuiltDependencies: msw` as a string instead of an array
+2. `Unsupported URL Type "workspace:*"` — npm could not resolve pnpm's `workspace:*` syntax
+3. `catalog:` syntax not recognized by npm
+4. Lockfile version mismatch (pnpm v10 wrote lockfile that pnpm v9 couldn't read)
+
+**Root Cause:** The monorepo was built using pnpm-specific features (`workspace:*`, `catalog:`, overrides) without verifying that the deployment target (Vercel) supports these features. Vercel auto-builder uses npm by default and does not natively support pnpm workspace features.
+
+**Impact:** ~3 hours owner time, 5+ failed build retries, budget wasted on failed deployments.
+
+**Lesson:**
+- Deployment target must be verified BEFORE setting up the build system
+- Always use npm workspaces (standard) as the default for cross-platform compatibility
+- pnpm-specific features (catalog, workspace:*, complex overrides) should only be used when deployment definitely supports them
+- Lockfile must be consistent with the CLI version on the deployment platform
+- Test the build pipeline early — don't wait until all features are done
+
+**Prevention:**
+- Add "Deployment Compatibility Check" as the first step in any feature development
+- Document deployment target, supported build systems, and feature constraints in `conventions.md`
+- Verify build pipeline works BEFORE writing significant code
+- Use standard npm workspaces (`"packages": [...]` in root) for monorepos targeting multiple deployment platforms
