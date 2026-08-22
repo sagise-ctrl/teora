@@ -13,6 +13,10 @@ import {
   useUploadAttachment,
   useDeleteAttachment,
   useListDocuments,
+  useCreateDocument,
+  useUpdateDocument,
+  useDeleteDocument,
+  useGetDocument,
   useListActivities,
   useListJobs,
   useAnalyzeProject,
@@ -33,7 +37,8 @@ import {
   getGetProjectQueryKey,
   getListJobsQueryKey,
   getListShareLinksQueryKey,
-  type ChatMode
+  type ChatMode,
+  type DocumentWithVersions,
 } from "@workspace/api-client-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
@@ -60,7 +65,11 @@ import {
   Link as LinkIcon,
   Copy,
   Clock,
-  Loader
+  Loader,
+  MoreHorizontal,
+  Pencil,
+  FilePlus,
+  ChevronDown
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -91,8 +100,227 @@ import {
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
+
+// ── Document Bar ────────────────────────────────────────────────────────────────
+
+function DocumentBar({
+  projectId,
+  documents,
+  selectedDocId,
+  isLoading,
+  onSelect,
+  onRefresh,
+}: {
+  projectId: number
+  documents: DocumentWithVersions[]
+  selectedDocId: number | null
+  isLoading: boolean
+  onSelect: (id: number) => void
+  onRefresh: () => void
+}) {
+  const { toast } = useToast()
+  const queryClient = useQueryClient()
+
+  const createDoc = useCreateDocument()
+  const updateDoc = useUpdateDocument()
+  const deleteDoc = useDeleteDocument()
+
+  const [editingId, setEditingId] = useState<number | null>(null)
+  const [editTitle, setEditTitle] = useState("")
+  const [showCreate, setShowCreate] = useState(false)
+  const [newTitle, setNewTitle] = useState("")
+
+  const handleCreate = () => {
+    if (!newTitle.trim()) return
+    createDoc.mutate(
+      { projectId, data: { title: newTitle.trim() } },
+      {
+        onSuccess: (doc) => {
+          toast({ title: "Document created", description: doc.title })
+          setNewTitle("")
+          setShowCreate(false)
+          onSelect(doc.id)
+          onRefresh()
+        },
+        onError: (err) => toast({ title: "Failed to create", description: String(err), variant: "destructive" }),
+      }
+    )
+  }
+
+  const handleRename = (doc: DocumentWithVersions) => {
+    if (!editTitle.trim() || editTitle === doc.title) {
+      setEditingId(null)
+      return
+    }
+    updateDoc.mutate(
+      { projectId, documentId: doc.id, data: { title: editTitle.trim() } },
+      {
+        onSuccess: () => {
+          toast({ title: "Renamed", description: editTitle.trim() })
+          setEditingId(null)
+          onRefresh()
+        },
+        onError: (err) => toast({ title: "Failed to rename", description: String(err), variant: "destructive" }),
+      }
+    )
+  }
+
+  const handleDelete = (doc: DocumentWithVersions) => {
+    if (!confirm(`Delete "${doc.title}" and all its versions?`)) return
+    deleteDoc.mutate(
+      { projectId, documentId: doc.id },
+      {
+        onSuccess: () => {
+          toast({ title: "Deleted", description: doc.title })
+          if (selectedDocId === doc.id) {
+            const remaining = documents.filter(d => d.id !== doc.id)
+            onSelect(remaining[0]?.id ?? null)
+          }
+          onRefresh()
+        },
+        onError: (err) => toast({ title: "Failed to delete", description: String(err), variant: "destructive" }),
+      }
+    )
+  }
+
+  const handleSetActive = (doc: DocumentWithVersions) => {
+    updateDoc.mutate(
+      { projectId, documentId: doc.id, data: { isActive: true } },
+      {
+        onSuccess: () => {
+          toast({ title: "Set as active", description: doc.title })
+          onSelect(doc.id)
+          onRefresh()
+        },
+      }
+    )
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex gap-2 py-2">
+        <Skeleton className="h-9 w-32" />
+        <Skeleton className="h-9 w-32" />
+        <Skeleton className="h-9 w-20" />
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
+        {documents.map((doc) => (
+          <div key={doc.id} className="flex items-center gap-1 shrink-0">
+            {editingId === doc.id ? (
+              <div className="flex items-center gap-1 bg-card border border-primary rounded-md px-2 py-1">
+                <Input
+                  autoFocus
+                  className="h-7 w-40 text-sm"
+                  value={editTitle}
+                  onChange={e => setEditTitle(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === "Enter") handleRename(doc)
+                    if (e.key === "Escape") setEditingId(null)
+                  }}
+                />
+                <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => handleRename(doc)}>
+                  <CheckCircle2 className="w-4 h-4" />
+                </Button>
+                <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => setEditingId(null)}>
+                  <AlertCircle className="w-4 h-4" />
+                </Button>
+              </div>
+            ) : (
+              <DropdownMenu>
+                <div
+                  className={cn(
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-md border cursor-pointer transition-colors text-sm font-medium",
+                    selectedDocId === doc.id
+                      ? "bg-primary/10 border-primary/30 text-primary"
+                      : "bg-card border-border hover:border-primary/50 text-muted-foreground hover:text-foreground"
+                  )}
+                  onClick={() => onSelect(doc.id)}
+                >
+                  <FileText className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate max-w-[140px]">{doc.title}</span>
+                  {doc.isActive && (
+                    <Badge variant="secondary" className="text-[9px] px-1 py-0 h-4 shrink-0">active</Badge>
+                  )}
+                  <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
+                    <button className="hover:bg-muted rounded p-0.5">
+                      <MoreHorizontal className="w-3 h-3" />
+                    </button>
+                  </DropdownMenuTrigger>
+                </div>
+                <DropdownMenuContent align="start" className="w-48">
+                  <DropdownMenuItem onClick={() => { setEditingId(doc.id); setEditTitle(doc.title) }}>
+                    <Pencil className="w-4 h-4 mr-2" />
+                    Rename
+                  </DropdownMenuItem>
+                  {!doc.isActive && (
+                    <DropdownMenuItem onClick={() => handleSetActive(doc)}>
+                      <CheckCircle2 className="w-4 h-4 mr-2" />
+                      Set as Active
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className="text-destructive focus:text-destructive"
+                    onClick={() => handleDelete(doc)}
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
+        ))}
+
+        {showCreate ? (
+          <div className="flex items-center gap-1 shrink-0">
+            <Input
+              autoFocus
+              placeholder="Document name..."
+              className="h-9 w-44 text-sm"
+              value={newTitle}
+              onChange={e => setNewTitle(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === "Enter") handleCreate()
+                if (e.key === "Escape") { setShowCreate(false); setNewTitle("") }
+              }}
+            />
+            <Button size="sm" variant="ghost" className="h-9" onClick={handleCreate} disabled={createDoc.isPending}>
+              <CheckCircle2 className="w-4 h-4" />
+            </Button>
+            <Button size="sm" variant="ghost" className="h-9" onClick={() => { setShowCreate(false); setNewTitle("") }}>
+              <AlertCircle className="w-4 h-4" />
+            </Button>
+          </div>
+        ) : (
+          <Button
+            variant="outline"
+            size="sm"
+            className="shrink-0 h-9 gap-1.5 text-muted-foreground"
+            onClick={() => setShowCreate(true)}
+          >
+            <FilePlus className="w-4 h-4" />
+            New Document
+          </Button>
+        )}
+      </div>
+    </div>
+  )
+}
 
 export default function ProjectWorkspace() {
   const { id } = useParams()
@@ -100,9 +328,21 @@ export default function ProjectWorkspace() {
   const queryClient = useQueryClient()
   const { toast } = useToast()
 
+  const [selectedDocId, setSelectedDocId] = useState<number | null>(null)
+
   const { data: project, isLoading: projectLoading } = useGetProject(projectId)
+  const { data: documents, isLoading: docsLoading } = useListDocuments(projectId)
+  const { data: selectedDoc } = useGetDocument(projectId, selectedDocId ?? 0)
   const { data: latestDoc } = useGetLatestDocument(projectId)
   const { data: jobs } = useListJobs(projectId, { query: { queryKey: getListJobsQueryKey(projectId), refetchInterval: 5000 } })
+
+  // Set default selected document
+  useEffect(() => {
+    if (documents && documents.length > 0 && selectedDocId === null) {
+      const active = documents.find(d => d.isActive) ?? documents[0]
+      setSelectedDocId(active.id)
+    }
+  }, [documents, selectedDocId])
 
   const analyzeProject = useAnalyzeProject()
 
@@ -239,6 +479,15 @@ export default function ProjectWorkspace() {
         </div>
       </div>
 
+      <DocumentBar
+        projectId={projectId}
+        documents={documents ?? []}
+        selectedDocId={selectedDocId}
+        isLoading={docsLoading}
+        onSelect={(docId) => setSelectedDocId(docId)}
+        onRefresh={() => queryClient.invalidateQueries({ queryKey: getListDocumentsQueryKey(projectId) })}
+      />
+
       <Tabs defaultValue="preview" className="w-full">
         <TabsList className="w-full justify-start border-b border-border rounded-none h-12 bg-transparent p-0 overflow-x-auto overflow-y-hidden">
           <TabsTrigger value="preview" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
@@ -275,9 +524,9 @@ export default function ProjectWorkspace() {
           <TabsContent value="preview" className="m-0 focus-visible:outline-none">
             <Card className="bg-card min-h-[600px] border-none shadow-sm rounded-xl overflow-hidden">
               <CardContent className="p-8 prose prose-slate dark:prose-invert max-w-none">
-                {latestDoc ? (
+                {selectedDoc?.versions?.[0] ? (
                   <>
-                    <div dangerouslySetInnerHTML={{ __html: latestDoc.content.replace(/\n/g, '<br/>') }} />
+                    <div dangerouslySetInnerHTML={{ __html: selectedDoc.versions[0].content.replace(/\n/g, '<br/>') }} />
                   </>
                 ) : (
                   <div className="h-full flex flex-col items-center justify-center py-24">
@@ -293,7 +542,7 @@ export default function ProjectWorkspace() {
                   </div>
                 )}
               </CardContent>
-              {latestDoc && project.aiDisclosure !== false && (
+              {selectedDoc?.versions?.[0] && project.aiDisclosure !== false && (
                 <CardFooter className="px-8 pb-6 pt-0 border-t border-border/50">
                   <div className="flex items-center gap-2 text-xs text-muted-foreground opacity-60">
                     <Badge variant="info" className="text-[10px]">AI-assisted</Badge>
