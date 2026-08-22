@@ -1,6 +1,7 @@
 export * from "./projects";
 export * from "./messages";
 export * from "./documents";
+export * from "./multi-documents";
 export * from "./references";
 export * from "./attachments";
 export * from "./activities";
