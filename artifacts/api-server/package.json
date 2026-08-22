@@ -19,6 +19,7 @@
     "@vercel/node": "^3.2.29",
     "@workspace/api-zod": "file:../../lib/api-zod",
     "@workspace/db": "file:../../lib/db",
+    "drizzle-zod": "^0.8.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "drizzle-orm": "^0.45.2",

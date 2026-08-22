@@ -3,7 +3,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { build as esbuild } from "esbuild";
 import esbuildPluginPino from "esbuild-plugin-pino";
-import { rm } from "node:fs/promises";
+import { rm, rename } from "node:fs/promises";
+import workspacePlugin from "./esbuild-workspace-plugin.mjs";
 
 // Plugins (e.g. 'esbuild-plugin-pino') may use `require` to resolve dependencies
 globalThis.require = createRequire(import.meta.url);
@@ -94,7 +95,7 @@ globalThis.__filename = __bannerUrl.fileURLToPath(import.meta.url);
 globalThis.__dirname = __bannerPath.dirname(globalThis.__filename);
 `;
 
-const PLUGINS = [esbuildPluginPino({ transports: ["pino-pretty"] })];
+const PLUGINS = [workspacePlugin(), esbuildPluginPino({ transports: ["pino-pretty"] })];
 
 // Build the Vercel HTTP handler (api/index.ts) -> api/index.mjs
 // Vercel auto-detects serverless functions in the api/ directory
@@ -102,7 +103,7 @@ async function buildApiHandler() {
   const apiDir = path.resolve(artifactDir, "api");
 
   await esbuild({
-    entryPoints: [path.resolve(artifactDir, "api/index.ts")],
+    entryPoints: [path.resolve(artifactDir, "api/_handler.ts")],
     platform: "node",
     bundle: true,
     format: "esm",
@@ -114,6 +115,8 @@ async function buildApiHandler() {
     plugins: PLUGINS,
     banner: { js: BANNER },
   });
+  // Rename _handler.mjs → index.mjs (Vercel expects api/index.mjs as the function entry)
+  await rename(path.resolve(apiDir, "_handler.mjs"), path.resolve(apiDir, "index.mjs"));
 }
 
 // Build the Express server (src/index.ts) -> dist/index.mjs (local dev)
