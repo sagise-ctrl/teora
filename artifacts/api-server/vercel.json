@@ -1,5 +1,7 @@
 {
   "framework": null,
+  "installCommand": "corepack enable && corepack prepare pnpm@9.15.0 --activate && pnpm install",
+  "buildCommand": "pnpm run build",
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api" }
   ]
