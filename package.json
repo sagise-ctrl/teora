@@ -1,23 +1,23 @@
 {
-  "name": "workspace",
+  "name": "teora",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {
-    "build": "pnpm run typecheck && pnpm -r --if-present run build",
-    "typecheck:libs": "tsc --build",
-    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:ui": "vitest --ui",
-    "test:coverage": "vitest run --coverage",
-    "test:api": "pnpm --filter @workspace/api-server test",
-    "test:web": "pnpm --filter @workspace/academic-workspace test",
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
-    "test:e2e:install": "playwright install chromium"
-  },
-  "packageManager": "pnpm@10.0.0",
   "private": true,
+  "workspaces": [
+    "artifacts/api-server",
+    "artifacts/academic-workspace",
+    "lib/api-spec",
+    "lib/api-zod",
+    "lib/api-client-react",
+    "lib/db",
+    "scripts"
+  ],
+  "scripts": {
+    "build": "npm run typecheck && npm -w @workspace/api-server run build",
+    "typecheck": "tsc --build --force",
+    "dev:api": "npm -w @workspace/api-server run dev",
+    "dev:web": "npm -w @workspace/academic-workspace run dev"
+  },
   "devDependencies": {
     "@playwright/browser-chromium": "^1.62.1",
     "@playwright/browser-firefox": "^1.62.1",

@@ -1,3 +1,7 @@
+import { createServer } from "node:http";
+import { toNodeJsHandler } from "@vercel/node";
 import app from "../src/app.ts";
 
-export default app;
+const server = createServer(app);
+
+export default toNodeJsHandler(server);

@@ -11,6 +11,7 @@ globalThis.require = createRequire(import.meta.url);
 const artifactDir = path.dirname(fileURLToPath(import.meta.url));
 
 const EXTERNAL = [
+  "@vercel/node",
   "*.node",
   "sharp",
   "better-sqlite3",
