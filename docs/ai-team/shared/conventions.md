@@ -1,5 +1,45 @@
 # Conventions
 
+## Proactive Issue Logging (WAJIB — Semua Divisi)
+
+> Setiap error, mistake, blocker, atau issue WAJIB dicatat saat ditemukan — TANPA perlu disuruh Owner. Ini aturan absolut.
+
+### Apa yang Harus Dicatat
+
+- Build / deploy errors (bahkan yang sudah fixed)
+- Integration errors (library conflict, API error, config mismatch)
+- Development mistakes (arsitektur salah, forgotten dependencies)
+- Security issues (vulnerability, misconfiguration)
+- Budget / waktu yang terbuang (terutama waktu Owner)
+- Setiap decision yang kemudian terbukti salah
+
+### Format
+
+File: `.ai/issue-tracker.md`
+
+```markdown
+## [YYYY-MM-DD] <Judul>
+
+**Divisi:** <Nama divisi>
+**Severity:** Dev / Prod / P0-P3
+**Status:** Open / In Progress / Resolved
+**Root Cause:** <Kenapa terjadi>
+**Pencegahan:** <Agar tidak terulang>
+```
+
+### Siapa yang Bertanggung Jawab
+
+- **Manager** — review tracker sebelum setiap Owner report
+- **Semua divisi** — wajib catat issue saat menemukannya
+- **Tidak ada pengecualian** — issue sekecil apapun dicatat
+
+### Checklist Sebelum Owner Report
+
+1. `.ai/issue-tracker.md` di-update?
+2. Ada issue baru yang belum dicatat?
+3. Budget/time waste tercatat di Dampak?
+4. Manager sudah review tracker?
+
 ## Naming Conventions
 
 ### React Components
