@@ -8,6 +8,11 @@ import { logger } from "./lib/logger";
 
 const app: Express = express();
 
+// Test endpoint — if this returns 200, Express is running
+app.get("/test", (_req, res) => {
+  res.json({ ok: true, ts: Date.now() });
+});
+
 // CORS — whitelist production domains, allow localhost for development
 const allowedOrigins = (process.env.ALLOWED_ORIGINS ?? "http://localhost:5173,http://localhost:18543")
   .split(",")
