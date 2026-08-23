@@ -885,6 +885,34 @@ export interface SubmitQuizRequest {
   responses: SubmitQuizRequestResponsesItem[];
 }
 
+export interface RubricCriterion {
+  /** ID of the quiz question this criterion grades */
+  questionId: string;
+  /** Maximum points for this question */
+  maxPoints: number;
+  /** Correct answer for multiple choice (optional) */
+  correctAnswer?: string;
+  /** Keywords to check for short answer / essay grading */
+  keywords?: string[];
+  /**
+     * Fraction of keywords required for partial credit
+     * @minimum 0
+     * @maximum 1
+     */
+  keywordThreshold?: number;
+}
+
+export interface Rubric {
+  id: number;
+  quizId: number;
+  criteria: RubricCriterion[];
+  /** Manual grading notes for essay questions */
+  manualNotes?: string | null;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export type WritingStyleProfileStyleCharacteristicsDominantTone = typeof WritingStyleProfileStyleCharacteristicsDominantTone[keyof typeof WritingStyleProfileStyleCharacteristicsDominantTone];
 
 
@@ -1015,5 +1043,57 @@ export type GetAIUsageStatsParams = {
  */
 userId?: string;
 projectId?: number;
+};
+
+export type GenerateRubricBody = {
+  manualNotes?: string;
+};
+
+export type UpdateRubricBody = {
+  criteria?: RubricCriterion[];
+  manualNotes?: string;
+};
+
+export type UpdateMyWritingStyleBodyStyleCharacteristicsDominantTone = typeof UpdateMyWritingStyleBodyStyleCharacteristicsDominantTone[keyof typeof UpdateMyWritingStyleBodyStyleCharacteristicsDominantTone];
+
+
+export const UpdateMyWritingStyleBodyStyleCharacteristicsDominantTone = {
+  neutral: 'neutral',
+  persuasive: 'persuasive',
+  analytical: 'analytical',
+  descriptive: 'descriptive',
+  critical: 'critical',
+} as const;
+
+export type UpdateMyWritingStyleBodyStyleCharacteristics = {
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  formality?: number;
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  vocabularyLevel?: number;
+  avgSentenceLength?: number;
+  avgParagraphLength?: number;
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  passiveVoiceRatio?: number;
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  readabilityScore?: number;
+  dominantTone?: UpdateMyWritingStyleBodyStyleCharacteristicsDominantTone;
+  commonPhrases?: string[];
+  structuralPatterns?: string[];
+};
+
+export type UpdateMyWritingStyleBody = {
+  styleCharacteristics?: UpdateMyWritingStyleBodyStyleCharacteristics;
 };
 

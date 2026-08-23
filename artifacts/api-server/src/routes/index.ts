@@ -13,6 +13,11 @@ import jobsRouter from "./jobs";
 import metadataRouter from "./metadata";
 import exportsRouter from "./exports";
 import aiUsageRouter from "./ai-usage";
+import commentsRouter from "./comments";
+import projectMembersRouter from "./project-members";
+import quizzesRouter from "./quizzes";
+import rubricsRouter from "./rubrics";
+import writingStyleRouter from "./writing-style";
 
 const router: IRouter = Router();
 
@@ -31,5 +36,10 @@ router.use(jobsRouter);
 router.use(metadataRouter);
 router.use(exportsRouter);
 router.use(aiUsageRouter);
+router.use(commentsRouter);
+router.use(projectMembersRouter);
+router.use(quizzesRouter);
+router.use(rubricsRouter);
+router.use(writingStyleRouter);
 
 export default router;

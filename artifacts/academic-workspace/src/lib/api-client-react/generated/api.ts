@@ -45,6 +45,7 @@ import type {
   GenerateDocument202,
   GenerateDocumentBody,
   GenerateQuizRequest,
+  GenerateRubricBody,
   GetAIUsageStatsParams,
   HealthStatus,
   Job,
@@ -69,10 +70,13 @@ import type {
   RegenerateOutline200,
   RegenerateOutlineBody,
   RegisterRequest,
+  Rubric,
   ShareLink,
   SharedProject,
   SubmitQuizRequest,
   UpdateMemberRequest,
+  UpdateMyWritingStyleBody,
+  UpdateRubricBody,
   WritingStyleProfile
 } from './api.schemas';
 
@@ -195,7 +199,7 @@ export const login = async (loginRequest: LoginRequest, options?: Parameters<typ
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -272,7 +276,7 @@ export const register = async (registerRequest: RegisterRequest, options?: Param
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -730,7 +734,7 @@ export const createProject = async (projectInput: ProjectInput, options?: Parame
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -962,7 +966,7 @@ export const updateProject = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -1259,7 +1263,7 @@ export const sendMessage = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -1414,7 +1418,7 @@ export const createDocument = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -1653,7 +1657,7 @@ export const updateDocument = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -1804,7 +1808,7 @@ export const regenerateOutline = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -1882,7 +1886,7 @@ export const generateDocument = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -2037,7 +2041,7 @@ export const createReference = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -2410,7 +2414,7 @@ export const fetchReferenceMetadata = async (fetchReferenceMetadataRequest: Fetc
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -2565,7 +2569,7 @@ export const createShareLink = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -2870,7 +2874,7 @@ export const uploadAttachment = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -3004,6 +3008,88 @@ export const useDeleteAttachment = <TError = ErrorType<unknown>,
       > => {
       return useMutation(getDeleteAttachmentMutationOptions(options));
     }
+
+export const getDownloadAttachmentUrl = (projectId: number,
+    attachmentId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/attachments/${attachmentId}/download`
+}
+
+/**
+ * @summary Download an attachment file
+ */
+export const downloadAttachment = async (projectId: number,
+    attachmentId: number, options?: Parameters<typeof customFetch>[1]): Promise<Blob> => {
+
+  return customFetch<Blob>(getDownloadAttachmentUrl(projectId,attachmentId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getDownloadAttachmentQueryKey = (projectId: number,
+    attachmentId: number,) => {
+    return [
+    `/api/projects/${projectId}/attachments/${attachmentId}/download`
+    ] as const;
+    }
+
+
+export const getDownloadAttachmentQueryOptions = <TData = Awaited<ReturnType<typeof downloadAttachment>>, TError = ErrorType<void>>(projectId: number,
+    attachmentId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof downloadAttachment>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getDownloadAttachmentQueryKey(projectId,attachmentId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof downloadAttachment>>> = ({ signal }) => downloadAttachment(projectId,attachmentId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: projectId !== null && projectId !== undefined && attachmentId !== null && attachmentId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof downloadAttachment>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type DownloadAttachmentQueryResult = NonNullable<Awaited<ReturnType<typeof downloadAttachment>>>
+export type DownloadAttachmentQueryError = ErrorType<void>
+
+
+/**
+ * @summary Download an attachment file
+ */
+
+export function useDownloadAttachment<TData = Awaited<ReturnType<typeof downloadAttachment>>, TError = ErrorType<void>>(
+ projectId: number,
+    attachmentId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof downloadAttachment>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getDownloadAttachmentQueryOptions(projectId,attachmentId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getListActivitiesUrl = (projectId: number,) => {
 
@@ -3497,7 +3583,7 @@ export const createExport = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -3659,7 +3745,7 @@ export const createComment = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -3739,7 +3825,7 @@ export const updateComment = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -3967,7 +4053,7 @@ export const addMember = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -4047,7 +4133,7 @@ export const updateMember = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -4275,7 +4361,7 @@ export const generateQuiz = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -4512,7 +4598,7 @@ export const submitQuiz = async (quizId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -4651,6 +4737,552 @@ export function useGetMyQuizSubmission<TData = Awaited<ReturnType<typeof getMyQu
 
 
 
+export const getGetRubricUrl = (projectId: number,
+    quizId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/quizzes/${quizId}/rubric`
+}
+
+/**
+ * @summary Get rubric for a quiz
+ */
+export const getRubric = async (projectId: number,
+    quizId: number, options?: Parameters<typeof customFetch>[1]): Promise<Rubric> => {
+
+  return customFetch<Rubric>(getGetRubricUrl(projectId,quizId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetRubricQueryKey = (projectId: number,
+    quizId: number,) => {
+    return [
+    `/api/projects/${projectId}/quizzes/${quizId}/rubric`
+    ] as const;
+    }
+
+
+export const getGetRubricQueryOptions = <TData = Awaited<ReturnType<typeof getRubric>>, TError = ErrorType<void>>(projectId: number,
+    quizId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getRubric>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetRubricQueryKey(projectId,quizId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getRubric>>> = ({ signal }) => getRubric(projectId,quizId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: projectId !== null && projectId !== undefined && quizId !== null && quizId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getRubric>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetRubricQueryResult = NonNullable<Awaited<ReturnType<typeof getRubric>>>
+export type GetRubricQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get rubric for a quiz
+ */
+
+export function useGetRubric<TData = Awaited<ReturnType<typeof getRubric>>, TError = ErrorType<void>>(
+ projectId: number,
+    quizId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getRubric>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetRubricQueryOptions(projectId,quizId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGenerateRubricUrl = (projectId: number,
+    quizId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/quizzes/${quizId}/rubric`
+}
+
+/**
+ * @summary Generate AI rubric for a quiz
+ */
+export const generateRubric = async (projectId: number,
+    quizId: number,
+    generateRubricBody?: GenerateRubricBody, options?: Parameters<typeof customFetch>[1]): Promise<Rubric> => {
+
+    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    if (!h) return {};
+    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<Rubric>(getGenerateRubricUrl(projectId,quizId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(generateRubricBody)
+  }
+);}
+
+
+
+
+
+export const getGenerateRubricMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateRubric>>, TError,{projectId: number;quizId: number;data?: BodyType<GenerateRubricBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof generateRubric>>, TError,{projectId: number;quizId: number;data?: BodyType<GenerateRubricBody>}, TContext> => {
+
+const mutationKey = ['generateRubric'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof generateRubric>>, {projectId: number;quizId: number;data?: BodyType<GenerateRubricBody>}> = (props) => {
+          const {projectId,quizId,data} = props ?? {};
+
+          return  generateRubric(projectId,quizId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type GenerateRubricMutationResult = NonNullable<Awaited<ReturnType<typeof generateRubric>>>
+    export type GenerateRubricMutationBody = BodyType<GenerateRubricBody> | undefined
+    export type GenerateRubricMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Generate AI rubric for a quiz
+ */
+export const useGenerateRubric = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateRubric>>, TError,{projectId: number;quizId: number;data?: BodyType<GenerateRubricBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof generateRubric>>,
+        TError,
+        {projectId: number;quizId: number;data?: BodyType<GenerateRubricBody>},
+        TContext
+      > => {
+      return useMutation(getGenerateRubricMutationOptions(options));
+    }
+
+export const getUpdateRubricUrl = (projectId: number,
+    quizId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/quizzes/${quizId}/rubric`
+}
+
+/**
+ * @summary Update rubric criteria
+ */
+export const updateRubric = async (projectId: number,
+    quizId: number,
+    updateRubricBody?: UpdateRubricBody, options?: Parameters<typeof customFetch>[1]): Promise<Rubric> => {
+
+    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    if (!h) return {};
+    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<Rubric>(getUpdateRubricUrl(projectId,quizId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(updateRubricBody)
+  }
+);}
+
+
+
+
+
+export const getUpdateRubricMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateRubric>>, TError,{projectId: number;quizId: number;data?: BodyType<UpdateRubricBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateRubric>>, TError,{projectId: number;quizId: number;data?: BodyType<UpdateRubricBody>}, TContext> => {
+
+const mutationKey = ['updateRubric'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateRubric>>, {projectId: number;quizId: number;data?: BodyType<UpdateRubricBody>}> = (props) => {
+          const {projectId,quizId,data} = props ?? {};
+
+          return  updateRubric(projectId,quizId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateRubricMutationResult = NonNullable<Awaited<ReturnType<typeof updateRubric>>>
+    export type UpdateRubricMutationBody = BodyType<UpdateRubricBody> | undefined
+    export type UpdateRubricMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Update rubric criteria
+ */
+export const useUpdateRubric = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateRubric>>, TError,{projectId: number;quizId: number;data?: BodyType<UpdateRubricBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateRubric>>,
+        TError,
+        {projectId: number;quizId: number;data?: BodyType<UpdateRubricBody>},
+        TContext
+      > => {
+      return useMutation(getUpdateRubricMutationOptions(options));
+    }
+
+export const getDeleteRubricUrl = (projectId: number,
+    quizId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/quizzes/${quizId}/rubric`
+}
+
+/**
+ * @summary Delete rubric
+ */
+export const deleteRubric = async (projectId: number,
+    quizId: number, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteRubricUrl(projectId,quizId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteRubricMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteRubric>>, TError,{projectId: number;quizId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteRubric>>, TError,{projectId: number;quizId: number}, TContext> => {
+
+const mutationKey = ['deleteRubric'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteRubric>>, {projectId: number;quizId: number}> = (props) => {
+          const {projectId,quizId} = props ?? {};
+
+          return  deleteRubric(projectId,quizId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteRubricMutationResult = NonNullable<Awaited<ReturnType<typeof deleteRubric>>>
+
+    export type DeleteRubricMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Delete rubric
+ */
+export const useDeleteRubric = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteRubric>>, TError,{projectId: number;quizId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteRubric>>,
+        TError,
+        {projectId: number;quizId: number},
+        TContext
+      > => {
+      return useMutation(getDeleteRubricMutationOptions(options));
+    }
+
+export const getGetMyWritingStyleUrl = () => {
+
+
+
+
+  return `/api/users/me/writing-style`
+}
+
+/**
+ * @summary Get current user's writing style profile
+ */
+export const getMyWritingStyle = async ( options?: Parameters<typeof customFetch>[1]): Promise<WritingStyleProfile> => {
+
+  return customFetch<WritingStyleProfile>(getGetMyWritingStyleUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMyWritingStyleQueryKey = () => {
+    return [
+    `/api/users/me/writing-style`
+    ] as const;
+    }
+
+
+export const getGetMyWritingStyleQueryOptions = <TData = Awaited<ReturnType<typeof getMyWritingStyle>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyWritingStyle>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMyWritingStyleQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyWritingStyle>>> = ({ signal }) => getMyWritingStyle({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMyWritingStyle>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMyWritingStyleQueryResult = NonNullable<Awaited<ReturnType<typeof getMyWritingStyle>>>
+export type GetMyWritingStyleQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get current user's writing style profile
+ */
+
+export function useGetMyWritingStyle<TData = Awaited<ReturnType<typeof getMyWritingStyle>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyWritingStyle>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMyWritingStyleQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateMyWritingStyleUrl = () => {
+
+
+
+
+  return `/api/users/me/writing-style`
+}
+
+/**
+ * @summary Update writing style profile
+ */
+export const updateMyWritingStyle = async (updateMyWritingStyleBody: UpdateMyWritingStyleBody, options?: Parameters<typeof customFetch>[1]): Promise<WritingStyleProfile> => {
+
+    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    if (!h) return {};
+    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<WritingStyleProfile>(getUpdateMyWritingStyleUrl(),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(updateMyWritingStyleBody)
+  }
+);}
+
+
+
+
+
+export const getUpdateMyWritingStyleMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMyWritingStyle>>, TError,{data: BodyType<UpdateMyWritingStyleBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateMyWritingStyle>>, TError,{data: BodyType<UpdateMyWritingStyleBody>}, TContext> => {
+
+const mutationKey = ['updateMyWritingStyle'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateMyWritingStyle>>, {data: BodyType<UpdateMyWritingStyleBody>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateMyWritingStyle(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateMyWritingStyleMutationResult = NonNullable<Awaited<ReturnType<typeof updateMyWritingStyle>>>
+    export type UpdateMyWritingStyleMutationBody = BodyType<UpdateMyWritingStyleBody>
+    export type UpdateMyWritingStyleMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Update writing style profile
+ */
+export const useUpdateMyWritingStyle = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMyWritingStyle>>, TError,{data: BodyType<UpdateMyWritingStyleBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateMyWritingStyle>>,
+        TError,
+        {data: BodyType<UpdateMyWritingStyleBody>},
+        TContext
+      > => {
+      return useMutation(getUpdateMyWritingStyleMutationOptions(options));
+    }
+
+export const getAnalyzeMyWritingStyleUrl = () => {
+
+
+
+
+  return `/api/users/me/writing-style/analyze`
+}
+
+/**
+ * @summary Analyze writing style from documents
+ */
+export const analyzeMyWritingStyle = async (analyzeStyleRequest: AnalyzeStyleRequest, options?: Parameters<typeof customFetch>[1]): Promise<WritingStyleProfile> => {
+
+    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    if (!h) return {};
+    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<WritingStyleProfile>(getAnalyzeMyWritingStyleUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(analyzeStyleRequest)
+  }
+);}
+
+
+
+
+
+export const getAnalyzeMyWritingStyleMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeMyWritingStyle>>, TError,{data: BodyType<AnalyzeStyleRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof analyzeMyWritingStyle>>, TError,{data: BodyType<AnalyzeStyleRequest>}, TContext> => {
+
+const mutationKey = ['analyzeMyWritingStyle'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof analyzeMyWritingStyle>>, {data: BodyType<AnalyzeStyleRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  analyzeMyWritingStyle(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AnalyzeMyWritingStyleMutationResult = NonNullable<Awaited<ReturnType<typeof analyzeMyWritingStyle>>>
+    export type AnalyzeMyWritingStyleMutationBody = BodyType<AnalyzeStyleRequest>
+    export type AnalyzeMyWritingStyleMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Analyze writing style from documents
+ */
+export const useAnalyzeMyWritingStyle = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeMyWritingStyle>>, TError,{data: BodyType<AnalyzeStyleRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof analyzeMyWritingStyle>>,
+        TError,
+        {data: BodyType<AnalyzeStyleRequest>},
+        TContext
+      > => {
+      return useMutation(getAnalyzeMyWritingStyleMutationOptions(options));
+    }
+
 export const getGetStyleProfileUrl = (projectId: number,) => {
 
 
@@ -4660,7 +5292,7 @@ export const getGetStyleProfileUrl = (projectId: number,) => {
 }
 
 /**
- * @summary Get stored writing style profile for a user/project
+ * @summary Get writing style profile for a project
  */
 export const getStyleProfile = async (projectId: number, options?: Parameters<typeof customFetch>[1]): Promise<WritingStyleProfile> => {
 
@@ -4707,7 +5339,7 @@ export type GetStyleProfileQueryError = ErrorType<void>
 
 
 /**
- * @summary Get stored writing style profile for a user/project
+ * @summary Get writing style profile for a project
  */
 
 export function useGetStyleProfile<TData = Awaited<ReturnType<typeof getStyleProfile>>, TError = ErrorType<void>>(
@@ -4737,14 +5369,14 @@ export const getAnalyzeStyleUrl = (projectId: number,) => {
 }
 
 /**
- * @summary Analyze writing style and store/update profile
+ * @summary Analyze writing style and store profile
  */
 export const analyzeStyle = async (projectId: number,
     analyzeStyleRequest: AnalyzeStyleRequest, options?: Parameters<typeof customFetch>[1]): Promise<WritingStyleProfile> => {
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -4793,7 +5425,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type AnalyzeStyleMutationError = ErrorType<unknown>
 
     /**
- * @summary Analyze writing style and store/update profile
+ * @summary Analyze writing style and store profile
  */
 export const useAnalyzeStyle = <TError = ErrorType<unknown>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeStyle>>, TError,{projectId: number;data: BodyType<AnalyzeStyleRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}

@@ -13,6 +13,10 @@ import Register from "@/pages/register";
 import Confirm from "@/pages/confirm";
 import FinOps from "@/pages/finops";
 import Referral from "@/pages/referral";
+import Terms from "@/pages/terms";
+import Privacy from "@/pages/privacy";
+import Monitoring from "@/pages/monitoring";
+import Admin from "@/pages/admin";
 import SharedProject from "@/pages/shared";
 import Layout from "@/components/layout";
 
@@ -58,6 +62,16 @@ function AppRouter() {
         <ProtectedRoute>
           <Layout>
             <Referral />
+          </Layout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/terms" component={Terms} />
+      <Route path="/privacy" component={Privacy} />
+      <Route path="/status" component={Monitoring} />
+      <Route path="/admin">
+        <ProtectedRoute>
+          <Layout>
+            <Admin />
           </Layout>
         </ProtectedRoute>
       </Route>

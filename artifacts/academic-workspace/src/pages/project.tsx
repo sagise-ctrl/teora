@@ -28,6 +28,24 @@ import {
   useListShareLinks,
   useCreateShareLink,
   useDeleteShareLink,
+  useListQuizzes,
+  useGenerateQuiz,
+  useGetQuiz,
+  useSubmitQuiz,
+  useListComments,
+  useCreateComment,
+  useUpdateComment,
+  useDeleteComment,
+  useGetRubric,
+  getListQuizzesQueryKey,
+  getGetQuizQueryKey,
+  type Quiz,
+  type QuizQuestion,
+  type QuizQuestionType,
+  type Comment,
+  type QuizSubmission,
+  type Rubric,
+} from "../lib/api-client-react"
   getGetLatestDocumentQueryKey,
   getListMessagesQueryKey,
   getListReferencesQueryKey,
@@ -69,7 +87,16 @@ import {
   MoreHorizontal,
   Pencil,
   FilePlus,
-  ChevronDown
+  ChevronDown,
+  ListChecks,
+  MessageCircle,
+  Sparkles,
+  Circle,
+  CheckCircle,
+  CircleDot,
+  XCircle,
+  CheckCheck,
+  FileQuestion,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -518,6 +545,14 @@ export default function ProjectWorkspace() {
             <ActivitySquare className="w-4 h-4 mr-2" />
             Timeline
           </TabsTrigger>
+          <TabsTrigger value="quiz" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
+            <ListChecks className="w-4 h-4 mr-2" />
+            Kuis
+          </TabsTrigger>
+          <TabsTrigger value="comments" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
+            <MessageCircle className="w-4 h-4 mr-2" />
+            Komentar
+          </TabsTrigger>
         </TabsList>
 
         <div className="mt-6">
@@ -576,9 +611,454 @@ export default function ProjectWorkspace() {
           <TabsContent value="timeline" className="m-0">
             <TimelineTab projectId={projectId} />
           </TabsContent>
+
+          <TabsContent value="quiz" className="m-0">
+            <QuizTab projectId={projectId} />
+          </TabsContent>
+
+          <TabsContent value="comments" className="m-0">
+            <CommentsTab projectId={projectId} selectedDocId={selectedDocId} />
+          </TabsContent>
         </div>
       </Tabs>
     </div>
+  )
+}
+
+// ── Quiz Tab ─────────────────────────────────────────────────────────────────
+
+function QuizTab({ projectId }: { projectId: number }) {
+  const { toast } = useToast()
+  const queryClient = useQueryClient()
+
+  const { data: quizzes, isLoading } = useListQuizzes(projectId)
+  const generateQuiz = useGenerateQuiz(projectId)
+
+  const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null)
+  const [showGenerate, setShowGenerate] = useState(false)
+  const [generateForm, setGenerateForm] = useState({
+    title: "",
+    topic: "",
+    questionCount: 10,
+    questionTypes: ["multiple_choice", "short_answer", "essay"],
+    difficulty: "medium",
+  })
+  const [answers, setAnswers] = useState<Record<string, string>>({})
+  const [submitting, setSubmitting] = useState(false)
+
+  const submitMutation = useSubmitQuiz(selectedQuiz?.id ?? 0)
+
+  const handleGenerate = () => {
+    if (!generateForm.title.trim()) {
+      toast({ title: "Judul diperlukan", variant: "destructive" })
+      return
+    }
+    generateQuiz.mutate(
+      { data: { title: generateForm.title, topic: generateForm.topic, questionCount: generateForm.questionCount, questionTypes: generateForm.questionTypes, difficulty: generateForm.difficulty } },
+      {
+        onSuccess: (quiz) => {
+          toast({ title: "Kuis dibuat!", description: `${(quiz.questions as unknown as QuizQuestion[])?.length ?? 0} soal` })
+          setShowGenerate(false)
+          setGenerateForm({ title: "", topic: "", questionCount: 10, questionTypes: ["multiple_choice", "short_answer", "essay"], difficulty: "medium" })
+          queryClient.invalidateQueries({ queryKey: getListQuizzesQueryKey(projectId) })
+          setSelectedQuiz(quiz as unknown as Quiz)
+        },
+        onError: (err) => toast({ title: "Gagal generate", description: String(err), variant: "destructive" }),
+      }
+    )
+  }
+
+  const handleSubmit = () => {
+    if (!selectedQuiz) return
+    const questions = (selectedQuiz.questions as unknown as QuizQuestion[]) ?? []
+    const responses = questions.map((q) => ({ questionId: q.id, answer: answers[q.id] ?? "" }))
+    setSubmitting(true)
+    submitMutation.mutate(
+      { data: { responses } },
+      {
+        onSuccess: () => {
+          toast({ title: "Jawaban disimpan!", description: "Submission berhasil." })
+          setSubmitting(false)
+        },
+        onError: (err) => {
+          toast({ title: "Gagal submit", description: String(err), variant: "destructive" })
+          setSubmitting(false)
+        },
+      }
+    )
+  }
+
+  const handleSelectQuiz = async (quiz: Quiz) => {
+    setSelectedQuiz(quiz)
+    setAnswers({})
+    const full = await fetch(`/api/projects/${projectId}/quizzes/${quiz.id}`).then(r => r.json()).catch(() => quiz)
+    setSelectedQuiz(full)
+  }
+
+  const questions = (selectedQuiz?.questions as unknown as QuizQuestion[]) ?? []
+  const diffColors: Record<string, string> = { easy: "text-green-600", medium: "text-yellow-600", hard: "text-red-600" }
+  const diffLabels: Record<string, string> = { easy: "Mudah", medium: "Sedang", hard: "Sulit" }
+
+  return (
+    <Card className="bg-card border-none shadow-sm rounded-xl">
+      <CardHeader className="flex flex-row items-center justify-between pb-4">
+        <div>
+          <CardTitle className="text-lg">Kuis</CardTitle>
+          <CardDescription>Kelola soal kuis dan submissions</CardDescription>
+        </div>
+        <Button size="sm" onClick={() => setShowGenerate(true)}>
+          <Sparkles className="w-4 h-4 mr-2" />
+          Generate Kuis
+        </Button>
+      </CardHeader>
+      <CardContent>
+        {/* Generate Dialog */}
+        <Dialog open={showGenerate} onOpenChange={setShowGenerate}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Generate Kuis dengan AI</DialogTitle>
+              <DialogDescription>Teora akan membuat soal kuis berdasarkan topik yang Anda berikan.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label>Judul Kuis *</Label>
+                <Input value={generateForm.title} onChange={e => setGenerateForm(f => ({ ...f, title: e.target.value }))} placeholder="Contoh: UH Bahasa Indonesia 1" />
+              </div>
+              <div>
+                <Label>Topik / Materi</Label>
+                <Textarea value={generateForm.topic} onChange={e => setGenerateForm(f => ({ ...f, topic: e.target.value }))} placeholder="Topik spesifik atau biarkan kosong untuk topik umum..." rows={2} />
+              </div>
+              <div>
+                <Label>Jumlah Soal: {generateForm.questionCount}</Label>
+                <input type="range" min={5} max={20} value={generateForm.questionCount} onChange={e => setGenerateForm(f => ({ ...f, questionCount: Number(e.target.value) }))} className="w-full" />
+              </div>
+              <div>
+                <Label>Tipe Soal</Label>
+                <div className="flex gap-4 flex-wrap">
+                  {[["multiple_choice", "Pilihan Ganda"], ["short_answer", "Isian Singkat"], ["essay", "Essay"]].map(([val, label]) => (
+                    <label key={val} className="flex items-center gap-2 text-sm">
+                      <input type="checkbox" checked={generateForm.questionTypes.includes(val)} onChange={e => {
+                        setGenerateForm(f => ({
+                          ...f,
+                          questionTypes: e.target.checked ? [...f.questionTypes, val] : f.questionTypes.filter(t => t !== val)
+                        }))
+                      }} />
+                      {label}
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <Label>Tingkat Kesulitan</Label>
+                <Select value={generateForm.difficulty} onValueChange={v => setGenerateForm(f => ({ ...f, difficulty: v }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="easy">Mudah</SelectItem>
+                    <SelectItem value="medium">Sedang</SelectItem>
+                    <SelectItem value="hard">Sulit</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowGenerate(false)}>Batal</Button>
+              <Button onClick={handleGenerate} disabled={generateQuiz.isPending}>
+                {generateQuiz.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
+                Generate
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Quiz List / Viewer */}
+        {!selectedQuiz ? (
+          <div>
+            {isLoading ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 w-full" />)}
+              </div>
+            ) : quizzes && quizzes.length > 0 ? (
+              <div className="space-y-3">
+                {quizzes.map(quiz => {
+                  const qs = (quiz.questions as unknown as QuizQuestion[]) ?? []
+                  return (
+                    <Card key={quiz.id} className="cursor-pointer hover:bg-muted/30 transition-colors" onClick={() => handleSelectQuiz(quiz as unknown as Quiz)}>
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <h3 className="font-medium">{quiz.title}</h3>
+                            <p className="text-sm text-muted-foreground">{qs.length} soal</p>
+                            <div className="flex gap-2 mt-1">
+                              {quiz.metadata && typeof quiz.metadata === "object" && "difficulty" in (quiz.metadata as object) && (
+                                <Badge variant="outline" className={diffColors[(quiz.metadata as { difficulty?: string }).difficulty ?? "medium"]}>
+                                  {(quiz.metadata as { difficulty?: string }).difficulty}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                          <div className="text-xs text-muted-foreground">{quiz.createdAt ? format(new Date(quiz.createdAt), "dd MMM yyyy") : ""}</div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-12 text-muted-foreground">
+                <FileQuestion className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                <p>Belum ada kuis. Generate kuis pertama Anda!</p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div>
+            <Button variant="ghost" size="sm" onClick={() => setSelectedQuiz(null)} className="mb-4">
+              ← Kembali ke daftar
+            </Button>
+            <h2 className="text-xl font-semibold mb-1">{selectedQuiz.title}</h2>
+            {selectedQuiz.description && <p className="text-muted-foreground mb-4">{selectedQuiz.description}</p>}
+            <div className="space-y-6">
+              {questions.map((q, idx) => (
+                <Card key={q.id} className="bg-muted/20">
+                  <CardContent className="p-5">
+                    <div className="flex items-start gap-3 mb-3">
+                      <Badge variant="outline" className="shrink-0 mt-0.5">{idx + 1}</Badge>
+                      <div>
+                        <p className="font-medium">{q.text}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5 capitalize">
+                          {q.type === "multiple_choice" ? "Pilihan Ganda" : q.type === "short_answer" ? "Isian Singkat" : "Essay"} &bull; {q.type === "multiple_choice" && q.options ? `${q.options.length} opsi` : ""}
+                        </p>
+                      </div>
+                    </div>
+                    {q.type === "multiple_choice" && q.options ? (
+                      <div className="space-y-2 ml-10">
+                        {q.options.map(opt => (
+                          <label key={opt.id} className="flex items-center gap-3 cursor-pointer">
+                            <input
+                              type="radio"
+                              name={`q-${q.id}`}
+                              checked={answers[q.id] === opt.id}
+                              onChange={() => setAnswers(a => ({ ...a, [q.id]: opt.id }))}
+                              className="accent-primary"
+                            />
+                            <span>{opt.text}</span>
+                          </label>
+                        ))}
+                      </div>
+                    ) : q.type === "short_answer" ? (
+                      <div className="ml-10">
+                        <Input
+                          value={answers[q.id] ?? ""}
+                          onChange={e => setAnswers(a => ({ ...a, [q.id]: e.target.value }))}
+                          placeholder="Jawaban singkat..."
+                        />
+                      </div>
+                    ) : (
+                      <div className="ml-10">
+                        <Textarea
+                          value={answers[q.id] ?? ""}
+                          onChange={e => setAnswers(a => ({ ...a, [q.id]: e.target.value }))}
+                          placeholder="Jawaban esai..."
+                          rows={4}
+                        />
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            <Button className="mt-6" onClick={handleSubmit} disabled={submitting || submitMutation.isPending}>
+              {submitting || submitMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-2" />}
+              Submit Jawaban
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
+// ── Comments Tab ──────────────────────────────────────────────────────────────
+
+function CommentsTab({ projectId, selectedDocId }: { projectId: number; selectedDocId: number | null }) {
+  const { toast } = useToast()
+  const queryClient = useQueryClient()
+
+  const { data: comments, isLoading } = useListComments(projectId, selectedDocId ?? 0)
+  const createComment = useCreateComment(projectId, selectedDocId ?? 0)
+  const updateComment = useUpdateComment(projectId, 0)
+  const deleteComment = useDeleteComment(projectId, 0)
+
+  const [newContent, setNewContent] = useState("")
+  const [editingId, setEditingId] = useState<number | null>(null)
+  const [editContent, setEditContent] = useState("")
+  const [resolved, setResolved] = useState<Set<number>>(new Set())
+
+  const handleCreate = () => {
+    if (!newContent.trim() || !selectedDocId) return
+    createComment.mutate(
+      { data: { content: newContent.trim() } },
+      {
+        onSuccess: () => {
+          setNewContent("")
+          queryClient.invalidateQueries({ queryKey: [`/api/projects/${projectId}/documents/${selectedDocId}/comments`] })
+        },
+        onError: (err) => toast({ title: "Gagal", description: String(err), variant: "destructive" }),
+      }
+    )
+  }
+
+  const handleResolve = (commentId: number, currentResolved: boolean) => {
+    updateComment.mutate(
+      { commentId, data: { resolved: !currentResolved } },
+      {
+        onSuccess: () => {
+          setResolved(prev => {
+            const next = new Set(prev)
+            if (!currentResolved) next.add(commentId)
+            else next.delete(commentId)
+            return next
+          })
+          toast({ title: currentResolved ? "Komentar dibuka" : "Komentar diselesaikan" })
+        },
+        onError: (err) => toast({ title: "Gagal", description: String(err), variant: "destructive" }),
+      }
+    )
+  }
+
+  const handleEdit = (comment: Comment) => {
+    setEditingId(comment.id)
+    setEditContent(comment.content)
+  }
+
+  const handleSaveEdit = (commentId: number) => {
+    if (!editContent.trim()) return
+    updateComment.mutate(
+      { commentId, data: { content: editContent.trim() } },
+      {
+        onSuccess: () => {
+          setEditingId(null)
+          setEditContent("")
+          queryClient.invalidateQueries({ queryKey: [`/api/projects/${projectId}/documents/${selectedDocId}/comments`] })
+        },
+        onError: (err) => toast({ title: "Gagal", description: String(err), variant: "destructive" }),
+      }
+    )
+  }
+
+  const handleDelete = (commentId: number) => {
+    if (!confirm("Hapus komentar ini?")) return
+    deleteComment.mutate(
+      { commentId },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: [`/api/projects/${projectId}/documents/${selectedDocId}/comments`] })
+          toast({ title: "Dihapus" })
+        },
+        onError: (err) => toast({ title: "Gagal", description: String(err), variant: "destructive" }),
+      }
+    )
+  }
+
+  const sortedComments = [...(comments ?? [])].sort((a, b) => {
+    const aResolved = resolved.has(a.id) || a.resolved
+    const bResolved = resolved.has(b.id) || b.resolved
+    if (aResolved !== bResolved) return aResolved ? 1 : -1
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  })
+
+  return (
+    <Card className="bg-card border-none shadow-sm rounded-xl">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-lg">Komentar</CardTitle>
+        <CardDescription>
+          {selectedDocId ? "Komentar pada dokumen yang dipilih" : "Pilih dokumen terlebih dahulu"}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {selectedDocId ? (
+          <>
+            {/* Add Comment */}
+            <div className="mb-6">
+              <Textarea
+                value={newContent}
+                onChange={e => setNewContent(e.target.value)}
+                placeholder="Tambahkan komentar..."
+                rows={3}
+              />
+              <div className="flex justify-end mt-2">
+                <Button size="sm" onClick={handleCreate} disabled={!newContent.trim() || createComment.isPending}>
+                  {createComment.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <MessageCircle className="w-4 h-4 mr-2" />}
+                  Kirim Komentar
+                </Button>
+              </div>
+            </div>
+
+            {/* Comments List */}
+            {isLoading ? (
+              <div className="space-y-3">{[1, 2, 3].map(i => <Skeleton key={i} className="h-16 w-full" />)}</div>
+            ) : sortedComments.length > 0 ? (
+              <div className="space-y-3">
+                {sortedComments.map(comment => {
+                  const isResolved = resolved.has(comment.id) || comment.resolved
+                  return (
+                    <Card key={comment.id} className={`bg-muted/20 ${isResolved ? "opacity-60" : ""}`}>
+                      <CardContent className="p-4">
+                        {comment.quoteText && (
+                          <blockquote className="border-l-2 border-primary/40 pl-3 mb-2 text-sm text-muted-foreground italic">
+                            "{comment.quoteText}"
+                          </blockquote>
+                        )}
+                        {editingId === comment.id ? (
+                          <div>
+                            <Textarea value={editContent} onChange={e => setEditContent(e.target.value)} rows={2} className="mb-2" />
+                            <div className="flex gap-2">
+                              <Button size="sm" onClick={() => handleSaveEdit(comment.id)}>Simpan</Button>
+                              <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}>Batal</Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-sm whitespace-pre-wrap">{comment.content}</p>
+                        )}
+                        <div className="flex items-center justify-between mt-2">
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <span className="font-medium">{comment.userName}</span>
+                            <span>•</span>
+                            <span>{comment.createdAt ? format(new Date(comment.createdAt), "dd MMM yyyy HH:mm") : ""}</span>
+                            {isResolved && <Badge variant="secondary" className="text-xs">Diselesaikan</Badge>}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleResolve(comment.id, !!comment.resolved)} title={isResolved ? "Buka" : "Selesaikan"}>
+                              {isResolved ? <XCircle className="w-4 h-4 text-muted-foreground" /> : <CheckCheck className="w-4 h-4 text-green-600" />}
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEdit(comment)} title="Edit">
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDelete(comment.id)} title="Hapus">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <MessageCircle className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                <p>Belum ada komentar. Jadilah yang pertama!</p>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="text-center py-8 text-muted-foreground">
+            <MessageCircle className="w-10 h-10 mx-auto mb-2 opacity-30" />
+            <p>Pilih dokumen terlebih dahulu untuk melihat komentar</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   )
 }
 

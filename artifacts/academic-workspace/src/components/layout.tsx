@@ -16,6 +16,8 @@ import {
   TrendingUp,
   Coins,
   Gift,
+  Activity,
+  Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
@@ -179,6 +181,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               label="Referral & Pricing"
               active={location === "/referral"}
             />
+            <NavItem
+              href="/status"
+              icon={Activity}
+              label="System Status"
+              active={location === "/status"}
+            />
+            <NavItem
+              href="/admin"
+              icon={Shield}
+              label="Admin Dashboard"
+              active={location === "/admin"}
+            />
           </nav>
         </div>
 
@@ -236,6 +250,23 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             >
               <LogOut className="w-3.5 h-3.5" />
             </button>
+          </div>
+
+          {/* Legal Links */}
+          <div className="flex items-center justify-center gap-3 px-3 pt-2 border-t border-border/50">
+            <Link
+              href="/terms"
+              className="text-[10px] text-sidebar-foreground/40 hover:text-sidebar-foreground/70 transition-colors"
+            >
+              ToS
+            </Link>
+            <span className="text-[10px] text-sidebar-foreground/30">•</span>
+            <Link
+              href="/privacy"
+              className="text-[10px] text-sidebar-foreground/40 hover:text-sidebar-foreground/70 transition-colors"
+            >
+              Privacy
+            </Link>
           </div>
         </div>
       </aside>

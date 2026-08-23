@@ -192,7 +192,9 @@ export default function Login() {
           <span>·</span>
           <a href="#" className="hover:text-foreground transition-colors">Help Center</a>
           <span>·</span>
-          <a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a>
+          <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link>
+          <span>·</span>
+          <Link href="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link>
         </div>
       </footer>
     </div>
