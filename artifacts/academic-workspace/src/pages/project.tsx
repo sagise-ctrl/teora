@@ -39,7 +39,7 @@ import {
   getListShareLinksQueryKey,
   type ChatMode,
   type DocumentWithVersions,
-} from "@workspace/api-client-react"
+} from "../lib/api-client-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
 import { 

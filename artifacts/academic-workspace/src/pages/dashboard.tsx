@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Link } from "wouter"
-import { useListProjects, useGetProjectStats } from "@workspace/api-client-react"
+import { useListProjects, useGetProjectStats } from "../lib/api-client-react"
 import { useAuth } from "@/hooks/use-auth"
 import {
   FileText,

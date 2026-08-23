@@ -3,7 +3,7 @@ import { useLocation } from "wouter"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { useCreateProject } from "@workspace/api-client-react"
+import { useCreateProject } from "../lib/api-client-react"
 import { ArrowLeft, Loader2, FilePlus2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
