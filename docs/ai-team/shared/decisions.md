@@ -150,3 +150,28 @@ Format per decision: **Decision / Context / Options / Chosen / Reason / Conseque
 - Type safety from Drizzle queries complements Zod validation of external input
 
 **Date:** 2026
+
+---
+
+## ADR-007: Vercel Function for Backend Deployment
+
+**Decision:** Deploy backend as Vercel Function (serverless), not on VPS.
+
+**Context:** The backend API server was previously deployed on VPS via PM2. The owner decided to keep Vercel Function as the primary deployment target, with VPS as a future backup option.
+
+**Options:**
+1. Vercel Function (serverless) — zero server management, auto-scaling, built-in CI/CD
+2. VPS with PM2 — full control, fixed cost, requires manual server management
+
+**Chosen:** Option 1 — Vercel Function
+
+**Reason:** Vercel Function simplifies operations significantly — no server provisioning, no SSH, no PM2 management, no rsync deploys. The build pipeline is already set up (`node ./build.mjs` outputs `api/index.mjs` which Vercel auto-detects as a serverless function). Vercel auto-deploys on every push to main. This aligns with the existing frontend deployment on Vercel, keeping infrastructure consolidated.
+
+**Consequences:**
+- Backend runs as serverless functions (cold start latency, connection pooling needed)
+- `DATABASE_POOLER_URL` recommended over `DATABASE_URL` for pooled connections
+- No persistent in-process state (stateless — aligns with Express design)
+- If Vercel limits are hit, VPS migration is possible (see `production-operations/vps-migration-guide.md`)
+- PM2 ecosystem config and VPS deploy workflow are removed from the codebase
+
+**Date:** 2026-08-23

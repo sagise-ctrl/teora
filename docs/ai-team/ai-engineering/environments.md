@@ -36,8 +36,10 @@ pnpm --filter @workspace/academic-workspace run dev:bypass
 - Required env vars on Vercel: VITE_API_URL, VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY
 - Vercel auto-builds on push to linked branch
 
-## VPS (Backend)
+## Vercel Function (Backend)
 
-- Manual deployment via PM2
-- Env vars managed on VPS (not in git)
-- No CI/CD pipeline yet - manual deploy
+- Deployed as Vercel Function (serverless, no server management)
+- Build: node ./build.mjs (framework: null, auto-detected in api/ directory)
+- Env vars managed via Vercel dashboard (`vercel env add`)
+- Recommended: use DATABASE_POOLER_URL instead of DATABASE_URL for pooled connections
+- No manual server management needed

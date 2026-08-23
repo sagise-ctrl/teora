@@ -3,7 +3,7 @@
 ## Overall Architecture
 
 ```
-[React SPA (Vercel)] --> [HTTP / HTTPS] --> [Express API Server (VPS Ubuntu)] --> [PostgreSQL (Supabase)]
+[React SPA (Vercel)] --> [HTTP / HTTPS] --> [Express API Server (Vercel Function)] --> [PostgreSQL (Supabase)]
                                                                           |
                                                                           v
                                                                    [Supabase Auth]
@@ -23,14 +23,13 @@
 - wouter for routing
 - MSW (Mock Service Worker) for API mocking in development
 
-**API communication:** Calls go to `VITE_API_URL` env var (absolute URL of VPS backend). Vite proxy in `vite.config.ts` only applies in dev mode.
+**API communication:** Frontend calls `/api/*` directly (same origin). `VITE_API_URL` defaults to `/api` in production. Vite proxy in `vite.config.ts` only applies in dev mode.
 
 ## Backend: api-server
 
 **Location:** `artifacts/api-server/`
 
-- Express 5 on port 8080
-- PM2 managed on VPS
+- Express 5, deployed as Vercel Function (serverless)
 - Routes in `src/routes/` (modular: activities, attachments, documents, exports, jobs, metadata, projects, references)
 - Zod validation on all inputs via `@workspace/api-zod`
 - Drizzle ORM for database access via `@workspace/db`
@@ -98,13 +97,13 @@ In `src/routes/index.ts`, **always register `/projects/stats` BEFORE `/projects/
 ## Environment Variables
 
 ### Frontend (Vercel)
-- `VITE_API_URL` -- full URL of the VPS backend API (e.g., `https://api.teora.app`)
+- `VITE_API_URL` -- API base URL (defaults to `/api` in production, same origin as frontend)
 - `VITE_SUPABASE_URL` -- Supabase project URL
 - `VITE_SUPABASE_ANON_KEY` -- Supabase anon key
 
-### Backend (VPS)
-- `DATABASE_URL` -- PostgreSQL connection string (Supabase)
+### Backend (Vercel Function)
+- `DATABASE_POOLER_URL` -- Supabase connection pooler URL (preferred over DATABASE_URL for serverless)
 - `SUPABASE_JWT_SECRET` -- Supabase JWT secret for validation
 - `SUPABASE_JWKS_URI` -- JWKS endpoint for token verification
-- `PORT` -- server port (default 8080)
 - `AI_*` -- AI provider config (AI_PROVIDER, AI_BASE_URL, AI_API_KEY, AI_MODEL)
+- `ALLOWED_ORIGINS` -- comma-separated list of allowed CORS origins

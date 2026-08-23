@@ -32,6 +32,14 @@ tags:
     description: Project metadata
   - name: ai-usage
     description: AI usage tracking (FinOps)
+  - name: comments
+    description: Inline comments on documents
+  - name: members
+    description: Project collaborators and roles
+  - name: quizzes
+    description: AI-generated quizzes and assessments
+  - name: style-profile
+    description: Writing style analysis
 paths:
   # ── Auth ──────────────────────────────────────────────────────────────────
   /auth/me:
@@ -837,6 +845,35 @@ paths:
         "204":
           description: Deleted
 
+  /projects/{projectId}/attachments/{attachmentId}/download:
+    get:
+      operationId: downloadAttachment
+      tags: [attachments]
+      summary: Download an attachment file
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: attachmentId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: File binary
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+
   # ── Activities ────────────────────────────────────────────────────────────
   /projects/{projectId}/activities:
     get:
@@ -1026,6 +1063,550 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Export"
+
+  # ── Comments ──────────────────────────────────────────────────────────────
+  /projects/{projectId}/documents/{documentId}/comments:
+    get:
+      operationId: listComments
+      tags: [comments]
+      summary: List comments for a document
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Comments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Comment"
+    post:
+      operationId: createComment
+      tags: [comments]
+      summary: Add a comment to a document
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommentInput"
+      responses:
+        "201":
+          description: Comment created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+
+  /projects/{projectId}/comments/{commentId}:
+    patch:
+      operationId: updateComment
+      tags: [comments]
+      summary: Update a comment or resolve it
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommentUpdate"
+      responses:
+        "200":
+          description: Comment updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+    delete:
+      operationId: deleteComment
+      tags: [comments]
+      summary: Delete a comment
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  # ── Project Members ───────────────────────────────────────────────────────
+  /projects/{projectId}/members:
+    get:
+      operationId: listMembers
+      tags: [members]
+      summary: List collaborators on a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Members
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProjectMember"
+    post:
+      operationId: addMember
+      tags: [members]
+      summary: Add a collaborator to a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddMemberRequest"
+      responses:
+        "201":
+          description: Member added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectMember"
+
+  /projects/{projectId}/members/{memberId}:
+    patch:
+      operationId: updateMember
+      tags: [members]
+      summary: Update a member's role
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: memberId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateMemberRequest"
+      responses:
+        "200":
+          description: Member updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectMember"
+    delete:
+      operationId: removeMember
+      tags: [members]
+      summary: Remove a collaborator from a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: memberId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Removed
+
+  # ── Quizzes ─────────────────────────────────────────────────────────────
+  /projects/{projectId}/quizzes:
+    get:
+      operationId: listQuizzes
+      tags: [quizzes]
+      summary: List quizzes for a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Quizzes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Quiz"
+    post:
+      operationId: generateQuiz
+      tags: [quizzes]
+      summary: AI-generate a new quiz
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateQuizRequest"
+      responses:
+        "201":
+          description: Quiz generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quiz"
+        "202":
+          description: Quiz generation queued as background job
+
+  /projects/{projectId}/quizzes/{quizId}:
+    get:
+      operationId: getQuiz
+      tags: [quizzes]
+      summary: Get a quiz by ID
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: quizId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Quiz
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quiz"
+
+  # ── Quiz Submissions ────────────────────────────────────────────────────
+  /quizzes/{quizId}/submissions:
+    get:
+      operationId: listQuizSubmissions
+      tags: [quizzes]
+      summary: List submissions for a quiz (teachers)
+      parameters:
+        - name: quizId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Submissions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/QuizSubmission"
+    post:
+      operationId: submitQuiz
+      tags: [quizzes]
+      summary: Submit quiz answers
+      parameters:
+        - name: quizId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitQuizRequest"
+      responses:
+        "200":
+          description: Submission result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuizSubmission"
+
+  /quizzes/{quizId}/submissions/me:
+    get:
+      operationId: getMyQuizSubmission
+      tags: [quizzes]
+      summary: Get current user's submission for a quiz
+      parameters:
+        - name: quizId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: My submission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuizSubmission"
+        "404":
+          description: No submission found
+
+  # ── Rubrics ────────────────────────────────────────────────────────────
+  /projects/{projectId}/quizzes/{quizId}/rubric:
+    get:
+      operationId: getRubric
+      tags: [quizzes]
+      summary: Get rubric for a quiz
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: quizId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Rubric
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Rubric"
+        "404":
+          description: Rubric not found
+    post:
+      operationId: generateRubric
+      tags: [quizzes]
+      summary: Generate AI rubric for a quiz
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: quizId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                manualNotes:
+                  type: string
+      responses:
+        "201":
+          description: Rubric created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Rubric"
+    patch:
+      operationId: updateRubric
+      tags: [quizzes]
+      summary: Update rubric criteria
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: quizId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                criteria:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/RubricCriterion"
+                manualNotes:
+                  type: string
+      responses:
+        "200":
+          description: Rubric updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Rubric"
+    delete:
+      operationId: deleteRubric
+      tags: [quizzes]
+      summary: Delete rubric
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: quizId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Rubric deleted
+
+  # ── Writing Style ───────────────────────────────────────────────────────
+  /users/me/writing-style:
+    get:
+      operationId: getMyWritingStyle
+      tags: [style-profile]
+      summary: Get current user's writing style profile
+      responses:
+        "200":
+          description: Writing style profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WritingStyleProfile"
+        "404":
+          description: No profile found
+    patch:
+      operationId: updateMyWritingStyle
+      tags: [style-profile]
+      summary: Update writing style profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                styleCharacteristics:
+                  $ref: "#/components/schemas/WritingStyleProfile/properties/styleCharacteristics"
+      responses:
+        "200":
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WritingStyleProfile"
+
+  /users/me/writing-style/analyze:
+    post:
+      operationId: analyzeMyWritingStyle
+      tags: [style-profile]
+      summary: Analyze writing style from documents
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnalyzeStyleRequest"
+      responses:
+        "201":
+          description: Analysis complete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WritingStyleProfile"
+
+  # Legacy project-scoped style endpoints (kept for compatibility)
+  /projects/{projectId}/style-profile:
+    get:
+      operationId: getStyleProfile
+      tags: [style-profile]
+      summary: Get writing style profile for a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Style profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WritingStyleProfile"
+        "404":
+          description: No profile found
+
+  /projects/{projectId}/analyze/style:
+    post:
+      operationId: analyzeStyle
+      tags: [style-profile]
+      summary: Analyze writing style and store profile
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnalyzeStyleRequest"
+      responses:
+        "200":
+          description: Analysis result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WritingStyleProfile"
 
 components:
   schemas:
@@ -1473,7 +2054,7 @@ components:
           type: number
         jobType:
           type: string
-          enum: [analyze, outline, references, write_chapter, citations, bibliography, export]
+          enum: [analyze, outline, references, write_chapter, citations, bibliography, export, generate_quiz, analyze_style]
         status:
           type: string
           enum: [pending, running, completed, failed]
@@ -1651,7 +2232,7 @@ components:
           type: number
         requestType:
           type: string
-          enum: [chat, analyze, outline, write, export, bibliography]
+          enum: [chat, analyze, outline, write, export, bibliography, quiz, style]
         metadata:
           type: object
           additionalProperties: true
@@ -1785,4 +2366,374 @@ components:
         createdAt:
           type: string
           format: date-time
+
+    # ── Comments ──────────────────────────────────────────────────────────────
+    Comment:
+      type: object
+      required: [id, projectId, documentId, userId, userName, content, resolved, createdAt, updatedAt]
+      properties:
+        id:
+          type: number
+        projectId:
+          type: number
+        documentId:
+          type: number
+        userId:
+          type: string
+        userName:
+          type: string
+        content:
+          type: string
+        quoteText:
+          type: ["string", "null"]
+          description: Selected text this comment refers to
+        offsetStart:
+          type: ["number", "null"]
+        offsetEnd:
+          type: ["number", "null"]
+        parentId:
+          type: ["number", "null"]
+          description: Parent comment ID for threaded replies
+        resolved:
+          type: boolean
+        resolvedBy:
+          type: ["string", "null"]
+        resolvedAt:
+          type: ["string", "null"]
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CommentInput:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+          minLength: 1
+        quoteText:
+          type: string
+        offsetStart:
+          type: number
+        offsetEnd:
+          type: number
+        parentId:
+          type: number
+          description: Parent comment ID for threaded replies
+
+    CommentUpdate:
+      type: object
+      properties:
+        content:
+          type: string
+          minLength: 1
+        resolved:
+          type: boolean
+
+    # ── Project Members ─────────────────────────────────────────────────────
+    ProjectMember:
+      type: object
+      required: [id, projectId, userId, role, createdAt, updatedAt]
+      properties:
+        id:
+          type: number
+        projectId:
+          type: number
+        userId:
+          type: string
+        role:
+          type: string
+          enum: [owner, collaborator, viewer]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    AddMemberRequest:
+      type: object
+      required: [userId, role]
+      properties:
+        userId:
+          type: string
+          description: User ID (Supabase user ID)
+        role:
+          type: string
+          enum: [collaborator, viewer]
+
+    UpdateMemberRequest:
+      type: object
+      required: [role]
+      properties:
+        role:
+          type: string
+          enum: [collaborator, viewer]
+
+    # ── Quizzes ─────────────────────────────────────────────────────────────
+    Quiz:
+      type: object
+      required: [id, projectId, title, questions, createdBy, createdAt, updatedAt]
+      properties:
+        id:
+          type: number
+        projectId:
+          type: number
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        questions:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuizQuestion"
+        metadata:
+          type: ["object", "null"]
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    QuizQuestion:
+      type: object
+      required: [id, text, type, points]
+      properties:
+        id:
+          type: string
+        text:
+          type: string
+        type:
+          type: string
+          enum: [multiple_choice, short_answer, essay]
+        options:
+          type: array
+          description: Available options (for multiple_choice)
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              text:
+                type: string
+        points:
+          type: number
+
+    GenerateQuizRequest:
+      type: object
+      required: [title, count, topic]
+      properties:
+        title:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        topic:
+          type: string
+          minLength: 1
+          description: Topic/theme for the questions
+        count:
+          type: number
+          minimum: 1
+          maximum: 50
+          default: 5
+        questionTypes:
+          type: array
+          items:
+            type: string
+            enum: [multiple_choice, short_answer, essay]
+          default: [multiple_choice]
+        difficulty:
+          type: string
+          enum: [easy, medium, hard]
+          default: medium
+        includeAnswers:
+          type: boolean
+          default: false
+          description: Include correct answers in quiz (teachers only)
+
+    QuizSubmission:
+      type: object
+      required: [id, quizId, studentId, responses, submittedAt, updatedAt]
+      properties:
+        id:
+          type: number
+        quizId:
+          type: number
+        studentId:
+          type: string
+        responses:
+          type: array
+          items:
+            type: object
+            properties:
+              questionId:
+                type: string
+              answer:
+                type: string
+        score:
+          type: ["number", "null"]
+        maxScore:
+          type: ["number", "null"]
+        gradingDetails:
+          type: ["array", "null"]
+          items:
+            type: object
+            properties:
+              questionId:
+                type: string
+              score:
+                type: number
+              maxScore:
+                type: number
+        gradedAt:
+          type: ["string", "null"]
+          format: date-time
+        submittedAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    SubmitQuizRequest:
+      type: object
+      required: [responses]
+      properties:
+        responses:
+          type: array
+          items:
+            type: object
+            required: [questionId, answer]
+            properties:
+              questionId:
+                type: string
+              answer:
+                type: string
+
+    RubricCriterion:
+      type: object
+      required: [questionId, maxPoints]
+      properties:
+        questionId:
+          type: string
+          description: ID of the quiz question this criterion grades
+        maxPoints:
+          type: number
+          description: Maximum points for this question
+        correctAnswer:
+          type: string
+          description: Correct answer for multiple choice (optional)
+        keywords:
+          type: array
+          items:
+            type: string
+          description: Keywords to check for short answer / essay grading
+        keywordThreshold:
+          type: number
+          minimum: 0
+          maximum: 1
+          default: 0.5
+          description: Fraction of keywords required for partial credit
+
+    Rubric:
+      type: object
+      required: [id, quizId, criteria, createdBy, createdAt, updatedAt]
+      properties:
+        id:
+          type: number
+        quizId:
+          type: number
+        criteria:
+          type: array
+          items:
+            $ref: "#/components/schemas/RubricCriterion"
+        manualNotes:
+          type: string
+          nullable: true
+          description: Manual grading notes for essay questions
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    # ── Writing Style ───────────────────────────────────────────────────────
+    WritingStyleProfile:
+      type: object
+      required: [id, userId, styleCharacteristics, sampleSize, analyzedAt, updatedAt]
+      properties:
+        id:
+          type: number
+        userId:
+          type: string
+        projectId:
+          type: ["number", "null"]
+        styleCharacteristics:
+          type: object
+          properties:
+            formality:
+              type: number
+              minimum: 0
+              maximum: 1
+            vocabularyLevel:
+              type: number
+              minimum: 0
+              maximum: 1
+            avgSentenceLength:
+              type: number
+            avgParagraphLength:
+              type: number
+            passiveVoiceRatio:
+              type: number
+              minimum: 0
+              maximum: 1
+            readabilityScore:
+              type: number
+              minimum: 0
+              maximum: 100
+            dominantTone:
+              type: string
+              enum: [neutral, persuasive, analytical, descriptive, critical]
+            commonPhrases:
+              type: array
+              items:
+                type: string
+            structuralPatterns:
+              type: array
+              items:
+                type: string
+        sampleSize:
+          type: number
+        analyzedAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    AnalyzeStyleRequest:
+      type: object
+      required: [texts]
+      properties:
+        texts:
+          type: array
+          description: Array of text samples to analyze (min 1, max 20)
+          items:
+            type: string
+          minItems: 1
+          maxItems: 20
+        projectId:
+          type: number
+          description: Optional project scope for this analysis
 

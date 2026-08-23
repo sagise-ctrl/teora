@@ -45,7 +45,10 @@ function estimateCost(model: string, inputTokens: number, outputTokens: number):
     + (outputTokens / 1_000_000) * pricing.outputPer1M;
 }
 
-export async function callAI(messages: ChatMessage[]): Promise<AIResponse> {
+export async function callAI(
+  messages: ChatMessage[],
+  mode?: ChatMode,
+): Promise<AIResponse> {
   if (!AI_API_KEY) {
     logger.warn("AI_API_KEY not set — returning placeholder response");
     return {

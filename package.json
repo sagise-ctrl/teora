@@ -16,12 +16,22 @@
     "build": "npm run typecheck && npm -w @workspace/api-server run build",
     "typecheck": "tsc --build --force",
     "dev:api": "npm -w @workspace/api-server run dev",
-    "dev:web": "npm -w @workspace/academic-workspace run dev"
+    "dev:web": "npm -w @workspace/academic-workspace run dev",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "test:e2e": "playwright test",
+    "audit": "npm audit --audit-level=high",
+    "audit:fix": "npm audit fix"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@vitest/coverage-v8": "^2.1.9",
+    "eslint": "^10.9.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "prettier": "^3.9.6",
     "typescript": "~5.9.3",
+    "typescript-eslint": "^8.67.0",
     "vitest": "^2.1.9"
   },
   "optionalDependencies": {
@@ -31,5 +41,7 @@
     "@playwright/test": "^1.62.1",
     "@rollup/rollup-win32-x64-msvc": "^4.62.4"
   },
-  "dependencies": {}
+  "dependencies": {
+    "docx": "^9.7.1"
+  }
 }

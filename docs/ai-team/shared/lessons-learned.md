@@ -90,7 +90,7 @@ The `dev:bypass` script skips the pnpm install check, making it faster for repea
 
 **Root Cause:** The Vite proxy configuration in `vite.config.ts` is a Vite development server feature. It intercepts requests matching the proxy pattern and forwards them during `vite dev`. In the production build (Vite build -> `dist/` -> Vercel), there is no Vite server and no proxy. Requests go directly to the configured URL.
 
-**Lesson:** For production, always use the `VITE_API_URL` environment variable set to the absolute URL of the backend VPS (e.g., `https://api.teora.app`). The Vite proxy is only for local development convenience.
+**Lesson:** For production on Vercel, the backend is deployed as a Vercel Function alongside the frontend on the same origin. Use `VITE_API_URL=/api` (same origin). The Vite proxy is only for local development convenience.
 
 **Prevention:** Always test the `VITE_API_URL` configuration before deploying. Document that the proxy is dev-only.
 

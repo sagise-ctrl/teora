@@ -2,22 +2,21 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
 import * as schema from "./schema";
 
-const { Pool } = pg;
-
 const connectionString =
   process.env.DATABASE_POOLER_URL ?? process.env.DATABASE_URL;
 
-let pool: Pool;
+type PoolInstance = InstanceType<typeof pg.Pool>;
+let pool: PoolInstance;
 let db: ReturnType<typeof drizzle>;
 
 if (!connectionString) {
   console.warn(
     "DATABASE_URL / DATABASE_POOLER_URL not set. Database queries will fail.",
   );
-  pool = null as unknown as Pool;
+  pool = null as unknown as PoolInstance;
   db = null as unknown as ReturnType<typeof drizzle>;
 } else {
-  pool = new Pool({
+  pool = new pg.Pool({
     connectionString,
     max:
       process.env.VERCEL === "1"

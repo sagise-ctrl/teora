@@ -2,7 +2,6 @@ import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { build as esbuild } from "esbuild";
-import esbuildPluginPino from "esbuild-plugin-pino";
 import { rm, rename } from "node:fs/promises";
 import workspacePlugin from "./esbuild-workspace-plugin.mjs";
 
@@ -85,6 +84,11 @@ const EXTERNAL = [
   "puppeteer",
   "puppeteer-core",
   "electron",
+  "pg",
+  "zod",
+  "zod/v4",
+  "drizzle-orm",
+  "drizzle-zod",
 ];
 
 const BANNER = `import { createRequire as __bannerCrReq } from 'node:module';
@@ -95,7 +99,7 @@ globalThis.__filename = __bannerUrl.fileURLToPath(import.meta.url);
 globalThis.__dirname = __bannerPath.dirname(globalThis.__filename);
 `;
 
-const PLUGINS = [workspacePlugin(), esbuildPluginPino({ transports: ["pino-pretty"] })];
+const PLUGINS = [workspacePlugin()];
 
 // Build the Vercel HTTP handler (api/index.ts) -> api/index.mjs
 // Vercel auto-detects serverless functions in the api/ directory

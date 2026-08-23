@@ -9,46 +9,44 @@
 - Preview: https://academic-workspace-[hash].vercel.app
 - Production: teora.vercel.app (needs domain config)
 
-## Backend -> VPS Ubuntu 24
+## Backend -> Vercel Function
 
-- **Automated via GitHub Actions** (`.github/workflows/deploy-backend.yml`)
-- Triggered on push to `main` when `artifacts/api-server/` or `lib/db/` changes
-- Pipeline: build -> rsync dist/ to VPS -> `pm2 restart teora-api` -> health check
-- PM2 process: managed via `ecosystem.config.cjs`
-- PM2 process name: `teora-api`
-- Restart: `pm2 restart teora-api`
+- **Automated via Vercel** — deploys automatically on push to linked Git branch
+- Build command: `node ./build.mjs` (framework: null in vercel.json)
+- Output: `artifacts/api-server/api/index.mjs` (Vercel Function handler)
+- The build also produces `artifacts/api-server/dist/index.mjs` for local dev
+- Vercel auto-detects serverless functions in the `api/` directory
 
-### Manual Deploy (fallback)
+### Vercel Configuration
 
-If GitHub Actions is unavailable:
+vercel.json (framework: null, buildCommand: node ./build.mjs):
+- api/index.ts -> api/index.mjs (Vercel Function entry)
+- src/index.ts -> dist/index.mjs (local dev server)
 
-1. Build: `pnpm --filter @workspace/api-server run build`
-2. Copy `dist/` to VPS
-3. Restart: `pm2 restart teora-api`
+### Vercel Environment Variables
 
-### Required GitHub Secrets
+Required on Vercel:
 
-| Secret | Description |
-|--------|-------------|
-| `VPS_HOST` | VPS IP address or hostname |
-| `VPS_USER` | SSH username |
-| `VPS_SSH_KEY` | Private SSH key (with write access to VPS) |
+| Variable | Description |
+|----------|-------------|
 | `DATABASE_URL` | PostgreSQL connection string |
+| `DATABASE_POOLER_URL` | Supabase connection pooler URL (preferred over DATABASE_URL for serverless) |
 | `SUPABASE_URL` | Supabase project URL |
 | `SUPABASE_JWT_SECRET` | JWT secret |
 | `SUPABASE_SERVICE_ROLE_KEY` | Service role key |
 | `AI_API_KEY` | AI provider API key |
-| `PORT` | Server port (e.g. 8080) |
 
-### PM2 Ecosystem Config
+Note: `DATABASE_POOLER_URL` is recommended for Vercel Functions (pooled connections reduce database connection overhead). If not set, falls back to `DATABASE_URL`.
 
-Located at `artifacts/api-server/ecosystem.config.cjs`. Use:
+### Manual Local Build (fallback)
+
+If Vercel is unavailable:
+
 ```bash
-pm2 start ecosystem.config.cjs  # start
-pm2 restart teora-api           # restart
-pm2 logs teora-api              # view logs
-pm2 monit                       # monitor
+pnpm --filter @workspace/api-server run build
 ```
+
+This produces both the Vercel Function handler (`api/index.mjs`) and the local dev server (`dist/index.mjs`).
 
 ## CI/CD Pipeline
 
@@ -56,17 +54,17 @@ pm2 monit                       # monitor
 
 Runs on every push and PR:
 1. **typecheck** — TypeScript type checking
-2. **test** — Unit tests (Vitest, 91 tests)
-3. **test-e2e** — E2E tests (Playwright, 30+ specs)
+2. **test** — Unit tests (Vitest)
+3. **test-e2e** — E2E tests (Playwright)
 4. **build** — Production build
 
 All jobs run in parallel after setup. `build` is the final gate.
 
-### Deploy Pipeline (`.github/workflows/deploy-backend.yml`)
+### Deploy Pipeline
 
-Runs on push to `main` when API server or DB files change:
-1. **build** — Build API server
-2. **deploy** — rsync to VPS + PM2 restart + health check
+- Frontend and backend deploy automatically via Vercel's built-in CI/CD
+- No separate deploy workflow needed — Vercel handles both
+- Backend deploys as Vercel Function (serverless)
 
 ## Database
 
@@ -86,4 +84,8 @@ Runs on push to `main` when API server or DB files change:
 2. Review migration SQL
 3. Apply migration to production (drizzle-kit migrate or manual SQL)
 4. Run codegen + typecheck
-5. Deploy backend
+5. Vercel auto-deploys on next push
+
+## Backup Plan: VPS Migration
+
+If a future migration to VPS is needed, see `production-operations/vps-migration-guide.md`.
