@@ -73,7 +73,7 @@ IMPORTANT: Return ONLY the JSON object, no markdown code blocks.`;
   const messages = [{ role: "user" as const, content: prompt }];
 
   try {
-    const aiResult = await callAI(messages, "analyze");
+    const aiResult = await callAI(messages);
     const parsed = JSON.parse(aiResult.content);
     const characteristics = styleCharacteristicsSchema.parse(parsed);
 

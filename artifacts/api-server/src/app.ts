@@ -1,6 +1,6 @@
 import express, { type Express } from "express";
 import cors from "cors";
-import { PinoHttp as pinoHttp } from "pino-http";
+import { pinoHttp } from "pino-http";
 import rateLimit from "express-rate-limit";
 import router from "./routes/index.js";
 import webhooksRouter from "./routes/webhooks.js";
