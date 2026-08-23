@@ -1,7 +1,7 @@
 import { db } from "@workspace/db";
 import { aiUsageLogTable } from "@workspace/db";
-import { logger } from "./logger";
-import type { AIUsage } from "./ai";
+import { logger } from "./logger.js";
+import type { AIUsage } from "./ai.js";
 
 const AI_MODEL = process.env.AI_MODEL ?? "gpt-4o-mini";
 const AI_PROVIDER = process.env.AI_PROVIDER ?? "openai";

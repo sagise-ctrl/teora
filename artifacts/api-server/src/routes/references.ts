@@ -16,13 +16,13 @@ import {
   FormatCSLBibliographyParams,
   FormatCSLBibliographyQueryParams,
 } from "@workspace/api-zod";
-import { callAI, buildSystemPrompt } from "../lib/ai";
-import { logActivity } from "../lib/activity";
-import { requireProjectOwnership } from "../lib/ownership";
-import { logAIUsage } from "../lib/ai-usage-log";
-import { sanitizeUserMessage } from "../lib/prompt-injection";
-import { validateReference, validateDOI, validateISBN, formatBibliography, type CitationFormat } from "../lib/citation";
-import { fetchMetadata, detectIdentifierType } from "../lib/fetch-reference-metadata";
+import { callAI, buildSystemPrompt } from "../lib/ai.js";
+import { logActivity } from "../lib/activity.js";
+import { requireProjectOwnership } from "../lib/ownership.js";
+import { logAIUsage } from "../lib/ai-usage-log.js";
+import { sanitizeUserMessage } from "../lib/prompt-injection.js";
+import { validateReference, validateDOI, validateISBN, formatBibliography, type CitationFormat } from "../lib/citation.js";
+import { fetchMetadata, detectIdentifierType } from "../lib/fetch-reference-metadata.js";
 
 const router: IRouter = Router();
 

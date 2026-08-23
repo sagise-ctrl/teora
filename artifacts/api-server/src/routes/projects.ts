@@ -21,11 +21,11 @@ import {
   AnalyzeProjectParams,
   ListProjectsQueryParams,
 } from "@workspace/api-zod";
-import { logActivity } from "../lib/activity";
-import { requireProjectOwnership } from "../lib/ownership";
-import { callAI, buildSystemPrompt } from "../lib/ai";
-import { logAIUsage } from "../lib/ai-usage-log";
-import { sanitizeInstructionText, sanitizeUserMessage } from "../lib/prompt-injection";
+import { logActivity } from "../lib/activity.js";
+import { requireProjectOwnership } from "../lib/ownership.js";
+import { callAI, buildSystemPrompt } from "../lib/ai.js";
+import { logAIUsage } from "../lib/ai-usage-log.js";
+import { sanitizeInstructionText, sanitizeUserMessage } from "../lib/prompt-injection.js";
 
 const router: IRouter = Router();
 

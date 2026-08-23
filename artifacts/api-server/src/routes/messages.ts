@@ -13,10 +13,10 @@ import {
   SendMessageParams,
   SendMessageBody,
 } from "@workspace/api-zod";
-import { callAI, buildSystemPrompt, type ChatMode } from "../lib/ai";
-import { logActivity } from "../lib/activity";
-import { logAIUsage } from "../lib/ai-usage-log";
-import { sanitizeUserMessage } from "../lib/prompt-injection";
+import { callAI, buildSystemPrompt, type ChatMode } from "../lib/ai.js";
+import { logActivity } from "../lib/activity.js";
+import { logAIUsage } from "../lib/ai-usage-log.js";
+import { sanitizeUserMessage } from "../lib/prompt-injection.js";
 
 const router: IRouter = Router();
 

@@ -1,8 +1,5 @@
 {
   "framework": null,
   "installCommand": "npm install --legacy-peer-deps",
-  "buildCommand": "node ./setup-workspace.mjs && node ./build.mjs",
-  "typescript": {
-    "ignoreBuildErrors": true
-  }
+  "buildCommand": "node ./setup-workspace.mjs && node ./build.mjs"
 }

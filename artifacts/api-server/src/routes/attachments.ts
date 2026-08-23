@@ -7,10 +7,10 @@ import {
   UploadAttachmentBody,
   DeleteAttachmentParams,
 } from "@workspace/api-zod";
-import { logActivity } from "../lib/activity";
-import { requireProjectOwnership } from "../lib/ownership";
-import { sanitizeFileContent } from "../lib/prompt-injection";
-import { supabaseAdmin } from "../lib/supabase-admin";
+import { logActivity } from "../lib/activity.js";
+import { requireProjectOwnership } from "../lib/ownership.js";
+import { sanitizeFileContent } from "../lib/prompt-injection.js";
+import { supabaseAdmin } from "../lib/supabase-admin.js";
 import path from "path";
 
 const BUCKET_ID = "attachments";

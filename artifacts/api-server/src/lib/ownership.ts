@@ -1,7 +1,7 @@
 import { eq, and } from "drizzle-orm";
 import { db, projectsTable, projectMembersTable } from "@workspace/db";
 import type { Response } from "express";
-import type { AuthUser } from "../middlewares/auth";
+import type { AuthUser } from "../middlewares/auth.js";
 
 /**
  * Check that a project belongs to the authenticated user.

@@ -1,4 +1,4 @@
-import { logger } from "./logger";
+import { logger } from "./logger.js";
 
 const AI_PROVIDER = process.env.AI_PROVIDER ?? "openai";
 const AI_BASE_URL = process.env.AI_BASE_URL ?? "https://api.openai.com/v1";

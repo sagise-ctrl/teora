@@ -11,8 +11,8 @@ import {
   UpdateDocumentBody,
   DeleteDocumentParams,
 } from "@workspace/api-zod";
-import { requireProjectOwnership } from "../lib/ownership";
-import { logActivity } from "../lib/activity";
+import { requireProjectOwnership } from "../lib/ownership.js";
+import { logActivity } from "../lib/activity.js";
 
 const router: IRouter = Router();
 

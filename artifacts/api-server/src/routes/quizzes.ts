@@ -1,10 +1,10 @@
 import { Router, type IRouter } from "express";
 import { eq, desc } from "drizzle-orm";
 import { db, quizzesTable, quizSubmissionsTable } from "@workspace/db";
-import { requireProjectOwnership } from "../lib/ownership";
-import { sanitizeInstructionText } from "../lib/prompt-injection";
-import { callAI, type ChatMessage } from "../lib/ai";
-import { logActivity } from "../lib/activity";
+import { requireProjectOwnership } from "../lib/ownership.js";
+import { sanitizeInstructionText } from "../lib/prompt-injection.js";
+import { callAI, type ChatMessage } from "../lib/ai.js";
+import { logActivity } from "../lib/activity.js";
 import { questionSchema } from "@workspace/db";
 import { quizResponseSchema } from "@workspace/db";
 import { z } from "zod/v4";

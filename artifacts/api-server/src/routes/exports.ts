@@ -6,8 +6,8 @@ import {
   CreateExportParams,
   CreateExportBody,
 } from "@workspace/api-zod";
-import { logActivity } from "../lib/activity";
-import { requireProjectOwnership } from "../lib/ownership";
+import { logActivity } from "../lib/activity.js";
+import { requireProjectOwnership } from "../lib/ownership.js";
 import path from "path";
 import fs from "fs/promises";
 import {

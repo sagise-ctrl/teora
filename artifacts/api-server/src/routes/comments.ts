@@ -1,8 +1,8 @@
 import { Router, type IRouter } from "express";
 import { eq, and, desc } from "drizzle-orm";
 import { db, commentsTable } from "@workspace/db";
-import { requireProjectWriteAccess } from "../lib/ownership";
-import { sanitizeInstructionText } from "../lib/prompt-injection";
+import { requireProjectWriteAccess } from "../lib/ownership.js";
+import { sanitizeInstructionText } from "../lib/prompt-injection.js";
 
 const router: IRouter = Router();
 

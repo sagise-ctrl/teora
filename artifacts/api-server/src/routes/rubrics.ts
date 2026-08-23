@@ -1,9 +1,9 @@
 import { Router, type IRouter } from "express";
 import { eq, desc } from "drizzle-orm";
 import { db, rubricsTable, quizzesTable } from "@workspace/db";
-import { requireProjectOwnership } from "../lib/ownership";
+import { requireProjectOwnership } from "../lib/ownership.js";
 import { rubricCriterionSchema } from "@workspace/db";
-import { callAI } from "../lib/ai";
+import { callAI } from "../lib/ai.js";
 import { z } from "zod/v4";
 
 const router: IRouter = Router();

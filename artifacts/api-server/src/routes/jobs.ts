@@ -2,7 +2,7 @@ import { Router, type IRouter } from "express";
 import { eq, desc } from "drizzle-orm";
 import { db, jobsTable } from "@workspace/db";
 import { ListJobsParams } from "@workspace/api-zod";
-import { requireProjectOwnership } from "../lib/ownership";
+import { requireProjectOwnership } from "../lib/ownership.js";
 
 const router: IRouter = Router();
 

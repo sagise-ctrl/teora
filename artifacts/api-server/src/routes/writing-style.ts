@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
 import { eq, desc } from "drizzle-orm";
 import { db, writingStyleProfilesTable } from "@workspace/db";
-import { callAI } from "../lib/ai";
+import { callAI } from "../lib/ai.js";
 import { styleCharacteristicsSchema } from "@workspace/db";
 import { z } from "zod/v4";
 
