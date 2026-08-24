@@ -172,18 +172,18 @@ Setiap item memiliki: impact (high/medium/low), effort (high/medium/low), dan pr
 
 ## Implementation Checklist
 
-- [x] Info strip on dashboard (priority 1) ✅
-- [x] Paper stack card effect (priority 2) ✅
-- [ ] Sidebar active indicator (priority 3) — partial, already functional
-- [x] Academic status badges (priority 4) ✅
-- [ ] Empty state components (priority 5)
-- [ ] Custom card variants (priority 6)
-- [ ] Chat academic styling (priority 7)
-- [ ] Framer Motion (priority 8)
-- [ ] Custom focus rings (priority 9)
-- [ ] Scrollbar refinement (priority 10)
-- [ ] Loading skeletons (priority 11)
-- [ ] Academic prose (priority 12)
+- [x] Info strip on dashboard (priority 1) ✅ — Implemented 2026-08-16
+- [x] Paper stack card effect (priority 2) ✅ — Implemented 2026-08-16
+- [x] Sidebar active indicator (priority 3) ✅ — Implemented 2026-08-25 (left border + primary color)
+- [x] Academic status badges (priority 4) ✅ — Implemented 2026-08-16
+- [x] Empty state components (priority 5) ✅ — Implemented 2026-08-25 (5 SVG variants: papers, book, attachment, chat, quiz)
+- [x] Custom card variants (priority 6) ✅ — Implemented 2026-08-25 (default, elevated, ghost, accent via CVA)
+- [x] Chat academic styling (priority 7) ✅ — Implemented 2026-08-25 (serif AI messages, left border, parchment bg)
+- [x] Framer Motion (priority 8) ✅ — Implemented 2026-08-25 (page transitions, staggered lists, spring hover)
+- [x] Custom focus rings (priority 9) ✅ — Implemented 2026-08-25 (brand-matched primary color)
+- [x] Scrollbar refinement (priority 10) ✅ — Implemented 2026-08-25 (6px, academic-themed)
+- [x] Loading skeletons (priority 11) ✅ — Implemented 2026-08-25 (shimmer animation)
+- [x] Academic prose (priority 12) ✅ — Implemented 2026-08-25 (serif font, 1.8 line-height, blockquote styling)
 
 ## What NOT to Change
 
