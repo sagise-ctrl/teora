@@ -1,38 +1,58 @@
 // Custom esbuild plugin to resolve @workspace/* packages.
-// Strategy: 1) monorepo root, 2) .bundled/ (setup-workspace.mjs), 3) local node_modules.
+// Finds the api-server project root by looking for .vercel marker or package.json,
+// then resolves .bundled/ or monorepo lib/ paths.
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { existsSync } from "node:fs";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+function findProjectRoot(startPath) {
+  let current = path.dirname(startPath);
+  const visited = new Set();
+  while (current && !visited.has(current) && current !== path.sep && current !== "/") {
+    visited.add(current);
+    if (existsSync(path.join(current, ".vercel"))) return current;
+    if (existsSync(path.join(current, "package.json"))) return current;
+    current = path.dirname(current);
+  }
+  // Fallback: assume 4 levels up from api-server/src/*
+  return path.dirname(path.dirname(path.dirname(path.dirname(startPath))));
+}
 
 function workspacePlugin() {
   return {
     name: "workspace-resolver",
     setup(build) {
       build.onResolve({ filter: /^@workspace\// }, (args) => {
-        const pkgName = args.path; // e.g., "@workspace/db"
+        const pkgName = args.path;
+        const importer = args.importer;
+        const projectRoot = findProjectRoot(importer);
 
-        // 1. Try monorepo root (local dev)
-        const monorepoRoot = path.resolve(__dirname, "../..");
-        if (existsSync(path.resolve(monorepoRoot, "lib/" + pkgName.replace("@workspace/", "") + "/src/index.ts"))) {
-          return { path: path.resolve(monorepoRoot, "lib/" + pkgName.replace("@workspace/", "") + "/src/index.ts") };
-        }
+        const bundledPath = path.join(projectRoot, ".bundled", pkgName, "index.ts");
 
-        // 2. Try .bundled/ (populated by setup-workspace.mjs — Vercel build)
-        const bundledPath = path.resolve(__dirname, ".bundled", pkgName, "index.ts");
+        // 1. Prefer .bundled/ — populated by setup-workspace.mjs before build.
         if (existsSync(bundledPath)) {
           return { path: bundledPath };
         }
 
-        // 3. Try local node_modules
-        const localPath = path.resolve(__dirname, "node_modules", pkgName, "src/index.ts");
-        if (existsSync(localPath)) {
-          return { path: localPath };
+        // 2. Fallback: monorepo root (local dev where lib/ is accessible).
+        const monorepoRoot = path.resolve(projectRoot, "../..");
+        const monorepoSrc = path.join(
+          monorepoRoot,
+          "lib",
+          pkgName.replace("@workspace/", ""),
+          "src",
+          "index.ts"
+        );
+        if (existsSync(monorepoSrc)) {
+          return { path: monorepoSrc };
         }
 
         return {
-          errors: [{ text: `Cannot resolve ${pkgName}. Run 'node ./setup-workspace.mjs' first.`, location: null }],
+          errors: [
+            {
+              text: `Cannot resolve ${pkgName}. Checked: ${bundledPath}, ${monorepoSrc}. Run 'node ./setup-workspace.mjs' first.`,
+              location: null,
+            },
+          ],
         };
       });
     },

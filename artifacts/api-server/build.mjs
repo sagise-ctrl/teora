@@ -2,14 +2,25 @@ import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { build as esbuild } from "esbuild";
-import { rm, rename } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { rename, rm } from "node:fs/promises";
 import workspacePlugin from "./esbuild-workspace-plugin.mjs";
 
 // Plugins (e.g. 'esbuild-plugin-pino') may use `require` to resolve dependencies
 globalThis.require = createRequire(import.meta.url);
 
-const artifactDir = path.dirname(fileURLToPath(import.meta.url));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
+// Detect project root: if api/ exists in script dir, use script dir as project root.
+// Otherwise, assume script dir is monorepo root and project is artifacts/api-server/.
+const apiDirCandidate = path.join(__dirname, "api");
+let apiServerDir;
+if (existsSync(apiDirCandidate)) {
+  apiServerDir = __dirname;
+} else {
+  apiServerDir = path.resolve(__dirname, "artifacts/api-server");
+}
 const EXTERNAL = [
   "@vercel/node",
   "*.node",
@@ -104,10 +115,10 @@ const PLUGINS = [workspacePlugin()];
 // Build the Vercel HTTP handler (api/index.ts) -> api/index.mjs
 // Vercel auto-detects serverless functions in the api/ directory
 async function buildApiHandler() {
-  const apiDir = path.resolve(artifactDir, "api");
+const apiDir = path.resolve(apiServerDir, "api");
 
   await esbuild({
-    entryPoints: [path.resolve(artifactDir, "api/_handler.ts")],
+    entryPoints: [path.resolve(apiServerDir, "api/_handler.ts")],
     platform: "node",
     bundle: true,
     format: "esm",
@@ -125,11 +136,11 @@ async function buildApiHandler() {
 
 // Build the Express server (src/index.ts) -> dist/index.mjs (local dev)
 async function buildServer() {
-  const distDir = path.resolve(artifactDir, "dist");
+  const distDir = path.resolve(apiServerDir, "dist");
   await rm(distDir, { recursive: true, force: true });
 
   await esbuild({
-    entryPoints: [path.resolve(artifactDir, "src/index.ts")],
+    entryPoints: [path.resolve(apiServerDir, "src/index.ts")],
     platform: "node",
     bundle: true,
     format: "esm",

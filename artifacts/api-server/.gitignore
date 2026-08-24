@@ -22,3 +22,5 @@ api/*.mjs.map
 # OS
 .DS_Store
 Thumbs.db
+
+.vercel
