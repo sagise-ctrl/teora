@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AnimatePresence, motion } from "framer-motion";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/use-auth";
@@ -22,6 +23,26 @@ import Layout from "@/components/layout";
 
 const queryClient = new QueryClient();
 
+const pageVariants = {
+  initial: { opacity: 0, y: 8 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.25, ease: "easeOut" } },
+  exit: { opacity: 0, y: -8, transition: { duration: 0.15, ease: "easeIn" } },
+};
+
+function AnimatedPage({ children }: { children: React.ReactNode }) {
+  return (
+    <motion.div
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      className="flex flex-col flex-1 min-h-0"
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 function AppRouter() {
   return (
     <Switch>
@@ -33,35 +54,35 @@ function AppRouter() {
       <Route path="/">
         <ProtectedRoute>
           <Layout>
-            <Dashboard />
+            <AnimatedPage><Dashboard /></AnimatedPage>
           </Layout>
         </ProtectedRoute>
       </Route>
       <Route path="/projects/new">
         <ProtectedRoute>
           <Layout>
-            <NewProject />
+            <AnimatedPage><NewProject /></AnimatedPage>
           </Layout>
         </ProtectedRoute>
       </Route>
       <Route path="/projects/:id">
         <ProtectedRoute>
           <Layout>
-            <ProjectWorkspace />
+            <AnimatedPage><ProjectWorkspace /></AnimatedPage>
           </Layout>
         </ProtectedRoute>
       </Route>
       <Route path="/finops">
         <ProtectedRoute>
           <Layout>
-            <FinOps />
+            <AnimatedPage><FinOps /></AnimatedPage>
           </Layout>
         </ProtectedRoute>
       </Route>
       <Route path="/referral">
         <ProtectedRoute>
           <Layout>
-            <Referral />
+            <AnimatedPage><Referral /></AnimatedPage>
           </Layout>
         </ProtectedRoute>
       </Route>
@@ -71,7 +92,7 @@ function AppRouter() {
       <Route path="/admin">
         <ProtectedRoute>
           <Layout>
-            <Admin />
+            <AnimatedPage><Admin /></AnimatedPage>
           </Layout>
         </ProtectedRoute>
       </Route>

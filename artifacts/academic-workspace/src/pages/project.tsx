@@ -39,13 +39,6 @@ import {
   useGetRubric,
   getListQuizzesQueryKey,
   getGetQuizQueryKey,
-  type Quiz,
-  type QuizQuestion,
-  type QuizQuestionType,
-  type Comment,
-  type QuizSubmission,
-  type Rubric,
-} from "../lib/api-client-react"
   getGetLatestDocumentQueryKey,
   getListMessagesQueryKey,
   getListReferencesQueryKey,
@@ -57,6 +50,12 @@ import {
   getListShareLinksQueryKey,
   type ChatMode,
   type DocumentWithVersions,
+  type Quiz,
+  type QuizQuestion,
+  type QuizQuestionType,
+  type Comment,
+  type QuizSubmission,
+  type Rubric,
 } from "../lib/api-client-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
@@ -96,7 +95,6 @@ import {
   CircleDot,
   XCircle,
   CheckCheck,
-  FileQuestion,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -108,6 +106,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+  EmptyDescription,
+  EmptyIllustrationBook,
+  EmptyIllustrationAttachment,
+  EmptyIllustrationChat,
+  EmptyIllustrationQuiz,
+} from "@/components/ui/empty"
 import { 
   Table, 
   TableBody, 
@@ -804,9 +813,12 @@ function QuizTab({ projectId }: { projectId: number }) {
                 })}
               </div>
             ) : (
-              <div className="text-center py-12 text-muted-foreground">
-                <FileQuestion className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                <p>Belum ada kuis. Generate kuis pertama Anda!</p>
+              <div className="text-center py-12">
+                <EmptyMedia illustration="quiz" className="size-16 mx-auto mb-4">
+                  <EmptyIllustrationQuiz />
+                </EmptyMedia>
+                <p className="text-sm font-medium text-foreground mb-1">Belum ada kuis</p>
+                <p className="text-xs text-muted-foreground">Generate kuis pertama Anda!</p>
               </div>
             )}
           </div>
@@ -1249,9 +1261,9 @@ function ChatTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosure:
           </div>
         ) : messages?.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center px-8 py-16">
-            <div className="w-20 h-20 rounded-full bg-muted/50 flex items-center justify-center mb-6">
-              <MessageSquare className="w-10 h-10 text-muted-foreground/60" />
-            </div>
+            <EmptyMedia illustration="chat" className="size-20 mb-6">
+              <EmptyIllustrationChat />
+            </EmptyMedia>
             <h3 className="text-lg font-medium text-foreground mb-2">Start the conversation</h3>
             <p className="text-sm text-muted-foreground max-w-md mb-6">
               Ask the AI to revise sections, clarify concepts, add citations, or help with research.
@@ -1273,10 +1285,10 @@ function ChatTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosure:
                     ? "bg-primary text-primary-foreground rounded-tr-sm"
                     : msg.role === "system"
                     ? "bg-muted text-muted-foreground italic w-full text-center rounded-lg shadow-none border"
-                    : "bg-secondary/80 text-secondary-foreground rounded-tl-sm border border-border/50"
+                    : "bg-secondary/90 text-secondary-foreground rounded-tl-sm border-l-[3px] border-l-primary border border-border/50"
                 )}>
                   {msg.role === "system" ? msg.content : (
-                    <div className="whitespace-pre-wrap">{msg.content}</div>
+                    <div className={cn("whitespace-pre-wrap", msg.role === "assistant" && "font-serif")}>{msg.content}</div>
                   )}
                   {msg.role === "assistant" && aiDisclosure && (
                     <div className="mt-2.5 pt-1.5 border-t border-border/30">
@@ -1284,7 +1296,7 @@ function ChatTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosure:
                     </div>
                   )}
                   {msg.role !== "system" && (
-                    <div className={cn("text-[10px] mt-1 opacity-60", msg.role === "user" ? "text-right" : "")}>
+                    <div className={cn("text-[10px] mt-1 opacity-50", msg.role === "user" ? "text-right" : "")}>
                       {format(new Date(msg.createdAt), "h:mm a")}
                     </div>
                   )}
@@ -1293,10 +1305,9 @@ function ChatTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosure:
             ))}
             {sendMessage.isPending && (
               <div className="flex justify-start">
-                <div className="max-w-[80%] rounded-2xl rounded-tl-sm px-5 py-4 bg-secondary/80 border border-border/50 flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" />
-                  <div className="w-2 h-2 rounded-full bg-primary/60 animate-bounce [animation-delay:0.15s]" />
-                  <div className="w-2 h-2 rounded-full bg-primary/60 animate-bounce [animation-delay:0.3s]" />
+                <div className="max-w-[80%] rounded-2xl rounded-tl-sm px-5 py-4 bg-secondary/90 border-l-[3px] border-l-primary border border-border/50 flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-primary/60 animate-pulse" />
+                  <span className="text-xs text-muted-foreground italic">Thinking...</span>
                 </div>
               </div>
             )}
@@ -1560,9 +1571,9 @@ function ReferencesTab({ projectId }: { projectId: number }) {
               <TableRow>
                 <TableCell colSpan={5} className="text-center py-16">
                   <div className="flex flex-col items-center">
-                    <div className="w-14 h-14 rounded-full bg-muted/50 flex items-center justify-center mb-4">
-                      <BookMarked className="w-7 h-7 text-muted-foreground/50" />
-                    </div>
+                    <EmptyMedia illustration="book" className="size-16 mb-4">
+                      <EmptyIllustrationBook />
+                    </EmptyMedia>
                     <p className="text-sm font-medium text-foreground mb-1">No references yet</p>
                     <p className="text-xs text-muted-foreground">Add sources to cite in your document</p>
                   </div>
@@ -1700,9 +1711,9 @@ function AttachmentsTab({ projectId }: { projectId: number }) {
           <Skeleton className="h-32 w-full" />
         ) : attachments?.length === 0 ? (
           <div className="col-span-full text-center py-16 border border-dashed rounded-xl">
-            <div className="w-14 h-14 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
-              <Paperclip className="w-7 h-7 text-muted-foreground/50" />
-            </div>
+            <EmptyMedia illustration="attachment" className="size-16 mx-auto mb-4">
+              <EmptyIllustrationAttachment />
+            </EmptyMedia>
             <p className="text-sm font-medium text-foreground mb-1">No attachments yet</p>
             <p className="text-xs text-muted-foreground mb-4">Upload PDFs, rubrics, or notes for the AI to analyze</p>
             <Button variant="outline" size="sm" onClick={() => setOpen(true)}>

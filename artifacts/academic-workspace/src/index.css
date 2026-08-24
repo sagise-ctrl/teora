@@ -234,6 +234,57 @@
   }
 }
 
+/* Academic Prose Styling — for document preview and outline tabs */
+.prose-academic {
+  font-family: var(--app-font-serif);
+  line-height: 1.8;
+  font-size: 1rem;
+}
+.prose-academic h1,
+.prose-academic h2,
+.prose-academic h3,
+.prose-academic h4 {
+  font-family: var(--app-font-serif);
+  font-weight: 600;
+}
+.prose-academic p {
+  margin-bottom: 1.25em;
+}
+.prose-academic blockquote {
+  border-left: 3px solid hsl(var(--primary));
+  font-style: italic;
+  color: hsl(var(--muted-foreground));
+  padding-left: 1em;
+}
+
+/* Tailwind Typography overrides for academic feel */
+.prose {
+  --tw-prose-body: hsl(var(--foreground));
+  --tw-prose-headings: hsl(var(--primary));
+  --tw-prose-lead: hsl(var(--muted-foreground));
+  --tw-prose-links: hsl(var(--primary));
+  --tw-prose-bold: hsl(var(--foreground));
+  --tw-prose-counters: hsl(var(--muted-foreground));
+  --tw-prose-bullets: hsl(var(--border));
+  --tw-prose-hr: hsl(var(--border));
+  --tw-prose-quotes: hsl(var(--foreground));
+  --tw-prose-quote-borders: hsl(var(--primary));
+  --tw-prose-captions: hsl(var(--muted-foreground));
+  --tw-prose-code: hsl(var(--foreground));
+  --tw-prose-pre-code: hsl(var(--foreground));
+  --tw-prose-pre-bg: hsl(var(--muted));
+  --tw-prose-th-borders: hsl(var(--border));
+  --tw-prose-td-borders: hsl(var(--border));
+  font-family: var(--app-font-serif);
+  line-height: 1.8;
+}
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4 {
+  font-family: var(--app-font-serif);
+}
+
 @layer utilities {
   input[type='search']::-webkit-search-cancel-button {
     @apply hidden;
@@ -245,18 +296,32 @@
   }
 }
 
-/* Custom Scrollbar for Scholarly Vibe */
+/* Custom Focus Rings - Academic brand match */
+*:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  border-radius: calc(var(--radius) - 2px);
+}
+
+/* Custom Scrollbar - Refined for scholarly vibe */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted));
-  border-radius: 4px;
+  background: hsl(var(--border));
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted-foreground));
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* Shimmer animation for skeleton loading */
+@keyframes shimmer {
+  100% {
+    transform: translateX(200%);
+  }
 }

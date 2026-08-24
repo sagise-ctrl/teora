@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { Link } from "wouter"
+import { motion, AnimatePresence } from "framer-motion"
 import { useListProjects, useGetProjectStats } from "../lib/api-client-react"
 import { useAuth } from "@/hooks/use-auth"
 import {
@@ -24,6 +25,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription, EmptyIllustrationPapers } from "@/components/ui/empty"
 import { format } from "date-fns"
 
 function StatusBadge({ status }: { status: string }) {
@@ -129,7 +131,10 @@ function FeatureCard({ card, index }: { card: typeof FEATURE_CARDS[0]; index: nu
   const Icon = card.icon
 
   return (
-    <div className="group relative">
+    <motion.div
+      whileHover={{ y: -2, transition: { type: "spring", stiffness: 400, damping: 25 } }}
+      className="group relative"
+    >
       {/* Gradient border effect on hover */}
       <div className="absolute -inset-[1px] bg-gradient-to-r from-[#2D79FF] via-[#8E54E9] to-[#2D79FF] rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm" />
       <div className="relative bg-card border border-border rounded-xl p-5 hover:border-[#2D79FF]/30 transition-all duration-200">
@@ -160,14 +165,18 @@ function FeatureCard({ card, index }: { card: typeof FEATURE_CARDS[0]; index: nu
         {/* Bottom gradient line */}
         <div className="absolute bottom-0 left-4 right-4 h-[2px] bg-gradient-to-r from-transparent via-[#2D79FF]/0 group-hover:via-[#2D79FF]/50 to-transparent transition-all duration-300" />
       </div>
-    </div>
+    </motion.div>
   )
 }
 
 function ProjectCard({ project }: { project: any }) {
   return (
     <Link href={`/projects/${project.id}`}>
-      <Card className="group cursor-pointer h-full flex flex-col relative overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-[#2D79FF]/30">
+      <motion.div
+        whileHover={{ y: -3, transition: { type: "spring", stiffness: 400, damping: 25 } }}
+        className="group"
+      >
+        <Card className="cursor-pointer h-full flex flex-col relative overflow-hidden transition-all duration-200 hover:shadow-md hover:border-[#2D79FF]/30">
         {/* Left accent border on hover */}
         <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-[#2D79FF] to-[#8E54E9] opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
 
@@ -199,6 +208,7 @@ function ProjectCard({ project }: { project: any }) {
           </div>
         </div>
       </Card>
+      </motion.div>
     </Link>
   )
 }
@@ -235,9 +245,18 @@ export default function Dashboard() {
       <div className="space-y-4">
         <h2 className="text-lg font-serif font-semibold">AI Writing Tools</h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {FEATURE_CARDS.map((card, index) => (
-            <FeatureCard key={card.id} card={card} index={index} />
-          ))}
+          <AnimatePresence initial={false}>
+            {FEATURE_CARDS.map((card, index) => (
+              <motion.div
+                key={card.id}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.06, duration: 0.25, ease: "easeOut" }}
+              >
+                <FeatureCard card={card} index={index} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
       </div>
 
@@ -280,22 +299,24 @@ export default function Dashboard() {
             ))}
           </div>
         ) : projectList.length === 0 ? (
-          <div className="text-center py-16 border-2 border-dashed border-border rounded-xl bg-card/50">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-[#2D79FF]/10 to-[#8E54E9]/10 mb-4">
-              <FileText className="w-7 h-7 text-[#2D79FF]" />
-            </div>
-            <h3 className="text-lg font-medium mb-1">No projects found</h3>
-            <p className="text-muted-foreground text-sm max-w-sm mx-auto mb-4">
-              {search
-                ? "We couldn't find any projects matching your search."
-                : "Get started by creating your first academic writing project."}
-            </p>
+          <Empty>
+            <EmptyMedia illustration="papers">
+              <EmptyIllustrationPapers />
+            </EmptyMedia>
+            <EmptyHeader>
+              <EmptyTitle>No projects found</EmptyTitle>
+              <EmptyDescription>
+                {search
+                  ? "We couldn't find any projects matching your search."
+                  : "Get started by creating your first academic writing project."}
+              </EmptyDescription>
+            </EmptyHeader>
             {!search && (
               <Link href="/projects/new">
                 <Button variant="outline">Create Project</Button>
               </Link>
             )}
-          </div>
+          </Empty>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projectList.map((project) => (
