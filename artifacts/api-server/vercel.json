@@ -1,5 +1,5 @@
 {
   "framework": null,
   "installCommand": "npm install --legacy-peer-deps",
-  "buildCommand": "node ./setup-workspace.mjs && node ./build.mjs && npx tsc --noEmit 2>&1 | grep -v '@workspace' | grep -v 'cannot find' | grep -v 'Module ' || true"
+  "buildCommand": "node ./setup-workspace.mjs && node ./build.mjs && npx tsc -p tsconfig.json --noEmit"
 }

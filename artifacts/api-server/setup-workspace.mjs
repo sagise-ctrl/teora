@@ -16,13 +16,9 @@ const workspaces = [
 
 for (const ws of workspaces) {
   const destDir = resolve(bundledDir, ws.name);
-  if (!existsSync(destDir)) {
-    mkdirSync(destDir, { recursive: true });
-    copyDir(ws.src, destDir);
-    console.log(`Bundled ${ws.name}`);
-  } else {
-    console.log(`Skipped ${ws.name} (already exists)`);
-  }
+  mkdirSync(destDir, { recursive: true });
+  copyDir(ws.src, destDir);
+  console.log(`Bundled ${ws.name}`);
 }
 
 function copyDir(src, dest) {
