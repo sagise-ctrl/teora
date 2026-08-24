@@ -5,7 +5,12 @@
     "tsBuildInfoFile": ".tsbuildinfo",
     "outDir": "dist",
     "rootDir": "src",
-    "types": ["node"]
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@workspace/db": ["./bundled/@workspace/db/index.ts"],
+      "@workspace/api-zod": ["./bundled/@workspace/api-zod/index.ts"]
+    }
   },
   "include": ["src"],
   "exclude": ["src/test"],
