@@ -106,12 +106,14 @@ jobs:
 
       - name: Deploy to Vercel
         run: |
+          echo "Vercel token available: ${{ secrets.VERCEL_TOKEN != '' }}"
           npm install -g vercel
-          # Skip Vercel's build — artifact already built. Override vercel.json in the artifact dir.
+          echo "Vercel CLI version: $(vercel --version)"
+          # Skip Vercel's build — artifact already built
           echo '{"framework":null,"installCommand":":","buildCommand":":"}' > artifacts/api-server/vercel.json
           vercel deploy \
             --token=${{ secrets.VERCEL_TOKEN }} \
-            --project-id=prj_5PlXdG6841wXuah11uY8CdgMNmsn \
+            --project=api-server \
             --yes \
             --cwd=artifacts/api-server
 
@@ -121,4 +123,4 @@ jobs:
           curl -sf --retry 5 --retry-delay 5 \
             --retry-connrefused \
             https://api-server-mocha-eight.vercel.app/api/healthz \
-            || echo "Warning: Health check failed — verify manually in Vercel dashboard"
+            || echo "Warning: Health check failed — verify manually at https://vercel.com/dashboard"
