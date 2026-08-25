@@ -37,14 +37,10 @@ jobs:
           echo "Node version: $(node --version)"
           echo "NPM version: $(npm --version)"
           echo "CWD: $(pwd)"
-          echo "Node modules esbuild: $(ls node_modules/esbuild 2>&1 | head -1)"
-          echo "Root node_modules esbuild: $(ls ../node_modules/esbuild 2>&1 | head -1)"
+          echo "esbuild at root: $(ls ../node_modules/esbuild/package.json 2>&1 | head -1)"
+          echo "esbuild local: $(ls node_modules/esbuild/package.json 2>&1 | head -1)"
           echo ".bundled exists: $(ls -la .bundled 2>&1)"
-          echo "Running setup-workspace..."
-          node ./setup-workspace.mjs 2>&1
-          echo "=== After setup ==="
-          echo ".bundled/@workspace/db: $(ls .bundled/@workspace/db 2>&1 | head -3)"
-          echo ".bundled/@workspace/api-zod: $(ls .bundled/@workspace/api-zod 2>&1 | head -3)"
+          echo ".bundled contents: $(ls .bundled/@workspace/ 2>&1)"
           echo "Running build..."
           node ./build.mjs 2>&1
 
