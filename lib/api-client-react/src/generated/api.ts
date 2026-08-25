@@ -32,6 +32,7 @@ import type {
   CommentInput,
   CommentUpdate,
   CreateShareLinkRequest,
+  CrossRefSearchResponse,
   Document,
   DocumentInput,
   DocumentUpdate,
@@ -71,6 +72,7 @@ import type {
   RegenerateOutlineBody,
   RegisterRequest,
   Rubric,
+  SearchReferencesParams,
   ShareLink,
   SharedProject,
   SubmitQuizRequest,
@@ -199,7 +201,7 @@ export const login = async (loginRequest: LoginRequest, options?: Parameters<typ
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -276,7 +278,7 @@ export const register = async (registerRequest: RegisterRequest, options?: Param
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -734,7 +736,7 @@ export const createProject = async (projectInput: ProjectInput, options?: Parame
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -966,7 +968,7 @@ export const updateProject = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -1263,7 +1265,7 @@ export const sendMessage = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -1418,7 +1420,7 @@ export const createDocument = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -1657,7 +1659,7 @@ export const updateDocument = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -1808,7 +1810,7 @@ export const regenerateOutline = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -1886,7 +1888,7 @@ export const generateDocument = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -2041,7 +2043,7 @@ export const createReference = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -2414,7 +2416,7 @@ export const fetchReferenceMetadata = async (fetchReferenceMetadataRequest: Fetc
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -2475,6 +2477,91 @@ export const useFetchReferenceMetadata = <TError = ErrorType<void>,
       > => {
       return useMutation(getFetchReferenceMetadataMutationOptions(options));
     }
+
+export const getSearchReferencesUrl = (params: SearchReferencesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/references/search?${stringifiedParams}` : `/api/references/search`
+}
+
+/**
+ * Search CrossRef for academic papers by topic, keyword, or title. Returns structured metadata including authors, year, journal, and DOI.
+ * @summary Search academic papers from CrossRef
+ */
+export const searchReferences = async (params: SearchReferencesParams, options?: Parameters<typeof customFetch>[1]): Promise<CrossRefSearchResponse> => {
+
+  return customFetch<CrossRefSearchResponse>(getSearchReferencesUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getSearchReferencesQueryKey = (params?: SearchReferencesParams,) => {
+    return [
+    `/api/references/search`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getSearchReferencesQueryOptions = <TData = Awaited<ReturnType<typeof searchReferences>>, TError = ErrorType<void>>(params: SearchReferencesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof searchReferences>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getSearchReferencesQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof searchReferences>>> = ({ signal }) => searchReferences(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof searchReferences>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type SearchReferencesQueryResult = NonNullable<Awaited<ReturnType<typeof searchReferences>>>
+export type SearchReferencesQueryError = ErrorType<void>
+
+
+/**
+ * @summary Search academic papers from CrossRef
+ */
+
+export function useSearchReferences<TData = Awaited<ReturnType<typeof searchReferences>>, TError = ErrorType<void>>(
+ params: SearchReferencesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof searchReferences>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getSearchReferencesQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getListShareLinksUrl = (projectId: number,) => {
 
@@ -2569,7 +2656,7 @@ export const createShareLink = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -2874,7 +2961,7 @@ export const uploadAttachment = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -3583,7 +3670,7 @@ export const createExport = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -3745,7 +3832,7 @@ export const createComment = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -3825,7 +3912,7 @@ export const updateComment = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -4053,7 +4140,7 @@ export const addMember = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -4133,7 +4220,7 @@ export const updateMember = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -4361,7 +4448,7 @@ export const generateQuiz = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -4598,7 +4685,7 @@ export const submitQuiz = async (quizId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -4837,7 +4924,7 @@ export const generateRubric = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -4917,7 +5004,7 @@ export const updateRubric = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -5144,7 +5231,7 @@ export const updateMyWritingStyle = async (updateMyWritingStyleBody: UpdateMyWri
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -5221,7 +5308,7 @@ export const analyzeMyWritingStyle = async (analyzeStyleRequest: AnalyzeStyleReq
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };
@@ -5376,7 +5463,7 @@ export const analyzeStyle = async (projectId: number,
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
-    if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
     return h;
   };

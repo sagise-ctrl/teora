@@ -597,6 +597,52 @@ export interface FetchedReferenceMetadata {
   source: FetchedReferenceMetadataSource;
 }
 
+export interface CrossRefSearchResult {
+  /**
+     * Digital Object Identifier
+     * @nullable
+     */
+  doi?: string | null;
+  title?: string;
+  /** Formatted author string (e.g., "John Doe, Jane Smith") */
+  authors?: string;
+  /** @nullable */
+  year?: number | null;
+  /**
+     * Journal or publication name
+     * @nullable
+     */
+  journal?: string | null;
+  /** @nullable */
+  volume?: string | null;
+  /** @nullable */
+  issue?: string | null;
+  /** @nullable */
+  url?: string | null;
+  /**
+     * Publication type (e.g., journal-article, book, proceedings-paper)
+     * @nullable
+     */
+  type?: string | null;
+  /** @nullable */
+  publisher?: string | null;
+  /**
+     * Page range (e.g., "123-145")
+     * @nullable
+     */
+  page?: string | null;
+  /** @nullable */
+  abstract?: string | null;
+}
+
+export interface CrossRefSearchResponse {
+  results: CrossRefSearchResult[];
+  /** Total number of results matching the query */
+  totalResults: number;
+  /** The original search query */
+  query: string;
+}
+
 export type ShareLinkAccessMode = typeof ShareLinkAccessMode[keyof typeof ShareLinkAccessMode];
 
 
@@ -1016,6 +1062,23 @@ export const FormatCSLBibliographyFormat = {
   MLA: 'MLA',
   Harvard: 'Harvard',
 } as const;
+
+export type SearchReferencesParams = {
+/**
+ * Search query (minimum 3 characters)
+ * @minLength 3
+ */
+q: string;
+/**
+ * Number of results to return (max 50)
+ * @maximum 50
+ */
+rows?: number;
+/**
+ * Number of results to skip for pagination
+ */
+offset?: number;
+};
 
 export type ListAIUsageParams = {
 /**

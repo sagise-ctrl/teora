@@ -687,6 +687,47 @@ paths:
         "502":
           description: External API unavailable
 
+  /references/search:
+    get:
+      operationId: searchReferences
+      tags: [references]
+      summary: Search academic papers from CrossRef
+      description: Search CrossRef for academic papers by topic, keyword, or title. Returns structured metadata including authors, year, journal, and DOI.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Search query (minimum 3 characters)
+          schema:
+            type: string
+            minLength: 3
+        - name: rows
+          in: query
+          required: false
+          description: Number of results to return (max 50)
+          schema:
+            type: number
+            default: 20
+            maximum: 50
+        - name: offset
+          in: query
+          required: false
+          description: Number of results to skip for pagination
+          schema:
+            type: number
+            default: 0
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrossRefSearchResponse"
+        "400":
+          description: Query too short (minimum 3 characters)
+        "502":
+          description: CrossRef API unavailable
+
   /projects/{projectId}/share:
     get:
       operationId: listShareLinks
@@ -2301,6 +2342,54 @@ components:
         source:
           type: string
           enum: [crossref, openlibrary, manual]
+
+    CrossRefSearchResult:
+      type: object
+      properties:
+        doi:
+          type: ["string", "null"]
+          description: Digital Object Identifier
+        title:
+          type: string
+        authors:
+          type: string
+          description: Formatted author string (e.g., "John Doe, Jane Smith")
+        year:
+          type: ["number", "null"]
+        journal:
+          type: ["string", "null"]
+          description: Journal or publication name
+        volume:
+          type: ["string", "null"]
+        issue:
+          type: ["string", "null"]
+        url:
+          type: ["string", "null"]
+        type:
+          type: ["string", "null"]
+          description: Publication type (e.g., journal-article, book, proceedings-paper)
+        publisher:
+          type: ["string", "null"]
+        page:
+          type: ["string", "null"]
+          description: Page range (e.g., "123-145")
+        abstract:
+          type: ["string", "null"]
+
+    CrossRefSearchResponse:
+      type: object
+      required: [results, totalResults, query]
+      properties:
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/CrossRefSearchResult"
+        totalResults:
+          type: number
+          description: Total number of results matching the query
+        query:
+          type: string
+          description: The original search query
 
     ShareLink:
       type: object

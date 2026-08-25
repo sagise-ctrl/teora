@@ -23,6 +23,7 @@ import { logAIUsage } from "../lib/ai-usage-log.js";
 import { sanitizeUserMessage } from "../lib/prompt-injection.js";
 import { validateReference, validateDOI, validateISBN, formatBibliography, type CitationFormat } from "../lib/citation.js";
 import { fetchMetadata, detectIdentifierType } from "../lib/fetch-reference-metadata.js";
+import { searchCrossRef } from "../lib/crossref-search.js";
 
 const router: IRouter = Router();
 
@@ -344,6 +345,33 @@ router.post("/projects/:projectId/references/regenerate", async (req, res): Prom
   await logActivity(params.data.projectId, "bibliography_regenerated", "Daftar pustaka diperbarui");
 
   res.json({ bibliography: aiResponse });
+});
+
+// GET /references/search
+// Search CrossRef for academic papers by topic
+router.get("/references/search", async (req, res): Promise<void> => {
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const q = (req.query.q as string | undefined)?.trim();
+  if (!q || q.length < 3) {
+    res.status(400).json({ error: "Query must be at least 3 characters" });
+    return;
+  }
+
+  const rows = Math.min(parseInt(req.query.rows as string) || 20, 50);
+  const offset = parseInt(req.query.offset as string) || 0;
+
+  try {
+    const data = await searchCrossRef(q, { rows, offset });
+    res.json(data);
+  } catch (err) {
+    console.error("[CrossRef Search]", err);
+    const message = err instanceof Error ? err.message : "Search failed";
+    res.status(502).json({ error: message });
+  }
 });
 
 // POST /references/fetch-metadata

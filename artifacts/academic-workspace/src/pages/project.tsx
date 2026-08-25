@@ -37,6 +37,7 @@ import {
   useUpdateComment,
   useDeleteComment,
   useGetRubric,
+  useSearchReferences,
   getListQuizzesQueryKey,
   getGetQuizQueryKey,
   getGetLatestDocumentQueryKey,
@@ -48,6 +49,7 @@ import {
   getGetProjectQueryKey,
   getListJobsQueryKey,
   getListShareLinksQueryKey,
+  getSearchReferencesQueryKey,
   type ChatMode,
   type DocumentWithVersions,
   type Quiz,
@@ -56,6 +58,7 @@ import {
   type Comment,
   type QuizSubmission,
   type Rubric,
+  type CrossRefSearchResult,
 } from "../lib/api-client-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
@@ -95,6 +98,8 @@ import {
   CircleDot,
   XCircle,
   CheckCheck,
+  Search,
+  ExternalLink,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -1362,15 +1367,22 @@ function ReferencesTab({ projectId }: { projectId: number }) {
   const deleteRef = useDeleteReference()
   const regenBib = useRegenerateBibliography()
   const fetchMeta = useFetchReferenceMetadata()
+  const searchCrossRef = useSearchReferences(
+    { q: searchQuery },
+    { query: { enabled: false } }
+  )
   const queryClient = useQueryClient()
   const { toast } = useToast()
 
   const [open, setOpen] = useState(false)
   const [mode, setMode] = useState<"manual" | "lookup">("manual")
   const [lookupId, setLookupId] = useState("")
+  const [searchQuery, setSearchQuery] = useState("")
+  const [searchSubmitted, setSearchSubmitted] = useState(false)
   const [formData, setFormData] = useState({
     title: "", authors: "", year: "", journal: "", volume: "", issue: "", doi: ""
   })
+  const [addedDois, setAddedDois] = useState<Set<string>>(new Set())
 
   const handleLookup = () => {
     if (!lookupId.trim()) return
@@ -1443,6 +1455,44 @@ function ReferencesTab({ projectId }: { projectId: number }) {
       onSuccess: () => toast({ title: "Bibliography regenerated" })
     })
   }
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!searchQuery.trim() || searchQuery.trim().length < 3) return
+    setSearchSubmitted(true)
+    searchCrossRef.refetch()
+  }
+
+  const addSearchResult = (result: CrossRefSearchResult) => {
+    if (!result.title) return
+    if (result.doi && addedDois.has(result.doi)) {
+      toast({ title: "Already added", description: "This reference is already in your project." })
+      return
+    }
+    createRef.mutate({
+      projectId,
+      data: {
+        title: result.title,
+        authors: result.authors || undefined,
+        year: result.year ?? undefined,
+        journal: result.journal || undefined,
+        volume: result.volume || undefined,
+        issue: result.issue || undefined,
+        doi: result.doi || undefined,
+      }
+    }, {
+      onSuccess: () => {
+        toast({ title: "Reference added", description: result.title?.slice(0, 50) })
+        if (result.doi) {
+          setAddedDois(prev => new Set(prev).add(result.doi!))
+        }
+        queryClient.invalidateQueries({ queryKey: getListReferencesQueryKey(projectId) })
+      },
+      onError: () => toast({ title: "Failed to add", variant: "destructive" })
+    })
+  }
+
+  const showSearchResults = searchSubmitted && (searchCrossRef.data?.results?.length ?? 0) > 0
 
   return (
     <div className="space-y-6">
@@ -1551,6 +1601,115 @@ function ReferencesTab({ projectId }: { projectId: number }) {
             </DialogContent>
           </Dialog>
         </div>
+      </div>
+
+      {/* Search academic papers */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+            <Search className="w-4 h-4 text-primary" />
+            Search Academic Papers
+          </div>
+          <Badge variant="secondary" className="text-xs">CrossRef</Badge>
+        </div>
+        <form onSubmit={handleSearch} className="flex gap-2">
+          <Input
+            placeholder="Search by topic, title, or author..."
+            value={searchQuery}
+            onChange={e => {
+              setSearchQuery(e.target.value)
+              setAddedDois(prev => {
+                const next = new Set(prev)
+                // Reset added status when query changes
+                return next
+              })
+            }}
+            className="flex-1"
+          />
+          <Button type="submit" variant="secondary" disabled={searchCrossRef.isFetching || searchQuery.trim().length < 3}>
+            {searchCrossRef.isFetching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+          </Button>
+        </form>
+
+        {searchCrossRef.isError && (
+          <p className="text-sm text-destructive">
+            Search failed. Please try again.
+          </p>
+        )}
+
+        {searchSubmitted && !searchCrossRef.isFetching && searchCrossRef.data?.results?.length === 0 && (
+          <p className="text-sm text-muted-foreground py-4 text-center">
+            No papers found for "{searchQuery}". Try different keywords.
+          </p>
+        )}
+
+        {showSearchResults && (
+          <div className="border rounded-lg divide-y bg-card">
+            <div className="px-3 py-2 flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">
+                {searchCrossRef.data?.totalResults?.toLocaleString() ?? 0} results for "{searchQuery}"
+              </span>
+              <span className="text-xs text-muted-foreground">
+                Showing {searchCrossRef.data?.results?.length} papers
+              </span>
+            </div>
+            {searchCrossRef.data?.results?.map((result, i) => {
+              const isAdded = result.doi ? addedDois.has(result.doi) : false
+              const alreadyInProject = references?.some(r => r.doi === result.doi)
+              return (
+                <div key={i} className="px-4 py-3 hover:bg-muted/30 transition-colors flex items-start gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium leading-snug">{result.title}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {result.authors}
+                      {result.year ? ` (${result.year})` : ''}
+                      {result.journal ? ` — ${result.journal}` : ''}
+                      {result.volume ? `, Vol. ${result.volume}` : ''}
+                      {result.issue ? `(${result.issue})` : ''}
+                      {result.page ? `, pp. ${result.page}` : ''}
+                    </p>
+                    {result.doi && (
+                      <p className="text-xs text-primary mt-1 flex items-center gap-1">
+                        DOI: {result.doi}
+                        <a
+                          href={`https://doi.org/${result.doi}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:underline inline-flex items-center gap-0.5"
+                        >
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </p>
+                    )}
+                    {result.type && (
+                      <Badge variant="outline" className="text-xs mt-1.5 font-normal">
+                        {result.type.replace(/-/g, ' ')}
+                      </Badge>
+                    )}
+                  </div>
+                  <Button
+                    size="sm"
+                    variant={alreadyInProject || isAdded ? "outline" : "default"}
+                    onClick={() => addSearchResult(result)}
+                    disabled={createRef.isPending}
+                    className="shrink-0"
+                  >
+                    {createRef.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> :
+                      alreadyInProject || isAdded ? (
+                      <>
+                        <CheckCircle2 className="w-3 h-3 mr-1" /> Added
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-3 h-3 mr-1" /> Add
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
 
       <Card className="bg-card">
