@@ -33,8 +33,20 @@ jobs:
       - name: Build API server
         working-directory: artifacts/api-server
         run: |
-          node ./setup-workspace.mjs
-          node ./build.mjs
+          echo "=== Build debug ==="
+          echo "Node version: $(node --version)"
+          echo "NPM version: $(npm --version)"
+          echo "CWD: $(pwd)"
+          echo "Node modules esbuild: $(ls node_modules/esbuild 2>&1 | head -1)"
+          echo "Root node_modules esbuild: $(ls ../node_modules/esbuild 2>&1 | head -1)"
+          echo ".bundled exists: $(ls -la .bundled 2>&1)"
+          echo "Running setup-workspace..."
+          node ./setup-workspace.mjs 2>&1
+          echo "=== After setup ==="
+          echo ".bundled/@workspace/db: $(ls .bundled/@workspace/db 2>&1 | head -3)"
+          echo ".bundled/@workspace/api-zod: $(ls .bundled/@workspace/api-zod 2>&1 | head -3)"
+          echo "Running build..."
+          node ./build.mjs 2>&1
 
       - name: Prepare deployment package
         run: |
