@@ -22,10 +22,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps
+        run: |
+          node --version
+          npm --version
+          npm install --legacy-peer-deps 2>&1 | tail -5
 
       - name: Setup workspace packages
         run: node ./artifacts/api-server/setup-workspace.mjs
@@ -33,11 +35,25 @@ jobs:
       - name: Build API server
         working-directory: artifacts/api-server
         run: |
-          echo "=== Workspace packages in node_modules ==="
-          ls ../node_modules/@workspace/ 2>&1 || echo "No @workspace in root node_modules"
-          ls node_modules/@workspace/ 2>&1 || echo "No @workspace in local node_modules"
-          echo "=== .bundled/ ==="
-          ls .bundled/@workspace/ 2>&1 || echo "No .bundled/"
+          echo "=== System ==="
+          node --version && npm --version
+          echo "=== Bundled check ==="
+          node -e "
+            const fs=require('fs');
+            const path=require('path');
+            const bundled=path.join('.bundled','@workspace');
+            console.log('cwd:', process.cwd());
+            console.log('.bundled exists:', fs.existsSync('.bundled'));
+            console.log('.bundled/@workspace exists:', fs.existsSync(bundled));
+            if(fs.existsSync(bundled)) {
+              const ws=fs.readdirSync(bundled);
+              console.log('@workspace contents:', ws.join(', '));
+              ws.forEach(p=>{
+                const idx=path.join(bundled,p,'index.ts');
+                console.log(p+'/index.ts:', fs.existsSync(idx)?'EXISTS':'MISSING');
+              });
+            }
+          "
           echo "=== Running build ==="
           node ./build.mjs 2>&1
 
