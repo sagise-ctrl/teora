@@ -20,6 +20,7 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AITiersResponse,
   AIUsageStats,
   Activity,
   AddMemberRequest,
@@ -43,13 +44,19 @@ import type {
   ExportInput,
   FetchReferenceMetadataRequest,
   FetchedReferenceMetadata,
+  FinOpsAdminUsageStats,
+  FinOpsProjectUsageStats,
+  FinOpsUserUsageStats,
   FormatCSLBibliographyParams,
   GenerateDocument202,
   GenerateDocumentBody,
   GenerateQuizRequest,
   GenerateRubricBody,
   GetAIUsageStatsParams,
+  GetAdminUsageStatsParams,
+  GetMyUsageStatsParams,
   HealthStatus,
+  InsufficientBalanceError,
   Job,
   ListAIUsage200,
   ListAIUsageParams,
@@ -74,12 +81,15 @@ import type {
   RegisterRequest,
   Rubric,
   SearchReferencesParams,
+  SetTierPreferenceRequest,
   ShareLink,
   SharedProject,
   SubmitQuizRequest,
+  TierPreferenceResponse,
   UpdateMemberRequest,
   UpdateMyWritingStyleBody,
   UpdateRubricBody,
+  UserBalance,
   WritingStyleProfile
 } from './api.schemas';
 
@@ -1283,7 +1293,7 @@ return customFetch<Message>(getSendMessageUrl(projectId),
 
 
 
-export const getSendMessageMutationOptions = <TError = ErrorType<unknown>,
+export const getSendMessageMutationOptions = <TError = ErrorType<InsufficientBalanceError>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sendMessage>>, TError,{projectId: number;data: BodyType<MessageInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof sendMessage>>, TError,{projectId: number;data: BodyType<MessageInput>}, TContext> => {
 
@@ -1312,12 +1322,12 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type SendMessageMutationResult = NonNullable<Awaited<ReturnType<typeof sendMessage>>>
     export type SendMessageMutationBody = BodyType<MessageInput>
-    export type SendMessageMutationError = ErrorType<unknown>
+    export type SendMessageMutationError = ErrorType<InsufficientBalanceError>
 
     /**
  * @summary Send a message and get AI response
  */
-export const useSendMessage = <TError = ErrorType<unknown>,
+export const useSendMessage = <TError = ErrorType<InsufficientBalanceError>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sendMessage>>, TError,{projectId: number;data: BodyType<MessageInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof sendMessage>>,
@@ -3657,6 +3667,251 @@ export function useGetAIUsageStats<TData = Awaited<ReturnType<typeof getAIUsageS
 
 
 
+export const getGetMyUsageStatsUrl = (params?: GetMyUsageStatsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/users/me/usage?${stringifiedParams}` : `/api/users/me/usage`
+}
+
+/**
+ * @summary Get current user's AI usage statistics
+ */
+export const getMyUsageStats = async (params?: GetMyUsageStatsParams, options?: Parameters<typeof customFetch>[1]): Promise<FinOpsUserUsageStats> => {
+
+  return customFetch<FinOpsUserUsageStats>(getGetMyUsageStatsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMyUsageStatsQueryKey = (params?: GetMyUsageStatsParams,) => {
+    return [
+    `/api/users/me/usage`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetMyUsageStatsQueryOptions = <TData = Awaited<ReturnType<typeof getMyUsageStats>>, TError = ErrorType<void>>(params?: GetMyUsageStatsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyUsageStats>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMyUsageStatsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyUsageStats>>> = ({ signal }) => getMyUsageStats(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMyUsageStats>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMyUsageStatsQueryResult = NonNullable<Awaited<ReturnType<typeof getMyUsageStats>>>
+export type GetMyUsageStatsQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get current user's AI usage statistics
+ */
+
+export function useGetMyUsageStats<TData = Awaited<ReturnType<typeof getMyUsageStats>>, TError = ErrorType<void>>(
+ params?: GetMyUsageStatsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyUsageStats>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMyUsageStatsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetMyProjectUsageStatsUrl = (projectId: number,) => {
+
+
+
+
+  return `/api/users/me/usage/projects/${projectId}`
+}
+
+/**
+ * @summary Get per-project AI usage breakdown for current user
+ */
+export const getMyProjectUsageStats = async (projectId: number, options?: Parameters<typeof customFetch>[1]): Promise<FinOpsProjectUsageStats> => {
+
+  return customFetch<FinOpsProjectUsageStats>(getGetMyProjectUsageStatsUrl(projectId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMyProjectUsageStatsQueryKey = (projectId: number,) => {
+    return [
+    `/api/users/me/usage/projects/${projectId}`
+    ] as const;
+    }
+
+
+export const getGetMyProjectUsageStatsQueryOptions = <TData = Awaited<ReturnType<typeof getMyProjectUsageStats>>, TError = ErrorType<void>>(projectId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyProjectUsageStats>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMyProjectUsageStatsQueryKey(projectId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyProjectUsageStats>>> = ({ signal }) => getMyProjectUsageStats(projectId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: projectId !== null && projectId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMyProjectUsageStats>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMyProjectUsageStatsQueryResult = NonNullable<Awaited<ReturnType<typeof getMyProjectUsageStats>>>
+export type GetMyProjectUsageStatsQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get per-project AI usage breakdown for current user
+ */
+
+export function useGetMyProjectUsageStats<TData = Awaited<ReturnType<typeof getMyProjectUsageStats>>, TError = ErrorType<void>>(
+ projectId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyProjectUsageStats>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMyProjectUsageStatsQueryOptions(projectId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetAdminUsageStatsUrl = (params?: GetAdminUsageStatsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/usage?${stringifiedParams}` : `/api/admin/usage`
+}
+
+/**
+ * @summary Get aggregated AI usage statistics (admin only)
+ */
+export const getAdminUsageStats = async (params?: GetAdminUsageStatsParams, options?: Parameters<typeof customFetch>[1]): Promise<FinOpsAdminUsageStats> => {
+
+  return customFetch<FinOpsAdminUsageStats>(getGetAdminUsageStatsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAdminUsageStatsQueryKey = (params?: GetAdminUsageStatsParams,) => {
+    return [
+    `/api/admin/usage`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetAdminUsageStatsQueryOptions = <TData = Awaited<ReturnType<typeof getAdminUsageStats>>, TError = ErrorType<void>>(params?: GetAdminUsageStatsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminUsageStats>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAdminUsageStatsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAdminUsageStats>>> = ({ signal }) => getAdminUsageStats(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAdminUsageStats>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAdminUsageStatsQueryResult = NonNullable<Awaited<ReturnType<typeof getAdminUsageStats>>>
+export type GetAdminUsageStatsQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get aggregated AI usage statistics (admin only)
+ */
+
+export function useGetAdminUsageStats<TData = Awaited<ReturnType<typeof getAdminUsageStats>>, TError = ErrorType<void>>(
+ params?: GetAdminUsageStatsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminUsageStats>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAdminUsageStatsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
 export const getListExportsUrl = (projectId: number,) => {
 
 
@@ -5603,5 +5858,236 @@ export const useAnalyzeStyle = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getAnalyzeStyleMutationOptions(options));
+    }
+
+export const getGetAITiersUrl = () => {
+
+
+
+
+  return `/api/ai-tiers`
+}
+
+/**
+ * @summary List all active AI tiers (public price list)
+ */
+export const getAITiers = async ( options?: Parameters<typeof customFetch>[1]): Promise<AITiersResponse> => {
+
+  return customFetch<AITiersResponse>(getGetAITiersUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAITiersQueryKey = () => {
+    return [
+    `/api/ai-tiers`
+    ] as const;
+    }
+
+
+export const getGetAITiersQueryOptions = <TData = Awaited<ReturnType<typeof getAITiers>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAITiers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAITiersQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAITiers>>> = ({ signal }) => getAITiers({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAITiers>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAITiersQueryResult = NonNullable<Awaited<ReturnType<typeof getAITiers>>>
+export type GetAITiersQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List all active AI tiers (public price list)
+ */
+
+export function useGetAITiers<TData = Awaited<ReturnType<typeof getAITiers>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAITiers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAITiersQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetMyBalanceUrl = () => {
+
+
+
+
+  return `/api/users/me/balance`
+}
+
+/**
+ * @summary Get current balance and transaction history
+ */
+export const getMyBalance = async ( options?: Parameters<typeof customFetch>[1]): Promise<UserBalance> => {
+
+  return customFetch<UserBalance>(getGetMyBalanceUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMyBalanceQueryKey = () => {
+    return [
+    `/api/users/me/balance`
+    ] as const;
+    }
+
+
+export const getGetMyBalanceQueryOptions = <TData = Awaited<ReturnType<typeof getMyBalance>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyBalance>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMyBalanceQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyBalance>>> = ({ signal }) => getMyBalance({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMyBalance>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMyBalanceQueryResult = NonNullable<Awaited<ReturnType<typeof getMyBalance>>>
+export type GetMyBalanceQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get current balance and transaction history
+ */
+
+export function useGetMyBalance<TData = Awaited<ReturnType<typeof getMyBalance>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyBalance>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMyBalanceQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getSetAITierPreferenceUrl = () => {
+
+
+
+
+  return `/api/users/me/ai-tier-preference`
+}
+
+/**
+ * @summary Set default AI tier preference
+ */
+export const setAITierPreference = async (setTierPreferenceRequest: SetTierPreferenceRequest, options?: Parameters<typeof customFetch>[1]): Promise<TierPreferenceResponse> => {
+
+    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<TierPreferenceResponse>(getSetAITierPreferenceUrl(),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(setTierPreferenceRequest)
+  }
+);}
+
+
+
+
+
+export const getSetAITierPreferenceMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setAITierPreference>>, TError,{data: BodyType<SetTierPreferenceRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof setAITierPreference>>, TError,{data: BodyType<SetTierPreferenceRequest>}, TContext> => {
+
+const mutationKey = ['setAITierPreference'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setAITierPreference>>, {data: BodyType<SetTierPreferenceRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  setAITierPreference(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SetAITierPreferenceMutationResult = NonNullable<Awaited<ReturnType<typeof setAITierPreference>>>
+    export type SetAITierPreferenceMutationBody = BodyType<SetTierPreferenceRequest>
+    export type SetAITierPreferenceMutationError = ErrorType<void>
+
+    /**
+ * @summary Set default AI tier preference
+ */
+export const useSetAITierPreference = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setAITierPreference>>, TError,{data: BodyType<SetTierPreferenceRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof setAITierPreference>>,
+        TError,
+        {data: BodyType<SetTierPreferenceRequest>},
+        TContext
+      > => {
+      return useMutation(getSetAITierPreferenceMutationOptions(options));
     }
 

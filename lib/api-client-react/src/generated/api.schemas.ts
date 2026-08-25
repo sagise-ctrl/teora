@@ -182,6 +182,8 @@ export interface MessageInput {
   /** @minLength 1 */
   content: string;
   mode?: ChatMode;
+  /** AI tier to use (e.g. "free", "standard", "premium"). Defaults to user's preferred tier. */
+  tier?: string;
 }
 
 export interface Document {
@@ -574,11 +576,15 @@ export interface AIUsageLog {
   userId: string;
   /** @nullable */
   projectId?: number | null;
+  /** @nullable */
+  tierId?: string | null;
   model: string;
   provider: string;
   inputTokens: number;
   outputTokens: number;
   estimatedCostUsd: number;
+  /** Cost charged to user in IDR cents */
+  costCents: number;
   requestType: AIUsageLogRequestType;
   metadata?: AIUsageLogMetadata;
   createdAt: string;
@@ -597,6 +603,107 @@ export interface AIUsageStats {
   totalOutputTokens: number;
   totalCostUsd: number;
   byRequestType: AIUsageStatsByRequestType;
+}
+
+export type FinOpsUserUsageStatsByRequestType = {[key: string]: {
+  requests?: number;
+  inputTokens?: number;
+  outputTokens?: number;
+  costUsd?: number;
+}};
+
+export type FinOpsUserUsageStatsByProject = {[key: string]: {
+  requests?: number;
+  inputTokens?: number;
+  outputTokens?: number;
+  costUsd?: number;
+}};
+
+export type FinOpsUserUsageStatsPeriod = typeof FinOpsUserUsageStatsPeriod[keyof typeof FinOpsUserUsageStatsPeriod];
+
+
+export const FinOpsUserUsageStatsPeriod = {
+  '7d': '7d',
+  '30d': '30d',
+  all: 'all',
+} as const;
+
+export interface FinOpsUserUsageStats {
+  totalRequests: number;
+  totalInputTokens: number;
+  totalOutputTokens: number;
+  totalCostUsd: number;
+  byRequestType: FinOpsUserUsageStatsByRequestType;
+  byProject: FinOpsUserUsageStatsByProject;
+  period: FinOpsUserUsageStatsPeriod;
+}
+
+export type FinOpsProjectUsageStatsByRequestType = {[key: string]: {
+  requests?: number;
+  inputTokens?: number;
+  outputTokens?: number;
+  costUsd?: number;
+}};
+
+export interface FinOpsProjectUsageStats {
+  projectId: number;
+  totalRequests: number;
+  totalInputTokens: number;
+  totalOutputTokens: number;
+  totalCostUsd: number;
+  byRequestType: FinOpsProjectUsageStatsByRequestType;
+}
+
+export type FinOpsAdminUsageStatsPeriod = typeof FinOpsAdminUsageStatsPeriod[keyof typeof FinOpsAdminUsageStatsPeriod];
+
+
+export const FinOpsAdminUsageStatsPeriod = {
+  '7d': '7d',
+  '30d': '30d',
+  all: 'all',
+} as const;
+
+export type FinOpsAdminUsageStatsPerUserItem = {
+  userId?: string;
+  email?: string;
+  totalRequests?: number;
+  totalInputTokens?: number;
+  totalOutputTokens?: number;
+  totalCostUsd?: number;
+};
+
+export type FinOpsAdminUsageStatsPerProviderItem = {
+  provider?: string;
+  totalRequests?: number;
+  totalInputTokens?: number;
+  totalOutputTokens?: number;
+  totalCostUsd?: number;
+};
+
+export type FinOpsAdminUsageStatsTopUsersBySpendItem = {
+  userId?: string;
+  email?: string;
+  totalCostUsd?: number;
+};
+
+export type FinOpsAdminUsageStatsDailyTotalsItem = {
+  date?: string;
+  totalRequests?: number;
+  totalInputTokens?: number;
+  totalOutputTokens?: number;
+  totalCostUsd?: number;
+};
+
+export interface FinOpsAdminUsageStats {
+  period: FinOpsAdminUsageStatsPeriod;
+  totalRequests?: number;
+  totalInputTokens?: number;
+  totalOutputTokens?: number;
+  totalCostUsd?: number;
+  perUser: FinOpsAdminUsageStatsPerUserItem[];
+  perProvider: FinOpsAdminUsageStatsPerProviderItem[];
+  topUsersBySpend: FinOpsAdminUsageStatsTopUsersBySpendItem[];
+  dailyTotals: FinOpsAdminUsageStatsDailyTotalsItem[];
 }
 
 export interface FetchReferenceMetadataRequest {
@@ -1057,6 +1164,86 @@ export interface AnalyzeStyleRequest {
   projectId?: number;
 }
 
+export interface AITier {
+  id?: string;
+  name?: string;
+  provider?: string;
+  model?: string;
+  /** Price per 1M input tokens in IDR cents */
+  pricePer1MInputCents?: number;
+  /** Price per 1M output tokens in IDR cents */
+  pricePer1MOutputCents?: number;
+  providerCostPer1MInputCents?: number;
+  providerCostPer1MOutputCents?: number;
+  /**
+     * Requests per minute limit
+     * @nullable
+     */
+  rateLimitRpm?: number | null;
+  /**
+     * Tokens per day limit
+     * @nullable
+     */
+  rateLimitTpd?: number | null;
+  isFree?: boolean;
+  description?: string;
+  /** @nullable */
+  usageTips?: string | null;
+  /** Human-readable rate limit string */
+  rateLimit?: string;
+  /** Human-readable price */
+  priceDisplay?: string;
+}
+
+export interface AITiersResponse {
+  tiers?: AITier[];
+}
+
+export type TokenTransactionType = typeof TokenTransactionType[keyof typeof TokenTransactionType];
+
+
+export const TokenTransactionType = {
+  topup: 'topup',
+  ai_usage: 'ai_usage',
+  refund: 'refund',
+  bonus: 'bonus',
+  adjustment: 'adjustment',
+} as const;
+
+export interface TokenTransaction {
+  id?: string;
+  type?: TokenTransactionType;
+  amountCents?: number;
+  amountDisplay?: string;
+  balanceAfterCents?: number;
+  balanceAfterDisplay?: string;
+  description?: string;
+  createdAt?: string;
+}
+
+export interface UserBalance {
+  balanceCents?: number;
+  balanceDisplay?: string;
+  /** @nullable */
+  preferredTierId?: string | null;
+  recentTransactions?: TokenTransaction[];
+}
+
+export interface SetTierPreferenceRequest {
+  tierId: string;
+}
+
+export interface TierPreferenceResponse {
+  preferredTierId?: string;
+}
+
+export interface InsufficientBalanceError {
+  error?: string;
+  balanceCents?: number;
+  costCents?: number;
+  tierName?: string;
+}
+
 export type ListProjectsParams = {
 status?: string;
 search?: string;
@@ -1144,6 +1331,38 @@ export type GetAIUsageStatsParams = {
 userId?: string;
 projectId?: number;
 };
+
+export type GetMyUsageStatsParams = {
+/**
+ * Time period filter
+ */
+period?: GetMyUsageStatsPeriod;
+};
+
+export type GetMyUsageStatsPeriod = typeof GetMyUsageStatsPeriod[keyof typeof GetMyUsageStatsPeriod];
+
+
+export const GetMyUsageStatsPeriod = {
+  '7d': '7d',
+  '30d': '30d',
+  all: 'all',
+} as const;
+
+export type GetAdminUsageStatsParams = {
+/**
+ * Time period filter
+ */
+period?: GetAdminUsageStatsPeriod;
+};
+
+export type GetAdminUsageStatsPeriod = typeof GetAdminUsageStatsPeriod[keyof typeof GetAdminUsageStatsPeriod];
+
+
+export const GetAdminUsageStatsPeriod = {
+  '7d': '7d',
+  '30d': '30d',
+  all: 'all',
+} as const;
 
 export type GenerateRubricBody = {
   manualNotes?: string;

@@ -12,6 +12,7 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./users";
 import { projectsTable } from "./projects";
+import { aiTiersTable } from "./ai_tiers";
 
 /**
  * Tracks every AI API request for FinOps (cost attribution, token budgeting).
@@ -30,12 +31,18 @@ export const aiUsageLogTable = pgTable(
       onDelete: "set null",
     }),
 
+    tierId: text("tier_id")
+      .references(() => aiTiersTable.id, { onDelete: "set null" }),
+
     model: text("model").notNull(),
-    provider: text("provider").notNull().default("openai"),
+    provider: text("provider").notNull(),
 
     inputTokens: integer("input_tokens").notNull().default(0),
     outputTokens: integer("output_tokens").notNull().default(0),
     estimatedCostUsd: real("estimated_cost_usd").notNull().default(0),
+
+    // Cost charged to user in IDR cents
+    costCents: integer("cost_cents").notNull().default(0),
 
     requestType: text("request_type").notNull(),
 
@@ -49,6 +56,7 @@ export const aiUsageLogTable = pgTable(
     index("idx_ai_usage_user_created").on(table.userId, table.createdAt),
     index("idx_ai_usage_project").on(table.projectId),
     index("idx_ai_usage_type").on(table.requestType),
+    index("idx_ai_usage_tier").on(table.tierId),
   ]
 );
 

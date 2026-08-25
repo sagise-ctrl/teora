@@ -18,6 +18,11 @@ import projectMembersRouter from "./project-members.js";
 import quizzesRouter from "./quizzes.js";
 import rubricsRouter from "./rubrics.js";
 import writingStyleRouter from "./writing-style.js";
+import aiTiersRouter from "./ai-tiers.js";
+import balanceRouter from "./balance.js";
+import profileRouter from "./profile.js";
+import accountReferencesRouter from "./account-references.js";
+import usageRouter from "./usage.js";
 
 const router: IRouter = Router();
 
@@ -25,11 +30,14 @@ router.use(healthRouter);
 router.use(authRouter);
 // Public endpoint — no auth required for shared project access
 router.use(sharedRouter);
+// Public — price list
+router.use(aiTiersRouter);
 router.use(authMiddleware);
 router.use(projectsRouter);
 router.use(messagesRouter);
 router.use(documentsRouter);
 router.use(referencesRouter);
+router.use(accountReferencesRouter);
 router.use(attachmentsRouter);
 router.use(activitiesRouter);
 router.use(jobsRouter);
@@ -41,5 +49,7 @@ router.use(projectMembersRouter);
 router.use(quizzesRouter);
 router.use(rubricsRouter);
 router.use(writingStyleRouter);
+router.use(balanceRouter);
+router.use(usageRouter);
 
 export default router;

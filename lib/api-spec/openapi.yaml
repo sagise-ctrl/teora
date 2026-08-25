@@ -32,14 +32,22 @@ tags:
     description: Project metadata
   - name: ai-usage
     description: AI usage tracking (FinOps)
+  - name: finops
+    description: FinOps usage analytics (user and admin)
   - name: comments
     description: Inline comments on documents
   - name: members
     description: Project collaborators and roles
   - name: quizzes
     description: AI-generated quizzes and assessments
+  - name: profile
+    description: User profile management
   - name: style-profile
     description: Writing style analysis
+  - name: templates
+    description: Document templates
+  - name: account-references
+    description: Global Reference Library — account-level personal reference pool
 paths:
   # ── Auth ──────────────────────────────────────────────────────────────────
   /auth/me:
@@ -323,6 +331,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
+        "402":
+          description: Insufficient balance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InsufficientBalanceError"
 
   # ── Documents ─────────────────────────────────────────────────────────────
   /projects/{projectId}/documents:
@@ -1088,6 +1102,77 @@ paths:
         "401":
           description: Unauthorized
 
+  # ── FinOps: User Usage ───────────────────────────────────────────────────
+  /users/me/usage:
+    get:
+      operationId: getMyUsageStats
+      tags: [finops]
+      summary: Get current user's AI usage statistics
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [7d, 30d, all]
+            default: all
+          description: Time period filter
+      responses:
+        "200":
+          description: User usage stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FinOpsUserUsageStats"
+        "401":
+          description: Unauthorized
+
+  /users/me/usage/projects/{projectId}:
+    get:
+      operationId: getMyProjectUsageStats
+      tags: [finops]
+      summary: Get per-project AI usage breakdown for current user
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Project usage stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FinOpsProjectUsageStats"
+        "401":
+          description: Unauthorized
+
+  # ── FinOps: Admin ──────────────────────────────────────────────────────────
+  /admin/usage:
+    get:
+      operationId: getAdminUsageStats
+      tags: [finops]
+      summary: Get aggregated AI usage statistics (admin only)
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [7d, 30d, all]
+            default: all
+          description: Time period filter
+      responses:
+        "200":
+          description: Admin usage stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FinOpsAdminUsageStats"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Admin access required
+
   # ── Exports ───────────────────────────────────────────────────────────────
   /projects/{projectId}/exports:
     get:
@@ -1677,6 +1762,431 @@ paths:
               schema:
                 $ref: "#/components/schemas/WritingStyleProfile"
 
+  # ── AI Tiers (Public) ────────────────────────────────────────────────────
+  /ai-tiers:
+    get:
+      operationId: getAITiers
+      tags: [ai-usage]
+      summary: List all active AI tiers (public price list)
+      responses:
+        "200":
+          description: List of available AI tiers
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AITiersResponse"
+
+  # ── Balance & Tier Preference ───────────────────────────────────────────
+  /users/me/balance:
+    get:
+      operationId: getMyBalance
+      tags: [ai-usage]
+      summary: Get current balance and transaction history
+      responses:
+        "200":
+          description: User balance and recent transactions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserBalance"
+        "401":
+          description: Unauthorized
+
+  /users/me/ai-tier-preference:
+    put:
+      operationId: setAITierPreference
+      tags: [ai-usage]
+      summary: Set default AI tier preference
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetTierPreferenceRequest"
+      responses:
+        "200":
+          description: Preference updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TierPreferenceResponse"
+        "401":
+          description: Unauthorized
+        "400":
+          description: Invalid tier ID
+
+  # ── User Profile ─────────────────────────────────────────────────────────
+  /users/me/profile:
+    get:
+      operationId: getMyProfile
+      tags: [profile]
+      summary: Get current user's public profile
+      description: Returns display name, avatar URL, email, and account info.
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        "401":
+          description: Unauthorized
+    patch:
+      operationId: updateMyProfile
+      tags: [profile]
+      summary: Update current user's profile
+      description: Update display name and/or avatar URL.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProfileRequest"
+      responses:
+        "200":
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        "401":
+          description: Unauthorized
+        "400":
+          description: Invalid input
+
+  /users/me/avatar:
+    post:
+      operationId: uploadMyAvatar
+      tags: [profile]
+      summary: Upload avatar image
+      description: Upload a profile picture to Supabase Storage. Accepts JPEG, PNG, or WebP up to 5MB.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AvatarUploadRequest"
+      responses:
+        "200":
+          description: Avatar uploaded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AvatarUploadResponse"
+        "401":
+          description: Unauthorized
+        "400":
+          description: Invalid file type or size
+
+  /users/me/account:
+    delete:
+      operationId: deleteMyAccount
+      tags: [profile]
+      summary: Delete current user account
+      description: Permanently deletes the user account and all associated data. Requires password confirmation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeleteAccountRequest"
+      responses:
+        "200":
+          description: Account deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteAccountResponse"
+        "401":
+          description: Unauthorized or invalid password
+        "400":
+          description: Invalid request
+        "500":
+          description: Server error
+
+  # ── Document Templates ───────────────────────────────────────────────────
+  /templates:
+    get:
+      operationId: listTemplates
+      tags: [templates]
+      summary: List document templates
+      description: Returns the user's own templates plus all public system templates.
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Templates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DocumentTemplate"
+        "401":
+          description: Unauthorized
+    post:
+      operationId: createTemplate
+      tags: [templates]
+      summary: Create a new document template
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DocumentTemplateInput"
+      responses:
+        "201":
+          description: Created template
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentTemplate"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+
+  /templates/categories:
+    get:
+      operationId: listTemplateCategories
+      tags: [templates]
+      summary: List available template categories
+      responses:
+        "200":
+          description: Categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+
+  /templates/{templateId}:
+    get:
+      operationId: getTemplate
+      tags: [templates]
+      summary: Get a template by ID
+      parameters:
+        - name: templateId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Template
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentTemplate"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateTemplate
+      tags: [templates]
+      summary: Update a template
+      description: Only the template owner can update. System templates are read-only.
+      parameters:
+        - name: templateId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DocumentTemplateUpdate"
+      responses:
+        "200":
+          description: Updated template
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentTemplate"
+        "403":
+          description: Forbidden — cannot modify system templates or templates you do not own
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteTemplate
+      tags: [templates]
+      summary: Delete a template
+      description: Only the template owner can delete. System templates cannot be deleted.
+      parameters:
+        - name: templateId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+
+  # ── Account References (Global Reference Library) ──────────────────────────
+  /account/references:
+    get:
+      operationId: listAccountReferences
+      tags: [account-references]
+      summary: List account-level references
+      description: Returns all references in the authenticated user's personal reference pool.
+      responses:
+        "200":
+          description: Account references
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AccountReference"
+        "401":
+          description: Unauthorized
+    post:
+      operationId: createAccountReference
+      tags: [account-references]
+      summary: Add reference to personal pool
+      description: Adds a new reference to the user's account-level library. Duplicate DOIs are rejected.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountReferenceInput"
+      responses:
+        "201":
+          description: Created reference
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountReference"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+        "409":
+          description: Reference with this DOI already exists
+
+  /account/references/import:
+    post:
+      operationId: importAccountReferences
+      tags: [account-references]
+      summary: Bulk import references from DOIs
+      description: Fetches metadata from CrossRef for each DOI and adds valid references to the account library. Skips duplicates.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImportAccountReferencesRequest"
+      responses:
+        "201":
+          description: Import results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportAccountReferencesResponse"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+
+  /account/references/{id}:
+    put:
+      operationId: updateAccountReference
+      tags: [account-references]
+      summary: Update an account reference
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountReferenceInput"
+      responses:
+        "200":
+          description: Updated reference
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountReference"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+        "404":
+          description: Reference not found
+        "409":
+          description: Reference with this DOI already exists
+    delete:
+      operationId: deleteAccountReference
+      tags: [account-references]
+      summary: Delete an account reference
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+        "401":
+          description: Unauthorized
+        "404":
+          description: Reference not found
+
+  /account/references/{id}/assign:
+    post:
+      operationId: assignAccountReference
+      tags: [account-references]
+      summary: Assign account reference to a project
+      description: Copies an account-level reference into a project's reference pool.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [projectId]
+              properties:
+                projectId:
+                  type: number
+      responses:
+        "201":
+          description: Reference added to project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reference"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+        "404":
+          description: Account reference not found
+        "409":
+          description: Reference already exists in the project
+
 components:
   schemas:
     # ── Auth ─────────────────────────────────────────────────────────────────
@@ -1863,6 +2373,10 @@ components:
         mode:
           $ref: "#/components/schemas/ChatMode"
           default: revise
+        tier:
+          type: string
+          description: AI tier to use (e.g. "free", "standard", "premium"). Defaults to user's preferred tier.
+          example: "standard"
 
     # ── Document ─────────────────────────────────────────────────────────────────
     Document:
@@ -2305,7 +2819,7 @@ components:
     # ── AI Usage ──────────────────────────────────────────────────────────────
     AIUsageLog:
       type: object
-      required: [id, userId, model, provider, inputTokens, outputTokens, estimatedCostUsd, requestType, createdAt]
+      required: [id, userId, model, provider, inputTokens, outputTokens, estimatedCostUsd, costCents, requestType, createdAt]
       properties:
         id:
           type: number
@@ -2313,18 +2827,24 @@ components:
           type: string
         projectId:
           type: ["number", "null"]
+        tierId:
+          type: ["string", "null"]
+          example: "free"
         model:
           type: string
-          example: "claude-sonnet-4-20250514"
+          example: "llama-3.1-8b-instant"
         provider:
           type: string
-          example: "anthropic"
+          example: "groq"
         inputTokens:
           type: number
         outputTokens:
           type: number
         estimatedCostUsd:
           type: number
+        costCents:
+          type: integer
+          description: Cost charged to user in IDR cents
         requestType:
           type: string
           enum: [chat, analyze, outline, write, export, bibliography, quiz, style]
@@ -2360,6 +2880,151 @@ components:
               outputTokens:
                 type: number
               costUsd:
+                type: number
+
+    FinOpsUserUsageStats:
+      type: object
+      required: [totalRequests, totalInputTokens, totalOutputTokens, totalCostUsd, byRequestType, byProject, period]
+      properties:
+        totalRequests:
+          type: number
+        totalInputTokens:
+          type: number
+        totalOutputTokens:
+          type: number
+        totalCostUsd:
+          type: number
+        byRequestType:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              requests:
+                type: number
+              inputTokens:
+                type: number
+              outputTokens:
+                type: number
+              costUsd:
+                type: number
+        byProject:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              requests:
+                type: number
+              inputTokens:
+                type: number
+              outputTokens:
+                type: number
+              costUsd:
+                type: number
+        period:
+          type: string
+          enum: [7d, 30d, all]
+
+    FinOpsProjectUsageStats:
+      type: object
+      required: [projectId, totalRequests, totalInputTokens, totalOutputTokens, totalCostUsd, byRequestType]
+      properties:
+        projectId:
+          type: number
+        totalRequests:
+          type: number
+        totalInputTokens:
+          type: number
+        totalOutputTokens:
+          type: number
+        totalCostUsd:
+          type: number
+        byRequestType:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              requests:
+                type: number
+              inputTokens:
+                type: number
+              outputTokens:
+                type: number
+              costUsd:
+                type: number
+
+    FinOpsAdminUsageStats:
+      type: object
+      required: [period, perUser, perProvider, topUsersBySpend, dailyTotals]
+      properties:
+        period:
+          type: string
+          enum: [7d, 30d, all]
+        totalRequests:
+          type: number
+        totalInputTokens:
+          type: number
+        totalOutputTokens:
+          type: number
+        totalCostUsd:
+          type: number
+        perUser:
+          type: array
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+              email:
+                type: string
+              totalRequests:
+                type: number
+              totalInputTokens:
+                type: number
+              totalOutputTokens:
+                type: number
+              totalCostUsd:
+                type: number
+        perProvider:
+          type: array
+          items:
+            type: object
+            properties:
+              provider:
+                type: string
+              totalRequests:
+                type: number
+              totalInputTokens:
+                type: number
+              totalOutputTokens:
+                type: number
+              totalCostUsd:
+                type: number
+        topUsersBySpend:
+          type: array
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+              email:
+                type: string
+              totalCostUsd:
+                type: number
+        dailyTotals:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              totalRequests:
+                type: number
+              totalInputTokens:
+                type: number
+              totalOutputTokens:
+                type: number
+              totalCostUsd:
                 type: number
 
     # ── Share Link ────────────────────────────────────────────────────────────
@@ -2879,4 +3544,301 @@ components:
         projectId:
           type: number
           description: Optional project scope for this analysis
+
+    # ── AI Tiers & Credit ──────────────────────────────────────────────────────
+    AITier:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "free"
+        name:
+          type: string
+          example: "Gratis"
+        provider:
+          type: string
+          example: "groq"
+        model:
+          type: string
+          example: "llama-3.1-8b-instant"
+        pricePer1MInputCents:
+          type: integer
+          description: Price per 1M input tokens in IDR cents
+        pricePer1MOutputCents:
+          type: integer
+          description: Price per 1M output tokens in IDR cents
+        providerCostPer1MInputCents:
+          type: integer
+        providerCostPer1MOutputCents:
+          type: integer
+        rateLimitRpm:
+          type: ["integer", "null"]
+          description: Requests per minute limit
+        rateLimitTpd:
+          type: ["integer", "null"]
+          description: Tokens per day limit
+        isFree:
+          type: boolean
+        description:
+          type: string
+        usageTips:
+          type: ["string", "null"]
+        rateLimit:
+          type: string
+          description: Human-readable rate limit string
+        priceDisplay:
+          type: string
+          description: Human-readable price
+
+    AITiersResponse:
+      type: object
+      properties:
+        tiers:
+          type: array
+          items:
+            $ref: "#/components/schemas/AITier"
+
+    UserBalance:
+      type: object
+      properties:
+        balanceCents:
+          type: integer
+        balanceDisplay:
+          type: string
+          example: "Rp 5.000"
+        preferredTierId:
+          type: ["string", "null"]
+        recentTransactions:
+          type: array
+          items:
+            $ref: "#/components/schemas/TokenTransaction"
+
+    TokenTransaction:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [topup, ai_usage, refund, bonus, adjustment]
+        amountCents:
+          type: integer
+        amountDisplay:
+          type: string
+        balanceAfterCents:
+          type: integer
+        balanceAfterDisplay:
+          type: string
+        description:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    SetTierPreferenceRequest:
+      type: object
+      required: [tierId]
+      properties:
+        tierId:
+          type: string
+          example: "standard"
+
+    TierPreferenceResponse:
+      type: object
+      properties:
+        preferredTierId:
+          type: string
+
+    InsufficientBalanceError:
+      type: object
+      properties:
+        error:
+          type: string
+        balanceCents:
+          type: integer
+        costCents:
+          type: integer
+        tierName:
+          type: string
+
+    # ── User Profile ────────────────────────────────────────────────────────────
+    UserProfile:
+      type: object
+      required: [id, email, displayName, avatarUrl, isOwner, createdAt]
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        displayName:
+          type: ["string", "null"]
+        avatarUrl:
+          type: ["string", "null"]
+        isOwner:
+          type: boolean
+        referralCode:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 100
+        avatarUrl:
+          type: string
+          format: uri
+
+    AvatarUploadRequest:
+      type: object
+      required: [base64Content, filename]
+      properties:
+        base64Content:
+          type: string
+          description: Base64-encoded image content (max 5MB, JPEG/PNG/WebP)
+        filename:
+          type: string
+          description: Original filename (e.g. "avatar.jpg")
+
+    AvatarUploadResponse:
+      type: object
+      required: [avatarUrl]
+      properties:
+        avatarUrl:
+          type: string
+          format: uri
+          description: Public URL of the uploaded avatar
+
+    DeleteAccountRequest:
+      type: object
+      required: [password]
+      properties:
+        password:
+          type: string
+          description: User's current password to confirm deletion
+
+    DeleteAccountResponse:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+
+    # ── Account References ───────────────────────────────────────────────────────
+    AccountReference:
+      type: object
+      required: [id, userId, title, createdAt]
+      properties:
+        id:
+          type: number
+        userId:
+          type: string
+        title:
+          type: string
+        authors:
+          type: ["string", "null"]
+        year:
+          type: ["number", "null"]
+        journal:
+          type: ["string", "null"]
+        volume:
+          type: ["string", "null"]
+        issue:
+          type: ["string", "null"]
+        doi:
+          type: ["string", "null"]
+        url:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        isSuggested:
+          type: boolean
+          description: Whether this reference was auto-suggested by CrossRef
+        source:
+          type: string
+          enum: [manual, crossref, file]
+          description: Source of the reference
+
+    AccountReferenceInput:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+          minLength: 1
+        authors:
+          type: string
+        year:
+          type: number
+        journal:
+          type: string
+        volume:
+          type: string
+        issue:
+          type: string
+        doi:
+          type: string
+        url:
+          type: string
+        isSuggested:
+          type: boolean
+          default: false
+          description: Whether this reference was auto-suggested by CrossRef
+        source:
+          type: string
+          enum: [manual, crossref, file]
+          default: manual
+          description: Source of the reference
+
+    ImportAccountReferencesRequest:
+      type: object
+      required: [dois]
+      properties:
+        dois:
+          type: array
+          description: Array of DOI strings to import (max 50)
+          items:
+            type: string
+          minItems: 1
+          maxItems: 50
+
+    ImportAccountReferencesResponse:
+      type: object
+      required: [imported, summary]
+      properties:
+        imported:
+          type: array
+          items:
+            $ref: "#/components/schemas/AccountReference"
+        skipped:
+          type: array
+          description: DOIs that were already in the user's library
+          items:
+            type: string
+        failed:
+          type: array
+          description: DOIs that failed to import
+          items:
+            type: object
+            properties:
+              doi:
+                type: string
+              error:
+                type: string
+        summary:
+          type: object
+          properties:
+            total:
+              type: number
+            imported:
+              type: number
+            skipped:
+              type: number
+            failed:
+              type: number
 

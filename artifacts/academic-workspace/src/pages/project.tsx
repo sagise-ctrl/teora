@@ -50,6 +50,8 @@ import {
   getListJobsQueryKey,
   getListShareLinksQueryKey,
   getSearchReferencesQueryKey,
+  useGetAITiers,
+  useGetMyBalance,
   type ChatMode,
   type DocumentWithVersions,
   type Quiz,
@@ -101,6 +103,7 @@ import {
   Search,
   ExternalLink,
   Download,
+  Zap,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -1225,10 +1228,29 @@ function ChatTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosure:
   const sendMessage = useSendMessage()
   const queryClient = useQueryClient()
   const { toast } = useToast()
+  const { data: tiersData } = useGetAITiers()
+  const { data: balanceData } = useGetMyBalance()
 
   const [content, setContent] = useState("")
   const [mode, setMode] = useState<ChatMode>("revise")
+  const [selectedTierId, setSelectedTierId] = useState<string>("")
   const scrollRef = useRef<HTMLDivElement>(null)
+
+  // Set default tier from user's preference
+  useEffect(() => {
+    if (tiersData?.tiers && tiersData.tiers.length > 0 && !selectedTierId) {
+      const preferred = tiersData.tiers.find(t => t.id === balanceData?.preferredTierId)
+      if (preferred) {
+        setSelectedTierId(preferred.id!)
+      } else {
+        // Default to first available tier
+        setSelectedTierId(tiersData.tiers[0].id!)
+      }
+    }
+  }, [tiersData, balanceData, selectedTierId])
+
+  const selectedTier = tiersData?.tiers?.find(t => t.id === selectedTierId)
+  const isFreeTier = selectedTier?.isFree || selectedTier?.priceDisplay === "Rp 0" || !selectedTier?.pricePer1MInputCents
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -1245,7 +1267,7 @@ function ChatTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosure:
 
     sendMessage.mutate({
       projectId,
-      data: { content: messageContent, mode }
+      data: { content: messageContent, mode, tier: selectedTierId || undefined }
     }, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getListMessagesQueryKey(projectId) })
@@ -1346,6 +1368,64 @@ function ChatTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosure:
             </button>
           ))}
         </div>
+
+        {/* Tier selector + Balance indicator */}
+        <div className="flex items-center justify-between gap-3 mb-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-3.5 h-3.5 text-muted-foreground" />
+            {tiersData?.tiers && tiersData.tiers.length > 0 ? (
+              <Select value={selectedTierId} onValueChange={setSelectedTierId}>
+                <SelectTrigger className="h-7 w-[140px] text-xs bg-muted/50 border-border/50">
+                  <SelectValue placeholder="Pilih tier" />
+                </SelectTrigger>
+                <SelectContent>
+                  {tiersData.tiers.map((tier) => (
+                    <SelectItem
+                      key={tier.id}
+                      value={tier.id!}
+                      className="text-xs"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span>{tier.name}</span>
+                        {tier.isFree && (
+                          <Badge variant="secondary" className="text-[9px] px-1 py-0 bg-green-100 text-green-700 border-0">
+                            FREE
+                          </Badge>
+                        )}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <Skeleton className="h-7 w-[140px]" />
+            )}
+          </div>
+
+          {/* Balance + tier info */}
+          <div className="flex items-center gap-3 text-[11px]">
+            {selectedTier && (
+              <span className="text-muted-foreground">
+                {isFreeTier ? (
+                  <span className="flex items-center gap-1 text-green-600 font-medium">
+                    <Zap className="w-3 h-3" />
+                    Gratis
+                  </span>
+                ) : (
+                  <span>
+                    ~{selectedTier.priceDisplay ?? "—"}/1M tokens
+                  </span>
+                )}
+              </span>
+            )}
+            {balanceData && (
+              <span className="text-muted-foreground font-mono">
+                Saldo: {balanceData.balanceDisplay}
+              </span>
+            )}
+          </div>
+        </div>
+
         <form onSubmit={handleSend} className="flex gap-3">
           <Input
             value={content}

@@ -8,20 +8,17 @@ import {
   History,
   PlusCircle,
   LogOut,
-  User,
   Settings,
-  Copy,
-  Check,
-  Share2,
   TrendingUp,
   Coins,
   Gift,
   Activity,
   Shield,
+  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useGetMyBalance } from "@/lib/api-client-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,7 +28,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { TeoraLogo } from "@/components/brand/teora-logo";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface NavItemProps {
   href: string;
@@ -70,6 +69,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
   const [copied, setCopied] = useState(false);
 
+  const { data: balanceData, isLoading: balanceLoading } = useGetMyBalance();
+
   const initials = user?.displayName
     ? user.displayName
         .split(" ")
@@ -103,10 +104,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     }
   }
 
-  // Placeholder token balance - would come from API in real implementation
-  const tokenBalance = 850;
-  const tokenLimit = 1000;
-  const tokenPercent = Math.round((tokenBalance / tokenLimit) * 100);
+  const balanceCents = balanceData?.balanceCents ?? 0;
+  const balanceDisplay = balanceData?.balanceDisplay ?? "Rp 0";
 
   return (
     <div className="flex min-h-[100dvh] w-full bg-background text-foreground">
@@ -176,10 +175,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               active={location === "/finops"}
             />
             <NavItem
-              href="/referral"
-              icon={Gift}
-              label="Referral & Pricing"
-              active={location === "/referral"}
+              href="/ai-pricing"
+              icon={Zap}
+              label="AI Pricing"
+              active={location === "/ai-pricing"}
             />
             <NavItem
               href="/status"
@@ -198,38 +197,36 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
         {/* Credits & Settings Section */}
         <div className="p-3 border-t border-border space-y-3">
-          {/* Upgrade Credits Button */}
-          <Link href="/referral">
+          {/* Topup Credits Button */}
+          <Link href="/ai-pricing">
             <Button
               className="w-full bg-gradient-to-r from-[#2D79FF] to-[#8E54E9] hover:opacity-90 text-white shadow-sm"
             >
               <PlusCircle className="w-4 h-4 mr-2" />
-              Upgrade Credits
+              Topup Credits
             </Button>
           </Link>
 
-          {/* Token Balance */}
-          <Link href="/finops">
+          {/* Balance Display */}
+          <Link href="/topup">
             <div className="bg-sidebar-accent/50 rounded-lg p-3 space-y-2 hover:bg-sidebar-accent transition-colors cursor-pointer">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Coins className="w-4 h-4 text-[#2D79FF]" />
                   <span className="text-xs font-medium text-sidebar-foreground">
-                    Token Balance
+                    Saldo
                   </span>
                 </div>
-                <span className="text-xs font-mono font-semibold text-sidebar-foreground">
-                  {tokenBalance.toLocaleString()}
-                </span>
-              </div>
-              <div className="h-1.5 bg-sidebar-accent rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-[#2D79FF] to-[#8E54E9] rounded-full transition-all"
-                  style={{ width: `${tokenPercent}%` }}
-                />
+                {balanceLoading ? (
+                  <Skeleton className="h-3 w-16" />
+                ) : (
+                  <span className="text-xs font-mono font-semibold text-sidebar-foreground">
+                    {balanceDisplay}
+                  </span>
+                )}
               </div>
               <p className="text-[10px] text-sidebar-foreground/60">
-                {tokenPercent}% used · resets in 14 days
+                Klik untuk topup saldo
               </p>
             </div>
           </Link>

@@ -310,7 +310,8 @@ export const sendMessageBodyModeDefault = `revise`;
 
 export const SendMessageBody = zod.object({
   "content": zod.string().min(1),
-  "mode": zod.enum(['generate', 'revise', 'reflect', 'socratic', 'quiz', 'summary']).default(sendMessageBodyModeDefault).describe('AI writing assistant mode')
+  "mode": zod.enum(['generate', 'revise', 'reflect', 'socratic', 'quiz', 'summary']).default(sendMessageBodyModeDefault).describe('AI writing assistant mode'),
+  "tier": zod.string().optional().describe('AI tier to use (e.g. \"free\", \"standard\", \"premium\"). Defaults to user\'s preferred tier.')
 })
 
 export const SendMessageResponse = zod.object({
@@ -520,7 +521,9 @@ export const ListReferencesResponseItem = zod.object({
   "url": zod.string().nullish(),
   "validationStatus": zod.enum(['unverified', 'verified', 'invalid']),
   "usedInChapters": zod.string().nullish(),
-  "createdAt": zod.coerce.date()
+  "createdAt": zod.coerce.date(),
+  "isSuggested": zod.boolean().optional().describe('Whether this reference was auto-suggested by CrossRef'),
+  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference')
 })
 export const ListReferencesResponse = zod.array(ListReferencesResponseItem)
 
@@ -533,7 +536,8 @@ export const CreateReferenceParams = zod.object({
 })
 
 
-
+export const createReferenceBodyIsSuggestedDefault = false;
+export const createReferenceBodySourceDefault = `manual`;
 
 export const CreateReferenceBody = zod.object({
   "title": zod.string().min(1),
@@ -543,7 +547,9 @@ export const CreateReferenceBody = zod.object({
   "volume": zod.string().optional(),
   "issue": zod.string().optional(),
   "doi": zod.string().optional(),
-  "url": zod.string().optional()
+  "url": zod.string().optional(),
+  "isSuggested": zod.boolean().default(createReferenceBodyIsSuggestedDefault).describe('Whether this reference was auto-suggested by CrossRef search'),
+  "source": zod.enum(['manual', 'crossref', 'file']).default(createReferenceBodySourceDefault).describe('Source of the reference')
 })
 
 export const CreateReferenceResponse = zod.object({
@@ -559,8 +565,60 @@ export const CreateReferenceResponse = zod.object({
   "url": zod.string().nullish(),
   "validationStatus": zod.enum(['unverified', 'verified', 'invalid']),
   "usedInChapters": zod.string().nullish(),
-  "createdAt": zod.coerce.date()
+  "createdAt": zod.coerce.date(),
+  "isSuggested": zod.boolean().optional().describe('Whether this reference was auto-suggested by CrossRef'),
+  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference')
 })
+
+
+/**
+ * Useful for bulk-adding auto-suggested references or batch import. Skips references with duplicate DOIs.
+ * @summary Add multiple references at once
+ */
+export const BulkAddReferencesParams = zod.object({
+  "projectId": zod.coerce.number()
+})
+
+
+export const bulkAddReferencesBodyReferencesItemIsSuggestedDefault = false;
+export const bulkAddReferencesBodyReferencesItemSourceDefault = `manual`;
+export const bulkAddReferencesBodyReferencesMax = 100;
+
+
+
+export const BulkAddReferencesBody = zod.object({
+  "references": zod.array(zod.object({
+  "title": zod.string().min(1),
+  "authors": zod.string().optional(),
+  "year": zod.number().optional(),
+  "journal": zod.string().optional(),
+  "volume": zod.string().optional(),
+  "issue": zod.string().optional(),
+  "doi": zod.string().optional(),
+  "url": zod.string().optional(),
+  "isSuggested": zod.boolean().default(bulkAddReferencesBodyReferencesItemIsSuggestedDefault).describe('Whether this reference was auto-suggested by CrossRef search'),
+  "source": zod.enum(['manual', 'crossref', 'file']).default(bulkAddReferencesBodyReferencesItemSourceDefault).describe('Source of the reference')
+})).max(bulkAddReferencesBodyReferencesMax)
+})
+
+export const BulkAddReferencesResponseItem = zod.object({
+  "id": zod.number(),
+  "projectId": zod.number(),
+  "title": zod.string(),
+  "authors": zod.string().nullish(),
+  "year": zod.number().nullish(),
+  "journal": zod.string().nullish(),
+  "volume": zod.string().nullish(),
+  "issue": zod.string().nullish(),
+  "doi": zod.string().nullish(),
+  "url": zod.string().nullish(),
+  "validationStatus": zod.enum(['unverified', 'verified', 'invalid']),
+  "usedInChapters": zod.string().nullish(),
+  "createdAt": zod.coerce.date(),
+  "isSuggested": zod.boolean().optional().describe('Whether this reference was auto-suggested by CrossRef'),
+  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference')
+})
+export const BulkAddReferencesResponse = zod.array(BulkAddReferencesResponseItem)
 
 
 /**
@@ -913,11 +971,13 @@ export const ListAIUsageResponse = zod.object({
   "id": zod.number(),
   "userId": zod.string(),
   "projectId": zod.number().nullish(),
+  "tierId": zod.string().nullish(),
   "model": zod.string(),
   "provider": zod.string(),
   "inputTokens": zod.number(),
   "outputTokens": zod.number(),
   "estimatedCostUsd": zod.number(),
+  "costCents": zod.int().describe('Cost charged to user in IDR cents'),
   "requestType": zod.enum(['chat', 'analyze', 'outline', 'write', 'export', 'bibliography', 'quiz', 'style']),
   "metadata": zod.record(zod.string(), zod.unknown()).nullish(),
   "createdAt": zod.coerce.date()
@@ -944,6 +1004,103 @@ export const GetAIUsageStatsResponse = zod.object({
   "inputTokens": zod.number().optional(),
   "outputTokens": zod.number().optional(),
   "costUsd": zod.number().optional()
+}))
+})
+
+
+/**
+ * @summary Get current user's AI usage statistics
+ */
+export const getMyUsageStatsQueryPeriodDefault = `all`;
+
+export const GetMyUsageStatsQueryParams = zod.object({
+  "period": zod.enum(['7d', '30d', 'all']).default(getMyUsageStatsQueryPeriodDefault).describe('Time period filter')
+})
+
+export const GetMyUsageStatsResponse = zod.object({
+  "totalRequests": zod.number(),
+  "totalInputTokens": zod.number(),
+  "totalOutputTokens": zod.number(),
+  "totalCostUsd": zod.number(),
+  "byRequestType": zod.record(zod.string(), zod.object({
+  "requests": zod.number().optional(),
+  "inputTokens": zod.number().optional(),
+  "outputTokens": zod.number().optional(),
+  "costUsd": zod.number().optional()
+})),
+  "byProject": zod.record(zod.string(), zod.object({
+  "requests": zod.number().optional(),
+  "inputTokens": zod.number().optional(),
+  "outputTokens": zod.number().optional(),
+  "costUsd": zod.number().optional()
+})),
+  "period": zod.enum(['7d', '30d', 'all'])
+})
+
+
+/**
+ * @summary Get per-project AI usage breakdown for current user
+ */
+export const GetMyProjectUsageStatsParams = zod.object({
+  "projectId": zod.coerce.number()
+})
+
+export const GetMyProjectUsageStatsResponse = zod.object({
+  "projectId": zod.number(),
+  "totalRequests": zod.number(),
+  "totalInputTokens": zod.number(),
+  "totalOutputTokens": zod.number(),
+  "totalCostUsd": zod.number(),
+  "byRequestType": zod.record(zod.string(), zod.object({
+  "requests": zod.number().optional(),
+  "inputTokens": zod.number().optional(),
+  "outputTokens": zod.number().optional(),
+  "costUsd": zod.number().optional()
+}))
+})
+
+
+/**
+ * @summary Get aggregated AI usage statistics (admin only)
+ */
+export const getAdminUsageStatsQueryPeriodDefault = `all`;
+
+export const GetAdminUsageStatsQueryParams = zod.object({
+  "period": zod.enum(['7d', '30d', 'all']).default(getAdminUsageStatsQueryPeriodDefault).describe('Time period filter')
+})
+
+export const GetAdminUsageStatsResponse = zod.object({
+  "period": zod.enum(['7d', '30d', 'all']),
+  "totalRequests": zod.number().optional(),
+  "totalInputTokens": zod.number().optional(),
+  "totalOutputTokens": zod.number().optional(),
+  "totalCostUsd": zod.number().optional(),
+  "perUser": zod.array(zod.object({
+  "userId": zod.string().optional(),
+  "email": zod.string().optional(),
+  "totalRequests": zod.number().optional(),
+  "totalInputTokens": zod.number().optional(),
+  "totalOutputTokens": zod.number().optional(),
+  "totalCostUsd": zod.number().optional()
+})),
+  "perProvider": zod.array(zod.object({
+  "provider": zod.string().optional(),
+  "totalRequests": zod.number().optional(),
+  "totalInputTokens": zod.number().optional(),
+  "totalOutputTokens": zod.number().optional(),
+  "totalCostUsd": zod.number().optional()
+})),
+  "topUsersBySpend": zod.array(zod.object({
+  "userId": zod.string().optional(),
+  "email": zod.string().optional(),
+  "totalCostUsd": zod.number().optional()
+})),
+  "dailyTotals": zod.array(zod.object({
+  "date": zod.coerce.date().optional(),
+  "totalRequests": zod.number().optional(),
+  "totalInputTokens": zod.number().optional(),
+  "totalOutputTokens": zod.number().optional(),
+  "totalCostUsd": zod.number().optional()
 }))
 })
 
@@ -1744,4 +1901,60 @@ export const AnalyzeStyleResponse = zod.object({
   "sampleSize": zod.number(),
   "analyzedAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary List all active AI tiers (public price list)
+ */
+export const GetAITiersResponse = zod.object({
+  "tiers": zod.array(zod.object({
+  "id": zod.string().optional(),
+  "name": zod.string().optional(),
+  "provider": zod.string().optional(),
+  "model": zod.string().optional(),
+  "pricePer1MInputCents": zod.int().optional().describe('Price per 1M input tokens in IDR cents'),
+  "pricePer1MOutputCents": zod.int().optional().describe('Price per 1M output tokens in IDR cents'),
+  "providerCostPer1MInputCents": zod.int().optional(),
+  "providerCostPer1MOutputCents": zod.int().optional(),
+  "rateLimitRpm": zod.int().nullish().describe('Requests per minute limit'),
+  "rateLimitTpd": zod.int().nullish().describe('Tokens per day limit'),
+  "isFree": zod.boolean().optional(),
+  "description": zod.string().optional(),
+  "usageTips": zod.string().nullish(),
+  "rateLimit": zod.string().optional().describe('Human-readable rate limit string'),
+  "priceDisplay": zod.string().optional().describe('Human-readable price')
+})).optional()
+})
+
+
+/**
+ * @summary Get current balance and transaction history
+ */
+export const GetMyBalanceResponse = zod.object({
+  "balanceCents": zod.int().optional(),
+  "balanceDisplay": zod.string().optional(),
+  "preferredTierId": zod.string().nullish(),
+  "recentTransactions": zod.array(zod.object({
+  "id": zod.string().optional(),
+  "type": zod.enum(['topup', 'ai_usage', 'refund', 'bonus', 'adjustment']).optional(),
+  "amountCents": zod.int().optional(),
+  "amountDisplay": zod.string().optional(),
+  "balanceAfterCents": zod.int().optional(),
+  "balanceAfterDisplay": zod.string().optional(),
+  "description": zod.string().optional(),
+  "createdAt": zod.coerce.date().optional()
+})).optional()
+})
+
+
+/**
+ * @summary Set default AI tier preference
+ */
+export const SetAITierPreferenceBody = zod.object({
+  "tierId": zod.string()
+})
+
+export const SetAITierPreferenceResponse = zod.object({
+  "preferredTierId": zod.string().optional()
 })

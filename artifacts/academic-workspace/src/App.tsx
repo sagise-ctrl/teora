@@ -14,6 +14,8 @@ import Register from "@/pages/register";
 import Confirm from "@/pages/confirm";
 import FinOps from "@/pages/finops";
 import Referral from "@/pages/referral";
+import AIPricing from "@/pages/ai-pricing";
+import Topup from "@/pages/topup";
 import Terms from "@/pages/terms";
 import Privacy from "@/pages/privacy";
 import Monitoring from "@/pages/monitoring";
@@ -83,6 +85,20 @@ function AppRouter() {
         <ProtectedRoute>
           <Layout>
             <AnimatedPage><Referral /></AnimatedPage>
+          </Layout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/ai-pricing">
+        <ProtectedRoute>
+          <Layout>
+            <AnimatedPage><AIPricing /></AnimatedPage>
+          </Layout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/topup">
+        <ProtectedRoute>
+          <Layout>
+            <AnimatedPage><Topup /></AnimatedPage>
           </Layout>
         </ProtectedRoute>
       </Route>
