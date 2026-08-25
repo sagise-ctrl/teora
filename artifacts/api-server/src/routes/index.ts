@@ -23,6 +23,7 @@ import balanceRouter from "./balance.js";
 import profileRouter from "./profile.js";
 import accountReferencesRouter from "./account-references.js";
 import usageRouter from "./usage.js";
+import documentTemplatesRouter from "./document-templates.js";
 import adminAiTiersRouter from "./admin-ai-tiers.js";
 
 const router: IRouter = Router();
@@ -52,6 +53,7 @@ router.use(rubricsRouter);
 router.use(writingStyleRouter);
 router.use(balanceRouter);
 router.use(usageRouter);
+router.use(documentTemplatesRouter);
 router.use(adminAiTiersRouter);
 
 export default router;

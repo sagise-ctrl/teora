@@ -116,26 +116,29 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <TeoraLogo size="sm" />
         </div>
 
-        {/* User Profile Section */}
+        {/* User Profile Section — clickable to /profile */}
         <div className="p-4 border-b border-border/50">
-          <div className="flex items-center gap-3">
-            <Avatar className="w-10 h-10 border-2 border-primary/20">
-              <AvatarFallback className="text-sm bg-gradient-to-br from-[#2D79FF]/20 to-[#8E54E9]/20 text-primary font-semibold">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate text-sidebar-foreground">
-                {user?.displayName ?? user?.email ?? "User"}
-              </p>
-              <Badge
-                variant="secondary"
-                className="text-[10px] px-1.5 py-0 h-4 bg-gradient-to-r from-[#2D79FF]/10 to-[#8E54E9]/10 text-[#2D79FF] border-0 font-medium"
-              >
-                Premium Plan
-              </Badge>
+          <Link href="/profile">
+            <div className="flex items-center gap-3 hover:bg-sidebar-accent -m-2 p-2 rounded-md cursor-pointer transition-colors">
+              <Avatar className="w-10 h-10 border-2 border-primary/20">
+                <AvatarImage src={user?.avatarUrl ?? undefined} alt={user?.displayName ?? user?.email ?? "User"} />
+                <AvatarFallback className="text-sm bg-gradient-to-br from-[#2D79FF]/20 to-[#8E54E9]/20 text-primary font-semibold">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate text-sidebar-foreground">
+                  {user?.displayName ?? user?.email ?? "User"}
+                </p>
+                <Badge
+                  variant="secondary"
+                  className="text-[10px] px-1.5 py-0 h-4 bg-gradient-to-r from-[#2D79FF]/10 to-[#8E54E9]/10 text-[#2D79FF] border-0 font-medium"
+                >
+                  Premium Plan
+                </Badge>
+              </div>
             </div>
-          </div>
+          </Link>
         </div>
 
         {/* Navigation */}

@@ -20,6 +20,7 @@ import Terms from "@/pages/terms";
 import Privacy from "@/pages/privacy";
 import Monitoring from "@/pages/monitoring";
 import Admin from "@/pages/admin";
+import Profile from "@/pages/profile";
 import SharedProject from "@/pages/shared";
 import Layout from "@/components/layout";
 
@@ -109,6 +110,13 @@ function AppRouter() {
         <ProtectedRoute>
           <Layout>
             <AnimatedPage><Admin /></AnimatedPage>
+          </Layout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/profile">
+        <ProtectedRoute>
+          <Layout>
+            <AnimatedPage><Profile /></AnimatedPage>
           </Layout>
         </ProtectedRoute>
       </Route>
