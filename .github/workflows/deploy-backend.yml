@@ -30,20 +30,35 @@ jobs:
           npm install --legacy-peer-deps 2>&1 | tail -5
 
       - name: Setup workspace packages
-        run: node ./artifacts/api-server/setup-workspace.mjs
+        working-directory: artifacts/api-server
+        run: node ./setup-workspace.mjs
 
       - name: Build API server
         working-directory: artifacts/api-server
-        env:
-          NODE_PATH: ${{ github.workspace }}/node_modules
         run: |
-          echo "=== Environment ==="
-          echo "NODE_PATH=$NODE_PATH"
-          echo "workspace packages:"
-          ls $NODE_PATH/@workspace/ 2>&1
-          echo "=== Bundled check ==="
-          ls .bundled/@workspace/ 2>&1 || echo "No .bundled/"
-          echo "=== Build ==="
+          echo "=== .bundled/ check ==="
+          ls .bundled/@workspace/ 2>&1 || echo "NO .bundled/"
+          echo "=== Testing esbuild WITHOUT workspace plugin ==="
+          node -e "
+            import('esbuild').then(async ({build})=>{
+              try {
+                await build({
+                  entryPoints:['api/_handler.ts'],
+                  platform:'node',
+                  bundle:true,
+                  format:'esm',
+                  outdir:'api',
+                  outExtension:{'*.js':'.mjs'},
+                  logLevel:'info',
+                  external:['@vercel/node','*.node','pg','zod','drizzle-orm','drizzle-zod'],
+                });
+                console.log('esbuild OK');
+              } catch(e) {
+                console.error('esbuild FAIL:', e.message);
+              }
+            });
+          " 2>&1 | head -20
+          echo "=== Running full build ==="
           node ./build.mjs 2>&1
 
       - name: Prepare deployment package
