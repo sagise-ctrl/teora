@@ -92,6 +92,8 @@ Document
 | Comments | SECTION | Inline comments scoped to active section |
 | **Document Template** | ACCOUNT | Saved outline structures reusable across projects. User can create custom templates (Skripsi, Proposal, Laporan) and reuse them when starting new projects. |
 | Compile/Merge | PROJECT | Combine all sections into final output (PDF, DOCX, Markdown) |
+| **Export DOCX** | PROJECT | Generate downloadable Word document from compiled sections |
+| **Export PDF** | PROJECT | Generate downloadable PDF from compiled sections (background job) |
 
 ---
 
@@ -123,6 +125,7 @@ Document
 | Reference Validation | SECTION | Validate completeness per citation format |
 | Bibliography Generator | SECTION | Format references into citation styles (APA, IEEE, Vancouver, Chicago, MLA, Harvard) |
 | **Reference AI Chat** | REFERENCE | Context-aware chat about references and citation formats |
+| **Zotero Sync** | ACCOUNT | Sync references with Zotero library (import/export) |
 
 ---
 
@@ -219,14 +222,18 @@ Section Tag (assign to specific chapter)
 - F3 Section References — currently project-level, needs section scoping
 - F3 Section AI Chat — currently project-level, needs section-aware context
 - F5 Search References — exists as DOI/ISBN lookup, needs full internet search
+- F3 Export DOCX — not implemented
+- F3 Export PDF — not implemented
+- F7 AI Usage Dashboard UI — table exists, UI not built
 
 ### ❌ Not Implemented
 - F1 Global Reference Library — no account-level library page
 - F3 Document Template — no template save/load
 - F5 Search References (internet) — no academic paper search
+- F5 Zotero Sync — no Zotero integration
 - F6 Project Members (invite collaborator)
 - F6 Notifications system
-- F7 AI Usage Dashboard UI, FinOps Admin
+- F7 FinOps Admin Dashboard — owner cost dashboard not built
 
 ---
 
@@ -235,7 +242,8 @@ Section Tag (assign to specific chapter)
 | # | Question | Options |
 |---|----------|---------|
 | 1 | Reference Search engine | CrossRef Search API (free, reliable) or Semantic Scholar (more powerful) |
-| 2 | Implementation start | Database migration first, or full feature implementation (database + UI) |
+| 2 | PDF Export method | Puppeteer/Chromium (free, self-hosted) or external API (ConvertAPI/Docify — paid, faster) |
+| 3 | Implementation start | Database migration first, or full feature implementation (database + UI) |
 
 ---
 
