@@ -279,6 +279,17 @@ paths:
           required: true
           schema:
             type: number
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tier:
+                  type: string
+                  description: AI tier to use (e.g. "free", "standard", "premium"). Defaults to user's preferred tier.
+                  example: "standard"
       responses:
         "202":
           description: Analysis started
@@ -502,6 +513,10 @@ paths:
                 userOutline:
                   type: string
                   description: Optional user-modified outline to refine
+                tier:
+                  type: string
+                  description: AI tier to use (e.g. "free", "standard", "premium"). Defaults to user's preferred tier.
+                  example: "standard"
       responses:
         "200":
           description: New outline
@@ -534,6 +549,10 @@ paths:
                 documentId:
                   type: number
                   description: Target document ID (optional, uses active document if omitted)
+                tier:
+                  type: string
+                  description: AI tier to use (e.g. "free", "standard", "premium"). Defaults to user's preferred tier.
+                  example: "standard"
       responses:
         "202":
           description: Document generation started
@@ -651,6 +670,17 @@ paths:
           required: true
           schema:
             type: number
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tier:
+                  type: string
+                  description: AI tier to use (e.g. "free", "standard", "premium"). Defaults to user's preferred tier.
+                  example: "standard"
       responses:
         "200":
           description: Updated bibliography text
@@ -1600,6 +1630,10 @@ paths:
               properties:
                 manualNotes:
                   type: string
+                tier:
+                  type: string
+                  description: AI tier to use (e.g. "free", "standard", "premium"). Defaults to user's preferred tier.
+                  example: "standard"
       responses:
         "201":
           description: Rubric created
@@ -1706,7 +1740,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AnalyzeStyleRequest"
+              allOf:
+                - $ref: "#/components/schemas/AnalyzeStyleRequest"
+                - type: object
+                  properties:
+                    tier:
+                      type: string
+                      description: AI tier to use (e.g. "free", "standard", "premium"). Defaults to user's preferred tier.
+                      example: "standard"
       responses:
         "201":
           description: Analysis complete
@@ -3472,6 +3513,10 @@ components:
           type: boolean
           default: false
           description: Include correct answers in quiz (teachers only)
+        tier:
+          type: string
+          description: AI tier to use (e.g. "free", "standard", "premium"). Defaults to user's preferred tier.
+          example: "standard"
 
     QuizSubmission:
       type: object

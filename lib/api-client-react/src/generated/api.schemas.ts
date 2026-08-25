@@ -1062,6 +1062,8 @@ export interface GenerateQuizRequest {
   difficulty?: GenerateQuizRequestDifficulty;
   /** Include correct answers in quiz (teachers only) */
   includeAnswers?: boolean;
+  /** AI tier to use (e.g. "free", "standard", "premium"). Defaults to user's preferred tier. */
+  tier?: string;
 }
 
 export type QuizSubmissionResponsesItem = {
@@ -1472,11 +1474,18 @@ status?: string;
 search?: string;
 };
 
+export type AnalyzeProjectBody = {
+  /** AI tier to use (e.g. "free", "standard", "premium"). Defaults to user's preferred tier. */
+  tier?: string;
+};
+
 export type RegenerateOutlineBody = {
   /** Target document ID (optional, uses active document) */
   documentId?: number;
   /** Optional user-modified outline to refine */
   userOutline?: string;
+  /** AI tier to use (e.g. "free", "standard", "premium"). Defaults to user's preferred tier. */
+  tier?: string;
 };
 
 export type RegenerateOutline200 = {
@@ -1486,11 +1495,18 @@ export type RegenerateOutline200 = {
 export type GenerateDocumentBody = {
   /** Target document ID (optional, uses active document if omitted) */
   documentId?: number;
+  /** AI tier to use (e.g. "free", "standard", "premium"). Defaults to user's preferred tier. */
+  tier?: string;
 };
 
 export type GenerateDocument202 = {
   jobId?: number;
   status?: string;
+};
+
+export type RegenerateBibliographyBody = {
+  /** AI tier to use (e.g. "free", "standard", "premium"). Defaults to user's preferred tier. */
+  tier?: string;
 };
 
 export type FormatCSLBibliographyParams = {
@@ -1589,6 +1605,8 @@ export const GetAdminUsageStatsPeriod = {
 
 export type GenerateRubricBody = {
   manualNotes?: string;
+  /** AI tier to use (e.g. "free", "standard", "premium"). Defaults to user's preferred tier. */
+  tier?: string;
 };
 
 export type UpdateRubricBody = {
@@ -1637,6 +1655,11 @@ export type UpdateMyWritingStyleBodyStyleCharacteristics = {
 
 export type UpdateMyWritingStyleBody = {
   styleCharacteristics?: UpdateMyWritingStyleBodyStyleCharacteristics;
+};
+
+export type AnalyzeMyWritingStyleBody = AnalyzeStyleRequest & {
+  /** AI tier to use (e.g. "free", "standard", "premium"). Defaults to user's preferred tier. */
+  tier?: string;
 };
 
 export type GetAdminAITiers200 = {

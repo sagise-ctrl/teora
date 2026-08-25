@@ -1,9 +1,11 @@
 import { Router, type IRouter } from "express";
 import { eq, desc } from "drizzle-orm";
-import { db, rubricsTable, quizzesTable } from "@workspace/db";
+import { db, rubricsTable, quizzesTable, projectsTable } from "@workspace/db";
 import { requireProjectOwnership } from "../lib/ownership.js";
 import { rubricCriterionSchema } from "@workspace/db";
-import { callAI } from "../lib/ai.js";
+import { callAI, getTierConfig, getTierForUser } from "../lib/ai.js";
+import { logAIUsage } from "../lib/ai-usage-log.js";
+import { checkCreditBalance, deductCredit } from "../lib/credit.js";
 import { z } from "zod/v4";
 
 const router: IRouter = Router();
@@ -63,7 +65,43 @@ router.post("/projects/:projectId/quizzes/:quizId/rubric", async (req, res): Pro
   const ok = await requireProjectOwnership(quiz.projectId, req.user.id, res);
   if (!ok) return;
 
-  const { manualNotes } = req.body as { manualNotes?: string };
+  const { manualNotes, tier: requestedTier } = req.body as { manualNotes?: string; tier?: string };
+
+  // Resolve tier from request or user's preferred
+  const [project] = await db
+    .select()
+    .from(projectsTable)
+    .where(eq(projectsTable.id, quiz.projectId));
+  if (!project) {
+    res.status(404).json({ error: "Project not found" });
+    return;
+  }
+  const selectedTier = requestedTier
+    ? await getTierConfig(requestedTier)
+    : await getTierForUser(project.userId, null);
+
+  if (!selectedTier) {
+    res.status(400).json({ error: "Tier tidak valid" });
+    return;
+  }
+
+  // Pre-check credit for paid tiers
+  if (!selectedTier.isFree) {
+    const estimatedCostCents = Math.max(
+      100,
+      selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents,
+    );
+    const creditCheck = await checkCreditBalance(project.userId, estimatedCostCents, false);
+    if (!creditCheck.allowed) {
+      res.status(402).json({
+        error: creditCheck.reason,
+        balanceCents: creditCheck.balanceCents,
+        costCents: creditCheck.costCents,
+        tierName: selectedTier.name,
+      });
+      return;
+    }
+  }
 
   // Build AI prompt to generate rubric criteria from quiz questions
   const questions = quiz.questions as Array<{ id: string; text: string; type: string; points?: number }>;
@@ -96,9 +134,28 @@ Return ONLY valid JSON:
 IMPORTANT: Return ONLY the JSON, no markdown code blocks.`;
 
   try {
-    const aiResult = await callAI([{ role: "user", content: prompt }], "quiz");
+    const aiResult = await callAI([{ role: "user", content: prompt }], selectedTier.id);
     const parsed = JSON.parse(aiResult.content);
     const criteria = (parsed.criteria ?? []).map((c: unknown) => rubricCriterionSchema.parse(c));
+
+    const usageLog = await logAIUsage({
+      userId: project.userId,
+      projectId: quiz.projectId,
+      requestType: "rubric",
+      usage: aiResult.usage,
+      tierConfig: aiResult.tierConfig,
+    });
+
+    if (!selectedTier.isFree && aiResult.usage.costCents > 0) {
+      await deductCredit({
+        userId: project.userId,
+        costCents: aiResult.usage.costCents,
+        tierIsFree: false,
+        tierId: selectedTier.id,
+        aiUsageLogId: usageLog?.id,
+        description: `AI rubric — ${selectedTier.name} tier`,
+      });
+    }
 
     const [rubric] = await db
       .insert(rubricsTable)

@@ -16,12 +16,13 @@ import {
   FormatCSLBibliographyParams,
   FormatCSLBibliographyQueryParams,
   BulkAddReferencesParams,
-  BulkAddReferencesRequest,
+  BulkAddReferencesBody,
 } from "@workspace/api-zod";
-import { callAI, buildSystemPrompt } from "../lib/ai.js";
+import { callAI, buildSystemPrompt, getTierConfig, getTierForUser } from "../lib/ai.js";
 import { logActivity } from "../lib/activity.js";
 import { requireProjectOwnership } from "../lib/ownership.js";
 import { logAIUsage } from "../lib/ai-usage-log.js";
+import { checkCreditBalance, deductCredit } from "../lib/credit.js";
 import { sanitizeUserMessage } from "../lib/prompt-injection.js";
 import { validateReference, validateDOI, validateISBN, formatBibliography, type CitationFormat } from "../lib/citation.js";
 import { fetchMetadata, detectIdentifierType } from "../lib/fetch-reference-metadata.js";
@@ -170,7 +171,7 @@ router.post("/projects/:projectId/references/bulk", async (req, res): Promise<vo
   const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
   if (!ok) return;
 
-  const parsed = BulkAddReferencesRequest.safeParse(req.body);
+  const parsed = BulkAddReferencesBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
@@ -401,6 +402,45 @@ router.post("/projects/:projectId/references/regenerate", async (req, res): Prom
     .from(projectsTable)
     .where(eq(projectsTable.id, params.data.projectId));
 
+  if (!project) {
+    res.status(404).json({ error: "Project not found" });
+    return;
+  }
+
+  // Resolve tier from request or user's preferred
+  const requestedTier = typeof req.body?.tier === "string" ? req.body.tier : null;
+  const selectedTier = requestedTier
+    ? await getTierConfig(requestedTier)
+    : await getTierForUser(project.userId, null);
+
+  if (!selectedTier) {
+    res.status(400).json({ error: "Tier tidak valid" });
+    return;
+  }
+
+  // Pre-check credit for paid tiers
+  if (!selectedTier.isFree) {
+    const estimatedCostCents = Math.max(
+      100,
+      selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents,
+    );
+    const creditCheck = await checkCreditBalance(project.userId, estimatedCostCents, false);
+    if (!creditCheck.allowed) {
+      res.status(402).json({
+        error: creditCheck.reason,
+        balanceCents: creditCheck.balanceCents,
+        costCents: creditCheck.costCents,
+        tierName: selectedTier.name,
+      });
+      return;
+    }
+  }
+
+  const [project2] = await db
+    .select()
+    .from(projectsTable)
+    .where(eq(projectsTable.id, params.data.projectId));
+
   const [metadata] = await db
     .select()
     .from(projectMetadataTable)
@@ -416,7 +456,7 @@ router.post("/projects/:projectId/references/regenerate", async (req, res): Prom
     return;
   }
 
-  const citationFormat = metadata?.citationFormat ?? project?.citationFormat ?? "APA";
+  const citationFormat = metadata?.citationFormat ?? project2?.citationFormat ?? "APA";
   const refList = refs
     .map(
       (r, i) =>
@@ -425,25 +465,40 @@ router.post("/projects/:projectId/references/regenerate", async (req, res): Prom
     .join("\n");
 
   const systemPrompt = buildSystemPrompt({
-    title: project?.title ?? "",
-    instructionText: project?.instructionText,
+    title: project2?.title ?? "",
+    instructionText: project2?.instructionText,
     citationFormat,
   });
 
-  const { content: aiResponse, usage } = await callAI([
-    { role: "system", content: systemPrompt },
-    {
-      role: "user",
-      content: `Buat daftar pustaka dalam format ${citationFormat} dari referensi berikut:\n\n${refList}\n\nFormat output: daftar pustaka siap pakai dalam format ${citationFormat} yang benar.`,
-    },
-  ]);
+  const { content: aiResponse, usage, tierConfig } = await callAI(
+    [
+      { role: "system", content: systemPrompt },
+      {
+        role: "user",
+        content: `Buat daftar pustaka dalam format ${citationFormat} dari referensi berikut:\n\n${refList}\n\nFormat output: daftar pustaka siap pakai dalam format ${citationFormat} yang benar.`,
+      },
+    ],
+    selectedTier.id,
+  );
 
-  await logAIUsage({
+  const usageLog = await logAIUsage({
     userId: req.user!.id,
     projectId: params.data.projectId,
     requestType: "bibliography",
     usage,
+    tierConfig,
   });
+
+  if (!selectedTier.isFree && usage.costCents > 0) {
+    await deductCredit({
+      userId: project.userId,
+      costCents: usage.costCents,
+      tierIsFree: false,
+      tierId: selectedTier.id,
+      aiUsageLogId: usageLog?.id,
+      description: `AI bibliography — ${selectedTier.name} tier`,
+    });
+  }
 
   await logActivity(params.data.projectId, "bibliography_regenerated", "Daftar pustaka diperbarui");
 

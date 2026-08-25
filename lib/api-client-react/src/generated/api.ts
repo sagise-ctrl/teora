@@ -26,6 +26,8 @@ import type {
   AccountReferenceInput,
   Activity,
   AddMemberRequest,
+  AnalyzeMyWritingStyleBody,
+  AnalyzeProjectBody,
   AnalyzeStyleRequest,
   AssignAccountReferenceBody,
   Attachment,
@@ -90,6 +92,7 @@ import type {
   ReferenceInput,
   ReferenceValidationResult,
   ReferralListResponse,
+  RegenerateBibliographyBody,
   RegenerateOutline200,
   RegenerateOutlineBody,
   RegisterRequest,
@@ -1141,14 +1144,21 @@ export const getAnalyzeProjectUrl = (projectId: number,) => {
 /**
  * @summary Trigger full AI analysis pipeline for a project
  */
-export const analyzeProject = async (projectId: number, options?: Parameters<typeof customFetch>[1]): Promise<Job> => {
+export const analyzeProject = async (projectId: number,
+    analyzeProjectBody?: AnalyzeProjectBody, options?: Parameters<typeof customFetch>[1]): Promise<Job> => {
 
-  return customFetch<Job>(getAnalyzeProjectUrl(projectId),
+    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<Job>(getAnalyzeProjectUrl(projectId),
   {
     ...options,
-    method: 'POST'
-
-
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(analyzeProjectBody)
   }
 );}
 
@@ -1157,8 +1167,8 @@ export const analyzeProject = async (projectId: number, options?: Parameters<typ
 
 
 export const getAnalyzeProjectMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeProject>>, TError,{projectId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof analyzeProject>>, TError,{projectId: number}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeProject>>, TError,{projectId: number;data?: BodyType<AnalyzeProjectBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof analyzeProject>>, TError,{projectId: number;data?: BodyType<AnalyzeProjectBody>}, TContext> => {
 
 const mutationKey = ['analyzeProject'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -1170,10 +1180,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof analyzeProject>>, {projectId: number}> = (props) => {
-          const {projectId} = props ?? {};
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof analyzeProject>>, {projectId: number;data?: BodyType<AnalyzeProjectBody>}> = (props) => {
+          const {projectId,data} = props ?? {};
 
-          return  analyzeProject(projectId,requestOptions)
+          return  analyzeProject(projectId,data,requestOptions)
         }
 
 
@@ -1184,18 +1194,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type AnalyzeProjectMutationResult = NonNullable<Awaited<ReturnType<typeof analyzeProject>>>
-
+    export type AnalyzeProjectMutationBody = BodyType<AnalyzeProjectBody> | undefined
     export type AnalyzeProjectMutationError = ErrorType<unknown>
 
     /**
  * @summary Trigger full AI analysis pipeline for a project
  */
 export const useAnalyzeProject = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeProject>>, TError,{projectId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeProject>>, TError,{projectId: number;data?: BodyType<AnalyzeProjectBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof analyzeProject>>,
         TError,
-        {projectId: number},
+        {projectId: number;data?: BodyType<AnalyzeProjectBody>},
         TContext
       > => {
       return useMutation(getAnalyzeProjectMutationOptions(options));
@@ -2297,14 +2307,21 @@ export const getRegenerateBibliographyUrl = (projectId: number,) => {
 /**
  * @summary Regenerate bibliography for a project
  */
-export const regenerateBibliography = async (projectId: number, options?: Parameters<typeof customFetch>[1]): Promise<BibliographyResult> => {
+export const regenerateBibliography = async (projectId: number,
+    regenerateBibliographyBody?: RegenerateBibliographyBody, options?: Parameters<typeof customFetch>[1]): Promise<BibliographyResult> => {
 
-  return customFetch<BibliographyResult>(getRegenerateBibliographyUrl(projectId),
+    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<BibliographyResult>(getRegenerateBibliographyUrl(projectId),
   {
     ...options,
-    method: 'POST'
-
-
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(regenerateBibliographyBody)
   }
 );}
 
@@ -2313,8 +2330,8 @@ export const regenerateBibliography = async (projectId: number, options?: Parame
 
 
 export const getRegenerateBibliographyMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof regenerateBibliography>>, TError,{projectId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof regenerateBibliography>>, TError,{projectId: number}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof regenerateBibliography>>, TError,{projectId: number;data?: BodyType<RegenerateBibliographyBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof regenerateBibliography>>, TError,{projectId: number;data?: BodyType<RegenerateBibliographyBody>}, TContext> => {
 
 const mutationKey = ['regenerateBibliography'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -2326,10 +2343,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof regenerateBibliography>>, {projectId: number}> = (props) => {
-          const {projectId} = props ?? {};
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof regenerateBibliography>>, {projectId: number;data?: BodyType<RegenerateBibliographyBody>}> = (props) => {
+          const {projectId,data} = props ?? {};
 
-          return  regenerateBibliography(projectId,requestOptions)
+          return  regenerateBibliography(projectId,data,requestOptions)
         }
 
 
@@ -2340,18 +2357,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type RegenerateBibliographyMutationResult = NonNullable<Awaited<ReturnType<typeof regenerateBibliography>>>
-
+    export type RegenerateBibliographyMutationBody = BodyType<RegenerateBibliographyBody> | undefined
     export type RegenerateBibliographyMutationError = ErrorType<unknown>
 
     /**
  * @summary Regenerate bibliography for a project
  */
 export const useRegenerateBibliography = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof regenerateBibliography>>, TError,{projectId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof regenerateBibliography>>, TError,{projectId: number;data?: BodyType<RegenerateBibliographyBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof regenerateBibliography>>,
         TError,
-        {projectId: number},
+        {projectId: number;data?: BodyType<RegenerateBibliographyBody>},
         TContext
       > => {
       return useMutation(getRegenerateBibliographyMutationOptions(options));
@@ -5657,7 +5674,7 @@ export const getAnalyzeMyWritingStyleUrl = () => {
 /**
  * @summary Analyze writing style from documents
  */
-export const analyzeMyWritingStyle = async (analyzeStyleRequest: AnalyzeStyleRequest, options?: Parameters<typeof customFetch>[1]): Promise<WritingStyleProfile> => {
+export const analyzeMyWritingStyle = async (analyzeMyWritingStyleBody: AnalyzeMyWritingStyleBody, options?: Parameters<typeof customFetch>[1]): Promise<WritingStyleProfile> => {
 
     const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
     if (!h) return {};
@@ -5670,7 +5687,7 @@ return customFetch<WritingStyleProfile>(getAnalyzeMyWritingStyleUrl(),
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
-    body: JSON.stringify(analyzeStyleRequest)
+    body: JSON.stringify(analyzeMyWritingStyleBody)
   }
 );}
 
@@ -5679,8 +5696,8 @@ return customFetch<WritingStyleProfile>(getAnalyzeMyWritingStyleUrl(),
 
 
 export const getAnalyzeMyWritingStyleMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeMyWritingStyle>>, TError,{data: BodyType<AnalyzeStyleRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof analyzeMyWritingStyle>>, TError,{data: BodyType<AnalyzeStyleRequest>}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeMyWritingStyle>>, TError,{data: BodyType<AnalyzeMyWritingStyleBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof analyzeMyWritingStyle>>, TError,{data: BodyType<AnalyzeMyWritingStyleBody>}, TContext> => {
 
 const mutationKey = ['analyzeMyWritingStyle'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -5692,7 +5709,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof analyzeMyWritingStyle>>, {data: BodyType<AnalyzeStyleRequest>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof analyzeMyWritingStyle>>, {data: BodyType<AnalyzeMyWritingStyleBody>}> = (props) => {
           const {data} = props ?? {};
 
           return  analyzeMyWritingStyle(data,requestOptions)
@@ -5706,18 +5723,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type AnalyzeMyWritingStyleMutationResult = NonNullable<Awaited<ReturnType<typeof analyzeMyWritingStyle>>>
-    export type AnalyzeMyWritingStyleMutationBody = BodyType<AnalyzeStyleRequest>
+    export type AnalyzeMyWritingStyleMutationBody = BodyType<AnalyzeMyWritingStyleBody>
     export type AnalyzeMyWritingStyleMutationError = ErrorType<unknown>
 
     /**
  * @summary Analyze writing style from documents
  */
 export const useAnalyzeMyWritingStyle = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeMyWritingStyle>>, TError,{data: BodyType<AnalyzeStyleRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeMyWritingStyle>>, TError,{data: BodyType<AnalyzeMyWritingStyleBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof analyzeMyWritingStyle>>,
         TError,
-        {data: BodyType<AnalyzeStyleRequest>},
+        {data: BodyType<AnalyzeMyWritingStyleBody>},
         TContext
       > => {
       return useMutation(getAnalyzeMyWritingStyleMutationOptions(options));

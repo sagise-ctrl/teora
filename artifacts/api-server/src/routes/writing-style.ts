@@ -1,7 +1,9 @@
 import { Router, type IRouter } from "express";
 import { eq, desc } from "drizzle-orm";
-import { db, writingStyleProfilesTable } from "@workspace/db";
-import { callAI } from "../lib/ai.js";
+import { db, writingStyleProfilesTable, usersTable } from "@workspace/db";
+import { callAI, getTierConfig, getTierForUser } from "../lib/ai.js";
+import { logAIUsage } from "../lib/ai-usage-log.js";
+import { checkCreditBalance, deductCredit } from "../lib/credit.js";
 import { styleCharacteristicsSchema } from "@workspace/db";
 import { z } from "zod/v4";
 
@@ -36,14 +38,44 @@ router.post("/users/me/writing-style/analyze", async (req, res): Promise<void> =
     return;
   }
 
-  const { documents, projectId } = req.body as {
+  const { documents, projectId, tier: requestedTier } = req.body as {
     documents?: Array<{ title: string; content: string }>;
     projectId?: number;
+    tier?: string;
   };
 
   if (!documents || !Array.isArray(documents) || documents.length === 0) {
     res.status(400).json({ error: "documents array is required with at least one document" });
     return;
+  }
+
+  // Resolve tier from request or user's preferred
+  // writing-style is a per-user feature (no project ownership), so use req.user as the owner
+  const selectedTier = requestedTier
+    ? await getTierConfig(requestedTier)
+    : await getTierForUser(req.user!.id, null);
+
+  if (!selectedTier) {
+    res.status(400).json({ error: "Tier tidak valid" });
+    return;
+  }
+
+  // Pre-check credit for paid tiers
+  if (!selectedTier.isFree) {
+    const estimatedCostCents = Math.max(
+      100,
+      selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents,
+    );
+    const creditCheck = await checkCreditBalance(req.user!.id, estimatedCostCents, false);
+    if (!creditCheck.allowed) {
+      res.status(402).json({
+        error: creditCheck.reason,
+        balanceCents: creditCheck.balanceCents,
+        costCents: creditCheck.costCents,
+        tierName: selectedTier.name,
+      });
+      return;
+    }
   }
 
   const combinedText = documents
@@ -73,9 +105,28 @@ IMPORTANT: Return ONLY the JSON object, no markdown code blocks.`;
   const messages = [{ role: "user" as const, content: prompt }];
 
   try {
-    const aiResult = await callAI(messages);
+    const aiResult = await callAI(messages, selectedTier.id);
     const parsed = JSON.parse(aiResult.content);
     const characteristics = styleCharacteristicsSchema.parse(parsed);
+
+    const usageLog = await logAIUsage({
+      userId: req.user!.id,
+      projectId: projectId ?? null,
+      requestType: "analyze_style",
+      usage: aiResult.usage,
+      tierConfig: aiResult.tierConfig,
+    });
+
+    if (!selectedTier.isFree && aiResult.usage.costCents > 0) {
+      await deductCredit({
+        userId: req.user!.id,
+        costCents: aiResult.usage.costCents,
+        tierIsFree: false,
+        tierId: selectedTier.id,
+        aiUsageLogId: usageLog?.id,
+        description: `AI writing style — ${selectedTier.name} tier`,
+      });
+    }
 
     const [profile] = await db
       .insert(writingStyleProfilesTable)

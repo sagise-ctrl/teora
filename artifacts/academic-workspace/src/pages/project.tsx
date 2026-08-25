@@ -154,10 +154,11 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
-import InsufficientBalanceDialog, {
-  type InsufficientBalanceData,
-} from "@/components/insufficient-balance-dialog"
+import InsufficientBalanceDialog from "@/components/insufficient-balance-dialog"
+import type { InsufficientBalanceData } from "@/components/insufficient-balance-dialog"
 import { parseInsufficientBalance } from "@/components/parse-insufficient-balance"
+import { useInsufficientBalanceDialog } from "@/hooks/use-insufficient-balance-dialog"
+import { TierSelector } from "@/components/tier-selector"
 
 // ── Document Bar ────────────────────────────────────────────────────────────────
 
@@ -653,6 +654,7 @@ export default function ProjectWorkspace() {
 function QuizTab({ projectId }: { projectId: number }) {
   const { toast } = useToast()
   const queryClient = useQueryClient()
+  const insufficientBalance = useInsufficientBalanceDialog()
 
   const { data: quizzes, isLoading } = useListQuizzes(projectId)
   const generateQuiz = useGenerateQuiz(projectId)
@@ -666,6 +668,7 @@ function QuizTab({ projectId }: { projectId: number }) {
     questionTypes: ["multiple_choice", "short_answer", "essay"],
     difficulty: "medium",
   })
+  const [quizTierId, setQuizTierId] = useState<string>("")
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [submitting, setSubmitting] = useState(false)
 
@@ -677,16 +680,20 @@ function QuizTab({ projectId }: { projectId: number }) {
       return
     }
     generateQuiz.mutate(
-      { data: { title: generateForm.title, topic: generateForm.topic, questionCount: generateForm.questionCount, questionTypes: generateForm.questionTypes, difficulty: generateForm.difficulty } },
+      { data: { title: generateForm.title, topic: generateForm.topic, questionCount: generateForm.questionCount, questionTypes: generateForm.questionTypes, difficulty: generateForm.difficulty, tier: quizTierId || undefined } },
       {
         onSuccess: (quiz) => {
           toast({ title: "Kuis dibuat!", description: `${(quiz.questions as unknown as QuizQuestion[])?.length ?? 0} soal` })
           setShowGenerate(false)
           setGenerateForm({ title: "", topic: "", questionCount: 10, questionTypes: ["multiple_choice", "short_answer", "essay"], difficulty: "medium" })
           queryClient.invalidateQueries({ queryKey: getListQuizzesQueryKey(projectId) })
+          queryClient.invalidateQueries({ queryKey: ["getMyBalance"] })
           setSelectedQuiz(quiz as unknown as Quiz)
         },
-        onError: (err) => toast({ title: "Gagal generate", description: String(err), variant: "destructive" }),
+        onError: (err) => {
+          if (insufficientBalance.handleError(err)) return
+          toast({ title: "Gagal generate", description: String(err), variant: "destructive" })
+        },
       }
     )
   }
@@ -778,9 +785,13 @@ function QuizTab({ projectId }: { projectId: number }) {
                   <SelectContent>
                     <SelectItem value="easy">Mudah</SelectItem>
                     <SelectItem value="medium">Sedang</SelectItem>
-                    <SelectItem value="hard">Sulit</SelectItem>
+                    <SelectItem value="sulit">Sulit</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <div>
+                <Label>AI Tier</Label>
+                <TierSelector value={quizTierId} onChange={setQuizTierId} />
               </div>
             </div>
             <DialogFooter>
@@ -792,6 +803,9 @@ function QuizTab({ projectId }: { projectId: number }) {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* 402 Insufficient Balance Dialog */}
+        <insufficientBalance.InsufficientBalanceDialog {...insufficientBalance.dialogProps} />
 
         {/* Quiz List / Viewer */}
         {!selectedQuiz ? (
@@ -1094,8 +1108,11 @@ function OutlineTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosu
   const generateDocument = useGenerateDocument()
   const queryClient = useQueryClient()
   const { toast } = useToast()
+  const insufficientBalance = useInsufficientBalanceDialog()
   const [editedOutline, setEditedOutline] = useState("")
   const [isEditing, setIsEditing] = useState(false)
+  const [outlineTierId, setOutlineTierId] = useState<string>("")
+  const [docTierId, setDocTierId] = useState<string>("")
 
   useEffect(() => {
     if (metadata?.outline) {
@@ -1106,24 +1123,32 @@ function OutlineTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosu
   const handleRegenerate = () => {
     regenerateOutline.mutate({
       projectId,
-      data: { userOutline: editedOutline },
+      data: { userOutline: editedOutline, tier: outlineTierId || undefined },
     }, {
       onSuccess: (data) => {
         toast({ title: "Outline diperbarui", description: "Outline berhasil diregenerasi." })
         setEditedOutline(data.outline ?? "")
         setIsEditing(false)
         queryClient.invalidateQueries({ queryKey: [`/api/projects/${projectId}/metadata`] })
+        queryClient.invalidateQueries({ queryKey: ["getMyBalance"] })
       },
-      onError: () => toast({ title: "Gagal", variant: "destructive" })
+      onError: (err) => {
+        if (insufficientBalance.handleError(err)) return
+        toast({ title: "Gagal", description: String((err as Error)?.message ?? err), variant: "destructive" })
+      }
     })
   }
 
   const handleGenerate = () => {
-    generateDocument.mutate({ projectId }, {
+    generateDocument.mutate({ projectId, data: { tier: docTierId || undefined } }, {
       onSuccess: () => {
         toast({ title: "Dokumen sedang ditulis", description: "AI sedang menulis dokumen dari outline. Cek tab Preview." })
+        queryClient.invalidateQueries({ queryKey: ["getMyBalance"] })
       },
-      onError: (err) => toast({ title: String(err), variant: "destructive" })
+      onError: (err) => {
+        if (insufficientBalance.handleError(err)) return
+        toast({ title: "Gagal", description: String((err as Error)?.message ?? err), variant: "destructive" })
+      }
     })
   }
 
@@ -1144,12 +1169,13 @@ function OutlineTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosu
   return (
     <Card className="bg-card border-none shadow-sm rounded-xl">
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <div>
             <CardTitle className="font-serif text-lg">Document Outline</CardTitle>
             <CardDescription>Struktur dokumen — bab dan sub-bab.</CardDescription>
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2 flex-wrap justify-end">
+            <TierSelector value={outlineTierId} onChange={setOutlineTierId} compact minimal />
             <Button
               variant="outline"
               size="sm"
@@ -1179,6 +1205,12 @@ function OutlineTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosu
             </Button>
           </div>
         </div>
+        {/* Show tier for the document generation in a separate row for clarity if needed */}
+        {!editedOutline && (
+          <div className="mt-2">
+            <TierSelector value={docTierId} onChange={setDocTierId} compact />
+          </div>
+        )}
       </CardHeader>
       <CardContent>
         {editedOutline ? (
@@ -1223,6 +1255,7 @@ function OutlineTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosu
           </div>
         </CardFooter>
       )}
+      <insufficientBalance.InsufficientBalanceDialog {...insufficientBalance.dialogProps} />
     </Card>
   )
 }
@@ -1487,12 +1520,14 @@ function ReferencesTab({ projectId }: { projectId: number }) {
   )
   const queryClient = useQueryClient()
   const { toast } = useToast()
+  const insufficientBalance = useInsufficientBalanceDialog()
 
   const [open, setOpen] = useState(false)
   const [mode, setMode] = useState<"manual" | "lookup">("manual")
   const [lookupId, setLookupId] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
   const [searchSubmitted, setSearchSubmitted] = useState(false)
+  const [bibTierId, setBibTierId] = useState<string>("")
   const [formData, setFormData] = useState({
     title: "", authors: "", year: "", journal: "", volume: "", issue: "", doi: ""
   })
@@ -1565,7 +1600,11 @@ function ReferencesTab({ projectId }: { projectId: number }) {
   }
 
   const handleRegen = () => {
-    regenBib.mutate({ projectId }, {
+    regenBib.mutate({ projectId, data: { tier: bibTierId || undefined } }, {
+      onError: (err) => {
+        if (insufficientBalance.handleError(err)) return
+        toast({ title: "Bibliography regeneration failed", description: String(err), variant: "destructive" })
+      },
       onSuccess: () => toast({ title: "Bibliography regenerated" })
     })
   }
@@ -1615,7 +1654,8 @@ function ReferencesTab({ projectId }: { projectId: number }) {
           <h2 className="text-xl font-serif font-semibold">References Database</h2>
           <p className="text-sm text-muted-foreground">Manage scholarly sources used in your project.</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          <TierSelector value={bibTierId} onChange={setBibTierId} compact minimal />
           <Button variant="outline" onClick={handleRegen} disabled={regenBib.isPending}>
             <RefreshCw className={cn("w-4 h-4 mr-2", regenBib.isPending && "animate-spin")} />
             Regenerate
@@ -1882,6 +1922,7 @@ function ReferencesTab({ projectId }: { projectId: number }) {
           </TableBody>
         </Table>
       </Card>
+      <insufficientBalance.InsufficientBalanceDialog {...insufficientBalance.dialogProps} />
     </div>
   )
 }

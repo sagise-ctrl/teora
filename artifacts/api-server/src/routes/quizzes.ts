@@ -1,9 +1,11 @@
 import { Router, type IRouter } from "express";
 import { eq, desc } from "drizzle-orm";
-import { db, quizzesTable, quizSubmissionsTable } from "@workspace/db";
+import { db, quizzesTable, quizSubmissionsTable, projectsTable } from "@workspace/db";
 import { requireProjectOwnership } from "../lib/ownership.js";
 import { sanitizeInstructionText } from "../lib/prompt-injection.js";
-import { callAI, type ChatMessage } from "../lib/ai.js";
+import { callAI, type ChatMessage, getTierConfig, getTierForUser } from "../lib/ai.js";
+import { logAIUsage } from "../lib/ai-usage-log.js";
+import { checkCreditBalance, deductCredit } from "../lib/credit.js";
 import { logActivity } from "../lib/activity.js";
 import { questionSchema } from "@workspace/db";
 import { quizResponseSchema } from "@workspace/db";
@@ -82,18 +84,55 @@ router.post("/projects/:projectId/quizzes", async (req, res): Promise<void> => {
   const ok = await requireProjectOwnership(projectId, req.user.id, res);
   if (!ok) return;
 
-  const { title, description, topic, questionCount, questionTypes, difficulty } = req.body as {
+  const { title, description, topic, questionCount, questionTypes, difficulty, tier: requestedTier } = req.body as {
     title?: string;
     description?: string;
     topic?: string;
     questionCount?: number;
     questionTypes?: string[];
     difficulty?: string;
+    tier?: string;
   };
 
   if (!title || typeof title !== "string") {
     res.status(400).json({ error: "title is required" });
     return;
+  }
+
+  // Resolve tier from request or user's preferred
+  const [project] = await db
+    .select()
+    .from(projectsTable)
+    .where(eq(projectsTable.id, projectId));
+  if (!project) {
+    res.status(404).json({ error: "Project not found" });
+    return;
+  }
+  const selectedTier = requestedTier
+    ? await getTierConfig(requestedTier)
+    : await getTierForUser(project.userId, null);
+
+  if (!selectedTier) {
+    res.status(400).json({ error: "Tier tidak valid" });
+    return;
+  }
+
+  // Pre-check credit for paid tiers
+  if (!selectedTier.isFree) {
+    const estimatedCostCents = Math.max(
+      100,
+      selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents,
+    );
+    const creditCheck = await checkCreditBalance(project.userId, estimatedCostCents, false);
+    if (!creditCheck.allowed) {
+      res.status(402).json({
+        error: creditCheck.reason,
+        balanceCents: creditCheck.balanceCents,
+        costCents: creditCheck.costCents,
+        tierName: selectedTier.name,
+      });
+      return;
+    }
   }
 
   const sanitizedTopic = topic ? sanitizeInstructionText(topic) : null;
@@ -143,7 +182,7 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks, no explanation.`;
   ];
 
   try {
-    const aiResult = await callAI(messages, "quiz");
+    const aiResult = await callAI(messages, selectedTier.id);
     let questions: z.infer<typeof questionSchema>[] = [];
 
     try {
@@ -154,6 +193,25 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks, no explanation.`;
     } catch {
       res.status(500).json({ error: "Failed to parse AI response as JSON" });
       return;
+    }
+
+    const usageLog = await logAIUsage({
+      userId: project.userId,
+      projectId,
+      requestType: "quiz",
+      usage: aiResult.usage,
+      tierConfig: aiResult.tierConfig,
+    });
+
+    if (!selectedTier.isFree && aiResult.usage.costCents > 0) {
+      await deductCredit({
+        userId: project.userId,
+        costCents: aiResult.usage.costCents,
+        tierIsFree: false,
+        tierId: selectedTier.id,
+        aiUsageLogId: usageLog?.id,
+        description: `AI quiz — ${selectedTier.name} tier`,
+      });
     }
 
     const [quiz] = await db

@@ -269,6 +269,10 @@ export const AnalyzeProjectParams = zod.object({
   "projectId": zod.coerce.number()
 })
 
+export const AnalyzeProjectBody = zod.object({
+  "tier": zod.string().optional().describe('AI tier to use (e.g. \"free\", \"standard\", \"premium\"). Defaults to user\'s preferred tier.')
+})
+
 export const AnalyzeProjectResponse = zod.object({
   "id": zod.number(),
   "projectId": zod.number(),
@@ -476,7 +480,8 @@ export const RegenerateOutlineParams = zod.object({
 
 export const RegenerateOutlineBody = zod.object({
   "documentId": zod.number().optional().describe('Target document ID (optional, uses active document)'),
-  "userOutline": zod.string().optional().describe('Optional user-modified outline to refine')
+  "userOutline": zod.string().optional().describe('Optional user-modified outline to refine'),
+  "tier": zod.string().optional().describe('AI tier to use (e.g. \"free\", \"standard\", \"premium\"). Defaults to user\'s preferred tier.')
 })
 
 export const RegenerateOutlineResponse = zod.object({
@@ -492,7 +497,8 @@ export const GenerateDocumentParams = zod.object({
 })
 
 export const GenerateDocumentBody = zod.object({
-  "documentId": zod.number().optional().describe('Target document ID (optional, uses active document if omitted)')
+  "documentId": zod.number().optional().describe('Target document ID (optional, uses active document if omitted)'),
+  "tier": zod.string().optional().describe('AI tier to use (e.g. \"free\", \"standard\", \"premium\"). Defaults to user\'s preferred tier.')
 })
 
 export const GenerateDocumentResponse = zod.object({
@@ -637,6 +643,10 @@ export const DeleteReferenceResponse = zod.void()
  */
 export const RegenerateBibliographyParams = zod.object({
   "projectId": zod.coerce.number()
+})
+
+export const RegenerateBibliographyBody = zod.object({
+  "tier": zod.string().optional().describe('AI tier to use (e.g. \"free\", \"standard\", \"premium\"). Defaults to user\'s preferred tier.')
 })
 
 export const RegenerateBibliographyResponse = zod.object({
@@ -1384,7 +1394,8 @@ export const GenerateQuizBody = zod.object({
   "count": zod.number().min(1).max(generateQuizBodyCountMax).default(generateQuizBodyCountDefault),
   "questionTypes": zod.array(zod.enum(['multiple_choice', 'short_answer', 'essay'])).default([`multiple_choice`]),
   "difficulty": zod.enum(['easy', 'medium', 'hard']).default(generateQuizBodyDifficultyDefault),
-  "includeAnswers": zod.boolean().default(generateQuizBodyIncludeAnswersDefault).describe('Include correct answers in quiz (teachers only)')
+  "includeAnswers": zod.boolean().default(generateQuizBodyIncludeAnswersDefault).describe('Include correct answers in quiz (teachers only)'),
+  "tier": zod.string().optional().describe('AI tier to use (e.g. \"free\", \"standard\", \"premium\"). Defaults to user\'s preferred tier.')
 })
 
 export const GenerateQuizResponse = zod.object({
@@ -1575,7 +1586,8 @@ export const GenerateRubricParams = zod.object({
 })
 
 export const GenerateRubricBody = zod.object({
-  "manualNotes": zod.string().optional()
+  "manualNotes": zod.string().optional(),
+  "tier": zod.string().optional().describe('AI tier to use (e.g. \"free\", \"standard\", \"premium\"). Defaults to user\'s preferred tier.')
 })
 
 export const generateRubricResponseCriteriaItemKeywordThresholdDefault = 0.5;
@@ -1767,14 +1779,16 @@ export const UpdateMyWritingStyleResponse = zod.object({
 /**
  * @summary Analyze writing style from documents
  */
-export const analyzeMyWritingStyleBodyTextsMax = 20;
+export const analyzeMyWritingStyleBodyOneTextsMax = 20;
 
 
 
 export const AnalyzeMyWritingStyleBody = zod.object({
-  "texts": zod.array(zod.string()).min(1).max(analyzeMyWritingStyleBodyTextsMax).describe('Array of text samples to analyze (min 1, max 20)'),
+  "texts": zod.array(zod.string()).min(1).max(analyzeMyWritingStyleBodyOneTextsMax).describe('Array of text samples to analyze (min 1, max 20)'),
   "projectId": zod.number().optional().describe('Optional project scope for this analysis')
-})
+}).and(zod.object({
+  "tier": zod.string().optional().describe('AI tier to use (e.g. \"free\", \"standard\", \"premium\"). Defaults to user\'s preferred tier.')
+}))
 
 export const analyzeMyWritingStyleResponseStyleCharacteristicsFormalityMin = 0;
 export const analyzeMyWritingStyleResponseStyleCharacteristicsFormalityMax = 1;
