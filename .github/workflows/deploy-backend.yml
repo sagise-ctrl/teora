@@ -25,7 +25,7 @@ jobs:
           cache: "npm"
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm install --legacy-peer-deps
 
       - name: Setup workspace packages
         run: node ./artifacts/api-server/setup-workspace.mjs
