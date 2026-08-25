@@ -237,13 +237,14 @@ Section Tag (assign to specific chapter)
 
 ---
 
-## Questions for Owner Decision
+## Owner Decisions (confirmed 2026-08-25)
 
-| # | Question | Options |
-|---|----------|---------|
-| 1 | Reference Search engine | CrossRef Search API (free, reliable) or Semantic Scholar (more powerful) |
-| 2 | PDF Export method | Puppeteer/Chromium (free, self-hosted) or external API (ConvertAPI/Docify — paid, faster) |
-| 3 | Implementation start | Database migration first, or full feature implementation (database + UI) |
+| # | Decision | Value |
+|---|----------|-------|
+| 1 | Reference Search engine | **CrossRef Search API** — free, reliable. Semantic Scholar saved as future option. |
+| 2 | PDF Export method | **`@react-pdf/renderer`** — free, pure Node.js, Vercel-compatible. No external API. |
+| 3 | DOCX Export library | **`docx` npm** — MIT, well-maintained. |
+| 4 | Implementation order | Ref Search → DOCX → PDF → FinOps Dashboard → UI Alignment |
 
 ---
 
