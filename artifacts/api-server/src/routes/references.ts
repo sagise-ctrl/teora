@@ -15,6 +15,8 @@ import {
   ValidateReferencesParams,
   FormatCSLBibliographyParams,
   FormatCSLBibliographyQueryParams,
+  BulkAddReferencesParams,
+  BulkAddReferencesRequest,
 } from "@workspace/api-zod";
 import { callAI, buildSystemPrompt } from "../lib/ai.js";
 import { logActivity } from "../lib/activity.js";
@@ -60,6 +62,8 @@ router.get("/projects/:projectId/references", async (req, res): Promise<void> =>
       doi: r.doi ?? null,
       url: r.url ?? null,
       usedInChapters: r.usedInChapters ?? null,
+      isSuggested: r.isSuggested,
+      source: r.source,
     }))
   );
 });
@@ -98,6 +102,8 @@ router.post("/projects/:projectId/references", async (req, res): Promise<void> =
       issue: parsed.data.issue,
       doi: parsed.data.doi,
       url: parsed.data.url,
+      isSuggested: parsed.data.isSuggested ?? false,
+      source: (parsed.data.source as "manual" | "crossref" | "file") ?? "manual",
     })
     .returning();
 
@@ -113,6 +119,8 @@ router.post("/projects/:projectId/references", async (req, res): Promise<void> =
     doi: ref.doi ?? null,
     url: ref.url ?? null,
     usedInChapters: ref.usedInChapters ?? null,
+    isSuggested: ref.isSuggested,
+    source: ref.source,
   });
 });
 
@@ -143,6 +151,101 @@ router.delete("/projects/:projectId/references/:referenceId", async (req, res): 
   }
 
   res.sendStatus(204);
+});
+
+// POST /projects/:projectId/references/bulk
+// Add multiple references at once (for auto-suggested + manual batch)
+router.post("/projects/:projectId/references/bulk", async (req, res): Promise<void> => {
+  const params = BulkAddReferencesParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
+  if (!ok) return;
+
+  const parsed = BulkAddReferencesRequest.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+
+  if (!parsed.data.references || parsed.data.references.length === 0) {
+    res.status(400).json({ error: "references array is required and cannot be empty" });
+    return;
+  }
+
+  if (parsed.data.references.length > 100) {
+    res.status(400).json({ error: "Maximum 100 references per bulk add" });
+    return;
+  }
+
+  // Get existing DOIs to avoid duplicates
+  const existing = await db
+    .select({ doi: referencesTable.doi })
+    .from(referencesTable)
+    .where(eq(referencesTable.projectId, params.data.projectId));
+
+  const existingDois = new Set(
+    existing.map((r) => r.doi).filter((d): d is string => d !== null)
+  );
+
+  // Filter out duplicates by DOI
+  const toInsert = parsed.data.references.filter(
+    (r) => !r.doi || !existingDois.has(r.doi)
+  );
+
+  if (toInsert.length === 0) {
+    res.status(201).json([]);
+    return;
+  }
+
+  const inserted = await db
+    .insert(referencesTable)
+    .values(
+      toInsert.map((r) => ({
+        projectId: params.data.projectId,
+        title: r.title,
+        authors: r.authors,
+        year: r.year,
+        journal: r.journal,
+        volume: r.volume,
+        issue: r.issue,
+        doi: r.doi,
+        url: r.url,
+        isSuggested: r.isSuggested ?? false,
+        source: (r.source as "manual" | "crossref" | "file") ?? "manual",
+      }))
+    )
+    .returning();
+
+  await logActivity(
+    params.data.projectId,
+    "references_bulk_added",
+    `${inserted.length} referensi ditambahkan`
+  );
+
+  res.status(201).json(
+    inserted.map((r) => ({
+      ...r,
+      authors: r.authors ?? null,
+      year: r.year ?? null,
+      journal: r.journal ?? null,
+      volume: r.volume ?? null,
+      issue: r.issue ?? null,
+      doi: r.doi ?? null,
+      url: r.url ?? null,
+      usedInChapters: r.usedInChapters ?? null,
+      isSuggested: r.isSuggested,
+      source: r.source,
+    }))
+  );
 });
 
 // POST /projects/:projectId/references/validate

@@ -241,6 +241,18 @@ export const ReferenceValidationStatus = {
   invalid: 'invalid',
 } as const;
 
+/**
+ * Source of the reference
+ */
+export type ReferenceSource = typeof ReferenceSource[keyof typeof ReferenceSource];
+
+
+export const ReferenceSource = {
+  manual: 'manual',
+  crossref: 'crossref',
+  file: 'file',
+} as const;
+
 export interface Reference {
   id: number;
   projectId: number;
@@ -263,7 +275,23 @@ export interface Reference {
   /** @nullable */
   usedInChapters?: string | null;
   createdAt: string;
+  /** Whether this reference was auto-suggested by CrossRef */
+  isSuggested?: boolean;
+  /** Source of the reference */
+  source?: ReferenceSource;
 }
+
+/**
+ * Source of the reference
+ */
+export type ReferenceInputSource = typeof ReferenceInputSource[keyof typeof ReferenceInputSource];
+
+
+export const ReferenceInputSource = {
+  manual: 'manual',
+  crossref: 'crossref',
+  file: 'file',
+} as const;
 
 export interface ReferenceInput {
   /** @minLength 1 */
@@ -275,6 +303,15 @@ export interface ReferenceInput {
   issue?: string;
   doi?: string;
   url?: string;
+  /** Whether this reference was auto-suggested by CrossRef search */
+  isSuggested?: boolean;
+  /** Source of the reference */
+  source?: ReferenceInputSource;
+}
+
+export interface BulkAddReferencesRequest {
+  /** @maxItems 100 */
+  references: ReferenceInput[];
 }
 
 export interface BibliographyResult {

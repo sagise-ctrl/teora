@@ -578,6 +578,34 @@ paths:
               schema:
                 $ref: "#/components/schemas/Reference"
 
+  /projects/{projectId}/references/bulk:
+    post:
+      operationId: bulkAddReferences
+      tags: [references]
+      summary: Add multiple references at once
+      description: Useful for bulk-adding auto-suggested references or batch import. Skips references with duplicate DOIs.
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BulkAddReferencesRequest"
+      responses:
+        "201":
+          description: Created references
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Reference"
+
   /projects/{projectId}/references/{referenceId}:
     delete:
       operationId: deleteReference
@@ -1948,6 +1976,13 @@ components:
         createdAt:
           type: string
           format: date-time
+        isSuggested:
+          type: boolean
+          description: Whether this reference was auto-suggested by CrossRef
+        source:
+          type: string
+          enum: [manual, crossref, file]
+          description: Source of the reference
 
     ReferenceInput:
       type: object
@@ -1970,6 +2005,25 @@ components:
           type: string
         url:
           type: string
+        isSuggested:
+          type: boolean
+          default: false
+          description: Whether this reference was auto-suggested by CrossRef search
+        source:
+          type: string
+          enum: [manual, crossref, file]
+          default: manual
+          description: Source of the reference
+
+    BulkAddReferencesRequest:
+      type: object
+      required: [references]
+      properties:
+        references:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReferenceInput"
+          maxItems: 100
 
     BibliographyResult:
       type: object

@@ -28,6 +28,7 @@ import type {
   AttachmentUpload,
   AuthUser,
   BibliographyResult,
+  BulkAddReferencesRequest,
   Comment,
   CommentInput,
   CommentUpdate,
@@ -2103,6 +2104,85 @@ export const useCreateReference = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getCreateReferenceMutationOptions(options));
+    }
+
+export const getBulkAddReferencesUrl = (projectId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/references/bulk`
+}
+
+/**
+ * Useful for bulk-adding auto-suggested references or batch import. Skips references with duplicate DOIs.
+ * @summary Add multiple references at once
+ */
+export const bulkAddReferences = async (projectId: number,
+    bulkAddReferencesRequest: BulkAddReferencesRequest, options?: Parameters<typeof customFetch>[1]): Promise<Reference[]> => {
+
+    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<Reference[]>(getBulkAddReferencesUrl(projectId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(bulkAddReferencesRequest)
+  }
+);}
+
+
+
+
+
+export const getBulkAddReferencesMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkAddReferences>>, TError,{projectId: number;data: BodyType<BulkAddReferencesRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof bulkAddReferences>>, TError,{projectId: number;data: BodyType<BulkAddReferencesRequest>}, TContext> => {
+
+const mutationKey = ['bulkAddReferences'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof bulkAddReferences>>, {projectId: number;data: BodyType<BulkAddReferencesRequest>}> = (props) => {
+          const {projectId,data} = props ?? {};
+
+          return  bulkAddReferences(projectId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type BulkAddReferencesMutationResult = NonNullable<Awaited<ReturnType<typeof bulkAddReferences>>>
+    export type BulkAddReferencesMutationBody = BodyType<BulkAddReferencesRequest>
+    export type BulkAddReferencesMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Add multiple references at once
+ */
+export const useBulkAddReferences = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkAddReferences>>, TError,{projectId: number;data: BodyType<BulkAddReferencesRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof bulkAddReferences>>,
+        TError,
+        {projectId: number;data: BodyType<BulkAddReferencesRequest>},
+        TContext
+      > => {
+      return useMutation(getBulkAddReferencesMutationOptions(options));
     }
 
 export const getDeleteReferenceUrl = (projectId: number,
