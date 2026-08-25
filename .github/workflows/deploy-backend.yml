@@ -41,8 +41,10 @@ jobs:
         run: |
           echo "Build working directory: $(pwd)"
           echo "NODE_PATH: ${NODE_PATH:-'(not set)'}"
-          # Build using npm workspaces so @workspace/* packages are resolved
-          # via the symlinks in node_modules/@workspace/ (created by npm install)
+          echo "Workspace symlinks:"
+          ls -la node_modules/@workspace/ 2>&1 | head -10
+          # Set NODE_PATH so node can find workspace packages
+          export NODE_PATH="$(pwd)/node_modules"
           npm -w @workspace/api-server run build 2>&1
 
       - name: Prepare deployment package

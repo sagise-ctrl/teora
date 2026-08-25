@@ -1,25 +1,10 @@
 // Custom esbuild plugin to resolve @workspace/* packages.
-// npm workspaces creates symlinks at the MONOREPO ROOT's node_modules/@workspace/.
-// When running via `npm -w @workspace/api-server run build`, cwd may be the
-// package directory (artifacts/api-server/), not the repo root. We walk up
-// the directory tree to find the repo root (where workspaces are defined).
+// Priority order:
+// 1. Check NODE_PATH env var (set by CI to include repo root node_modules)
+// 2. Walk up from the importer file to find repo root, then check repoRoot/node_modules/@workspace/
+// 3. Fallback to npm workspaces via monorepoRoot/lib/ paths
 import path from "node:path";
 import { existsSync } from "node:fs";
-
-function findRepoRoot(startPath) {
-  let current = startPath;
-  const visited = new Set();
-  while (current && !visited.has(current) && current !== path.sep && current !== "/") {
-    visited.add(current);
-    // The repo root has a node_modules/@workspace/ directory (npm workspaces)
-    if (existsSync(path.join(current, "node_modules", "@workspace"))) {
-      return current;
-    }
-    current = path.dirname(current);
-  }
-  // Fallback: use process.cwd()
-  return process.cwd();
-}
 
 function workspacePlugin() {
   return {
@@ -28,26 +13,66 @@ function workspacePlugin() {
       build.onResolve({ filter: /^@workspace\// }, (args) => {
         const pkgName = args.path;
         const importer = args.importer;
-        // Find repo root by walking up from the importing file
-        const repoRoot = findRepoRoot(path.dirname(importer));
 
-        // npm workspaces symlinks are at repoRoot/node_modules/@workspace/
-        const npmWorkspacePath = path.join(repoRoot, "node_modules", pkgName);
-
-        if (existsSync(npmWorkspacePath)) {
-          // Resolve to the src/index.ts of the workspace package
-          const srcPath = path.join(npmWorkspacePath, "src", "index.ts");
-          if (existsSync(srcPath)) {
-            return { path: srcPath };
+        // 1. Check NODE_PATH (CI environment sets this to repo root node_modules)
+        if (process.env.NODE_PATH) {
+          const nodePathDirs = process.env.NODE_PATH.split(path.delimiter);
+          for (const dir of nodePathDirs) {
+            const pkgPath = path.join(dir, pkgName, "src", "index.ts");
+            if (existsSync(pkgPath)) {
+              return { path: pkgPath };
+            }
+            // Also check if the package itself exists (not under src/)
+            const pkgRoot = path.join(dir, pkgName);
+            if (existsSync(pkgRoot)) {
+              const srcIndex = path.join(pkgRoot, "src", "index.ts");
+              if (existsSync(srcIndex)) {
+                return { path: srcIndex };
+              }
+              return { path: pkgRoot };
+            }
           }
-          // Package might export from root
-          return { path: npmWorkspacePath };
+        }
+
+        // 2. Walk up from importer to find repo root (where npm workspaces symlinks live)
+        const importerDir = path.dirname(importer);
+        let current = importerDir;
+        const visited = new Set();
+        while (current && !visited.has(current) && current !== path.sep && current !== "/") {
+          visited.add(current);
+          const workspaceDir = path.join(current, "node_modules", "@workspace");
+          if (existsSync(workspaceDir)) {
+            const pkgRoot = path.join(workspaceDir, pkgName);
+            const srcIndex = path.join(pkgRoot, "src", "index.ts");
+            if (existsSync(srcIndex)) {
+              return { path: srcIndex };
+            }
+            if (existsSync(pkgRoot)) {
+              return { path: pkgRoot };
+            }
+          }
+          current = path.dirname(current);
+        }
+
+        // 3. Fallback: check lib/ in monorepo root (local development)
+        // Assume importerDir is something like /repo/artifacts/api-server/src
+        // So monorepo root is at importerDir/../../../.. = /repo
+        const monorepoRoot = path.resolve(importerDir, "..", "..", "..");
+        const libSrc = path.join(
+          monorepoRoot,
+          "lib",
+          pkgName.replace("@workspace/", ""),
+          "src",
+          "index.ts"
+        );
+        if (existsSync(libSrc)) {
+          return { path: libSrc };
         }
 
         return {
           errors: [
             {
-              text: `Cannot resolve ${pkgName}. npm workspaces symlinks should be at ${npmWorkspacePath}. Run 'npm install' from the repo root.`,
+              text: `Cannot resolve ${pkgName}. Checked: NODE_PATH=${process.env.NODE_PATH||'(none)'}, ${pkgName}/src/index.ts in workspace dirs, ${libSrc}. Set NODE_PATH or ensure 'npm install' ran from repo root.`,
               location: null,
             },
           ],
