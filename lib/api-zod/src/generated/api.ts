@@ -1958,3 +1958,454 @@ export const SetAITierPreferenceBody = zod.object({
 export const SetAITierPreferenceResponse = zod.object({
   "preferredTierId": zod.string().optional()
 })
+
+
+/**
+ * @summary Owner: list all AI tiers including inactive
+ */
+export const GetAdminAITiersResponse = zod.object({
+  "tiers": zod.array(zod.object({
+  "id": zod.string().optional(),
+  "name": zod.string().optional(),
+  "provider": zod.string().optional(),
+  "model": zod.string().optional(),
+  "pricePer1MInputCents": zod.number().optional(),
+  "pricePer1MOutputCents": zod.number().optional(),
+  "providerCostPer1MInputCents": zod.number().optional(),
+  "providerCostPer1MOutputCents": zod.number().optional(),
+  "rateLimitRpm": zod.number().nullish(),
+  "rateLimitTpd": zod.number().nullish(),
+  "isFree": zod.boolean().optional(),
+  "isActive": zod.boolean().optional(),
+  "displayOrder": zod.number().optional(),
+  "description": zod.string().optional(),
+  "usageTips": zod.string().nullish(),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+})).optional()
+})
+
+
+/**
+ * @summary Owner: update tier pricing, rate limits, and visibility
+ */
+export const UpdateAdminAITierParams = zod.object({
+  "tierId": zod.coerce.string()
+})
+
+export const updateAdminAITierBodyNameMax = 50;
+
+export const updateAdminAITierBodyPricePer1MInputCentsMin = 0;
+
+export const updateAdminAITierBodyPricePer1MOutputCentsMin = 0;
+
+export const updateAdminAITierBodyProviderCostPer1MInputCentsMin = 0;
+
+export const updateAdminAITierBodyProviderCostPer1MOutputCentsMin = 0;
+
+export const updateAdminAITierBodyRateLimitRpmMax = 10000;
+
+
+export const updateAdminAITierBodyDescriptionMax = 500;
+
+export const updateAdminAITierBodyUsageTipsMax = 500;
+
+
+
+export const UpdateAdminAITierBody = zod.object({
+  "name": zod.string().min(1).max(updateAdminAITierBodyNameMax).optional(),
+  "pricePer1MInputCents": zod.number().min(updateAdminAITierBodyPricePer1MInputCentsMin).optional(),
+  "pricePer1MOutputCents": zod.number().min(updateAdminAITierBodyPricePer1MOutputCentsMin).optional(),
+  "providerCostPer1MInputCents": zod.number().min(updateAdminAITierBodyProviderCostPer1MInputCentsMin).optional(),
+  "providerCostPer1MOutputCents": zod.number().min(updateAdminAITierBodyProviderCostPer1MOutputCentsMin).optional(),
+  "rateLimitRpm": zod.number().min(1).max(updateAdminAITierBodyRateLimitRpmMax).nullish(),
+  "rateLimitTpd": zod.number().min(1).nullish(),
+  "isFree": zod.boolean().optional(),
+  "isActive": zod.boolean().optional(),
+  "description": zod.string().max(updateAdminAITierBodyDescriptionMax).optional(),
+  "usageTips": zod.string().max(updateAdminAITierBodyUsageTipsMax).nullish()
+})
+
+export const UpdateAdminAITierResponse = zod.object({
+  "tier": zod.object({
+  "id": zod.string().optional(),
+  "name": zod.string().optional(),
+  "provider": zod.string().optional(),
+  "model": zod.string().optional(),
+  "pricePer1MInputCents": zod.number().optional(),
+  "pricePer1MOutputCents": zod.number().optional(),
+  "providerCostPer1MInputCents": zod.number().optional(),
+  "providerCostPer1MOutputCents": zod.number().optional(),
+  "rateLimitRpm": zod.number().nullish(),
+  "rateLimitTpd": zod.number().nullish(),
+  "isFree": zod.boolean().optional(),
+  "isActive": zod.boolean().optional(),
+  "displayOrder": zod.number().optional(),
+  "description": zod.string().optional(),
+  "usageTips": zod.string().nullish(),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+}).optional()
+})
+
+
+/**
+ * Returns display name, avatar URL, email, and account info.
+ * @summary Get current user's public profile
+ */
+export const GetMyProfileResponse = zod.object({
+  "id": zod.string(),
+  "email": zod.string(),
+  "displayName": zod.string().nullable(),
+  "avatarUrl": zod.string().nullable(),
+  "isOwner": zod.boolean(),
+  "referralCode": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * Update display name and/or avatar URL.
+ * @summary Update current user's profile
+ */
+export const updateMyProfileBodyDisplayNameMax = 100;
+
+
+
+export const UpdateMyProfileBody = zod.object({
+  "displayName": zod.string().min(1).max(updateMyProfileBodyDisplayNameMax).optional(),
+  "avatarUrl": zod.url().optional()
+})
+
+export const UpdateMyProfileResponse = zod.object({
+  "id": zod.string(),
+  "email": zod.string(),
+  "displayName": zod.string().nullable(),
+  "avatarUrl": zod.string().nullable(),
+  "isOwner": zod.boolean(),
+  "referralCode": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * Upload a profile picture to Supabase Storage. Accepts JPEG, PNG, or WebP up to 5MB.
+ * @summary Upload avatar image
+ */
+export const UploadMyAvatarBody = zod.object({
+  "base64Content": zod.string().describe('Base64-encoded image content (max 5MB, JPEG\/PNG\/WebP)'),
+  "filename": zod.string().describe('Original filename (e.g. \"avatar.jpg\")')
+})
+
+export const UploadMyAvatarResponse = zod.object({
+  "avatarUrl": zod.url().describe('Public URL of the uploaded avatar')
+})
+
+
+/**
+ * Permanently deletes the user account and all associated data. Requires password confirmation.
+ * @summary Delete current user account
+ */
+export const DeleteMyAccountBody = zod.object({
+  "password": zod.string().describe('User\'s current password to confirm deletion')
+})
+
+export const DeleteMyAccountResponse = zod.object({
+  "message": zod.string()
+})
+
+
+/**
+ * Returns the user's own templates plus all public system templates.
+ * @summary List document templates
+ */
+export const ListTemplatesQueryParams = zod.object({
+  "category": zod.coerce.string().optional()
+})
+
+export const ListTemplatesResponseItem = zod.object({
+  "id": zod.number().optional(),
+  "projectId": zod.number().optional(),
+  "title": zod.string().optional(),
+  "description": zod.string().optional(),
+  "content": zod.string().optional(),
+  "isActive": zod.boolean().optional(),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+})
+export const ListTemplatesResponse = zod.array(ListTemplatesResponseItem)
+
+
+/**
+ * @summary Create a new document template
+ */
+
+
+
+export const CreateTemplateBody = zod.object({
+  "title": zod.string().min(1),
+  "description": zod.string().optional(),
+  "content": zod.string().optional()
+})
+
+export const CreateTemplateResponse = zod.object({
+  "id": zod.number().optional(),
+  "projectId": zod.number().optional(),
+  "title": zod.string().optional(),
+  "description": zod.string().optional(),
+  "content": zod.string().optional(),
+  "isActive": zod.boolean().optional(),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+})
+
+
+/**
+ * @summary List available template categories
+ */
+export const ListTemplateCategoriesResponseItem = zod.string()
+export const ListTemplateCategoriesResponse = zod.array(ListTemplateCategoriesResponseItem)
+
+
+/**
+ * @summary Get a template by ID
+ */
+export const GetTemplateParams = zod.object({
+  "templateId": zod.coerce.number()
+})
+
+export const GetTemplateResponse = zod.object({
+  "id": zod.number().optional(),
+  "projectId": zod.number().optional(),
+  "title": zod.string().optional(),
+  "description": zod.string().optional(),
+  "content": zod.string().optional(),
+  "isActive": zod.boolean().optional(),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+})
+
+
+/**
+ * Only the template owner can update. System templates are read-only.
+ * @summary Update a template
+ */
+export const UpdateTemplateParams = zod.object({
+  "templateId": zod.coerce.number()
+})
+
+
+
+
+export const UpdateTemplateBody = zod.object({
+  "title": zod.string().min(1).optional(),
+  "description": zod.string().optional(),
+  "content": zod.string().optional(),
+  "isActive": zod.boolean().optional()
+})
+
+export const UpdateTemplateResponse = zod.object({
+  "id": zod.number().optional(),
+  "projectId": zod.number().optional(),
+  "title": zod.string().optional(),
+  "description": zod.string().optional(),
+  "content": zod.string().optional(),
+  "isActive": zod.boolean().optional(),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+})
+
+
+/**
+ * Only the template owner can delete. System templates cannot be deleted.
+ * @summary Delete a template
+ */
+export const DeleteTemplateParams = zod.object({
+  "templateId": zod.coerce.number()
+})
+
+export const DeleteTemplateResponse = zod.void()
+
+
+/**
+ * Returns all references in the authenticated user's personal reference pool.
+ * @summary List account-level references
+ */
+export const ListAccountReferencesResponseItem = zod.object({
+  "id": zod.number(),
+  "userId": zod.string(),
+  "title": zod.string(),
+  "authors": zod.string().nullish(),
+  "year": zod.number().nullish(),
+  "journal": zod.string().nullish(),
+  "volume": zod.string().nullish(),
+  "issue": zod.string().nullish(),
+  "doi": zod.string().nullish(),
+  "url": zod.string().nullish(),
+  "createdAt": zod.coerce.date(),
+  "isSuggested": zod.boolean().optional().describe('Whether this reference was auto-suggested by CrossRef'),
+  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference')
+})
+export const ListAccountReferencesResponse = zod.array(ListAccountReferencesResponseItem)
+
+
+/**
+ * Adds a new reference to the user's account-level library. Duplicate DOIs are rejected.
+ * @summary Add reference to personal pool
+ */
+
+export const createAccountReferenceBodyIsSuggestedDefault = false;
+export const createAccountReferenceBodySourceDefault = `manual`;
+
+export const CreateAccountReferenceBody = zod.object({
+  "title": zod.string().min(1),
+  "authors": zod.string().optional(),
+  "year": zod.number().optional(),
+  "journal": zod.string().optional(),
+  "volume": zod.string().optional(),
+  "issue": zod.string().optional(),
+  "doi": zod.string().optional(),
+  "url": zod.string().optional(),
+  "isSuggested": zod.boolean().default(createAccountReferenceBodyIsSuggestedDefault).describe('Whether this reference was auto-suggested by CrossRef'),
+  "source": zod.enum(['manual', 'crossref', 'file']).default(createAccountReferenceBodySourceDefault).describe('Source of the reference')
+})
+
+export const CreateAccountReferenceResponse = zod.object({
+  "id": zod.number(),
+  "userId": zod.string(),
+  "title": zod.string(),
+  "authors": zod.string().nullish(),
+  "year": zod.number().nullish(),
+  "journal": zod.string().nullish(),
+  "volume": zod.string().nullish(),
+  "issue": zod.string().nullish(),
+  "doi": zod.string().nullish(),
+  "url": zod.string().nullish(),
+  "createdAt": zod.coerce.date(),
+  "isSuggested": zod.boolean().optional().describe('Whether this reference was auto-suggested by CrossRef'),
+  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference')
+})
+
+
+/**
+ * Fetches metadata from CrossRef for each DOI and adds valid references to the account library. Skips duplicates.
+ * @summary Bulk import references from DOIs
+ */
+export const importAccountReferencesBodyDoisMax = 50;
+
+
+
+export const ImportAccountReferencesBody = zod.object({
+  "dois": zod.array(zod.string()).min(1).max(importAccountReferencesBodyDoisMax).describe('Array of DOI strings to import (max 50)')
+})
+
+export const ImportAccountReferencesResponse = zod.object({
+  "imported": zod.array(zod.object({
+  "id": zod.number(),
+  "userId": zod.string(),
+  "title": zod.string(),
+  "authors": zod.string().nullish(),
+  "year": zod.number().nullish(),
+  "journal": zod.string().nullish(),
+  "volume": zod.string().nullish(),
+  "issue": zod.string().nullish(),
+  "doi": zod.string().nullish(),
+  "url": zod.string().nullish(),
+  "createdAt": zod.coerce.date(),
+  "isSuggested": zod.boolean().optional().describe('Whether this reference was auto-suggested by CrossRef'),
+  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference')
+})),
+  "skipped": zod.array(zod.string()).optional().describe('DOIs that were already in the user\'s library'),
+  "failed": zod.array(zod.object({
+  "doi": zod.string().optional(),
+  "error": zod.string().optional()
+})).optional().describe('DOIs that failed to import'),
+  "summary": zod.object({
+  "total": zod.number().optional(),
+  "imported": zod.number().optional(),
+  "skipped": zod.number().optional(),
+  "failed": zod.number().optional()
+})
+})
+
+
+/**
+ * @summary Update an account reference
+ */
+export const UpdateAccountReferenceParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+export const updateAccountReferenceBodyIsSuggestedDefault = false;
+export const updateAccountReferenceBodySourceDefault = `manual`;
+
+export const UpdateAccountReferenceBody = zod.object({
+  "title": zod.string().min(1),
+  "authors": zod.string().optional(),
+  "year": zod.number().optional(),
+  "journal": zod.string().optional(),
+  "volume": zod.string().optional(),
+  "issue": zod.string().optional(),
+  "doi": zod.string().optional(),
+  "url": zod.string().optional(),
+  "isSuggested": zod.boolean().default(updateAccountReferenceBodyIsSuggestedDefault).describe('Whether this reference was auto-suggested by CrossRef'),
+  "source": zod.enum(['manual', 'crossref', 'file']).default(updateAccountReferenceBodySourceDefault).describe('Source of the reference')
+})
+
+export const UpdateAccountReferenceResponse = zod.object({
+  "id": zod.number(),
+  "userId": zod.string(),
+  "title": zod.string(),
+  "authors": zod.string().nullish(),
+  "year": zod.number().nullish(),
+  "journal": zod.string().nullish(),
+  "volume": zod.string().nullish(),
+  "issue": zod.string().nullish(),
+  "doi": zod.string().nullish(),
+  "url": zod.string().nullish(),
+  "createdAt": zod.coerce.date(),
+  "isSuggested": zod.boolean().optional().describe('Whether this reference was auto-suggested by CrossRef'),
+  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference')
+})
+
+
+/**
+ * @summary Delete an account reference
+ */
+export const DeleteAccountReferenceParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteAccountReferenceResponse = zod.void()
+
+
+/**
+ * Copies an account-level reference into a project's reference pool.
+ * @summary Assign account reference to a project
+ */
+export const AssignAccountReferenceParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const AssignAccountReferenceBody = zod.object({
+  "projectId": zod.number()
+})
+
+export const AssignAccountReferenceResponse = zod.object({
+  "id": zod.number(),
+  "projectId": zod.number(),
+  "title": zod.string(),
+  "authors": zod.string().nullish(),
+  "year": zod.number().nullish(),
+  "journal": zod.string().nullish(),
+  "volume": zod.string().nullish(),
+  "issue": zod.string().nullish(),
+  "doi": zod.string().nullish(),
+  "url": zod.string().nullish(),
+  "validationStatus": zod.enum(['unverified', 'verified', 'invalid']),
+  "usedInChapters": zod.string().nullish(),
+  "createdAt": zod.coerce.date(),
+  "isSuggested": zod.boolean().optional().describe('Whether this reference was auto-suggested by CrossRef'),
+  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference')
+})

@@ -22,12 +22,17 @@ import type {
 import type {
   AITiersResponse,
   AIUsageStats,
+  AccountReference,
+  AccountReferenceInput,
   Activity,
   AddMemberRequest,
   AnalyzeStyleRequest,
+  AssignAccountReferenceBody,
   Attachment,
   AttachmentUpload,
   AuthUser,
+  AvatarUploadRequest,
+  AvatarUploadResponse,
   BibliographyResult,
   BulkAddReferencesRequest,
   Comment,
@@ -35,8 +40,13 @@ import type {
   CommentUpdate,
   CreateShareLinkRequest,
   CrossRefSearchResponse,
+  DeleteAccountRequest,
+  DeleteAccountResponse,
   Document,
   DocumentInput,
+  DocumentTemplate,
+  DocumentTemplateInput,
+  DocumentTemplateUpdate,
   DocumentUpdate,
   DocumentVersion,
   DocumentWithVersions,
@@ -53,14 +63,18 @@ import type {
   GenerateQuizRequest,
   GenerateRubricBody,
   GetAIUsageStatsParams,
+  GetAdminAITiers200,
   GetAdminUsageStatsParams,
   GetMyUsageStatsParams,
   HealthStatus,
+  ImportAccountReferencesRequest,
+  ImportAccountReferencesResponse,
   InsufficientBalanceError,
   Job,
   ListAIUsage200,
   ListAIUsageParams,
   ListProjectsParams,
+  ListTemplatesParams,
   LoginRequest,
   Message,
   MessageInput,
@@ -86,10 +100,14 @@ import type {
   SharedProject,
   SubmitQuizRequest,
   TierPreferenceResponse,
+  UpdateAITierRequest,
+  UpdateAdminAITier200,
   UpdateMemberRequest,
   UpdateMyWritingStyleBody,
+  UpdateProfileRequest,
   UpdateRubricBody,
   UserBalance,
+  UserProfile,
   WritingStyleProfile
 } from './api.schemas';
 
@@ -6089,5 +6107,1401 @@ export const useSetAITierPreference = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getSetAITierPreferenceMutationOptions(options));
+    }
+
+export const getGetAdminAITiersUrl = () => {
+
+
+
+
+  return `/api/admin/ai-tiers`
+}
+
+/**
+ * @summary Owner: list all AI tiers including inactive
+ */
+export const getAdminAITiers = async ( options?: Parameters<typeof customFetch>[1]): Promise<GetAdminAITiers200> => {
+
+  return customFetch<GetAdminAITiers200>(getGetAdminAITiersUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAdminAITiersQueryKey = () => {
+    return [
+    `/api/admin/ai-tiers`
+    ] as const;
+    }
+
+
+export const getGetAdminAITiersQueryOptions = <TData = Awaited<ReturnType<typeof getAdminAITiers>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminAITiers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAdminAITiersQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAdminAITiers>>> = ({ signal }) => getAdminAITiers({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAdminAITiers>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAdminAITiersQueryResult = NonNullable<Awaited<ReturnType<typeof getAdminAITiers>>>
+export type GetAdminAITiersQueryError = ErrorType<void>
+
+
+/**
+ * @summary Owner: list all AI tiers including inactive
+ */
+
+export function useGetAdminAITiers<TData = Awaited<ReturnType<typeof getAdminAITiers>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminAITiers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAdminAITiersQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateAdminAITierUrl = (tierId: string,) => {
+
+
+
+
+  return `/api/admin/ai-tiers/${tierId}`
+}
+
+/**
+ * @summary Owner: update tier pricing, rate limits, and visibility
+ */
+export const updateAdminAITier = async (tierId: string,
+    updateAITierRequest: UpdateAITierRequest, options?: Parameters<typeof customFetch>[1]): Promise<UpdateAdminAITier200> => {
+
+    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<UpdateAdminAITier200>(getUpdateAdminAITierUrl(tierId),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(updateAITierRequest)
+  }
+);}
+
+
+
+
+
+export const getUpdateAdminAITierMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAdminAITier>>, TError,{tierId: string;data: BodyType<UpdateAITierRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateAdminAITier>>, TError,{tierId: string;data: BodyType<UpdateAITierRequest>}, TContext> => {
+
+const mutationKey = ['updateAdminAITier'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateAdminAITier>>, {tierId: string;data: BodyType<UpdateAITierRequest>}> = (props) => {
+          const {tierId,data} = props ?? {};
+
+          return  updateAdminAITier(tierId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateAdminAITierMutationResult = NonNullable<Awaited<ReturnType<typeof updateAdminAITier>>>
+    export type UpdateAdminAITierMutationBody = BodyType<UpdateAITierRequest>
+    export type UpdateAdminAITierMutationError = ErrorType<void>
+
+    /**
+ * @summary Owner: update tier pricing, rate limits, and visibility
+ */
+export const useUpdateAdminAITier = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAdminAITier>>, TError,{tierId: string;data: BodyType<UpdateAITierRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateAdminAITier>>,
+        TError,
+        {tierId: string;data: BodyType<UpdateAITierRequest>},
+        TContext
+      > => {
+      return useMutation(getUpdateAdminAITierMutationOptions(options));
+    }
+
+export const getGetMyProfileUrl = () => {
+
+
+
+
+  return `/api/users/me/profile`
+}
+
+/**
+ * Returns display name, avatar URL, email, and account info.
+ * @summary Get current user's public profile
+ */
+export const getMyProfile = async ( options?: Parameters<typeof customFetch>[1]): Promise<UserProfile> => {
+
+  return customFetch<UserProfile>(getGetMyProfileUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMyProfileQueryKey = () => {
+    return [
+    `/api/users/me/profile`
+    ] as const;
+    }
+
+
+export const getGetMyProfileQueryOptions = <TData = Awaited<ReturnType<typeof getMyProfile>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyProfile>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMyProfileQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyProfile>>> = ({ signal }) => getMyProfile({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMyProfile>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMyProfileQueryResult = NonNullable<Awaited<ReturnType<typeof getMyProfile>>>
+export type GetMyProfileQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get current user's public profile
+ */
+
+export function useGetMyProfile<TData = Awaited<ReturnType<typeof getMyProfile>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyProfile>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMyProfileQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateMyProfileUrl = () => {
+
+
+
+
+  return `/api/users/me/profile`
+}
+
+/**
+ * Update display name and/or avatar URL.
+ * @summary Update current user's profile
+ */
+export const updateMyProfile = async (updateProfileRequest: UpdateProfileRequest, options?: Parameters<typeof customFetch>[1]): Promise<UserProfile> => {
+
+    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<UserProfile>(getUpdateMyProfileUrl(),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(updateProfileRequest)
+  }
+);}
+
+
+
+
+
+export const getUpdateMyProfileMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMyProfile>>, TError,{data: BodyType<UpdateProfileRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateMyProfile>>, TError,{data: BodyType<UpdateProfileRequest>}, TContext> => {
+
+const mutationKey = ['updateMyProfile'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateMyProfile>>, {data: BodyType<UpdateProfileRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateMyProfile(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateMyProfileMutationResult = NonNullable<Awaited<ReturnType<typeof updateMyProfile>>>
+    export type UpdateMyProfileMutationBody = BodyType<UpdateProfileRequest>
+    export type UpdateMyProfileMutationError = ErrorType<void>
+
+    /**
+ * @summary Update current user's profile
+ */
+export const useUpdateMyProfile = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMyProfile>>, TError,{data: BodyType<UpdateProfileRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateMyProfile>>,
+        TError,
+        {data: BodyType<UpdateProfileRequest>},
+        TContext
+      > => {
+      return useMutation(getUpdateMyProfileMutationOptions(options));
+    }
+
+export const getUploadMyAvatarUrl = () => {
+
+
+
+
+  return `/api/users/me/avatar`
+}
+
+/**
+ * Upload a profile picture to Supabase Storage. Accepts JPEG, PNG, or WebP up to 5MB.
+ * @summary Upload avatar image
+ */
+export const uploadMyAvatar = async (avatarUploadRequest: AvatarUploadRequest, options?: Parameters<typeof customFetch>[1]): Promise<AvatarUploadResponse> => {
+
+    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<AvatarUploadResponse>(getUploadMyAvatarUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(avatarUploadRequest)
+  }
+);}
+
+
+
+
+
+export const getUploadMyAvatarMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadMyAvatar>>, TError,{data: BodyType<AvatarUploadRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof uploadMyAvatar>>, TError,{data: BodyType<AvatarUploadRequest>}, TContext> => {
+
+const mutationKey = ['uploadMyAvatar'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof uploadMyAvatar>>, {data: BodyType<AvatarUploadRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  uploadMyAvatar(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UploadMyAvatarMutationResult = NonNullable<Awaited<ReturnType<typeof uploadMyAvatar>>>
+    export type UploadMyAvatarMutationBody = BodyType<AvatarUploadRequest>
+    export type UploadMyAvatarMutationError = ErrorType<void>
+
+    /**
+ * @summary Upload avatar image
+ */
+export const useUploadMyAvatar = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadMyAvatar>>, TError,{data: BodyType<AvatarUploadRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof uploadMyAvatar>>,
+        TError,
+        {data: BodyType<AvatarUploadRequest>},
+        TContext
+      > => {
+      return useMutation(getUploadMyAvatarMutationOptions(options));
+    }
+
+export const getDeleteMyAccountUrl = () => {
+
+
+
+
+  return `/api/users/me/account`
+}
+
+/**
+ * Permanently deletes the user account and all associated data. Requires password confirmation.
+ * @summary Delete current user account
+ */
+export const deleteMyAccount = async (deleteAccountRequest: DeleteAccountRequest, options?: Parameters<typeof customFetch>[1]): Promise<DeleteAccountResponse> => {
+
+    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<DeleteAccountResponse>(getDeleteMyAccountUrl(),
+  {
+    ...options,
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(deleteAccountRequest)
+  }
+);}
+
+
+
+
+
+export const getDeleteMyAccountMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteMyAccount>>, TError,{data: BodyType<DeleteAccountRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteMyAccount>>, TError,{data: BodyType<DeleteAccountRequest>}, TContext> => {
+
+const mutationKey = ['deleteMyAccount'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteMyAccount>>, {data: BodyType<DeleteAccountRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  deleteMyAccount(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteMyAccountMutationResult = NonNullable<Awaited<ReturnType<typeof deleteMyAccount>>>
+    export type DeleteMyAccountMutationBody = BodyType<DeleteAccountRequest>
+    export type DeleteMyAccountMutationError = ErrorType<void>
+
+    /**
+ * @summary Delete current user account
+ */
+export const useDeleteMyAccount = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteMyAccount>>, TError,{data: BodyType<DeleteAccountRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteMyAccount>>,
+        TError,
+        {data: BodyType<DeleteAccountRequest>},
+        TContext
+      > => {
+      return useMutation(getDeleteMyAccountMutationOptions(options));
+    }
+
+export const getListTemplatesUrl = (params?: ListTemplatesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/templates?${stringifiedParams}` : `/api/templates`
+}
+
+/**
+ * Returns the user's own templates plus all public system templates.
+ * @summary List document templates
+ */
+export const listTemplates = async (params?: ListTemplatesParams, options?: Parameters<typeof customFetch>[1]): Promise<DocumentTemplate[]> => {
+
+  return customFetch<DocumentTemplate[]>(getListTemplatesUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListTemplatesQueryKey = (params?: ListTemplatesParams,) => {
+    return [
+    `/api/templates`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListTemplatesQueryOptions = <TData = Awaited<ReturnType<typeof listTemplates>>, TError = ErrorType<void>>(params?: ListTemplatesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listTemplates>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListTemplatesQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listTemplates>>> = ({ signal }) => listTemplates(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listTemplates>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListTemplatesQueryResult = NonNullable<Awaited<ReturnType<typeof listTemplates>>>
+export type ListTemplatesQueryError = ErrorType<void>
+
+
+/**
+ * @summary List document templates
+ */
+
+export function useListTemplates<TData = Awaited<ReturnType<typeof listTemplates>>, TError = ErrorType<void>>(
+ params?: ListTemplatesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listTemplates>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListTemplatesQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateTemplateUrl = () => {
+
+
+
+
+  return `/api/templates`
+}
+
+/**
+ * @summary Create a new document template
+ */
+export const createTemplate = async (documentTemplateInput: DocumentTemplateInput, options?: Parameters<typeof customFetch>[1]): Promise<DocumentTemplate> => {
+
+    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<DocumentTemplate>(getCreateTemplateUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(documentTemplateInput)
+  }
+);}
+
+
+
+
+
+export const getCreateTemplateMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createTemplate>>, TError,{data: BodyType<DocumentTemplateInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createTemplate>>, TError,{data: BodyType<DocumentTemplateInput>}, TContext> => {
+
+const mutationKey = ['createTemplate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createTemplate>>, {data: BodyType<DocumentTemplateInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createTemplate(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateTemplateMutationResult = NonNullable<Awaited<ReturnType<typeof createTemplate>>>
+    export type CreateTemplateMutationBody = BodyType<DocumentTemplateInput>
+    export type CreateTemplateMutationError = ErrorType<void>
+
+    /**
+ * @summary Create a new document template
+ */
+export const useCreateTemplate = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createTemplate>>, TError,{data: BodyType<DocumentTemplateInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createTemplate>>,
+        TError,
+        {data: BodyType<DocumentTemplateInput>},
+        TContext
+      > => {
+      return useMutation(getCreateTemplateMutationOptions(options));
+    }
+
+export const getListTemplateCategoriesUrl = () => {
+
+
+
+
+  return `/api/templates/categories`
+}
+
+/**
+ * @summary List available template categories
+ */
+export const listTemplateCategories = async ( options?: Parameters<typeof customFetch>[1]): Promise<string[]> => {
+
+  return customFetch<string[]>(getListTemplateCategoriesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListTemplateCategoriesQueryKey = () => {
+    return [
+    `/api/templates/categories`
+    ] as const;
+    }
+
+
+export const getListTemplateCategoriesQueryOptions = <TData = Awaited<ReturnType<typeof listTemplateCategories>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listTemplateCategories>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListTemplateCategoriesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listTemplateCategories>>> = ({ signal }) => listTemplateCategories({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listTemplateCategories>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListTemplateCategoriesQueryResult = NonNullable<Awaited<ReturnType<typeof listTemplateCategories>>>
+export type ListTemplateCategoriesQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List available template categories
+ */
+
+export function useListTemplateCategories<TData = Awaited<ReturnType<typeof listTemplateCategories>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listTemplateCategories>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListTemplateCategoriesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetTemplateUrl = (templateId: number,) => {
+
+
+
+
+  return `/api/templates/${templateId}`
+}
+
+/**
+ * @summary Get a template by ID
+ */
+export const getTemplate = async (templateId: number, options?: Parameters<typeof customFetch>[1]): Promise<DocumentTemplate> => {
+
+  return customFetch<DocumentTemplate>(getGetTemplateUrl(templateId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetTemplateQueryKey = (templateId: number,) => {
+    return [
+    `/api/templates/${templateId}`
+    ] as const;
+    }
+
+
+export const getGetTemplateQueryOptions = <TData = Awaited<ReturnType<typeof getTemplate>>, TError = ErrorType<void>>(templateId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTemplate>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetTemplateQueryKey(templateId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTemplate>>> = ({ signal }) => getTemplate(templateId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: templateId !== null && templateId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTemplate>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetTemplateQueryResult = NonNullable<Awaited<ReturnType<typeof getTemplate>>>
+export type GetTemplateQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get a template by ID
+ */
+
+export function useGetTemplate<TData = Awaited<ReturnType<typeof getTemplate>>, TError = ErrorType<void>>(
+ templateId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTemplate>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetTemplateQueryOptions(templateId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateTemplateUrl = (templateId: number,) => {
+
+
+
+
+  return `/api/templates/${templateId}`
+}
+
+/**
+ * Only the template owner can update. System templates are read-only.
+ * @summary Update a template
+ */
+export const updateTemplate = async (templateId: number,
+    documentTemplateUpdate: DocumentTemplateUpdate, options?: Parameters<typeof customFetch>[1]): Promise<DocumentTemplate> => {
+
+    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<DocumentTemplate>(getUpdateTemplateUrl(templateId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(documentTemplateUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateTemplateMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateTemplate>>, TError,{templateId: number;data: BodyType<DocumentTemplateUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateTemplate>>, TError,{templateId: number;data: BodyType<DocumentTemplateUpdate>}, TContext> => {
+
+const mutationKey = ['updateTemplate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateTemplate>>, {templateId: number;data: BodyType<DocumentTemplateUpdate>}> = (props) => {
+          const {templateId,data} = props ?? {};
+
+          return  updateTemplate(templateId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateTemplateMutationResult = NonNullable<Awaited<ReturnType<typeof updateTemplate>>>
+    export type UpdateTemplateMutationBody = BodyType<DocumentTemplateUpdate>
+    export type UpdateTemplateMutationError = ErrorType<void>
+
+    /**
+ * @summary Update a template
+ */
+export const useUpdateTemplate = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateTemplate>>, TError,{templateId: number;data: BodyType<DocumentTemplateUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateTemplate>>,
+        TError,
+        {templateId: number;data: BodyType<DocumentTemplateUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateTemplateMutationOptions(options));
+    }
+
+export const getDeleteTemplateUrl = (templateId: number,) => {
+
+
+
+
+  return `/api/templates/${templateId}`
+}
+
+/**
+ * Only the template owner can delete. System templates cannot be deleted.
+ * @summary Delete a template
+ */
+export const deleteTemplate = async (templateId: number, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteTemplateUrl(templateId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteTemplateMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteTemplate>>, TError,{templateId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteTemplate>>, TError,{templateId: number}, TContext> => {
+
+const mutationKey = ['deleteTemplate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteTemplate>>, {templateId: number}> = (props) => {
+          const {templateId} = props ?? {};
+
+          return  deleteTemplate(templateId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteTemplateMutationResult = NonNullable<Awaited<ReturnType<typeof deleteTemplate>>>
+
+    export type DeleteTemplateMutationError = ErrorType<void>
+
+    /**
+ * @summary Delete a template
+ */
+export const useDeleteTemplate = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteTemplate>>, TError,{templateId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteTemplate>>,
+        TError,
+        {templateId: number},
+        TContext
+      > => {
+      return useMutation(getDeleteTemplateMutationOptions(options));
+    }
+
+export const getListAccountReferencesUrl = () => {
+
+
+
+
+  return `/api/account/references`
+}
+
+/**
+ * Returns all references in the authenticated user's personal reference pool.
+ * @summary List account-level references
+ */
+export const listAccountReferences = async ( options?: Parameters<typeof customFetch>[1]): Promise<AccountReference[]> => {
+
+  return customFetch<AccountReference[]>(getListAccountReferencesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAccountReferencesQueryKey = () => {
+    return [
+    `/api/account/references`
+    ] as const;
+    }
+
+
+export const getListAccountReferencesQueryOptions = <TData = Awaited<ReturnType<typeof listAccountReferences>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAccountReferences>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAccountReferencesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAccountReferences>>> = ({ signal }) => listAccountReferences({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAccountReferences>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAccountReferencesQueryResult = NonNullable<Awaited<ReturnType<typeof listAccountReferences>>>
+export type ListAccountReferencesQueryError = ErrorType<void>
+
+
+/**
+ * @summary List account-level references
+ */
+
+export function useListAccountReferences<TData = Awaited<ReturnType<typeof listAccountReferences>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAccountReferences>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAccountReferencesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateAccountReferenceUrl = () => {
+
+
+
+
+  return `/api/account/references`
+}
+
+/**
+ * Adds a new reference to the user's account-level library. Duplicate DOIs are rejected.
+ * @summary Add reference to personal pool
+ */
+export const createAccountReference = async (accountReferenceInput: AccountReferenceInput, options?: Parameters<typeof customFetch>[1]): Promise<AccountReference> => {
+
+    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<AccountReference>(getCreateAccountReferenceUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(accountReferenceInput)
+  }
+);}
+
+
+
+
+
+export const getCreateAccountReferenceMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAccountReference>>, TError,{data: BodyType<AccountReferenceInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createAccountReference>>, TError,{data: BodyType<AccountReferenceInput>}, TContext> => {
+
+const mutationKey = ['createAccountReference'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createAccountReference>>, {data: BodyType<AccountReferenceInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createAccountReference(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateAccountReferenceMutationResult = NonNullable<Awaited<ReturnType<typeof createAccountReference>>>
+    export type CreateAccountReferenceMutationBody = BodyType<AccountReferenceInput>
+    export type CreateAccountReferenceMutationError = ErrorType<void>
+
+    /**
+ * @summary Add reference to personal pool
+ */
+export const useCreateAccountReference = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAccountReference>>, TError,{data: BodyType<AccountReferenceInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createAccountReference>>,
+        TError,
+        {data: BodyType<AccountReferenceInput>},
+        TContext
+      > => {
+      return useMutation(getCreateAccountReferenceMutationOptions(options));
+    }
+
+export const getImportAccountReferencesUrl = () => {
+
+
+
+
+  return `/api/account/references/import`
+}
+
+/**
+ * Fetches metadata from CrossRef for each DOI and adds valid references to the account library. Skips duplicates.
+ * @summary Bulk import references from DOIs
+ */
+export const importAccountReferences = async (importAccountReferencesRequest: ImportAccountReferencesRequest, options?: Parameters<typeof customFetch>[1]): Promise<ImportAccountReferencesResponse> => {
+
+    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<ImportAccountReferencesResponse>(getImportAccountReferencesUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(importAccountReferencesRequest)
+  }
+);}
+
+
+
+
+
+export const getImportAccountReferencesMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof importAccountReferences>>, TError,{data: BodyType<ImportAccountReferencesRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof importAccountReferences>>, TError,{data: BodyType<ImportAccountReferencesRequest>}, TContext> => {
+
+const mutationKey = ['importAccountReferences'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof importAccountReferences>>, {data: BodyType<ImportAccountReferencesRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  importAccountReferences(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ImportAccountReferencesMutationResult = NonNullable<Awaited<ReturnType<typeof importAccountReferences>>>
+    export type ImportAccountReferencesMutationBody = BodyType<ImportAccountReferencesRequest>
+    export type ImportAccountReferencesMutationError = ErrorType<void>
+
+    /**
+ * @summary Bulk import references from DOIs
+ */
+export const useImportAccountReferences = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof importAccountReferences>>, TError,{data: BodyType<ImportAccountReferencesRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof importAccountReferences>>,
+        TError,
+        {data: BodyType<ImportAccountReferencesRequest>},
+        TContext
+      > => {
+      return useMutation(getImportAccountReferencesMutationOptions(options));
+    }
+
+export const getUpdateAccountReferenceUrl = (id: number,) => {
+
+
+
+
+  return `/api/account/references/${id}`
+}
+
+/**
+ * @summary Update an account reference
+ */
+export const updateAccountReference = async (id: number,
+    accountReferenceInput: AccountReferenceInput, options?: Parameters<typeof customFetch>[1]): Promise<AccountReference> => {
+
+    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<AccountReference>(getUpdateAccountReferenceUrl(id),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(accountReferenceInput)
+  }
+);}
+
+
+
+
+
+export const getUpdateAccountReferenceMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAccountReference>>, TError,{id: number;data: BodyType<AccountReferenceInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateAccountReference>>, TError,{id: number;data: BodyType<AccountReferenceInput>}, TContext> => {
+
+const mutationKey = ['updateAccountReference'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateAccountReference>>, {id: number;data: BodyType<AccountReferenceInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateAccountReference(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateAccountReferenceMutationResult = NonNullable<Awaited<ReturnType<typeof updateAccountReference>>>
+    export type UpdateAccountReferenceMutationBody = BodyType<AccountReferenceInput>
+    export type UpdateAccountReferenceMutationError = ErrorType<void>
+
+    /**
+ * @summary Update an account reference
+ */
+export const useUpdateAccountReference = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAccountReference>>, TError,{id: number;data: BodyType<AccountReferenceInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateAccountReference>>,
+        TError,
+        {id: number;data: BodyType<AccountReferenceInput>},
+        TContext
+      > => {
+      return useMutation(getUpdateAccountReferenceMutationOptions(options));
+    }
+
+export const getDeleteAccountReferenceUrl = (id: number,) => {
+
+
+
+
+  return `/api/account/references/${id}`
+}
+
+/**
+ * @summary Delete an account reference
+ */
+export const deleteAccountReference = async (id: number, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteAccountReferenceUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteAccountReferenceMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAccountReference>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteAccountReference>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteAccountReference'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteAccountReference>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteAccountReference(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteAccountReferenceMutationResult = NonNullable<Awaited<ReturnType<typeof deleteAccountReference>>>
+
+    export type DeleteAccountReferenceMutationError = ErrorType<void>
+
+    /**
+ * @summary Delete an account reference
+ */
+export const useDeleteAccountReference = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAccountReference>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteAccountReference>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteAccountReferenceMutationOptions(options));
+    }
+
+export const getAssignAccountReferenceUrl = (id: number,) => {
+
+
+
+
+  return `/api/account/references/${id}/assign`
+}
+
+/**
+ * Copies an account-level reference into a project's reference pool.
+ * @summary Assign account reference to a project
+ */
+export const assignAccountReference = async (id: number,
+    assignAccountReferenceBody: AssignAccountReferenceBody, options?: Parameters<typeof customFetch>[1]): Promise<Reference> => {
+
+    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<Reference>(getAssignAccountReferenceUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(assignAccountReferenceBody)
+  }
+);}
+
+
+
+
+
+export const getAssignAccountReferenceMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof assignAccountReference>>, TError,{id: number;data: BodyType<AssignAccountReferenceBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof assignAccountReference>>, TError,{id: number;data: BodyType<AssignAccountReferenceBody>}, TContext> => {
+
+const mutationKey = ['assignAccountReference'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof assignAccountReference>>, {id: number;data: BodyType<AssignAccountReferenceBody>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  assignAccountReference(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AssignAccountReferenceMutationResult = NonNullable<Awaited<ReturnType<typeof assignAccountReference>>>
+    export type AssignAccountReferenceMutationBody = BodyType<AssignAccountReferenceBody>
+    export type AssignAccountReferenceMutationError = ErrorType<void>
+
+    /**
+ * @summary Assign account reference to a project
+ */
+export const useAssignAccountReference = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof assignAccountReference>>, TError,{id: number;data: BodyType<AssignAccountReferenceBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof assignAccountReference>>,
+        TError,
+        {id: number;data: BodyType<AssignAccountReferenceBody>},
+        TContext
+      > => {
+      return useMutation(getAssignAccountReferenceMutationOptions(options));
     }
 

@@ -196,6 +196,32 @@ export interface Document {
   updatedAt: string;
 }
 
+export interface DocumentTemplate {
+  id?: number;
+  projectId?: number;
+  title?: string;
+  description?: string;
+  content?: string;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface DocumentTemplateInput {
+  /** @minLength 1 */
+  title: string;
+  description?: string;
+  content?: string;
+}
+
+export interface DocumentTemplateUpdate {
+  /** @minLength 1 */
+  title?: string;
+  description?: string;
+  content?: string;
+  isActive?: boolean;
+}
+
 export interface DocumentInput {
   /**
      * Document title (e.g., "Bab 1 Pendahuluan")
@@ -1237,11 +1263,208 @@ export interface TierPreferenceResponse {
   preferredTierId?: string;
 }
 
+export interface AITierAdmin {
+  id?: string;
+  name?: string;
+  provider?: string;
+  model?: string;
+  pricePer1MInputCents?: number;
+  pricePer1MOutputCents?: number;
+  providerCostPer1MInputCents?: number;
+  providerCostPer1MOutputCents?: number;
+  /** @nullable */
+  rateLimitRpm?: number | null;
+  /** @nullable */
+  rateLimitTpd?: number | null;
+  isFree?: boolean;
+  isActive?: boolean;
+  displayOrder?: number;
+  description?: string;
+  /** @nullable */
+  usageTips?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface UpdateAITierRequest {
+  /**
+     * @minLength 1
+     * @maxLength 50
+     */
+  name?: string;
+  /** @minimum 0 */
+  pricePer1MInputCents?: number;
+  /** @minimum 0 */
+  pricePer1MOutputCents?: number;
+  /** @minimum 0 */
+  providerCostPer1MInputCents?: number;
+  /** @minimum 0 */
+  providerCostPer1MOutputCents?: number;
+  /**
+     * @minimum 1
+     * @maximum 10000
+     * @nullable
+     */
+  rateLimitRpm?: number | null;
+  /**
+     * @minimum 1
+     * @nullable
+     */
+  rateLimitTpd?: number | null;
+  isFree?: boolean;
+  isActive?: boolean;
+  /** @maxLength 500 */
+  description?: string;
+  /**
+     * @maxLength 500
+     * @nullable
+     */
+  usageTips?: string | null;
+}
+
 export interface InsufficientBalanceError {
   error?: string;
   balanceCents?: number;
   costCents?: number;
   tierName?: string;
+}
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  /** @nullable */
+  displayName: string | null;
+  /** @nullable */
+  avatarUrl: string | null;
+  isOwner: boolean;
+  /** @nullable */
+  referralCode?: string | null;
+  createdAt: string;
+}
+
+export interface UpdateProfileRequest {
+  /**
+     * @minLength 1
+     * @maxLength 100
+     */
+  displayName?: string;
+  avatarUrl?: string;
+}
+
+export interface AvatarUploadRequest {
+  /** Base64-encoded image content (max 5MB, JPEG/PNG/WebP) */
+  base64Content: string;
+  /** Original filename (e.g. "avatar.jpg") */
+  filename: string;
+}
+
+export interface AvatarUploadResponse {
+  /** Public URL of the uploaded avatar */
+  avatarUrl: string;
+}
+
+export interface DeleteAccountRequest {
+  /** User's current password to confirm deletion */
+  password: string;
+}
+
+export interface DeleteAccountResponse {
+  message: string;
+}
+
+/**
+ * Source of the reference
+ */
+export type AccountReferenceSource = typeof AccountReferenceSource[keyof typeof AccountReferenceSource];
+
+
+export const AccountReferenceSource = {
+  manual: 'manual',
+  crossref: 'crossref',
+  file: 'file',
+} as const;
+
+export interface AccountReference {
+  id: number;
+  userId: string;
+  title: string;
+  /** @nullable */
+  authors?: string | null;
+  /** @nullable */
+  year?: number | null;
+  /** @nullable */
+  journal?: string | null;
+  /** @nullable */
+  volume?: string | null;
+  /** @nullable */
+  issue?: string | null;
+  /** @nullable */
+  doi?: string | null;
+  /** @nullable */
+  url?: string | null;
+  createdAt: string;
+  /** Whether this reference was auto-suggested by CrossRef */
+  isSuggested?: boolean;
+  /** Source of the reference */
+  source?: AccountReferenceSource;
+}
+
+/**
+ * Source of the reference
+ */
+export type AccountReferenceInputSource = typeof AccountReferenceInputSource[keyof typeof AccountReferenceInputSource];
+
+
+export const AccountReferenceInputSource = {
+  manual: 'manual',
+  crossref: 'crossref',
+  file: 'file',
+} as const;
+
+export interface AccountReferenceInput {
+  /** @minLength 1 */
+  title: string;
+  authors?: string;
+  year?: number;
+  journal?: string;
+  volume?: string;
+  issue?: string;
+  doi?: string;
+  url?: string;
+  /** Whether this reference was auto-suggested by CrossRef */
+  isSuggested?: boolean;
+  /** Source of the reference */
+  source?: AccountReferenceInputSource;
+}
+
+export interface ImportAccountReferencesRequest {
+  /**
+     * Array of DOI strings to import (max 50)
+     * @minItems 1
+     * @maxItems 50
+     */
+  dois: string[];
+}
+
+export type ImportAccountReferencesResponseFailedItem = {
+  doi?: string;
+  error?: string;
+};
+
+export type ImportAccountReferencesResponseSummary = {
+  total?: number;
+  imported?: number;
+  skipped?: number;
+  failed?: number;
+};
+
+export interface ImportAccountReferencesResponse {
+  imported: AccountReference[];
+  /** DOIs that were already in the user's library */
+  skipped?: string[];
+  /** DOIs that failed to import */
+  failed?: ImportAccountReferencesResponseFailedItem[];
+  summary: ImportAccountReferencesResponseSummary;
 }
 
 export type ListProjectsParams = {
@@ -1414,5 +1637,21 @@ export type UpdateMyWritingStyleBodyStyleCharacteristics = {
 
 export type UpdateMyWritingStyleBody = {
   styleCharacteristics?: UpdateMyWritingStyleBodyStyleCharacteristics;
+};
+
+export type GetAdminAITiers200 = {
+  tiers?: AITierAdmin[];
+};
+
+export type UpdateAdminAITier200 = {
+  tier?: AITierAdmin;
+};
+
+export type ListTemplatesParams = {
+category?: string;
+};
+
+export type AssignAccountReferenceBody = {
+  projectId: number;
 };
 

@@ -15,6 +15,7 @@ import {
   Pencil,
   Mail,
   ChevronRight,
+  Coins,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -46,6 +47,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import AdminAiTiersPanel from "@/components/admin-ai-tiers";
 
 interface Member {
   id: number;
@@ -92,6 +94,7 @@ export default function AdminDashboard() {
 
   const navItems = [
     { id: "members", label: "Member Management", icon: Users, description: "Kelola collaborator dan viewer proyek" },
+    { id: "ai-tiers", label: "AI Tier Pricing", icon: Coins, description: "Konfigurasi harga AI per-tier" },
     { id: "roles", label: "Role & Permissions", icon: Shield, description: "Definisi peran dan hak akses" },
     { id: "analytics", label: "Project Analytics", icon: BarChart3, description: "Statistik penggunaan proyek" },
     { id: "settings", label: "Project Settings", icon: Settings, description: "Konfigurasi proyek" },
@@ -113,6 +116,12 @@ export default function AdminDashboard() {
   };
 
   const tabs = [
+    {
+      id: "ai-tiers",
+      label: "AI Tiers",
+      icon: Coins,
+      content: <AdminAiTiersPanel />,
+    },
     {
       id: "members",
       label: "Members",
