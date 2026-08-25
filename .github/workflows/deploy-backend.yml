@@ -33,15 +33,17 @@ jobs:
       - name: Build API server
         working-directory: artifacts/api-server
         run: |
-          echo "=== Build debug ==="
-          echo "Node version: $(node --version)"
-          echo "NPM version: $(npm --version)"
-          echo "CWD: $(pwd)"
-          echo "esbuild at root: $(ls ../node_modules/esbuild/package.json 2>&1 | head -1)"
-          echo "esbuild local: $(ls node_modules/esbuild/package.json 2>&1 | head -1)"
-          echo ".bundled exists: $(ls -la .bundled 2>&1)"
-          echo ".bundled contents: $(ls .bundled/@workspace/ 2>&1)"
-          echo "Running build..."
+          echo "=== CWD test ==="
+          echo "PWD: $(pwd)"
+          echo "=== esbuild test ==="
+          node -e "const e=require.resolve('esbuild'); console.log('esbuild found at:', e)" 2>&1
+          echo "=== plugin test ==="
+          node -e "import('./esbuild-workspace-plugin.mjs').then(()=>console.log('plugin OK')).catch(e=>console.log('plugin FAIL:', e.message))" 2>&1
+          echo "=== bundled test ==="
+          ls .bundled/@workspace/ 2>&1
+          echo "=== api dir test ==="
+          ls api/ 2>&1 | head -5
+          echo "=== build.mjs test ==="
           node ./build.mjs 2>&1
 
       - name: Prepare deployment package
