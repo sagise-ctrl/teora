@@ -1,38 +1,22 @@
 // Copies workspace packages into .bundled/ so esbuild can resolve them.
-// Handles both local dev (artifacts/api-server/) and Vercel (repo root extraction via --cwd).
-//   Local dev:  __dirname ends with "artifacts/api-server"
-//   Vercel:     __dirname is repo root (/vercel/path0), cwd is artifacts/api-server
-import { cpSync, mkdirSync, readdirSync, existsSync } from "node:fs";
+// DEPRECATED: Now using npm workspaces natively via `npm -w @workspace/api-server run build`.
+// This file is kept for reference but no longer used by the CI workflow.
+import { cpSync, mkdirSync, readdirSync } from "node:fs";
 import { resolve, join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Detect mode: if __dirname ends with "artifacts/api-server", we're in local dev.
-// Otherwise, assume we're at repo root (Vercel with --cwd=artifacts/api-server).
 const isLocalDev = __dirname.endsWith("artifacts/api-server") || __dirname.endsWith("artifacts\\api-server");
-
 const apiServerDir = isLocalDev ? __dirname : join(__dirname, "artifacts/api-server");
 const monorepoRoot = isLocalDev ? resolve(__dirname, "../..") : __dirname;
 
 const libDbSrc = resolve(monorepoRoot, "lib/db/src");
 const libApiZodSrc = resolve(monorepoRoot, "lib/api-zod/src");
 
-// Bundled packages go to api-server directory so they're included in the Vercel deployment
-// artifact (which is the api-server subdirectory, not the monorepo root).
 const bundledDir = join(apiServerDir, ".bundled");
 mkdirSync(bundledDir, { recursive: true });
-
-// DEBUG: print environment
-console.error('[setup] __dirname:', __dirname);
-console.error('[setup] process.cwd():', process.cwd());
-console.error('[setup] isLocalDev:', isLocalDev);
-console.error('[setup] apiServerDir:', apiServerDir);
-console.error('[setup] monorepoRoot:', monorepoRoot);
-console.error('[setup] libDbSrc:', libDbSrc, 'exists:', existsSync(libDbSrc));
-console.error('[setup] libApiZodSrc:', libApiZodSrc, 'exists:', existsSync(libApiZodSrc));
-console.error('[setup] bundledDir:', bundledDir, 'created');
 
 const workspaces = [
   { name: "@workspace/db", src: libDbSrc },

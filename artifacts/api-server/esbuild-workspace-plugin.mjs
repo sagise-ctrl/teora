@@ -1,20 +1,9 @@
 // Custom esbuild plugin to resolve @workspace/* packages.
-// Finds the api-server project root by looking for package.json,
-// then resolves .bundled/ or lib/ paths.
+// With npm workspaces, packages are symlinked at node_modules/@workspace/ in the repo root.
+// When running via `npm -w @workspace/api-server run build`, cwd is the repo root,
+// so process.cwd() points to the repo root where the symlinks live.
 import path from "node:path";
 import { existsSync } from "node:fs";
-
-function findProjectRoot(startPath) {
-  let current = path.dirname(startPath);
-  const visited = new Set();
-  while (current && !visited.has(current) && current !== path.sep && current !== "/") {
-    visited.add(current);
-    if (existsSync(path.join(current, "package.json"))) return current;
-    current = path.dirname(current);
-  }
-  // Fallback: use process.cwd() — should be api-server directory in both local dev and Vercel
-  return process.cwd();
-}
 
 function workspacePlugin() {
   return {
@@ -22,36 +11,30 @@ function workspacePlugin() {
     setup(build) {
       build.onResolve({ filter: /^@workspace\// }, (args) => {
         const pkgName = args.path;
-        const importer = args.importer;
-        // projectRoot is used only to derive the lib/ fallback path
-        const projectRoot = findProjectRoot(importer);
+        // In npm workspaces (cwd = repo root after npm -w), the symlinks are at node_modules/@workspace/
+        const repoRoot = process.cwd();
+        const npmWorkspacePath = path.join(repoRoot, "node_modules", pkgName);
 
-        // 1. Prefer .bundled/ — populated by setup-workspace.mjs before build.
-        // Uses process.cwd() to locate .bundled/ in the api-server directory
-        // (which is always process.cwd() when npm -w runs).
-        const bundledPath = path.join(process.cwd(), ".bundled", pkgName, "index.ts");
-        if (existsSync(bundledPath)) {
-          return { path: bundledPath };
+        if (existsSync(npmWorkspacePath)) {
+          // For ESM source files, resolve to the src/index.ts of the workspace package
+          const srcPath = path.join(npmWorkspacePath, "src", "index.ts");
+          if (existsSync(srcPath)) {
+            return { path: srcPath };
+          }
+          // The package might export directly from the root
+          return { path: npmWorkspacePath };
         }
 
-        // 2. Fallback: lib/ in monorepo root (local dev only).
-        // Derive monorepo root from projectRoot: api-server is at monorepoRoot/artifacts/api-server
-        const monorepoRoot = path.resolve(projectRoot, "../..");
-        const libSrc = path.join(
-          monorepoRoot,
-          "lib",
-          pkgName.replace("@workspace/", ""),
-          "src",
-          "index.ts"
-        );
-        if (existsSync(libSrc)) {
-          return { path: libSrc };
+        // Fallback: check if the package has a package.json with a main field
+        const pkgJson = path.join(npmWorkspacePath, "package.json");
+        if (existsSync(pkgJson)) {
+          return { path: npmWorkspacePath };
         }
 
         return {
           errors: [
             {
-              text: `Cannot resolve ${pkgName}. Checked: ${bundledPath}, ${libSrc}. Run 'node ./setup-workspace.mjs' first.`,
+              text: `Cannot resolve ${pkgName}. npm workspaces should create symlinks at ${npmWorkspacePath}. Run 'npm install' from the repo root first.`,
               location: null,
             },
           ],
