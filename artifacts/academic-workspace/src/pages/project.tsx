@@ -154,6 +154,10 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
+import InsufficientBalanceDialog, {
+  type InsufficientBalanceData,
+} from "@/components/insufficient-balance-dialog"
+import { parseInsufficientBalance } from "@/components/parse-insufficient-balance"
 
 // ── Document Bar ────────────────────────────────────────────────────────────────
 
@@ -1234,6 +1238,10 @@ function ChatTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosure:
   const [content, setContent] = useState("")
   const [mode, setMode] = useState<ChatMode>("revise")
   const [selectedTierId, setSelectedTierId] = useState<string>("")
+  const [insufficientBalance, setInsufficientBalance] =
+    useState<InsufficientBalanceData | null>(null)
+  const [insufficientBalanceOpen, setInsufficientBalanceOpen] =
+    useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   // Set default tier from user's preference
@@ -1271,15 +1279,32 @@ function ChatTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosure:
     }, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getListMessagesQueryKey(projectId) })
+        queryClient.invalidateQueries({ queryKey: ["getMyBalance"] })
       },
-      onError: () => {
-        toast({ variant: "destructive", title: "Message failed", description: "Could not send message." })
+      onError: (err) => {
+        const insufficient = parseInsufficientBalance(err)
+        if (insufficient) {
+          setInsufficientBalance({
+            ...insufficient,
+            tierId: selectedTierId || undefined,
+          })
+          setInsufficientBalanceOpen(true)
+          // Don't restore content for 402 — user needs to topup, retry is automatic after
+          return
+        }
+
+        toast({
+          variant: "destructive",
+          title: "Message failed",
+          description: String(err?.message ?? err ?? "Could not send message.")
+        })
         setContent(messageContent)
       }
     })
   }
 
   return (
+    <>
     <Card className="flex flex-col h-[600px] bg-card border-border shadow-sm">
       <ScrollArea className="flex-1 p-6" ref={scrollRef}>
         {isLoading ? (
@@ -1440,6 +1465,13 @@ function ChatTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosure:
         </form>
       </div>
     </Card>
+
+    <InsufficientBalanceDialog
+      open={insufficientBalanceOpen}
+      onOpenChange={setInsufficientBalanceOpen}
+      data={insufficientBalance}
+    />
+    </>
   )
 }
 
