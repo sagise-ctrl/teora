@@ -108,7 +108,7 @@ jobs:
           echo '{"framework":null,"installCommand":":","buildCommand":":"}' > artifacts/api-server/vercel.json
           vercel deploy \
             --token=${{ secrets.VERCEL_TOKEN }} \
-            --project=api-server \
+            --project-id=prj_5PlXdG6841wXuah11uY8CdgMNmsn \
             --yes \
             --cwd=artifacts/api-server
 

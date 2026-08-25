@@ -47,7 +47,7 @@ jobs:
           echo '{"framework":null,"installCommand":":","buildCommand":":"}' > artifacts/academic-workspace/vercel.json
           vercel deploy \
             --token=${{ secrets.VERCEL_TOKEN }} \
-            --project=academic-workspace \
+            --project-id=prj_pc1NRCZYaVlZrtexnH0lkNUKKP51 \
             --yes \
             --cwd=artifacts/academic-workspace
 
