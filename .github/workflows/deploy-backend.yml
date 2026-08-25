@@ -40,12 +40,13 @@ jobs:
       - name: Build API server
         run: |
           echo "Build working directory: $(pwd)"
-          echo "NODE_PATH: ${NODE_PATH:-'(not set)'}"
           echo "Workspace symlinks:"
           ls -la node_modules/@workspace/ 2>&1 | head -10
-          # Set NODE_PATH so node can find workspace packages
+          echo "npm version: $(npm --version)"
+          echo "NODE_PATH before: ${NODE_PATH:-'(not set)'}"
           export NODE_PATH="$(pwd)/node_modules"
-          npm -w @workspace/api-server run build 2>&1
+          echo "NODE_PATH after: ${NODE_PATH}"
+          cd artifacts/api-server && node build.mjs 2>&1
 
       - name: Prepare deployment package
         run: |
