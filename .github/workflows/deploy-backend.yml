@@ -31,7 +31,10 @@ jobs:
         run: node ./artifacts/api-server/setup-workspace.mjs
 
       - name: Build API server
-        run: npm -w @workspace/api-server run build
+        working-directory: artifacts/api-server
+        run: |
+          node ./setup-workspace.mjs
+          node ./build.mjs
 
       - name: Prepare deployment package
         run: |
