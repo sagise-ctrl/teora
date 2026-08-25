@@ -58,14 +58,14 @@ Mahasiswa dan peneliti menghadapi tantangan dalam mengelola project akademik yan
 | Layer | Platform | Details |
 |-------|----------|---------|
 | Frontend | Vercel | Preview deployments on PR, production on main |
-| Backend | VPS Ubuntu 24 | PM2 managed, Express 5 on port 8080 |
-| Database | Supabase | PostgreSQL, connection via pool |
+| Backend | Vercel Function | Express 5, serverless, auto-scales, same domain as frontend |
+| Database | Supabase | PostgreSQL, connection via pooler |
 
-**Key constraint:** API server runs on a VPS, not Vercel Functions. Frontend (Vercel) communicates with backend (VPS) via `VITE_API_URL` environment variable.
+**Key constraint:** Backend deployed as Vercel Function alongside frontend. Frontend calls `/api/*` directly (same origin). `VITE_API_URL` defaults to `/api` in production.
 
 ## Current Status
 
 - Development stage
-- Frontend deployed to Vercel preview
-- Backend running on VPS (development)
+- Frontend deployed to Vercel
+- Backend deployed as Vercel Function (same Vercel project)
 - Single developer (sagise-ctrl)

@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -16,6 +16,10 @@ export const referencesTable = pgTable("references", {
   validationStatus: text("validation_status").notNull().default("unverified"),
   usedInChapters: text("used_in_chapters"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  // Track whether this reference was auto-suggested by CrossRef or confirmed by user
+  isSuggested: boolean("is_suggested").notNull().default(false),
+  // Source of the reference
+  source: text("source").notNull().default("manual"),
 });
 
 export const insertReferenceSchema = createInsertSchema(referencesTable).omit({

@@ -7,16 +7,18 @@ import {
   documentVersionsTable,
   documentsTable,
   projectMetadataTable,
+  aiUsageLogTable,
+  userBalancesTable,
 } from "@workspace/db";
 import {
   ListMessagesParams,
   SendMessageParams,
   SendMessageBody,
 } from "@workspace/api-zod";
-import { callAI, buildSystemPrompt, type ChatMode } from "../lib/ai";
-import { logActivity } from "../lib/activity";
-import { logAIUsage } from "../lib/ai-usage-log";
-import { sanitizeUserMessage } from "../lib/prompt-injection";
+import { callAI, buildSystemPrompt, type ChatMode, getTierConfig, getTierForUser } from "../lib/ai.js";
+import { logActivity } from "../lib/activity.js";
+import { checkCreditBalance, deductCredit } from "../lib/credit.js";
+import { sanitizeUserMessage } from "../lib/prompt-injection.js";
 
 const router: IRouter = Router();
 
@@ -51,7 +53,7 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
     return;
   }
 
-  const { content: messageContent, mode = "revise" } = parsed.data;
+  const { content: messageContent, mode = "revise", tier: tierId } = parsed.data;
 
   const [project] = await db
     .select()
@@ -61,6 +63,34 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
   if (!project) {
     res.status(404).json({ error: "Project not found" });
     return;
+  }
+
+  // Resolve tier: use requested tier or user's preferred
+  const selectedTier = tierId
+    ? await getTierConfig(tierId)
+    : await getTierForUser(project.userId, null);
+
+  if (!selectedTier) {
+    res.status(400).json({ error: "Tier tidak valid" });
+    return;
+  }
+
+  // Pre-check: estimate cost and verify balance (don't call AI if insufficient)
+  const estimatedCostCents = selectedTier.pricePer1MInputCents > 0 || selectedTier.pricePer1MOutputCents > 0
+    ? Math.max(100, selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents)
+    : 0;
+
+  if (!selectedTier.isFree) {
+    const creditCheck = await checkCreditBalance(project.userId, estimatedCostCents, false);
+    if (!creditCheck.allowed) {
+      res.status(402).json({
+        error: creditCheck.reason,
+        balanceCents: creditCheck.balanceCents,
+        costCents: creditCheck.costCents,
+        tierName: selectedTier.name,
+      });
+      return;
+    }
   }
 
   // Sanitize user content against prompt injection
@@ -89,7 +119,7 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
     .orderBy(desc(documentVersionsTable.versionNumber))
     .limit(1);
 
-  // Get recent chat history (last 10 messages) — sanitize all historical user content
+  // Get recent chat history (last 10 messages)
   const recentMessages = await db
     .select()
     .from(messagesTable)
@@ -124,16 +154,46 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
     { role: "user", content: sanitizedContent },
   ];
 
-  // Call AI
-  const { content: aiContent, usage } = await callAI(aiMessages);
+  // Call AI with selected tier
+  let usageResult: Awaited<ReturnType<typeof callAI>> | null = null;
+  try {
+    usageResult = await callAI(aiMessages, selectedTier.id, mode);
+  } catch (err) {
+    logger.error({ err, tierId: selectedTier.id }, "AI call failed");
+    res.status(500).json({ error: "AI request failed. Silakan coba lagi." });
+    return;
+  }
 
-  // Log AI usage (non-blocking)
-  await logAIUsage({
-    userId: project.userId,
-    projectId: params.data.projectId,
-    requestType: "chat",
-    usage,
-  });
+  const { content: aiContent, usage } = usageResult!;
+
+  // Log AI usage to DB
+  const [usageLog] = await db
+    .insert(aiUsageLogTable)
+    .values({
+      userId: project.userId,
+      projectId: params.data.projectId,
+      tierId: selectedTier.id,
+      model: selectedTier.model,
+      provider: selectedTier.provider,
+      inputTokens: usage.inputTokens,
+      outputTokens: usage.outputTokens,
+      estimatedCostUsd: usage.estimatedCostUsd,
+      costCents: usage.costCents,
+      requestType: "chat",
+    })
+    .returning();
+
+  // Deduct credit (non-blocking, but logged)
+  if (!selectedTier.isFree && usage.costCents > 0) {
+    await deductCredit({
+      userId: project.userId,
+      costCents: usage.costCents,
+      tierIsFree: false,
+      tierId: selectedTier.id,
+      aiUsageLogId: usageLog.id,
+      description: `AI chat — ${selectedTier.name} tier`,
+    });
+  }
 
   // Save AI response
   const [assistantMessage] = await db
@@ -188,7 +248,16 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
     );
   }
 
-  res.status(201).json(assistantMessage);
+  res.status(201).json({
+    ...assistantMessage,
+    usage: {
+      inputTokens: usage.inputTokens,
+      outputTokens: usage.outputTokens,
+      costCents: usage.costCents,
+      tierId: selectedTier.id,
+      tierName: selectedTier.name,
+    },
+  });
 });
 
 export default router;

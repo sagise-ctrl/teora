@@ -21,11 +21,12 @@ import {
   AnalyzeProjectParams,
   ListProjectsQueryParams,
 } from "@workspace/api-zod";
-import { logActivity } from "../lib/activity";
-import { requireProjectOwnership } from "../lib/ownership";
-import { callAI, buildSystemPrompt } from "../lib/ai";
-import { logAIUsage } from "../lib/ai-usage-log";
-import { sanitizeInstructionText, sanitizeUserMessage } from "../lib/prompt-injection";
+import { logActivity } from "../lib/activity.js";
+import { requireProjectOwnership } from "../lib/ownership.js";
+import { callAI, buildSystemPrompt, getTierConfig, getTierForUser } from "../lib/ai.js";
+import { logAIUsage } from "../lib/ai-usage-log.js";
+import { checkCreditBalance, deductCredit } from "../lib/credit.js";
+import { sanitizeInstructionText, sanitizeUserMessage } from "../lib/prompt-injection.js";
 
 const router: IRouter = Router();
 
@@ -267,6 +268,35 @@ router.post("/projects/:projectId/analyze", async (req, res): Promise<void> => {
     return;
   }
 
+  // Resolve tier from request or user's preferred
+  const requestedTier = typeof req.body?.tier === "string" ? req.body.tier : null;
+  const selectedTier = requestedTier
+    ? await getTierConfig(requestedTier)
+    : await getTierForUser(project.userId, null);
+
+  if (!selectedTier) {
+    res.status(400).json({ error: "Tier tidak valid" });
+    return;
+  }
+
+  // Pre-check credit for paid tiers before running the pipeline
+  if (!selectedTier.isFree) {
+    const estimatedCostCents = Math.max(
+      100,
+      selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents,
+    );
+    const creditCheck = await checkCreditBalance(project.userId, estimatedCostCents, false);
+    if (!creditCheck.allowed) {
+      res.status(402).json({
+        error: creditCheck.reason,
+        balanceCents: creditCheck.balanceCents,
+        costCents: creditCheck.costCents,
+        tierName: selectedTier.name,
+      });
+      return;
+    }
+  }
+
   const [job] = await db
     .insert(jobsTable)
     .values({ projectId: project.id, jobType: "analyze", status: "pending" })
@@ -279,7 +309,7 @@ router.post("/projects/:projectId/analyze", async (req, res): Promise<void> => {
 
   await logActivity(project.id, "analysis_started", "Analisis instruksi dimulai");
 
-  runAnalysisPipeline(project.id, job.id).catch((err) => {
+  runAnalysisPipeline(project.id, job.id, selectedTier).catch((err) => {
     req.log.error({ err, projectId: project.id }, "Analysis pipeline failed");
   });
 
@@ -290,7 +320,12 @@ router.post("/projects/:projectId/analyze", async (req, res): Promise<void> => {
   });
 });
 
-async function runAnalysisPipeline(projectId: number, jobId: number) {
+async function runAnalysisPipeline(
+  projectId: number,
+  jobId: number,
+  selectedTier: Awaited<ReturnType<typeof getTierConfig>>,
+) {
+  if (!selectedTier) throw new Error("Tier required");
   try {
     await db
       .update(jobsTable)
@@ -328,17 +363,32 @@ Hasilkan JSON dengan struktur berikut (HANYA JSON, tanpa teks lain):
   "contextSummary": "ringkasan konteks tugas dalam 2-3 kalimat"
 }`;
 
-    const { content: aiResponse, usage: analysisUsage } = await callAI([
-      { role: "system", content: systemPrompt },
-      { role: "user", content: analysisPrompt },
-    ]);
+    const { content: aiResponse, usage: analysisUsage, tierConfig: analysisTier } = await callAI(
+      [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: analysisPrompt },
+      ],
+      selectedTier.id,
+    );
 
-    await logAIUsage({
+    const analyzeUsageLog = await logAIUsage({
       userId: project.userId,
       projectId,
       requestType: "analyze",
       usage: analysisUsage,
+      tierConfig: analysisTier,
     });
+
+    if (!selectedTier.isFree && analysisUsage.costCents > 0) {
+      await deductCredit({
+        userId: project.userId,
+        costCents: analysisUsage.costCents,
+        tierIsFree: false,
+        tierId: selectedTier.id,
+        aiUsageLogId: analyzeUsageLog?.id,
+        description: `AI analyze — ${selectedTier.name} tier`,
+      });
+    }
 
     const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
     let metadata: Record<string, string> = {};
@@ -408,17 +458,32 @@ ${metadata.outline ?? "Tulis dokumen berdasarkan instruksi dosen."}
 
 Tulis dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan bahasa akademik yang natural dan mengalir.`;
 
-    const { content: documentContent, usage: writeUsage } = await callAI([
-      { role: "system", content: systemPrompt },
-      { role: "user", content: writePrompt },
-    ]);
+    const { content: documentContent, usage: writeUsage, tierConfig: writeTier } = await callAI(
+      [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: writePrompt },
+      ],
+      selectedTier.id,
+    );
 
-    await logAIUsage({
+    const writeUsageLog = await logAIUsage({
       userId: project.userId,
       projectId,
       requestType: "write",
       usage: writeUsage,
+      tierConfig: writeTier,
     });
+
+    if (!selectedTier.isFree && writeUsage.costCents > 0) {
+      await deductCredit({
+        userId: project.userId,
+        costCents: writeUsage.costCents,
+        tierIsFree: false,
+        tierId: selectedTier.id,
+        aiUsageLogId: writeUsageLog?.id,
+        description: `AI write — ${selectedTier.name} tier`,
+      });
+    }
 
     const versions = await db
       .select()
@@ -497,6 +562,35 @@ router.post("/projects/:projectId/outline", async (req, res): Promise<void> => {
     return;
   }
 
+  // Resolve tier from request or user's preferred
+  const requestedTier = typeof req.body?.tier === "string" ? req.body.tier : null;
+  const selectedTier = requestedTier
+    ? await getTierConfig(requestedTier)
+    : await getTierForUser(project.userId, null);
+
+  if (!selectedTier) {
+    res.status(400).json({ error: "Tier tidak valid" });
+    return;
+  }
+
+  // Pre-check credit for paid tiers
+  if (!selectedTier.isFree) {
+    const estimatedCostCents = Math.max(
+      100,
+      selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents,
+    );
+    const creditCheck = await checkCreditBalance(project.userId, estimatedCostCents, false);
+    if (!creditCheck.allowed) {
+      res.status(402).json({
+        error: creditCheck.reason,
+        balanceCents: creditCheck.balanceCents,
+        costCents: creditCheck.costCents,
+        tierName: selectedTier.name,
+      });
+      return;
+    }
+  }
+
   const { userOutline } = req.body as { userOutline?: string };
   const sanitizedOutline = userOutline ? sanitizeUserMessage(userOutline) : undefined;
 
@@ -509,17 +603,32 @@ router.post("/projects/:projectId/outline", async (req, res): Promise<void> => {
     ? `Tinjauan outline pengguna berikut dan perbaiki outline dokumen akademik ini:\n\nOUTLINE SAAT INI:\n${sanitizedOutline}\n\nINSTRUKSI: Buat outline yang lebih baik berdasarkan instruksi tugas berikut.\nJudul: ${project.title}\n${project.instructionText ? `\nINSTRUKSI DOSEN:\n${project.instructionText}` : ""}`
     : `Analisis instruksi tugas berikut dan hasilkan outline dokumen akademik yang lengkap.\n\nJudul: ${project.title}\n${project.instructionText ? `\nINSTRUKSI DOSEN:\n${project.instructionText}` : ""}\n\nFormat: outline lengkap dalam format markdown dengan bab dan sub-bab.`;
 
-  const { content: outlineContent, usage } = await callAI([
-    { role: "system", content: systemPrompt },
-    { role: "user", content: outlinePrompt },
-  ]);
+  const { content: outlineContent, usage, tierConfig } = await callAI(
+    [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: outlinePrompt },
+    ],
+    selectedTier.id,
+  );
 
-  await logAIUsage({
+  const usageLog = await logAIUsage({
     userId: project.userId,
     projectId: params.data.projectId,
     requestType: "outline",
     usage,
+    tierConfig,
   });
+
+  if (!selectedTier.isFree && usage.costCents > 0) {
+    await deductCredit({
+      userId: project.userId,
+      costCents: usage.costCents,
+      tierIsFree: false,
+      tierId: selectedTier.id,
+      aiUsageLogId: usageLog?.id,
+      description: `AI outline — ${selectedTier.name} tier`,
+    });
+  }
 
   // Update metadata with new outline
   const [metadata] = await db
@@ -569,6 +678,35 @@ router.post("/projects/:projectId/documents/generate", async (req, res): Promise
     return;
   }
 
+  // Resolve tier from request or user's preferred
+  const requestedTier = typeof req.body?.tier === "string" ? req.body.tier : null;
+  const selectedTier = requestedTier
+    ? await getTierConfig(requestedTier)
+    : await getTierForUser(project.userId, null);
+
+  if (!selectedTier) {
+    res.status(400).json({ error: "Tier tidak valid" });
+    return;
+  }
+
+  // Pre-check credit for paid tiers
+  if (!selectedTier.isFree) {
+    const estimatedCostCents = Math.max(
+      100,
+      selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents,
+    );
+    const creditCheck = await checkCreditBalance(project.userId, estimatedCostCents, false);
+    if (!creditCheck.allowed) {
+      res.status(402).json({
+        error: creditCheck.reason,
+        balanceCents: creditCheck.balanceCents,
+        costCents: creditCheck.costCents,
+        tierName: selectedTier.name,
+      });
+      return;
+    }
+  }
+
   const [metadata] = await db
     .select()
     .from(projectMetadataTable)
@@ -611,14 +749,19 @@ router.post("/projects/:projectId/documents/generate", async (req, res): Promise
 
   await logActivity(project.id, "document_generation_started", "Penulisan dokumen dimulai");
 
-  runDocumentGeneration(project.id, job.id, outline).catch((err) => {
+  runDocumentGeneration(project.id, job.id, outline, selectedTier).catch((err) => {
     req.log.error({ err, projectId: project.id }, "Document generation failed");
   });
 
   res.status(202).json({ jobId: job.id, status: "started" });
 });
 
-async function runDocumentGeneration(projectId: number, jobId: number, outline: string) {
+async function runDocumentGeneration(
+  projectId: number,
+  jobId: number,
+  outline: string,
+  selectedTier: NonNullable<Awaited<ReturnType<typeof getTierConfig>>>,
+) {
   try {
     await db
       .update(jobsTable)
@@ -659,17 +802,32 @@ async function runDocumentGeneration(projectId: number, jobId: number, outline: 
 
     const writePrompt = `Tulis dokumen akademik lengkap dalam Bahasa Indonesia berdasarkan outline berikut:\n\nOUTLINE:\n${outline}${refList}\n\nTULIS dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan bahasa akademik yang natural dan mengalir. Panjang dokumen: minimal 2000 kata.`;
 
-    const { content: documentContent, usage } = await callAI([
-      { role: "system", content: systemPrompt },
-      { role: "user", content: writePrompt },
-    ]);
+    const { content: documentContent, usage, tierConfig } = await callAI(
+      [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: writePrompt },
+      ],
+      selectedTier.id,
+    );
 
-    await logAIUsage({
+    const usageLog = await logAIUsage({
       userId: project.userId,
       projectId,
       requestType: "write",
       usage,
+      tierConfig,
     });
+
+    if (!selectedTier.isFree && usage.costCents > 0) {
+      await deductCredit({
+        userId: project.userId,
+        costCents: usage.costCents,
+        tierIsFree: false,
+        tierId: selectedTier.id,
+        aiUsageLogId: usageLog?.id,
+        description: `AI generate document — ${selectedTier.name} tier`,
+      });
+    }
 
     const versions = await db
       .select()
@@ -717,6 +875,209 @@ async function runDocumentGeneration(projectId: number, jobId: number, outline: 
     throw err;
   }
 }
+
+// ── Export DOCX ───────────────────────────────────────────────────────────────
+
+import { generateDocx } from "../lib/docx-export.js";
+import { generatePDF } from "../lib/pdf-export.js";
+
+// GET /projects/:projectId/export/docx
+router.get("/projects/:projectId/export/docx", async (req, res): Promise<void> => {
+  const projectId = Number(req.params.projectId);
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const ok = await requireProjectOwnership(projectId, req.user.id, res);
+  if (!ok) return;
+
+  const [project] = await db
+    .select()
+    .from(projectsTable)
+    .where(eq(projectsTable.id, projectId));
+
+  if (!project) {
+    res.status(404).json({ error: "Project not found" });
+    return;
+  }
+
+  // Get all documents ordered by index
+  const docs = await db
+    .select()
+    .from(documentsTable)
+    .where(eq(documentsTable.projectId, projectId))
+    .orderBy(documentsTable.orderIndex);
+
+  // Get latest version for each document
+  const documentsWithContent = await Promise.all(
+    docs.map(async (doc) => {
+      const versions = await db
+        .select()
+        .from(documentVersionsTable)
+        .where(eq(documentVersionsTable.documentId, doc.id))
+        .orderBy(desc(documentVersionsTable.versionNumber))
+        .limit(1);
+      return { document: doc, version: versions[0] ?? null };
+    })
+  );
+
+  // Also get standalone document versions (no documentId)
+  const standaloneVersions = await db
+    .select()
+    .from(documentVersionsTable)
+    .where(and(eq(documentVersionsTable.projectId, projectId), isNull(documentVersionsTable.documentId)))
+    .orderBy(desc(documentVersionsTable.versionNumber));
+
+  const allDocuments =
+    docs.length > 0
+      ? documentsWithContent
+      : standaloneVersions.map((v) => ({
+          document: {
+            id: 0,
+            projectId,
+            title: project.title,
+            orderIndex: 0,
+            createdAt: v.createdAt,
+            updatedAt: v.createdAt,
+          },
+          version: v,
+        }));
+
+  // Get references
+  const refs = await db
+    .select()
+    .from(referencesTable)
+    .where(eq(referencesTable.projectId, projectId));
+
+  try {
+    const buffer = await generateDocx(
+      project.title,
+      allDocuments,
+      refs.map((r) => ({
+        title: r.title,
+        authors: r.authors,
+        year: r.year,
+        journal: r.journal,
+        volume: r.volume,
+        issue: r.issue,
+        doi: r.doi,
+        url: r.url,
+      })),
+      {
+        projectTitle: project.title,
+        citationFormat: project.citationFormat ?? undefined,
+        includeReferences: true,
+      }
+    );
+
+    const safeName = project.title.replace(/[^a-zA-Z0-9_-]/g, "_");
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+    res.setHeader("Content-Disposition", `attachment; filename="${safeName}.docx"`);
+    res.setHeader("Content-Length", buffer.length);
+    res.send(buffer);
+  } catch (err) {
+    req.log.error({ err, projectId }, "DOCX export failed");
+    res.status(500).json({ error: "Gagal mengekspor dokumen" });
+  }
+});
+
+// GET /projects/:projectId/export/pdf
+router.get("/projects/:projectId/export/pdf", async (req, res): Promise<void> => {
+  const projectId = Number(req.params.projectId);
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const ok = await requireProjectOwnership(projectId, req.user.id, res);
+  if (!ok) return;
+
+  const [project] = await db
+    .select()
+    .from(projectsTable)
+    .where(eq(projectsTable.id, projectId));
+
+  if (!project) {
+    res.status(404).json({ error: "Project not found" });
+    return;
+  }
+
+  const docs = await db
+    .select()
+    .from(documentsTable)
+    .where(eq(documentsTable.projectId, projectId))
+    .orderBy(documentsTable.orderIndex);
+
+  const documentsWithContent = await Promise.all(
+    docs.map(async (doc) => {
+      const versions = await db
+        .select()
+        .from(documentVersionsTable)
+        .where(eq(documentVersionsTable.documentId, doc.id))
+        .orderBy(desc(documentVersionsTable.versionNumber))
+        .limit(1);
+      return { document: doc, version: versions[0] ?? null };
+    })
+  );
+
+  const standaloneVersions = await db
+    .select()
+    .from(documentVersionsTable)
+    .where(and(eq(documentVersionsTable.projectId, projectId), isNull(documentVersionsTable.documentId)))
+    .orderBy(desc(documentVersionsTable.versionNumber));
+
+  const allDocuments =
+    docs.length > 0
+      ? documentsWithContent
+      : standaloneVersions.map((v) => ({
+          document: {
+            id: 0,
+            projectId,
+            title: project.title,
+            orderIndex: 0,
+            createdAt: v.createdAt,
+            updatedAt: v.createdAt,
+          },
+          version: v,
+        }));
+
+  const refs = await db
+    .select()
+    .from(referencesTable)
+    .where(eq(referencesTable.projectId, projectId));
+
+  try {
+    const buffer = await generatePDF(
+      project.title,
+      allDocuments,
+      refs.map((r) => ({
+        title: r.title,
+        authors: r.authors,
+        year: r.year,
+        journal: r.journal,
+        volume: r.volume,
+        issue: r.issue,
+        doi: r.doi,
+        url: r.url,
+      })),
+      {
+        projectTitle: project.title,
+        citationFormat: project.citationFormat ?? undefined,
+        includeReferences: true,
+      }
+    );
+
+    const safeName = project.title.replace(/[^a-zA-Z0-9_-]/g, "_");
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="${safeName}.pdf"`);
+    res.setHeader("Content-Length", buffer.length);
+    res.send(buffer);
+  } catch (err) {
+    req.log.error({ err, projectId }, "PDF export failed");
+    res.status(500).json({ error: "Gagal mengekspor PDF" });
+  }
+});
 
 // ── Share Links ──────────────────────────────────────────────────────────────
 

@@ -1,0 +1,5 @@
+{
+  "framework": null,
+  "installCommand": "npm install --legacy-peer-deps",
+  "buildCommand": "node ./setup-workspace.mjs && node ./build.mjs"
+}

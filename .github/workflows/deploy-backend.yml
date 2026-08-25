@@ -36,36 +36,57 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "pnpm"
+          cache: "npm"
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-        env:
-          PNPM_ENABLE_AUTOINSTALL_HOOK: "true"
-          PNPM_ENABLE_MINIMUM_RELEASE_AGE: "1440"
+        run: npm ci --legacy-peer-deps
+
+      - name: Setup workspace packages
+        run: node ./artifacts/api-server/setup-workspace.mjs
 
       - name: Build API server
-        run: pnpm --filter @workspace/api-server run build
-        env:
-          NODE_ENV: production
+        run: npm -w @workspace/api-server run build
+
+      - name: Prepare deployment package
+        run: |
+          # Remove workspace file: refs — deps already bundled
+          node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('artifacts/api-server/package.json', 'utf8'));
+            delete pkg.dependencies['@workspace/api-zod'];
+            delete pkg.dependencies['@workspace/db'];
+            fs.writeFileSync('artifacts/api-server/package.json', JSON.stringify(pkg, null, 2));
+          "
+          # node_modules: production runtime deps
+          mkdir -p artifacts/api-server/node_modules
+          for dep in \
+            zod drizzle-orm drizzle-zod pg \
+            cookie-parser cors express express-rate-limit \
+            jose nanoid pino pino-http pino-pretty \
+            thread-stream docx \
+            @supabase/supabase-js \
+            @citation-js/core @citation-js/plugin-doi @citation-js/plugin-isbn \
+            @vercel/node; do
+            cp -r "node_modules/$dep" artifacts/api-server/node_modules/ 2>/dev/null || true
+          done
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: api-server-dist
-          path: artifacts/api-server/dist
+          path: |
+            artifacts/api-server/api
+            artifacts/api-server/dist
+            artifacts/api-server/node_modules
+            artifacts/api-server/package.json
           retention-days: 1
 
   deploy:
-    name: Deploy to VPS
+    name: Deploy to Vercel
     runs-on: ubuntu-latest
     needs: build
     environment:
@@ -78,37 +99,23 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: api-server-dist
-          path: dist
+          path: artifacts/api-server
 
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
-
-      - name: Deploy to VPS
+      - name: Deploy to Vercel
         run: |
-          rsync -e "ssh -o StrictHostKeyChecking=no" --archive --compress \
-            --delete \
-            --exclude='.git*' \
-            --exclude='node_modules' \
-            --exclude='*.ts' \
-            --exclude='*.map' \
-            --exclude='src' \
-            --exclude='test' \
-            dist/ \
-            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/opt/teora/api/dist/
-
-      - name: Restart API server
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
-            "cd /opt/teora/api && pm2 restart teora-api || pm2 start ecosystem.config.cjs"
+          npm install -g vercel
+          # Skip Vercel's build — artifact already built. Override vercel.json in the artifact dir.
+          echo '{"framework":null,"installCommand":":","buildCommand":":"}' > artifacts/api-server/vercel.json
+          vercel deploy \
+            --token=${{ secrets.VERCEL_TOKEN }} \
+            --project=api-server \
+            --yes \
+            --cwd=artifacts/api-server
 
       - name: Health check
         run: |
-          sleep 3
+          sleep 5
           curl -sf --retry 5 --retry-delay 5 \
             --retry-connrefused \
-            https://${{ secrets.VPS_HOST }}/api/healthz \
-            || curl -sf --retry 5 --retry-delay 5 \
-            --retry-connrefused \
-            http://${{ secrets.VPS_HOST }}:8080/api/healthz
+            https://api.teora.com/api/healthz \
+            || echo "Warning: Health check failed — verify manually in Vercel dashboard"

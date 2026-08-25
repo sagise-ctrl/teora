@@ -1,7 +1,7 @@
 import { Cite } from "@citation-js/core";
 import "@citation-js/plugin-doi";
 import "@citation-js/plugin-isbn";
-import { logger } from "./logger";
+import { logger } from "./logger.js";
 
 /**
  * Citation Integrity — validates references and formats bibliographies using CSL.

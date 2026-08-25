@@ -7,7 +7,7 @@ import type {
   Activity,
   Job,
   ProjectMetadata,
-} from "@workspace/api-client-react";
+} from "../types/mock-types";
 
 const now = new Date();
 const daysAgo = (d: number) => new Date(now.getTime() - d * 86400000).toISOString();

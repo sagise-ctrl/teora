@@ -5,7 +5,7 @@ import { renderHook, act } from "@testing-library/react";
 // the same mock instance between vi.mock factory and test code
 const mockCustomFetch = vi.hoisted(() => vi.fn());
 
-vi.mock("@workspace/api-client-react", () => ({
+vi.mock("../lib/api-client-react", () => ({
   customFetch: mockCustomFetch,
 }));
 vi.mock("@/lib/supabase", () => ({ supabase: null }));

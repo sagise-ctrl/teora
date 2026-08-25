@@ -20,12 +20,11 @@ Production Operations — owns the full production lifecycle from build/deploy t
 - Environment configuration
 - Reproducibility
 - Vercel preview deploys (autonomous)
-- VPS staging deploys (autonomous)
-- VPS production deploys (autonomous for fixes, owner approval for major changes)
+- Vercel Function production deploys (autonomous)
 
 ### Monitoring (from Production Admin)
 - Health checks, error rate, performance metrics
-- Log analysis from Vercel runtime logs + server logs (VPS)
+- Log analysis from Vercel runtime logs
 - Track performance degradation over time
 
 ### Incident Management (from Production Admin)
@@ -59,9 +58,9 @@ Production Operations — owns the full production lifecycle from build/deploy t
 
 ```
 Frontend:   Vercel (vercel.com/teora)
-Backend:    VPS (configured in .env)
+Backend:    Vercel Function (serverless)
 Database:   Supabase PostgreSQL
-Logs:       Vercel runtime logs, server logs (VPS)
+Logs:       Vercel runtime logs
 Errors:     Vercel runtime errors dashboard
 Domain:     (configured in Vercel)
 ```

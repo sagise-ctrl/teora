@@ -1,20 +1,18 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "incremental": true,
     "tsBuildInfoFile": ".tsbuildinfo",
     "outDir": "dist",
     "rootDir": "src",
-    "types": ["node"]
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@workspace/db": ["./bundled/@workspace/db/index.ts"],
+      "@workspace/api-zod": ["./bundled/@workspace/api-zod/index.ts"]
+    },
+    "jsx": "react-jsx"
   },
   "include": ["src"],
-  "exclude": ["src/test"],
-  "references": [
-    {
-      "path": "../../lib/db"
-    },
-    {
-      "path": "../../lib/api-zod"
-    }
-  ]
+  "exclude": ["src/test"]
 }

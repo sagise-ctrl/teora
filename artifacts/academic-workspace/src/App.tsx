@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AnimatePresence, motion } from "framer-motion";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/use-auth";
@@ -13,10 +14,37 @@ import Register from "@/pages/register";
 import Confirm from "@/pages/confirm";
 import FinOps from "@/pages/finops";
 import Referral from "@/pages/referral";
+import AIPricing from "@/pages/ai-pricing";
+import Topup from "@/pages/topup";
+import Terms from "@/pages/terms";
+import Privacy from "@/pages/privacy";
+import Monitoring from "@/pages/monitoring";
+import Admin from "@/pages/admin";
+import Profile from "@/pages/profile";
 import SharedProject from "@/pages/shared";
 import Layout from "@/components/layout";
 
 const queryClient = new QueryClient();
+
+const pageVariants = {
+  initial: { opacity: 0, y: 8 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.25, ease: "easeOut" } },
+  exit: { opacity: 0, y: -8, transition: { duration: 0.15, ease: "easeIn" } },
+};
+
+function AnimatedPage({ children }: { children: React.ReactNode }) {
+  return (
+    <motion.div
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      className="flex flex-col flex-1 min-h-0"
+    >
+      {children}
+    </motion.div>
+  );
+}
 
 function AppRouter() {
   return (
@@ -29,35 +57,66 @@ function AppRouter() {
       <Route path="/">
         <ProtectedRoute>
           <Layout>
-            <Dashboard />
+            <AnimatedPage><Dashboard /></AnimatedPage>
           </Layout>
         </ProtectedRoute>
       </Route>
       <Route path="/projects/new">
         <ProtectedRoute>
           <Layout>
-            <NewProject />
+            <AnimatedPage><NewProject /></AnimatedPage>
           </Layout>
         </ProtectedRoute>
       </Route>
       <Route path="/projects/:id">
         <ProtectedRoute>
           <Layout>
-            <ProjectWorkspace />
+            <AnimatedPage><ProjectWorkspace /></AnimatedPage>
           </Layout>
         </ProtectedRoute>
       </Route>
       <Route path="/finops">
         <ProtectedRoute>
           <Layout>
-            <FinOps />
+            <AnimatedPage><FinOps /></AnimatedPage>
           </Layout>
         </ProtectedRoute>
       </Route>
       <Route path="/referral">
         <ProtectedRoute>
           <Layout>
-            <Referral />
+            <AnimatedPage><Referral /></AnimatedPage>
+          </Layout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/ai-pricing">
+        <ProtectedRoute>
+          <Layout>
+            <AnimatedPage><AIPricing /></AnimatedPage>
+          </Layout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/topup">
+        <ProtectedRoute>
+          <Layout>
+            <AnimatedPage><Topup /></AnimatedPage>
+          </Layout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/terms" component={Terms} />
+      <Route path="/privacy" component={Privacy} />
+      <Route path="/status" component={Monitoring} />
+      <Route path="/admin">
+        <ProtectedRoute>
+          <Layout>
+            <AnimatedPage><Admin /></AnimatedPage>
+          </Layout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/profile">
+        <ProtectedRoute>
+          <Layout>
+            <AnimatedPage><Profile /></AnimatedPage>
           </Layout>
         </ProtectedRoute>
       </Route>

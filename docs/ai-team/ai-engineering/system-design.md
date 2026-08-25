@@ -15,7 +15,7 @@ Three-layer architecture:
 ## Layer 2 - API Server (Express)
 
 - artifacts/api-server/
-- Port 8080 (production), managed by PM2 on VPS
+- Port 8080 (local dev), managed by Vercel Functions (serverless)
 - Express 5 with typed middleware
 - Drizzle ORM for database
 - pino for structured logging
@@ -42,8 +42,7 @@ Frontend tidak boleh import dari backend (artifacts/* tidak boleh depend ke arti
 ## CI/CD
 
 - Vercel auto-deploys frontend on push (preview + production)
-- Backend: automated deploy via GitHub Actions CI/CD pipeline
+- Backend: deployed as Vercel Function via Vercel's built-in CI/CD (no separate deploy workflow)
   - `.github/workflows/ci.yml` — typecheck + unit tests + E2E tests + build (runs on every push/PR)
-  - `.github/workflows/deploy-backend.yml` — build + rsync to VPS + PM2 restart + health check (runs on push to main)
-- PM2 ecosystem config: `artifacts/api-server/ecosystem.config.cjs`
-- See `devops/deployment.md` for full pipeline documentation
+  - Vercel Function — builds via `node ./build.mjs` and deploys automatically on push to main
+- See `ai-engineering/deployment.md` for full pipeline documentation

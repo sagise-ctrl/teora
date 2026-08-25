@@ -14,8 +14,8 @@ import {
 import {
   useListAIUsage,
   useGetAIUsageStats,
-} from "@workspace/api-client-react";
-import type { AIUsageLog } from "@workspace/api-client-react";
+} from "../lib/api-client-react";
+import type { AIUsageLog } from "../lib/api-client-react";
 import {
   ActivitySquare,
   Coins,

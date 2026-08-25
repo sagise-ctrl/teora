@@ -8,18 +8,17 @@ import {
   History,
   PlusCircle,
   LogOut,
-  User,
   Settings,
-  Copy,
-  Check,
-  Share2,
   TrendingUp,
   Coins,
   Gift,
+  Activity,
+  Shield,
+  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useGetMyBalance } from "@/lib/api-client-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,7 +28,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { TeoraLogo } from "@/components/brand/teora-logo";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface NavItemProps {
   href: string;
@@ -68,6 +69,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
   const [copied, setCopied] = useState(false);
 
+  const { data: balanceData, isLoading: balanceLoading } = useGetMyBalance();
+
   const initials = user?.displayName
     ? user.displayName
         .split(" ")
@@ -101,10 +104,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     }
   }
 
-  // Placeholder token balance - would come from API in real implementation
-  const tokenBalance = 850;
-  const tokenLimit = 1000;
-  const tokenPercent = Math.round((tokenBalance / tokenLimit) * 100);
+  const balanceCents = balanceData?.balanceCents ?? 0;
+  const balanceDisplay = balanceData?.balanceDisplay ?? "Rp 0";
 
   return (
     <div className="flex min-h-[100dvh] w-full bg-background text-foreground">
@@ -115,26 +116,29 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <TeoraLogo size="sm" />
         </div>
 
-        {/* User Profile Section */}
+        {/* User Profile Section — clickable to /profile */}
         <div className="p-4 border-b border-border/50">
-          <div className="flex items-center gap-3">
-            <Avatar className="w-10 h-10 border-2 border-primary/20">
-              <AvatarFallback className="text-sm bg-gradient-to-br from-[#2D79FF]/20 to-[#8E54E9]/20 text-primary font-semibold">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate text-sidebar-foreground">
-                {user?.displayName ?? user?.email ?? "User"}
-              </p>
-              <Badge
-                variant="secondary"
-                className="text-[10px] px-1.5 py-0 h-4 bg-gradient-to-r from-[#2D79FF]/10 to-[#8E54E9]/10 text-[#2D79FF] border-0 font-medium"
-              >
-                Premium Plan
-              </Badge>
+          <Link href="/profile">
+            <div className="flex items-center gap-3 hover:bg-sidebar-accent -m-2 p-2 rounded-md cursor-pointer transition-colors">
+              <Avatar className="w-10 h-10 border-2 border-primary/20">
+                <AvatarImage src={user?.avatarUrl ?? undefined} alt={user?.displayName ?? user?.email ?? "User"} />
+                <AvatarFallback className="text-sm bg-gradient-to-br from-[#2D79FF]/20 to-[#8E54E9]/20 text-primary font-semibold">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate text-sidebar-foreground">
+                  {user?.displayName ?? user?.email ?? "User"}
+                </p>
+                <Badge
+                  variant="secondary"
+                  className="text-[10px] px-1.5 py-0 h-4 bg-gradient-to-r from-[#2D79FF]/10 to-[#8E54E9]/10 text-[#2D79FF] border-0 font-medium"
+                >
+                  Premium Plan
+                </Badge>
+              </div>
             </div>
-          </div>
+          </Link>
         </div>
 
         {/* Navigation */}
@@ -174,48 +178,58 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               active={location === "/finops"}
             />
             <NavItem
-              href="/referral"
-              icon={Gift}
-              label="Referral & Pricing"
-              active={location === "/referral"}
+              href="/ai-pricing"
+              icon={Zap}
+              label="AI Pricing"
+              active={location === "/ai-pricing"}
+            />
+            <NavItem
+              href="/status"
+              icon={Activity}
+              label="System Status"
+              active={location === "/status"}
+            />
+            <NavItem
+              href="/admin"
+              icon={Shield}
+              label="Admin Dashboard"
+              active={location === "/admin"}
             />
           </nav>
         </div>
 
         {/* Credits & Settings Section */}
         <div className="p-3 border-t border-border space-y-3">
-          {/* Upgrade Credits Button */}
-          <Link href="/referral">
+          {/* Topup Credits Button */}
+          <Link href="/ai-pricing">
             <Button
               className="w-full bg-gradient-to-r from-[#2D79FF] to-[#8E54E9] hover:opacity-90 text-white shadow-sm"
             >
               <PlusCircle className="w-4 h-4 mr-2" />
-              Upgrade Credits
+              Topup Credits
             </Button>
           </Link>
 
-          {/* Token Balance */}
-          <Link href="/finops">
+          {/* Balance Display */}
+          <Link href="/topup">
             <div className="bg-sidebar-accent/50 rounded-lg p-3 space-y-2 hover:bg-sidebar-accent transition-colors cursor-pointer">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Coins className="w-4 h-4 text-[#2D79FF]" />
                   <span className="text-xs font-medium text-sidebar-foreground">
-                    Token Balance
+                    Saldo
                   </span>
                 </div>
-                <span className="text-xs font-mono font-semibold text-sidebar-foreground">
-                  {tokenBalance.toLocaleString()}
-                </span>
-              </div>
-              <div className="h-1.5 bg-sidebar-accent rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-[#2D79FF] to-[#8E54E9] rounded-full transition-all"
-                  style={{ width: `${tokenPercent}%` }}
-                />
+                {balanceLoading ? (
+                  <Skeleton className="h-3 w-16" />
+                ) : (
+                  <span className="text-xs font-mono font-semibold text-sidebar-foreground">
+                    {balanceDisplay}
+                  </span>
+                )}
               </div>
               <p className="text-[10px] text-sidebar-foreground/60">
-                {tokenPercent}% used · resets in 14 days
+                Klik untuk topup saldo
               </p>
             </div>
           </Link>
@@ -236,6 +250,23 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             >
               <LogOut className="w-3.5 h-3.5" />
             </button>
+          </div>
+
+          {/* Legal Links */}
+          <div className="flex items-center justify-center gap-3 px-3 pt-2 border-t border-border/50">
+            <Link
+              href="/terms"
+              className="text-[10px] text-sidebar-foreground/40 hover:text-sidebar-foreground/70 transition-colors"
+            >
+              ToS
+            </Link>
+            <span className="text-[10px] text-sidebar-foreground/30">•</span>
+            <Link
+              href="/privacy"
+              className="text-[10px] text-sidebar-foreground/40 hover:text-sidebar-foreground/70 transition-colors"
+            >
+              Privacy
+            </Link>
           </div>
         </div>
       </aside>

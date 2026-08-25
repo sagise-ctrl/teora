@@ -1,0 +1,57 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "artifacts/academic-workspace/**"
+      - "lib/api-client-react/**"
+      - "lib/api-zod/**"
+      - "lib/db/src/schema/**"
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://academic-workspace-eta.vercel.app
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Build Frontend
+        working-directory: artifacts/academic-workspace
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.FRONTEND_VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.FRONTEND_VITE_SUPABASE_ANON_KEY }}
+          VITE_MOCK: "false"
+          VITE_API_URL: ""
+        run: npm run build
+
+      - name: Deploy to Vercel
+        run: |
+          npm install -g vercel
+          # Override vercel.json to skip Vercel's build (artifact pre-built in CI)
+          echo '{"framework":null,"installCommand":":","buildCommand":":"}' > artifacts/academic-workspace/vercel.json
+          vercel deploy \
+            --token=${{ secrets.VERCEL_TOKEN }} \
+            --project=academic-workspace \
+            --yes \
+            --cwd=artifacts/academic-workspace
+
+      - name: Deployment summary
+        run: |
+          echo "Frontend deployed to Vercel production."
+          echo "Verify at: https://academic-workspace-eta.vercel.app"

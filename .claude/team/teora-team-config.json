@@ -1,12 +1,18 @@
 {
-  "version": "2.0",
+  "version": "2.1",
   "generatedBy": "teora-ai-team",
-  "profile": "full",
   "project": {
     "name": "Teora",
     "type": "AI Academic Workspace",
     "repository": "https://github.com/sagise-ctrl/teora"
   },
+  "issueTracker": ".ai/issue-tracker.md",
+  "checklistBeforeOwnerReport": [
+    "Issue tracker di-update? (WAJIB)",
+    "Ada issue baru yang belum dicatat?",
+    "Budget/time waste tercatat di Dampak?",
+    "Root cause sudah teridentifikasi?"
+  ],
   "sharedSkills": [
     ".claude/skills/tdd-workflow.md",
     ".claude/skills/research-playbook.md",
@@ -61,7 +67,7 @@
     {
       "name": "Management",
       "entry": "docs/ai-team/management/README.md",
-      "responsibilities": ["Cross-Division Coordination", "Escalation Filtering", "Owner Reporting", "HR"]
+      "responsibilities": ["Cross-Division Coordination", "Escalation Filtering", "Owner Reporting", "HR", "Proactive Issue Tracking"]
     },
     {
       "name": "Customer Success",
@@ -84,6 +90,6 @@
     "Business & Growth: market strategy",
     "Management: coordinate + report to Owner"
   ],
-  "updatedAt": "2026-08-21",
-  "restructureNote": "Restructured from 23 divisions to 10 divisions. See management/README.md for restructure rationale."
+  "updatedAt": "2026-08-22",
+  "restructureNote": "v2.1: Add proactive issue logging. Manager wajib catat setiap issue saat ditemukan."
 }

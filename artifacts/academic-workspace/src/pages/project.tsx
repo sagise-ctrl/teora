@@ -28,6 +28,18 @@ import {
   useListShareLinks,
   useCreateShareLink,
   useDeleteShareLink,
+  useListQuizzes,
+  useGenerateQuiz,
+  useGetQuiz,
+  useSubmitQuiz,
+  useListComments,
+  useCreateComment,
+  useUpdateComment,
+  useDeleteComment,
+  useGetRubric,
+  useSearchReferences,
+  getListQuizzesQueryKey,
+  getGetQuizQueryKey,
   getGetLatestDocumentQueryKey,
   getListMessagesQueryKey,
   getListReferencesQueryKey,
@@ -37,9 +49,19 @@ import {
   getGetProjectQueryKey,
   getListJobsQueryKey,
   getListShareLinksQueryKey,
+  getSearchReferencesQueryKey,
+  useGetAITiers,
+  useGetMyBalance,
   type ChatMode,
   type DocumentWithVersions,
-} from "@workspace/api-client-react"
+  type Quiz,
+  type QuizQuestion,
+  type QuizQuestionType,
+  type Comment,
+  type QuizSubmission,
+  type Rubric,
+  type CrossRefSearchResult,
+} from "../lib/api-client-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
 import { 
@@ -69,7 +91,19 @@ import {
   MoreHorizontal,
   Pencil,
   FilePlus,
-  ChevronDown
+  ChevronDown,
+  ListChecks,
+  MessageCircle,
+  Sparkles,
+  Circle,
+  CheckCircle,
+  CircleDot,
+  XCircle,
+  CheckCheck,
+  Search,
+  ExternalLink,
+  Download,
+  Zap,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -81,6 +115,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+  EmptyDescription,
+  EmptyIllustrationBook,
+  EmptyIllustrationAttachment,
+  EmptyIllustrationChat,
+  EmptyIllustrationQuiz,
+} from "@/components/ui/empty"
 import { 
   Table, 
   TableBody, 
@@ -109,6 +154,11 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
+import InsufficientBalanceDialog from "@/components/insufficient-balance-dialog"
+import type { InsufficientBalanceData } from "@/components/insufficient-balance-dialog"
+import { parseInsufficientBalance } from "@/components/parse-insufficient-balance"
+import { useInsufficientBalanceDialog } from "@/hooks/use-insufficient-balance-dialog"
+import { TierSelector } from "@/components/tier-selector"
 
 // ── Document Bar ────────────────────────────────────────────────────────────────
 
@@ -464,6 +514,7 @@ export default function ProjectWorkspace() {
         </div>
         
         <div className="flex items-center gap-3">
+          <ExportButton projectId={projectId} projectTitle={project.title} />
           <ShareButton projectId={projectId} />
           {isWorking ? (
             <Badge variant="secondary" className="px-4 py-1.5 flex items-center">
@@ -517,6 +568,14 @@ export default function ProjectWorkspace() {
           <TabsTrigger value="timeline" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
             <ActivitySquare className="w-4 h-4 mr-2" />
             Timeline
+          </TabsTrigger>
+          <TabsTrigger value="quiz" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
+            <ListChecks className="w-4 h-4 mr-2" />
+            Kuis
+          </TabsTrigger>
+          <TabsTrigger value="comments" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
+            <MessageCircle className="w-4 h-4 mr-2" />
+            Komentar
           </TabsTrigger>
         </TabsList>
 
@@ -576,9 +635,470 @@ export default function ProjectWorkspace() {
           <TabsContent value="timeline" className="m-0">
             <TimelineTab projectId={projectId} />
           </TabsContent>
+
+          <TabsContent value="quiz" className="m-0">
+            <QuizTab projectId={projectId} />
+          </TabsContent>
+
+          <TabsContent value="comments" className="m-0">
+            <CommentsTab projectId={projectId} selectedDocId={selectedDocId} />
+          </TabsContent>
         </div>
       </Tabs>
     </div>
+  )
+}
+
+// ── Quiz Tab ─────────────────────────────────────────────────────────────────
+
+function QuizTab({ projectId }: { projectId: number }) {
+  const { toast } = useToast()
+  const queryClient = useQueryClient()
+  const insufficientBalance = useInsufficientBalanceDialog()
+
+  const { data: quizzes, isLoading } = useListQuizzes(projectId)
+  const generateQuiz = useGenerateQuiz(projectId)
+
+  const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null)
+  const [showGenerate, setShowGenerate] = useState(false)
+  const [generateForm, setGenerateForm] = useState({
+    title: "",
+    topic: "",
+    questionCount: 10,
+    questionTypes: ["multiple_choice", "short_answer", "essay"],
+    difficulty: "medium",
+  })
+  const [quizTierId, setQuizTierId] = useState<string>("")
+  const [answers, setAnswers] = useState<Record<string, string>>({})
+  const [submitting, setSubmitting] = useState(false)
+
+  const submitMutation = useSubmitQuiz(selectedQuiz?.id ?? 0)
+
+  const handleGenerate = () => {
+    if (!generateForm.title.trim()) {
+      toast({ title: "Judul diperlukan", variant: "destructive" })
+      return
+    }
+    generateQuiz.mutate(
+      { data: { title: generateForm.title, topic: generateForm.topic, questionCount: generateForm.questionCount, questionTypes: generateForm.questionTypes, difficulty: generateForm.difficulty, tier: quizTierId || undefined } },
+      {
+        onSuccess: (quiz) => {
+          toast({ title: "Kuis dibuat!", description: `${(quiz.questions as unknown as QuizQuestion[])?.length ?? 0} soal` })
+          setShowGenerate(false)
+          setGenerateForm({ title: "", topic: "", questionCount: 10, questionTypes: ["multiple_choice", "short_answer", "essay"], difficulty: "medium" })
+          queryClient.invalidateQueries({ queryKey: getListQuizzesQueryKey(projectId) })
+          queryClient.invalidateQueries({ queryKey: ["getMyBalance"] })
+          setSelectedQuiz(quiz as unknown as Quiz)
+        },
+        onError: (err) => {
+          if (insufficientBalance.handleError(err)) return
+          toast({ title: "Gagal generate", description: String(err), variant: "destructive" })
+        },
+      }
+    )
+  }
+
+  const handleSubmit = () => {
+    if (!selectedQuiz) return
+    const questions = (selectedQuiz.questions as unknown as QuizQuestion[]) ?? []
+    const responses = questions.map((q) => ({ questionId: q.id, answer: answers[q.id] ?? "" }))
+    setSubmitting(true)
+    submitMutation.mutate(
+      { data: { responses } },
+      {
+        onSuccess: () => {
+          toast({ title: "Jawaban disimpan!", description: "Submission berhasil." })
+          setSubmitting(false)
+        },
+        onError: (err) => {
+          toast({ title: "Gagal submit", description: String(err), variant: "destructive" })
+          setSubmitting(false)
+        },
+      }
+    )
+  }
+
+  const handleSelectQuiz = async (quiz: Quiz) => {
+    setSelectedQuiz(quiz)
+    setAnswers({})
+    const full = await fetch(`/api/projects/${projectId}/quizzes/${quiz.id}`).then(r => r.json()).catch(() => quiz)
+    setSelectedQuiz(full)
+  }
+
+  const questions = (selectedQuiz?.questions as unknown as QuizQuestion[]) ?? []
+  const diffColors: Record<string, string> = { easy: "text-green-600", medium: "text-yellow-600", hard: "text-red-600" }
+  const diffLabels: Record<string, string> = { easy: "Mudah", medium: "Sedang", hard: "Sulit" }
+
+  return (
+    <Card className="bg-card border-none shadow-sm rounded-xl">
+      <CardHeader className="flex flex-row items-center justify-between pb-4">
+        <div>
+          <CardTitle className="text-lg">Kuis</CardTitle>
+          <CardDescription>Kelola soal kuis dan submissions</CardDescription>
+        </div>
+        <Button size="sm" onClick={() => setShowGenerate(true)}>
+          <Sparkles className="w-4 h-4 mr-2" />
+          Generate Kuis
+        </Button>
+      </CardHeader>
+      <CardContent>
+        {/* Generate Dialog */}
+        <Dialog open={showGenerate} onOpenChange={setShowGenerate}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Generate Kuis dengan AI</DialogTitle>
+              <DialogDescription>Teora akan membuat soal kuis berdasarkan topik yang Anda berikan.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label>Judul Kuis *</Label>
+                <Input value={generateForm.title} onChange={e => setGenerateForm(f => ({ ...f, title: e.target.value }))} placeholder="Contoh: UH Bahasa Indonesia 1" />
+              </div>
+              <div>
+                <Label>Topik / Materi</Label>
+                <Textarea value={generateForm.topic} onChange={e => setGenerateForm(f => ({ ...f, topic: e.target.value }))} placeholder="Topik spesifik atau biarkan kosong untuk topik umum..." rows={2} />
+              </div>
+              <div>
+                <Label>Jumlah Soal: {generateForm.questionCount}</Label>
+                <input type="range" min={5} max={20} value={generateForm.questionCount} onChange={e => setGenerateForm(f => ({ ...f, questionCount: Number(e.target.value) }))} className="w-full" />
+              </div>
+              <div>
+                <Label>Tipe Soal</Label>
+                <div className="flex gap-4 flex-wrap">
+                  {[["multiple_choice", "Pilihan Ganda"], ["short_answer", "Isian Singkat"], ["essay", "Essay"]].map(([val, label]) => (
+                    <label key={val} className="flex items-center gap-2 text-sm">
+                      <input type="checkbox" checked={generateForm.questionTypes.includes(val)} onChange={e => {
+                        setGenerateForm(f => ({
+                          ...f,
+                          questionTypes: e.target.checked ? [...f.questionTypes, val] : f.questionTypes.filter(t => t !== val)
+                        }))
+                      }} />
+                      {label}
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <Label>Tingkat Kesulitan</Label>
+                <Select value={generateForm.difficulty} onValueChange={v => setGenerateForm(f => ({ ...f, difficulty: v }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="easy">Mudah</SelectItem>
+                    <SelectItem value="medium">Sedang</SelectItem>
+                    <SelectItem value="sulit">Sulit</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>AI Tier</Label>
+                <TierSelector value={quizTierId} onChange={setQuizTierId} />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowGenerate(false)}>Batal</Button>
+              <Button onClick={handleGenerate} disabled={generateQuiz.isPending}>
+                {generateQuiz.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
+                Generate
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* 402 Insufficient Balance Dialog */}
+        <insufficientBalance.InsufficientBalanceDialog {...insufficientBalance.dialogProps} />
+
+        {/* Quiz List / Viewer */}
+        {!selectedQuiz ? (
+          <div>
+            {isLoading ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 w-full" />)}
+              </div>
+            ) : quizzes && quizzes.length > 0 ? (
+              <div className="space-y-3">
+                {quizzes.map(quiz => {
+                  const qs = (quiz.questions as unknown as QuizQuestion[]) ?? []
+                  return (
+                    <Card key={quiz.id} className="cursor-pointer hover:bg-muted/30 transition-colors" onClick={() => handleSelectQuiz(quiz as unknown as Quiz)}>
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <h3 className="font-medium">{quiz.title}</h3>
+                            <p className="text-sm text-muted-foreground">{qs.length} soal</p>
+                            <div className="flex gap-2 mt-1">
+                              {quiz.metadata && typeof quiz.metadata === "object" && "difficulty" in (quiz.metadata as object) && (
+                                <Badge variant="outline" className={diffColors[(quiz.metadata as { difficulty?: string }).difficulty ?? "medium"]}>
+                                  {(quiz.metadata as { difficulty?: string }).difficulty}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                          <div className="text-xs text-muted-foreground">{quiz.createdAt ? format(new Date(quiz.createdAt), "dd MMM yyyy") : ""}</div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <EmptyMedia illustration="quiz" className="size-16 mx-auto mb-4">
+                  <EmptyIllustrationQuiz />
+                </EmptyMedia>
+                <p className="text-sm font-medium text-foreground mb-1">Belum ada kuis</p>
+                <p className="text-xs text-muted-foreground">Generate kuis pertama Anda!</p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div>
+            <Button variant="ghost" size="sm" onClick={() => setSelectedQuiz(null)} className="mb-4">
+              ← Kembali ke daftar
+            </Button>
+            <h2 className="text-xl font-semibold mb-1">{selectedQuiz.title}</h2>
+            {selectedQuiz.description && <p className="text-muted-foreground mb-4">{selectedQuiz.description}</p>}
+            <div className="space-y-6">
+              {questions.map((q, idx) => (
+                <Card key={q.id} className="bg-muted/20">
+                  <CardContent className="p-5">
+                    <div className="flex items-start gap-3 mb-3">
+                      <Badge variant="outline" className="shrink-0 mt-0.5">{idx + 1}</Badge>
+                      <div>
+                        <p className="font-medium">{q.text}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5 capitalize">
+                          {q.type === "multiple_choice" ? "Pilihan Ganda" : q.type === "short_answer" ? "Isian Singkat" : "Essay"} &bull; {q.type === "multiple_choice" && q.options ? `${q.options.length} opsi` : ""}
+                        </p>
+                      </div>
+                    </div>
+                    {q.type === "multiple_choice" && q.options ? (
+                      <div className="space-y-2 ml-10">
+                        {q.options.map(opt => (
+                          <label key={opt.id} className="flex items-center gap-3 cursor-pointer">
+                            <input
+                              type="radio"
+                              name={`q-${q.id}`}
+                              checked={answers[q.id] === opt.id}
+                              onChange={() => setAnswers(a => ({ ...a, [q.id]: opt.id }))}
+                              className="accent-primary"
+                            />
+                            <span>{opt.text}</span>
+                          </label>
+                        ))}
+                      </div>
+                    ) : q.type === "short_answer" ? (
+                      <div className="ml-10">
+                        <Input
+                          value={answers[q.id] ?? ""}
+                          onChange={e => setAnswers(a => ({ ...a, [q.id]: e.target.value }))}
+                          placeholder="Jawaban singkat..."
+                        />
+                      </div>
+                    ) : (
+                      <div className="ml-10">
+                        <Textarea
+                          value={answers[q.id] ?? ""}
+                          onChange={e => setAnswers(a => ({ ...a, [q.id]: e.target.value }))}
+                          placeholder="Jawaban esai..."
+                          rows={4}
+                        />
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            <Button className="mt-6" onClick={handleSubmit} disabled={submitting || submitMutation.isPending}>
+              {submitting || submitMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-2" />}
+              Submit Jawaban
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
+// ── Comments Tab ──────────────────────────────────────────────────────────────
+
+function CommentsTab({ projectId, selectedDocId }: { projectId: number; selectedDocId: number | null }) {
+  const { toast } = useToast()
+  const queryClient = useQueryClient()
+
+  const { data: comments, isLoading } = useListComments(projectId, selectedDocId ?? 0)
+  const createComment = useCreateComment(projectId, selectedDocId ?? 0)
+  const updateComment = useUpdateComment(projectId, 0)
+  const deleteComment = useDeleteComment(projectId, 0)
+
+  const [newContent, setNewContent] = useState("")
+  const [editingId, setEditingId] = useState<number | null>(null)
+  const [editContent, setEditContent] = useState("")
+  const [resolved, setResolved] = useState<Set<number>>(new Set())
+
+  const handleCreate = () => {
+    if (!newContent.trim() || !selectedDocId) return
+    createComment.mutate(
+      { data: { content: newContent.trim() } },
+      {
+        onSuccess: () => {
+          setNewContent("")
+          queryClient.invalidateQueries({ queryKey: [`/api/projects/${projectId}/documents/${selectedDocId}/comments`] })
+        },
+        onError: (err) => toast({ title: "Gagal", description: String(err), variant: "destructive" }),
+      }
+    )
+  }
+
+  const handleResolve = (commentId: number, currentResolved: boolean) => {
+    updateComment.mutate(
+      { commentId, data: { resolved: !currentResolved } },
+      {
+        onSuccess: () => {
+          setResolved(prev => {
+            const next = new Set(prev)
+            if (!currentResolved) next.add(commentId)
+            else next.delete(commentId)
+            return next
+          })
+          toast({ title: currentResolved ? "Komentar dibuka" : "Komentar diselesaikan" })
+        },
+        onError: (err) => toast({ title: "Gagal", description: String(err), variant: "destructive" }),
+      }
+    )
+  }
+
+  const handleEdit = (comment: Comment) => {
+    setEditingId(comment.id)
+    setEditContent(comment.content)
+  }
+
+  const handleSaveEdit = (commentId: number) => {
+    if (!editContent.trim()) return
+    updateComment.mutate(
+      { commentId, data: { content: editContent.trim() } },
+      {
+        onSuccess: () => {
+          setEditingId(null)
+          setEditContent("")
+          queryClient.invalidateQueries({ queryKey: [`/api/projects/${projectId}/documents/${selectedDocId}/comments`] })
+        },
+        onError: (err) => toast({ title: "Gagal", description: String(err), variant: "destructive" }),
+      }
+    )
+  }
+
+  const handleDelete = (commentId: number) => {
+    if (!confirm("Hapus komentar ini?")) return
+    deleteComment.mutate(
+      { commentId },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: [`/api/projects/${projectId}/documents/${selectedDocId}/comments`] })
+          toast({ title: "Dihapus" })
+        },
+        onError: (err) => toast({ title: "Gagal", description: String(err), variant: "destructive" }),
+      }
+    )
+  }
+
+  const sortedComments = [...(comments ?? [])].sort((a, b) => {
+    const aResolved = resolved.has(a.id) || a.resolved
+    const bResolved = resolved.has(b.id) || b.resolved
+    if (aResolved !== bResolved) return aResolved ? 1 : -1
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  })
+
+  return (
+    <Card className="bg-card border-none shadow-sm rounded-xl">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-lg">Komentar</CardTitle>
+        <CardDescription>
+          {selectedDocId ? "Komentar pada dokumen yang dipilih" : "Pilih dokumen terlebih dahulu"}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {selectedDocId ? (
+          <>
+            {/* Add Comment */}
+            <div className="mb-6">
+              <Textarea
+                value={newContent}
+                onChange={e => setNewContent(e.target.value)}
+                placeholder="Tambahkan komentar..."
+                rows={3}
+              />
+              <div className="flex justify-end mt-2">
+                <Button size="sm" onClick={handleCreate} disabled={!newContent.trim() || createComment.isPending}>
+                  {createComment.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <MessageCircle className="w-4 h-4 mr-2" />}
+                  Kirim Komentar
+                </Button>
+              </div>
+            </div>
+
+            {/* Comments List */}
+            {isLoading ? (
+              <div className="space-y-3">{[1, 2, 3].map(i => <Skeleton key={i} className="h-16 w-full" />)}</div>
+            ) : sortedComments.length > 0 ? (
+              <div className="space-y-3">
+                {sortedComments.map(comment => {
+                  const isResolved = resolved.has(comment.id) || comment.resolved
+                  return (
+                    <Card key={comment.id} className={`bg-muted/20 ${isResolved ? "opacity-60" : ""}`}>
+                      <CardContent className="p-4">
+                        {comment.quoteText && (
+                          <blockquote className="border-l-2 border-primary/40 pl-3 mb-2 text-sm text-muted-foreground italic">
+                            "{comment.quoteText}"
+                          </blockquote>
+                        )}
+                        {editingId === comment.id ? (
+                          <div>
+                            <Textarea value={editContent} onChange={e => setEditContent(e.target.value)} rows={2} className="mb-2" />
+                            <div className="flex gap-2">
+                              <Button size="sm" onClick={() => handleSaveEdit(comment.id)}>Simpan</Button>
+                              <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}>Batal</Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-sm whitespace-pre-wrap">{comment.content}</p>
+                        )}
+                        <div className="flex items-center justify-between mt-2">
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <span className="font-medium">{comment.userName}</span>
+                            <span>•</span>
+                            <span>{comment.createdAt ? format(new Date(comment.createdAt), "dd MMM yyyy HH:mm") : ""}</span>
+                            {isResolved && <Badge variant="secondary" className="text-xs">Diselesaikan</Badge>}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleResolve(comment.id, !!comment.resolved)} title={isResolved ? "Buka" : "Selesaikan"}>
+                              {isResolved ? <XCircle className="w-4 h-4 text-muted-foreground" /> : <CheckCheck className="w-4 h-4 text-green-600" />}
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEdit(comment)} title="Edit">
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDelete(comment.id)} title="Hapus">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <MessageCircle className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                <p>Belum ada komentar. Jadilah yang pertama!</p>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="text-center py-8 text-muted-foreground">
+            <MessageCircle className="w-10 h-10 mx-auto mb-2 opacity-30" />
+            <p>Pilih dokumen terlebih dahulu untuk melihat komentar</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   )
 }
 
@@ -588,8 +1108,11 @@ function OutlineTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosu
   const generateDocument = useGenerateDocument()
   const queryClient = useQueryClient()
   const { toast } = useToast()
+  const insufficientBalance = useInsufficientBalanceDialog()
   const [editedOutline, setEditedOutline] = useState("")
   const [isEditing, setIsEditing] = useState(false)
+  const [outlineTierId, setOutlineTierId] = useState<string>("")
+  const [docTierId, setDocTierId] = useState<string>("")
 
   useEffect(() => {
     if (metadata?.outline) {
@@ -600,24 +1123,32 @@ function OutlineTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosu
   const handleRegenerate = () => {
     regenerateOutline.mutate({
       projectId,
-      data: { userOutline: editedOutline },
+      data: { userOutline: editedOutline, tier: outlineTierId || undefined },
     }, {
       onSuccess: (data) => {
         toast({ title: "Outline diperbarui", description: "Outline berhasil diregenerasi." })
         setEditedOutline(data.outline ?? "")
         setIsEditing(false)
         queryClient.invalidateQueries({ queryKey: [`/api/projects/${projectId}/metadata`] })
+        queryClient.invalidateQueries({ queryKey: ["getMyBalance"] })
       },
-      onError: () => toast({ title: "Gagal", variant: "destructive" })
+      onError: (err) => {
+        if (insufficientBalance.handleError(err)) return
+        toast({ title: "Gagal", description: String((err as Error)?.message ?? err), variant: "destructive" })
+      }
     })
   }
 
   const handleGenerate = () => {
-    generateDocument.mutate({ projectId }, {
+    generateDocument.mutate({ projectId, data: { tier: docTierId || undefined } }, {
       onSuccess: () => {
         toast({ title: "Dokumen sedang ditulis", description: "AI sedang menulis dokumen dari outline. Cek tab Preview." })
+        queryClient.invalidateQueries({ queryKey: ["getMyBalance"] })
       },
-      onError: (err) => toast({ title: String(err), variant: "destructive" })
+      onError: (err) => {
+        if (insufficientBalance.handleError(err)) return
+        toast({ title: "Gagal", description: String((err as Error)?.message ?? err), variant: "destructive" })
+      }
     })
   }
 
@@ -638,12 +1169,13 @@ function OutlineTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosu
   return (
     <Card className="bg-card border-none shadow-sm rounded-xl">
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <div>
             <CardTitle className="font-serif text-lg">Document Outline</CardTitle>
             <CardDescription>Struktur dokumen — bab dan sub-bab.</CardDescription>
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2 flex-wrap justify-end">
+            <TierSelector value={outlineTierId} onChange={setOutlineTierId} compact minimal />
             <Button
               variant="outline"
               size="sm"
@@ -673,6 +1205,12 @@ function OutlineTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosu
             </Button>
           </div>
         </div>
+        {/* Show tier for the document generation in a separate row for clarity if needed */}
+        {!editedOutline && (
+          <div className="mt-2">
+            <TierSelector value={docTierId} onChange={setDocTierId} compact />
+          </div>
+        )}
       </CardHeader>
       <CardContent>
         {editedOutline ? (
@@ -717,6 +1255,7 @@ function OutlineTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosu
           </div>
         </CardFooter>
       )}
+      <insufficientBalance.InsufficientBalanceDialog {...insufficientBalance.dialogProps} />
     </Card>
   )
 }
@@ -726,10 +1265,33 @@ function ChatTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosure:
   const sendMessage = useSendMessage()
   const queryClient = useQueryClient()
   const { toast } = useToast()
+  const { data: tiersData } = useGetAITiers()
+  const { data: balanceData } = useGetMyBalance()
 
   const [content, setContent] = useState("")
   const [mode, setMode] = useState<ChatMode>("revise")
+  const [selectedTierId, setSelectedTierId] = useState<string>("")
+  const [insufficientBalance, setInsufficientBalance] =
+    useState<InsufficientBalanceData | null>(null)
+  const [insufficientBalanceOpen, setInsufficientBalanceOpen] =
+    useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
+
+  // Set default tier from user's preference
+  useEffect(() => {
+    if (tiersData?.tiers && tiersData.tiers.length > 0 && !selectedTierId) {
+      const preferred = tiersData.tiers.find(t => t.id === balanceData?.preferredTierId)
+      if (preferred) {
+        setSelectedTierId(preferred.id!)
+      } else {
+        // Default to first available tier
+        setSelectedTierId(tiersData.tiers[0].id!)
+      }
+    }
+  }, [tiersData, balanceData, selectedTierId])
+
+  const selectedTier = tiersData?.tiers?.find(t => t.id === selectedTierId)
+  const isFreeTier = selectedTier?.isFree || selectedTier?.priceDisplay === "Rp 0" || !selectedTier?.pricePer1MInputCents
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -746,19 +1308,36 @@ function ChatTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosure:
 
     sendMessage.mutate({
       projectId,
-      data: { content: messageContent, mode }
+      data: { content: messageContent, mode, tier: selectedTierId || undefined }
     }, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getListMessagesQueryKey(projectId) })
+        queryClient.invalidateQueries({ queryKey: ["getMyBalance"] })
       },
-      onError: () => {
-        toast({ variant: "destructive", title: "Message failed", description: "Could not send message." })
+      onError: (err) => {
+        const insufficient = parseInsufficientBalance(err)
+        if (insufficient) {
+          setInsufficientBalance({
+            ...insufficient,
+            tierId: selectedTierId || undefined,
+          })
+          setInsufficientBalanceOpen(true)
+          // Don't restore content for 402 — user needs to topup, retry is automatic after
+          return
+        }
+
+        toast({
+          variant: "destructive",
+          title: "Message failed",
+          description: String(err?.message ?? err ?? "Could not send message.")
+        })
         setContent(messageContent)
       }
     })
   }
 
   return (
+    <>
     <Card className="flex flex-col h-[600px] bg-card border-border shadow-sm">
       <ScrollArea className="flex-1 p-6" ref={scrollRef}>
         {isLoading ? (
@@ -769,9 +1348,9 @@ function ChatTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosure:
           </div>
         ) : messages?.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center px-8 py-16">
-            <div className="w-20 h-20 rounded-full bg-muted/50 flex items-center justify-center mb-6">
-              <MessageSquare className="w-10 h-10 text-muted-foreground/60" />
-            </div>
+            <EmptyMedia illustration="chat" className="size-20 mb-6">
+              <EmptyIllustrationChat />
+            </EmptyMedia>
             <h3 className="text-lg font-medium text-foreground mb-2">Start the conversation</h3>
             <p className="text-sm text-muted-foreground max-w-md mb-6">
               Ask the AI to revise sections, clarify concepts, add citations, or help with research.
@@ -793,10 +1372,10 @@ function ChatTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosure:
                     ? "bg-primary text-primary-foreground rounded-tr-sm"
                     : msg.role === "system"
                     ? "bg-muted text-muted-foreground italic w-full text-center rounded-lg shadow-none border"
-                    : "bg-secondary/80 text-secondary-foreground rounded-tl-sm border border-border/50"
+                    : "bg-secondary/90 text-secondary-foreground rounded-tl-sm border-l-[3px] border-l-primary border border-border/50"
                 )}>
                   {msg.role === "system" ? msg.content : (
-                    <div className="whitespace-pre-wrap">{msg.content}</div>
+                    <div className={cn("whitespace-pre-wrap", msg.role === "assistant" && "font-serif")}>{msg.content}</div>
                   )}
                   {msg.role === "assistant" && aiDisclosure && (
                     <div className="mt-2.5 pt-1.5 border-t border-border/30">
@@ -804,7 +1383,7 @@ function ChatTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosure:
                     </div>
                   )}
                   {msg.role !== "system" && (
-                    <div className={cn("text-[10px] mt-1 opacity-60", msg.role === "user" ? "text-right" : "")}>
+                    <div className={cn("text-[10px] mt-1 opacity-50", msg.role === "user" ? "text-right" : "")}>
                       {format(new Date(msg.createdAt), "h:mm a")}
                     </div>
                   )}
@@ -813,10 +1392,9 @@ function ChatTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosure:
             ))}
             {sendMessage.isPending && (
               <div className="flex justify-start">
-                <div className="max-w-[80%] rounded-2xl rounded-tl-sm px-5 py-4 bg-secondary/80 border border-border/50 flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" />
-                  <div className="w-2 h-2 rounded-full bg-primary/60 animate-bounce [animation-delay:0.15s]" />
-                  <div className="w-2 h-2 rounded-full bg-primary/60 animate-bounce [animation-delay:0.3s]" />
+                <div className="max-w-[80%] rounded-2xl rounded-tl-sm px-5 py-4 bg-secondary/90 border-l-[3px] border-l-primary border border-border/50 flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-primary/60 animate-pulse" />
+                  <span className="text-xs text-muted-foreground italic">Thinking...</span>
                 </div>
               </div>
             )}
@@ -848,6 +1426,64 @@ function ChatTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosure:
             </button>
           ))}
         </div>
+
+        {/* Tier selector + Balance indicator */}
+        <div className="flex items-center justify-between gap-3 mb-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-3.5 h-3.5 text-muted-foreground" />
+            {tiersData?.tiers && tiersData.tiers.length > 0 ? (
+              <Select value={selectedTierId} onValueChange={setSelectedTierId}>
+                <SelectTrigger className="h-7 w-[140px] text-xs bg-muted/50 border-border/50">
+                  <SelectValue placeholder="Pilih tier" />
+                </SelectTrigger>
+                <SelectContent>
+                  {tiersData.tiers.map((tier) => (
+                    <SelectItem
+                      key={tier.id}
+                      value={tier.id!}
+                      className="text-xs"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span>{tier.name}</span>
+                        {tier.isFree && (
+                          <Badge variant="secondary" className="text-[9px] px-1 py-0 bg-green-100 text-green-700 border-0">
+                            FREE
+                          </Badge>
+                        )}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <Skeleton className="h-7 w-[140px]" />
+            )}
+          </div>
+
+          {/* Balance + tier info */}
+          <div className="flex items-center gap-3 text-[11px]">
+            {selectedTier && (
+              <span className="text-muted-foreground">
+                {isFreeTier ? (
+                  <span className="flex items-center gap-1 text-green-600 font-medium">
+                    <Zap className="w-3 h-3" />
+                    Gratis
+                  </span>
+                ) : (
+                  <span>
+                    ~{selectedTier.priceDisplay ?? "—"}/1M tokens
+                  </span>
+                )}
+              </span>
+            )}
+            {balanceData && (
+              <span className="text-muted-foreground font-mono">
+                Saldo: {balanceData.balanceDisplay}
+              </span>
+            )}
+          </div>
+        </div>
+
         <form onSubmit={handleSend} className="flex gap-3">
           <Input
             value={content}
@@ -862,6 +1498,13 @@ function ChatTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosure:
         </form>
       </div>
     </Card>
+
+    <InsufficientBalanceDialog
+      open={insufficientBalanceOpen}
+      onOpenChange={setInsufficientBalanceOpen}
+      data={insufficientBalance}
+    />
+    </>
   )
 }
 
@@ -871,15 +1514,24 @@ function ReferencesTab({ projectId }: { projectId: number }) {
   const deleteRef = useDeleteReference()
   const regenBib = useRegenerateBibliography()
   const fetchMeta = useFetchReferenceMetadata()
+  const searchCrossRef = useSearchReferences(
+    { q: searchQuery },
+    { query: { enabled: false } }
+  )
   const queryClient = useQueryClient()
   const { toast } = useToast()
+  const insufficientBalance = useInsufficientBalanceDialog()
 
   const [open, setOpen] = useState(false)
   const [mode, setMode] = useState<"manual" | "lookup">("manual")
   const [lookupId, setLookupId] = useState("")
+  const [searchQuery, setSearchQuery] = useState("")
+  const [searchSubmitted, setSearchSubmitted] = useState(false)
+  const [bibTierId, setBibTierId] = useState<string>("")
   const [formData, setFormData] = useState({
     title: "", authors: "", year: "", journal: "", volume: "", issue: "", doi: ""
   })
+  const [addedDois, setAddedDois] = useState<Set<string>>(new Set())
 
   const handleLookup = () => {
     if (!lookupId.trim()) return
@@ -948,10 +1600,52 @@ function ReferencesTab({ projectId }: { projectId: number }) {
   }
 
   const handleRegen = () => {
-    regenBib.mutate({ projectId }, {
+    regenBib.mutate({ projectId, data: { tier: bibTierId || undefined } }, {
+      onError: (err) => {
+        if (insufficientBalance.handleError(err)) return
+        toast({ title: "Bibliography regeneration failed", description: String(err), variant: "destructive" })
+      },
       onSuccess: () => toast({ title: "Bibliography regenerated" })
     })
   }
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!searchQuery.trim() || searchQuery.trim().length < 3) return
+    setSearchSubmitted(true)
+    searchCrossRef.refetch()
+  }
+
+  const addSearchResult = (result: CrossRefSearchResult) => {
+    if (!result.title) return
+    if (result.doi && addedDois.has(result.doi)) {
+      toast({ title: "Already added", description: "This reference is already in your project." })
+      return
+    }
+    createRef.mutate({
+      projectId,
+      data: {
+        title: result.title,
+        authors: result.authors || undefined,
+        year: result.year ?? undefined,
+        journal: result.journal || undefined,
+        volume: result.volume || undefined,
+        issue: result.issue || undefined,
+        doi: result.doi || undefined,
+      }
+    }, {
+      onSuccess: () => {
+        toast({ title: "Reference added", description: result.title?.slice(0, 50) })
+        if (result.doi) {
+          setAddedDois(prev => new Set(prev).add(result.doi!))
+        }
+        queryClient.invalidateQueries({ queryKey: getListReferencesQueryKey(projectId) })
+      },
+      onError: () => toast({ title: "Failed to add", variant: "destructive" })
+    })
+  }
+
+  const showSearchResults = searchSubmitted && (searchCrossRef.data?.results?.length ?? 0) > 0
 
   return (
     <div className="space-y-6">
@@ -960,7 +1654,8 @@ function ReferencesTab({ projectId }: { projectId: number }) {
           <h2 className="text-xl font-serif font-semibold">References Database</h2>
           <p className="text-sm text-muted-foreground">Manage scholarly sources used in your project.</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          <TierSelector value={bibTierId} onChange={setBibTierId} compact minimal />
           <Button variant="outline" onClick={handleRegen} disabled={regenBib.isPending}>
             <RefreshCw className={cn("w-4 h-4 mr-2", regenBib.isPending && "animate-spin")} />
             Regenerate
@@ -1062,6 +1757,115 @@ function ReferencesTab({ projectId }: { projectId: number }) {
         </div>
       </div>
 
+      {/* Search academic papers */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+            <Search className="w-4 h-4 text-primary" />
+            Search Academic Papers
+          </div>
+          <Badge variant="secondary" className="text-xs">CrossRef</Badge>
+        </div>
+        <form onSubmit={handleSearch} className="flex gap-2">
+          <Input
+            placeholder="Search by topic, title, or author..."
+            value={searchQuery}
+            onChange={e => {
+              setSearchQuery(e.target.value)
+              setAddedDois(prev => {
+                const next = new Set(prev)
+                // Reset added status when query changes
+                return next
+              })
+            }}
+            className="flex-1"
+          />
+          <Button type="submit" variant="secondary" disabled={searchCrossRef.isFetching || searchQuery.trim().length < 3}>
+            {searchCrossRef.isFetching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+          </Button>
+        </form>
+
+        {searchCrossRef.isError && (
+          <p className="text-sm text-destructive">
+            Search failed. Please try again.
+          </p>
+        )}
+
+        {searchSubmitted && !searchCrossRef.isFetching && searchCrossRef.data?.results?.length === 0 && (
+          <p className="text-sm text-muted-foreground py-4 text-center">
+            No papers found for "{searchQuery}". Try different keywords.
+          </p>
+        )}
+
+        {showSearchResults && (
+          <div className="border rounded-lg divide-y bg-card">
+            <div className="px-3 py-2 flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">
+                {searchCrossRef.data?.totalResults?.toLocaleString() ?? 0} results for "{searchQuery}"
+              </span>
+              <span className="text-xs text-muted-foreground">
+                Showing {searchCrossRef.data?.results?.length} papers
+              </span>
+            </div>
+            {searchCrossRef.data?.results?.map((result, i) => {
+              const isAdded = result.doi ? addedDois.has(result.doi) : false
+              const alreadyInProject = references?.some(r => r.doi === result.doi)
+              return (
+                <div key={i} className="px-4 py-3 hover:bg-muted/30 transition-colors flex items-start gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium leading-snug">{result.title}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {result.authors}
+                      {result.year ? ` (${result.year})` : ''}
+                      {result.journal ? ` — ${result.journal}` : ''}
+                      {result.volume ? `, Vol. ${result.volume}` : ''}
+                      {result.issue ? `(${result.issue})` : ''}
+                      {result.page ? `, pp. ${result.page}` : ''}
+                    </p>
+                    {result.doi && (
+                      <p className="text-xs text-primary mt-1 flex items-center gap-1">
+                        DOI: {result.doi}
+                        <a
+                          href={`https://doi.org/${result.doi}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:underline inline-flex items-center gap-0.5"
+                        >
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </p>
+                    )}
+                    {result.type && (
+                      <Badge variant="outline" className="text-xs mt-1.5 font-normal">
+                        {result.type.replace(/-/g, ' ')}
+                      </Badge>
+                    )}
+                  </div>
+                  <Button
+                    size="sm"
+                    variant={alreadyInProject || isAdded ? "outline" : "default"}
+                    onClick={() => addSearchResult(result)}
+                    disabled={createRef.isPending}
+                    className="shrink-0"
+                  >
+                    {createRef.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> :
+                      alreadyInProject || isAdded ? (
+                      <>
+                        <CheckCircle2 className="w-3 h-3 mr-1" /> Added
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-3 h-3 mr-1" /> Add
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
       <Card className="bg-card">
         <Table>
           <TableHeader>
@@ -1080,9 +1884,9 @@ function ReferencesTab({ projectId }: { projectId: number }) {
               <TableRow>
                 <TableCell colSpan={5} className="text-center py-16">
                   <div className="flex flex-col items-center">
-                    <div className="w-14 h-14 rounded-full bg-muted/50 flex items-center justify-center mb-4">
-                      <BookMarked className="w-7 h-7 text-muted-foreground/50" />
-                    </div>
+                    <EmptyMedia illustration="book" className="size-16 mb-4">
+                      <EmptyIllustrationBook />
+                    </EmptyMedia>
                     <p className="text-sm font-medium text-foreground mb-1">No references yet</p>
                     <p className="text-xs text-muted-foreground">Add sources to cite in your document</p>
                   </div>
@@ -1118,6 +1922,7 @@ function ReferencesTab({ projectId }: { projectId: number }) {
           </TableBody>
         </Table>
       </Card>
+      <insufficientBalance.InsufficientBalanceDialog {...insufficientBalance.dialogProps} />
     </div>
   )
 }
@@ -1220,9 +2025,9 @@ function AttachmentsTab({ projectId }: { projectId: number }) {
           <Skeleton className="h-32 w-full" />
         ) : attachments?.length === 0 ? (
           <div className="col-span-full text-center py-16 border border-dashed rounded-xl">
-            <div className="w-14 h-14 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
-              <Paperclip className="w-7 h-7 text-muted-foreground/50" />
-            </div>
+            <EmptyMedia illustration="attachment" className="size-16 mx-auto mb-4">
+              <EmptyIllustrationAttachment />
+            </EmptyMedia>
             <p className="text-sm font-medium text-foreground mb-1">No attachments yet</p>
             <p className="text-xs text-muted-foreground mb-4">Upload PDFs, rubrics, or notes for the AI to analyze</p>
             <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
@@ -1596,6 +2401,82 @@ function ShareButton({ projectId }: { projectId: number }) {
             Done
           </Button>
         </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function ExportButton({ projectId, projectTitle }: { projectId: number; projectTitle: string }) {
+  const [open, setOpen] = useState(false)
+  const [loading, setLoading] = useState<"docx" | "pdf" | null>(null)
+  const { toast } = useToast()
+
+  const handleDownload = async (format: "docx" | "pdf") => {
+    setLoading(format)
+    try {
+      const baseUrl = (import.meta as unknown as Record<string, Record<string, string>>).env?.VITE_API_URL ?? ""
+      const url = `${baseUrl}/projects/${projectId}/export/${format}`
+      const response = await fetch(url, { credentials: "include" })
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      const blob = await response.blob()
+      const blobUrl = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = blobUrl
+      a.download = `${projectTitle.replace(/[^a-zA-Z0-9_-]/g, "_")}.${format}`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(blobUrl)
+      setOpen(false)
+      toast({ title: `Download ${format.toUpperCase()} berhasil` })
+    } catch (err) {
+      toast({ title: `Gagal mengunduh ${format.toUpperCase()}`, variant: "destructive" })
+    } finally {
+      setLoading(null)
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm">
+          <Download className="w-4 h-4 mr-2" />
+          Export
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-sm">
+        <DialogHeader>
+          <DialogTitle>Export Dokumen</DialogTitle>
+          <DialogDescription>
+            Unduh dokumen project sebagai file Word (DOCX) atau PDF.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex flex-col gap-3 pt-2">
+          <Button
+            variant="outline"
+            onClick={() => handleDownload("docx")}
+            disabled={loading !== null}
+          >
+            {loading === "docx" ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <FileText className="w-4 h-4 mr-2" />
+            )}
+            Download DOCX
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => handleDownload("pdf")}
+            disabled={loading !== null}
+          >
+            {loading === "pdf" ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Download className="w-4 h-4 mr-2" />
+            )}
+            Download PDF
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   )
