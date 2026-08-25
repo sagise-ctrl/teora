@@ -27,13 +27,6 @@ function workspacePlugin() {
   return {
     name: "workspace-resolver",
     setup(build) {
-      build.onStart(() => {
-        console.error("[workspace-resolver] Plugin setup started");
-        console.error("[workspace-resolver] NODE_PATH:", process.env.NODE_PATH || "(none)");
-        console.error("[workspace-resolver] Platform:", process.platform);
-        console.error("[workspace-resolver] path.sep:", path.sep);
-      });
-
       build.onResolve({ filter: /^@workspace\// }, (args) => {
         const pkgName = args.path; // e.g. "@workspace/db"
         // pkgName includes the @workspace/ prefix — strip it for path construction

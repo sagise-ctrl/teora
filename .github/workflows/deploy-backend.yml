@@ -39,24 +39,12 @@ jobs:
 
       - name: Build API server
         run: |
-          echo "Build working directory: $(pwd)"
           export NODE_PATH="$(pwd)/node_modules"
-          ls -la artifacts/api-server/ 2>&1 | head -5
-          ls -la artifacts/api-server/*.mjs 2>&1 || echo "No .mjs files"
-          which node || echo "node NOT FOUND"
-          node --version 2>&1
           cd artifacts/api-server
-          node build.mjs 2>&1 || echo "EXIT CODE: $?"
+          node build.mjs
 
       - name: Prepare deployment package
         run: |
-          echo "=== Preparing deployment package ==="
-          # The build output is in artifacts/api-server/api and artifacts/api-server/dist
-          echo "API dir: $(ls artifacts/api-server/api/ 2>&1 || echo 'NOT FOUND')"
-          echo "Dist dir: $(ls artifacts/api-server/dist/ 2>&1 || echo 'NOT FOUND')"
-          echo "Root node_modules/@workspace:"
-          ls node_modules/@workspace/ 2>&1 || echo "NOT FOUND"
-          # Copy node_modules/@workspace/ to api-server/node_modules/ for deployment
           mkdir -p artifacts/api-server/node_modules/@workspace
           cp -r node_modules/@workspace/* artifacts/api-server/node_modules/@workspace/
           # Copy production deps
@@ -106,10 +94,7 @@ jobs:
 
       - name: Deploy to Vercel
         run: |
-          echo "Vercel token available: ${{ secrets.VERCEL_TOKEN != '' }}"
           npm install -g vercel
-          echo "Vercel CLI version: $(vercel --version)"
-          # Skip Vercel's build — artifact already built
           echo '{"framework":null,"installCommand":":","buildCommand":":"}' > artifacts/api-server/vercel.json
           vercel deploy \
             --token=${{ secrets.VERCEL_TOKEN }} \
