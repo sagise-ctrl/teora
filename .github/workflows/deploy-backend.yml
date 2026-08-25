@@ -51,9 +51,9 @@ jobs:
       - name: Build API server
         run: npm -w @workspace/api-server run build
 
-      - name: Prepare deployment artifact
+      - name: Prepare deployment package
         run: |
-          # Remove workspace file: refs from package.json — deps already bundled
+          # Remove workspace file: refs — deps already bundled
           node -e "
             const fs = require('fs');
             const pkg = JSON.parse(fs.readFileSync('artifacts/api-server/package.json', 'utf8'));
@@ -61,13 +61,18 @@ jobs:
             delete pkg.dependencies['@workspace/db'];
             fs.writeFileSync('artifacts/api-server/package.json', JSON.stringify(pkg, null, 2));
           "
-          # Copy production node_modules
+          # node_modules: production runtime deps
           mkdir -p artifacts/api-server/node_modules
-          for dep in zod drizzle-orm drizzle-zod pg cookie-parser cors express express-rate-limit jose nanoid pino pino-http pino-pretty thread-stream docx @supabase/supabase-js @citation-js/core @citation-js/plugin-doi @citation-js/plugin-isbn @vercel/node; do
+          for dep in \
+            zod drizzle-orm drizzle-zod pg \
+            cookie-parser cors express express-rate-limit \
+            jose nanoid pino pino-http pino-pretty \
+            thread-stream docx \
+            @supabase/supabase-js \
+            @citation-js/core @citation-js/plugin-doi @citation-js/plugin-isbn \
+            @vercel/node; do
             cp -r "node_modules/$dep" artifacts/api-server/node_modules/ 2>/dev/null || true
           done
-          # Copy bundled workspace packages
-          cp -r artifacts/api-server/.bundled/@workspace artifacts/api-server/node_modules/ 2>/dev/null || true
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
@@ -76,10 +81,8 @@ jobs:
           path: |
             artifacts/api-server/api
             artifacts/api-server/dist
-            artifacts/api-server/.bundled
-            artifacts/api-server/vercel.json
-            artifacts/api-server/package.json
             artifacts/api-server/node_modules
+            artifacts/api-server/package.json
           retention-days: 1
 
   deploy:
@@ -98,13 +101,11 @@ jobs:
           name: api-server-dist
           path: artifacts/api-server
 
-      - name: Install Vercel CLI
-        run: npm install -g vercel
-
-      - name: Deploy to Vercel (prebuilt)
+      - name: Deploy to Vercel
         run: |
-          # Override vercel.json to skip build/install (already done in CI)
-          echo '{"framework":null,"installCommand":"echo skipping","buildCommand":"echo skipping"}' > artifacts/api-server/vercel.json
+          npm install -g vercel
+          # Skip Vercel's build — artifact already built. Override vercel.json in the artifact dir.
+          echo '{"framework":null,"installCommand":":","buildCommand":":"}' > artifacts/api-server/vercel.json
           vercel deploy \
             --token=${{ secrets.VERCEL_TOKEN }} \
             --project=api-server \

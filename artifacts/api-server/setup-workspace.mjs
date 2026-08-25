@@ -1,7 +1,7 @@
 // Copies workspace packages into .bundled/ so esbuild can resolve them.
-// Script location determines the mode:
-//   - If script is inside artifacts/api-server/ -> local dev (script dir IS apiServerDir)
-//   - If script is at monorepo root -> Vercel deploy (project at artifacts/api-server/)
+// Handles both local dev (artifacts/api-server/) and Vercel (repo root extraction via --cwd).
+//   Local dev:  __dirname ends with "artifacts/api-server"
+//   Vercel:     __dirname is repo root (/vercel/path0), cwd is artifacts/api-server
 import { cpSync, mkdirSync, readdirSync, existsSync } from "node:fs";
 import { resolve, join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -9,18 +9,18 @@ import { fileURLToPath } from "node:url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Check if package.json exists in the script's directory.
-// On local dev: script is at artifacts/api-server/setup-workspace.mjs
-//   -> package.json exists at artifacts/api-server/package.json -> apiServerDir = __dirname
-// On Vercel: script is at /vercel/path0/setup-workspace.mjs
-//   -> package.json does NOT exist at /vercel/path0/package.json -> apiServerDir = artifacts/api-server
-const hasPackageJson = existsSync(join(__dirname, "package.json"));
-const apiServerDir = hasPackageJson ? __dirname : join(__dirname, "artifacts/api-server");
-const monorepoRoot = hasPackageJson ? resolve(__dirname, "../..") : __dirname;
+// Detect mode: if __dirname ends with "artifacts/api-server", we're in local dev.
+// Otherwise, assume we're at repo root (Vercel with --cwd=artifacts/api-server).
+const isLocalDev = __dirname.endsWith("artifacts/api-server") || __dirname.endsWith("artifacts\\api-server");
+
+const apiServerDir = isLocalDev ? __dirname : join(__dirname, "artifacts/api-server");
+const monorepoRoot = isLocalDev ? resolve(__dirname, "../..") : __dirname;
 
 const libDbSrc = resolve(monorepoRoot, "lib/db/src");
 const libApiZodSrc = resolve(monorepoRoot, "lib/api-zod/src");
 
+// Bundled packages go to api-server directory so they're included in the Vercel deployment
+// artifact (which is the api-server subdirectory, not the monorepo root).
 const bundledDir = join(apiServerDir, ".bundled");
 mkdirSync(bundledDir, { recursive: true });
 
