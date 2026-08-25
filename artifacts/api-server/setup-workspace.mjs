@@ -24,6 +24,16 @@ const libApiZodSrc = resolve(monorepoRoot, "lib/api-zod/src");
 const bundledDir = join(apiServerDir, ".bundled");
 mkdirSync(bundledDir, { recursive: true });
 
+// DEBUG: print environment
+console.error('[setup] __dirname:', __dirname);
+console.error('[setup] process.cwd():', process.cwd());
+console.error('[setup] isLocalDev:', isLocalDev);
+console.error('[setup] apiServerDir:', apiServerDir);
+console.error('[setup] monorepoRoot:', monorepoRoot);
+console.error('[setup] libDbSrc:', libDbSrc, 'exists:', existsSync(libDbSrc));
+console.error('[setup] libApiZodSrc:', libApiZodSrc, 'exists:', existsSync(libApiZodSrc));
+console.error('[setup] bundledDir:', bundledDir, 'created');
+
 const workspaces = [
   { name: "@workspace/db", src: libDbSrc },
   { name: "@workspace/api-zod", src: libApiZodSrc },

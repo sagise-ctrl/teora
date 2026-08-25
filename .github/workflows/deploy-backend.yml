@@ -32,27 +32,15 @@ jobs:
       - name: Setup workspace packages
         working-directory: artifacts/api-server
         run: |
-          echo "=== SETUP WORKSPACE ==="
-          echo "PWD=$(pwd)"
-          echo "SCRIPT_DIR=$(dirname $(realpath ./setup-workspace.mjs))"
-          echo "NODE_VERSION=$(node --version)"
-          echo "LIB_DB_SRC_EXISTS=$(test -d ../../lib/db/src && echo yes || echo no)"
-          echo "LIB_API_ZOD_SRC_EXISTS=$(test -d ../../lib/api-zod/src && echo yes || echo no)"
-          echo "=== Running setup-workspace.mjs ==="
+          echo "PWD: $(pwd)"
           node ./setup-workspace.mjs 2>&1
-          echo "=== After setup ==="
-          echo "BUNDLED_EXISTS=$(test -d .bundled && echo yes || echo no)"
-          echo "BUNDLED_CONTENTS=$(ls -la .bundled/ 2>&1 || echo 'DIR_NOT_FOUND')"
+          echo "BUNDLED_AFTER: $(ls .bundled/@workspace/ 2>&1 || echo NOT_FOUND)"
 
       - name: Build API server
         working-directory: artifacts/api-server
         run: |
-          echo "=== BUILD API SERVER ==="
-          echo "PWD=$(pwd)"
-          echo "NODE_VERSION=$(node --version)"
-          echo "BUNDLED_CONTENTS=$(ls -la .bundled/ 2>&1 || echo 'DIR_NOT_FOUND')"
-          echo "BUNDLED_WORKSPACE=$(ls -la .bundled/@workspace/ 2>&1 || echo 'DIR_NOT_FOUND')"
-          echo "=== Running build.mjs ==="
+          echo "BUILD_PWD: $(pwd)"
+          echo "BUILD_BUNDLED: $(ls .bundled/@workspace/ 2>&1 || echo NOT_FOUND)"
           node ./build.mjs 2>&1
 
       - name: Prepare deployment package
