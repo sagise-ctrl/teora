@@ -1,9 +1,25 @@
 // Custom esbuild plugin to resolve @workspace/* packages.
-// With npm workspaces, packages are symlinked at node_modules/@workspace/ in the repo root.
-// When running via `npm -w @workspace/api-server run build`, cwd is the repo root,
-// so process.cwd() points to the repo root where the symlinks live.
+// npm workspaces creates symlinks at the MONOREPO ROOT's node_modules/@workspace/.
+// When running via `npm -w @workspace/api-server run build`, cwd may be the
+// package directory (artifacts/api-server/), not the repo root. We walk up
+// the directory tree to find the repo root (where workspaces are defined).
 import path from "node:path";
 import { existsSync } from "node:fs";
+
+function findRepoRoot(startPath) {
+  let current = startPath;
+  const visited = new Set();
+  while (current && !visited.has(current) && current !== path.sep && current !== "/") {
+    visited.add(current);
+    // The repo root has a node_modules/@workspace/ directory (npm workspaces)
+    if (existsSync(path.join(current, "node_modules", "@workspace"))) {
+      return current;
+    }
+    current = path.dirname(current);
+  }
+  // Fallback: use process.cwd()
+  return process.cwd();
+}
 
 function workspacePlugin() {
   return {
@@ -11,30 +27,27 @@ function workspacePlugin() {
     setup(build) {
       build.onResolve({ filter: /^@workspace\// }, (args) => {
         const pkgName = args.path;
-        // In npm workspaces (cwd = repo root after npm -w), the symlinks are at node_modules/@workspace/
-        const repoRoot = process.cwd();
+        const importer = args.importer;
+        // Find repo root by walking up from the importing file
+        const repoRoot = findRepoRoot(path.dirname(importer));
+
+        // npm workspaces symlinks are at repoRoot/node_modules/@workspace/
         const npmWorkspacePath = path.join(repoRoot, "node_modules", pkgName);
 
         if (existsSync(npmWorkspacePath)) {
-          // For ESM source files, resolve to the src/index.ts of the workspace package
+          // Resolve to the src/index.ts of the workspace package
           const srcPath = path.join(npmWorkspacePath, "src", "index.ts");
           if (existsSync(srcPath)) {
             return { path: srcPath };
           }
-          // The package might export directly from the root
-          return { path: npmWorkspacePath };
-        }
-
-        // Fallback: check if the package has a package.json with a main field
-        const pkgJson = path.join(npmWorkspacePath, "package.json");
-        if (existsSync(pkgJson)) {
+          // Package might export from root
           return { path: npmWorkspacePath };
         }
 
         return {
           errors: [
             {
-              text: `Cannot resolve ${pkgName}. npm workspaces should create symlinks at ${npmWorkspacePath}. Run 'npm install' from the repo root first.`,
+              text: `Cannot resolve ${pkgName}. npm workspaces symlinks should be at ${npmWorkspacePath}. Run 'npm install' from the repo root.`,
               location: null,
             },
           ],
