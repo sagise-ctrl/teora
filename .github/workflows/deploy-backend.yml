@@ -32,10 +32,10 @@ jobs:
       - name: Verify workspace packages
         run: |
           echo "Repo root: $(pwd)"
-          echo "npm workspaces:"
-          npm workspaces list --recursive 2>&1 | head -10
           echo "Workspace symlinks:"
           ls -la node_modules/@workspace/ 2>&1 || echo "NO @workspace SYMLINKS!"
+          echo "@workspace/db:"
+          ls -la node_modules/@workspace/db 2>&1 | head -5 || echo "NOT FOUND"
 
       - name: Build API server
         run: |
