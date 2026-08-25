@@ -34,27 +34,16 @@ jobs:
 
       - name: Build API server
         working-directory: artifacts/api-server
+        env:
+          NODE_PATH: ${{ github.workspace }}/node_modules
         run: |
-          echo "=== System ==="
-          node --version && npm --version
+          echo "=== Environment ==="
+          echo "NODE_PATH=$NODE_PATH"
+          echo "workspace packages:"
+          ls $NODE_PATH/@workspace/ 2>&1
           echo "=== Bundled check ==="
-          node -e "
-            const fs=require('fs');
-            const path=require('path');
-            const bundled=path.join('.bundled','@workspace');
-            console.log('cwd:', process.cwd());
-            console.log('.bundled exists:', fs.existsSync('.bundled'));
-            console.log('.bundled/@workspace exists:', fs.existsSync(bundled));
-            if(fs.existsSync(bundled)) {
-              const ws=fs.readdirSync(bundled);
-              console.log('@workspace contents:', ws.join(', '));
-              ws.forEach(p=>{
-                const idx=path.join(bundled,p,'index.ts');
-                console.log(p+'/index.ts:', fs.existsSync(idx)?'EXISTS':'MISSING');
-              });
-            }
-          "
-          echo "=== Running build ==="
+          ls .bundled/@workspace/ 2>&1 || echo "No .bundled/"
+          echo "=== Build ==="
           node ./build.mjs 2>&1
 
       - name: Prepare deployment package

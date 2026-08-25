@@ -12,6 +12,11 @@ globalThis.require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// DEBUG
+console.error('[build.mjs] __dirname:', __dirname);
+console.error('[build.mjs] process.cwd():', process.cwd());
+console.error('[build.mjs] apiServerDir will be:', path.join(__dirname, 'api'));
+
 // Detect project root: if api/ exists in script dir, use script dir as project root.
 // Otherwise, assume script dir is monorepo root and project is artifacts/api-server/.
 const apiDirCandidate = path.join(__dirname, "api");
