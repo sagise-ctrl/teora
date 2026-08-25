@@ -6,6 +6,7 @@ on:
     paths:
       - "artifacts/api-server/**"
       - "lib/db/**"
+      - ".github/workflows/deploy-backend.yml"
 
 permissions:
   contents: read
