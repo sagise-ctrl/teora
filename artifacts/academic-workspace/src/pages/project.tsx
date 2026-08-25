@@ -100,6 +100,7 @@ import {
   CheckCheck,
   Search,
   ExternalLink,
+  Download,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -505,6 +506,7 @@ export default function ProjectWorkspace() {
         </div>
         
         <div className="flex items-center gap-3">
+          <ExportButton projectId={projectId} projectTitle={project.title} />
           <ShareButton projectId={projectId} />
           {isWorking ? (
             <Badge variant="secondary" className="px-4 py-1.5 flex items-center">
@@ -2246,6 +2248,82 @@ function ShareButton({ projectId }: { projectId: number }) {
             Done
           </Button>
         </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function ExportButton({ projectId, projectTitle }: { projectId: number; projectTitle: string }) {
+  const [open, setOpen] = useState(false)
+  const [loading, setLoading] = useState<"docx" | "pdf" | null>(null)
+  const { toast } = useToast()
+
+  const handleDownload = async (format: "docx" | "pdf") => {
+    setLoading(format)
+    try {
+      const baseUrl = (import.meta as unknown as Record<string, Record<string, string>>).env?.VITE_API_URL ?? ""
+      const url = `${baseUrl}/projects/${projectId}/export/${format}`
+      const response = await fetch(url, { credentials: "include" })
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      const blob = await response.blob()
+      const blobUrl = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = blobUrl
+      a.download = `${projectTitle.replace(/[^a-zA-Z0-9_-]/g, "_")}.${format}`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(blobUrl)
+      setOpen(false)
+      toast({ title: `Download ${format.toUpperCase()} berhasil` })
+    } catch (err) {
+      toast({ title: `Gagal mengunduh ${format.toUpperCase()}`, variant: "destructive" })
+    } finally {
+      setLoading(null)
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm">
+          <Download className="w-4 h-4 mr-2" />
+          Export
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-sm">
+        <DialogHeader>
+          <DialogTitle>Export Dokumen</DialogTitle>
+          <DialogDescription>
+            Unduh dokumen project sebagai file Word (DOCX) atau PDF.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex flex-col gap-3 pt-2">
+          <Button
+            variant="outline"
+            onClick={() => handleDownload("docx")}
+            disabled={loading !== null}
+          >
+            {loading === "docx" ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <FileText className="w-4 h-4 mr-2" />
+            )}
+            Download DOCX
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => handleDownload("pdf")}
+            disabled={loading !== null}
+          >
+            {loading === "pdf" ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Download className="w-4 h-4 mr-2" />
+            )}
+            Download PDF
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   )

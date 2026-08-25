@@ -721,6 +721,7 @@ async function runDocumentGeneration(projectId: number, jobId: number, outline: 
 // ── Export DOCX ───────────────────────────────────────────────────────────────
 
 import { generateDocx } from "../lib/docx-export.js";
+import { generatePDF } from "../lib/pdf-export.js";
 
 // GET /projects/:projectId/export/docx
 router.get("/projects/:projectId/export/docx", async (req, res): Promise<void> => {
@@ -820,6 +821,103 @@ router.get("/projects/:projectId/export/docx", async (req, res): Promise<void> =
   } catch (err) {
     req.log.error({ err, projectId }, "DOCX export failed");
     res.status(500).json({ error: "Gagal mengekspor dokumen" });
+  }
+});
+
+// GET /projects/:projectId/export/pdf
+router.get("/projects/:projectId/export/pdf", async (req, res): Promise<void> => {
+  const projectId = Number(req.params.projectId);
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const ok = await requireProjectOwnership(projectId, req.user.id, res);
+  if (!ok) return;
+
+  const [project] = await db
+    .select()
+    .from(projectsTable)
+    .where(eq(projectsTable.id, projectId));
+
+  if (!project) {
+    res.status(404).json({ error: "Project not found" });
+    return;
+  }
+
+  const docs = await db
+    .select()
+    .from(documentsTable)
+    .where(eq(documentsTable.projectId, projectId))
+    .orderBy(documentsTable.orderIndex);
+
+  const documentsWithContent = await Promise.all(
+    docs.map(async (doc) => {
+      const versions = await db
+        .select()
+        .from(documentVersionsTable)
+        .where(eq(documentVersionsTable.documentId, doc.id))
+        .orderBy(desc(documentVersionsTable.versionNumber))
+        .limit(1);
+      return { document: doc, version: versions[0] ?? null };
+    })
+  );
+
+  const standaloneVersions = await db
+    .select()
+    .from(documentVersionsTable)
+    .where(and(eq(documentVersionsTable.projectId, projectId), isNull(documentVersionsTable.documentId)))
+    .orderBy(desc(documentVersionsTable.versionNumber));
+
+  const allDocuments =
+    docs.length > 0
+      ? documentsWithContent
+      : standaloneVersions.map((v) => ({
+          document: {
+            id: 0,
+            projectId,
+            title: project.title,
+            orderIndex: 0,
+            createdAt: v.createdAt,
+            updatedAt: v.createdAt,
+          },
+          version: v,
+        }));
+
+  const refs = await db
+    .select()
+    .from(referencesTable)
+    .where(eq(referencesTable.projectId, projectId));
+
+  try {
+    const buffer = await generatePDF(
+      project.title,
+      allDocuments,
+      refs.map((r) => ({
+        title: r.title,
+        authors: r.authors,
+        year: r.year,
+        journal: r.journal,
+        volume: r.volume,
+        issue: r.issue,
+        doi: r.doi,
+        url: r.url,
+      })),
+      {
+        projectTitle: project.title,
+        citationFormat: project.citationFormat ?? undefined,
+        includeReferences: true,
+      }
+    );
+
+    const safeName = project.title.replace(/[^a-zA-Z0-9_-]/g, "_");
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="${safeName}.pdf"`);
+    res.setHeader("Content-Length", buffer.length);
+    res.send(buffer);
+  } catch (err) {
+    req.log.error({ err, projectId }, "PDF export failed");
+    res.status(500).json({ error: "Gagal mengekspor PDF" });
   }
 });
 
