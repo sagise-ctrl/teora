@@ -44,8 +44,7 @@ jobs:
       - name: Deploy to Vercel
         run: |
           npm install -g vercel
-          # Override vercel.json to skip Vercel's build (artifact pre-built in CI)
-          echo '{"framework":null,"installCommand":":","buildCommand":":"}' > artifacts/academic-workspace/vercel.json
+          echo '{"framework":null,"installCommand":":","buildCommand":":","rewrites":[{"source":"(.*)","destination":"/index.html"}]}' > artifacts/academic-workspace/vercel.json
           vercel deploy \
             --token=${{ secrets.VERCEL_TOKEN }} \
             --project-id=prj_pc1NRCZYaVlZrtexnH0lkNUKKP51 \

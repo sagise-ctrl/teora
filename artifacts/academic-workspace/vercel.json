@@ -1,1 +1,8 @@
-{"framework":null,"installCommand":":","buildCommand":":"}
+{
+  "framework": null,
+  "installCommand": ":",
+  "buildCommand": ":",
+  "rewrites": [
+    { "source": "(.*)", "destination": "/index.html" }
+  ]
+}
