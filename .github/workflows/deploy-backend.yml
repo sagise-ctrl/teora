@@ -38,10 +38,24 @@ jobs:
           ls -la node_modules/@workspace/db 2>&1 | head -5 || echo "NOT FOUND"
 
       - name: Build API server
+        id: build_api
         run: |
           export NODE_PATH="$(pwd)/node_modules"
           cd artifacts/api-server
-          node build.mjs
+          echo "::group::Build environment"
+          echo "Node version: $(node --version)"
+          echo "CWD: $(pwd)"
+          echo "Workspace symlinks:"
+          ls -la ../../node_modules/@workspace/ 2>&1 || echo "NO @workspace SYMLINKS!"
+          echo "::endgroup::"
+          echo "::group::Running build"
+          node build.mjs 2>&1 || {
+            echo "::error::node build.mjs failed with exit code $?"
+            exit 1
+          }
+          echo "::endgroup::"
+          echo "Build artifacts:"
+          ls -la api/index.mjs dist/index.mjs 2>&1
 
       - name: Prepare deployment package
         run: |
