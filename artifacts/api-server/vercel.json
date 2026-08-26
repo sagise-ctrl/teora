@@ -1,8 +1,3 @@
 {
-  "framework": null,
-  "installCommand": ":",
-  "buildCommand": ":",
-  "functions": {
-    "api/index.mjs": {}
-  }
+  "framework": null
 }
