@@ -33,6 +33,24 @@ function workspacePlugin() {
         const pkgRelative = pkgName.replace(/^@workspace\//, "");
         const importer = args.importer;
 
+        // 0. Check .bundled/ first (most reliable — works on any platform)
+        //    setup-workspace.mjs copies @workspace/* sources here at build time.
+        //    Path: <repo-root>/artifacts/api-server/.bundled/@workspace/<pkg>/src/index.ts
+        if (importer) {
+          const importerDir = path.dirname(importer);
+          // Walk up from importer to find the api-server dir (where .bundled/ lives)
+          let current = importerDir;
+          const visitedBundled = new Set();
+          while (current && !visitedBundled.has(current) && current !== path.sep && current !== "/") {
+            visitedBundled.add(current);
+            const bundledSrc = path.join(current, ".bundled", pkgName, "src", "index.ts");
+            if (existsSync(bundledSrc)) {
+              return { path: bundledSrc };
+            }
+            current = path.dirname(current);
+          }
+        }
+
         // 1. Check NODE_PATH (CI environment sets this to repo root node_modules)
         if (process.env.NODE_PATH) {
           const nodePathDirs = process.env.NODE_PATH.split(path.delimiter);
