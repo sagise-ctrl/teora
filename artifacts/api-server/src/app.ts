@@ -42,10 +42,12 @@ app.use(
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (e.g., mobile apps, server-to-server)
+      // Allow requests with no origin (e.g., mobile apps, server-to-server, curl)
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) return callback(null, true);
-      callback(new Error(`CORS: origin ${origin} not allowed`));
+      // Deny without throwing — throwing becomes a 500; this becomes a clean 403
+      logger.warn({ origin, allowedOrigins }, "CORS: origin not allowed");
+      return callback(null, false);
     },
     credentials: true,
   }),
