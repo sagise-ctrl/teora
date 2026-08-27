@@ -203,8 +203,25 @@ If one approach fails, try a different strategy. Do not repeat the same command 
 | `.ai/current-task.md` | Active task status and progress |
 | `.ai/progress.md` | Completed work log |
 | `.ai/blockers.md` | Blocked items needing owner decision |
+| `.ai/decisions.md` | Architectural decisions + rationale (Deployment Decisions Log) |
 
 AI updates checkpoints at every milestone. New sessions read them to resume.
+
+### Session Start Protocol (cross-model, since Decision 004)
+
+Setiap sesi baru Claude Code (model apapun: opus-4-8, opus-4-6, dst) WAJIB baca file `.ai/` dalam urutan ini sebelum kerja apapun:
+
+1. `.ai/current-task.md` — apa yang sedang dikerjakan + status real-time
+2. `.ai/progress.md` — apa yang sudah selesai (newest first)
+3. `.ai/blockers.md` — apa yang diblok + butuh keputusan owner
+4. `.ai/decisions.md` — keputusan arsitektur yang sudah diambil (rationale)
+5. `git log --oneline -20` — perubahan kode terakhir
+
+Lalu balas ke owner: `Konteks loaded ✅ Model: claude-opus-4-X Task aktif: [...] Status: [...] Siap lanjut.`
+
+Saat tutup sesi (atau limit harian hampir habis): edit `.ai/current-task.md` → append section `## Handoff YYYY-MM-DD HH:MM — model opus-4-X → opus-4-Y` (isi: task aktif, last 3 actions, next 3 actions, open questions). Commit (jangan push tanpa izin owner).
+
+Lihat `.ai/current-task.md` top section + `.ai/decisions.md` Decision 004 untuk full procedure.
 
 ### Incidents (`.ai/incidents/`)
 
