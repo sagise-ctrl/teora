@@ -26,7 +26,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: "npm"
 
       - name: Install dependencies
@@ -38,8 +38,8 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.FRONTEND_VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.FRONTEND_VITE_SUPABASE_ANON_KEY }}
           VITE_MOCK: "false"
-          VITE_API_URL: ""
-        run: npm run build
+          VITE_API_URL: "/api"
+        run: npm run build 2>&1 | tee build.log || { echo "::error::Frontend build failed"; tail -80 build.log; exit 1; }
 
       - name: Deploy to Vercel
         run: |
@@ -47,7 +47,8 @@ jobs:
           echo '{"framework":null,"installCommand":":","buildCommand":":","rewrites":[{"source":"(.*)","destination":"/index.html"}]}' > artifacts/academic-workspace/vercel.json
           vercel deploy \
             --token=${{ secrets.VERCEL_TOKEN }} \
-            --project-id=prj_pc1NRCZYaVlZrtexnH0lkNUKKP51 \
+            --project=academic-workspace \
+            --prod \
             --yes \
             --cwd=artifacts/academic-workspace
 
