@@ -9,7 +9,7 @@
 3. **Quality gates** — All tasks: typecheck + build + review before complete
 4. **Security first** — No compromise on security (auth, authorization, input validation)
 5. **Proactive issue logging** — Every error, mistake, or blocker MUST be logged to `.ai/issue-tracker.md` at discovery time — no waiting, no reminders needed. Include: root cause, impact (especially owner time wasted), and prevention steps.
-5. **Documentation** — Every decision is documented, every change tracked
+5. **Documentation** — Every decision is documented, every change tracked. Before implementing new features or technical decisions: consult `docs/ai-team/` relevant division, update `.ai/decisions.md` with rationale + trade-offs, write summary to the appropriate division folder.
 
 ## Security Principles (Prompt Defense Baseline)
 

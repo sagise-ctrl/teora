@@ -167,6 +167,9 @@ docs/ai-team/          # AI Engineering Team knowledge base
 - Commit message: imperative mood, max 72 chars
 - **NEVER** force push to main
 - **NEVER** push to remote without owner instruction
+  - **Exceptions (owner-approved 2026-08-28):**
+    1. Push `feat/google-oauth-frontend` → `main` (OAuth frontend merge)
+    2. Push commit `0e880a7` (CLAUDE.md Session Start Protocol update)
 - Always create a branch for feature work
 
 ---
@@ -219,7 +222,7 @@ Setiap sesi baru Claude Code (model apapun: opus-4-8, opus-4-6, dst) WAJIB baca 
 
 Lalu balas ke owner: `Konteks loaded ✅ Model: claude-opus-4-X Task aktif: [...] Status: [...] Siap lanjut.`
 
-Saat tutup sesi (atau limit harian hampir habis): edit `.ai/current-task.md` → append section `## Handoff YYYY-MM-DD HH:MM — model opus-4-X → opus-4-Y` (isi: task aktif, last 3 actions, next 3 actions, open questions). Commit (jangan push tanpa izin owner).
+Saat tutup sesi (atau limit harian hampir habis): edit `.ai/current-task.md` → append section `## Handoff YYYY-MM-DD HH:MM — model opus-4-X → opus-4-Y` (isi: task aktif, last 3 actions, next 3 actions, open questions). Commit + push (push allowed — owner-approved exceptions documented in Git Rules).
 
 Lihat `.ai/current-task.md` top section + `.ai/decisions.md` Decision 004 untuk full procedure.
 
@@ -237,6 +240,30 @@ Every incident gets a report regardless of severity.
 ## AI Engineering Team
 
 Full knowledge base at `docs/ai-team/`. Read relevant docs before implementing features.
+
+### AI Team Knowledge Base — Mandatory Consultation Rule
+
+**Sebelum implementasi fitur baru atau keputusan teknis, WAJIB:**
+
+1. **Baca** folder `docs/ai-team/` yang relevan dengan topik:
+   - Fitur baru → `product/`
+   - Arsitektur / API / database → `architecture/`
+   - Coding patterns / standards → `development/`
+   - Security → `security/`
+   - Deployment / CI/CD / infra → `devops/`
+   - Library evaluation → `research/`
+   - Design / UI → `design/`
+   - Finance / pricing → `finance/`
+   - Monitoring / incidents → `production-admin/`
+   - Semua keputusan teknis → `shared/decisions.md` (registry keputusan arsitektur)
+
+2. **Update** `.ai/decisions.md` untuk setiap keputusan arsitektur atau teknis yang baru (beserta rationale + trade-off yang dipertimbangkan)
+
+3. **Tulis ringkasan** ke folder division yang sesuai — minimal judul + deskripsi singkat + rationale
+
+4. **Update progres** di `.ai/progress.md` untuk setiap milestone signifikan
+
+**Mengapa:** Knowledge base ini adalah "institutional memory" — memastikan setiap keputusan punya audit trail, rationale, dan context yang bisa dibaca ulang oleh model AI mana pun tanpa perlu conversation history.
 
 ```
 docs/ai-team/
