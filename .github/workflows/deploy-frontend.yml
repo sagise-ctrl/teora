@@ -42,15 +42,22 @@ jobs:
         run: npm run build 2>&1 | tee build.log || { echo "::error::Frontend build failed"; tail -80 build.log; exit 1; }
 
       - name: Deploy to Vercel
+        working-directory: artifacts/academic-workspace
         run: |
           npm install -g vercel
-          echo '{"framework":null,"installCommand":":","buildCommand":":","rewrites":[{"source":"(.*)","destination":"/index.html"}]}' > artifacts/academic-workspace/vercel.json
+          cat > vercel.json <<'EOF'
+          {
+            "framework": null,
+            "installCommand": ":",
+            "buildCommand": ":",
+            "rewrites": [{ "source": "(.*)", "destination": "/index.html" }]
+          }
+          EOF
           vercel deploy \
             --token=${{ secrets.VERCEL_TOKEN }} \
             --project=academic-workspace \
             --prod \
-            --yes \
-            --cwd=artifacts/academic-workspace
+            --yes
 
       - name: Deployment summary
         run: |
