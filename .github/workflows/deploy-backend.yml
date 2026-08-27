@@ -116,6 +116,7 @@ jobs:
 
       - name: Deploy to Vercel
         run: |
+          set -o pipefail
           npm install -g vercel
           echo '{"framework":null,"installCommand":":","buildCommand":":","functions":{"api/index.mjs":{"runtime":"nodejs22.x"}}}' > artifacts/api-server/vercel.json
           vercel deploy \
@@ -123,7 +124,13 @@ jobs:
             --project=teora-backend \
             --prod \
             --yes \
-            --cwd=artifacts/api-server
+            --cwd=artifacts/api-server 2>&1 | tee deploy.log
+          rc=${PIPESTATUS[0]}
+          if [ "$rc" -ne 0 ]; then
+            echo "::error::vercel deploy failed with exit code $rc"
+            tail -60 deploy.log
+            exit "$rc"
+          fi
 
       - name: Health check
         run: |
