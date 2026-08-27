@@ -24,25 +24,25 @@ export interface SanitizeOptions {
  */
 const INJECTION_PATTERNS: Array<{ pattern: RegExp; description: string }> = [
   // AI model control tokens (Anthropic, OpenAI)
-  { pattern: /<\|[\w_]+\|>/gi, description: "AI control token delimiters" },
+  { pattern: /<\|[\w_]+\|>/i, description: "AI control token delimiters" },
   // Explicit system/assistant overrides in user content
-  { pattern: /^(system|assistant|ai)[:：]/gim, description: "Role assignment prefix" },
+  { pattern: /^(system|assistant|ai)[:：]/im, description: "Role assignment prefix" },
   // Common jailbreak patterns
-  { pattern: /\b(ignore\s+(all\s+)?(previous|prior)\s+(instructions?|directives?|rules?|guidelines?))\b.*\b(reveal|show|extract)\b/gi, description: "Instruction override" },
-  { pattern: /\b(disregard|forget|ignore)\s+(everything|all|your)\b/gi, description: "Memory override" },
+  { pattern: /\b(ignore\s+(all\s+)?(previous|prior)\s+(instructions?|directives?|rules?|guidelines?))\b.*\b(reveal|show|extract)\b/i, description: "Instruction override" },
+  { pattern: /\b(disregard|forget|ignore)\s+(everything|all|your)\b/i, description: "Memory override" },
   // Privilege escalation
-  { pattern: /\b(you\s+are\s+now|pretend\s+to\s+be|roleplay\s+as|imagine\s+you\s+are)\b/gi, description: "Identity override" },
+  { pattern: /\b(you\s+are\s+now|pretend\s+to\s+be|roleplay\s+as|imagine\s+you\s+are)\b/i, description: "Identity override" },
   // Credential/token extraction attempts
-  { pattern: /\b(extract|reveal|show|list|output|get|retrieve)(\s+\w+){0,5}\s+(your\s+)?(system\s+)?(prompt|instructions?|config|api[_\s]?key|token|secret|credential|password)(?=\s|$|[.,;:!])/gi, description: "Credential extraction" },
-  { pattern: /(\b(API[_\s]?KEY|API[_\s]?TOKEN|SECRET|BEARER|OPENAI|ANTHROPIC)\s*[:=]\s*["']?[\w\-]{8,})/gi, description: "Credential pattern match" },
+  { pattern: /\b(extract|reveal|show|list|output|get|retrieve)(\s+\w+){0,5}\s+(your\s+)?(system\s+)?(prompt|instructions?|config|api[_\s]?key|token|secret|credential|password)(?=\s|$|[.,;:!])/i, description: "Credential extraction" },
+  { pattern: /(\b(API[_\s]?KEY|API[_\s]?TOKEN|SECRET|BEARER|OPENAI|ANTHROPIC)\s*[:=]\s*["']?[\w\-]{8,})/i, description: "Credential pattern match" },
   // Command execution
-  { pattern: /\b(execute|run\s+|eval|exec|shell|bash|cmd|powershell|sudo|chmod)\s*[\(\["']/gi, description: "Command execution attempt" },
+  { pattern: /\b(execute|run\s+|eval|exec|shell|bash|cmd|powershell|sudo|chmod)\s*[\(\["']/i, description: "Command execution attempt" },
   // File system / database access
-  { pattern: /\b(read|write|delete)\s+(file|database|table|disk|storage|env|config)/gi, description: "System access attempt" },
+  { pattern: /\b(read|write|delete)\s+(file|database|table|disk|storage|env|config)/i, description: "System access attempt" },
   // SQL / code injection patterns (in user content context)
-  { pattern: /['"`](?:--|;|\/\*|\*\/|@@|xp_|sp_|exec|execute)\b/gi, description: "Code injection marker" },
+  { pattern: /['"`](?:--|;|\/\*|\*\/|@@|xp_|sp_|exec|execute)\b/i, description: "Code injection marker" },
   // XML/HTML injection to escape context
-  { pattern: /<\/?(script|style|xml|!\[CDATA\[)/gi, description: "Markup injection" },
+  { pattern: /<\/?(script|style|xml|!\[CDATA\[)/i, description: "Markup injection" },
   // Base64 encoded commands
   { pattern: /\b[A-Za-z0-9+/]{50,}={0,2}\b/, description: "Base64 encoded content" },
 ];
