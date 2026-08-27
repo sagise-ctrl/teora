@@ -58,11 +58,18 @@ jobs:
           echo "=== dist/ contents ==="
           ls -la dist/ | head -20
           echo "=== Running vercel deploy ==="
+          set -o pipefail
           vercel deploy \
             --token=${{ secrets.VERCEL_TOKEN }} \
             --project=academic-workspace \
             --prod \
-            --yes 2>&1 | tee deploy.log || { echo "::error::vercel deploy failed"; tail -60 deploy.log; exit 1; }
+            --yes 2>&1 | tee deploy.log
+          rc=${PIPESTATUS[0]}
+          if [ "$rc" -ne 0 ]; then
+            echo "::error::vercel deploy failed with exit code $rc"
+            tail -60 deploy.log
+            exit "$rc"
+          fi
 
       - name: Deployment summary
         run: |
