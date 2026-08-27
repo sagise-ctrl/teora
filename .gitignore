@@ -59,4 +59,10 @@ Thumbs.db
 test-results/
 *.timestamp*.mjs
 
-.vercel
+# Environment files — MUST NOT be committed
+# (templates like .env.example are explicitly allowed below)
+.env
+.env.*
+.env.local
+.env.*.local
+!.env.example
