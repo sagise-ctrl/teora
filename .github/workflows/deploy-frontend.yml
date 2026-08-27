@@ -47,17 +47,22 @@ jobs:
           npm install -g vercel
           cat > vercel.json <<'EOF'
           {
-            "framework": null,
-            "installCommand": ":",
-            "buildCommand": ":",
+            "buildCommand": "echo 'Pre-built by CI'",
+            "outputDirectory": "dist",
+            "installCommand": "echo 'Dependencies installed by CI'",
             "rewrites": [{ "source": "(.*)", "destination": "/index.html" }]
           }
           EOF
+          echo "=== vercel.json contents ==="
+          cat vercel.json
+          echo "=== dist/ contents ==="
+          ls -la dist/ | head -20
+          echo "=== Running vercel deploy ==="
           vercel deploy \
             --token=${{ secrets.VERCEL_TOKEN }} \
             --project=academic-workspace \
             --prod \
-            --yes
+            --yes 2>&1 | tee deploy.log || { echo "::error::vercel deploy failed"; tail -60 deploy.log; exit 1; }
 
       - name: Deployment summary
         run: |
