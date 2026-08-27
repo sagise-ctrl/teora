@@ -12,6 +12,7 @@ import ProjectWorkspace from "@/pages/project";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
 import Confirm from "@/pages/confirm";
+import AuthCallback from "@/pages/auth-callback";
 import FinOps from "@/pages/finops";
 import Referral from "@/pages/referral";
 import AIPricing from "@/pages/ai-pricing";
@@ -52,6 +53,7 @@ function AppRouter() {
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/auth/confirm" component={Confirm} />
+      <Route path="/auth/callback" component={AuthCallback} />
       {/* Public shared project route — no auth required */}
       <Route path="/shared/:token" component={SharedProject} />
       <Route path="/">

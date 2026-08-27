@@ -22,6 +22,7 @@ interface AuthContextValue {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, displayName?: string, referralCode?: string) => Promise<void>;
+  signInWithOAuth: (provider: "google") => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
 }
@@ -134,8 +135,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
+  const signInWithOAuth = useCallback(async (provider: "google") => {
+    if (import.meta.env.VITE_MOCK === "true") {
+      throw new Error("Google login not available in mock mode");
+    }
+
+    const { supabase } = await import("../lib/supabase");
+    if (!supabase) throw new Error("Supabase not configured");
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: window.location.origin + "/auth/callback",
+      },
+    });
+
+    if (error) throw error;
+    // Browser navigates away to Google; control does not return here in practice.
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, logout, refresh }}>
+    <AuthContext.Provider value={{ user, isLoading, login, register, signInWithOAuth, logout, refresh }}>
       {children}
     </AuthContext.Provider>
   );
