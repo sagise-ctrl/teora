@@ -212,9 +212,14 @@ function getFieldValue(ref: ReferenceField, field: string): string | number | nu
  */
 export function validateDOI(doi: string): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
-  const trimmed = doi.trim();
+  let trimmed = doi.trim();
 
   if (!trimmed) return issues;
+
+  // Strip common DOI URL prefixes before validation
+  if (/^https?:\/\/(dx\.)?doi\.org\//i.test(trimmed)) {
+    trimmed = trimmed.replace(/^https?:\/\/(dx\.)?doi\.org\//i, "");
+  }
 
   // Check prefix
   if (!trimmed.startsWith("10.")) {

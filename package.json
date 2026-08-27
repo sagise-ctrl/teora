@@ -21,6 +21,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "test:e2e": "playwright test",
+    "test": "vitest run --workspace vitest.workspace.ts",
     "audit": "npm audit --audit-level=high",
     "audit:fix": "npm audit fix"
   },

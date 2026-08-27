@@ -879,10 +879,7 @@ async function runDocumentGeneration(
 // ── Export DOCX ───────────────────────────────────────────────────────────────
 
 import { generateDocx } from "../lib/docx-export.js";
-// PDF export disabled temporarily: @react-pdf/renderer has subpath export
-// resolution issues on Vercel Functions runtime (#standard-fonts/* imports
-// are not resolvable). Will be re-enabled once issue is resolved.
-// import { generatePDF } from "../lib/pdf-export.js";
+import { generatePDF } from "../lib/pdf-export.js";
 
 // GET /projects/:projectId/export/docx
 router.get("/projects/:projectId/export/docx", async (req, res): Promise<void> => {
@@ -985,9 +982,79 @@ router.get("/projects/:projectId/export/docx", async (req, res): Promise<void> =
   }
 });
 
-// PDF export endpoint removed: @react-pdf/renderer has subpath export
-// resolution issues on Vercel Functions runtime (#standard-fonts/* imports
-// are not resolvable). Re-enable after issue is resolved.
+// GET /projects/:projectId/export/pdf
+router.get("/projects/:projectId/export/pdf", async (req, res): Promise<void> => {
+  const projectId = Number(req.params.projectId);
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const ok = await requireProjectOwnership(projectId, req.user.id, res);
+  if (!ok) return;
+
+  const [project] = await db
+    .select()
+    .from(projectsTable)
+    .where(eq(projectsTable.id, projectId));
+
+  if (!project) {
+    res.status(404).json({ error: "Project not found" });
+    return;
+  }
+
+  const [metadata] = await db
+    .select()
+    .from(projectMetadataTable)
+    .where(eq(projectMetadataTable.projectId, projectId));
+
+  const [latestVersion] = await db
+    .select()
+    .from(documentVersionsTable)
+    .where(eq(documentVersionsTable.projectId, projectId))
+    .orderBy(desc(documentVersionsTable.versionNumber))
+    .limit(1);
+
+  const refs = await db
+    .select()
+    .from(referencesTable)
+    .where(eq(referencesTable.projectId, projectId));
+
+  const [user] = await db
+    .select({ displayName: usersTable.displayName })
+    .from(usersTable)
+    .where(eq(usersTable.id, req.user.id));
+
+  try {
+    const result = await generatePDF({
+      title: project.title,
+      author: user?.displayName ?? undefined,
+      subject: project.subject,
+      outline: metadata?.outline ?? undefined,
+      content: latestVersion?.content ?? undefined,
+      references: refs.map((r) => ({
+        authors: r.authors,
+        title: r.title,
+        year: r.year,
+        journal: r.journal,
+        volume: r.volume,
+        issue: r.issue,
+        pages: r.pages,
+        doi: r.doi,
+        url: r.url,
+      })),
+    });
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="${result.filename}"`);
+    res.setHeader("Content-Length", result.buffer.length);
+    res.end(result.buffer);
+  } catch (err) {
+    req.log.error({ err, projectId }, "PDF export failed");
+    res.status(500).json({ error: "Gagal mengekspor PDF" });
+  }
+});
+
 // ── Share Links ──────────────────────────────────────────────────────────────
 
 function generateToken(): string {

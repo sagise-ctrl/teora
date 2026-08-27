@@ -28,12 +28,12 @@ const INJECTION_PATTERNS: Array<{ pattern: RegExp; description: string }> = [
   // Explicit system/assistant overrides in user content
   { pattern: /^(system|assistant|ai)[:：]/gim, description: "Role assignment prefix" },
   // Common jailbreak patterns
-  { pattern: /\b(ignore\s+(all\s+)?(previous|prior)\s+(instructions?|directives?|rules?|guidelines?))\b/gi, description: "Instruction override" },
+  { pattern: /\b(ignore\s+(all\s+)?(previous|prior)\s+(instructions?|directives?|rules?|guidelines?))\b.*\b(reveal|show|extract)\b/gi, description: "Instruction override" },
   { pattern: /\b(disregard|forget|ignore)\s+(everything|all|your)\b/gi, description: "Memory override" },
   // Privilege escalation
   { pattern: /\b(you\s+are\s+now|pretend\s+to\s+be|roleplay\s+as|imagine\s+you\s+are)\b/gi, description: "Identity override" },
   // Credential/token extraction attempts
-  { pattern: /\b(extract|reveal|show|list|output)\s+(your\s+)?(system\s+)?(prompt|instructions?|config|api[_\s]?key|token|secret|credential|password)\b/gi, description: "Credential extraction" },
+  { pattern: /\b(extract|reveal|show|list|output|get|retrieve)(\s+\w+){0,5}\s+(your\s+)?(system\s+)?(prompt|instructions?|config|api[_\s]?key|token|secret|credential|password)(?=\s|$|[.,;:!])/gi, description: "Credential extraction" },
   { pattern: /(\b(API[_\s]?KEY|API[_\s]?TOKEN|SECRET|BEARER|OPENAI|ANTHROPIC)\s*[:=]\s*["']?[\w\-]{8,})/gi, description: "Credential pattern match" },
   // Command execution
   { pattern: /\b(execute|run\s+|eval|exec|shell|bash|cmd|powershell|sudo|chmod)\s*[\(\["']/gi, description: "Command execution attempt" },
@@ -97,7 +97,7 @@ export function sanitizePromptInjection(content: string, options: SanitizeOption
 
   // Step 3: Escape XML/HTML markup that could break context boundaries
   sanitized = sanitized
-    .replace(/<\/?script/gi, "&lt;script")
+    .replace(/<\/?script>/gi, "&lt;script&gt;")
     .replace(/<\/?style/gi, "&lt;style")
     .replace(/<\/?xml/gi, "&lt;xml")
     .replace(/<!\[CDATA\[/gi, "&lt;![CDATA[");

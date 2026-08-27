@@ -110,7 +110,32 @@ globalThis.__filename = __bannerUrl.fileURLToPath(import.meta.url);
 globalThis.__dirname = __bannerPath.dirname(globalThis.__filename);
 `;
 
-const PLUGINS = [workspacePlugin()];
+// pdfkit/standard-fonts/* subpath exports — esbuild can't resolve these natively
+// because pdfkit uses the "exports" field with subpath patterns that esbuild
+// doesn't handle the same way Node.js does. This plugin intercepts those
+// imports and resolves them to the actual ESM font files.
+function pdfkitFontsPlugin() {
+  const fontNames = [
+    "Courier", "CourierBold", "CourierBoldOblique", "CourierOblique",
+    "Helvetica", "HelveticaBold", "HelveticaBoldOblique", "HelveticaOblique",
+    "Symbol", "TimesBold", "TimesBoldItalic", "TimesItalic", "TimesRoman",
+    "ZapfDingbats",
+  ];
+  return {
+    name: "pdfkit-fonts",
+    setup(build) {
+      build.onResolve({ filter: /^pdfkit\/standard-fonts\// }, (args) => {
+        const fontName = args.path.replace("pdfkit/standard-fonts/", "");
+        // Resolve to the ESM version of the font file
+        return {
+          path: require.resolve(`pdfkit/js/standard-fonts/${fontName}.mjs`),
+        };
+      });
+    },
+  };
+}
+
+const PLUGINS = [workspacePlugin(), pdfkitFontsPlugin()];
 
 // Build the Vercel HTTP handler (api/index.ts) -> api/index.mjs
 // Vercel auto-detects serverless functions in the api/ directory

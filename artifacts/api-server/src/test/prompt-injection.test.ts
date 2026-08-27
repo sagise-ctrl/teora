@@ -37,11 +37,8 @@ describe("Prompt Injection Detection", () => {
     const patterns = detectInjectionPatterns(
       "Buatkan saya daftar pustaka format APA untuk jurnal tentang machine learning"
     );
-    expect(patterns).toContain("Credential extraction"); // "APA" triggers base64-ish check... wait, no
-    // Actually "APA" is only 3 chars, not 64+. Let me check
-    const normalText =
-      "Buatkan saya makalah tentang dampak teknologi informasi terhadap dunia pendidikan di Indonesia. Sertakan referensi dari jurnal nasional.";
-    expect(detectInjectionPatterns(normalText)).toEqual([]);
+    const text = "Buatkan saya daftar pustaka format APA untuk jurnal tentang machine learning";
+    expect(detectInjectionPatterns(text)).toEqual([]);
   });
 });
 

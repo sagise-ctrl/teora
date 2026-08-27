@@ -19,7 +19,7 @@ describe("validateDOI", () => {
   });
 
   it("rejects DOI without 10. prefix", () => {
-    const issues = validateDOI("10.1234/test");
+    const issues = validateDOI("20.1234/test");
     expect(issues.some(i => i.severity === "error")).toBe(true);
   });
 
