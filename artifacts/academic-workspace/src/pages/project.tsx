@@ -395,6 +395,7 @@ export default function ProjectWorkspace() {
   }, [documents, selectedDocId])
 
   const analyzeProject = useAnalyzeProject()
+  const updateProject = useUpdateProject()
 
   const isWorking = jobs?.some(j => j.status === "running" || j.status === "pending")
   const activeJob = jobs?.find(j => j.status === "running" || j.status === "pending")
@@ -423,7 +424,6 @@ export default function ProjectWorkspace() {
     })
   }
 
-  const updateProject = useUpdateProject()
   const handleToggleAiDisclosure = () => {
     updateProject.mutate({
       projectId,

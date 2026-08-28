@@ -1,5 +1,4 @@
-// PM2 ecosystem config for Teora API Server
-// Usage: pm2 start ecosystem.config.cjs
+/* eslint-env node */
 module.exports = {
   apps: [
     {

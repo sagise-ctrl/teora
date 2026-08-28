@@ -34,9 +34,9 @@ const INJECTION_PATTERNS: Array<{ pattern: RegExp; description: string }> = [
   { pattern: /\b(you\s+are\s+now|pretend\s+to\s+be|roleplay\s+as|imagine\s+you\s+are)\b/i, description: "Identity override" },
   // Credential/token extraction attempts
   { pattern: /\b(extract|reveal|show|list|output|get|retrieve)(\s+\w+){0,5}\s+(your\s+)?(system\s+)?(prompt|instructions?|config|api[_\s]?key|token|secret|credential|password)(?=\s|$|[.,;:!])/i, description: "Credential extraction" },
-  { pattern: /(\b(API[_\s]?KEY|API[_\s]?TOKEN|SECRET|BEARER|OPENAI|ANTHROPIC)\s*[:=]\s*["']?[\w\-]{8,})/i, description: "Credential pattern match" },
+  { pattern: /(\b(API[_\s]?KEY|API[_\s]?TOKEN|SECRET|BEARER|OPENAI|ANTHROPIC)\s*[:=]\s*["']?[\w-]{8,})/i, description: "Credential pattern match" },
   // Command execution
-  { pattern: /\b(execute|run\s+|eval|exec|shell|bash|cmd|powershell|sudo|chmod)\s*[\(\["']/i, description: "Command execution attempt" },
+  { pattern: /\b(execute|run\s+|eval|exec|shell|bash|cmd|powershell|sudo|chmod)\s*[('"\[]/i, description: "Command execution attempt" },
   // File system / database access
   { pattern: /\b(read|write|delete)\s+(file|database|table|disk|storage|env|config)/i, description: "System access attempt" },
   // SQL / code injection patterns (in user content context)

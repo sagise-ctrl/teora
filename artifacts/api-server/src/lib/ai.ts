@@ -21,7 +21,7 @@ export interface AITierConfig {
   usageTips: string | null;
 }
 
-let _tierCache: Map<string, AITierConfig> = new Map();
+const _tierCache: Map<string, AITierConfig> = new Map();
 let _tierCacheTime = 0;
 const CACHE_TTL_MS = 60_000; // 1 minute
 
