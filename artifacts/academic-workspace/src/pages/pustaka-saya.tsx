@@ -2,12 +2,10 @@ import { BookOpen, Plus, Search, Library, FileText, FolderOpen } from "lucide-re
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import Layout from "@/components/layout";
 
 export default function PustakaSaya() {
   return (
-    <Layout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-serif font-bold tracking-tight">Pustaka Saya</h1>
@@ -59,7 +57,6 @@ export default function PustakaSaya() {
             </Button>
           </CardContent>
         </Card>
-      </div>
-    </Layout>
+    </div>
   );
 }

@@ -1,7 +1,6 @@
 import { CreditCard, User, Shield, Bell, Key, ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Layout from "@/components/layout";
 
 const AKUN_SECTIONS = [
   {
@@ -38,8 +37,7 @@ const AKUN_SECTIONS = [
 
 export default function Akun() {
   return (
-    <Layout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-serif font-bold tracking-tight">Akun</h1>
           <p className="text-muted-foreground text-sm mt-0.5">
@@ -69,6 +67,5 @@ export default function Akun() {
           ))}
         </div>
       </div>
-    </Layout>
   );
 }

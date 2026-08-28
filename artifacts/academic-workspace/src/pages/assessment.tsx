@@ -3,12 +3,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import Layout from "@/components/layout";
 
 export default function Assessment() {
   return (
-    <Layout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-serif font-bold tracking-tight">Assessment</h1>
@@ -68,7 +66,6 @@ export default function Assessment() {
             </CardContent>
           </Card>
         </div>
-      </div>
-    </Layout>
+    </div>
   );
 }
