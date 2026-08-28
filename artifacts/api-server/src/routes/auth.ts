@@ -284,6 +284,13 @@ router.post("/auth/register", async (req, res): Promise<void> => {
       : null
   );
 
+  // Build the response: include access_token when a session exists (dev mode — no email confirm needed).
+  // In production (email confirm required), session is null and the user manually logs in after verification.
+  const responseBody: Record<string, unknown> = toUserJson(localUser);
+  if (session) {
+    responseBody.access_token = session.access_token;
+  }
+
   if (session) {
     res.cookie("sb_access_token", session.access_token, {
       httpOnly: true,
@@ -302,7 +309,7 @@ router.post("/auth/register", async (req, res): Promise<void> => {
     });
   }
 
-  res.status(201).json(toUserJson(localUser));
+  res.status(201).json(responseBody);
 });
 
 // POST /auth/logout

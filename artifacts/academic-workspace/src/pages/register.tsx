@@ -64,17 +64,42 @@ export default function Register() {
       );
       setSuccess(true);
       toast({
-        title: "Account created!",
+        title: "Akun berhasil dibuat!",
         description: referralCode
-          ? "Your account has been created. Check your email to verify your account."
-          : "You can now sign in.",
+          ? "Akun telah dibuat. Periksa email untuk verifikasi sebelum login."
+          : "Silakan login dengan email dan password Anda.",
       });
       setTimeout(() => setLocation("/login"), 2000);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Registration failed";
-      setGlobalError(msg);
-      toast({ variant: "destructive", title: "Registration failed", description: msg });
+      // Map technical error messages to friendly Indonesian messages
+      const raw = err instanceof Error ? err.message : String(err);
+      const friendly = mapErrorToIndonesian(raw);
+      setGlobalError(friendly);
+      form.reset(); // Reset isSubmitting so the button becomes clickable again
+      toast({
+        variant: "destructive",
+        title: "Registrasi gagal",
+        description: friendly,
+      });
     }
+  }
+
+  function mapErrorToIndonesian(raw: string): string {
+    const lower = raw.toLowerCase();
+    if (lower.includes("already") || lower.includes("already exists") || lower.includes("email already") || lower.includes("already been")) {
+      return "Email ini sudah terdaftar. Silakan login atau gunakan email lain.";
+    }
+    if (lower.includes("invalid login") || lower.includes("invalid credentials")) {
+      return "Email atau password salah.";
+    }
+    if (lower.includes("email not confirmed") || lower.includes("not confirmed")) {
+      return "Email belum dikonfirmasi. Periksa email Anda untuk tautan verifikasi.";
+    }
+    if (lower.includes("rate limit") || lower.includes("too many requests")) {
+      return "Terlalu banyak percobaan. Tunggu beberapa saat sebelum mencoba lagi.";
+    }
+    // Return the raw message as fallback (already friendly from backend)
+    return raw;
   }
 
   if (success) {

@@ -2,54 +2,62 @@ import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { BookOpen, Loader2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { customFetch } from "../lib/api-client-react";
+import { customFetch, setAuthTokenGetter } from "../lib/api-client-react";
+import { setStoredToken } from "../lib/session";
 
 export default function AuthCallback() {
   const [, setLocation] = useLocation();
-  const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
+  const [state, setState] = useState<"loading" | "success" | "error">("loading");
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     async function handleOAuthCallback() {
       try {
-        const { supabase } = await import("@/lib/supabase");
-        if (!supabase) {
-          setStatus("error");
-          setErrorMessage("Supabase not configured");
+        // Google OAuth appends tokens as URL hash fragments.
+        // Parse them manually — no SDK needed.
+        const hash = window.location.hash.slice(1);
+        if (!hash) {
+          setState("error");
+          setErrorMessage("Tidak ada token dari Google. Silakan coba lagi.");
           return;
         }
 
-        // Supabase SDK auto-detects session from URL hash on page load
-        // (detectSessionInUrl: true by default). getSession() returns it.
-        const { data, error } = await supabase.auth.getSession();
-
-        if (error) {
-          setStatus("error");
-          setErrorMessage(error.message);
+        const params = new URLSearchParams(hash);
+        const accessToken = params.get("access_token");
+        if (!accessToken) {
+          setState("error");
+          setErrorMessage("Token tidak ditemukan. Silakan coba lagi.");
           return;
         }
 
-        if (!data.session) {
-          setStatus("error");
-          setErrorMessage("No session found. Please try signing in again.");
-          return;
-        }
+        const refreshToken = params.get("refresh_token");
 
-        const { access_token, refresh_token } = data.session;
-
-        // Sync with backend so the httpOnly cookies are set and a local users row exists.
-        // Same endpoint used by email/password login — uses onConflictDoUpdate so OAuth
-        // users (who may never hit /register) get a local record created on first login.
-        await customFetch("/api/auth/login", {
+        // Call backend to validate token + create/update local user record.
+        const result = await customFetch<{ id: string }>("/api/auth/login", {
           method: "POST",
-          body: JSON.stringify({ access_token, refresh_token }),
+          body: JSON.stringify({ access_token: accessToken, refresh_token: refreshToken }),
         });
 
-        setStatus("success");
+        if ("error" in result) {
+          setState("error");
+          setErrorMessage("Login gagal: " + (result as { error: string }).error);
+          return;
+        }
+
+        // Store token and register as auth getter so customFetch attaches it
+        // as "Authorization: Bearer <token>" to all subsequent API calls.
+        setStoredToken(accessToken);
+        setAuthTokenGetter(() => Promise.resolve(accessToken));
+
+        // Clear the URL hash so the token doesn't linger in the address bar.
+        window.history.replaceState(null, "", window.location.pathname);
+
+        setState("success");
         setTimeout(() => setLocation("/"), 800);
       } catch (err) {
-        setStatus("error");
-        setErrorMessage(err instanceof Error ? err.message : "Authentication failed");
+        console.error("[auth-callback]", err);
+        setState("error");
+        setErrorMessage(err instanceof Error ? err.message : "Terjadi kesalahan. Silakan coba lagi.");
       }
     }
 
@@ -63,30 +71,30 @@ export default function AuthCallback() {
           <BookOpen className="w-7 h-7 text-primary" />
         </div>
 
-        {status === "loading" && (
+        {state === "loading" && (
           <>
             <Loader2 className="w-10 h-10 animate-spin text-primary mx-auto" />
-            <h2 className="text-xl font-semibold text-foreground">Signing you in...</h2>
-            <p className="text-muted-foreground">Please wait a moment.</p>
+            <h2 className="text-xl font-semibold text-foreground">Memproses login...</h2>
+            <p className="text-muted-foreground">Mohon tunggu sebentar.</p>
           </>
         )}
 
-        {status === "success" && (
+        {state === "success" && (
           <>
-            <h2 className="text-xl font-semibold text-foreground">Welcome to Teora!</h2>
-            <p className="text-muted-foreground">Redirecting you to the dashboard...</p>
+            <h2 className="text-xl font-semibold text-foreground">Selamat datang di Teora!</h2>
+            <p className="text-muted-foreground">Mengalihkan ke dashboard...</p>
           </>
         )}
 
-        {status === "error" && (
+        {state === "error" && (
           <>
             <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-destructive/10">
               <XCircle className="w-7 h-7 text-destructive" />
             </div>
-            <h2 className="text-xl font-semibold text-foreground">Sign in failed</h2>
+            <h2 className="text-xl font-semibold text-foreground">Login gagal</h2>
             <p className="text-muted-foreground">{errorMessage}</p>
             <Button onClick={() => setLocation("/login")} variant="outline">
-              Back to Sign in
+              Kembali ke Login
             </Button>
           </>
         )}

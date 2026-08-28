@@ -6,7 +6,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { customFetch } from "../lib/api-client-react";
+import { customFetch, setAuthTokenGetter } from "../lib/api-client-react";
+import { getStoredToken, clearStoredToken, setStoredToken } from "../lib/session";
 
 export interface AuthUser {
   id: string;
@@ -33,6 +34,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Restore token from localStorage and register as the auth getter
+  // so customFetch attaches it to every API request.
+  useEffect(() => {
+    const token = getStoredToken();
+    if (token) {
+      setAuthTokenGetter(() => Promise.resolve(token));
+    }
+  }, []);
+
   const fetchMe = useCallback(async () => {
     try {
       const data = await customFetch<AuthUser>("/api/auth/me");
@@ -43,6 +53,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const refresh = useCallback(async () => {
+    const token = getStoredToken();
+    if (!token) {
+      setUser(null);
+      return;
+    }
     try {
       await customFetch("/api/auth/refresh", { method: "POST" });
       await fetchMe();
@@ -80,6 +95,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const session = (data as unknown as { session?: { access_token: string; refresh_token: string } }).session;
     if (!session) throw new Error("Login failed: no session returned");
 
+    // Call backend to validate token + create/update local user record.
+    // Backend returns the user and sets a cookie. Also store the token locally
+    // so customFetch can attach it as Authorization header.
     await customFetch("/api/auth/login", {
       method: "POST",
       body: JSON.stringify({
@@ -87,6 +105,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         refresh_token: session.refresh_token,
       }),
     });
+
+    setStoredToken(session.access_token);
+    setAuthTokenGetter(() => Promise.resolve(session.access_token));
 
     await fetchMe();
   }, [fetchMe]);
@@ -97,30 +118,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     displayName?: string,
     referralCode?: string
   ) => {
-    const { supabase } = await import("../lib/supabase");
-    if (!supabase) throw new Error("Supabase not configured");
-
-    // Step 1: Call backend to create Supabase user + local record + referral
-    const newUser = await customFetch<AuthUser>("/api/auth/register", {
+    // Call backend to create Supabase user + local record + referral.
+    // When email confirm is off (dev), backend returns { ..., access_token }.
+    // When email confirm is on (prod), backend returns user without access_token.
+    const response = await customFetch<AuthUser & { access_token?: string }>("/api/auth/register", {
       method: "POST",
       body: JSON.stringify({ email, password, displayName, referralCode }),
     });
 
-    // Step 2: Get the session that was set in cookies by the backend
-    // Supabase SDK on frontend can read the session from cookies
-    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-
-    if (sessionError || !sessionData.session) {
-      // No session means email confirmation is required
-      // The user will receive a confirmation email
-      return;
+    if ("error" in response) {
+      throw new Error((response as { error: string }).error);
     }
 
-    // Step 3: Sync the session from cookies to frontend SDK
+    // If the backend returned an access_token, store it and register as auth getter.
+    // This handles dev mode where we auto-login after registration.
+    // In prod (email confirm required), access_token is absent and the user logs in manually.
+    if (response.access_token) {
+      setStoredToken(response.access_token);
+      setAuthTokenGetter(() => Promise.resolve(response.access_token!));
+    }
+
     await fetchMe();
   }, [fetchMe]);
 
   const logout = useCallback(async () => {
+    clearStoredToken();
+    setAuthTokenGetter(null);
     try {
       const { supabase } = await import("../lib/supabase");
       if (supabase) await supabase.auth.signOut();
@@ -128,7 +151,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // ignore
     }
     try {
-      await customFetch("/auth/logout", { method: "POST" });
+      await customFetch("/api/auth/logout", { method: "POST" });
     } catch {
       // ignore
     }
