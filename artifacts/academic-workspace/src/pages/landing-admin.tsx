@@ -1,22 +1,47 @@
-import { useEffect } from "react";
-import { useLocation, useLocation as useWouterLocation } from "wouter";
+import { useEffect, useState } from "react";
+import { useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { Shield, User, ArrowRight, AlertTriangle } from "lucide-react";
+import { Shield, User, ArrowRight, AlertTriangle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent } from "@/components/ui/card";
+import { customFetch } from "@/lib/api-client-react";
 
 export default function LandingAdmin() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
     if (!user) {
       setLocation("/login");
+      return;
     }
+
+    // Check if user is owner by calling /api/admin/me
+    customFetch("/api/admin/me")
+      .then(() => {
+        // Owner — show choice page
+        setChecking(false);
+      })
+      .catch((err: { status?: number }) => {
+        if (err?.status === 403) {
+          // Not owner — redirect to user dashboard
+          setLocation("/");
+        } else {
+          // Other error — still redirect to dashboard
+          setLocation("/");
+        }
+      });
   }, [user, setLocation]);
 
-  if (!user) return null;
+  if (!user || checking) {
+    return (
+      <div className="min-h-[100dvh] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[100dvh] flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/20 p-4">

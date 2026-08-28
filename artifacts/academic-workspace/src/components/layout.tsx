@@ -160,7 +160,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     : user?.email?.[0]?.toUpperCase() ?? "U";
 
   const isProjectActive = location.startsWith("/projects");
-  const isAkunActive = location === "/akun" || location === "/topup" || location === "/ai-pricing" || location === "/profile";
+  const isAkunActive = location === "/akun" || location === "/topup" || location === "/ai-pricing";
 
   return (
     <div className="flex min-h-[100dvh] w-full bg-background text-foreground">
@@ -207,9 +207,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
             {/* Project (collapsible) */}
             <NavGroup icon={FolderKanban} label="Project" active={isProjectActive}>
-              <NavSubItem href="/projects/new?type=general" label="General Project" />
-              <NavSubItem href="/projects/new?type=penelitian" label="Project Penelitian" />
-              <NavSubItem href="/projects/new?type=referensi" label="Referensi" />
+              <NavSubItem href="/projects/new?type=tugas-cepat" label="Tugas Cepat" />
+              <NavSubItem href="/projects/new?type=karya-ilmiah" label="Karya Ilmiah" />
             </NavGroup>
 
             {/* Assessment */}
@@ -252,7 +251,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {/* Settings + Logout */}
           <div className="flex items-center gap-2">
             <Link
-              href="/profile"
+              href="/akun"
               className="flex-1 flex items-center gap-2 px-3 py-2 text-xs text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent rounded-md transition-colors"
             >
               <Settings className="w-3.5 h-3.5" />
