@@ -2,19 +2,19 @@ import { useState } from "react";
 import { useLocation, Link } from "wouter";
 import {
   LayoutDashboard,
-  ClipboardList,
+  BookOpen,
+  FolderKanban,
   FileText,
-  FileCheck2,
-  History,
-  PlusCircle,
-  LogOut,
-  Settings,
-  TrendingUp,
+  FileSearch,
+  ClipboardList,
+  CreditCard,
   Coins,
-  Gift,
-  Activity,
-  Shield,
-  Zap,
+  Settings,
+  LogOut,
+  ChevronDown,
+  ChevronRight,
+  Bell,
+  TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
@@ -30,7 +30,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TeoraLogo } from "@/components/brand/teora-logo";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface NavItemProps {
   href: string;
@@ -64,6 +64,98 @@ function NavItem({ href, icon: Icon, label, active }: NavItemProps) {
   );
 }
 
+function NavSubItem({ href, label, active }: { href: string; label: string; active?: boolean }) {
+  return (
+    <Link href={href}>
+      <div
+        className={cn(
+          "flex items-center gap-3 pl-9 pr-3 py-2 text-sm rounded-lg transition-all cursor-pointer group",
+          active
+            ? "bg-[#2D79FF]/10 text-[#2D79FF] font-medium"
+            : "text-sidebar-foreground/50 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground/70"
+        )}
+      >
+        <span className="text-xs">{label}</span>
+      </div>
+    </Link>
+  );
+}
+
+interface NavGroupProps {
+  icon: React.ElementType;
+  label: string;
+  href: string;
+  active?: boolean;
+  children?: React.ReactNode;
+}
+
+function NavGroup({ icon: Icon, label, href, active, children }: NavGroupProps) {
+  const [open, setOpen] = useState(false);
+  const hasChildren = !!children;
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (hasChildren) {
+      e.preventDefault();
+      setOpen(!open);
+    }
+  };
+
+  return (
+    <div>
+      {hasChildren ? (
+        <div
+          className={cn(
+            "flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg transition-all cursor-pointer group",
+            active || open
+              ? "bg-gradient-to-r from-[#2D79FF] to-[#8E54E9] text-white font-medium shadow-sm"
+              : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          )}
+          onClick={handleClick}
+        >
+          <Icon
+            className={cn(
+              "w-4 h-4",
+              active || open
+                ? "text-white"
+                : "text-muted-foreground group-hover:text-sidebar-accent-foreground"
+            )}
+          />
+          <span className="flex-1">{label}</span>
+          {open ? (
+            <ChevronDown className="w-3.5 h-3.5 text-white/70" />
+          ) : (
+            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-sidebar-accent-foreground" />
+          )}
+        </div>
+      ) : (
+        <Link href={href}>
+          <div
+            className={cn(
+              "flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg transition-all cursor-pointer group",
+              active
+                ? "bg-gradient-to-r from-[#2D79FF] to-[#8E54E9] text-white font-medium shadow-sm"
+                : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            )}
+          >
+            <Icon
+              className={cn(
+                "w-4 h-4",
+                active
+                  ? "text-white"
+                  : "text-muted-foreground group-hover:text-sidebar-accent-foreground"
+              )}
+            />
+            {label}
+          </div>
+        </Link>
+      )}
+      {hasChildren && open && (
+        <div className="mt-1 space-y-0.5">{children}</div>
+      )}
+    </div>
+  );
+}
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const { user, logout } = useAuth();
@@ -80,32 +172,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         .slice(0, 2)
     : user?.email?.[0]?.toUpperCase() ?? "U";
 
-  const referralLink = user?.referralCode
-    ? `${typeof window !== "undefined" ? window.location.origin : ""}/register?ref=${user.referralCode}`
-    : null;
-
-  async function copyReferralCode() {
-    if (!user?.referralCode) return;
-    try {
-      await navigator.clipboard.writeText(user.referralCode);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // fallback: select the text
-    }
-  }
-
-  async function copyReferralLink() {
-    if (!referralLink) return;
-    try {
-      await navigator.clipboard.writeText(referralLink);
-    } catch {
-      // ignore
-    }
-  }
-
-  const balanceCents = balanceData?.balanceCents ?? 0;
-  const balanceDisplay = balanceData?.balanceDisplay ?? "Rp 0";
+  const isProjectActive = location.startsWith("/projects") || location.startsWith("/pustaka-saya");
+  const isAkunActive = location === "/akun" || location === "/topup" || location === "/ai-pricing";
 
   return (
     <div className="flex min-h-[100dvh] w-full bg-background text-foreground">
@@ -116,7 +184,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <TeoraLogo size="sm" />
         </div>
 
-        {/* User Profile Section — clickable to /profile */}
+        {/* User Profile Section */}
         <div className="p-4 border-b border-border/50">
           <Link href="/profile">
             <div className="flex items-center gap-3 hover:bg-sidebar-accent -m-2 p-2 rounded-md cursor-pointer transition-colors">
@@ -144,100 +212,60 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {/* Navigation */}
         <div className="flex-1 p-3 space-y-1 overflow-y-auto">
           <nav className="space-y-1">
-            <NavItem
-              href="/"
-              icon={LayoutDashboard}
-              label="Dashboard"
-              active={location === "/"}
-            />
-            <NavItem
-              href="/projects/new"
-              icon={ClipboardList}
-              label="Task Helper"
-              active={location === "/projects/new"}
-            />
-            <NavItem
-              href="/projects/new"
-              icon={FileText}
-              label="Paper Writer"
-            />
-            <NavItem
-              href="/projects/new"
-              icon={FileCheck2}
-              label="Proposal Creator"
-            />
-            <NavItem
-              href="/projects/1"
-              icon={History}
-              label="History"
-            />
-            <NavItem
-              href="/finops"
-              icon={TrendingUp}
-              label="AI Usage"
-              active={location === "/finops"}
-            />
-            <NavItem
-              href="/ai-pricing"
-              icon={Zap}
-              label="AI Pricing"
-              active={location === "/ai-pricing"}
-            />
-            <NavItem
-              href="/status"
-              icon={Activity}
-              label="System Status"
-              active={location === "/status"}
-            />
-            <NavItem
-              href="/admin"
-              icon={Shield}
-              label="Admin Dashboard"
-              active={location === "/admin"}
-            />
+            {/* Dashboard */}
+            <NavItem href="/" icon={LayoutDashboard} label="Dashboard" active={location === "/"} />
+
+            {/* Pustaka Saya */}
+            <NavItem href="/pustaka-saya" icon={BookOpen} label="Pustaka Saya" active={location === "/pustaka-saya"} />
+
+            {/* Project (collapsible) */}
+            <NavGroup icon={FolderKanban} label="Project" active={isProjectActive}>
+              <NavSubItem href="/projects/new?type=general" label="General Project" />
+              <NavSubItem href="/projects/new?type=penelitian" label="Project Penelitian" />
+              <NavSubItem href="/projects/new?type=referensi" label="Referensi" />
+            </NavGroup>
+
+            {/* Assessment */}
+            <NavItem href="/assessment" icon={ClipboardList} label="Assessment" active={location === "/assessment"} />
+
+            {/* Separator */}
+            <div className="h-px bg-border/50 my-2" />
+
+            {/* Akun (collapsible) */}
+            <NavGroup icon={CreditCard} label="Akun" active={isAkunActive}>
+              <NavSubItem href="/akun" label="Profil & Pengaturan" />
+              <NavSubItem href="/topup" label="Topup Saldo" />
+              <NavSubItem href="/ai-pricing" label="AI Pricing" />
+            </NavGroup>
           </nav>
         </div>
 
-        {/* Credits & Settings Section */}
+        {/* Bottom Section — Balance + Settings */}
         <div className="p-3 border-t border-border space-y-3">
-          {/* Topup Credits Button */}
-          <Link href="/ai-pricing">
-            <Button
-              className="w-full bg-gradient-to-r from-[#2D79FF] to-[#8E54E9] hover:opacity-90 text-white shadow-sm"
-            >
-              <PlusCircle className="w-4 h-4 mr-2" />
-              Topup Credits
-            </Button>
-          </Link>
-
           {/* Balance Display */}
           <Link href="/topup">
             <div className="bg-sidebar-accent/50 rounded-lg p-3 space-y-2 hover:bg-sidebar-accent transition-colors cursor-pointer">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Coins className="w-4 h-4 text-[#2D79FF]" />
-                  <span className="text-xs font-medium text-sidebar-foreground">
-                    Saldo
-                  </span>
+                  <span className="text-xs font-medium text-sidebar-foreground">Saldo</span>
                 </div>
                 {balanceLoading ? (
                   <Skeleton className="h-3 w-16" />
                 ) : (
                   <span className="text-xs font-mono font-semibold text-sidebar-foreground">
-                    {balanceDisplay}
+                    {balanceData?.balanceDisplay ?? "Rp 0"}
                   </span>
                 )}
               </div>
-              <p className="text-[10px] text-sidebar-foreground/60">
-                Klik untuk topup saldo
-              </p>
+              <p className="text-[10px] text-sidebar-foreground/60">Klik untuk topup saldo</p>
             </div>
           </Link>
 
-          {/* Settings Link */}
+          {/* Settings + Logout */}
           <div className="flex items-center gap-2">
             <Link
-              href="/settings"
+              href="/profile"
               className="flex-1 flex items-center gap-2 px-3 py-2 text-xs text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent rounded-md transition-colors"
             >
               <Settings className="w-3.5 h-3.5" />
@@ -254,19 +282,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
           {/* Legal Links */}
           <div className="flex items-center justify-center gap-3 px-3 pt-2 border-t border-border/50">
-            <Link
-              href="/terms"
-              className="text-[10px] text-sidebar-foreground/40 hover:text-sidebar-foreground/70 transition-colors"
-            >
-              ToS
-            </Link>
+            <Link href="/terms" className="text-[10px] text-sidebar-foreground/40 hover:text-sidebar-foreground/70 transition-colors">ToS</Link>
             <span className="text-[10px] text-sidebar-foreground/30">•</span>
-            <Link
-              href="/privacy"
-              className="text-[10px] text-sidebar-foreground/40 hover:text-sidebar-foreground/70 transition-colors"
-            >
-              Privacy
-            </Link>
+            <Link href="/privacy" className="text-[10px] text-sidebar-foreground/40 hover:text-sidebar-foreground/70 transition-colors">Privacy</Link>
           </div>
         </div>
       </aside>
@@ -274,8 +292,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0">
         {/* Mobile Header */}
-        <div className="h-16 border-b border-border bg-sidebar px-4 flex items-center md:hidden shrink-0">
+        <div className="h-16 border-b border-border bg-sidebar px-4 flex items-center justify-between md:hidden shrink-0">
           <TeoraLogo size="sm" />
+          {/* Notification Bell */}
+          <button className="p-2 text-sidebar-foreground/70 hover:bg-sidebar-accent rounded-md transition-colors">
+            <Bell className="w-5 h-5" />
+          </button>
         </div>
         <div className="flex-1 overflow-auto p-4 md:p-8">
           <div className="mx-auto max-w-6xl">{children}</div>

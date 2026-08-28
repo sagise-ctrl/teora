@@ -30,6 +30,9 @@ import AdminHealth from "@/pages/admin-health";
 import AdminAuditLog from "@/pages/admin-audit-log";
 import AdminReports from "@/pages/admin-reports";
 import Profile from "@/pages/profile";
+import PustakaSaya from "@/pages/pustaka-saya";
+import Assessment from "@/pages/assessment";
+import Akun from "@/pages/akun";
 import SharedProject from "@/pages/shared";
 import Layout from "@/components/layout";
 
@@ -134,6 +137,27 @@ function AppRouter() {
         <ProtectedRoute>
           <Layout>
             <AnimatedPage><Profile /></AnimatedPage>
+          </Layout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/pustaka-saya">
+        <ProtectedRoute>
+          <Layout>
+            <AnimatedPage><PustakaSaya /></AnimatedPage>
+          </Layout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/assessment">
+        <ProtectedRoute>
+          <Layout>
+            <AnimatedPage><Assessment /></AnimatedPage>
+          </Layout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/akun">
+        <ProtectedRoute>
+          <Layout>
+            <AnimatedPage><Akun /></AnimatedPage>
           </Layout>
         </ProtectedRoute>
       </Route>
