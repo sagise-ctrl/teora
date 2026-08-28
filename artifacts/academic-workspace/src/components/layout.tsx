@@ -4,8 +4,6 @@ import {
   LayoutDashboard,
   BookOpen,
   FolderKanban,
-  FileText,
-  FileSearch,
   ClipboardList,
   CreditCard,
   Coins,
@@ -14,19 +12,10 @@ import {
   ChevronDown,
   ChevronRight,
   Bell,
-  TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useGetMyBalance } from "@/lib/api-client-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TeoraLogo } from "@/components/brand/teora-logo";
@@ -84,12 +73,11 @@ function NavSubItem({ href, label, active }: { href: string; label: string; acti
 interface NavGroupProps {
   icon: React.ElementType;
   label: string;
-  href: string;
   active?: boolean;
   children?: React.ReactNode;
 }
 
-function NavGroup({ icon: Icon, label, href, active, children }: NavGroupProps) {
+function NavGroup({ icon: Icon, label, active, children }: NavGroupProps) {
   const [open, setOpen] = useState(false);
   const hasChildren = !!children;
 
@@ -159,7 +147,6 @@ function NavGroup({ icon: Icon, label, href, active, children }: NavGroupProps) 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const { user, logout } = useAuth();
-  const [copied, setCopied] = useState(false);
 
   const { data: balanceData, isLoading: balanceLoading } = useGetMyBalance();
 
@@ -172,8 +159,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         .slice(0, 2)
     : user?.email?.[0]?.toUpperCase() ?? "U";
 
-  const isProjectActive = location.startsWith("/projects") || location.startsWith("/pustaka-saya");
-  const isAkunActive = location === "/akun" || location === "/topup" || location === "/ai-pricing";
+  const isProjectActive = location.startsWith("/projects");
+  const isAkunActive = location === "/akun" || location === "/topup" || location === "/ai-pricing" || location === "/profile";
 
   return (
     <div className="flex min-h-[100dvh] w-full bg-background text-foreground">
