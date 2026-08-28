@@ -1,41 +1,63 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "wouter";
 import { BookOpen, Loader2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { customFetch, setAuthTokenGetter } from "../lib/api-client-react";
-import { setStoredToken } from "../lib/session";
+import { setStoredToken, setStoredRefreshToken } from "../lib/session";
 
 export default function AuthCallback() {
-  const [, setLocation] = useLocation();
   const [state, setState] = useState<"loading" | "success" | "error">("loading");
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     async function handleOAuthCallback() {
       try {
-        // Google OAuth appends tokens as URL hash fragments.
-        // Parse them manually — no SDK needed.
-        const hash = window.location.hash.slice(1);
-        if (!hash) {
-          setState("error");
-          setErrorMessage("Tidak ada token dari Google. Silakan coba lagi.");
-          return;
+        // Supabase may use either flow:
+        //   - PKCE:    redirect contains ?code=…  (exchanged via SDK)
+        //   - Implicit: redirect hash contains #access_token=…&refresh_token=…
+        // Try PKCE first (modern default), then fall back to implicit.
+
+        let accessToken: string | null = null;
+        let refreshToken: string | null = null;
+
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get("code");
+
+        if (code) {
+          // PKCE flow — exchange code for session via Supabase SDK.
+          const { supabase } = await import("../lib/supabase");
+          if (!supabase) throw new Error("Supabase not configured");
+          const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+          if (error || !data.session) {
+            throw new Error(error?.message ?? "Gagal menukar kode OAuth.");
+          }
+          accessToken = data.session.access_token;
+          refreshToken = data.session.refresh_token;
+        } else {
+          // Implicit flow — parse tokens from URL hash.
+          const hash = window.location.hash.slice(1);
+          const hashParams = new URLSearchParams(hash);
+          accessToken = hashParams.get("access_token");
+          refreshToken = hashParams.get("refresh_token");
         }
 
-        const params = new URLSearchParams(hash);
-        const accessToken = params.get("access_token");
+        console.log("[auth-callback] tokens received", {
+          flow: code ? "PKCE" : "implicit",
+          hasAccessToken: !!accessToken,
+          accessTokenPrefix: accessToken ? accessToken.slice(0, 12) + "..." : null,
+          hasRefreshToken: !!refreshToken,
+          refreshTokenPrefix: refreshToken ? refreshToken.slice(0, 8) + "..." : null,
+        });
+
         if (!accessToken) {
           setState("error");
           setErrorMessage("Token tidak ditemukan. Silakan coba lagi.");
           return;
         }
 
-        const refreshToken = params.get("refresh_token");
-
         // Call backend to validate token + create/update local user record.
         const result = await customFetch<{ id: string }>("/api/auth/login", {
           method: "POST",
-          body: JSON.stringify({ access_token: accessToken, refresh_token: refreshToken }),
+          body: JSON.stringify({ access_token: accessToken, refresh_token: refreshToken ?? undefined }),
         });
 
         if ("error" in result) {
@@ -47,13 +69,18 @@ export default function AuthCallback() {
         // Store token and register as auth getter so customFetch attaches it
         // as "Authorization: Bearer <token>" to all subsequent API calls.
         setStoredToken(accessToken);
+        if (refreshToken) setStoredRefreshToken(refreshToken);
         setAuthTokenGetter(() => Promise.resolve(accessToken));
 
-        // Clear the URL hash so the token doesn't linger in the address bar.
+        // Clear the URL hash/query so the token doesn't linger in the address bar.
         window.history.replaceState(null, "", window.location.pathname);
 
         setState("success");
-        setTimeout(() => setLocation("/"), 800);
+        // Full page reload — AuthProvider must remount so it picks up the
+        // new access_token and calls /api/auth/me. wouter's setLocation
+        // only swaps the path; React state (including AuthProvider's user)
+        // stays stale and ProtectedRoute would bounce back to /login.
+        setTimeout(() => (window.location.href = "/landing-admin"), 800);
       } catch (err) {
         console.error("[auth-callback]", err);
         setState("error");
@@ -62,7 +89,7 @@ export default function AuthCallback() {
     }
 
     handleOAuthCallback();
-  }, [setLocation]);
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -93,7 +120,7 @@ export default function AuthCallback() {
             </div>
             <h2 className="text-xl font-semibold text-foreground">Login gagal</h2>
             <p className="text-muted-foreground">{errorMessage}</p>
-            <Button onClick={() => setLocation("/login")} variant="outline">
+            <Button onClick={() => (window.location.href = "/login")} variant="outline">
               Kembali ke Login
             </Button>
           </>

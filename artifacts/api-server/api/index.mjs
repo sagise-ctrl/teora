@@ -209,18 +209,18 @@ var require_common = __commonJS({
           if (typeof args[0] !== "string") {
             args.unshift("%O");
           }
-          let index7 = 0;
+          let index8 = 0;
           args[0] = args[0].replace(/%([a-zA-Z%])/g, (match, format) => {
             if (match === "%%") {
               return "%";
             }
-            index7++;
+            index8++;
             const formatter2 = createDebug.formatters[format];
             if (typeof formatter2 === "function") {
-              const val = args[index7];
+              const val = args[index8];
               match = formatter2.call(self2, val);
-              args.splice(index7, 1);
-              index7--;
+              args.splice(index8, 1);
+              index8--;
             }
             return match;
           });
@@ -455,15 +455,15 @@ var require_browser = __commonJS({
       }
       const c = "color: " + this.color;
       args.splice(1, 0, c, "color: inherit");
-      let index7 = 0;
+      let index8 = 0;
       let lastC = 0;
       args[0].replace(/%[a-zA-Z%]/g, (match) => {
         if (match === "%%") {
           return;
         }
-        index7++;
+        index8++;
         if (match === "%c") {
-          lastC = index7;
+          lastC = index8;
         }
       });
       args.splice(lastC, 0, c);
@@ -879,8 +879,8 @@ var require_depd = __commonJS({
       return deprecate3;
     }
     function eehaslisteners(emitter, type) {
-      var count2 = typeof emitter.listenerCount !== "function" ? emitter.listeners(type).length : emitter.listenerCount(type);
-      return count2 > 0;
+      var count3 = typeof emitter.listenerCount !== "function" ? emitter.listeners(type).length : emitter.listenerCount(type);
+      return count3 > 0;
     }
     function isignored(namespace) {
       if (process.noDeprecation) {
@@ -977,8 +977,8 @@ var require_depd = __commonJS({
       return typeName && callSite.getMethodName() ? typeName + "." + funcName : funcName;
     }
     function formatPlain(msg, caller, stack) {
-      var timestamp27 = (/* @__PURE__ */ new Date()).toUTCString();
-      var formatted = timestamp27 + " " + this._namespace + " deprecated " + msg;
+      var timestamp28 = (/* @__PURE__ */ new Date()).toUTCString();
+      var formatted = timestamp28 + " " + this._namespace + " deprecated " + msg;
       if (this._traced) {
         for (var i2 = 0; i2 < stack.length; i2++) {
           formatted += "\n    at " + stack[i2].toString();
@@ -5800,15 +5800,15 @@ var require_dist = __commonJS({
     function parse2(header, options) {
       const stopChar = options?.comma === true ? COMMA : 65536;
       const len = header.length;
-      let index7 = skipOWS(header, options?.start ?? 0, len);
-      const valueStart = index7;
-      index7 = skipValue(header, index7, len, stopChar);
-      const valueEnd = trailingOWS(header, valueStart, index7);
+      let index8 = skipOWS(header, options?.start ?? 0, len);
+      const valueStart = index8;
+      index8 = skipValue(header, index8, len, stopChar);
+      const valueEnd = trailingOWS(header, valueStart, index8);
       const type = header.slice(valueStart, valueEnd).toLowerCase();
       if (options?.parameters === false) {
-        return { type, index: index7, parameters: new NullObject() };
+        return { type, index: index8, parameters: new NullObject() };
       }
-      return parseParameters(header, type, index7, len, stopChar);
+      return parseParameters(header, type, index8, len, stopChar);
     }
     var SP = 32;
     var HTAB = 9;
@@ -5817,72 +5817,72 @@ var require_dist = __commonJS({
     var DQUOTE = 34;
     var BSLASH = 92;
     var COMMA = 44;
-    function parseParameters(header, type, index7, len, stopChar) {
+    function parseParameters(header, type, index8, len, stopChar) {
       const parameters2 = new NullObject();
-      parameter: while (index7 < len) {
-        if (header.charCodeAt(index7) === stopChar)
+      parameter: while (index8 < len) {
+        if (header.charCodeAt(index8) === stopChar)
           break;
-        index7 = skipOWS(header, index7 + 1, len);
-        const keyStart = index7;
-        while (index7 < len) {
-          const code = header.charCodeAt(index7);
+        index8 = skipOWS(header, index8 + 1, len);
+        const keyStart = index8;
+        while (index8 < len) {
+          const code = header.charCodeAt(index8);
           if (code === stopChar)
             break parameter;
           if (code === SEMI)
             continue parameter;
           if (code === EQ) {
-            const keyEnd = trailingOWS(header, keyStart, index7);
+            const keyEnd = trailingOWS(header, keyStart, index8);
             const key = header.slice(keyStart, keyEnd).toLowerCase();
-            index7 = skipOWS(header, index7 + 1, len);
-            if (index7 < len && header.charCodeAt(index7) === DQUOTE) {
-              index7++;
+            index8 = skipOWS(header, index8 + 1, len);
+            if (index8 < len && header.charCodeAt(index8) === DQUOTE) {
+              index8++;
               let value = "";
-              while (index7 < len) {
-                const code2 = header.charCodeAt(index7++);
+              while (index8 < len) {
+                const code2 = header.charCodeAt(index8++);
                 if (code2 === DQUOTE) {
-                  index7 = skipValue(header, index7, len, stopChar);
+                  index8 = skipValue(header, index8, len, stopChar);
                   if (parameters2[key] === void 0)
                     parameters2[key] = value;
                   break;
                 }
-                if (code2 === BSLASH && index7 < len) {
-                  value += header[index7++];
+                if (code2 === BSLASH && index8 < len) {
+                  value += header[index8++];
                   continue;
                 }
                 value += String.fromCharCode(code2);
               }
               continue parameter;
             }
-            const valueStart = index7;
-            index7 = skipValue(header, index7, len, stopChar);
+            const valueStart = index8;
+            index8 = skipValue(header, index8, len, stopChar);
             if (parameters2[key] === void 0) {
-              const valueEnd = trailingOWS(header, valueStart, index7);
+              const valueEnd = trailingOWS(header, valueStart, index8);
               parameters2[key] = header.slice(valueStart, valueEnd);
             }
             continue parameter;
           }
-          index7++;
+          index8++;
         }
       }
-      return { type, index: index7, parameters: parameters2 };
+      return { type, index: index8, parameters: parameters2 };
     }
-    function skipValue(str, index7, len, stopChar) {
-      while (index7 < len) {
-        const code = str.charCodeAt(index7);
+    function skipValue(str, index8, len, stopChar) {
+      while (index8 < len) {
+        const code = str.charCodeAt(index8);
         if (code === SEMI || code === stopChar)
           break;
-        index7++;
+        index8++;
       }
-      return index7;
+      return index8;
     }
-    function skipOWS(header, index7, len) {
-      while (index7 < len) {
-        const char = header.charCodeAt(index7);
+    function skipOWS(header, index8, len) {
+      while (index8 < len) {
+        const char = header.charCodeAt(index8);
         if (char !== SP && char !== HTAB)
           break;
-        index7++;
+        index8++;
       }
-      return index7;
+      return index8;
     }
     function trailingOWS(header, start, end) {
       while (end > start) {
@@ -15457,10 +15457,10 @@ var require_media_typer = __commonJS({
       var type = match[1];
       var subtype = match[2];
       var suffix;
-      var index7 = subtype.lastIndexOf("+");
-      if (index7 !== -1) {
-        suffix = subtype.substr(index7 + 1);
-        subtype = subtype.substr(0, index7);
+      var index8 = subtype.lastIndexOf("+");
+      if (index8 !== -1) {
+        suffix = subtype.substr(index8 + 1);
+        subtype = subtype.substr(0, index8);
       }
       return new MediaType(type, subtype, suffix);
     }
@@ -15836,10 +15836,10 @@ var require_json = __commonJS({
       };
     }
     function createStrictSyntaxError(str, char) {
-      const index7 = str.indexOf(char);
+      const index8 = str.indexOf(char);
       let partial = "";
-      if (index7 !== -1) {
-        partial = str.substring(0, index7) + JSON_SYNTAX_CHAR.repeat(str.length - index7);
+      if (index8 !== -1) {
+        partial = str.substring(0, index8) + JSON_SYNTAX_CHAR.repeat(str.length - index8);
       }
       try {
         JSON.parse(partial);
@@ -15847,7 +15847,7 @@ var require_json = __commonJS({
       } catch (e2) {
         return normalizeJsonSyntaxError(e2, {
           message: e2.message.replace(JSON_SYNTAX_REGEXP, function(placeholder) {
-            return str.substring(index7, index7 + placeholder.length);
+            return str.substring(index8, index8 + placeholder.length);
           }),
           stack: e2.stack
         });
@@ -15901,8 +15901,8 @@ var require_text = __commonJS({
     var debug = require_src()("body-parser:text");
     var read = require_read();
     var { normalizeOptions, passthrough } = require_utils();
-    module.exports = text27;
-    function text27(options) {
+    module.exports = text28;
+    function text28(options) {
       const normalizedOptions = normalizeOptions(options, "text/plain");
       return function textParser(req, res, next) {
         read(req, res, next, passthrough, debug, normalizedOptions);
@@ -18319,18 +18319,18 @@ var require_parse = __commonJS({
           obj = options.plainObjects ? { __proto__: null } : {};
           var cleanRoot = root.charAt(0) === "[" && root.charAt(root.length - 1) === "]" ? root.slice(1, -1) : root;
           var decodedRoot = options.decodeDotInKeys ? cleanRoot.replace(/%2E/g, ".") : cleanRoot;
-          var index7 = parseInt(decodedRoot, 10);
-          var isValidArrayIndex = !isNaN(index7) && root !== decodedRoot && String(index7) === decodedRoot && index7 >= 0 && options.parseArrays;
+          var index8 = parseInt(decodedRoot, 10);
+          var isValidArrayIndex = !isNaN(index8) && root !== decodedRoot && String(index8) === decodedRoot && index8 >= 0 && options.parseArrays;
           if (!options.parseArrays && decodedRoot === "") {
             obj = { 0: leaf };
-          } else if (isValidArrayIndex && index7 < options.arrayLimit) {
+          } else if (isValidArrayIndex && index8 < options.arrayLimit) {
             obj = [];
-            obj[index7] = leaf;
+            obj[index8] = leaf;
           } else if (isValidArrayIndex && options.throwOnLimitExceeded) {
             throw new RangeError("Array limit exceeded. Only " + options.arrayLimit + " element" + (options.arrayLimit === 1 ? "" : "s") + " allowed in an array.");
           } else if (isValidArrayIndex) {
-            obj[index7] = leaf;
-            utils.markOverflow(obj, index7);
+            obj[index8] = leaf;
+            utils.markOverflow(obj, index8);
           } else if (decodedRoot !== "__proto__") {
             obj[decodedRoot] = leaf;
           }
@@ -18571,14 +18571,14 @@ var require_urlencoded = __commonJS({
       };
     }
     function parameterCount(body, limit) {
-      let count2 = 0;
-      let index7 = -1;
+      let count3 = 0;
+      let index8 = -1;
       do {
-        count2++;
-        if (count2 > limit) return void 0;
-        index7 = body.indexOf("&", index7 + 1);
-      } while (index7 !== -1);
-      return count2;
+        count3++;
+        if (count3 > limit) return void 0;
+        index8 = body.indexOf("&", index8 + 1);
+      } while (index8 !== -1);
+      return count3;
     }
   }
 });
@@ -18650,10 +18650,10 @@ var require_escape_html = __commonJS({
       }
       var escape2;
       var html = "";
-      var index7 = 0;
+      var index8 = 0;
       var lastIndex = 0;
-      for (index7 = match.index; index7 < str.length; index7++) {
-        switch (str.charCodeAt(index7)) {
+      for (index8 = match.index; index8 < str.length; index8++) {
+        switch (str.charCodeAt(index8)) {
           case 34:
             escape2 = "&quot;";
             break;
@@ -18672,13 +18672,13 @@ var require_escape_html = __commonJS({
           default:
             continue;
         }
-        if (lastIndex !== index7) {
-          html += str.substring(lastIndex, index7);
+        if (lastIndex !== index8) {
+          html += str.substring(lastIndex, index8);
         }
-        lastIndex = index7 + 1;
+        lastIndex = index8 + 1;
         html += escape2;
       }
-      return lastIndex !== index7 ? html + str.substring(lastIndex, index7) : html;
+      return lastIndex !== index8 ? html + str.substring(lastIndex, index8) : html;
     }
   }
 });
@@ -19031,22 +19031,22 @@ var require_content_type = __commonJS({
       if (typeof header !== "string") {
         throw new TypeError("argument string is required to be a string");
       }
-      var index7 = header.indexOf(";");
-      var type = index7 !== -1 ? header.slice(0, index7).trim() : header.trim();
+      var index8 = header.indexOf(";");
+      var type = index8 !== -1 ? header.slice(0, index8).trim() : header.trim();
       if (!TYPE_REGEXP.test(type)) {
         throw new TypeError("invalid media type");
       }
       var obj = new ContentType(type.toLowerCase());
-      if (index7 !== -1) {
+      if (index8 !== -1) {
         var key;
         var match;
         var value;
-        PARAM_REGEXP.lastIndex = index7;
+        PARAM_REGEXP.lastIndex = index8;
         while (match = PARAM_REGEXP.exec(header)) {
-          if (match.index !== index7) {
+          if (match.index !== index8) {
             throw new TypeError("invalid parameter format");
           }
-          index7 += match[0].length;
+          index8 += match[0].length;
           key = match[1].toLowerCase();
           value = match[2];
           if (value.charCodeAt(0) === 34) {
@@ -19057,7 +19057,7 @@ var require_content_type = __commonJS({
           }
           obj.parameters[key] = value;
         }
-        if (index7 !== header.length) {
+        if (index8 !== header.length) {
           throw new TypeError("invalid parameter format");
         }
       }
@@ -19986,25 +19986,25 @@ var require_utils3 = __commonJS({
     function acceptParams(str) {
       var length = str.length;
       var colonIndex = str.indexOf(";");
-      var index7 = colonIndex === -1 ? length : colonIndex;
-      var ret = { value: str.slice(0, index7).trim(), quality: 1, params: {} };
-      while (index7 < length) {
-        var splitIndex = str.indexOf("=", index7);
+      var index8 = colonIndex === -1 ? length : colonIndex;
+      var ret = { value: str.slice(0, index8).trim(), quality: 1, params: {} };
+      while (index8 < length) {
+        var splitIndex = str.indexOf("=", index8);
         if (splitIndex === -1) break;
-        var colonIndex = str.indexOf(";", index7);
+        var colonIndex = str.indexOf(";", index8);
         var endIndex = colonIndex === -1 ? length : colonIndex;
         if (splitIndex > endIndex) {
-          index7 = str.lastIndexOf(";", splitIndex - 1) + 1;
+          index8 = str.lastIndexOf(";", splitIndex - 1) + 1;
           continue;
         }
-        var key = str.slice(index7, splitIndex).trim();
+        var key = str.slice(index8, splitIndex).trim();
         var value = str.slice(splitIndex + 1, endIndex).trim();
         if (key === "q") {
           ret.quality = parseFloat(value);
         } else {
           ret.params[key] = value;
         }
-        index7 = endIndex + 1;
+        index8 = endIndex + 1;
       }
       return ret;
     }
@@ -20205,11 +20205,11 @@ var require_dist2 = __commonJS({
     exports.TokenData = TokenData;
     var PathError = class extends TypeError {
       constructor(message2, originalPath) {
-        let text27 = message2;
+        let text28 = message2;
         if (originalPath)
-          text27 += `: ${originalPath}`;
-        text27 += `; visit https://git.new/pathToRegexpError for info`;
-        super(text27);
+          text28 += `: ${originalPath}`;
+        text28 += `; visit https://git.new/pathToRegexpError for info`;
+        super(text28);
         this.originalPath = originalPath;
       }
     };
@@ -20217,7 +20217,7 @@ var require_dist2 = __commonJS({
     function parse2(str, options = {}) {
       const { encodePath = NOOP_VALUE } = options;
       const chars = [...str];
-      let index7 = 0;
+      let index8 = 0;
       function consumeUntil(end) {
         const output = [];
         let path3 = "";
@@ -20230,44 +20230,44 @@ var require_dist2 = __commonJS({
           });
           path3 = "";
         }
-        while (index7 < chars.length) {
-          const value = chars[index7++];
+        while (index8 < chars.length) {
+          const value = chars[index8++];
           if (value === end) {
             writePath();
             return output;
           }
           if (value === "\\") {
-            if (index7 === chars.length) {
-              throw new PathError(`Unexpected end after \\ at index ${index7}`, str);
+            if (index8 === chars.length) {
+              throw new PathError(`Unexpected end after \\ at index ${index8}`, str);
             }
-            path3 += chars[index7++];
+            path3 += chars[index8++];
             continue;
           }
           if (value === ":" || value === "*") {
             const type = value === ":" ? "param" : "wildcard";
             let name = "";
-            if (ID_START.test(chars[index7])) {
+            if (ID_START.test(chars[index8])) {
               do {
-                name += chars[index7++];
-              } while (ID_CONTINUE.test(chars[index7]));
-            } else if (chars[index7] === '"') {
-              let quoteStart = index7;
-              while (index7 < chars.length) {
-                if (chars[++index7] === '"') {
-                  index7++;
+                name += chars[index8++];
+              } while (ID_CONTINUE.test(chars[index8]));
+            } else if (chars[index8] === '"') {
+              let quoteStart = index8;
+              while (index8 < chars.length) {
+                if (chars[++index8] === '"') {
+                  index8++;
                   quoteStart = 0;
                   break;
                 }
-                if (chars[index7] === "\\")
-                  index7++;
-                name += chars[index7];
+                if (chars[index8] === "\\")
+                  index8++;
+                name += chars[index8];
               }
               if (quoteStart) {
                 throw new PathError(`Unterminated quote at index ${quoteStart}`, str);
               }
             }
             if (!name) {
-              throw new PathError(`Missing parameter name at index ${index7}`, str);
+              throw new PathError(`Missing parameter name at index ${index8}`, str);
             }
             writePath();
             output.push({ type, name });
@@ -20282,12 +20282,12 @@ var require_dist2 = __commonJS({
             continue;
           }
           if (value === "}" || value === "(" || value === ")" || value === "[" || value === "]" || value === "+" || value === "?" || value === "!") {
-            throw new PathError(`Unexpected ${value} at index ${index7 - 1}`, str);
+            throw new PathError(`Unexpected ${value} at index ${index8 - 1}`, str);
           }
           path3 += value;
         }
         if (end) {
-          throw new PathError(`Unexpected end at index ${index7}, expected ${end}`, str);
+          throw new PathError(`Unexpected end at index ${index8}, expected ${end}`, str);
         }
         writePath();
         return output;
@@ -20421,12 +20421,12 @@ var require_dist2 = __commonJS({
       pattern2 += end ? "$" : "(?=" + escape2(delimiter) + "|$)";
       return { regexp: new RegExp(pattern2, sensitive ? "" : "i"), keys };
     }
-    function flatten(tokens, index7, result, callback) {
-      while (index7 < tokens.length) {
-        const token = tokens[index7++];
+    function flatten(tokens, index8, result, callback) {
+      while (index8 < tokens.length) {
+        const token = tokens[index8++];
         if (token.type === "group") {
           const len = result.length;
-          flatten(token.tokens, 0, result, (seq) => flatten(tokens, index7, seq, callback));
+          flatten(token.tokens, 0, result, (seq) => flatten(tokens, index8, seq, callback));
           result.length = len;
           continue;
         }
@@ -20440,10 +20440,10 @@ var require_dist2 = __commonJS({
       let wildcardBacktrack = "";
       let prevCaptureType = 0;
       let hasSegmentCapture = 0;
-      let index7 = 0;
-      function hasInSegment(index8, type) {
-        while (index8 < tokens.length) {
-          const token = tokens[index8++];
+      let index8 = 0;
+      function hasInSegment(index9, type) {
+        while (index9 < tokens.length) {
+          const token = tokens[index9++];
           if (token.type === type)
             return true;
           if (token.type === "text") {
@@ -20453,18 +20453,18 @@ var require_dist2 = __commonJS({
         }
         return false;
       }
-      function peekText(index8) {
+      function peekText(index9) {
         let result2 = "";
-        while (index8 < tokens.length) {
-          const token = tokens[index8++];
+        while (index9 < tokens.length) {
+          const token = tokens[index9++];
           if (token.type !== "text")
             break;
           result2 += token.value;
         }
         return result2;
       }
-      while (index7 < tokens.length) {
-        const token = tokens[index7++];
+      while (index8 < tokens.length) {
+        const token = tokens[index8++];
         if (token.type === "text") {
           result += escape2(token.value);
           backtrack += token.value;
@@ -20479,7 +20479,7 @@ var require_dist2 = __commonJS({
             throw new PathError(`Missing text before "${token.name}" ${token.type}`, originalPath);
           }
           if (token.type === "param") {
-            result += hasSegmentCapture & 2 ? `(${negate(delimiter, backtrack)}+)` : hasInSegment(index7, "wildcard") ? `(${negate(delimiter, peekText(index7))}+)` : hasSegmentCapture & 1 ? `(${negate(delimiter, backtrack)}+|${escape2(backtrack)})` : `(${negate(delimiter, "")}+)`;
+            result += hasSegmentCapture & 2 ? `(${negate(delimiter, backtrack)}+)` : hasInSegment(index8, "wildcard") ? `(${negate(delimiter, peekText(index8))}+)` : hasSegmentCapture & 1 ? `(${negate(delimiter, backtrack)}+|${escape2(backtrack)})` : `(${negate(delimiter, "")}+)`;
             hasSegmentCapture |= prevCaptureType = 1;
           } else {
             result += hasSegmentCapture & 2 ? `(${negate(backtrack, "")}+)` : wildcardBacktrack ? `(${negate(wildcardBacktrack, "")}+|${negate(delimiter, "")}+)` : `([^]+)`;
@@ -20505,10 +20505,10 @@ var require_dist2 = __commonJS({
         return `(?:(?!${escape2(a)})[^${escape2(b)}])`;
       return `[^${escape2(a + b)}]`;
     }
-    function stringifyTokens(tokens, index7) {
+    function stringifyTokens(tokens, index8) {
       let value = "";
-      while (index7 < tokens.length) {
-        const token = tokens[index7++];
+      while (index8 < tokens.length) {
+        const token = tokens[index8++];
         if (token.type === "text") {
           value += escapeText(token.value);
           continue;
@@ -20518,11 +20518,11 @@ var require_dist2 = __commonJS({
           continue;
         }
         if (token.type === "param") {
-          value += ":" + stringifyName(token.name, tokens[index7]);
+          value += ":" + stringifyName(token.name, tokens[index8]);
           continue;
         }
         if (token.type === "wildcard") {
-          value += "*" + stringifyName(token.name, tokens[index7]);
+          value += "*" + stringifyName(token.name, tokens[index8]);
           continue;
         }
         throw new TypeError(`Unknown token type: ${token.type}`);
@@ -20827,27 +20827,27 @@ var require_router = __commonJS({
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var methods = METHODS.map((method) => method.toLowerCase());
-    module.exports = Router27;
+    module.exports = Router28;
     module.exports.Route = Route;
-    function Router27(options) {
-      if (!(this instanceof Router27)) {
-        return new Router27(options);
+    function Router28(options) {
+      if (!(this instanceof Router28)) {
+        return new Router28(options);
       }
       const opts = options || {};
-      function router27(req, res, next) {
-        router27.handle(req, res, next);
+      function router28(req, res, next) {
+        router28.handle(req, res, next);
       }
-      Object.setPrototypeOf(router27, this);
-      router27.caseSensitive = opts.caseSensitive;
-      router27.mergeParams = opts.mergeParams;
-      router27.params = {};
-      router27.strict = opts.strict;
-      router27.stack = [];
-      return router27;
+      Object.setPrototypeOf(router28, this);
+      router28.caseSensitive = opts.caseSensitive;
+      router28.mergeParams = opts.mergeParams;
+      router28.params = {};
+      router28.strict = opts.strict;
+      router28.stack = [];
+      return router28;
     }
-    Router27.prototype = function() {
+    Router28.prototype = function() {
     };
-    Router27.prototype.param = function param(name, fn) {
+    Router28.prototype.param = function param(name, fn) {
       if (!name) {
         throw new TypeError("argument name is required");
       }
@@ -20867,7 +20867,7 @@ var require_router = __commonJS({
       params.push(fn);
       return this;
     };
-    Router27.prototype.handle = function handle(req, res, callback) {
+    Router28.prototype.handle = function handle(req, res, callback) {
       if (!callback) {
         throw new TypeError("argument callback is required");
       }
@@ -20994,7 +20994,7 @@ var require_router = __commonJS({
         }
       }
     };
-    Router27.prototype.use = function use(handler) {
+    Router28.prototype.use = function use(handler) {
       let offset = 0;
       let path3 = "/";
       if (typeof handler !== "function") {
@@ -21027,7 +21027,7 @@ var require_router = __commonJS({
       }
       return this;
     };
-    Router27.prototype.route = function route(path3) {
+    Router28.prototype.route = function route(path3) {
       const route2 = new Route(path3);
       const layer = new Layer(path3, {
         sensitive: this.caseSensitive,
@@ -21042,7 +21042,7 @@ var require_router = __commonJS({
       return route2;
     };
     methods.concat("all").forEach(function(method) {
-      Router27.prototype[method] = function(path3) {
+      Router28.prototype[method] = function(path3) {
         const route = this.route(path3);
         route[method].apply(route, slice.call(arguments, 1));
         return this;
@@ -21225,13 +21225,13 @@ var require_application = __commonJS({
     var compileTrust = require_utils3().compileTrust;
     var resolve = __require("node:path").resolve;
     var once = require_once();
-    var Router27 = require_router();
+    var Router28 = require_router();
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var app2 = exports = module.exports = {};
     var trustProxyDefaultSymbol = "@@symbol:trust_proxy_default";
     app2.init = function init() {
-      var router27 = null;
+      var router28 = null;
       this.cache = /* @__PURE__ */ Object.create(null);
       this.engines = /* @__PURE__ */ Object.create(null);
       this.settings = /* @__PURE__ */ Object.create(null);
@@ -21240,13 +21240,13 @@ var require_application = __commonJS({
         configurable: true,
         enumerable: true,
         get: function getrouter() {
-          if (router27 === null) {
-            router27 = new Router27({
+          if (router28 === null) {
+            router28 = new Router28({
               caseSensitive: this.enabled("case sensitive routing"),
               strict: this.enabled("strict routing")
             });
           }
-          return router27;
+          return router28;
         }
       });
     };
@@ -21317,15 +21317,15 @@ var require_application = __commonJS({
       if (fns.length === 0) {
         throw new TypeError("app.use() requires a middleware function");
       }
-      var router27 = this.router;
+      var router28 = this.router;
       fns.forEach(function(fn2) {
         if (!fn2 || !fn2.handle || !fn2.set) {
-          return router27.use(path3, fn2);
+          return router28.use(path3, fn2);
         }
         debug(".use app under %s", path3);
         fn2.mountpath = path3;
         fn2.parent = this;
-        router27.use(path3, function mounted_app(req, res, next) {
+        router28.use(path3, function mounted_app(req, res, next) {
           var orig = req.app;
           fn2.handle(req, res, function(err) {
             Object.setPrototypeOf(req, orig.request);
@@ -21480,18 +21480,18 @@ var require_accept = __commonJS({
     module.exports = parseAccept;
     function parseAccept(header) {
       var values = [];
-      var index7 = 0;
-      while (index7 < header.length) {
-        var start = skipOptionalWhitespace(header, index7);
+      var index8 = 0;
+      while (index8 < header.length) {
+        var start = skipOptionalWhitespace(header, index8);
         var parsed = contentType.parse(header, { comma: true, start });
         parsed.type = header.slice(start, start + parsed.type.length);
         values.push(parsed);
-        index7 = parsed.index + 1;
+        index8 = parsed.index + 1;
       }
       return values;
     }
-    function skipOptionalWhitespace(header, index7) {
-      var cursor = index7;
+    function skipOptionalWhitespace(header, index8) {
+      var cursor = index8;
       while (header.charCodeAt(cursor) === 32 || header.charCodeAt(cursor) === 9) {
         cursor++;
       }
@@ -21524,17 +21524,17 @@ var require_charset = __commonJS({
         i: i2
       };
     }
-    function getCharsetPriority(charset, accepted, index7) {
+    function getCharsetPriority(charset, accepted, index8) {
       var priority = { o: -1, q: 0, s: 0 };
       for (var i2 = 0; i2 < accepted.length; i2++) {
-        var spec = specify(charset, accepted[i2], index7);
+        var spec = specify(charset, accepted[i2], index8);
         if (spec && (priority.s - spec.s || priority.q - spec.q || priority.o - spec.o) < 0) {
           priority = spec;
         }
       }
       return priority;
     }
-    function specify(charset, spec, index7) {
+    function specify(charset, spec, index8) {
       var s2 = 0;
       if (spec.charset.toLowerCase() === charset.toLowerCase()) {
         s2 |= 1;
@@ -21542,7 +21542,7 @@ var require_charset = __commonJS({
         return null;
       }
       return {
-        i: index7,
+        i: index8,
         o: spec.i,
         q: spec.q,
         s: s2
@@ -21553,8 +21553,8 @@ var require_charset = __commonJS({
       if (!provided) {
         return accepts.filter(isQuality).sort(compareSpecs).map(getFullCharset);
       }
-      var priorities = provided.map(function getPriority(type, index7) {
-        return getCharsetPriority(type, accepts, index7);
+      var priorities = provided.map(function getPriority(type, index8) {
+        return getCharsetPriority(type, accepts, index8);
       });
       return priorities.filter(isQuality).sort(compareSpecs).map(function getCharset(priority) {
         return provided[priorities.indexOf(priority)];
@@ -21609,17 +21609,17 @@ var require_encoding = __commonJS({
         i: i2
       };
     }
-    function getEncodingPriority(encoding, accepted, index7) {
+    function getEncodingPriority(encoding, accepted, index8) {
       var priority = { encoding, o: -1, q: 0, s: 0 };
       for (var i2 = 0; i2 < accepted.length; i2++) {
-        var spec = specify(encoding, accepted[i2], index7);
+        var spec = specify(encoding, accepted[i2], index8);
         if (spec && (priority.s - spec.s || priority.q - spec.q || priority.o - spec.o) < 0) {
           priority = spec;
         }
       }
       return priority;
     }
-    function specify(encoding, spec, index7) {
+    function specify(encoding, spec, index8) {
       var s2 = 0;
       if (spec.encoding.toLowerCase() === encoding.toLowerCase()) {
         s2 |= 1;
@@ -21628,7 +21628,7 @@ var require_encoding = __commonJS({
       }
       return {
         encoding,
-        i: index7,
+        i: index8,
         o: spec.i,
         q: spec.q,
         s: s2
@@ -21653,8 +21653,8 @@ var require_encoding = __commonJS({
       if (!provided) {
         return accepts.filter(isQuality).sort(comparator).map(getFullEncoding);
       }
-      var priorities = provided.map(function getPriority(type, index7) {
-        return getEncodingPriority(type, accepts, index7);
+      var priorities = provided.map(function getPriority(type, index8) {
+        return getEncodingPriority(type, accepts, index8);
       });
       return priorities.filter(isQuality).sort(comparator).map(function getEncoding(priority) {
         return provided[priorities.indexOf(priority)];
@@ -21702,17 +21702,17 @@ var require_language = __commonJS({
         full: parsed.type
       };
     }
-    function getLanguagePriority(language, accepted, index7) {
+    function getLanguagePriority(language, accepted, index8) {
       var priority = { o: -1, q: 0, s: 0 };
       for (var i2 = 0; i2 < accepted.length; i2++) {
-        var spec = specify(language, accepted[i2], index7);
+        var spec = specify(language, accepted[i2], index8);
         if (spec && (priority.s - spec.s || priority.q - spec.q || priority.o - spec.o) < 0) {
           priority = spec;
         }
       }
       return priority;
     }
-    function specify(language, spec, index7) {
+    function specify(language, spec, index8) {
       var p = formatLanguage(contentType.parse(language), 0);
       if (!p) return null;
       var s2 = 0;
@@ -21726,7 +21726,7 @@ var require_language = __commonJS({
         return null;
       }
       return {
-        i: index7,
+        i: index8,
         o: spec.i,
         q: spec.q,
         s: s2
@@ -21737,8 +21737,8 @@ var require_language = __commonJS({
       if (!provided) {
         return accepts.filter(isQuality).sort(compareSpecs).map(getFullLanguage);
       }
-      var priorities = provided.map(function getPriority(type, index7) {
-        return getLanguagePriority(type, accepts, index7);
+      var priorities = provided.map(function getPriority(type, index8) {
+        return getLanguagePriority(type, accepts, index8);
       });
       return priorities.filter(isQuality).sort(compareSpecs).map(function getLanguage(priority) {
         return provided[priorities.indexOf(priority)];
@@ -21786,17 +21786,17 @@ var require_mediaType = __commonJS({
         i: i2
       };
     }
-    function getMediaTypePriority(type, accepted, index7) {
+    function getMediaTypePriority(type, accepted, index8) {
       var priority = { o: -1, q: 0, s: 0 };
       for (var i2 = 0; i2 < accepted.length; i2++) {
-        var spec = specify(type, accepted[i2], index7);
+        var spec = specify(type, accepted[i2], index8);
         if (spec && (priority.s - spec.s || priority.q - spec.q || priority.o - spec.o) < 0) {
           priority = spec;
         }
       }
       return priority;
     }
-    function specify(type, spec, index7) {
+    function specify(type, spec, index8) {
       var p = formatMediaType(contentType.parse(type), 0);
       var s2 = 0;
       if (!p) {
@@ -21823,7 +21823,7 @@ var require_mediaType = __commonJS({
         }
       }
       return {
-        i: index7,
+        i: index8,
         o: spec.i,
         q: spec.q,
         s: s2
@@ -21834,8 +21834,8 @@ var require_mediaType = __commonJS({
       if (!provided) {
         return accepts.filter(isQuality).sort(compareSpecs).map(getFullType);
       }
-      var priorities = provided.map(function getPriority(type, index7) {
-        return getMediaTypePriority(type, accepts, index7);
+      var priorities = provided.map(function getPriority(type, index8) {
+        return getMediaTypePriority(type, accepts, index8);
       });
       return priorities.filter(isQuality).sort(compareSpecs).map(function getType(priority) {
         return provided[priorities.indexOf(priority)];
@@ -22033,8 +22033,8 @@ var require_fresh = __commonJS({
       return true;
     }
     function parseHttpDate(date2) {
-      var timestamp27 = date2 && Date.parse(date2);
-      return typeof timestamp27 === "number" ? timestamp27 : NaN;
+      var timestamp28 = date2 && Date.parse(date2);
+      return typeof timestamp28 === "number" ? timestamp28 : NaN;
     }
     function parseTokenList(str) {
       var end = 0;
@@ -22071,13 +22071,13 @@ var require_range_parser = __commonJS({
       if (typeof str !== "string") {
         throw new TypeError("argument str must be a string");
       }
-      var index7 = str.indexOf("=");
-      if (index7 === -1) {
+      var index8 = str.indexOf("=");
+      if (index8 === -1) {
         return -2;
       }
-      var arr = str.slice(index7 + 1).split(",");
+      var arr = str.slice(index8 + 1).split(",");
       var ranges = [];
-      ranges.type = str.slice(0, index7);
+      ranges.type = str.slice(0, index8);
       for (var i2 = 0; i2 < arr.length; i2++) {
         var indexOf = arr[i2].indexOf("-");
         if (indexOf === -1) {
@@ -22133,11 +22133,11 @@ var require_range_parser = __commonJS({
       combined.type = ranges.type;
       return combined;
     }
-    function mapWithIndex(range, index7) {
+    function mapWithIndex(range, index8) {
       return {
         start: range.start,
         end: range.end,
-        index: index7
+        index: index8
       };
     }
     function mapWithoutIndex(range) {
@@ -22230,8 +22230,8 @@ var require_request = __commonJS({
         return proto;
       }
       var header = this.get("X-Forwarded-Proto") || proto;
-      var index7 = header.indexOf(",");
-      return index7 !== -1 ? header.substring(0, index7).trim() : header.trim();
+      var index8 = header.indexOf(",");
+      return index8 !== -1 ? header.substring(0, index8).trim() : header.trim();
     });
     defineGetter(req, "secure", function secure() {
       return this.protocol === "https";
@@ -22270,8 +22270,8 @@ var require_request = __commonJS({
       var host = this.host;
       if (!host) return;
       var offset = host[0] === "[" ? host.indexOf("]") + 1 : 0;
-      var index7 = host.indexOf(":", offset);
-      return index7 !== -1 ? host.substring(0, index7) : host;
+      var index8 = host.indexOf(":", offset);
+      return index8 !== -1 ? host.substring(0, index8) : host;
     });
     defineGetter(req, "fresh", function() {
       var method = this.method;
@@ -22411,18 +22411,18 @@ var require_content_disposition = __commonJS({
       if (!match) {
         throw new TypeError("invalid type format");
       }
-      var index7 = match[0].length;
+      var index8 = match[0].length;
       var type = match[1].toLowerCase();
       var key;
       var names = [];
       var params = {};
       var value;
-      index7 = PARAM_REGEXP.lastIndex = match[0].slice(-1) === ";" ? index7 - 1 : index7;
+      index8 = PARAM_REGEXP.lastIndex = match[0].slice(-1) === ";" ? index8 - 1 : index8;
       while (match = PARAM_REGEXP.exec(string2)) {
-        if (match.index !== index7) {
+        if (match.index !== index8) {
           throw new TypeError("invalid parameter format");
         }
-        index7 += match[0].length;
+        index8 += match[0].length;
         key = match[1].toLowerCase();
         value = match[2];
         if (names.indexOf(key) !== -1) {
@@ -22443,7 +22443,7 @@ var require_content_disposition = __commonJS({
         }
         params[key] = value;
       }
-      if (index7 !== -1 && index7 !== string2.length) {
+      if (index8 !== -1 && index8 !== string2.length) {
         throw new TypeError("invalid parameter format");
       }
       return new ContentDisposition(type, params);
@@ -22550,20 +22550,20 @@ var require_cookie = __commonJS({
       var len = str.length;
       if (len < 2) return obj;
       var dec = opt && opt.decode || decode2;
-      var index7 = 0;
+      var index8 = 0;
       var eqIdx = 0;
       var endIdx = 0;
       do {
-        eqIdx = str.indexOf("=", index7);
+        eqIdx = str.indexOf("=", index8);
         if (eqIdx === -1) break;
-        endIdx = str.indexOf(";", index7);
+        endIdx = str.indexOf(";", index8);
         if (endIdx === -1) {
           endIdx = len;
         } else if (eqIdx > endIdx) {
-          index7 = str.lastIndexOf(";", eqIdx - 1) + 1;
+          index8 = str.lastIndexOf(";", eqIdx - 1) + 1;
           continue;
         }
-        var keyStartIdx = startIndex(str, index7, eqIdx);
+        var keyStartIdx = startIndex(str, index8, eqIdx);
         var keyEndIdx = endIndex(str, eqIdx, keyStartIdx);
         var key = str.slice(keyStartIdx, keyEndIdx);
         if (!__hasOwnProperty.call(obj, key)) {
@@ -22576,21 +22576,21 @@ var require_cookie = __commonJS({
           var val = str.slice(valStartIdx, valEndIdx);
           obj[key] = tryDecode(val, dec);
         }
-        index7 = endIdx + 1;
-      } while (index7 < len);
+        index8 = endIdx + 1;
+      } while (index8 < len);
       return obj;
     }
-    function startIndex(str, index7, max) {
+    function startIndex(str, index8, max) {
       do {
-        var code = str.charCodeAt(index7);
-        if (code !== 32 && code !== 9) return index7;
-      } while (++index7 < max);
+        var code = str.charCodeAt(index8);
+        if (code !== 32 && code !== 9) return index8;
+      } while (++index8 < max);
       return max;
     }
-    function endIndex(str, index7, min) {
-      while (index7 > min) {
-        var code = str.charCodeAt(--index7);
-        if (code !== 32 && code !== 9) return index7 + 1;
+    function endIndex(str, index8, min) {
+      while (index8 > min) {
+        var code = str.charCodeAt(--index8);
+        if (code !== 32 && code !== 9) return index8 + 1;
       }
       return min;
     }
@@ -23126,8 +23126,8 @@ var require_send = __commonJS({
       }
     }
     function hasListeners(emitter, type) {
-      var count2 = typeof emitter.listenerCount !== "function" ? emitter.listeners(type).length : emitter.listenerCount(type);
-      return count2 > 0;
+      var count3 = typeof emitter.listenerCount !== "function" ? emitter.listeners(type).length : emitter.listenerCount(type);
+      return count3 > 0;
     }
     function normalizeList(val, name) {
       var list = [].concat(val || []);
@@ -23139,8 +23139,8 @@ var require_send = __commonJS({
       return list;
     }
     function parseHttpDate(date2) {
-      var timestamp27 = date2 && Date.parse(date2);
-      return typeof timestamp27 === "number" ? timestamp27 : NaN;
+      var timestamp28 = date2 && Date.parse(date2);
+      return typeof timestamp28 === "number" ? timestamp28 : NaN;
     }
     function parseTokenList(str) {
       var end = 0;
@@ -23834,7 +23834,7 @@ var require_express = __commonJS({
     var EventEmitter2 = __require("node:events").EventEmitter;
     var mixin2 = require_merge_descriptors();
     var proto = require_application();
-    var Router27 = require_router();
+    var Router28 = require_router();
     var req = require_request();
     var res = require_response();
     exports = module.exports = createApplication;
@@ -23856,8 +23856,8 @@ var require_express = __commonJS({
     exports.application = proto;
     exports.request = req;
     exports.response = res;
-    exports.Route = Router27.Route;
-    exports.Router = Router27;
+    exports.Route = Router28.Route;
+    exports.Router = Router28;
     exports.json = bodyParser.json;
     exports.raw = bodyParser.raw;
     exports.static = require_serve_static();
@@ -25082,8 +25082,8 @@ var require_redaction = __commonJS({
         if (o[ns] === null) {
           return o;
         }
-        const { index: index7 } = next;
-        const nextPath = `${str.substr(index7, str.length - 1)}`;
+        const { index: index8 } = next;
+        const nextPath = `${str.substr(index8, str.length - 1)}`;
         o[ns] = o[ns] || [];
         if (ns !== wildcardFirstSym && o[ns].length === 0) {
           o[ns].push(...o[wildcardFirstSym] || []);
@@ -25189,8 +25189,8 @@ var require_quick_format_unescaped = __commonJS({
         if (len === 1) return f3;
         var objects = new Array(len);
         objects[0] = ss(f3);
-        for (var index7 = 1; index7 < len; index7++) {
-          objects[index7] = ss(args[index7]);
+        for (var index8 = 1; index8 < len; index8++) {
+          objects[index8] = ss(args[index8]);
         }
         return objects.join(" ");
       }
@@ -25961,8 +25961,8 @@ var require_on_exit_leak_free = __commonJS({
     }
     function clear(ref) {
       for (const event of ["exit", "beforeExit"]) {
-        const index7 = refs[event].indexOf(ref);
-        refs[event].splice(index7, index7 + 1);
+        const index8 = refs[event].indexOf(ref);
+        refs[event].splice(index8, index8 + 1);
         uninstall(event);
       }
     }
@@ -26072,9 +26072,9 @@ var require_wait = __commonJS({
   "node_modules/.pnpm/thread-stream@3.1.0/node_modules/thread-stream/lib/wait.js"(exports, module) {
     "use strict";
     var MAX_TIMEOUT = 1e3;
-    function wait(state, index7, expected, timeout, done) {
+    function wait(state, index8, expected, timeout, done) {
       const max = Date.now() + timeout;
-      let current = Atomics.load(state, index7);
+      let current = Atomics.load(state, index8);
       if (current === expected) {
         done(null, "ok");
         return;
@@ -26086,7 +26086,7 @@ var require_wait = __commonJS({
         } else {
           setTimeout(() => {
             prior = current;
-            current = Atomics.load(state, index7);
+            current = Atomics.load(state, index8);
             if (current === prior) {
               check(backoff >= MAX_TIMEOUT ? MAX_TIMEOUT : backoff * 2);
             } else {
@@ -26098,9 +26098,9 @@ var require_wait = __commonJS({
       };
       check(1);
     }
-    function waitDiff(state, index7, expected, timeout, done) {
+    function waitDiff(state, index8, expected, timeout, done) {
       const max = Date.now() + timeout;
-      let current = Atomics.load(state, index7);
+      let current = Atomics.load(state, index8);
       if (current !== expected) {
         done(null, "ok");
         return;
@@ -26110,7 +26110,7 @@ var require_wait = __commonJS({
           done(null, "timed-out");
         } else {
           setTimeout(() => {
-            current = Atomics.load(state, index7);
+            current = Atomics.load(state, index8);
             if (current !== expected) {
               done(null, "ok");
             } else {
@@ -28194,9 +28194,9 @@ var require_multistream = __commonJS({
       }
       function remove2(id) {
         const { streams } = this;
-        const index7 = streams.findIndex((s2) => s2.id === id);
-        if (index7 >= 0) {
-          streams.splice(index7, 1);
+        const index8 = streams.findIndex((s2) => s2.id === id);
+        if (index8 >= 0) {
+          streams.splice(index8, 1);
           streams.sort(compareByLevel);
           this.minLevel = streams.length > 0 ? streams[0].level : -1;
         }
@@ -28342,7 +28342,7 @@ var require_pino = __commonJS({
         redact,
         crlf,
         serializers: serializers2,
-        timestamp: timestamp27,
+        timestamp: timestamp28,
         messageKey,
         errorKey,
         nestedKey,
@@ -28392,7 +28392,7 @@ var require_pino = __commonJS({
           chindings = coreChindings(Object.assign({}, base, { name }));
         }
       }
-      const time2 = timestamp27 instanceof Function ? timestamp27 : timestamp27 ? epochTime : nullTime;
+      const time2 = timestamp28 instanceof Function ? timestamp28 : timestamp28 ? epochTime : nullTime;
       const timeSliceIndex = time2().indexOf(":") + 1;
       if (useOnlyCustomLevels && !customLevels) throw Error("customLevels is required if useOnlyCustomLevels is set true");
       if (mixin2 && typeof mixin2 !== "function") throw Error(`Unknown mixin type "${typeof mixin2}" - expected "function"`);
@@ -33287,9 +33287,9 @@ var require_RealtimeClient = __commonJS({
         getItem(key) {
           return store.has(key) ? store.get(key) : null;
         },
-        key(index7) {
+        key(index8) {
           var _a;
-          return (_a = Array.from(store.keys())[index7]) !== null && _a !== void 0 ? _a : null;
+          return (_a = Array.from(store.keys())[index8]) !== null && _a !== void 0 ? _a : null;
         },
         removeItem(key) {
           store.delete(key);
@@ -34599,19 +34599,19 @@ var require_helpers = __commonJS({
     exports.pkceVerifierSlotKey = pkceVerifierSlotKey;
     var pkceFlowIndexKey = (storageKey) => `${storageKey}-flows-code-verifier`;
     async function getPKCEFlowIndex(storage, storageKey) {
-      const index7 = await (0, exports.getItemAsync)(storage, pkceFlowIndexKey(storageKey));
-      return Array.isArray(index7) ? index7.filter((id) => validatePKCEFlowId(id) !== null) : [];
+      const index8 = await (0, exports.getItemAsync)(storage, pkceFlowIndexKey(storageKey));
+      return Array.isArray(index8) ? index8.filter((id) => validatePKCEFlowId(id) !== null) : [];
     }
     async function storePKCEVerifier(storage, storageKey, flowId, verifier, onEvictFlow) {
       await (0, exports.setItemAsync)(storage, (0, exports.pkceVerifierSlotKey)(storageKey, flowId), verifier);
-      const index7 = (await getPKCEFlowIndex(storage, storageKey)).filter((id) => id !== flowId);
-      index7.push(flowId);
-      while (index7.length > constants_1.PKCE_MAX_CONCURRENT_FLOWS) {
-        const evicted = index7.shift();
+      const index8 = (await getPKCEFlowIndex(storage, storageKey)).filter((id) => id !== flowId);
+      index8.push(flowId);
+      while (index8.length > constants_1.PKCE_MAX_CONCURRENT_FLOWS) {
+        const evicted = index8.shift();
         await (0, exports.removeItemAsync)(storage, (0, exports.pkceVerifierSlotKey)(storageKey, evicted));
         onEvictFlow === null || onEvictFlow === void 0 ? void 0 : onEvictFlow(evicted);
       }
-      await (0, exports.setItemAsync)(storage, pkceFlowIndexKey(storageKey), index7);
+      await (0, exports.setItemAsync)(storage, pkceFlowIndexKey(storageKey), index8);
       await (0, exports.setItemAsync)(storage, `${storageKey}-code-verifier`, verifier);
     }
     async function retrievePKCEVerifier(storage, storageKey, flowId) {
@@ -34631,9 +34631,9 @@ var require_helpers = __commonJS({
       const slotKey = (0, exports.pkceVerifierSlotKey)(storageKey, flowId);
       const slotValue = await (0, exports.getItemAsync)(storage, slotKey);
       await (0, exports.removeItemAsync)(storage, slotKey);
-      const index7 = await getPKCEFlowIndex(storage, storageKey);
-      const remaining = index7.filter((id) => id !== flowId);
-      if (remaining.length !== index7.length) {
+      const index8 = await getPKCEFlowIndex(storage, storageKey);
+      const remaining = index8.filter((id) => id !== flowId);
+      if (remaining.length !== index8.length) {
         if (remaining.length > 0) {
           await (0, exports.setItemAsync)(storage, pkceFlowIndexKey(storageKey), remaining);
         } else {
@@ -34645,8 +34645,8 @@ var require_helpers = __commonJS({
       }
     }
     async function removeAllPKCEVerifiers(storage, storageKey) {
-      const index7 = await getPKCEFlowIndex(storage, storageKey);
-      for (const flowId of index7) {
+      const index8 = await getPKCEFlowIndex(storage, storageKey);
+      for (const flowId of index8) {
         await (0, exports.removeItemAsync)(storage, (0, exports.pkceVerifierSlotKey)(storageKey, flowId));
       }
       await (0, exports.removeItemAsync)(storage, pkceFlowIndexKey(storageKey));
@@ -42841,23 +42841,23 @@ var require_unicode_trie = __commonJS({
         }
       }
       get(codePoint) {
-        let index7;
+        let index8;
         if (codePoint < 0 || codePoint > 1114111) {
           return this.errorValue;
         }
         if (codePoint < 55296 || codePoint > 56319 && codePoint <= 65535) {
-          index7 = (this.data[codePoint >> SHIFT_2] << INDEX_SHIFT) + (codePoint & DATA_MASK);
-          return this.data[index7];
+          index8 = (this.data[codePoint >> SHIFT_2] << INDEX_SHIFT) + (codePoint & DATA_MASK);
+          return this.data[index8];
         }
         if (codePoint <= 65535) {
-          index7 = (this.data[LSCP_INDEX_2_OFFSET + (codePoint - 55296 >> SHIFT_2)] << INDEX_SHIFT) + (codePoint & DATA_MASK);
-          return this.data[index7];
+          index8 = (this.data[LSCP_INDEX_2_OFFSET + (codePoint - 55296 >> SHIFT_2)] << INDEX_SHIFT) + (codePoint & DATA_MASK);
+          return this.data[index8];
         }
         if (codePoint < this.highStart) {
-          index7 = this.data[INDEX_1_OFFSET - OMITTED_BMP_INDEX_1_LENGTH + (codePoint >> SHIFT_1)];
-          index7 = this.data[index7 + (codePoint >> SHIFT_2 & INDEX_2_MASK)];
-          index7 = (index7 << INDEX_SHIFT) + (codePoint & DATA_MASK);
-          return this.data[index7];
+          index8 = this.data[INDEX_1_OFFSET - OMITTED_BMP_INDEX_1_LENGTH + (codePoint >> SHIFT_1)];
+          index8 = this.data[index8 + (codePoint >> SHIFT_2 & INDEX_2_MASK)];
+          index8 = (index8 << INDEX_SHIFT) + (codePoint & DATA_MASK);
+          return this.data[index8];
         }
         return this.data[this.data.length - DATA_GRANULARITY];
       }
@@ -43028,9 +43028,9 @@ var require_clone = __commonJS({
             }
           }
           if (circular) {
-            var index7 = allParents.indexOf(parent2);
-            if (index7 != -1) {
-              return allChildren[index7];
+            var index8 = allParents.indexOf(parent2);
+            if (index8 != -1) {
+              return allChildren[index8];
             }
             allParents.push(parent2);
             allChildren.push(child);
@@ -43139,26 +43139,26 @@ var require_streams2 = __commonJS({
       this.buffer = buffer;
       this.pos = 0;
     }
-    BrotliInput.prototype.read = function(buf, i2, count2) {
-      if (this.pos + count2 > this.buffer.length) {
-        count2 = this.buffer.length - this.pos;
+    BrotliInput.prototype.read = function(buf, i2, count3) {
+      if (this.pos + count3 > this.buffer.length) {
+        count3 = this.buffer.length - this.pos;
       }
-      for (var p = 0; p < count2; p++)
+      for (var p = 0; p < count3; p++)
         buf[i2 + p] = this.buffer[this.pos + p];
-      this.pos += count2;
-      return count2;
+      this.pos += count3;
+      return count3;
     };
     exports.BrotliInput = BrotliInput;
     function BrotliOutput(buf) {
       this.buffer = buf;
       this.pos = 0;
     }
-    BrotliOutput.prototype.write = function(buf, count2) {
-      if (this.pos + count2 > this.buffer.length)
+    BrotliOutput.prototype.write = function(buf, count3) {
+      if (this.pos + count3 > this.buffer.length)
         throw new Error("Output buffer is not large enough");
-      this.buffer.set(buf.subarray(0, count2), this.pos);
-      this.pos += count2;
-      return count2;
+      this.buffer.set(buf.subarray(0, count3), this.pos);
+      this.pos += count3;
+      return count3;
     };
     exports.BrotliOutput = BrotliOutput;
   }
@@ -166149,10 +166149,10 @@ var require_huffman = __commonJS({
         table2[i2 + end] = new HuffmanCode(code.bits, code.value);
       } while (end > 0);
     }
-    function NextTableBitSize(count2, len, root_bits) {
+    function NextTableBitSize(count3, len, root_bits) {
       var left = 1 << len - root_bits;
       while (len < MAX_LENGTH) {
-        left -= count2[len];
+        left -= count3[len];
         if (left <= 0) break;
         ++len;
         left <<= 1;
@@ -166172,15 +166172,15 @@ var require_huffman = __commonJS({
       var table_size;
       var total_size;
       var sorted;
-      var count2 = new Int32Array(MAX_LENGTH + 1);
+      var count3 = new Int32Array(MAX_LENGTH + 1);
       var offset = new Int32Array(MAX_LENGTH + 1);
       sorted = new Int32Array(code_lengths_size);
       for (symbol = 0; symbol < code_lengths_size; symbol++) {
-        count2[code_lengths[symbol]]++;
+        count3[code_lengths[symbol]]++;
       }
       offset[1] = 0;
       for (len = 1; len < MAX_LENGTH; len++) {
-        offset[len + 1] = offset[len] + count2[len];
+        offset[len + 1] = offset[len] + count3[len];
       }
       for (symbol = 0; symbol < code_lengths_size; symbol++) {
         if (code_lengths[symbol] !== 0) {
@@ -166199,7 +166199,7 @@ var require_huffman = __commonJS({
       key = 0;
       symbol = 0;
       for (len = 1, step = 2; len <= root_bits; ++len, step <<= 1) {
-        for (; count2[len] > 0; --count2[len]) {
+        for (; count3[len] > 0; --count3[len]) {
           code = new HuffmanCode(len & 255, sorted[symbol++] & 65535);
           ReplicateValue(root_table, table2 + key, step, table_size, code);
           key = GetNextKey(key, len);
@@ -166208,10 +166208,10 @@ var require_huffman = __commonJS({
       mask = total_size - 1;
       low = -1;
       for (len = root_bits + 1, step = 2; len <= MAX_LENGTH; ++len, step <<= 1) {
-        for (; count2[len] > 0; --count2[len]) {
+        for (; count3[len] > 0; --count3[len]) {
           if ((key & mask) !== low) {
             table2 += table_size;
-            table_bits = NextTableBitSize(count2, len, root_bits);
+            table_bits = NextTableBitSize(count3, len, root_bits);
             table_size = 1 << table_bits;
             total_size += table_size;
             low = key & mask;
@@ -168554,19 +168554,19 @@ var require_decode = __commonJS({
       }
       return out;
     }
-    function ReadSymbol(table2, index7, br) {
-      var start_index = index7;
+    function ReadSymbol(table2, index8, br) {
+      var start_index = index8;
       var nbits;
       br.fillBitWindow();
-      index7 += br.val_ >>> br.bit_pos_ & HUFFMAN_TABLE_MASK;
-      nbits = table2[index7].bits - HUFFMAN_TABLE_BITS;
+      index8 += br.val_ >>> br.bit_pos_ & HUFFMAN_TABLE_MASK;
+      nbits = table2[index8].bits - HUFFMAN_TABLE_BITS;
       if (nbits > 0) {
         br.bit_pos_ += HUFFMAN_TABLE_BITS;
-        index7 += table2[index7].value;
-        index7 += br.val_ >>> br.bit_pos_ & (1 << nbits) - 1;
+        index8 += table2[index8].value;
+        index8 += br.val_ >>> br.bit_pos_ & (1 << nbits) - 1;
       }
-      br.bit_pos_ += table2[index7].bits;
-      return table2[index7].value;
+      br.bit_pos_ += table2[index8].bits;
+      return table2[index8].value;
     }
     function ReadHuffmanCodeLengths(code_length_code_lengths, num_symbols, code_lengths, br) {
       var symbol = 0;
@@ -168723,27 +168723,27 @@ var require_decode = __commonJS({
       }
       return table_size;
     }
-    function ReadBlockLength(table2, index7, br) {
+    function ReadBlockLength(table2, index8, br) {
       var code;
       var nbits;
-      code = ReadSymbol(table2, index7, br);
+      code = ReadSymbol(table2, index8, br);
       nbits = Prefix.kBlockLengthPrefixCode[code].nbits;
       return Prefix.kBlockLengthPrefixCode[code].offset + br.readBits(nbits);
     }
-    function TranslateShortCodes(code, ringbuffer, index7) {
+    function TranslateShortCodes(code, ringbuffer, index8) {
       var val;
       if (code < NUM_DISTANCE_SHORT_CODES) {
-        index7 += kDistanceShortCodeIndexOffset[code];
-        index7 &= 3;
-        val = ringbuffer[index7] + kDistanceShortCodeValueOffset[code];
+        index8 += kDistanceShortCodeIndexOffset[code];
+        index8 &= 3;
+        val = ringbuffer[index8] + kDistanceShortCodeValueOffset[code];
       } else {
         val = code - NUM_DISTANCE_SHORT_CODES + 1;
       }
       return val;
     }
-    function MoveToFront(v, index7) {
-      var value = v[index7];
-      var i2 = index7;
+    function MoveToFront(v, index8) {
+      var value = v[index8];
+      var i2 = index8;
       for (; i2; --i2) v[i2] = v[i2 - 1];
       v[0] = value;
     }
@@ -168754,9 +168754,9 @@ var require_decode = __commonJS({
         mtf[i2] = i2;
       }
       for (i2 = 0; i2 < v_len; ++i2) {
-        var index7 = v[i2];
-        v[i2] = mtf[index7];
-        if (index7) MoveToFront(mtf, index7);
+        var index8 = v[i2];
+        v[i2] = mtf[index8];
+        if (index8) MoveToFront(mtf, index8);
       }
     }
     function HuffmanTreeGroup(alphabet_size, num_htrees) {
@@ -168824,13 +168824,13 @@ var require_decode = __commonJS({
     }
     function DecodeBlockType(max_block_type, trees, tree_type, block_types, ringbuffers, indexes, br) {
       var ringbuffer = tree_type * 2;
-      var index7 = tree_type;
+      var index8 = tree_type;
       var type_code = ReadSymbol(trees, tree_type * HUFFMAN_MAX_TABLE_SIZE, br);
       var block_type;
       if (type_code === 0) {
-        block_type = ringbuffers[ringbuffer + (indexes[index7] & 1)];
+        block_type = ringbuffers[ringbuffer + (indexes[index8] & 1)];
       } else if (type_code === 1) {
-        block_type = ringbuffers[ringbuffer + (indexes[index7] - 1 & 1)] + 1;
+        block_type = ringbuffers[ringbuffer + (indexes[index8] - 1 & 1)] + 1;
       } else {
         block_type = type_code - 2;
       }
@@ -168838,8 +168838,8 @@ var require_decode = __commonJS({
         block_type -= max_block_type;
       }
       block_types[tree_type] = block_type;
-      ringbuffers[ringbuffer + (indexes[index7] & 1)] = block_type;
-      ++indexes[index7];
+      ringbuffers[ringbuffer + (indexes[index8] & 1)] = block_type;
+      ++indexes[index8];
     }
     function CopyUncompressedBlockToOutput(output, len, pos, ringbuffer, ringbuffer_mask, br) {
       var rb_size = ringbuffer_mask + 1;
@@ -169511,11 +169511,11 @@ var require_graph = __commonJS({
     exports.removeGraph = removeGraph;
     function applyGraph(entry, graph) {
       if (entry._graph) {
-        const index7 = graph.findIndex(({
+        const index8 = graph.findIndex(({
           type
         }) => type === "@else/list+object");
-        if (index7 !== -1) {
-          graph.splice(index7 + 1, 0, ...entry._graph.slice(0, -1));
+        if (index8 !== -1) {
+          graph.splice(index8 + 1, 0, ...entry._graph.slice(0, -1));
         }
       }
       entry._graph = graph;
@@ -169652,9 +169652,9 @@ var require_type3 = __commonJS({
       delete types3[type2];
       const typeLists = [...Object.keys(dataTypes).map((key) => dataTypes[key]), ...Object.keys(types3).map((type3) => types3[type3].extensions).filter((list) => list.length > 0)];
       typeLists.forEach((typeList) => {
-        const index7 = typeList.indexOf(type2);
-        if (index7 > -1) {
-          typeList.splice(index7, 1);
+        const index8 = typeList.indexOf(type2);
+        if (index8 > -1) {
+          typeList.splice(index8, 1);
         }
       });
     }
@@ -170474,38 +170474,38 @@ var require_register = __commonJS({
     function add2(format, parsers) {
       const formatParser = new _parser.FormatParser(format, parsers);
       formatParser.validate();
-      const index7 = formats[format] || (formats[format] = {});
+      const index8 = formats[format] || (formats[format] = {});
       if (formatParser.typeParser) {
         (0, _type.addTypeParser)(format, formatParser.typeParser);
-        index7.type = true;
+        index8.type = true;
       }
       if (formatParser.dataParser) {
         (0, _data.addDataParser)(format, formatParser.dataParser);
-        index7.data = true;
+        index8.data = true;
       }
       if (formatParser.asyncDataParser) {
         (0, _data.addDataParser)(format, formatParser.asyncDataParser);
-        index7.asyncData = true;
+        index8.asyncData = true;
       }
       if (parsers.outputs) {
-        index7.outputs = parsers.outputs;
+        index8.outputs = parsers.outputs;
       }
     }
     function get2(format) {
       return formats[format];
     }
     function remove2(format) {
-      const index7 = formats[format];
-      if (!index7) {
+      const index8 = formats[format];
+      if (!index8) {
         return;
       }
-      if (index7.type) {
+      if (index8.type) {
         (0, _type.removeTypeParser)(format);
       }
-      if (index7.data) {
+      if (index8.data) {
         (0, _data.removeDataParser)(format);
       }
-      if (index7.asyncData) {
+      if (index8.asyncData) {
         (0, _data.removeDataParser)(format, true);
       }
       delete formats[format];
@@ -176617,7 +176617,7 @@ var init_multipart_parser = __esm({
         let i2 = 0;
         const length_ = data.length;
         let previousIndex = this.index;
-        let { lookbehind, boundary, boundaryChars, index: index7, state, flags } = this;
+        let { lookbehind, boundary, boundaryChars, index: index8, state, flags } = this;
         const boundaryLength = this.boundary.length;
         const boundaryEnd = boundaryLength - 1;
         const bufferLength = data.length;
@@ -176651,20 +176651,20 @@ var init_multipart_parser = __esm({
           c = data[i2];
           switch (state) {
             case S.START_BOUNDARY:
-              if (index7 === boundary.length - 2) {
+              if (index8 === boundary.length - 2) {
                 if (c === HYPHEN2) {
                   flags |= F.LAST_BOUNDARY;
                 } else if (c !== CR) {
                   return;
                 }
-                index7++;
+                index8++;
                 break;
-              } else if (index7 - 1 === boundary.length - 2) {
+              } else if (index8 - 1 === boundary.length - 2) {
                 if (flags & F.LAST_BOUNDARY && c === HYPHEN2) {
                   state = S.END;
                   flags = 0;
                 } else if (!(flags & F.LAST_BOUNDARY) && c === LF) {
-                  index7 = 0;
+                  index8 = 0;
                   callback("onPartBegin");
                   state = S.HEADER_FIELD_START;
                 } else {
@@ -176672,17 +176672,17 @@ var init_multipart_parser = __esm({
                 }
                 break;
               }
-              if (c !== boundary[index7 + 2]) {
-                index7 = -2;
+              if (c !== boundary[index8 + 2]) {
+                index8 = -2;
               }
-              if (c === boundary[index7 + 2]) {
-                index7++;
+              if (c === boundary[index8 + 2]) {
+                index8++;
               }
               break;
             case S.HEADER_FIELD_START:
               state = S.HEADER_FIELD;
               mark("onHeaderField");
-              index7 = 0;
+              index8 = 0;
             // falls through
             case S.HEADER_FIELD:
               if (c === CR) {
@@ -176690,12 +176690,12 @@ var init_multipart_parser = __esm({
                 state = S.HEADERS_ALMOST_DONE;
                 break;
               }
-              index7++;
+              index8++;
               if (c === HYPHEN2) {
                 break;
               }
               if (c === COLON) {
-                if (index7 === 1) {
+                if (index8 === 1) {
                   return;
                 }
                 dataCallback("onHeaderField", true);
@@ -176739,8 +176739,8 @@ var init_multipart_parser = __esm({
               mark("onPartData");
             // falls through
             case S.PART_DATA:
-              previousIndex = index7;
-              if (index7 === 0) {
+              previousIndex = index8;
+              if (index8 === 0) {
                 i2 += boundaryEnd;
                 while (i2 < bufferLength && !(data[i2] in boundaryChars)) {
                   i2 += boundaryLength;
@@ -176748,27 +176748,27 @@ var init_multipart_parser = __esm({
                 i2 -= boundaryEnd;
                 c = data[i2];
               }
-              if (index7 < boundary.length) {
-                if (boundary[index7] === c) {
-                  if (index7 === 0) {
+              if (index8 < boundary.length) {
+                if (boundary[index8] === c) {
+                  if (index8 === 0) {
                     dataCallback("onPartData", true);
                   }
-                  index7++;
+                  index8++;
                 } else {
-                  index7 = 0;
+                  index8 = 0;
                 }
-              } else if (index7 === boundary.length) {
-                index7++;
+              } else if (index8 === boundary.length) {
+                index8++;
                 if (c === CR) {
                   flags |= F.PART_BOUNDARY;
                 } else if (c === HYPHEN2) {
                   flags |= F.LAST_BOUNDARY;
                 } else {
-                  index7 = 0;
+                  index8 = 0;
                 }
-              } else if (index7 - 1 === boundary.length) {
+              } else if (index8 - 1 === boundary.length) {
                 if (flags & F.PART_BOUNDARY) {
-                  index7 = 0;
+                  index8 = 0;
                   if (c === LF) {
                     flags &= ~F.PART_BOUNDARY;
                     callback("onPartEnd");
@@ -176782,14 +176782,14 @@ var init_multipart_parser = __esm({
                     state = S.END;
                     flags = 0;
                   } else {
-                    index7 = 0;
+                    index8 = 0;
                   }
                 } else {
-                  index7 = 0;
+                  index8 = 0;
                 }
               }
-              if (index7 > 0) {
-                lookbehind[index7 - 1] = c;
+              if (index8 > 0) {
+                lookbehind[index8 - 1] = c;
               } else if (previousIndex > 0) {
                 const _lookbehind = new Uint8Array(lookbehind.buffer, lookbehind.byteOffset, lookbehind.byteLength);
                 callback("onPartData", 0, previousIndex, _lookbehind);
@@ -176807,7 +176807,7 @@ var init_multipart_parser = __esm({
         dataCallback("onHeaderField");
         dataCallback("onHeaderValue");
         dataCallback("onPartData");
-        this.index = index7;
+        this.index = index8;
         this.state = state;
         this.flags = flags;
       }
@@ -176969,8 +176969,8 @@ var init_body = __esm({
        * @return  Promise
        */
       async json() {
-        const text27 = await this.text();
-        return JSON.parse(text27);
+        const text28 = await this.text();
+        return JSON.parse(text28);
       }
       /**
        * Decode response as text
@@ -177085,9 +177085,9 @@ import { types as types2 } from "node:util";
 import http from "node:http";
 function fromRawHeaders(headers = []) {
   return new Headers2(
-    headers.reduce((result, value, index7, array2) => {
-      if (index7 % 2 === 0) {
-        result.push(array2.slice(index7, index7 + 2));
+    headers.reduce((result, value, index8, array2) => {
+      if (index8 % 2 === 0) {
+        result.push(array2.slice(index8, index8 + 2));
       }
       return result;
     }, []).filter(([name, value]) => {
@@ -178310,7 +178310,7 @@ var require_stack = __commonJS({
       }
       matchesSequence(sequence) {
         const part = this.stack.slice(this.index, this.index + sequence.length).join("");
-        return typeof sequence === "string" ? part === sequence : sequence.every((pattern2, index7) => _TokenStack.getMatchCallback(pattern2)(part[index7]));
+        return typeof sequence === "string" ? part === sequence : sequence.every((pattern2, index8) => _TokenStack.getMatchCallback(pattern2)(part[index8]));
       }
       consumeToken(pattern2 = /^[\s\S]$/, {
         inverse = false,
@@ -178569,8 +178569,8 @@ var require_translator = __commonJS({
               });
             }
           }
-          outputProp.forEach((prop, index7) => {
-            const value = outputData[index7];
+          outputProp.forEach((prop, index8) => {
+            const value = outputData[index8];
             if (value !== void 0) {
               output[prop] = value;
             }
@@ -179632,8 +179632,8 @@ var require_json3 = __commonJS({
         return f3;
       })(e2, t2);
     }
-    function appendCommas(string2, index7, array2) {
-      return string2 + (index7 < array2.length - 1 ? "," : "");
+    function appendCommas(string2, index8, array2) {
+      return string2 + (index8 < array2.length - 1 ? "," : "");
     }
     function getJsonObject(src, dict) {
       const isArray = Array.isArray(src);
@@ -180931,7 +180931,7 @@ var require_input5 = __commonJS({
 });
 
 // src/app.ts
-var import_express27 = __toESM(require_express2(), 1);
+var import_express28 = __toESM(require_express2(), 1);
 var import_cors = __toESM(require_lib3(), 1);
 var import_pino_http = __toESM(require_logger(), 1);
 
@@ -181706,7 +181706,7 @@ var rateLimit = (passedOptions) => {
 var lib_default = rateLimit;
 
 // src/routes/index.ts
-var import_express25 = __toESM(require_express2(), 1);
+var import_express26 = __toESM(require_express2(), 1);
 
 // node_modules/.pnpm/jose@6.2.10/node_modules/jose/dist/webapi/lib/buffer_utils.js
 var encoder = new TextEncoder();
@@ -182498,7 +182498,7 @@ async function jwtVerify(jwt, key, options) {
 function isUsableJWK(jwk, entry, alg, kid) {
   const { kty, key_ops, ext, kid: jwkKid, alg: jwkAlg, use, crv } = snapshotJwk(jwk);
   const keyOps = Array.isArray(key_ops) ? [...key_ops] : key_ops;
-  return (ext === void 0 || typeof ext === "boolean") && (keyOps === void 0 || Array.isArray(keyOps) && keyOps.every((operation, index7) => typeof operation === "string" && keyOps.indexOf(operation) === index7) && keyOps.includes("verify")) && entry.kty.includes(kty) && (kid === void 0 || typeof kid === "string" && kid === jwkKid) && (jwkAlg === void 0 ? kty !== "AKP" : alg === jwkAlg) && (use === void 0 || use === "sig") && (!entry.crv || crv === entry.crv);
+  return (ext === void 0 || typeof ext === "boolean") && (keyOps === void 0 || Array.isArray(keyOps) && keyOps.every((operation, index8) => typeof operation === "string" && keyOps.indexOf(operation) === index8) && keyOps.includes("verify")) && entry.kty.includes(kty) && (kid === void 0 || typeof kid === "string" && kid === jwkKid) && (jwkAlg === void 0 ? kty !== "AKP" : alg === jwkAlg) && (use === void 0 || use === "sig") && (!entry.crv || crv === entry.crv);
 }
 async function importWithAlgCache(cache2, jwk, entry) {
   const cached2 = cache2.get(jwk) || cache2.set(jwk, {}).get(jwk);
@@ -182585,8 +182585,8 @@ async function fetchJwks(url2, headers, signal, fetchImpl = fetch) {
   }
 }
 var jwksCache = Symbol();
-function isFreshFor(timestamp27, duration) {
-  return Number.isFinite(timestamp27) && Date.now() < timestamp27 + duration;
+function isFreshFor(timestamp28, duration) {
+  return Number.isFinite(timestamp28) && Date.now() < timestamp28 + duration;
 }
 function validateDuration(value, fallback, option) {
   if (Number.isNaN(value)) {
@@ -182699,7 +182699,7 @@ var SUPABASE_JWT_SECRET = process.env.SUPABASE_JWT_SECRET ?? "";
 var jwks = null;
 async function getJwks() {
   if (jwks) return jwks;
-  const jwksUrl = new URL(`${SUPABASE_URL}/jwt/v1/keys`);
+  const jwksUrl = new URL(`${SUPABASE_URL}/auth/v1/.well-known/jwks.json`);
   jwks = createRemoteJWKSet(jwksUrl);
   return jwks;
 }
@@ -182712,10 +182712,16 @@ async function authMiddleware(req, res, next) {
   try {
     const secret = SUPABASE_JWT_SECRET || void 0;
     let payload;
+    let verified = false;
     if (secret) {
-      const { payload: p } = await jwtVerify(token, new TextEncoder().encode(secret));
-      payload = p;
-    } else {
+      try {
+        const { payload: p } = await jwtVerify(token, new TextEncoder().encode(secret));
+        payload = p;
+        verified = true;
+      } catch {
+      }
+    }
+    if (!verified) {
       const keySet = await getJwks();
       const { payload: p } = await jwtVerify(token, keySet);
       payload = p;
@@ -182726,6 +182732,17 @@ async function authMiddleware(req, res, next) {
     };
     next();
   } catch (err) {
+    console.error("[auth-middleware] JWT verify failed", {
+      hasSecret: !!SUPABASE_JWT_SECRET,
+      hasSupabaseUrl: !!SUPABASE_URL,
+      errMsg: err instanceof Error ? err.message : String(err),
+      errName: err instanceof Error ? err.name : void 0,
+      tokenPrefix: token ? token.slice(0, 24) + "..." : null,
+      tokenLen: token ? token.length : 0,
+      tokenPartCount: token ? token.split(".").length : 0,
+      authHeaderPresent: !!req.headers.authorization,
+      authHeaderPrefix: req.headers.authorization ? req.headers.authorization.slice(0, 30) : null
+    });
     res.status(401).json({ error: "Invalid or expired token" });
   }
 }
@@ -182733,7 +182750,7 @@ async function authMiddleware(req, res, next) {
 // src/routes/health.ts
 var import_express = __toESM(require_express2(), 1);
 
-// ../../lib/api-zod/src/generated/api.ts
+// node_modules/@workspace/api-zod/src/generated/api.ts
 import * as zod from "zod";
 var GetCurrentUserResponse = zod.object({
   "id": zod.string(),
@@ -184840,7 +184857,7 @@ ${cause.stack}`;
     var _this2 = this;
     let error = null;
     let data = null;
-    let count2 = null;
+    let count3 = null;
     let status = res.status;
     let statusText = res.statusText;
     if (res.ok) {
@@ -184866,7 +184883,7 @@ ${cause.stack}`;
       }
       const countHeader = (_this$headers$get2 = _this2.headers.get("Prefer")) === null || _this$headers$get2 === void 0 ? void 0 : _this$headers$get2.match(/count=(exact|planned|estimated)/);
       const contentRange = (_res$headers$get2 = res.headers.get("content-range")) === null || _res$headers$get2 === void 0 ? void 0 : _res$headers$get2.split("/");
-      if (countHeader && contentRange && contentRange.length > 1) count2 = parseInt(contentRange[1]);
+      if (countHeader && contentRange && contentRange.length > 1) count3 = parseInt(contentRange[1]);
       if (_this2.isMaybeSingle && Array.isArray(data)) if (data.length > 1) {
         error = {
           code: "PGRST116",
@@ -184875,7 +184892,7 @@ ${cause.stack}`;
           message: "JSON object requested, multiple (or no) rows returned"
         };
         data = null;
-        count2 = null;
+        count3 = null;
         status = 406;
         statusText = "Not Acceptable";
         if (_this2.shouldThrowOnError) {
@@ -184906,7 +184923,7 @@ ${cause.stack}`;
       success: error === null,
       error,
       data,
-      count: count2,
+      count: count3,
       status,
       statusText
     };
@@ -187233,7 +187250,7 @@ var PostgrestQueryBuilder = class {
   * ```
   */
   select(columns, options) {
-    const { head: head2 = false, count: count2 } = options !== null && options !== void 0 ? options : {};
+    const { head: head2 = false, count: count3 } = options !== null && options !== void 0 ? options : {};
     const method = head2 ? "HEAD" : "GET";
     let quoted = false;
     const cleanedColumns = (columns !== null && columns !== void 0 ? columns : "*").split("").map((c) => {
@@ -187243,7 +187260,7 @@ var PostgrestQueryBuilder = class {
     }).join("");
     const { url: url2, headers } = this.cloneRequestState();
     url2.searchParams.set("select", cleanedColumns);
-    if (count2) headers.append("Prefer", `count=${count2}`);
+    if (count3) headers.append("Prefer", `count=${count3}`);
     return new PostgrestFilterBuilder({
       method,
       url: url2,
@@ -187374,11 +187391,11 @@ var PostgrestQueryBuilder = class {
   * }
   * ```
   */
-  insert(values, { count: count2, defaultToNull = true } = {}) {
+  insert(values, { count: count3, defaultToNull = true } = {}) {
     var _this$fetch;
     const method = "POST";
     const { url: url2, headers } = this.cloneRequestState();
-    if (count2) headers.append("Prefer", `count=${count2}`);
+    if (count3) headers.append("Prefer", `count=${count3}`);
     if (!defaultToNull) headers.append("Prefer", `missing=default`);
     if (Array.isArray(values)) {
       const columns = values.reduce((acc, x2) => acc.concat(Object.keys(x2)), []);
@@ -187615,13 +187632,13 @@ var PostgrestQueryBuilder = class {
   * }
   * ```
   */
-  upsert(values, { onConflict, ignoreDuplicates = false, count: count2, defaultToNull = true } = {}) {
+  upsert(values, { onConflict, ignoreDuplicates = false, count: count3, defaultToNull = true } = {}) {
     var _this$fetch2;
     const method = "POST";
     const { url: url2, headers } = this.cloneRequestState();
     headers.append("Prefer", `resolution=${ignoreDuplicates ? "ignore" : "merge"}-duplicates`);
     if (onConflict !== void 0) url2.searchParams.set("on_conflict", onConflict);
-    if (count2) headers.append("Prefer", `count=${count2}`);
+    if (count3) headers.append("Prefer", `count=${count3}`);
     if (!defaultToNull) headers.append("Prefer", "missing=default");
     if (Array.isArray(values)) {
       const columns = values.reduce((acc, x2) => acc.concat(Object.keys(x2)), []);
@@ -187789,11 +187806,11 @@ var PostgrestQueryBuilder = class {
   * }
   * ```
   */
-  update(values, { count: count2 } = {}) {
+  update(values, { count: count3 } = {}) {
     var _this$fetch3;
     const method = "PATCH";
     const { url: url2, headers } = this.cloneRequestState();
-    if (count2) headers.append("Prefer", `count=${count2}`);
+    if (count3) headers.append("Prefer", `count=${count3}`);
     return new PostgrestFilterBuilder({
       method,
       url: url2,
@@ -187932,11 +187949,11 @@ var PostgrestQueryBuilder = class {
   * }
   * ```
   */
-  delete({ count: count2 } = {}) {
+  delete({ count: count3 } = {}) {
     var _this$fetch4;
     const method = "DELETE";
     const { url: url2, headers } = this.cloneRequestState();
-    if (count2) headers.append("Prefer", `count=${count2}`);
+    if (count3) headers.append("Prefer", `count=${count3}`);
     return new PostgrestFilterBuilder({
       method,
       url: url2,
@@ -188211,7 +188228,7 @@ var PostgrestClient = class PostgrestClient2 {
   * }
   * ```
   */
-  rpc(fn, args = {}, { head: head2 = false, get: get2 = false, count: count2 } = {}) {
+  rpc(fn, args = {}, { head: head2 = false, get: get2 = false, count: count3 } = {}) {
     var _this$fetch;
     let method;
     const url2 = new URL(`${this.url}/rpc/${fn}`);
@@ -188231,8 +188248,8 @@ var PostgrestClient = class PostgrestClient2 {
       body = args;
     }
     const headers = new Headers(this.headers);
-    if (_hasObjectArg) headers.set("Prefer", count2 ? `count=${count2},return=minimal` : "return=minimal");
-    else if (count2) headers.set("Prefer", `count=${count2}`);
+    if (_hasObjectArg) headers.set("Prefer", count3 ? `count=${count3},return=minimal` : "return=minimal");
+    else if (count3) headers.set("Prefer", `count=${count3}`);
     return new PostgrestFilterBuilder({
       method,
       url: url2,
@@ -188326,9 +188343,9 @@ function createFetchClient(options) {
         },
         body: body ? JSON.stringify(body) : void 0
       });
-      const text27 = await res.text();
+      const text28 = await res.text();
       const isJson = (res.headers.get("content-type") || "").includes("application/json");
-      const data = isJson && text27 ? JSON.parse(text27) : text27;
+      const data = isJson && text28 ? JSON.parse(text28) : text28;
       if (!res.ok) {
         const errBody = isJson ? data : void 0;
         const errorDetail = errBody?.error;
@@ -192358,15 +192375,17 @@ function customAlphabet(alphabet, size = 21) {
   return customRandom(alphabet, size, random);
 }
 
-// ../../node_modules/@workspace/db/src/index.ts
+// node_modules/@workspace/db/src/index.ts
 import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
 
-// ../../lib/db/src/schema/index.ts
+// node_modules/@workspace/db/src/schema/index.ts
 var schema_exports = {};
 __export(schema_exports, {
   accountReferencesTable: () => accountReferencesTable,
   activitiesTable: () => activitiesTable,
+  adminActionTypes: () => adminActionTypes,
+  adminAuditLogTable: () => adminAuditLogTable,
   aiTiersTable: () => aiTiersTable,
   aiUsageLogTable: () => aiUsageLogTable,
   aiUsageStatsSchema: () => aiUsageStatsSchema,
@@ -192379,6 +192398,7 @@ __export(schema_exports, {
   insertAIUsageLogSchema: () => insertAIUsageLogSchema,
   insertAccountReferenceSchema: () => insertAccountReferenceSchema,
   insertActivitySchema: () => insertActivitySchema,
+  insertAdminAuditLogSchema: () => insertAdminAuditLogSchema,
   insertAiTierSchema: () => insertAiTierSchema,
   insertAttachmentSchema: () => insertAttachmentSchema,
   insertCommentSchema: () => insertCommentSchema,
@@ -192428,7 +192448,7 @@ __export(schema_exports, {
   writingStyleProfilesTable: () => writingStyleProfilesTable
 });
 
-// ../../lib/db/src/schema/projects.ts
+// node_modules/@workspace/db/src/schema/projects.ts
 import { pgTable, text, serial, integer, timestamp, boolean as boolean2 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 var projectsTable = pgTable("projects", {
@@ -192456,7 +192476,7 @@ var insertProjectSchema = createInsertSchema(projectsTable).omit({
   updatedAt: true
 });
 
-// ../../lib/db/src/schema/messages.ts
+// node_modules/@workspace/db/src/schema/messages.ts
 import { pgTable as pgTable2, text as text2, serial as serial2, integer as integer2, timestamp as timestamp2 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema2 } from "drizzle-zod";
 var messagesTable = pgTable2("messages", {
@@ -192471,7 +192491,7 @@ var insertMessageSchema = createInsertSchema2(messagesTable).omit({
   createdAt: true
 });
 
-// ../../lib/db/src/schema/documents.ts
+// node_modules/@workspace/db/src/schema/documents.ts
 import { pgTable as pgTable3, text as text3, serial as serial3, integer as integer3, timestamp as timestamp3 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema3 } from "drizzle-zod";
 var documentVersionsTable = pgTable3("document_versions", {
@@ -192490,7 +192510,7 @@ var insertDocumentVersionSchema = createInsertSchema3(documentVersionsTable).omi
   createdAt: true
 });
 
-// ../../lib/db/src/schema/multi-documents.ts
+// node_modules/@workspace/db/src/schema/multi-documents.ts
 import { pgTable as pgTable4, text as text4, serial as serial4, integer as integer4, timestamp as timestamp4, boolean as boolean3 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema4 } from "drizzle-zod";
 var documentsTable = pgTable4("documents", {
@@ -192508,7 +192528,7 @@ var insertDocumentSchema = createInsertSchema4(documentsTable).omit({
   updatedAt: true
 });
 
-// ../../lib/db/src/schema/references.ts
+// node_modules/@workspace/db/src/schema/references.ts
 import { pgTable as pgTable5, text as text5, serial as serial5, integer as integer5, timestamp as timestamp5, boolean as boolean4 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema5 } from "drizzle-zod";
 var referencesTable = pgTable5("references", {
@@ -192535,7 +192555,7 @@ var insertReferenceSchema = createInsertSchema5(referencesTable).omit({
   createdAt: true
 });
 
-// ../../lib/db/src/schema/account-references.ts
+// node_modules/@workspace/db/src/schema/account-references.ts
 import { pgTable as pgTable6, text as text6, serial as serial6, integer as integer6, timestamp as timestamp6, boolean as boolean5 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema6 } from "drizzle-zod";
 var accountReferencesTable = pgTable6("account_references", {
@@ -192560,7 +192580,7 @@ var insertAccountReferenceSchema = createInsertSchema6(accountReferencesTable).o
   createdAt: true
 });
 
-// ../../lib/db/src/schema/attachments.ts
+// node_modules/@workspace/db/src/schema/attachments.ts
 import { pgTable as pgTable7, text as text7, serial as serial7, integer as integer7, timestamp as timestamp7 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema7 } from "drizzle-zod";
 var attachmentsTable = pgTable7("attachments", {
@@ -192579,7 +192599,7 @@ var insertAttachmentSchema = createInsertSchema7(attachmentsTable).omit({
   createdAt: true
 });
 
-// ../../lib/db/src/schema/activities.ts
+// node_modules/@workspace/db/src/schema/activities.ts
 import { pgTable as pgTable8, text as text8, serial as serial8, integer as integer8, timestamp as timestamp8 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema8 } from "drizzle-zod";
 var activitiesTable = pgTable8("activities", {
@@ -192594,7 +192614,7 @@ var insertActivitySchema = createInsertSchema8(activitiesTable).omit({
   createdAt: true
 });
 
-// ../../lib/db/src/schema/jobs.ts
+// node_modules/@workspace/db/src/schema/jobs.ts
 import { pgTable as pgTable9, text as text9, serial as serial9, integer as integer9, timestamp as timestamp9 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema9 } from "drizzle-zod";
 var jobsTable = pgTable9("jobs", {
@@ -192613,7 +192633,7 @@ var insertJobSchema = createInsertSchema9(jobsTable).omit({
   updatedAt: true
 });
 
-// ../../lib/db/src/schema/project_metadata.ts
+// node_modules/@workspace/db/src/schema/project_metadata.ts
 import { pgTable as pgTable10, text as text10, serial as serial10, integer as integer10, timestamp as timestamp10 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema10 } from "drizzle-zod";
 var projectMetadataTable = pgTable10("project_metadata", {
@@ -192635,7 +192655,7 @@ var insertProjectMetadataSchema = createInsertSchema10(projectMetadataTable).omi
   updatedAt: true
 });
 
-// ../../lib/db/src/schema/exports.ts
+// node_modules/@workspace/db/src/schema/exports.ts
 import { pgTable as pgTable11, text as text11, serial as serial11, integer as integer11, timestamp as timestamp11 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema11 } from "drizzle-zod";
 var exportsTable = pgTable11("exports", {
@@ -192651,7 +192671,7 @@ var insertExportSchema = createInsertSchema11(exportsTable).omit({
   createdAt: true
 });
 
-// ../../lib/db/src/schema/users.ts
+// node_modules/@workspace/db/src/schema/users.ts
 import { pgTable as pgTable12, text as text12, timestamp as timestamp12, boolean as boolean6 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema12 } from "drizzle-zod";
 var usersTable2 = pgTable12("users", {
@@ -192673,7 +192693,7 @@ var insertUserSchema = createInsertSchema12(usersTable2).omit({
   updatedAt: true
 });
 
-// ../../lib/db/src/schema/referrals.ts
+// node_modules/@workspace/db/src/schema/referrals.ts
 import {
   pgTable as pgTable13,
   serial as serial12,
@@ -192724,7 +192744,7 @@ var insertReferralSchema = createInsertSchema13(referralsTable).omit({
   updatedAt: true
 });
 
-// ../../lib/db/src/schema/referral_events.ts
+// node_modules/@workspace/db/src/schema/referral_events.ts
 import {
   pgTable as pgTable14,
   serial as serial13,
@@ -192772,7 +192792,7 @@ var insertReferralEventSchema = createInsertSchema14(referralEventsTable).omit(
   }
 );
 
-// ../../lib/db/src/schema/ai_usage_log.ts
+// node_modules/@workspace/db/src/schema/ai_usage_log.ts
 import {
   pgTable as pgTable16,
   serial as serial14,
@@ -192786,7 +192806,7 @@ import {
 import { createInsertSchema as createInsertSchema16 } from "drizzle-zod";
 import { z } from "zod/v4";
 
-// ../../lib/db/src/schema/ai_tiers.ts
+// node_modules/@workspace/db/src/schema/ai_tiers.ts
 import {
   pgTable as pgTable15,
   text as text15,
@@ -192839,7 +192859,7 @@ var insertAiTierSchema = createInsertSchema15(aiTiersTable).omit({
   updatedAt: true
 });
 
-// ../../lib/db/src/schema/ai_usage_log.ts
+// node_modules/@workspace/db/src/schema/ai_usage_log.ts
 var aiUsageLogTable = pgTable16(
   "ai_usage_log",
   {
@@ -192894,7 +192914,7 @@ var aiUsageStatsSchema = z.object({
   )
 });
 
-// ../../lib/db/src/schema/user_balances.ts
+// node_modules/@workspace/db/src/schema/user_balances.ts
 import {
   pgTable as pgTable17,
   text as text17,
@@ -192926,7 +192946,7 @@ var insertUserBalanceSchema = createInsertSchema17(userBalancesTable).omit({
   updatedAt: true
 });
 
-// ../../lib/db/src/schema/token_transactions.ts
+// node_modules/@workspace/db/src/schema/token_transactions.ts
 import {
   pgTable as pgTable18,
   text as text18,
@@ -192974,7 +192994,7 @@ var insertTokenTransactionSchema = createInsertSchema18(tokenTransactionsTable).
   createdAt: true
 });
 
-// ../../lib/db/src/schema/share_tokens.ts
+// node_modules/@workspace/db/src/schema/share_tokens.ts
 import { pgTable as pgTable19, text as text19, serial as serial15, integer as integer17, timestamp as timestamp19 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema19 } from "drizzle-zod";
 var shareTokensTable = pgTable19("share_tokens", {
@@ -192994,7 +193014,7 @@ var insertShareTokenSchema = createInsertSchema19(shareTokensTable).omit({
   createdAt: true
 });
 
-// ../../lib/db/src/schema/comments.ts
+// node_modules/@workspace/db/src/schema/comments.ts
 import { pgTable as pgTable20, text as text20, serial as serial16, integer as integer18, timestamp as timestamp20, boolean as boolean8 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema20 } from "drizzle-zod";
 var commentsTable = pgTable20("comments", {
@@ -193037,7 +193057,7 @@ var insertCommentSchema = createInsertSchema20(commentsTable).omit({
   updatedAt: true
 });
 
-// ../../lib/db/src/schema/project_members.ts
+// node_modules/@workspace/db/src/schema/project_members.ts
 import {
   pgTable as pgTable21,
   text as text21,
@@ -193065,7 +193085,7 @@ var insertProjectMemberSchema = createInsertSchema21(
   projectMembersTable
 ).omit({ id: true, createdAt: true, updatedAt: true });
 
-// ../../lib/db/src/schema/quizzes.ts
+// node_modules/@workspace/db/src/schema/quizzes.ts
 import {
   pgTable as pgTable22,
   text as text22,
@@ -193107,7 +193127,7 @@ var insertQuizSchema = createInsertSchema22(quizzesTable).omit({
   updatedAt: true
 });
 
-// ../../lib/db/src/schema/quiz_submissions.ts
+// node_modules/@workspace/db/src/schema/quiz_submissions.ts
 import {
   pgTable as pgTable23,
   text as text23,
@@ -193149,7 +193169,7 @@ var insertQuizSubmissionSchema = createInsertSchema23(
   updatedAt: true
 });
 
-// ../../lib/db/src/schema/rubrics.ts
+// node_modules/@workspace/db/src/schema/rubrics.ts
 import {
   pgTable as pgTable24,
   text as text24,
@@ -193187,7 +193207,7 @@ var insertRubricSchema = createInsertSchema24(rubricsTable).omit({
   updatedAt: true
 });
 
-// ../../lib/db/src/schema/writing_style_profiles.ts
+// node_modules/@workspace/db/src/schema/writing_style_profiles.ts
 import {
   pgTable as pgTable25,
   text as text25,
@@ -193228,7 +193248,7 @@ var insertWritingStyleProfileSchema = createInsertSchema25(
   updatedAt: true
 });
 
-// ../../lib/db/src/schema/document-templates.ts
+// node_modules/@workspace/db/src/schema/document-templates.ts
 import { pgTable as pgTable26, text as text26, serial as serial22, integer as integer24, boolean as boolean9, timestamp as timestamp26 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema26 } from "drizzle-zod";
 var documentTemplatesTable = pgTable26("document_templates", {
@@ -193251,7 +193271,55 @@ var insertDocumentTemplateSchema = createInsertSchema26(documentTemplatesTable).
   updatedAt: true
 });
 
-// ../../node_modules/@workspace/db/src/index.ts
+// node_modules/@workspace/db/src/schema/admin-audit-log.ts
+import {
+  pgTable as pgTable27,
+  serial as serial23,
+  text as text27,
+  timestamp as timestamp27,
+  index as index7,
+  jsonb as jsonb7
+} from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema27 } from "drizzle-zod";
+var adminAuditLogTable = pgTable27(
+  "admin_audit_log",
+  {
+    id: serial23("id").primaryKey(),
+    // Admin user who performed the action (owner email)
+    adminEmail: text27("admin_email").notNull(),
+    // Action type
+    action: text27("action").notNull(),
+    // Target resource
+    targetType: text27("target_type").notNull(),
+    // user, tier, pricing, system
+    targetId: text27("target_id"),
+    // user_id, tier_id, etc.
+    // Details as JSON
+    details: jsonb7("details"),
+    // IP address of admin
+    ipAddress: text27("ip_address"),
+    createdAt: timestamp27("created_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table2) => [
+    index7("idx_admin_audit_admin_created").on(table2.adminEmail, table2.createdAt),
+    index7("idx_admin_audit_action").on(table2.action),
+    index7("idx_admin_audit_target").on(table2.targetType, table2.targetId)
+  ]
+);
+var adminActionTypes = [
+  "tier_override",
+  "user_suspend",
+  "user_unsuspend",
+  "pricing_change",
+  "tier_change",
+  "system_config"
+];
+var insertAdminAuditLogSchema = createInsertSchema27(adminAuditLogTable).omit({
+  id: true,
+  createdAt: true
+});
+
+// node_modules/@workspace/db/src/index.ts
 var connectionString = process.env.DATABASE_POOLER_URL ?? process.env.DATABASE_URL;
 var pool2;
 var db;
@@ -193300,7 +193368,7 @@ async function logReferralEvent(referralId, actorId, actorType, fromStatus, toSt
     metadata
   });
 }
-router2.get("/auth/me", async (req, res) => {
+router2.get("/auth/me", authMiddleware, async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -193469,7 +193537,7 @@ router2.post("/auth/logout", (_req, res) => {
   res.json({ message: "Logged out" });
 });
 router2.post("/auth/refresh", async (req, res) => {
-  const refreshToken = req.cookies?.sb_refresh_token;
+  const refreshToken = req.cookies?.sb_refresh_token || req.body?.refresh_token;
   if (!refreshToken || !supabaseAdmin) {
     res.status(401).json({ error: "No refresh token" });
     return;
@@ -193483,6 +193551,11 @@ router2.post("/auth/refresh", async (req, res) => {
     res.status(401).json({ error: "Session expired" });
     return;
   }
+  console.error("[auth-refresh] new tokens issued", {
+    accessTokenPrefix: data.session.access_token.slice(0, 24) + "...",
+    accessTokenPartCount: data.session.access_token.split(".").length,
+    accessTokenLen: data.session.access_token.length
+  });
   res.cookie("sb_access_token", data.session.access_token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -193490,9 +193563,20 @@ router2.post("/auth/refresh", async (req, res) => {
     maxAge: 36e5,
     path: "/"
   });
-  res.json({ message: "Token refreshed" });
+  res.cookie("sb_refresh_token", data.session.refresh_token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 6048e5,
+    path: "/"
+  });
+  res.json({
+    message: "Token refreshed",
+    access_token: data.session.access_token,
+    refresh_token: data.session.refresh_token
+  });
 });
-router2.get("/auth/referrals", async (req, res) => {
+router2.get("/auth/referrals", authMiddleware, async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -194578,8 +194662,8 @@ var require_events = /* @__PURE__ */ __commonJSMin(((exports, module) => {
     for (var i2 = 0; i2 < n; ++i2) copy[i2] = arr[i2];
     return copy;
   }
-  function spliceOne(list, index7) {
-    for (; index7 + 1 < list.length; index7++) list[index7] = list[index7 + 1];
+  function spliceOne(list, index8) {
+    for (; index8 + 1 < list.length; index8++) list[index8] = list[index8 + 1];
     list.pop();
   }
   function unwrapListeners(arr) {
@@ -197454,7 +197538,7 @@ var require_util = /* @__PURE__ */ __commonJSMin(((exports) => {
     "Nov",
     "Dec"
   ];
-  function timestamp27() {
+  function timestamp28() {
     var d = /* @__PURE__ */ new Date();
     var time = [
       pad2(d.getHours()),
@@ -197468,7 +197552,7 @@ var require_util = /* @__PURE__ */ __commonJSMin(((exports) => {
     ].join(" ");
   }
   exports.log = function() {
-    console.log("%s - %s", timestamp27(), exports.format.apply(exports, arguments));
+    console.log("%s - %s", timestamp28(), exports.format.apply(exports, arguments));
   };
   exports.inherits = require_inherits_browser2();
   exports._extend = function(origin, add2) {
@@ -198276,13 +198360,13 @@ var require__stream_writable = /* @__PURE__ */ __commonJSMin(((exports, module) 
       var buffer = new Array(l);
       var holder = state.corkedRequestsFree;
       holder.entry = entry;
-      var count2 = 0;
+      var count3 = 0;
       var allBuffers = true;
       while (entry) {
-        buffer[count2] = entry;
+        buffer[count3] = entry;
         if (!entry.isBuf) allBuffers = false;
         entry = entry.next;
-        count2 += 1;
+        count3 += 1;
       }
       buffer.allBuffers = allBuffers;
       doWrite(stream2, state, true, state.length, buffer, "", holder.finish);
@@ -199454,9 +199538,9 @@ var require__stream_readable = /* @__PURE__ */ __commonJSMin(((exports, module) 
       for (var i2 = 0; i2 < len; i2++) dests[i2].emit("unpipe", this, { hasUnpiped: false });
       return this;
     }
-    var index7 = indexOf(state.pipes, dest);
-    if (index7 === -1) return this;
-    state.pipes.splice(index7, 1);
+    var index8 = indexOf(state.pipes, dest);
+    if (index8 === -1) return this;
+    state.pipes.splice(index8, 1);
     state.pipesCount -= 1;
     if (state.pipesCount === 1) state.pipes = state.pipes[0];
     dest.emit("unpipe", this, unpipeInfo);
@@ -200433,10 +200517,10 @@ var require_sax = /* @__PURE__ */ __commonJSMin(((exports) => {
       if (parser.textNode) emit(parser, "ontext", parser.textNode);
       parser.textNode = "";
     }
-    function textopts(opt, text27) {
-      if (opt.trim) text27 = text27.trim();
-      if (opt.normalize) text27 = text27.replace(/\s+/g, " ");
-      return text27;
+    function textopts(opt, text28) {
+      if (opt.trim) text28 = text28.trim();
+      if (opt.normalize) text28 = text28.replace(/\s+/g, " ");
+      return text28;
     }
     function error(parser, er) {
       closeText(parser);
@@ -201054,12 +201138,12 @@ var require_sax = /* @__PURE__ */ __commonJSMin(((exports) => {
         var codeUnits = [];
         var highSurrogate;
         var lowSurrogate;
-        var index7 = -1;
+        var index8 = -1;
         var length = arguments.length;
         if (!length) return "";
         var result = "";
-        while (++index7 < length) {
-          var codePoint = Number(arguments[index7]);
+        while (++index8 < length) {
+          var codePoint = Number(arguments[index8]);
           if (!isFinite(codePoint) || codePoint < 0 || codePoint > 1114111 || floor(codePoint) !== codePoint) throw RangeError("Invalid code point: " + codePoint);
           if (codePoint <= 65535) codeUnits.push(codePoint);
           else {
@@ -201068,7 +201152,7 @@ var require_sax = /* @__PURE__ */ __commonJSMin(((exports) => {
             lowSurrogate = codePoint % 1024 + 56320;
             codeUnits.push(highSurrogate, lowSurrogate);
           }
-          if (index7 + 1 === length || codeUnits.length > MAX_SIZE) {
+          if (index8 + 1 === length || codeUnits.length > MAX_SIZE) {
             result += stringFromCharCode.apply(null, codeUnits);
             codeUnits.length = 0;
           }
@@ -201288,13 +201372,13 @@ var require_xml2js = /* @__PURE__ */ __commonJSMin(((exports, module) => {
     element[options.parentKey] = currentElement;
     currentElement = element;
   }
-  function onText(text27) {
+  function onText(text28) {
     if (options.ignoreText) return;
-    if (!text27.trim() && !options.captureSpacesBetweenElements) return;
-    if (options.trim) text27 = text27.trim();
-    if (options.nativeType) text27 = nativeType(text27);
-    if (options.sanitize) text27 = text27.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    addField("text", text27);
+    if (!text28.trim() && !options.captureSpacesBetweenElements) return;
+    if (options.trim) text28 = text28.trim();
+    if (options.nativeType) text28 = nativeType(text28);
+    if (options.sanitize) text28 = text28.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    addField("text", text28);
   }
   function onComment(comment) {
     if (options.ignoreComment) return;
@@ -201462,12 +201546,12 @@ var require_js2xml = /* @__PURE__ */ __commonJSMin(((exports, module) => {
   function writeDoctype(doctype, options) {
     return options.ignoreDoctype ? "" : "<!DOCTYPE " + ("doctypeFn" in options ? options.doctypeFn(doctype, currentElementName, currentElement) : doctype) + ">";
   }
-  function writeText(text27, options) {
+  function writeText(text28, options) {
     if (options.ignoreText) return "";
-    text27 = "" + text27;
-    text27 = text27.replace(/&amp;/g, "&");
-    text27 = text27.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    return "textFn" in options ? options.textFn(text27, currentElementName, currentElement) : text27;
+    text28 = "" + text28;
+    text28 = text28.replace(/&amp;/g, "&");
+    text28 = text28.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    return "textFn" in options ? options.textFn(text28, currentElementName, currentElement) : text28;
   }
   function hasContent(element, options) {
     var i2;
@@ -203898,7 +203982,7 @@ var abstractNumUniqueNumericIdGen = () => uniqueNumericIdCreator();
 var concreteNumUniqueNumericIdGen = () => uniqueNumericIdCreator(1);
 var bookmarkUniqueNumericIdGen = () => uniqueNumericIdCreator();
 var uniqueId = () => nanoid().toLowerCase();
-var generateUuidPart = (count2) => customAlphabet2("1234567890abcdef", count2)();
+var generateUuidPart = (count3) => customAlphabet2("1234567890abcdef", count3)();
 var uniqueUuid = () => `${generateUuidPart(8)}-${generateUuidPart(4)}-${generateUuidPart(4)}-${generateUuidPart(4)}-${generateUuidPart(12)}`;
 var encodeUtf8 = (str) => new Uint8Array(new TextEncoder().encode(str));
 var RelationshipsAttributes = class extends XmlAttributeComponent {
@@ -204430,7 +204514,7 @@ var createFont = ({ name, altName, panose1, charset, family, notTrueType, pitch,
     ...embedBoldItalic ? [createFontRelationship(embedBoldItalic, "w:embedBoldItalic")] : []
   ]
 });
-var createRegularFont = ({ name, index: index7, fontKey, characterSet }) => createFont({
+var createRegularFont = ({ name, index: index8, fontKey, characterSet }) => createFont({
   name,
   sig: {
     usb0: "E0002AFF",
@@ -204445,7 +204529,7 @@ var createRegularFont = ({ name, index: index7, fontKey, characterSet }) => crea
   pitch: "variable",
   embedRegular: {
     fontKey,
-    id: `rId${index7}`
+    id: `rId${index8}`
   }
 });
 var createFontTable = (fonts) => new BuilderElement({
@@ -204710,10 +204794,10 @@ var Paragraph = class extends FileChild {
   }
   prepForXml(context) {
     for (const element of this.root) if (element instanceof ExternalHyperlink) {
-      const index7 = this.root.indexOf(element);
+      const index8 = this.root.indexOf(element);
       const concreteHyperlink = new ConcreteHyperlink(element.options.children, uniqueId());
       context.viewWrapper.Relationships.addRelationship(concreteHyperlink.linkId, "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink", element.options.link, TargetModeType.EXTERNAL);
-      this.root[index7] = concreteHyperlink;
+      this.root[index8] = concreteHyperlink;
     }
     return super.prepForXml(context);
   }
@@ -204851,16 +204935,16 @@ var ContentTypes = class extends XmlComponent {
   *
   * @param index - Footer index number (e.g., 1 for footer1.xml)
   */
-  addFooter(index7) {
-    this.root.push(createOverride("application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml", `/word/footer${index7}.xml`));
+  addFooter(index8) {
+    this.root.push(createOverride("application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml", `/word/footer${index8}.xml`));
   }
   /**
   * Registers a header part in the content types.
   *
   * @param index - Header index number (e.g., 1 for header1.xml)
   */
-  addHeader(index7) {
-    this.root.push(createOverride("application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml", `/word/header${index7}.xml`));
+  addHeader(index8) {
+    this.root.push(createOverride("application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml", `/word/header${index8}.xml`));
   }
 };
 var DocumentAttributeNamespaces = {
@@ -204998,7 +205082,7 @@ var CustomProperties = class extends XmlComponent {
     this.properties.push(new CustomProperty(this.nextId++, property));
   }
 };
-var createColumns = ({ space, count: count2, separate, equalWidth, children }) => new BuilderElement({
+var createColumns = ({ space, count: count3, separate, equalWidth, children }) => new BuilderElement({
   name: "w:cols",
   attributes: {
     space: {
@@ -205007,7 +205091,7 @@ var createColumns = ({ space, count: count2, separate, equalWidth, children }) =
     },
     count: {
       key: "w:num",
-      value: count2 === void 0 ? void 0 : decimalNumber(count2)
+      value: count3 === void 0 ? void 0 : decimalNumber(count3)
     },
     separate: {
       key: "w:sep",
@@ -206129,7 +206213,7 @@ var LevelBase = class extends XmlComponent {
   * @param options - Level configuration options
   * @throws Error if level is greater than 9 (Word limitation)
   */
-  constructor({ level, format, text: text27, alignment = AlignmentType.START, start = 1, style, suffix, isLegalNumberingStyle }) {
+  constructor({ level, format, text: text28, alignment = AlignmentType.START, start = 1, style, suffix, isLegalNumberingStyle }) {
     super("w:lvl");
     _defineProperty4(this, "paragraphProperties", void 0);
     _defineProperty4(this, "runProperties", void 0);
@@ -206137,7 +206221,7 @@ var LevelBase = class extends XmlComponent {
     if (format) this.root.push(new NumberFormat$1(format));
     if (suffix) this.root.push(new Suffix(suffix));
     if (isLegalNumberingStyle) this.root.push(new IsLegalNumberingStyle());
-    if (text27) this.root.push(new LevelText(text27));
+    if (text28) this.root.push(new LevelText(text28));
     this.root.push(new LevelJc(alignment));
     if (style === null || style === void 0 ? void 0 : style.style) this.root.push(createParagraphStyle(style.style));
     this.paragraphProperties = new ParagraphProperties(style && style.paragraph);
@@ -210401,8 +210485,8 @@ var require_xml = /* @__PURE__ */ __commonJSMin(((exports, module) => {
     };
     return self2;
   }
-  function create_indent(character, count2) {
-    return new Array(count2 || 0).join(character || "");
+  function create_indent(character, count3) {
+    return new Array(count3 || 0).join(character || "");
   }
   function resolve(data, indent, indent_count) {
     indent_count = indent_count || 0;
@@ -210740,7 +210824,7 @@ var Compiler = class {
         }),
         path: "_rels/.rels"
       },
-      HeaderRelationships: file.Headers.map((headerWrapper, index7) => {
+      HeaderRelationships: file.Headers.map((headerWrapper, index8) => {
         const xmlData = (0, import_xml.default)(this.formatter.format(headerWrapper.View, {
           viewWrapper: headerWrapper,
           file,
@@ -210761,10 +210845,10 @@ var Compiler = class {
             indent: prettify,
             declaration: { encoding: "UTF-8" }
           }),
-          path: `word/_rels/header${index7 + 1}.xml.rels`
+          path: `word/_rels/header${index8 + 1}.xml.rels`
         };
       }),
-      FooterRelationships: file.Footers.map((footerWrapper, index7) => {
+      FooterRelationships: file.Footers.map((footerWrapper, index8) => {
         const xmlData = (0, import_xml.default)(this.formatter.format(footerWrapper.View, {
           viewWrapper: footerWrapper,
           file,
@@ -210785,10 +210869,10 @@ var Compiler = class {
             indent: prettify,
             declaration: { encoding: "UTF-8" }
           }),
-          path: `word/_rels/footer${index7 + 1}.xml.rels`
+          path: `word/_rels/footer${index8 + 1}.xml.rels`
         };
       }),
-      Headers: file.Headers.map((headerWrapper, index7) => {
+      Headers: file.Headers.map((headerWrapper, index8) => {
         const tempXmlData = (0, import_xml.default)(this.formatter.format(headerWrapper.View, {
           viewWrapper: headerWrapper,
           file,
@@ -210801,10 +210885,10 @@ var Compiler = class {
         const xmlData = this.imageReplacer.replace(tempXmlData, mediaDatas, 0);
         return {
           data: this.numberingReplacer.replace(xmlData, file.Numbering.ConcreteNumbering),
-          path: `word/header${index7 + 1}.xml`
+          path: `word/header${index8 + 1}.xml`
         };
       }),
-      Footers: file.Footers.map((footerWrapper, index7) => {
+      Footers: file.Footers.map((footerWrapper, index8) => {
         const tempXmlData = (0, import_xml.default)(this.formatter.format(footerWrapper.View, {
           viewWrapper: footerWrapper,
           file,
@@ -210817,7 +210901,7 @@ var Compiler = class {
         const xmlData = this.imageReplacer.replace(tempXmlData, mediaDatas, 0);
         return {
           data: this.numberingReplacer.replace(xmlData, file.Numbering.ConcreteNumbering),
-          path: `word/footer${index7 + 1}.xml`
+          path: `word/footer${index8 + 1}.xml`
         };
       }),
       ContentTypes: {
@@ -211128,9 +211212,9 @@ var toJson = (xmlData) => {
     captureSpacesBetweenElements: true
   });
 };
-var createTextElementContents = (text27) => {
+var createTextElementContents = (text28) => {
   var _textJson$elements$0$;
-  return (_textJson$elements$0$ = toJson((0, import_xml.default)(formatter$1.format(new Text({ text: text27 })))).elements[0].elements) !== null && _textJson$elements$0$ !== void 0 ? _textJson$elements$0$ : [];
+  return (_textJson$elements$0$ = toJson((0, import_xml.default)(formatter$1.format(new Text({ text: text28 })))).elements[0].elements) !== null && _textJson$elements$0$ !== void 0 ? _textJson$elements$0$ : [];
 };
 var patchSpaceAttribute = (element) => _objectSpread24(_objectSpread24({}, element), {}, { attributes: { "xml:space": "preserve" } });
 var getFirstLevelElements = (relationships, id) => {
@@ -211189,10 +211273,10 @@ var findRunElementIndexWithToken = (paragraphElement, token) => {
     if (element.type === "element" && element.name === "w:r") {
       var _element$elements;
       const textElement = ((_element$elements = element.elements) !== null && _element$elements !== void 0 ? _element$elements : []).filter((e2) => e2.type === "element" && e2.name === "w:t");
-      for (const text27 of textElement) {
+      for (const text28 of textElement) {
         var _text$elements, _text$elements$0$text;
-        if (!((_text$elements = text27.elements) === null || _text$elements === void 0 ? void 0 : _text$elements[0])) continue;
-        if ((_text$elements$0$text = text27.elements[0].text) === null || _text$elements$0$text === void 0 ? void 0 : _text$elements$0$text.includes(token)) return i2;
+        if (!((_text$elements = text28.elements) === null || _text$elements === void 0 ? void 0 : _text$elements[0])) continue;
+        if ((_text$elements$0$text = text28.elements[0].text) === null || _text$elements$0$text === void 0 ? void 0 : _text$elements$0$text.includes(token)) return i2;
       }
     }
   }
@@ -211228,34 +211312,34 @@ var replaceTokenInParagraphElement = ({ paragraphElement, renderedParagraph, ori
   const startIndex = renderedParagraph.text.indexOf(originalText);
   const endIndex = startIndex + originalText.length - 1;
   let replaceMode = ReplaceMode.START;
-  for (const run of renderedParagraph.runs) for (const { text: text27, index: index7, start, end } of run.parts) switch (replaceMode) {
+  for (const run of renderedParagraph.runs) for (const { text: text28, index: index8, start, end } of run.parts) switch (replaceMode) {
     case ReplaceMode.START:
       if (startIndex >= start && startIndex <= end) {
         const offsetStartIndex = startIndex - start;
         const offsetEndIndex = Math.min(endIndex, end) - start;
         const partToReplace = run.text.substring(offsetStartIndex, offsetEndIndex + 1);
         if (partToReplace === "") continue;
-        const firstPart = text27.replace(partToReplace, replacementText);
-        patchTextElement(paragraphElement.elements[run.index].elements[index7], firstPart);
+        const firstPart = text28.replace(partToReplace, replacementText);
+        patchTextElement(paragraphElement.elements[run.index].elements[index8], firstPart);
         replaceMode = ReplaceMode.MIDDLE;
         continue;
       }
       break;
     case ReplaceMode.MIDDLE:
       if (endIndex <= end) {
-        const lastPart = text27.substring(endIndex - start + 1);
-        patchTextElement(paragraphElement.elements[run.index].elements[index7], lastPart);
-        const currentElement = paragraphElement.elements[run.index].elements[index7];
-        paragraphElement.elements[run.index].elements[index7] = patchSpaceAttribute(currentElement);
+        const lastPart = text28.substring(endIndex - start + 1);
+        patchTextElement(paragraphElement.elements[run.index].elements[index8], lastPart);
+        const currentElement = paragraphElement.elements[run.index].elements[index8];
+        paragraphElement.elements[run.index].elements[index8] = patchSpaceAttribute(currentElement);
         replaceMode = ReplaceMode.END;
-      } else patchTextElement(paragraphElement.elements[run.index].elements[index7], "");
+      } else patchTextElement(paragraphElement.elements[run.index].elements[index8], "");
       break;
     default:
   }
   return paragraphElement;
 };
-var patchTextElement = (element, text27) => {
-  element.elements = createTextElementContents(text27);
+var patchTextElement = (element, text28) => {
+  element.elements = createTextElementContents(text28);
   return element;
 };
 var renderParagraphNode = (node) => {
@@ -211282,7 +211366,7 @@ var renderParagraphNode = (node) => {
     pathToParagraph: buildNodePath(node)
   };
 };
-var renderRunNode = (node, index7, currentRunStringIndex) => {
+var renderRunNode = (node, index8, currentRunStringIndex) => {
   if (!node.elements) return {
     text: "",
     parts: [],
@@ -211307,7 +211391,7 @@ var renderRunNode = (node, index7, currentRunStringIndex) => {
   return {
     text: parts.reduce((acc, curr) => acc + curr.text, ""),
     parts,
-    index: index7,
+    index: index8,
     start: currentRunStringIndex,
     end: currentTextStringIndex
   };
@@ -211336,7 +211420,7 @@ var traverse = (node) => {
   }
   return renderedParagraphs;
 };
-var findLocationOfText = (node, text27) => traverse(node).filter((p) => p.text.includes(text27));
+var findLocationOfText = (node, text28) => traverse(node).filter((p) => p.text.includes(text28));
 var formatter = new Formatter();
 var SPLIT_TOKEN = "\u0275";
 var replacer = ({ json, patch, patchText, context, keepOriginalStyles = true }) => {
@@ -211363,8 +211447,8 @@ var replacer = ({ json, patch, patchText, context, keepOriginalStyles = true }) 
           originalText: patchText,
           replacementText: SPLIT_TOKEN
         });
-        const index7 = findRunElementIndexWithToken(paragraphElement, SPLIT_TOKEN);
-        const runElementToBeReplaced = paragraphElement.elements[index7];
+        const index8 = findRunElementIndexWithToken(paragraphElement, SPLIT_TOKEN);
+        const runElementToBeReplaced = paragraphElement.elements[index8];
         const { left, right } = splitRunElement(runElementToBeReplaced, SPLIT_TOKEN);
         let newRunElements = textJson;
         let patchedRightElement = right;
@@ -211376,7 +211460,7 @@ var replacer = ({ json, patch, patchText, context, keepOriginalStyles = true }) 
           });
           patchedRightElement = _objectSpread24(_objectSpread24({}, right), {}, { elements: [...runElementNonTextualElements, ...right.elements] });
         }
-        paragraphElement.elements.splice(index7, 1, left, ...newRunElements, patchedRightElement);
+        paragraphElement.elements.splice(index8, 1, left, ...newRunElements, patchedRightElement);
         break;
       }
     }
@@ -211389,8 +211473,8 @@ var replacer = ({ json, patch, patchText, context, keepOriginalStyles = true }) 
 var goToElementFromPath = (json, path3) => {
   let element = json;
   for (let i2 = 1; i2 < path3.length; i2++) {
-    const index7 = path3[i2];
-    element = element.elements[index7];
+    const index8 = path3[i2];
+    element = element.elements[index8];
   }
   return element;
 };
@@ -211507,12 +211591,12 @@ var patchDocument = (function() {
       const relationshipKey = `word/_rels/${key.split("/").pop()}.rels`;
       const relationshipsJson = (_map$get = map.get(relationshipKey)) !== null && _map$get !== void 0 ? _map$get : createRelationshipFile();
       map.set(relationshipKey, relationshipsJson);
-      const index7 = getNextRelationshipIndex(relationshipsJson);
-      const newJson = imageReplacer.replace(JSON.stringify(map.get(key)), mediaDatas, index7);
+      const index8 = getNextRelationshipIndex(relationshipsJson);
+      const newJson = imageReplacer.replace(JSON.stringify(map.get(key)), mediaDatas, index8);
       map.set(key, JSON.parse(newJson));
       for (let i2 = 0; i2 < mediaDatas.length; i2++) {
         const { fileName } = mediaDatas[i2];
-        appendRelationship(relationshipsJson, index7 + i2, "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image", `media/${fileName}`);
+        appendRelationship(relationshipsJson, index8 + i2, "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image", `media/${fileName}`);
       }
     }
     for (const { key, hyperlink } of hyperlinkRelationshipAdditions) {
@@ -211579,10 +211663,10 @@ var patchDetector = (function() {
     return _ref.apply(this, arguments);
   };
 })();
-var findPatchKeys = (text27) => {
+var findPatchKeys = (text28) => {
   var _text$match;
   const pattern2 = /* @__PURE__ */ new RegExp("(?<=\\{\\{).+?(?=\\}\\})", "gs");
-  return (_text$match = text27.match(pattern2)) !== null && _text$match !== void 0 ? _text$match : [];
+  return (_text$match = text28.match(pattern2)) !== null && _text$match !== void 0 ? _text$match : [];
 };
 
 // src/lib/docx-export.ts
@@ -211643,7 +211727,7 @@ function parseOutlineToHeadings(outline) {
   }
   return headings;
 }
-function makeHeading(text27, level) {
+function makeHeading(text28, level) {
   const headingLevel = [
     HeadingLevel.HEADING_1,
     HeadingLevel.HEADING_2,
@@ -211653,18 +211737,18 @@ function makeHeading(text27, level) {
     HeadingLevel.HEADING_6
   ][Math.min(level - 1, 5)];
   return new Paragraph({
-    text: text27,
+    text: text28,
     heading: headingLevel,
     spacing: { before: 240, after: 120 }
   });
 }
-function makeParagraph(text27) {
+function makeParagraph(text28) {
   return new Paragraph({
-    children: [new TextRun({ text: text27, size: 24 })],
+    children: [new TextRun({ text: text28, size: 24 })],
     spacing: { before: 0, after: 120 }
   });
 }
-function makeReferenceItem(ref, index7) {
+function makeReferenceItem(ref, index8) {
   return new Paragraph({
     children: [
       new TextRun({ text: formatReferenceAPA(ref), size: 22 })
@@ -211752,11 +211836,11 @@ async function generateDocx(projectTitle, documents, references, options) {
         if (block.match(/^[-*]\s+/m)) {
           const items = block.split(/\n/).filter((l) => l.match(/^[-*]\s+/));
           for (const item of items) {
-            const text27 = item.replace(/^[-*]\s+/, "").trim();
+            const text28 = item.replace(/^[-*]\s+/, "").trim();
             sections.push(
               new Paragraph({
                 children: [
-                  new TextRun({ text: `\u2022 ${text27}`, size: 24 })
+                  new TextRun({ text: `\u2022 ${text28}`, size: 24 })
                 ],
                 indent: { left: convertInchesToTwip(0.25) },
                 spacing: { before: 60, after: 60 }
@@ -212652,17 +212736,17 @@ var LazyArrayValue = class {
     this.base = this.stream.pos;
     this.items = [];
   }
-  get(index7) {
-    if (index7 < 0 || index7 >= this.length) {
+  get(index8) {
+    if (index8 < 0 || index8 >= this.length) {
       return void 0;
     }
-    if (this.items[index7] == null) {
+    if (this.items[index8] == null) {
       const { pos } = this.stream;
-      this.stream.pos = this.base + this.type.size(null, this.ctx) * index7;
-      this.items[index7] = this.type.decode(this.stream, this.ctx);
+      this.stream.pos = this.base + this.type.size(null, this.ctx) * index8;
+      this.items[index8] = this.type.decode(this.stream, this.ctx);
       this.stream.pos = pos;
     }
-    return this.items[index7];
+    return this.items[index8];
   }
   toArray() {
     const result = [];
@@ -212776,18 +212860,18 @@ var Optional = class extends Base {
 
 // ../../node_modules/restructure/src/Reserved.js
 var Reserved = class extends Base {
-  constructor(type, count2 = 1) {
+  constructor(type, count3 = 1) {
     super();
     this.type = type;
-    this.count = count2;
+    this.count = count3;
   }
   decode(stream2, parent) {
     stream2.pos += this.size(null, parent);
     return void 0;
   }
   size(data, parent) {
-    const count2 = resolveLength(this.count, null, parent);
-    return this.type.size() * count2;
+    const count3 = resolveLength(this.count, null, parent);
+    return this.type.size() * count3;
   }
   encode(stream2, val, parent) {
     return stream2.fill(0, this.size(val, parent));
@@ -213280,10 +213364,26 @@ var VoidPointer = class {
 };
 
 // ../../node_modules/fontkit/dist/module.mjs
-var import_fast_deep_equal = __toESM(require_fast_deep_equal(), 1);
 import $52ZIf$fs from "fs";
-import { _ as $52ZIf$_ } from "@swc/helpers/_/_define_property";
-import { _ as $52ZIf$_1 } from "@swc/helpers/_/_ts_decorate";
+
+// ../../node_modules/@swc/helpers/esm/_define_property.js
+function _define_property(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, { value, enumerable: true, configurable: true, writable: true });
+  } else obj[key] = value;
+  return obj;
+}
+
+// ../../node_modules/tslib/tslib.es6.mjs
+function __decorate2(decorators, target, key, desc18) {
+  var c = arguments.length, r2 = c < 3 ? target : desc18 === null ? desc18 = Object.getOwnPropertyDescriptor(target, key) : desc18, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r2 = Reflect.decorate(decorators, target, key, desc18);
+  else for (var i2 = decorators.length - 1; i2 >= 0; i2--) if (d = decorators[i2]) r2 = (c < 3 ? d(r2) : c > 3 ? d(target, key, r2) : d(target, key)) || r2;
+  return c > 3 && r2 && Object.defineProperty(target, key, r2), r2;
+}
+
+// ../../node_modules/fontkit/dist/module.mjs
+var import_fast_deep_equal = __toESM(require_fast_deep_equal(), 1);
 
 // ../../node_modules/unicode-properties/dist/module.mjs
 var import_base64_js = __toESM(require_base64_js2(), 1);
@@ -214333,8 +214433,8 @@ var $43e9821ef3717eec$export$2e2bcd8739ae039 = class {
   }
   decode(stream2, parent) {
     let version3 = this.getCFFVersion(parent);
-    let count2 = version3 >= 2 ? stream2.readUInt32BE() : stream2.readUInt16BE();
-    if (count2 === 0) return [];
+    let count3 = version3 >= 2 ? stream2.readUInt32BE() : stream2.readUInt16BE();
+    if (count3 === 0) return [];
     let offSize = stream2.readUInt8();
     let offsetType;
     if (offSize === 1) offsetType = uint8;
@@ -214343,9 +214443,9 @@ var $43e9821ef3717eec$export$2e2bcd8739ae039 = class {
     else if (offSize === 4) offsetType = uint32;
     else throw new Error(`Bad offset size in CFFIndex: ${offSize} ${stream2.pos}`);
     let ret = [];
-    let startPos = stream2.pos + (count2 + 1) * offSize - 1;
+    let startPos = stream2.pos + (count3 + 1) * offSize - 1;
     let start = offsetType.decode(stream2);
-    for (let i2 = 0; i2 < count2; i2++) {
+    for (let i2 = 0; i2 < count3; i2++) {
       let end = offsetType.decode(stream2);
       if (this.type != null) {
         let pos = stream2.pos;
@@ -216459,8 +216559,8 @@ var $b84fd3dd9d8eddb2$var$PredefinedOp = class {
     return this.type.size(value, ctx);
   }
   encode(stream2, value, ctx) {
-    let index7 = this.predefinedOps.indexOf(value);
-    if (index7 !== -1) return index7;
+    let index8 = this.predefinedOps.indexOf(value);
+    if (index8 !== -1) return index8;
     return this.type.encode(stream2, value, ctx);
   }
   constructor(predefinedOps, type) {
@@ -216503,12 +216603,12 @@ var $b84fd3dd9d8eddb2$var$CFFEncoding = new $b84fd3dd9d8eddb2$var$PredefinedOp([
 var $b84fd3dd9d8eddb2$var$RangeArray = class extends ArrayT {
   decode(stream2, parent) {
     let length = (0, resolveLength)(this.length, stream2, parent);
-    let count2 = 0;
+    let count3 = 0;
     let res = [];
-    while (count2 < length) {
+    while (count3 < length) {
       let range = this.type.decode(stream2, parent);
-      range.offset = count2;
-      count2 += range.nLeft + 1;
+      range.offset = count3;
+      count3 += range.nLeft + 1;
       res.push(range);
     }
     return res;
@@ -217963,14 +218063,14 @@ var $3793b781918cfced$export$2e2bcd8739ae039 = new Struct({
   segment: new ArrayT($3793b781918cfced$var$Segment, "axisCount")
 });
 var $6cb7dd5f47d82580$var$UnboundedArrayAccessor = class {
-  getItem(index7) {
-    if (this._items[index7] == null) {
+  getItem(index8) {
+    if (this._items[index8] == null) {
       let pos = this.stream.pos;
-      this.stream.pos = this.base + this.type.size(null, this.parent) * index7;
-      this._items[index7] = this.type.decode(this.stream, this.parent);
+      this.stream.pos = this.base + this.type.size(null, this.parent) * index8;
+      this._items[index8] = this.type.decode(this.stream, this.parent);
       this.stream.pos = pos;
     }
-    return this._items[index7];
+    return this._items[index8];
   }
   inspect() {
     return `[UnboundedArray ${this.type.constructor.name}]`;
@@ -218450,9 +218550,9 @@ function $12727730ddfc8bfe$export$2e0ae67339d5f1ac(arr, cmp) {
   }
   return -1;
 }
-function $12727730ddfc8bfe$export$d02631cccf789723(index7, end) {
+function $12727730ddfc8bfe$export$d02631cccf789723(index8, end) {
   let range = [];
-  while (index7 < end) range.push(index7++);
+  while (index8 < end) range.push(index8++);
   return range;
 }
 var $12727730ddfc8bfe$export$3d28c1996ced1f14 = new TextDecoder("ascii");
@@ -218507,8 +218607,8 @@ var $f08dd41ef10b694c$export$2e2bcd8739ae039 = class {
             let gid;
             if (rangeOffset === 0) gid = codepoint + cmap.idDelta.get(mid);
             else {
-              let index7 = rangeOffset / 2 + (codepoint - cmap.startCode.get(mid)) - (cmap.segCount - mid);
-              gid = cmap.glyphIndexArray.get(index7) || 0;
+              let index8 = rangeOffset / 2 + (codepoint - cmap.startCode.get(mid)) - (cmap.segCount - mid);
+              gid = cmap.glyphIndexArray.get(index8) || 0;
               if (gid !== 0) gid += cmap.idDelta.get(mid);
             }
             return gid & 65535;
@@ -218606,8 +218706,8 @@ var $f08dd41ef10b694c$export$2e2bcd8739ae039 = class {
             let g = 0;
             if (rangeOffset === 0) g = c + delta;
             else {
-              let index7 = rangeOffset / 2 + (c - start) - (cmap.segCount - i2);
-              g = cmap.glyphIndexArray.get(index7) || 0;
+              let index8 = rangeOffset / 2 + (c - start) - (cmap.segCount - i2);
+              g = cmap.glyphIndexArray.get(index8) || 0;
               if (g !== 0) g += delta;
             }
             if (g === gid) res.push(c);
@@ -218685,10 +218785,10 @@ var $f08dd41ef10b694c$export$2e2bcd8739ae039 = class {
     if (this.uvs && this.uvs.version !== 14) this.uvs = null;
   }
 };
-(0, $52ZIf$_1)([
+(0, __decorate2)([
   (0, $e71565f2ce09cb6b$export$69a3209f1a06c04d)
 ], $f08dd41ef10b694c$export$2e2bcd8739ae039.prototype, "getCharacterSet", null);
-(0, $52ZIf$_1)([
+(0, __decorate2)([
   (0, $e71565f2ce09cb6b$export$69a3209f1a06c04d)
 ], $f08dd41ef10b694c$export$2e2bcd8739ae039.prototype, "codePointsForGlyph", null);
 var $0bba3a9db57637f3$export$2e2bcd8739ae039 = class {
@@ -218727,8 +218827,8 @@ var $0bba3a9db57637f3$export$2e2bcd8739ae039 = class {
           if (left >= s2.leftTable.firstGlyph && left < s2.leftTable.firstGlyph + s2.leftTable.nGlyphs) leftOffset = s2.leftTable.offsets[left - s2.leftTable.firstGlyph];
           else leftOffset = s2.array.off;
           if (right >= s2.rightTable.firstGlyph && right < s2.rightTable.firstGlyph + s2.rightTable.nGlyphs) rightOffset = s2.rightTable.offsets[right - s2.rightTable.firstGlyph];
-          let index7 = (leftOffset + rightOffset - s2.array.off) / 2;
-          val = s2.array.values.get(index7);
+          let index8 = (leftOffset + rightOffset - s2.array.off) / 2;
+          val = s2.array.values.get(index8);
           break;
         case 3:
           if (left >= s2.glyphCount || right >= s2.glyphCount) return 0;
@@ -218750,12 +218850,12 @@ var $0a4bdfeb6dfd6f5e$export$2e2bcd8739ae039 = class {
   positionGlyphs(glyphs, positions) {
     let clusterStart = 0;
     let clusterEnd = 0;
-    for (let index7 = 0; index7 < glyphs.length; index7++) {
-      let glyph = glyphs[index7];
-      if (glyph.isMark) clusterEnd = index7;
+    for (let index8 = 0; index8 < glyphs.length; index8++) {
+      let glyph = glyphs[index8];
+      if (glyph.isMark) clusterEnd = index8;
       else {
         if (clusterStart !== clusterEnd) this.positionCluster(glyphs, positions, clusterStart, clusterEnd);
-        clusterStart = clusterEnd = index7;
+        clusterStart = clusterEnd = index8;
       }
     }
     if (clusterStart !== clusterEnd) this.positionCluster(glyphs, positions, clusterStart, clusterEnd);
@@ -218769,10 +218869,10 @@ var $0a4bdfeb6dfd6f5e$export$2e2bcd8739ae039 = class {
     let xOffset = -positions[clusterStart].xAdvance;
     let yOffset = 0;
     let yGap = this.font.unitsPerEm / 16;
-    for (let index7 = clusterStart + 1; index7 <= clusterEnd; index7++) {
-      let mark = glyphs[index7];
+    for (let index8 = clusterStart + 1; index8 <= clusterEnd; index8++) {
+      let mark = glyphs[index8];
       let markBox = mark.cbox;
-      let position = positions[index7];
+      let position = positions[index8];
       let combiningClass = this.getCombiningClass(mark.codePoints[0]);
       if (combiningClass !== "Not_Reordered") {
         position.xOffset = position.yOffset = 0;
@@ -219203,9 +219303,9 @@ var $be07b3e97a42687a$export$2e2bcd8739ae039 = class {
     let bbox = new (0, $f34600ab9d7f70d8$export$2e2bcd8739ae039)();
     let x2 = 0;
     let y = 0;
-    for (let index7 = 0; index7 < this.glyphs.length; index7++) {
-      let glyph = this.glyphs[index7];
-      let p = this.positions[index7];
+    for (let index8 = 0; index8 < this.glyphs.length; index8++) {
+      let glyph = this.glyphs[index8];
+      let p = this.positions[index8];
       let b = glyph.bbox;
       bbox.addPoint(b.minX + x2 + p.xOffset, b.minY + y + p.yOffset);
       bbox.addPoint(b.maxX + x2 + p.xOffset, b.maxY + y + p.yOffset);
@@ -219779,7 +219879,7 @@ var $ff5ce077dae0f144$export$2e2bcd8739ae039 = class {
       case 4:
         for (let segment of this.table.segments) if (this.table.version === 2 && segment.value === classValue) res.push(...(0, $12727730ddfc8bfe$export$d02631cccf789723)(segment.firstGlyph, segment.lastGlyph + 1));
         else {
-          for (let index7 = 0; index7 < segment.values.length; index7++) if (segment.values[index7] === classValue) res.push(segment.firstGlyph + index7);
+          for (let index8 = 0; index8 < segment.values.length; index8++) if (segment.values[index8] === classValue) res.push(segment.firstGlyph + index8);
         }
         break;
       case 6:
@@ -219797,7 +219897,7 @@ var $ff5ce077dae0f144$export$2e2bcd8739ae039 = class {
     this.table = table2;
   }
 };
-(0, $52ZIf$_1)([
+(0, __decorate2)([
   (0, $e71565f2ce09cb6b$export$69a3209f1a06c04d)
 ], $ff5ce077dae0f144$export$2e2bcd8739ae039.prototype, "glyphsForValue", null);
 var $50c7aac9316f2948$var$START_OF_TEXT_STATE = 0;
@@ -219808,15 +219908,15 @@ var $50c7aac9316f2948$var$DONT_ADVANCE = 16384;
 var $50c7aac9316f2948$export$2e2bcd8739ae039 = class {
   process(glyphs, reverse, processEntry) {
     let currentState = $50c7aac9316f2948$var$START_OF_TEXT_STATE;
-    let index7 = reverse ? glyphs.length - 1 : 0;
+    let index8 = reverse ? glyphs.length - 1 : 0;
     let dir = reverse ? -1 : 1;
-    while (dir === 1 && index7 <= glyphs.length || dir === -1 && index7 >= -1) {
+    while (dir === 1 && index8 <= glyphs.length || dir === -1 && index8 >= -1) {
       let glyph = null;
       let classCode = $50c7aac9316f2948$var$OUT_OF_BOUNDS_CLASS;
       let shouldAdvance = true;
-      if (index7 === glyphs.length || index7 === -1) classCode = $50c7aac9316f2948$var$END_OF_TEXT_CLASS;
+      if (index8 === glyphs.length || index8 === -1) classCode = $50c7aac9316f2948$var$END_OF_TEXT_CLASS;
       else {
-        glyph = glyphs[index7];
+        glyph = glyphs[index8];
         if (glyph.id === 65535) classCode = $50c7aac9316f2948$var$DELETED_GLYPH_CLASS;
         else {
           classCode = this.lookupTable.lookup(glyph.id);
@@ -219827,11 +219927,11 @@ var $50c7aac9316f2948$export$2e2bcd8739ae039 = class {
       let entryIndex = row[classCode];
       let entry = this.stateTable.entryTable.getItem(entryIndex);
       if (classCode !== $50c7aac9316f2948$var$END_OF_TEXT_CLASS && classCode !== $50c7aac9316f2948$var$DELETED_GLYPH_CLASS) {
-        processEntry(glyph, entry, index7);
+        processEntry(glyph, entry, index8);
         shouldAdvance = !(entry.flags & $50c7aac9316f2948$var$DONT_ADVANCE);
       }
       currentState = entry.newState;
-      if (shouldAdvance) index7 += dir;
+      if (shouldAdvance) index8 += dir;
     }
     return glyphs;
   }
@@ -219893,10 +219993,10 @@ var $55f71433a605c87d$export$2e2bcd8739ae039 = class {
       }
       for (let subtable of chain.subtables) if (subtable.subFeatureFlags & flags) this.processSubtable(subtable, glyphs);
     }
-    let index7 = glyphs.length - 1;
-    while (index7 >= 0) {
-      if (glyphs[index7].id === 65535) glyphs.splice(index7, 1);
-      index7--;
+    let index8 = glyphs.length - 1;
+    while (index8 >= 0) {
+      if (glyphs[index8].id === 65535) glyphs.splice(index8, 1);
+      index8--;
     }
     return glyphs;
   }
@@ -219936,12 +220036,12 @@ var $55f71433a605c87d$export$2e2bcd8739ae039 = class {
         throw new Error(`Invalid morx subtable type: ${this.subtable.type}`);
     }
   }
-  processIndicRearragement(glyph, entry, index7) {
-    if (entry.flags & $55f71433a605c87d$var$MARK_FIRST) this.firstGlyph = index7;
-    if (entry.flags & $55f71433a605c87d$var$MARK_LAST) this.lastGlyph = index7;
+  processIndicRearragement(glyph, entry, index8) {
+    if (entry.flags & $55f71433a605c87d$var$MARK_FIRST) this.firstGlyph = index8;
+    if (entry.flags & $55f71433a605c87d$var$MARK_LAST) this.lastGlyph = index8;
     $55f71433a605c87d$var$reorderGlyphs(this.glyphs, entry.flags & $55f71433a605c87d$var$VERB, this.firstGlyph, this.lastGlyph);
   }
-  processContextualSubstitution(glyph, entry, index7) {
+  processContextualSubstitution(glyph, entry, index8) {
     let subsitutions = this.subtable.table.substitutionTable.items;
     if (entry.markIndex !== 65535) {
       let lookup = subsitutions.getItem(entry.markIndex);
@@ -219953,14 +220053,14 @@ var $55f71433a605c87d$export$2e2bcd8739ae039 = class {
     if (entry.currentIndex !== 65535) {
       let lookup = subsitutions.getItem(entry.currentIndex);
       let lookupTable = new (0, $ff5ce077dae0f144$export$2e2bcd8739ae039)(lookup);
-      glyph = this.glyphs[index7];
+      glyph = this.glyphs[index8];
       var gid = lookupTable.lookup(glyph.id);
-      if (gid) this.glyphs[index7] = this.font.getGlyph(gid, glyph.codePoints);
+      if (gid) this.glyphs[index8] = this.font.getGlyph(gid, glyph.codePoints);
     }
-    if (entry.flags & $55f71433a605c87d$var$SET_MARK) this.markedGlyph = index7;
+    if (entry.flags & $55f71433a605c87d$var$SET_MARK) this.markedGlyph = index8;
   }
-  processLigature(glyph, entry, index7) {
-    if (entry.flags & $55f71433a605c87d$var$SET_COMPONENT) this.ligatureStack.push(index7);
+  processLigature(glyph, entry, index8) {
+    if (entry.flags & $55f71433a605c87d$var$SET_COMPONENT) this.ligatureStack.push(index8);
     if (entry.flags & $55f71433a605c87d$var$PERFORM_ACTION) {
       let actions = this.subtable.table.ligatureActions;
       let components = this.subtable.table.components;
@@ -219991,36 +220091,36 @@ var $55f71433a605c87d$export$2e2bcd8739ae039 = class {
       this.ligatureStack.push(...ligatureGlyphs);
     }
   }
-  processNoncontextualSubstitutions(subtable, glyphs, index7) {
+  processNoncontextualSubstitutions(subtable, glyphs, index8) {
     let lookupTable = new (0, $ff5ce077dae0f144$export$2e2bcd8739ae039)(subtable.table.lookupTable);
-    for (index7 = 0; index7 < glyphs.length; index7++) {
-      let glyph = glyphs[index7];
+    for (index8 = 0; index8 < glyphs.length; index8++) {
+      let glyph = glyphs[index8];
       if (glyph.id !== 65535) {
         let gid = lookupTable.lookup(glyph.id);
-        if (gid) glyphs[index7] = this.font.getGlyph(gid, glyph.codePoints);
+        if (gid) glyphs[index8] = this.font.getGlyph(gid, glyph.codePoints);
       }
     }
   }
-  _insertGlyphs(glyphIndex, insertionActionIndex, count2, isBefore) {
+  _insertGlyphs(glyphIndex, insertionActionIndex, count3, isBefore) {
     let insertions = [];
-    while (count2--) {
+    while (count3--) {
       let gid = this.subtable.table.insertionActions.getItem(insertionActionIndex++);
       insertions.push(this.font.getGlyph(gid));
     }
     if (!isBefore) glyphIndex++;
     this.glyphs.splice(glyphIndex, 0, ...insertions);
   }
-  processGlyphInsertion(glyph, entry, index7) {
-    if (entry.flags & $55f71433a605c87d$var$SET_MARK) this.markedIndex = index7;
+  processGlyphInsertion(glyph, entry, index8) {
+    if (entry.flags & $55f71433a605c87d$var$SET_MARK) this.markedIndex = index8;
     if (entry.markedInsertIndex !== 65535) {
-      let count2 = (entry.flags & $55f71433a605c87d$var$MARKED_INSERT_COUNT) >>> 5;
+      let count3 = (entry.flags & $55f71433a605c87d$var$MARKED_INSERT_COUNT) >>> 5;
       let isBefore = !!(entry.flags & $55f71433a605c87d$var$MARKED_INSERT_BEFORE);
-      this._insertGlyphs(this.markedIndex, entry.markedInsertIndex, count2, isBefore);
+      this._insertGlyphs(this.markedIndex, entry.markedInsertIndex, count3, isBefore);
     }
     if (entry.currentInsertIndex !== 65535) {
-      let count2 = (entry.flags & $55f71433a605c87d$var$CURRENT_INSERT_COUNT) >>> 5;
+      let count3 = (entry.flags & $55f71433a605c87d$var$CURRENT_INSERT_COUNT) >>> 5;
       let isBefore = !!(entry.flags & $55f71433a605c87d$var$CURRENT_INSERT_BEFORE);
-      this._insertGlyphs(index7, entry.currentInsertIndex, count2, isBefore);
+      this._insertGlyphs(index8, entry.currentInsertIndex, count3, isBefore);
     }
   }
   getSupportedFeatures() {
@@ -220064,13 +220164,13 @@ var $55f71433a605c87d$export$2e2bcd8739ae039 = class {
         input.push(g);
         glyphs.push(input[input.length - 1]);
         process3(glyphs[glyphs.length - 1], entry, glyphs.length - 1);
-        let count2 = 0;
+        let count3 = 0;
         let found = 0;
-        for (let i2 = 0; i2 < glyphs.length && count2 <= 1; i2++) if (glyphs[i2].id !== 65535) {
-          count2++;
+        for (let i2 = 0; i2 < glyphs.length && count3 <= 1; i2++) if (glyphs[i2].id !== 65535) {
+          count3++;
           found = glyphs[i2].id;
         }
-        if (count2 === 1) {
+        if (count3 === 1) {
           let result = input.map((g2) => g2.id);
           let cache2 = this.inputCache[found];
           if (cache2) cache2.push(result);
@@ -220096,7 +220196,7 @@ var $55f71433a605c87d$export$2e2bcd8739ae039 = class {
     this.inputCache = null;
   }
 };
-(0, $52ZIf$_1)([
+(0, __decorate2)([
   (0, $e71565f2ce09cb6b$export$69a3209f1a06c04d)
 ], $55f71433a605c87d$export$2e2bcd8739ae039.prototype, "getStateMachine", null);
 function $55f71433a605c87d$var$swap(glyphs, rangeA, rangeB, reverseA = false, reverseB = false) {
@@ -220250,11 +220350,11 @@ var $ba6dd74203be8728$export$2e2bcd8739ae039 = class {
     for (let glyphs of glyphStrings) this._addStrings(glyphs, 0, result, "");
     return result;
   }
-  _addStrings(glyphs, index7, strings, string2) {
-    let codePoints = this.font._cmapProcessor.codePointsForGlyph(glyphs[index7]);
+  _addStrings(glyphs, index8, strings, string2) {
+    let codePoints = this.font._cmapProcessor.codePointsForGlyph(glyphs[index8]);
     for (let codePoint of codePoints) {
       let s2 = string2 + String.fromCodePoint(codePoint);
-      if (index7 < glyphs.length - 1) this._addStrings(glyphs, index7 + 1, strings, s2);
+      if (index8 < glyphs.length - 1) this._addStrings(glyphs, index8 + 1, strings, s2);
       else strings.add(s2);
     }
   }
@@ -220420,7 +220520,7 @@ var $649970d87335b30f$export$2e2bcd8739ae039 = class {
     }
   }
 };
-(0, $52ZIf$_)($649970d87335b30f$export$2e2bcd8739ae039, "zeroMarkWidths", "AFTER_GPOS");
+(0, _define_property)($649970d87335b30f$export$2e2bcd8739ae039, "zeroMarkWidths", "AFTER_GPOS");
 var $764eb544bbe1ccf0$var$trie = new (0, import_unicode_trie2.default)((0, $12727730ddfc8bfe$export$94fdf11bafc8de6b)("APABAAAAAAAAOAAAAf0BAv7tmi1MxDAUx7vtvjhAgcDgkEgEAnmXEBIMCYaEcygEiqBQ4FAkCE4ikUgMiiBJSAgSiUQSDMn9L9eSl6bddddug9t7yS/trevre+3r27pcNxZiG+yCfdCVv/9LeQxOwRm4AJegD27ALbgD9+ABPJF+z+BN/h7yDj5k/VOWX6SdmU5+wLWknggxDxaS8u0qiiX4uiz9XamQ3wzDMAzDMAzDMAzDVI/h959V/v7BMAzDMAzDMLlyNTNiMSdewVxbiA44B4/guz1qW58VYlMI0WsJ0W+N6kXw0spvPtdwhtkwnGM6uLaV4Xyzg3v3PM9DPfQ/sOg4xPWjipy31P8LTqbU304c/cLCUmWJLNB2Uz2U1KTeRKNmKHVMfbJC+/0loTZRH/W5cvEvBJPMbREkWt3FD1NcqXZBSpuE2Ad0PBehPtNrPtIEdYP+hiRt/V1jIiE69X4NT/uVZI3PUHE9bm5M7ePGdZWy951v7Nn6j8v1WWKP3mt6ttnsigx6VN7Vc0VomSSGqW2mGNP1muZPl7LfjNUaKNFtDGVf2fvE9O7VlBS5j333c5p/eeoOqcs1R/hIqDWLJ7TTlksirVT1SI7l8k4Yp+g3jafGcrU1RM6l9th80XOpnlN97bDNY4i4s61B0Si/ipa0uHMl6zqEjlFfCZm/TM8KmzQDjmuTAQ=="));
 var $764eb544bbe1ccf0$var$FEATURES = [
   "isol",
@@ -220713,10 +220813,10 @@ var $764eb544bbe1ccf0$export$2e2bcd8739ae039 = class extends (0, $649970d87335b3
       actions[i2] = curAction;
       prev = i2;
     }
-    for (let index7 = 0; index7 < glyphs.length; index7++) {
+    for (let index8 = 0; index8 < glyphs.length; index8++) {
       let feature;
-      var glyph = glyphs[index7];
-      if (feature = actions[index7]) glyph.features[feature] = true;
+      var glyph = glyphs[index8];
+      if (feature = actions[index8]) glyph.features[feature] = true;
     }
   }
 };
@@ -220728,11 +220828,11 @@ function $764eb544bbe1ccf0$var$getShapingClass(codePoint) {
   return $764eb544bbe1ccf0$var$ShapingClasses.Non_Joining;
 }
 var $85d408632270248b$export$2e2bcd8739ae039 = class {
-  reset(options = {}, index7 = 0) {
+  reset(options = {}, index8 = 0) {
     this.options = options;
     this.flags = options.flags || {};
     this.markAttachmentType = options.markAttachmentType || 0;
-    this.index = index7;
+    this.index = index8;
   }
   get cur() {
     return this.glyphs[this.index] || null;
@@ -220752,23 +220852,23 @@ var $85d408632270248b$export$2e2bcd8739ae039 = class {
   prev() {
     return this.move(-1);
   }
-  peek(count2 = 1) {
+  peek(count3 = 1) {
     let idx = this.index;
-    let res = this.increment(count2);
+    let res = this.increment(count3);
     this.index = idx;
     return res;
   }
-  peekIndex(count2 = 1) {
+  peekIndex(count3 = 1) {
     let idx = this.index;
-    this.increment(count2);
+    this.increment(count3);
     let res = this.index;
     this.index = idx;
     return res;
   }
-  increment(count2 = 1) {
-    let dir = count2 < 0 ? -1 : 1;
-    count2 = Math.abs(count2);
-    while (count2--) this.move(dir);
+  increment(count3 = 1) {
+    let dir = count3 < 0 ? -1 : 1;
+    count3 = Math.abs(count3);
+    while (count3--) this.move(dir);
     return this.glyphs[this.index];
   }
   constructor(glyphs, options) {
@@ -220970,21 +221070,21 @@ var $a83b9c36aaa94fd3$export$2e2bcd8739ae039 = class {
     return this.match(sequenceIndex, sequence, (classID, glyph) => classID === this.getClassID(glyph.id, classDef));
   }
   applyContext(table2) {
-    let index7, set;
+    let index8, set;
     switch (table2.version) {
       case 1:
-        index7 = this.coverageIndex(table2.coverage);
-        if (index7 === -1) return false;
-        set = table2.ruleSets[index7];
+        index8 = this.coverageIndex(table2.coverage);
+        if (index8 === -1) return false;
+        set = table2.ruleSets[index8];
         for (let rule of set) {
           if (this.sequenceMatches(1, rule.input)) return this.applyLookupList(rule.lookupRecords);
         }
         break;
       case 2:
         if (this.coverageIndex(table2.coverage) === -1) return false;
-        index7 = this.getClassID(this.glyphIterator.cur.id, table2.classDef);
-        if (index7 === -1) return false;
-        set = table2.classSet[index7];
+        index8 = this.getClassID(this.glyphIterator.cur.id, table2.classDef);
+        if (index8 === -1) return false;
+        set = table2.classSet[index8];
         for (let rule of set) {
           if (this.classSequenceMatches(1, rule.classes, table2.classDef)) return this.applyLookupList(rule.lookupRecords);
         }
@@ -220996,20 +221096,20 @@ var $a83b9c36aaa94fd3$export$2e2bcd8739ae039 = class {
     return false;
   }
   applyChainingContext(table2) {
-    let index7;
+    let index8;
     switch (table2.version) {
       case 1:
-        index7 = this.coverageIndex(table2.coverage);
-        if (index7 === -1) return false;
-        let set = table2.chainRuleSets[index7];
+        index8 = this.coverageIndex(table2.coverage);
+        if (index8 === -1) return false;
+        let set = table2.chainRuleSets[index8];
         for (let rule of set) {
           if (this.sequenceMatches(-rule.backtrack.length, rule.backtrack) && this.sequenceMatches(1, rule.input) && this.sequenceMatches(1 + rule.input.length, rule.lookahead)) return this.applyLookupList(rule.lookupRecords);
         }
         break;
       case 2:
         if (this.coverageIndex(table2.coverage) === -1) return false;
-        index7 = this.getClassID(this.glyphIterator.cur.id, table2.inputClassDef);
-        let rules = table2.chainClassSet[index7];
+        index8 = this.getClassID(this.glyphIterator.cur.id, table2.inputClassDef);
+        let rules = table2.chainClassSet[index8];
         if (!rules) return false;
         for (let rule of rules) {
           if (this.classSequenceMatches(-rule.backtrack.length, rule.backtrack, table2.backtrackClassDef) && this.classSequenceMatches(1, rule.input, table2.inputClassDef) && this.classSequenceMatches(1 + rule.input.length, rule.lookahead, table2.lookaheadClassDef)) return this.applyLookupList(rule.lookupRecords);
@@ -221117,7 +221217,7 @@ var $e1c6bbc8cb416f8c$export$2e2bcd8739ae039 = class extends (0, $649970d87335b3
     }
   }
 };
-(0, $52ZIf$_)($e1c6bbc8cb416f8c$export$2e2bcd8739ae039, "zeroMarkWidths", "NONE");
+(0, _define_property)($e1c6bbc8cb416f8c$export$2e2bcd8739ae039, "zeroMarkWidths", "NONE");
 var $e1c6bbc8cb416f8c$var$HANGUL_BASE = 44032;
 var $e1c6bbc8cb416f8c$var$HANGUL_END = 55204;
 var $e1c6bbc8cb416f8c$var$HANGUL_COUNT = $e1c6bbc8cb416f8c$var$HANGUL_END - $e1c6bbc8cb416f8c$var$HANGUL_BASE + 1;
@@ -221620,7 +221720,7 @@ var $7826f90f6f0cecc9$export$2e2bcd8739ae039 = class extends (0, $649970d87335b3
     }
   }
 };
-(0, $52ZIf$_)($7826f90f6f0cecc9$export$2e2bcd8739ae039, "zeroMarkWidths", "NONE");
+(0, _define_property)($7826f90f6f0cecc9$export$2e2bcd8739ae039, "zeroMarkWidths", "NONE");
 function $7826f90f6f0cecc9$var$indicCategory(glyph) {
   return $7826f90f6f0cecc9$var$trie.get(glyph.codePoints[0]) >> 8;
 }
@@ -222030,7 +222130,7 @@ var $7ab494fe977143c6$export$2e2bcd8739ae039 = class extends (0, $649970d87335b3
     }
   }
 };
-(0, $52ZIf$_)($7ab494fe977143c6$export$2e2bcd8739ae039, "zeroMarkWidths", "BEFORE_GPOS");
+(0, _define_property)($7ab494fe977143c6$export$2e2bcd8739ae039, "zeroMarkWidths", "BEFORE_GPOS");
 function $7ab494fe977143c6$var$useCategory(glyph) {
   return $7ab494fe977143c6$var$trie.get(glyph.codePoints[0]);
 }
@@ -222197,23 +222297,23 @@ var $0a876c45f1f7c41c$export$2e2bcd8739ae039 = class extends (0, $a83b9c36aaa94f
   applyLookup(lookupType, table2) {
     switch (lookupType) {
       case 1: {
-        let index7 = this.coverageIndex(table2.coverage);
-        if (index7 === -1) return false;
+        let index8 = this.coverageIndex(table2.coverage);
+        if (index8 === -1) return false;
         let glyph = this.glyphIterator.cur;
         switch (table2.version) {
           case 1:
             glyph.id = glyph.id + table2.deltaGlyphID & 65535;
             break;
           case 2:
-            glyph.id = table2.substitute.get(index7);
+            glyph.id = table2.substitute.get(index8);
             break;
         }
         return true;
       }
       case 2: {
-        let index7 = this.coverageIndex(table2.coverage);
-        if (index7 !== -1) {
-          let sequence = table2.sequences.get(index7);
+        let index8 = this.coverageIndex(table2.coverage);
+        if (index8 !== -1) {
+          let sequence = table2.sequences.get(index8);
           if (sequence.length === 0) {
             this.glyphs.splice(this.glyphIterator.index, 1);
             return true;
@@ -222237,23 +222337,23 @@ var $0a876c45f1f7c41c$export$2e2bcd8739ae039 = class extends (0, $a83b9c36aaa94f
         return false;
       }
       case 3: {
-        let index7 = this.coverageIndex(table2.coverage);
-        if (index7 !== -1) {
+        let index8 = this.coverageIndex(table2.coverage);
+        if (index8 !== -1) {
           let USER_INDEX = 0;
-          this.glyphIterator.cur.id = table2.alternateSet.get(index7)[USER_INDEX];
+          this.glyphIterator.cur.id = table2.alternateSet.get(index8)[USER_INDEX];
           return true;
         }
         return false;
       }
       case 4: {
-        let index7 = this.coverageIndex(table2.coverage);
-        if (index7 === -1) return false;
-        for (let ligature of table2.ligatureSets.get(index7)) {
+        let index8 = this.coverageIndex(table2.coverage);
+        if (index8 === -1) return false;
+        for (let ligature of table2.ligatureSets.get(index8)) {
           let matched = this.sequenceMatchIndices(1, ligature.components);
           if (!matched) continue;
           let curGlyph = this.glyphIterator.cur;
           let characters2 = curGlyph.codePoints.slice();
-          for (let index8 of matched) characters2.push(...this.glyphs[index8].codePoints);
+          for (let index9 of matched) characters2.push(...this.glyphs[index9].codePoints);
           let ligatureGlyph = new (0, $10e7b257e1a9a756$export$2e2bcd8739ae039)(this.font, ligature.glyph, characters2, curGlyph.features);
           ligatureGlyph.shaperInfo = curGlyph.shaperInfo;
           ligatureGlyph.isLigated = true;
@@ -222320,14 +222420,14 @@ var $c96c93587d49c14d$export$2e2bcd8739ae039 = class extends (0, $a83b9c36aaa94f
   applyLookup(lookupType, table2) {
     switch (lookupType) {
       case 1: {
-        let index7 = this.coverageIndex(table2.coverage);
-        if (index7 === -1) return false;
+        let index8 = this.coverageIndex(table2.coverage);
+        if (index8 === -1) return false;
         switch (table2.version) {
           case 1:
             this.applyPositionValue(0, table2.value);
             break;
           case 2:
-            this.applyPositionValue(0, table2.values.get(index7));
+            this.applyPositionValue(0, table2.values.get(index8));
             break;
         }
         return true;
@@ -222335,11 +222435,11 @@ var $c96c93587d49c14d$export$2e2bcd8739ae039 = class extends (0, $a83b9c36aaa94f
       case 2: {
         let nextGlyph = this.glyphIterator.peek();
         if (!nextGlyph) return false;
-        let index7 = this.coverageIndex(table2.coverage);
-        if (index7 === -1) return false;
+        let index8 = this.coverageIndex(table2.coverage);
+        if (index8 === -1) return false;
         switch (table2.version) {
           case 1:
-            let set = table2.pairSets.get(index7);
+            let set = table2.pairSets.get(index8);
             for (let pair2 of set) if (pair2.secondGlyph === nextGlyph.id) {
               this.applyPositionValue(0, pair2.value1);
               this.applyPositionValue(1, pair2.value2);
@@ -223275,22 +223375,22 @@ var $f92906be28e61769$export$2e2bcd8739ae039 = class {
     this.isLigature = this.codePoints.length > 1;
   }
 };
-(0, $52ZIf$_1)([
+(0, __decorate2)([
   (0, $e71565f2ce09cb6b$export$69a3209f1a06c04d)
 ], $f92906be28e61769$export$2e2bcd8739ae039.prototype, "cbox", null);
-(0, $52ZIf$_1)([
+(0, __decorate2)([
   (0, $e71565f2ce09cb6b$export$69a3209f1a06c04d)
 ], $f92906be28e61769$export$2e2bcd8739ae039.prototype, "bbox", null);
-(0, $52ZIf$_1)([
+(0, __decorate2)([
   (0, $e71565f2ce09cb6b$export$69a3209f1a06c04d)
 ], $f92906be28e61769$export$2e2bcd8739ae039.prototype, "path", null);
-(0, $52ZIf$_1)([
+(0, __decorate2)([
   (0, $e71565f2ce09cb6b$export$69a3209f1a06c04d)
 ], $f92906be28e61769$export$2e2bcd8739ae039.prototype, "advanceWidth", null);
-(0, $52ZIf$_1)([
+(0, __decorate2)([
   (0, $e71565f2ce09cb6b$export$69a3209f1a06c04d)
 ], $f92906be28e61769$export$2e2bcd8739ae039.prototype, "advanceHeight", null);
-(0, $52ZIf$_1)([
+(0, __decorate2)([
   (0, $e71565f2ce09cb6b$export$69a3209f1a06c04d)
 ], $f92906be28e61769$export$2e2bcd8739ae039.prototype, "name", null);
 var $69aac16029968692$var$GlyfHeader = new Struct({
@@ -223377,8 +223477,8 @@ var $69aac16029968692$export$2e2bcd8739ae039 = class extends (0, $f92906be28e617
       var flag = stream2.readUInt8();
       flags.push(flag);
       if (flag & $69aac16029968692$var$REPEAT) {
-        let count2 = stream2.readUInt8();
-        for (let j = 0; j < count2; j++) flags.push(flag);
+        let count3 = stream2.readUInt8();
+        for (let j = 0; j < count3; j++) flags.push(flag);
       }
     }
     for (var i2 = 0; i2 < flags.length; i2++) {
@@ -223550,7 +223650,7 @@ var $69aac16029968692$export$2e2bcd8739ae039 = class extends (0, $f92906be28e617
   }
   constructor(...args) {
     super(...args);
-    (0, $52ZIf$_)(this, "type", "TTF");
+    (0, _define_property)(this, "type", "TTF");
   }
 };
 var $62cc5109c6101893$export$2e2bcd8739ae039 = class extends (0, $f92906be28e61769$export$2e2bcd8739ae039) {
@@ -223605,7 +223705,7 @@ var $62cc5109c6101893$export$2e2bcd8739ae039 = class extends (0, $f92906be28e617
       while (stream2.pos < end) {
         let op = stream2.readUInt8();
         if (op < 32) {
-          let index7, subr, phase;
+          let index8, subr, phase;
           let c1x, c1y, c2x, c2y, c3x, c3y;
           let c4x, c4y, c5x, c5y, c6x, c6y;
           let pts;
@@ -223650,10 +223750,10 @@ var $62cc5109c6101893$export$2e2bcd8739ae039 = class extends (0, $f92906be28e617
               }
               break;
             case 10:
-              index7 = stack.pop() + subrsBias;
-              subr = subrs[index7];
+              index8 = stack.pop() + subrsBias;
+              subr = subrs[index8];
               if (subr) {
-                usedSubrs[index7] = true;
+                usedSubrs[index8] = true;
                 let p = stream2.pos;
                 let e2 = end;
                 stream2.pos = subr.offset;
@@ -223766,10 +223866,10 @@ var $62cc5109c6101893$export$2e2bcd8739ae039 = class extends (0, $f92906be28e617
               stack.push(stream2.readInt16BE());
               break;
             case 29:
-              index7 = stack.pop() + gsubrsBias;
-              subr = gsubrs[index7];
+              index8 = stack.pop() + gsubrsBias;
+              subr = gsubrs[index8];
               if (subr) {
-                usedGsubrs[index7] = true;
+                usedGsubrs[index8] = true;
                 let p = stream2.pos;
                 let e2 = end;
                 stream2.pos = subr.offset;
@@ -223999,7 +224099,7 @@ var $62cc5109c6101893$export$2e2bcd8739ae039 = class extends (0, $f92906be28e617
   }
   constructor(...args) {
     super(...args);
-    (0, $52ZIf$_)(this, "type", "CFF");
+    (0, _define_property)(this, "type", "CFF");
   }
 };
 var $25d8f049c222084c$var$SBIXImage = new Struct({
@@ -224045,7 +224145,7 @@ var $25d8f049c222084c$export$2e2bcd8739ae039 = class extends (0, $69aac160299686
   }
   constructor(...args) {
     super(...args);
-    (0, $52ZIf$_)(this, "type", "SBIX");
+    (0, _define_property)(this, "type", "SBIX");
   }
 };
 var $0d411f0165859681$var$COLRLayer = class {
@@ -224119,7 +224219,7 @@ var $0d411f0165859681$export$2e2bcd8739ae039 = class extends (0, $f92906be28e617
   }
   constructor(...args) {
     super(...args);
-    (0, $52ZIf$_)(this, "type", "COLR");
+    (0, _define_property)(this, "type", "COLR");
   }
 };
 var $0bb840cac04e911b$var$TUPLES_SHARE_POINT_NUMBERS = 32768;
@@ -224233,33 +224333,33 @@ var $0bb840cac04e911b$export$2e2bcd8739ae039 = class {
   }
   decodePoints() {
     let stream2 = this.font.stream;
-    let count2 = stream2.readUInt8();
-    if (count2 & $0bb840cac04e911b$var$POINTS_ARE_WORDS) count2 = (count2 & $0bb840cac04e911b$var$POINT_RUN_COUNT_MASK) << 8 | stream2.readUInt8();
-    let points = new Uint16Array(count2);
+    let count3 = stream2.readUInt8();
+    if (count3 & $0bb840cac04e911b$var$POINTS_ARE_WORDS) count3 = (count3 & $0bb840cac04e911b$var$POINT_RUN_COUNT_MASK) << 8 | stream2.readUInt8();
+    let points = new Uint16Array(count3);
     let i2 = 0;
     let point = 0;
-    while (i2 < count2) {
+    while (i2 < count3) {
       let run = stream2.readUInt8();
       let runCount = (run & $0bb840cac04e911b$var$POINT_RUN_COUNT_MASK) + 1;
       let fn = run & $0bb840cac04e911b$var$POINTS_ARE_WORDS ? stream2.readUInt16 : stream2.readUInt8;
-      for (let j = 0; j < runCount && i2 < count2; j++) {
+      for (let j = 0; j < runCount && i2 < count3; j++) {
         point += fn.call(stream2);
         points[i2++] = point;
       }
     }
     return points;
   }
-  decodeDeltas(count2) {
+  decodeDeltas(count3) {
     let stream2 = this.font.stream;
     let i2 = 0;
-    let deltas = new Int16Array(count2);
-    while (i2 < count2) {
+    let deltas = new Int16Array(count3);
+    while (i2 < count3) {
       let run = stream2.readUInt8();
       let runCount = (run & $0bb840cac04e911b$var$DELTA_RUN_COUNT_MASK) + 1;
       if (run & $0bb840cac04e911b$var$DELTAS_ARE_ZERO) i2 += runCount;
       else {
         let fn = run & $0bb840cac04e911b$var$DELTAS_ARE_WORDS ? stream2.readInt16BE : stream2.readInt8;
-        for (let j = 0; j < runCount && i2 < count2; j++) deltas[i2++] = fn.call(stream2);
+        for (let j = 0; j < runCount && i2 < count3; j++) deltas[i2++] = fn.call(stream2);
       }
     }
     return deltas;
@@ -225132,7 +225232,7 @@ var $4c1709dee528ea76$export$2e2bcd8739ae039 = class _$4c1709dee528ea76$export$2
     return this.getVariation(name);
   }
   constructor(stream2, variationCoords = null) {
-    (0, $52ZIf$_)(this, "type", "TTF");
+    (0, _define_property)(this, "type", "TTF");
     this.defaultLanguage = null;
     this.stream = stream2;
     this.variationCoords = variationCoords;
@@ -225148,25 +225248,25 @@ var $4c1709dee528ea76$export$2e2bcd8739ae039 = class _$4c1709dee528ea76$export$2
     }
   }
 };
-(0, $52ZIf$_1)([
+(0, __decorate2)([
   (0, $e71565f2ce09cb6b$export$69a3209f1a06c04d)
 ], $4c1709dee528ea76$export$2e2bcd8739ae039.prototype, "bbox", null);
-(0, $52ZIf$_1)([
+(0, __decorate2)([
   (0, $e71565f2ce09cb6b$export$69a3209f1a06c04d)
 ], $4c1709dee528ea76$export$2e2bcd8739ae039.prototype, "_cmapProcessor", null);
-(0, $52ZIf$_1)([
+(0, __decorate2)([
   (0, $e71565f2ce09cb6b$export$69a3209f1a06c04d)
 ], $4c1709dee528ea76$export$2e2bcd8739ae039.prototype, "characterSet", null);
-(0, $52ZIf$_1)([
+(0, __decorate2)([
   (0, $e71565f2ce09cb6b$export$69a3209f1a06c04d)
 ], $4c1709dee528ea76$export$2e2bcd8739ae039.prototype, "_layoutEngine", null);
-(0, $52ZIf$_1)([
+(0, __decorate2)([
   (0, $e71565f2ce09cb6b$export$69a3209f1a06c04d)
 ], $4c1709dee528ea76$export$2e2bcd8739ae039.prototype, "variationAxes", null);
-(0, $52ZIf$_1)([
+(0, __decorate2)([
   (0, $e71565f2ce09cb6b$export$69a3209f1a06c04d)
 ], $4c1709dee528ea76$export$2e2bcd8739ae039.prototype, "namedVariations", null);
-(0, $52ZIf$_1)([
+(0, __decorate2)([
   (0, $e71565f2ce09cb6b$export$69a3209f1a06c04d)
 ], $4c1709dee528ea76$export$2e2bcd8739ae039.prototype, "_variationProcessor", null);
 var $c1726355ecc5b889$var$WOFFDirectoryEntry = new Struct({
@@ -225224,7 +225324,7 @@ var $760785214b9fc52c$export$2e2bcd8739ae039 = class extends (0, $4c1709dee528ea
   }
   constructor(...args) {
     super(...args);
-    (0, $52ZIf$_)(this, "type", "WOFF");
+    (0, _define_property)(this, "type", "WOFF");
   }
 };
 var $8046190c9f1ad19e$export$2e2bcd8739ae039 = class extends (0, $69aac16029968692$export$2e2bcd8739ae039) {
@@ -225236,7 +225336,7 @@ var $8046190c9f1ad19e$export$2e2bcd8739ae039 = class extends (0, $69aac160299686
   }
   constructor(...args) {
     super(...args);
-    (0, $52ZIf$_)(this, "type", "WOFF2");
+    (0, _define_property)(this, "type", "WOFF2");
   }
 };
 var $c28ec7bbb3b8de3a$var$Base128 = {
@@ -225402,7 +225502,7 @@ var $21ee218f84ac7f32$export$2e2bcd8739ae039 = class extends (0, $4c1709dee528ea
     this.stream.pos = this.directory.tables.glyf.offset;
     let table2 = $21ee218f84ac7f32$var$GlyfTable.decode(this.stream);
     let glyphs = [];
-    for (let index7 = 0; index7 < table2.numGlyphs; index7++) {
+    for (let index8 = 0; index8 < table2.numGlyphs; index8++) {
       let glyph = {};
       let nContours = table2.nContours.readInt16BE();
       glyph.numberOfContours = nContours;
@@ -225429,7 +225529,7 @@ var $21ee218f84ac7f32$export$2e2bcd8739ae039 = class extends (0, $4c1709dee528ea
   }
   constructor(...args) {
     super(...args);
-    (0, $52ZIf$_)(this, "type", "WOFF2");
+    (0, _define_property)(this, "type", "WOFF2");
   }
 };
 var $21ee218f84ac7f32$var$Substream = class {
@@ -225549,7 +225649,7 @@ var $cd5853a56c68fec7$export$2e2bcd8739ae039 = class {
     return fonts;
   }
   constructor(stream2) {
-    (0, $52ZIf$_)(this, "type", "TTC");
+    (0, _define_property)(this, "type", "TTC");
     this.stream = stream2;
     if (stream2.readString(4) !== "ttcf") throw new Error("Not a TrueType collection");
     this.header = $cd5853a56c68fec7$var$TTCHeader.decode(stream2);
@@ -225622,7 +225722,7 @@ var $05f49f930186144e$export$2e2bcd8739ae039 = class {
     return fonts;
   }
   constructor(stream2) {
-    (0, $52ZIf$_)(this, "type", "DFont");
+    (0, _define_property)(this, "type", "DFont");
     this.stream = stream2;
     this.header = $05f49f930186144e$var$DFontHeader.decode(this.stream);
     for (let type of this.header.map.typeList.types) {
@@ -227036,12 +227136,12 @@ var PNG = class _PNG {
           }
           break;
         case "tEXt":
-          var text27 = this.read(chunkSize);
-          var index7 = text27.indexOf(0);
-          var key = String.fromCharCode.apply(String, text27.slice(0, index7));
+          var text28 = this.read(chunkSize);
+          var index8 = text28.indexOf(0);
+          var key = String.fromCharCode.apply(String, text28.slice(0, index8));
           this.text[key] = String.fromCharCode.apply(
             String,
-            text27.slice(index7 + 1)
+            text28.slice(index8 + 1)
           );
           break;
         case "IEND":
@@ -228996,18 +229096,18 @@ function getEncryptedPermissionsR5(permissions, encryptionKey, generateRandomWor
 function processPasswordR2R3R4(password = "") {
   const out = new Uint8Array(32);
   const length = password.length;
-  let index7 = 0;
-  while (index7 < length && index7 < 32) {
-    const code = password.charCodeAt(index7);
+  let index8 = 0;
+  while (index8 < length && index8 < 32) {
+    const code = password.charCodeAt(index8);
     if (code > 255) {
       throw new Error("Password contains one or more invalid characters.");
     }
-    out[index7] = code;
-    index7++;
+    out[index8] = code;
+    index8++;
   }
-  while (index7 < 32) {
-    out[index7] = PASSWORD_PADDING[index7 - length];
-    index7++;
+  while (index8 < 32) {
+    out[index8] = PASSWORD_PADDING[index8 - length];
+    index8++;
   }
   return out;
 }
@@ -230440,12 +230540,12 @@ var AFMFont = class {
     this.capHeight = data.capHeight;
     this.lineGap = this.bbox[3] - this.bbox[1] - (this.ascender - this.descender);
     const glyphNames = data.glyphNames.split(" ");
-    this.glyphWidths = Object.fromEntries(glyphNames.map((name, index7) => [name, data.glyphWidths[index7]]));
+    this.glyphWidths = Object.fromEntries(glyphNames.map((name, index8) => [name, data.glyphWidths[index8]]));
     this.kernPairs = {};
-    for (let index7 = 0; index7 < data.kernPairs.length; index7 += 2) {
-      const amount = data.kernPairs[index7];
+    for (let index8 = 0; index8 < data.kernPairs.length; index8 += 2) {
+      const amount = data.kernPairs[index8];
       let pairId = 0;
-      for (const delta of data.kernPairs[index7 + 1]) {
+      for (const delta of data.kernPairs[index8 + 1]) {
         pairId += delta;
         const left = Math.floor(pairId / glyphNames.length);
         const right = pairId % glyphNames.length;
@@ -230453,10 +230553,10 @@ var AFMFont = class {
       }
     }
   }
-  encodeText(text27) {
+  encodeText(text28) {
     const res = [];
-    for (let i2 = 0, len = text27.length; i2 < len; i2++) {
-      let char = text27.charCodeAt(i2);
+    for (let i2 = 0, len = text28.length; i2 < len; i2++) {
+      let char = text28.charCodeAt(i2);
       char = WIN_ANSI_MAP[char] || char;
       res.push(char.toString(16));
     }
@@ -230481,9 +230581,9 @@ var AFMFont = class {
   }
   advancesForGlyphs(glyphs) {
     const advances = [];
-    for (let index7 = 0; index7 < glyphs.length; index7++) {
-      const left = glyphs[index7];
-      const right = glyphs[index7 + 1];
+    for (let index8 = 0; index8 < glyphs.length; index8++) {
+      const left = glyphs[index8];
+      const right = glyphs[index8 + 1];
       advances.push(this.widthOfGlyph(left) + this.getKernPair(left, right));
     }
     return advances;
@@ -230541,9 +230641,9 @@ var StandardFont = class extends PDFFont {
     };
     return this.dictionary.end();
   }
-  encode(text27) {
-    const encoded = this.font.encodeText(text27);
-    const glyphs = this.font.glyphsForString(`${text27}`);
+  encode(text28) {
+    const encoded = this.font.encodeText(text28);
+    const glyphs = this.font.glyphsForString(`${text28}`);
     const advances = this.font.advancesForGlyphs(glyphs);
     const positions = [];
     for (let i2 = 0; i2 < glyphs.length; i2++) {
@@ -230593,8 +230693,8 @@ var EmbeddedFont = class extends PDFFont {
       this.layoutCache = /* @__PURE__ */ Object.create(null);
     }
   }
-  layoutRun(text27, features) {
-    const run = this.font.layout(text27, features);
+  layoutRun(text28, features) {
+    const run = this.font.layout(text28, features);
     for (let i2 = 0; i2 < run.positions.length; i2++) {
       const position = run.positions[i2];
       for (let key in position) {
@@ -230604,39 +230704,39 @@ var EmbeddedFont = class extends PDFFont {
     }
     return run;
   }
-  layoutCached(text27) {
+  layoutCached(text28) {
     if (!this.layoutCache) {
-      return this.layoutRun(text27);
+      return this.layoutRun(text28);
     }
     let cached2;
-    if (cached2 = this.layoutCache[text27]) {
+    if (cached2 = this.layoutCache[text28]) {
       return cached2;
     }
-    const run = this.layoutRun(text27);
-    this.layoutCache[text27] = run;
+    const run = this.layoutRun(text28);
+    this.layoutCache[text28] = run;
     return run;
   }
-  layout(text27, features, onlyWidth) {
+  layout(text28, features, onlyWidth) {
     if (features) {
-      return this.layoutRun(text27, features);
+      return this.layoutRun(text28, features);
     }
     let glyphs = onlyWidth ? null : [];
     let positions = onlyWidth ? null : [];
     let advanceWidth = 0;
     let last2 = 0;
-    let index7 = 0;
-    while (index7 <= text27.length) {
+    let index8 = 0;
+    while (index8 <= text28.length) {
       var needle;
-      if (index7 === text27.length && last2 < index7 || (needle = text27.charAt(index7), [" ", "	"].includes(needle))) {
-        const run = this.layoutCached(text27.slice(last2, ++index7));
+      if (index8 === text28.length && last2 < index8 || (needle = text28.charAt(index8), [" ", "	"].includes(needle))) {
+        const run = this.layoutCached(text28.slice(last2, ++index8));
         if (!onlyWidth) {
           glyphs = glyphs.concat(run.glyphs);
           positions = positions.concat(run.positions);
         }
         advanceWidth += run.advanceWidth;
-        last2 = index7;
+        last2 = index8;
       } else {
-        index7++;
+        index8++;
       }
     }
     return {
@@ -230645,11 +230745,11 @@ var EmbeddedFont = class extends PDFFont {
       advanceWidth
     };
   }
-  encode(text27, features) {
+  encode(text28, features) {
     const {
       glyphs,
       positions
-    } = this.layout(text27, features);
+    } = this.layout(text28, features);
     const res = [];
     for (let i2 = 0; i2 < glyphs.length; i2++) {
       const glyph = glyphs[i2];
@@ -231014,8 +231114,8 @@ var EventEmitter = class {
   off(event, listener) {
     const listeners = this._listeners[event];
     if (listeners) {
-      const index7 = listeners.indexOf(listener);
-      if (index7 !== -1) listeners.splice(index7, 1);
+      const index8 = listeners.indexOf(listener);
+      if (index8 !== -1) listeners.splice(index8, 1);
     }
     return this;
   }
@@ -231107,14 +231207,14 @@ var LineWrapper = class extends EventEmitter {
     }
     return w + this.wordWidth(HYPHEN) <= this.spaceLeft;
   }
-  eachWord(text27, fn) {
+  eachWord(text28, fn) {
     let bk;
-    const breaker = new $557adaaeb0c7885f$exports(text27);
+    const breaker = new $557adaaeb0c7885f$exports(text28);
     let last2 = null;
     const wordWidths = /* @__PURE__ */ Object.create(null);
     while (bk = breaker.nextBreak()) {
       var shouldContinue;
-      let word = text27.slice((last2 != null ? last2.position : void 0) || 0, bk.position);
+      let word = text28.slice((last2 != null ? last2.position : void 0) || 0, bk.position);
       let w = wordWidths[word] != null ? wordWidths[word] : wordWidths[word] = this.wordWidth(word);
       if (w > this.lineWidth + this.continuedX) {
         let lbk = last2;
@@ -231162,7 +231262,7 @@ var LineWrapper = class extends EventEmitter {
       last2 = bk;
     }
   }
-  wrap(text27, options) {
+  wrap(text28, options) {
     const {
       document: document2
     } = this;
@@ -231197,7 +231297,7 @@ var LineWrapper = class extends EventEmitter {
       return lc++;
     };
     this.emit("sectionStart", options, this);
-    this.eachWord(text27, (word, w, bk, last2) => {
+    this.eachWord(text28, (word, w, bk, last2) => {
       if (last2 == null || last2.required) {
         this.emit("firstLine", options, this);
         this.spaceLeft = this.lineWidth;
@@ -231315,8 +231415,8 @@ function formatListLabel(n, listType) {
   }
   var letter = String.fromCharCode((n - 1) % 26 + 65);
   var times = Math.floor((n - 1) / 26 + 1);
-  var text27 = Array(times + 1).join(letter);
-  return `${text27}.`;
+  var text28 = Array(times + 1).join(letter);
+  return `${text28}.`;
 }
 var TextMixin = {
   initText() {
@@ -231343,11 +231443,11 @@ var TextMixin = {
     this.y -= this.currentLineHeight(true) * lines + this._lineGap;
     return this;
   },
-  _text(text27, x2, y, options, lineCallback) {
+  _text(text28, x2, y, options, lineCallback) {
     options = this._initOptions(x2, y, options);
-    text27 = text27 == null ? "" : `${text27}`;
+    text28 = text28 == null ? "" : `${text28}`;
     if (options.wordSpacing) {
-      text27 = text27.replace(/\s{2,}/g, " ");
+      text28 = text28.replace(/\s{2,}/g, " ");
     }
     const addStructure = () => {
       if (options.structParent) {
@@ -231369,9 +231469,9 @@ var TextMixin = {
       }
       this._wrapper = options.continued ? wrapper : null;
       this._textOptions = options.continued ? options : null;
-      wrapper.wrap(text27, options);
+      wrapper.wrap(text28, options);
     } else {
-      for (let line of text27.split("\n")) {
+      for (let line of text28.split("\n")) {
         addStructure();
         lineCallback(line, options);
       }
@@ -231379,8 +231479,8 @@ var TextMixin = {
     if (options.rotation !== 0) this.restore();
     return this;
   },
-  text(text27, x2, y, options) {
-    return this._text(text27, x2, y, options, this._line);
+  text(text28, x2, y, options) {
+    return this._text(text28, x2, y, options, this._line);
   },
   widthOfString(string2, options = {}) {
     const horizontalScaling = options.horizontalScaling || 100;
@@ -231401,19 +231501,19 @@ var TextMixin = {
     }
     if (options.width) {
       let wrapper = new LineWrapper(this, options);
-      wrapper.on("line", (text27, options2) => {
+      wrapper.on("line", (text28, options2) => {
         this.y += lineHeight;
-        text27 = text27.replace(/\n/g, "");
-        if (text27.length) {
+        text28 = text28.replace(/\n/g, "");
+        if (text28.length) {
           let wordSpacing = options2.wordSpacing ?? 0;
           const characterSpacing = options2.characterSpacing ?? 0;
           if (options2.width && options2.align === "justify") {
-            const words = text27.trim().split(/\s+/);
-            const textWidth = this.widthOfString(text27.replace(/\s+/g, ""), options2);
+            const words = text28.trim().split(/\s+/);
+            const textWidth = this.widthOfString(text28.replace(/\s+/g, ""), options2);
             const spaceWidth = this.widthOfString(" ") + characterSpacing;
             wordSpacing = Math.max(0, (options2.lineWidth - textWidth) / Math.max(1, words.length - 1) - spaceWidth);
           }
-          contentWidth = Math.max(contentWidth, options2.textWidth + wordSpacing * (options2.wordCount - 1) + characterSpacing * (text27.length - 1));
+          contentWidth = Math.max(contentWidth, options2.textWidth + wordSpacing * (options2.wordCount - 1) + characterSpacing * (text28.length - 1));
         }
       });
       wrapper.wrap(string2, options);
@@ -231478,7 +231578,7 @@ var TextMixin = {
       height: yMax - yMin
     };
   },
-  heightOfString(text27, options) {
+  heightOfString(text28, options) {
     const {
       x: x2,
       y
@@ -231486,7 +231586,7 @@ var TextMixin = {
     options = this._initOptions(options);
     options.height = Infinity;
     const lineGap = options.lineGap || this._lineGap || 0;
-    this._text(text27, this.x, this.y, options, () => {
+    this._text(text28, this.x, this.y, options, () => {
       this.y += this.currentLineHeight(true) + lineGap;
     });
     const height = this.y - y;
@@ -231560,8 +231660,8 @@ var TextMixin = {
             break;
           case "numbered":
           case "lettered":
-            var text27 = formatListLabel(numbers[i2 - 1], listType);
-            this._fragment(text27, this.x - indent, this.y, options);
+            var text28 = formatListLabel(numbers[i2 - 1], listType);
+            this._fragment(text28, this.x - indent, this.y, options);
             break;
         }
         if (item && labelType && bodyType) {
@@ -231626,19 +231726,19 @@ var TextMixin = {
     if (result.rotation < 0) result.rotation += 360;
     return result;
   },
-  _line(text27, options = {}, wrapper) {
-    this._fragment(text27, this.x, this.y, options);
+  _line(text28, options = {}, wrapper) {
+    this._fragment(text28, this.x, this.y, options);
     if (wrapper) {
       const lineGap = options.lineGap || this._lineGap || 0;
       this.y += this.currentLineHeight(true) + lineGap;
     } else {
-      this.x += this.widthOfString(text27, options);
+      this.x += this.widthOfString(text28, options);
     }
   },
-  _fragment(text27, x2, y, options) {
+  _fragment(text28, x2, y, options) {
     let dy, encoded, i2, positions, textWidth, words;
-    text27 = `${text27}`.replace(/\n/g, "");
-    if (text27.length === 0) {
+    text28 = `${text28}`.replace(/\n/g, "");
+    if (text28.length === 0) {
       return;
     }
     const align = options.align || "left";
@@ -231648,15 +231748,15 @@ var TextMixin = {
     if (options.width) {
       switch (align) {
         case "right":
-          textWidth = this.widthOfString(text27.replace(/\s+$/, ""), options);
+          textWidth = this.widthOfString(text28.replace(/\s+$/, ""), options);
           x2 += options.lineWidth - textWidth;
           break;
         case "center":
           x2 += options.lineWidth / 2 - options.textWidth / 2;
           break;
         case "justify":
-          words = text27.trim().split(/\s+/);
-          textWidth = this.widthOfString(text27.replace(/\s+/g, ""), options);
+          words = text28.trim().split(/\s+/);
+          textWidth = this.widthOfString(text28.replace(/\s+/g, ""), options);
           var spaceWidth = this.widthOfString(" ") + characterSpacing;
           wordSpacing = Math.max(0, (options.lineWidth - textWidth) / Math.max(1, words.length - 1) - spaceWidth);
           break;
@@ -231694,7 +231794,7 @@ var TextMixin = {
       }
       dy = dy / 1e3 * this._fontSize;
     }
-    const renderedWidth = options.textWidth + wordSpacing * (options.wordCount - 1) + characterSpacing * (text27.length - 1);
+    const renderedWidth = options.textWidth + wordSpacing * (options.wordCount - 1) + characterSpacing * (text28.length - 1);
     if (options.link != null) {
       const linkOptions = {};
       if (this._currentStructureElement && this._currentStructureElement.dictionary.data.S === "Link") {
@@ -231765,7 +231865,7 @@ var TextMixin = {
       this.addContent(`${horizontalScaling} Tz`);
     }
     if (wordSpacing) {
-      words = text27.trim().split(/\s+/);
+      words = text28.trim().split(/\s+/);
       wordSpacing += this.widthOfString(" ") + characterSpacing;
       wordSpacing *= 1e3 / this._fontSize;
       encoded = [];
@@ -231784,7 +231884,7 @@ var TextMixin = {
         positions[positions.length - 1] = space;
       }
     } else {
-      [encoded, positions] = this._font.encode(text27, options.features);
+      [encoded, positions] = this._font.encode(text28, options.features);
     }
     const scale = this._fontSize / 1e3;
     const commands = [];
@@ -232424,11 +232524,11 @@ var AnnotationsMixin = {
     };
     return this.annotate(x2, y, w, h2, annotationOptions);
   },
-  textAnnotation(x2, y, w, h2, text27, options) {
+  textAnnotation(x2, y, w, h2, text28, options) {
     const annotationOptions = {
       ...options,
       Subtype: "FreeText",
-      Contents: new String(text27),
+      Contents: new String(text28),
       DA: new String()
     };
     return this.annotate(x2, y, w, h2, annotationOptions);
@@ -232652,12 +232752,12 @@ var PDFStructureElement = class _PDFStructureElement {
     if (this._attached) {
       return;
     }
-    this._children.forEach((child, index7) => {
+    this._children.forEach((child, index8) => {
       if (child instanceof _PDFStructureElement) {
         child.setAttached();
       }
       if (typeof child === "function") {
-        this._children[index7] = this._contentForClosure(child);
+        this._children[index8] = this._contentForClosure(child);
       }
     });
     this._attached = true;
@@ -233494,8 +233594,8 @@ function normalizeAlignment(align) {
 function normalizeTable() {
   const doc = this.document;
   const opts = this.opts;
-  let index7 = doc._tableIndex++;
-  this._id = new String(opts.id ?? `table-${index7}`);
+  let index8 = doc._tableIndex++;
+  this._id = new String(opts.id ?? `table-${index8}`);
   this._position = {
     x: doc.sizeToPoint(opts.position?.x, doc.x),
     y: doc.sizeToPoint(opts.position?.y, doc.y)
@@ -233532,9 +233632,9 @@ function normalizeTable() {
   if (!rowStyle) rowStyle = () => ({});
   this._rowStyle = normalizedRowStyle.bind(this, defaultRowStyle, rowStyle);
 }
-function normalizeText(text27) {
-  if (text27 != null) text27 = `${text27}`;
-  return text27;
+function normalizeText(text28) {
+  if (text28 != null) text28 = `${text28}`;
+  return text28;
 }
 function normalizeCell(cell, rowIndex, colIndex) {
   const colStyle = this._colStyle(colIndex);
@@ -234437,7 +234537,7 @@ function parseOutline(outlineText) {
     return { level: 3, text: trimmed };
   });
 }
-function formatReferenceAPA2(ref, index7) {
+function formatReferenceAPA2(ref, index8) {
   const parts = [];
   if (ref.authors) parts.push(ref.authors);
   if (ref.year) parts.push(`(${ref.year})`);
@@ -234452,7 +234552,7 @@ function formatReferenceAPA2(ref, index7) {
   }
   if (ref.doi) parts.push(`https://doi.org/${ref.doi}`);
   else if (ref.url) parts.push(ref.url);
-  return `${index7 + 1}. ${parts.join(" ")}`;
+  return `${index8 + 1}. ${parts.join(" ")}`;
 }
 async function generatePDF(data) {
   return new Promise((resolve, reject) => {
@@ -236873,10 +236973,10 @@ function markdownToParagraphs(markdown) {
       continue;
     }
     if (line.startsWith("- ") || line.startsWith("* ")) {
-      const text27 = line.substring(2).replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1");
+      const text28 = line.substring(2).replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1");
       paragraphs.push(
         new Paragraph({
-          text: text27,
+          text: text28,
           bullet: { level: 0 },
           spacing: { before: 60, after: 60 }
         })
@@ -236884,10 +236984,10 @@ function markdownToParagraphs(markdown) {
       continue;
     }
     if (/^\d+\.\s/.test(line)) {
-      const text27 = line.replace(/^\d+\.\s/, "").replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1");
+      const text28 = line.replace(/^\d+\.\s/, "").replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1");
       paragraphs.push(
         new Paragraph({
-          text: text27,
+          text: text28,
           spacing: { before: 60, after: 60 }
         })
       );
@@ -236903,14 +237003,14 @@ function markdownToParagraphs(markdown) {
   }
   return paragraphs;
 }
-function parseInlineRuns(text27) {
+function parseInlineRuns(text28) {
   const runs = [];
   const regex = /\*\*(.+?)\*\*|\*(.+?)\*|__(.+?)__|_(.+?)_/g;
   let lastIndex = 0;
   let match;
-  while ((match = regex.exec(text27)) !== null) {
+  while ((match = regex.exec(text28)) !== null) {
     if (match.index > lastIndex) {
-      runs.push(new TextRun({ text: text27.substring(lastIndex, match.index) }));
+      runs.push(new TextRun({ text: text28.substring(lastIndex, match.index) }));
     }
     if (match[1]) {
       runs.push(new TextRun({ text: match[1], bold: true }));
@@ -236923,11 +237023,11 @@ function parseInlineRuns(text27) {
     }
     lastIndex = regex.lastIndex;
   }
-  if (lastIndex < text27.length) {
-    runs.push(new TextRun({ text: text27.substring(lastIndex) }));
+  if (lastIndex < text28.length) {
+    runs.push(new TextRun({ text: text28.substring(lastIndex) }));
   }
   if (runs.length === 0) {
-    runs.push(new TextRun({ text: text27 }));
+    runs.push(new TextRun({ text: text28 }));
   }
   return runs;
 }
@@ -236986,8 +237086,8 @@ router12.post("/projects/:projectId/exports", async (req, res) => {
     return;
   }
   await fs4.mkdir(EXPORT_DIR, { recursive: true });
-  const timestamp27 = Date.now();
-  const filename = `export-${params.data.projectId}-v${doc.versionNumber}-${timestamp27}`;
+  const timestamp28 = Date.now();
+  const filename = `export-${params.data.projectId}-v${doc.versionNumber}-${timestamp28}`;
   const content = doc.content ?? "";
   if (parsed.data.format === "docx") {
     const paragraphs = markdownToParagraphs(content);
@@ -237453,12 +237553,12 @@ router16.post("/projects/:projectId/quizzes", async (req, res) => {
   const sanitizedTopic = topic ? sanitizeInstructionText(topic) : null;
   const sanitizedTitle = sanitizeInstructionText(title);
   const types3 = questionTypes ?? ["multiple_choice", "short_answer", "essay"];
-  const count2 = questionCount ?? 10;
+  const count3 = questionCount ?? 10;
   const diff = difficulty ?? "medium";
   const prompt = `You are an expert Indonesian language teacher. Generate a quiz in JSON format.
 
 Topic: ${sanitizedTopic ?? "General academic topic from the project"}
-Number of questions: ${count2}
+Number of questions: ${count3}
 Difficulty: ${diff}
 Question types: ${types3.join(", ")}
 
@@ -237527,11 +237627,11 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks, no explanation.`;
       metadata: {
         topic: sanitizedTopic,
         difficulty: diff,
-        estimatedTime: `${count2 * 3} minutes`
+        estimatedTime: `${count3 * 3} minutes`
       },
       createdBy: req.user.id
     }).returning();
-    await logActivity(projectId, "quiz_generated", `Quiz "${sanitizedTitle}" dibuat dengan ${count2} soal`);
+    await logActivity(projectId, "quiz_generated", `Quiz "${sanitizedTitle}" dibuat dengan ${count3} soal`);
     res.status(201).json(quiz);
   } catch (err) {
     console.error("Quiz generation error:", err);
@@ -238746,41 +238846,334 @@ router24.put("/admin/ai-tiers/:id", requireOwner, async (req, res) => {
 });
 var admin_ai_tiers_default = router24;
 
-// src/routes/index.ts
+// src/routes/admin.ts
+var import_express25 = __toESM(require_express2(), 1);
+
+// src/middlewares/owner.ts
+var OWNER_EMAIL = process.env.OWNER_EMAIL ?? "";
+function requireOwner2(req, res, next) {
+  if (!req.user) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  if (req.user.email?.toLowerCase() !== OWNER_EMAIL.toLowerCase()) {
+    res.status(403).json({ error: "Forbidden \u2014 admin access required" });
+    return;
+  }
+  next();
+}
+
+// src/routes/admin.ts
+import { sql as sql7, eq as eq27, count as count2, or as or2, and as and13, gte as gte3 } from "drizzle-orm";
 var router25 = (0, import_express25.Router)();
-router25.use(health_default);
-router25.use(auth_default);
-router25.use(shared_default);
-router25.use(ai_tiers_default);
-router25.use(authMiddleware);
-router25.use(projects_default);
-router25.use(messages_default);
-router25.use(documents_default);
-router25.use(references_default);
-router25.use(account_references_default);
-router25.use(attachments_default);
-router25.use(activities_default);
-router25.use(jobs_default);
-router25.use(metadata_default);
-router25.use(exports_default);
-router25.use(ai_usage_default);
-router25.use(comments_default);
-router25.use(project_members_default);
-router25.use(quizzes_default);
-router25.use(rubrics_default);
-router25.use(writing_style_default);
-router25.use(balance_default);
-router25.use(usage_default);
-router25.use(document_templates_default);
-router25.use(admin_ai_tiers_default);
-var routes_default = router25;
+router25.get("/me", authMiddleware, (req, res) => {
+  const OWNER_EMAIL2 = process.env.OWNER_EMAIL ?? "";
+  const isOwner = req.user?.email?.toLowerCase() === OWNER_EMAIL2.toLowerCase();
+  res.json({ isOwner, email: req.user?.email });
+});
+router25.get("/users", authMiddleware, requireOwner2, async (req, res) => {
+  try {
+    const search = req.query.search;
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
+    const offset = (page - 1) * limit;
+    const searchCondition = search ? or2(
+      sql7`LOWER(${usersTable2.email}) LIKE ${"%" + search.toLowerCase() + "%"}`,
+      sql7`LOWER(COALESCE(${usersTable2.displayName}, '')) LIKE ${"%" + search.toLowerCase() + "%"}`
+    ) : void 0;
+    const [users, totalResult] = await Promise.all([
+      db.select({
+        id: usersTable2.id,
+        email: usersTable2.email,
+        displayName: usersTable2.displayName,
+        avatarUrl: usersTable2.avatarUrl,
+        referralCode: usersTable2.referralCode,
+        createdAt: usersTable2.createdAt
+      }).from(usersTable2).where(searchCondition).orderBy(usersTable2.createdAt).limit(limit).offset(offset),
+      db.select({ count: count2() }).from(usersTable2).where(searchCondition)
+    ]);
+    const userIds = users.map((u) => u.id);
+    const projectCounts = userIds.length ? await db.select({
+      userId: projectsTable.userId,
+      count: count2()
+    }).from(projectsTable).where(sql7`${projectsTable.userId} IN (${sql7.join(userIds.map((id) => sql7`${id}`), sql7`, `)})`).groupBy(projectsTable.userId) : [];
+    const projectCountMap = new Map(projectCounts.map((p) => [p.userId, p.count]));
+    const usageStats = userIds.length ? await db.select({
+      userId: aiUsageLogTable.userId,
+      totalRequests: count2(),
+      totalCostUsd: sql7`SUM(${aiUsageLogTable.estimatedCostUsd})`
+    }).from(aiUsageLogTable).where(sql7`${aiUsageLogTable.userId} IN (${sql7.join(userIds.map((id) => sql7`${id}`), sql7`, `)})`).groupBy(aiUsageLogTable.userId) : [];
+    const usageMap = new Map(usageStats.map((u) => [u.userId, u]));
+    const enriched = users.map((u) => ({
+      ...u,
+      projectCount: projectCountMap.get(u.id) ?? 0,
+      totalRequests: usageMap.get(u.id)?.totalRequests ?? 0,
+      totalCostUsd: Number(usageMap.get(u.id)?.totalCostUsd ?? 0)
+    }));
+    res.json({
+      users: enriched,
+      pagination: {
+        page,
+        limit,
+        total: Number(totalResult[0]?.count ?? 0),
+        pages: Math.ceil(Number(totalResult[0]?.count ?? 0) / limit)
+      }
+    });
+  } catch (err) {
+    console.error("[admin/users] error", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+router25.get("/stats", authMiddleware, requireOwner2, async (req, res) => {
+  try {
+    const period = req.query.period || "month";
+    const now = /* @__PURE__ */ new Date();
+    let startDate;
+    switch (period) {
+      case "today":
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        break;
+      case "week":
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1e3);
+        break;
+      case "month":
+      default:
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        break;
+    }
+    const [userCount, projectCount, aiUsageStats, revenueStats, recentUsage] = await Promise.all([
+      db.select({ count: count2() }).from(usersTable2),
+      db.select({ count: count2() }).from(projectsTable),
+      db.select({
+        totalRequests: count2(),
+        totalCostUsd: sql7`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`,
+        totalInputTokens: sql7`COALESCE(SUM(${aiUsageLogTable.inputTokens}), 0)`,
+        totalOutputTokens: sql7`COALESCE(SUM(${aiUsageLogTable.outputTokens}), 0)`
+      }).from(aiUsageLogTable).where(gte3(aiUsageLogTable.createdAt, startDate)),
+      db.select({
+        totalTopup: sql7`COALESCE(SUM(CASE WHEN ${tokenTransactionsTable.type} = 'topup' THEN ${tokenTransactionsTable.amountCents} ELSE 0 END), 0)`,
+        totalRefund: sql7`COALESCE(SUM(CASE WHEN ${tokenTransactionsTable.type} = 'refund' THEN ${tokenTransactionsTable.amountCents} ELSE 0 END), 0)`,
+        transactionCount: count2()
+      }).from(tokenTransactionsTable).where(gte3(tokenTransactionsTable.createdAt, startDate)),
+      db.select({
+        userId: aiUsageLogTable.userId,
+        totalCostUsd: sql7`SUM(${aiUsageLogTable.estimatedCostUsd})`,
+        totalRequests: count2()
+      }).from(aiUsageLogTable).where(gte3(aiUsageLogTable.createdAt, startDate)).groupBy(aiUsageLogTable.userId).orderBy(sql7`SUM(${aiUsageLogTable.estimatedCostUsd}) DESC`).limit(10)
+    ]);
+    const OWNER_EMAIL2 = process.env.OWNER_EMAIL ?? "";
+    const ownerUser = await db.select({ id: usersTable2.id }).from(usersTable2).where(sql7`LOWER(${usersTable2.email}) = ${OWNER_EMAIL2.toLowerCase()}`).limit(1);
+    let ownerUsage = { totalRequests: 0, totalCostUsd: 0 };
+    if (ownerUser[0]) {
+      const [ownerStats] = await db.select({
+        totalRequests: count2(),
+        totalCostUsd: sql7`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`
+      }).from(aiUsageLogTable).where(
+        and13(
+          eq27(aiUsageLogTable.userId, ownerUser[0].id),
+          gte3(aiUsageLogTable.createdAt, startDate)
+        )
+      );
+      ownerUsage = {
+        totalRequests: Number(ownerStats?.totalRequests ?? 0),
+        totalCostUsd: Number(ownerStats?.totalCostUsd ?? 0)
+      };
+    }
+    res.json({
+      period,
+      totals: {
+        users: Number(userCount[0]?.count ?? 0),
+        projects: Number(projectCount[0]?.count ?? 0),
+        aiRequests: Number(aiUsageStats[0]?.totalRequests ?? 0),
+        aiCostUsd: Number(aiUsageStats[0]?.totalCostUsd ?? 0),
+        inputTokens: Number(aiUsageStats[0]?.totalInputTokens ?? 0),
+        outputTokens: Number(aiUsageStats[0]?.totalOutputTokens ?? 0)
+      },
+      revenue: {
+        totalTopupCents: Number(revenueStats[0]?.totalTopup ?? 0),
+        totalRefundCents: Number(revenueStats[0]?.totalRefund ?? 0),
+        transactionCount: Number(revenueStats[0]?.transactionCount ?? 0),
+        grossMargin: Number(aiUsageStats[0]?.totalCostUsd ?? 0) > 0 ? Math.round(
+          (Number(revenueStats[0]?.totalTopup ?? 0) - Number(aiUsageStats[0]?.totalCostUsd ?? 0)) / Number(revenueStats[0]?.totalTopup ?? 0) * 100
+        ) : 0
+      },
+      ownerUsage,
+      topConsumers: recentUsage.map((u) => ({
+        userId: u.userId,
+        requests: Number(u.totalRequests),
+        costUsd: Number(u.totalCostUsd)
+      }))
+    });
+  } catch (err) {
+    console.error("[admin/stats] error", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+router25.get("/usage", authMiddleware, requireOwner2, async (req, res) => {
+  try {
+    const period = req.query.period || "month";
+    const now = /* @__PURE__ */ new Date();
+    let startDate;
+    switch (period) {
+      case "today":
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        break;
+      case "week":
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1e3);
+        break;
+      case "month":
+      default:
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        break;
+    }
+    const byProvider = await db.select({
+      provider: aiUsageLogTable.provider,
+      totalRequests: count2(),
+      totalCostUsd: sql7`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`,
+      totalInputTokens: sql7`COALESCE(SUM(${aiUsageLogTable.inputTokens}), 0)`,
+      totalOutputTokens: sql7`COALESCE(SUM(${aiUsageLogTable.outputTokens}), 0)`
+    }).from(aiUsageLogTable).where(gte3(aiUsageLogTable.createdAt, startDate)).groupBy(aiUsageLogTable.provider);
+    const byModel = await db.select({
+      model: aiUsageLogTable.model,
+      provider: aiUsageLogTable.provider,
+      totalRequests: count2(),
+      totalCostUsd: sql7`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`,
+      totalInputTokens: sql7`COALESCE(SUM(${aiUsageLogTable.inputTokens}), 0)`,
+      totalOutputTokens: sql7`COALESCE(SUM(${aiUsageLogTable.outputTokens}), 0)`
+    }).from(aiUsageLogTable).where(gte3(aiUsageLogTable.createdAt, startDate)).groupBy(aiUsageLogTable.model, aiUsageLogTable.provider).orderBy(sql7`SUM(${aiUsageLogTable.estimatedCostUsd}) DESC`);
+    const byRequestType = await db.select({
+      requestType: aiUsageLogTable.requestType,
+      totalRequests: count2(),
+      totalCostUsd: sql7`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`,
+      totalInputTokens: sql7`COALESCE(SUM(${aiUsageLogTable.inputTokens}), 0)`,
+      totalOutputTokens: sql7`COALESCE(SUM(${aiUsageLogTable.outputTokens}), 0)`
+    }).from(aiUsageLogTable).where(gte3(aiUsageLogTable.createdAt, startDate)).groupBy(aiUsageLogTable.requestType);
+    res.json({
+      period,
+      byProvider: byProvider.map((r2) => ({
+        ...r2,
+        totalCostUsd: Number(r2.totalCostUsd),
+        totalInputTokens: Number(r2.totalInputTokens),
+        totalOutputTokens: Number(r2.totalOutputTokens)
+      })),
+      byModel: byModel.map((r2) => ({
+        ...r2,
+        totalCostUsd: Number(r2.totalCostUsd),
+        totalInputTokens: Number(r2.totalInputTokens),
+        totalOutputTokens: Number(r2.totalOutputTokens)
+      })),
+      byRequestType: byRequestType.map((r2) => ({
+        ...r2,
+        totalCostUsd: Number(r2.totalCostUsd),
+        totalInputTokens: Number(r2.totalInputTokens),
+        totalOutputTokens: Number(r2.totalOutputTokens)
+      }))
+    });
+  } catch (err) {
+    console.error("[admin/usage] error", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+router25.get("/audit-log", authMiddleware, requireOwner2, async (req, res) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 50));
+    const offset = (page - 1) * limit;
+    const action = req.query.action;
+    const actionCondition = action ? eq27(adminAuditLogTable.action, action) : void 0;
+    const [logs, totalResult] = await Promise.all([
+      db.select().from(adminAuditLogTable).where(actionCondition).orderBy(sql7`${adminAuditLogTable.createdAt} DESC`).limit(limit).offset(offset),
+      db.select({ count: count2() }).from(adminAuditLogTable).where(actionCondition)
+    ]);
+    res.json({
+      logs,
+      pagination: {
+        page,
+        limit,
+        total: Number(totalResult[0]?.count ?? 0),
+        pages: Math.ceil(Number(totalResult[0]?.count ?? 0) / limit)
+      }
+    });
+  } catch (err) {
+    console.error("[admin/audit-log] error", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+router25.post("/users/:userId/tier", authMiddleware, requireOwner2, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { tierId } = req.body;
+    await db.update(userBalancesTable).set({ preferredTierId: tierId ?? null, updatedAt: /* @__PURE__ */ new Date() }).where(eq27(userBalancesTable.userId, userId));
+    await db.insert(adminAuditLogTable).values({
+      adminEmail: req.user.email,
+      action: "tier_override",
+      targetType: "user",
+      targetId: userId,
+      details: { tierId },
+      ipAddress: req.ip
+    });
+    res.json({ success: true });
+  } catch (err) {
+    console.error("[admin/tier-override] error", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+router25.post("/users/:userId/suspend", authMiddleware, requireOwner2, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { suspend } = req.body;
+    await db.insert(adminAuditLogTable).values({
+      adminEmail: req.user.email,
+      action: suspend ? "user_suspend" : "user_unsuspend",
+      targetType: "user",
+      targetId: userId,
+      details: { suspend },
+      ipAddress: req.ip
+    });
+    res.json({ success: true, message: suspend ? "User suspended" : "User unsuspended" });
+  } catch (err) {
+    console.error("[admin/suspend] error", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+var admin_default = router25;
+
+// src/routes/index.ts
+var router26 = (0, import_express26.Router)();
+router26.use(health_default);
+router26.use(auth_default);
+router26.use(shared_default);
+router26.use(ai_tiers_default);
+router26.use(authMiddleware);
+router26.use(projects_default);
+router26.use(messages_default);
+router26.use(documents_default);
+router26.use(references_default);
+router26.use(account_references_default);
+router26.use(attachments_default);
+router26.use(activities_default);
+router26.use(jobs_default);
+router26.use(metadata_default);
+router26.use(exports_default);
+router26.use(ai_usage_default);
+router26.use(comments_default);
+router26.use(project_members_default);
+router26.use(quizzes_default);
+router26.use(rubrics_default);
+router26.use(writing_style_default);
+router26.use(balance_default);
+router26.use(usage_default);
+router26.use(document_templates_default);
+router26.use(admin_ai_tiers_default);
+router26.use(admin_default);
+var routes_default = router26;
 
 // src/routes/webhooks.ts
-var import_express26 = __toESM(require_express2(), 1);
-import { eq as eq27 } from "drizzle-orm";
-var router26 = (0, import_express26.Router)();
+var import_express27 = __toESM(require_express2(), 1);
+import { eq as eq28 } from "drizzle-orm";
+var router27 = (0, import_express27.Router)();
 var WEBHOOK_SECRET = process.env.WEBHOOK_SECRET ?? "";
-router26.post("/webhooks/email-verified", async (req, res) => {
+router27.post("/webhooks/email-verified", async (req, res) => {
   if (WEBHOOK_SECRET && req.headers["x-webhook-secret"] !== WEBHOOK_SECRET) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -238796,7 +239189,7 @@ router26.post("/webhooks/email-verified", async (req, res) => {
     res.sendStatus(200);
     return;
   }
-  const [referral] = await db.select().from(referralsTable).where(eq27(referralsTable.referredId, userId));
+  const [referral] = await db.select().from(referralsTable).where(eq28(referralsTable.referredId, userId));
   if (!referral) {
     res.sendStatus(200);
     return;
@@ -238805,7 +239198,7 @@ router26.post("/webhooks/email-verified", async (req, res) => {
     res.sendStatus(200);
     return;
   }
-  await db.update(referralsTable).set({ status: "verified", updatedAt: /* @__PURE__ */ new Date() }).where(eq27(referralsTable.id, referral.id));
+  await db.update(referralsTable).set({ status: "verified", updatedAt: /* @__PURE__ */ new Date() }).where(eq28(referralsTable.id, referral.id));
   await db.insert(referralEventsTable).values({
     referralId: referral.id,
     actorId: null,
@@ -238817,10 +239210,10 @@ router26.post("/webhooks/email-verified", async (req, res) => {
   });
   res.sendStatus(200);
 });
-var webhooks_default = router26;
+var webhooks_default = router27;
 
 // src/app.ts
-var app = (0, import_express27.default)();
+var app = (0, import_express28.default)();
 app.get("/test", (_req, res) => {
   res.json({ ok: true, ts: Date.now() });
 });
@@ -238855,15 +239248,21 @@ app.use(
     credentials: true
   })
 );
-app.use(import_express27.default.json());
-app.use(import_express27.default.urlencoded({ extended: true }));
+app.use(import_express28.default.json());
+app.use(import_express28.default.urlencoded({ extended: true }));
 app.use("/webhooks", webhooks_default);
 var authLimiter = lib_default({
   windowMs: 60 * 1e3,
   max: 5,
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req) => req.path === "/healthz",
+  message: { error: "Too many attempts. Please try again after a minute." }
+});
+var refreshLimiter = lib_default({
+  windowMs: 60 * 1e3,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
   message: { error: "Too many attempts. Please try again after a minute." }
 });
 var aiLimiter = lib_default({
@@ -238874,7 +239273,9 @@ var aiLimiter = lib_default({
   keyGenerator: (req) => req.user?.id ?? req.ip ?? "unknown",
   message: { error: "Too many AI requests. Please wait a moment." }
 });
-app.use("/api/auth", authLimiter);
+app.use("/api/auth/login", authLimiter);
+app.use("/api/auth/register", authLimiter);
+app.use("/api/auth/refresh", refreshLimiter);
 app.use("/api/projects/:projectId/messages", aiLimiter);
 app.use("/api/projects/:projectId/references/regenerate", aiLimiter);
 app.use("/api/projects/:projectId/analyze", aiLimiter);

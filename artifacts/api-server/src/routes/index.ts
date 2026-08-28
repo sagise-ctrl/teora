@@ -25,6 +25,7 @@ import accountReferencesRouter from "./account-references.js";
 import usageRouter from "./usage.js";
 import documentTemplatesRouter from "./document-templates.js";
 import adminAiTiersRouter from "./admin-ai-tiers.js";
+import adminRouter from "./admin.js";
 
 const router: IRouter = Router();
 
@@ -55,5 +56,6 @@ router.use(balanceRouter);
 router.use(usageRouter);
 router.use(documentTemplatesRouter);
 router.use(adminAiTiersRouter);
+router.use(adminRouter);
 
 export default router;

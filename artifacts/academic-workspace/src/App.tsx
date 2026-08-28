@@ -21,6 +21,14 @@ import Terms from "@/pages/terms";
 import Privacy from "@/pages/privacy";
 import Monitoring from "@/pages/monitoring";
 import Admin from "@/pages/admin";
+import LandingAdmin from "@/pages/landing-admin";
+import AdminUsers from "@/pages/admin-users";
+import AdminFinOps from "@/pages/admin-finops";
+import AdminUsage from "@/pages/admin-usage";
+import AdminAITiers from "@/pages/admin-ai-tiers";
+import AdminHealth from "@/pages/admin-health";
+import AdminAuditLog from "@/pages/admin-audit-log";
+import AdminReports from "@/pages/admin-reports";
 import Profile from "@/pages/profile";
 import SharedProject from "@/pages/shared";
 import Layout from "@/components/layout";
@@ -108,13 +116,20 @@ function AppRouter() {
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />
       <Route path="/status" component={Monitoring} />
-      <Route path="/admin">
+      <Route path="/landing-admin">
         <ProtectedRoute>
-          <Layout>
-            <AnimatedPage><Admin /></AnimatedPage>
-          </Layout>
+          <AnimatedPage><LandingAdmin /></AnimatedPage>
         </ProtectedRoute>
       </Route>
+      {/* Admin routes — /admin sub-pages must come before /admin */}
+      <Route path="/admin/users"><ProtectedRoute><AdminUsers /></ProtectedRoute></Route>
+      <Route path="/admin/finops"><ProtectedRoute><AdminFinOps /></ProtectedRoute></Route>
+      <Route path="/admin/usage"><ProtectedRoute><AdminUsage /></ProtectedRoute></Route>
+      <Route path="/admin/ai-tiers"><ProtectedRoute><AdminAITiers /></ProtectedRoute></Route>
+      <Route path="/admin/health"><ProtectedRoute><AdminHealth /></ProtectedRoute></Route>
+      <Route path="/admin/audit-log"><ProtectedRoute><AdminAuditLog /></ProtectedRoute></Route>
+      <Route path="/admin/reports"><ProtectedRoute><AdminReports /></ProtectedRoute></Route>
+      <Route path="/admin"><ProtectedRoute><Admin /></ProtectedRoute></Route>
       <Route path="/profile">
         <ProtectedRoute>
           <Layout>
