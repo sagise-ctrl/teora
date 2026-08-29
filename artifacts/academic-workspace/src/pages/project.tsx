@@ -379,22 +379,12 @@ export default function ProjectWorkspace() {
   const { toast } = useToast()
 
   const [selectedDocId, setSelectedDocId] = useState<number | null>(null)
-  const [activeTab, setActiveTab] = useState<string>("preview")
 
   const { data: project, isLoading: projectLoading } = useGetProject(projectId)
   const { data: documents, isLoading: docsLoading } = useListDocuments(projectId)
   const { data: selectedDoc } = useGetDocument(projectId, selectedDocId ?? 0)
   const { data: latestDoc } = useGetLatestDocument(projectId)
   const { data: jobs } = useListJobs(projectId, { query: { queryKey: getListJobsQueryKey(projectId), refetchInterval: 5000 } })
-
-  const isTugasCepat = project.taskType === "tugas-cepat"
-
-  // Set default tab based on project type
-  useEffect(() => {
-    if (isTugasCepat && project.status === "draft") {
-      setActiveTab("chat")
-    }
-  }, [isTugasCepat, project.status])
 
   // Set default selected document
   useEffect(() => {
@@ -464,23 +454,7 @@ export default function ProjectWorkspace() {
             </div>
           </Link>
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-serif font-bold text-foreground tracking-tight">
-              {project.title ?? "Tugas Cepat"}
-            </h1>
-            <Badge
-              variant="outline"
-              className={isTugasCepat
-                ? "bg-amber-50 text-amber-700 border-amber-200"
-                : "bg-primary/5 text-primary border-primary/20"
-              }
-            >
-              {isTugasCepat ? "Tugas Cepat" : "Karya Ilmiah"}
-            </Badge>
-            {project.citationFormat && (
-              <Badge variant="outline" className="bg-muted/50 text-muted-foreground border-muted">
-                {project.citationFormat}
-              </Badge>
-            )}
+            <h1 className="text-3xl font-serif font-bold text-foreground tracking-tight">{project.title}</h1>
             <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">
               {project.status.replace("_", " ")}
             </Badge>
@@ -540,14 +514,14 @@ export default function ProjectWorkspace() {
         </div>
         
         <div className="flex items-center gap-3">
-          <ExportButton projectId={projectId} projectTitle={project.title ?? "Tugas Cepat"} />
+          <ExportButton projectId={projectId} projectTitle={project.title} />
           <ShareButton projectId={projectId} />
           {isWorking ? (
             <Badge variant="secondary" className="px-4 py-1.5 flex items-center">
               <Loader2 className="w-4 h-4 mr-2 animate-spin text-primary" />
               <span className="font-medium">{activeJob?.jobType.replace("_", " ") || "Working"}...</span>
             </Badge>
-          ) : !isTugasCepat && project.status === "draft" ? (
+          ) : project.status === "draft" ? (
             <Button onClick={handleAnalyze} disabled={analyzeProject.isPending}>
               {analyzeProject.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ActivitySquare className="w-4 h-4 mr-2" />}
               Begin Analysis
@@ -556,96 +530,53 @@ export default function ProjectWorkspace() {
         </div>
       </div>
 
-      {!isTugasCepat && (
-        <DocumentBar
-          projectId={projectId}
-          documents={documents ?? []}
-          selectedDocId={selectedDocId}
-          isLoading={docsLoading}
-          onSelect={(docId) => setSelectedDocId(docId)}
-          onRefresh={() => queryClient.invalidateQueries({ queryKey: getListDocumentsQueryKey(projectId) })}
-        />
-      )}
+      <DocumentBar
+        projectId={projectId}
+        documents={documents ?? []}
+        selectedDocId={selectedDocId}
+        isLoading={docsLoading}
+        onSelect={(docId) => setSelectedDocId(docId)}
+        onRefresh={() => queryClient.invalidateQueries({ queryKey: getListDocumentsQueryKey(projectId) })}
+      />
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <Tabs defaultValue="preview" className="w-full">
         <TabsList className="w-full justify-start border-b border-border rounded-none h-12 bg-transparent p-0 overflow-x-auto overflow-y-hidden">
-          {isTugasCepat ? (
-            // Tugas Cepat: Chat first, references as tools
-            <>
-              <TabsTrigger value="chat" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
-                <MessageSquare className="w-4 h-4 mr-2" />
-                Chat AI
-              </TabsTrigger>
-              <TabsTrigger value="references" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
-                <BookMarked className="w-4 h-4 mr-2" />
-                Referensi
-              </TabsTrigger>
-              <TabsTrigger value="preview" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
-                <FileText className="w-4 h-4 mr-2" />
-                Preview
-              </TabsTrigger>
-              <TabsTrigger value="attachments" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
-                <Paperclip className="w-4 h-4 mr-2" />
-                Lampiran
-              </TabsTrigger>
-              <TabsTrigger value="history" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
-                <History className="w-4 h-4 mr-2" />
-                Riwayat Versi
-              </TabsTrigger>
-              <TabsTrigger value="timeline" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
-                <ActivitySquare className="w-4 h-4 mr-2" />
-                Timeline
-              </TabsTrigger>
-              <TabsTrigger value="quiz" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
-                <ListChecks className="w-4 h-4 mr-2" />
-                Kuis
-              </TabsTrigger>
-              <TabsTrigger value="comments" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
-                <MessageCircle className="w-4 h-4 mr-2" />
-                Komentar
-              </TabsTrigger>
-            </>
-          ) : (
-            // Karya Ilmiah: Preview + Outline first
-            <>
-              <TabsTrigger value="preview" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
-                <FileText className="w-4 h-4 mr-2" />
-                Preview
-              </TabsTrigger>
-              <TabsTrigger value="outline" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
-                <BookOpen className="w-4 h-4 mr-2" />
-                Outline
-              </TabsTrigger>
-              <TabsTrigger value="chat" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
-                <MessageSquare className="w-4 h-4 mr-2" />
-                Chat AI
-              </TabsTrigger>
-              <TabsTrigger value="references" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
-                <BookMarked className="w-4 h-4 mr-2" />
-                Referensi
-              </TabsTrigger>
-              <TabsTrigger value="attachments" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
-                <Paperclip className="w-4 h-4 mr-2" />
-                Lampiran
-              </TabsTrigger>
-              <TabsTrigger value="history" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
-                <History className="w-4 h-4 mr-2" />
-                Riwayat Versi
-              </TabsTrigger>
-              <TabsTrigger value="timeline" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
-                <ActivitySquare className="w-4 h-4 mr-2" />
-                Timeline
-              </TabsTrigger>
-              <TabsTrigger value="quiz" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
-                <ListChecks className="w-4 h-4 mr-2" />
-                Kuis
-              </TabsTrigger>
-              <TabsTrigger value="comments" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
-                <MessageCircle className="w-4 h-4 mr-2" />
-                Komentar
-              </TabsTrigger>
-            </>
-          )}
+          <TabsTrigger value="preview" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
+            <FileText className="w-4 h-4 mr-2" />
+            Preview
+          </TabsTrigger>
+          <TabsTrigger value="outline" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
+            <BookOpen className="w-4 h-4 mr-2" />
+            Outline
+          </TabsTrigger>
+          <TabsTrigger value="chat" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
+            <MessageSquare className="w-4 h-4 mr-2" />
+            Chat AI
+          </TabsTrigger>
+          <TabsTrigger value="references" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
+            <BookMarked className="w-4 h-4 mr-2" />
+            Referensi
+          </TabsTrigger>
+          <TabsTrigger value="attachments" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
+            <Paperclip className="w-4 h-4 mr-2" />
+            Lampiran
+          </TabsTrigger>
+          <TabsTrigger value="history" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
+            <History className="w-4 h-4 mr-2" />
+            Riwayat Versi
+          </TabsTrigger>
+          <TabsTrigger value="timeline" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
+            <ActivitySquare className="w-4 h-4 mr-2" />
+            Timeline
+          </TabsTrigger>
+          <TabsTrigger value="quiz" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
+            <ListChecks className="w-4 h-4 mr-2" />
+            Kuis
+          </TabsTrigger>
+          <TabsTrigger value="comments" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
+            <MessageCircle className="w-4 h-4 mr-2" />
+            Komentar
+          </TabsTrigger>
         </TabsList>
 
         <div className="mt-6">
@@ -661,13 +592,9 @@ export default function ProjectWorkspace() {
                     <div className="w-20 h-20 rounded-full bg-muted/30 flex items-center justify-center mb-6">
                       <FileText className="w-10 h-10 text-muted-foreground/40" />
                     </div>
-                    <h3 className="text-lg font-medium text-foreground mb-2">
-                      {isTugasCepat ? "Belum ada dokumen" : "Document not ready"}
-                    </h3>
+                    <h3 className="text-lg font-medium text-foreground mb-2">Document not ready</h3>
                     <p className="text-sm text-muted-foreground max-w-md text-center">
-                      {isTugasCepat
-                        ? "Mulai diskusi di tab Chat AI untuk menjawab pertanyaan atau mengerjakan tugas."
-                        : project.status === "draft"
+                      {project.status === "draft"
                         ? "Click Begin Analysis to start the AI writing process."
                         : "The AI is working on your document. Check back soon."}
                     </p>
@@ -690,7 +617,7 @@ export default function ProjectWorkspace() {
           </TabsContent>
 
           <TabsContent value="chat" className="m-0">
-            <ChatTab projectId={projectId} aiDisclosure={project.aiDisclosure !== false} isTugasCepat={isTugasCepat} />
+            <ChatTab projectId={projectId} aiDisclosure={project.aiDisclosure !== false} />
           </TabsContent>
 
           <TabsContent value="references" className="m-0">
@@ -1333,7 +1260,7 @@ function OutlineTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosu
   )
 }
 
-function ChatTab({ projectId, aiDisclosure, isTugasCepat }: { projectId: number; aiDisclosure: boolean; isTugasCepat?: boolean }) {
+function ChatTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosure: boolean }) {
   const { data: messages, isLoading } = useListMessages(projectId, { query: { queryKey: getListMessagesQueryKey(projectId), refetchInterval: 5000 } })
   const sendMessage = useSendMessage()
   const queryClient = useQueryClient()
@@ -1424,30 +1351,15 @@ function ChatTab({ projectId, aiDisclosure, isTugasCepat }: { projectId: number;
             <EmptyMedia illustration="chat" className="size-20 mb-6">
               <EmptyIllustrationChat />
             </EmptyMedia>
-            <h3 className="text-lg font-medium text-foreground mb-2">
-              {isTugasCepat ? "Mulai Diskusi" : "Start the conversation"}
-            </h3>
+            <h3 className="text-lg font-medium text-foreground mb-2">Start the conversation</h3>
             <p className="text-sm text-muted-foreground max-w-md mb-6">
-              {isTugasCepat
-                ? "Tanyakan soal, minta penjelasan, atau minta bantuan kerja tugas."
-                : "Ask the AI to revise sections, clarify concepts, add citations, or help with research."}
+              Ask the AI to revise sections, clarify concepts, add citations, or help with research.
             </p>
             <div className="flex flex-wrap gap-2 justify-center">
-              {isTugasCepat ? (
-                <>
-                  <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-secondary/80" onClick={() => setMode("socratic")}>Jelaskan konsep</Badge>
-                  <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-secondary/80" onClick={() => setMode("quiz")}>Buat kuis</Badge>
-                  <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-secondary/80" onClick={() => setMode("summary")}>Rangkum</Badge>
-                  <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-secondary/80" onClick={() => setMode("revise")}>Revisi teks</Badge>
-                </>
-              ) : (
-                <>
-                  <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-secondary/80" onClick={() => setMode("revise")}>Revise introduction</Badge>
-                  <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-secondary/80" onClick={() => setMode("socratic")}>Explain concept</Badge>
-                  <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-secondary/80" onClick={() => setMode("quiz")}>Test knowledge</Badge>
-                  <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-secondary/80" onClick={() => setMode("summary")}>Summarize</Badge>
-                </>
-              )}
+              <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-secondary/80" onClick={() => setMode("revise")}>Revise introduction</Badge>
+              <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-secondary/80" onClick={() => setMode("socratic")}>Explain concept</Badge>
+              <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-secondary/80" onClick={() => setMode("quiz")}>Test knowledge</Badge>
+              <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-secondary/80" onClick={() => setMode("summary")}>Summarize</Badge>
             </div>
           </div>
         ) : (

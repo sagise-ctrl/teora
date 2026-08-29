@@ -146,12 +146,9 @@ export const ListProjectsResponse = zod.array(ListProjectsResponseItem)
 
 
 export const CreateProjectBody = zod.object({
-  "title": zod.string().min(1).optional().describe('Project title. Optional for Tugas Cepat (no-title mode).'),
-  "subject": zod.string().optional().describe('Academic subject or course name (e.g., \"Bahasa Indonesia\", \"Fisika\").'),
-  "taskType": zod.enum(['tugas-cepat', 'karya-ilmiah']).optional().describe('Project type — tugas-cepat (Q&A, no title, minimal friction) or karya-ilmiah (full academic writing).'),
+  "title": zod.string().min(1),
   "instructionText": zod.string().optional(),
   "outputFormat": zod.enum(['docx', 'pdf', 'markdown']).optional(),
-  "citationFormat": zod.enum(['APA', 'IEEE', 'Vancouver', 'Footnote']).optional().describe('Preferred citation format for karya-ilmiah projects.'),
   "minRefYear": zod.number().optional(),
   "minRefCount": zod.number().optional(),
   "aiDisclosure": zod.boolean().optional()
@@ -227,9 +224,7 @@ export const UpdateProjectParams = zod.object({
 
 
 export const UpdateProjectBody = zod.object({
-  "title": zod.string().min(1).optional().describe('Update project title.'),
-  "subject": zod.string().optional().describe('Academic subject or course name.'),
-  "citationFormat": zod.enum(['APA', 'IEEE', 'Vancouver', 'Footnote']).optional().describe('Preferred citation format.'),
+  "title": zod.string().min(1).optional(),
   "status": zod.enum(['draft', 'analyzing', 'writing', 'waiting_revision', 'completed', 'archived']).optional(),
   "instructionText": zod.string().optional(),
   "outputFormat": zod.enum(['docx', 'pdf', 'markdown']).optional(),
@@ -2428,145 +2423,3 @@ export const AssignAccountReferenceResponse = zod.object({
   "isSuggested": zod.boolean().optional().describe('Whether this reference was auto-suggested by CrossRef'),
   "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference')
 })
-
-
-/**
- * Returns whether the current user is the owner/admin.
- * @summary Get admin (owner) status
- */
-export const GetAdminStatusResponse = zod.object({
-  "isOwner": zod.boolean(),
-  "email": zod.string()
-})
-
-
-/**
- * @summary List all users (admin only)
- */
-export const listAdminUsersQueryPageDefault = 1;
-export const listAdminUsersQueryLimitDefault = 20;
-
-export const ListAdminUsersQueryParams = zod.object({
-  "search": zod.coerce.string().optional().describe('Search by email or display name'),
-  "page": zod.coerce.number().default(listAdminUsersQueryPageDefault),
-  "limit": zod.coerce.number().default(listAdminUsersQueryLimitDefault)
-})
-
-export const ListAdminUsersResponse = zod.object({
-  "users": zod.array(zod.object({
-  "id": zod.string().optional(),
-  "email": zod.string().optional(),
-  "displayName": zod.string().nullish(),
-  "avatarUrl": zod.string().nullish(),
-  "referralCode": zod.string().nullish(),
-  "createdAt": zod.coerce.date().optional(),
-  "projectCount": zod.number().optional(),
-  "totalRequests": zod.number().optional(),
-  "totalCostUsd": zod.number().optional()
-})),
-  "pagination": zod.object({
-  "page": zod.number(),
-  "limit": zod.number(),
-  "total": zod.number(),
-  "pages": zod.number()
-})
-})
-
-
-/**
- * @summary Get aggregate system stats (admin only)
- */
-export const getAdminStatsQueryPeriodDefault = `month`;
-
-export const GetAdminStatsQueryParams = zod.object({
-  "period": zod.enum(['today', 'week', 'month']).default(getAdminStatsQueryPeriodDefault)
-})
-
-export const GetAdminStatsResponse = zod.object({
-  "period": zod.string().optional(),
-  "totals": zod.object({
-  "users": zod.number().optional(),
-  "projects": zod.number().optional(),
-  "aiRequests": zod.number().optional(),
-  "aiCostUsd": zod.number().optional(),
-  "inputTokens": zod.number().optional(),
-  "outputTokens": zod.number().optional()
-}).optional(),
-  "revenue": zod.object({
-  "totalTopupCents": zod.number().optional(),
-  "totalRefundCents": zod.number().optional(),
-  "transactionCount": zod.number().optional(),
-  "grossMargin": zod.number().optional()
-}).optional(),
-  "ownerUsage": zod.object({
-  "totalRequests": zod.number().optional(),
-  "totalCostUsd": zod.number().optional()
-}).optional(),
-  "topConsumers": zod.array(zod.object({
-  "userId": zod.string().optional(),
-  "requests": zod.number().optional(),
-  "costUsd": zod.number().optional()
-})).optional()
-})
-
-
-/**
- * @summary Get admin audit log (admin only)
- */
-export const getAdminAuditLogQueryPageDefault = 1;
-export const getAdminAuditLogQueryLimitDefault = 50;
-
-export const GetAdminAuditLogQueryParams = zod.object({
-  "action": zod.coerce.string().optional(),
-  "page": zod.coerce.number().default(getAdminAuditLogQueryPageDefault),
-  "limit": zod.coerce.number().default(getAdminAuditLogQueryLimitDefault)
-})
-
-export const GetAdminAuditLogResponse = zod.object({
-  "logs": zod.array(zod.object({
-  "id": zod.number().optional(),
-  "adminEmail": zod.string().optional(),
-  "action": zod.string().optional(),
-  "targetType": zod.string().optional(),
-  "targetId": zod.string().nullish(),
-  "details": zod.looseObject({
-
-}).nullish(),
-  "ipAddress": zod.string().nullish(),
-  "createdAt": zod.coerce.date().optional()
-})),
-  "pagination": zod.object({
-  "page": zod.number(),
-  "limit": zod.number(),
-  "total": zod.number(),
-  "pages": zod.number()
-})
-})
-
-
-/**
- * @summary Override user tier (admin only)
- */
-export const OverrideUserTierParams = zod.object({
-  "userId": zod.coerce.string()
-})
-
-export const OverrideUserTierBody = zod.object({
-  "tierId": zod.string().nullish().describe('Tier ID to set, or null to remove override')
-})
-
-export const OverrideUserTierResponse = zod.unknown()
-
-
-/**
- * @summary Suspend or unsuspend user (admin only)
- */
-export const SuspendUserParams = zod.object({
-  "userId": zod.coerce.string()
-})
-
-export const SuspendUserBody = zod.object({
-  "suspend": zod.boolean()
-})
-
-export const SuspendUserResponse = zod.unknown()

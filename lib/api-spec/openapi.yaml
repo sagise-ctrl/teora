@@ -2365,6 +2365,30 @@ paths:
         "403":
           description: Forbidden
 
+  /admin/usage:
+    get:
+      operationId: getAdminUsage
+      tags: [admin]
+      summary: Get AI usage breakdown (admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [today, week, month]
+            default: month
+      responses:
+        "200":
+          description: AI usage breakdown
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUsage"
+        "403":
+          description: Forbidden
+
   /admin/audit-log:
     get:
       operationId: getAdminAuditLog
@@ -2741,27 +2765,16 @@ components:
 
     ProjectInput:
       type: object
+      required: [title]
       properties:
         title:
           type: string
           minLength: 1
-          description: Project title. Optional for Tugas Cepat (no-title mode).
-        subject:
-          type: string
-          description: Academic subject or course name (e.g., "Bahasa Indonesia", "Fisika").
-        taskType:
-          type: string
-          enum: [tugas-cepat, karya-ilmiah]
-          description: Project type — tugas-cepat (Q&A, no title, minimal friction) or karya-ilmiah (full academic writing).
         instructionText:
           type: string
         outputFormat:
           type: string
           enum: [docx, pdf, markdown]
-        citationFormat:
-          type: string
-          enum: [APA, IEEE, Vancouver, Footnote]
-          description: Preferred citation format for karya-ilmiah projects.
         minRefYear:
           type: number
         minRefCount:
@@ -2775,14 +2788,6 @@ components:
         title:
           type: string
           minLength: 1
-          description: Update project title.
-        subject:
-          type: string
-          description: Academic subject or course name.
-        citationFormat:
-          type: string
-          enum: [APA, IEEE, Vancouver, Footnote]
-          description: Preferred citation format.
         status:
           type: string
           enum: [draft, analyzing, writing, waiting_revision, completed, archived]

@@ -145,22 +145,15 @@ router.post("/projects", async (req, res): Promise<void> => {
     .insert(projectsTable)
     .values({
       userId,
-      title: parsed.data.title ?? null,
+      title: parsed.data.title,
       instructionText: parsed.data.instructionText,
-      subject: parsed.data.subject,
-      taskType: parsed.data.taskType,
-      citationFormat: parsed.data.citationFormat,
       outputFormat: parsed.data.outputFormat,
       minRefYear: parsed.data.minRefYear,
       minRefCount: parsed.data.minRefCount,
     })
     .returning();
 
-  await logActivity(
-    project.id,
-    "project_created",
-    `Project ${project.title ? `"${project.title}"` : "(tanpa judul)"} dibuat — tipe: ${project.taskType ?? "unknown"}`
-  );
+  await logActivity(project.id, "project_created", `Project "${project.title}" dibuat`);
 
   res.status(201).json({
     ...project,
