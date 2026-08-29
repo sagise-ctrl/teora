@@ -3,14 +3,17 @@
 **/.pnpm-store
 
 # Build outputs
-**/dist
+# Exclude dist/ folders EXCEPT the frontend one (artifacts/academic-workspace/dist).
+# Vercel CLI deploy runs from artifacts/academic-workspace working-directory; it needs dist/ there.
+# Listing explicitly instead of `**/dist` + negation because gitignore negation of directories is fragile.
+artifacts/api-server/dist
+lib/api-client-react/dist
+lib/api-zod/dist
+lib/db/dist
 **/.next
 **/out-tsc
 **/tmp
 **/temp
-# Un-ignore frontend pre-built dist (Vercel needs it for CLI deploy via deploy-frontend.yml)
-# CI builds dist/ locally; .vercelignore would otherwise exclude it from upload → STATIC_BUILD_NO_OUT_DIR error
-!artifacts/academic-workspace/dist
 
 # Git
 .git
