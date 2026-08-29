@@ -5,6 +5,129 @@
  * AI Academic Workspace API
  * OpenAPI spec version: 0.1.0
  */
+export interface AdminStatus {
+  isOwner: boolean;
+  email: string;
+}
+
+export interface AdminUser {
+  id?: string;
+  email?: string;
+  /** @nullable */
+  displayName?: string | null;
+  /** @nullable */
+  avatarUrl?: string | null;
+  /** @nullable */
+  referralCode?: string | null;
+  createdAt?: string;
+  projectCount?: number;
+  totalRequests?: number;
+  totalCostUsd?: number;
+}
+
+export interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+}
+
+export interface AdminUserList {
+  users: AdminUser[];
+  pagination: Pagination;
+}
+
+export type AdminStatsTotals = {
+  users?: number;
+  projects?: number;
+  aiRequests?: number;
+  aiCostUsd?: number;
+  inputTokens?: number;
+  outputTokens?: number;
+};
+
+export type AdminStatsRevenue = {
+  totalTopupCents?: number;
+  totalRefundCents?: number;
+  transactionCount?: number;
+  grossMargin?: number;
+};
+
+export type AdminStatsOwnerUsage = {
+  totalRequests?: number;
+  totalCostUsd?: number;
+};
+
+export type AdminStatsTopConsumersItem = {
+  userId?: string;
+  requests?: number;
+  costUsd?: number;
+};
+
+export interface AdminStats {
+  period?: string;
+  totals?: AdminStatsTotals;
+  revenue?: AdminStatsRevenue;
+  ownerUsage?: AdminStatsOwnerUsage;
+  topConsumers?: AdminStatsTopConsumersItem[];
+}
+
+export interface AdminUsageByProvider {
+  provider?: string;
+  totalRequests?: number;
+  totalCostUsd?: number;
+  totalInputTokens?: number;
+  totalOutputTokens?: number;
+}
+
+export interface AdminUsageByModel {
+  model?: string;
+  provider?: string;
+  totalRequests?: number;
+  totalCostUsd?: number;
+  totalInputTokens?: number;
+  totalOutputTokens?: number;
+}
+
+export interface AdminUsageByRequestType {
+  requestType?: string;
+  totalRequests?: number;
+  totalCostUsd?: number;
+  totalInputTokens?: number;
+  totalOutputTokens?: number;
+}
+
+export interface AdminUsage {
+  period?: string;
+  byProvider?: AdminUsageByProvider[];
+  byModel?: AdminUsageByModel[];
+  byRequestType?: AdminUsageByRequestType[];
+}
+
+/**
+ * @nullable
+ */
+export type AdminAuditLogDetails = { [key: string]: unknown } | null;
+
+export interface AdminAuditLog {
+  id?: number;
+  adminEmail?: string;
+  action?: string;
+  targetType?: string;
+  /** @nullable */
+  targetId?: string | null;
+  /** @nullable */
+  details?: AdminAuditLogDetails;
+  /** @nullable */
+  ipAddress?: string | null;
+  createdAt?: string;
+}
+
+export interface AdminAuditLogList {
+  logs: AdminAuditLog[];
+  pagination: Pagination;
+}
+
 export interface AuthUser {
   id: string;
   email: string;
@@ -78,6 +201,17 @@ export interface Project {
   updatedAt: string;
 }
 
+/**
+ * Project type — tugas-cepat (Q&A, no title, minimal friction) or karya-ilmiah (full academic writing).
+ */
+export type ProjectInputTaskType = typeof ProjectInputTaskType[keyof typeof ProjectInputTaskType];
+
+
+export const ProjectInputTaskType = {
+  'tugas-cepat': 'tugas-cepat',
+  'karya-ilmiah': 'karya-ilmiah',
+} as const;
+
 export type ProjectInputOutputFormat = typeof ProjectInputOutputFormat[keyof typeof ProjectInputOutputFormat];
 
 
@@ -87,15 +221,50 @@ export const ProjectInputOutputFormat = {
   markdown: 'markdown',
 } as const;
 
+/**
+ * Preferred citation format for karya-ilmiah projects.
+ */
+export type ProjectInputCitationFormat = typeof ProjectInputCitationFormat[keyof typeof ProjectInputCitationFormat];
+
+
+export const ProjectInputCitationFormat = {
+  APA: 'APA',
+  IEEE: 'IEEE',
+  Vancouver: 'Vancouver',
+  Footnote: 'Footnote',
+} as const;
+
 export interface ProjectInput {
-  /** @minLength 1 */
-  title: string;
+  /**
+     * Project title. Optional for Tugas Cepat (no-title mode).
+     * @minLength 1
+     */
+  title?: string;
+  /** Academic subject or course name (e.g., "Bahasa Indonesia", "Fisika"). */
+  subject?: string;
+  /** Project type — tugas-cepat (Q&A, no title, minimal friction) or karya-ilmiah (full academic writing). */
+  taskType?: ProjectInputTaskType;
   instructionText?: string;
   outputFormat?: ProjectInputOutputFormat;
+  /** Preferred citation format for karya-ilmiah projects. */
+  citationFormat?: ProjectInputCitationFormat;
   minRefYear?: number;
   minRefCount?: number;
   aiDisclosure?: boolean;
 }
+
+/**
+ * Preferred citation format.
+ */
+export type ProjectUpdateCitationFormat = typeof ProjectUpdateCitationFormat[keyof typeof ProjectUpdateCitationFormat];
+
+
+export const ProjectUpdateCitationFormat = {
+  APA: 'APA',
+  IEEE: 'IEEE',
+  Vancouver: 'Vancouver',
+  Footnote: 'Footnote',
+} as const;
 
 export type ProjectUpdateStatus = typeof ProjectUpdateStatus[keyof typeof ProjectUpdateStatus];
 
@@ -119,8 +288,15 @@ export const ProjectUpdateOutputFormat = {
 } as const;
 
 export interface ProjectUpdate {
-  /** @minLength 1 */
+  /**
+     * Update project title.
+     * @minLength 1
+     */
   title?: string;
+  /** Academic subject or course name. */
+  subject?: string;
+  /** Preferred citation format. */
+  citationFormat?: ProjectUpdateCitationFormat;
   status?: ProjectUpdateStatus;
   instructionText?: string;
   outputFormat?: ProjectUpdateOutputFormat;
@@ -1676,5 +1852,45 @@ category?: string;
 
 export type AssignAccountReferenceBody = {
   projectId: number;
+};
+
+export type ListAdminUsersParams = {
+/**
+ * Search by email or display name
+ */
+search?: string;
+page?: number;
+limit?: number;
+};
+
+export type GetAdminStatsParams = {
+period?: GetAdminStatsPeriod;
+};
+
+export type GetAdminStatsPeriod = typeof GetAdminStatsPeriod[keyof typeof GetAdminStatsPeriod];
+
+
+export const GetAdminStatsPeriod = {
+  today: 'today',
+  week: 'week',
+  month: 'month',
+} as const;
+
+export type GetAdminAuditLogParams = {
+action?: string;
+page?: number;
+limit?: number;
+};
+
+export type OverrideUserTierBody = {
+  /**
+     * Tier ID to set, or null to remove override
+     * @nullable
+     */
+  tierId?: string | null;
+};
+
+export type SuspendUserBody = {
+  suspend: boolean;
 };
 

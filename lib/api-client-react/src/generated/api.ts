@@ -26,6 +26,10 @@ import type {
   AccountReferenceInput,
   Activity,
   AddMemberRequest,
+  AdminAuditLogList,
+  AdminStats,
+  AdminStatus,
+  AdminUserList,
   AnalyzeMyWritingStyleBody,
   AnalyzeProjectBody,
   AnalyzeStyleRequest,
@@ -66,6 +70,8 @@ import type {
   GenerateRubricBody,
   GetAIUsageStatsParams,
   GetAdminAITiers200,
+  GetAdminAuditLogParams,
+  GetAdminStatsParams,
   GetAdminUsageStatsParams,
   GetMyUsageStatsParams,
   HealthStatus,
@@ -75,11 +81,13 @@ import type {
   Job,
   ListAIUsage200,
   ListAIUsageParams,
+  ListAdminUsersParams,
   ListProjectsParams,
   ListTemplatesParams,
   LoginRequest,
   Message,
   MessageInput,
+  OverrideUserTierBody,
   Project,
   ProjectInput,
   ProjectMember,
@@ -102,6 +110,7 @@ import type {
   ShareLink,
   SharedProject,
   SubmitQuizRequest,
+  SuspendUserBody,
   TierPreferenceResponse,
   UpdateAITierRequest,
   UpdateAdminAITier200,
@@ -7520,5 +7529,491 @@ export const useAssignAccountReference = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getAssignAccountReferenceMutationOptions(options));
+    }
+
+export const getGetAdminStatusUrl = () => {
+
+
+
+
+  return `/api/admin/me`
+}
+
+/**
+ * Returns whether the current user is the owner/admin.
+ * @summary Get admin (owner) status
+ */
+export const getAdminStatus = async ( options?: Parameters<typeof customFetch>[1]): Promise<AdminStatus> => {
+
+  return customFetch<AdminStatus>(getGetAdminStatusUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAdminStatusQueryKey = () => {
+    return [
+    `/api/admin/me`
+    ] as const;
+    }
+
+
+export const getGetAdminStatusQueryOptions = <TData = Awaited<ReturnType<typeof getAdminStatus>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminStatus>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAdminStatusQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAdminStatus>>> = ({ signal }) => getAdminStatus({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAdminStatus>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAdminStatusQueryResult = NonNullable<Awaited<ReturnType<typeof getAdminStatus>>>
+export type GetAdminStatusQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get admin (owner) status
+ */
+
+export function useGetAdminStatus<TData = Awaited<ReturnType<typeof getAdminStatus>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminStatus>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAdminStatusQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListAdminUsersUrl = (params?: ListAdminUsersParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/users?${stringifiedParams}` : `/api/admin/users`
+}
+
+/**
+ * @summary List all users (admin only)
+ */
+export const listAdminUsers = async (params?: ListAdminUsersParams, options?: Parameters<typeof customFetch>[1]): Promise<AdminUserList> => {
+
+  return customFetch<AdminUserList>(getListAdminUsersUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAdminUsersQueryKey = (params?: ListAdminUsersParams,) => {
+    return [
+    `/api/admin/users`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListAdminUsersQueryOptions = <TData = Awaited<ReturnType<typeof listAdminUsers>>, TError = ErrorType<void>>(params?: ListAdminUsersParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAdminUsers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAdminUsersQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAdminUsers>>> = ({ signal }) => listAdminUsers(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAdminUsers>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAdminUsersQueryResult = NonNullable<Awaited<ReturnType<typeof listAdminUsers>>>
+export type ListAdminUsersQueryError = ErrorType<void>
+
+
+/**
+ * @summary List all users (admin only)
+ */
+
+export function useListAdminUsers<TData = Awaited<ReturnType<typeof listAdminUsers>>, TError = ErrorType<void>>(
+ params?: ListAdminUsersParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAdminUsers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAdminUsersQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetAdminStatsUrl = (params?: GetAdminStatsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/stats?${stringifiedParams}` : `/api/admin/stats`
+}
+
+/**
+ * @summary Get aggregate system stats (admin only)
+ */
+export const getAdminStats = async (params?: GetAdminStatsParams, options?: Parameters<typeof customFetch>[1]): Promise<AdminStats> => {
+
+  return customFetch<AdminStats>(getGetAdminStatsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAdminStatsQueryKey = (params?: GetAdminStatsParams,) => {
+    return [
+    `/api/admin/stats`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetAdminStatsQueryOptions = <TData = Awaited<ReturnType<typeof getAdminStats>>, TError = ErrorType<void>>(params?: GetAdminStatsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminStats>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAdminStatsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAdminStats>>> = ({ signal }) => getAdminStats(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAdminStats>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAdminStatsQueryResult = NonNullable<Awaited<ReturnType<typeof getAdminStats>>>
+export type GetAdminStatsQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get aggregate system stats (admin only)
+ */
+
+export function useGetAdminStats<TData = Awaited<ReturnType<typeof getAdminStats>>, TError = ErrorType<void>>(
+ params?: GetAdminStatsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminStats>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAdminStatsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetAdminAuditLogUrl = (params?: GetAdminAuditLogParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/audit-log?${stringifiedParams}` : `/api/admin/audit-log`
+}
+
+/**
+ * @summary Get admin audit log (admin only)
+ */
+export const getAdminAuditLog = async (params?: GetAdminAuditLogParams, options?: Parameters<typeof customFetch>[1]): Promise<AdminAuditLogList> => {
+
+  return customFetch<AdminAuditLogList>(getGetAdminAuditLogUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAdminAuditLogQueryKey = (params?: GetAdminAuditLogParams,) => {
+    return [
+    `/api/admin/audit-log`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetAdminAuditLogQueryOptions = <TData = Awaited<ReturnType<typeof getAdminAuditLog>>, TError = ErrorType<void>>(params?: GetAdminAuditLogParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminAuditLog>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAdminAuditLogQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAdminAuditLog>>> = ({ signal }) => getAdminAuditLog(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAdminAuditLog>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAdminAuditLogQueryResult = NonNullable<Awaited<ReturnType<typeof getAdminAuditLog>>>
+export type GetAdminAuditLogQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get admin audit log (admin only)
+ */
+
+export function useGetAdminAuditLog<TData = Awaited<ReturnType<typeof getAdminAuditLog>>, TError = ErrorType<void>>(
+ params?: GetAdminAuditLogParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminAuditLog>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAdminAuditLogQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getOverrideUserTierUrl = (userId: string,) => {
+
+
+
+
+  return `/api/admin/users/${userId}/tier`
+}
+
+/**
+ * @summary Override user tier (admin only)
+ */
+export const overrideUserTier = async (userId: string,
+    overrideUserTierBody: OverrideUserTierBody, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<void>(getOverrideUserTierUrl(userId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(overrideUserTierBody)
+  }
+);}
+
+
+
+
+
+export const getOverrideUserTierMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof overrideUserTier>>, TError,{userId: string;data: BodyType<OverrideUserTierBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof overrideUserTier>>, TError,{userId: string;data: BodyType<OverrideUserTierBody>}, TContext> => {
+
+const mutationKey = ['overrideUserTier'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof overrideUserTier>>, {userId: string;data: BodyType<OverrideUserTierBody>}> = (props) => {
+          const {userId,data} = props ?? {};
+
+          return  overrideUserTier(userId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OverrideUserTierMutationResult = NonNullable<Awaited<ReturnType<typeof overrideUserTier>>>
+    export type OverrideUserTierMutationBody = BodyType<OverrideUserTierBody>
+    export type OverrideUserTierMutationError = ErrorType<void>
+
+    /**
+ * @summary Override user tier (admin only)
+ */
+export const useOverrideUserTier = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof overrideUserTier>>, TError,{userId: string;data: BodyType<OverrideUserTierBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof overrideUserTier>>,
+        TError,
+        {userId: string;data: BodyType<OverrideUserTierBody>},
+        TContext
+      > => {
+      return useMutation(getOverrideUserTierMutationOptions(options));
+    }
+
+export const getSuspendUserUrl = (userId: string,) => {
+
+
+
+
+  return `/api/admin/users/${userId}/suspend`
+}
+
+/**
+ * @summary Suspend or unsuspend user (admin only)
+ */
+export const suspendUser = async (userId: string,
+    suspendUserBody: SuspendUserBody, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<void>(getSuspendUserUrl(userId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(suspendUserBody)
+  }
+);}
+
+
+
+
+
+export const getSuspendUserMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof suspendUser>>, TError,{userId: string;data: BodyType<SuspendUserBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof suspendUser>>, TError,{userId: string;data: BodyType<SuspendUserBody>}, TContext> => {
+
+const mutationKey = ['suspendUser'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof suspendUser>>, {userId: string;data: BodyType<SuspendUserBody>}> = (props) => {
+          const {userId,data} = props ?? {};
+
+          return  suspendUser(userId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SuspendUserMutationResult = NonNullable<Awaited<ReturnType<typeof suspendUser>>>
+    export type SuspendUserMutationBody = BodyType<SuspendUserBody>
+    export type SuspendUserMutationError = ErrorType<void>
+
+    /**
+ * @summary Suspend or unsuspend user (admin only)
+ */
+export const useSuspendUser = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof suspendUser>>, TError,{userId: string;data: BodyType<SuspendUserBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof suspendUser>>,
+        TError,
+        {userId: string;data: BodyType<SuspendUserBody>},
+        TContext
+      > => {
+      return useMutation(getSuspendUserMutationOptions(options));
     }
 
