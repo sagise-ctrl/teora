@@ -1,4 +1,0 @@
-# Empty .vercelignore at workspace root overrides any parent .vercelignore.
-# Vercel CLI looks for .vercelignore starting from the deployment root (artifacts/academic-workspace)
-# and walks up. Without this file, Vercel CLI may apply its default ignores (which include dist/).
-# Empty file = no ignores = dist/ uploads.

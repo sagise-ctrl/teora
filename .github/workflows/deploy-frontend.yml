@@ -46,38 +46,23 @@ jobs:
         working-directory: artifacts/academic-workspace
         run: |
           npm install -g vercel
-          cat > vercel.json <<'EOF'
-          {
-            "buildCommand": "echo 'Pre-built by CI'",
-            "outputDirectory": "dist",
-            "installCommand": "echo 'Dependencies installed by CI'",
-            "rewrites": [{ "source": "(.*)", "destination": "/index.html" }]
-          }
-          EOF
           echo "=== vercel.json contents ==="
           cat vercel.json
           echo "=== dist/ contents ==="
           ls -la dist/ | head -20
-          # Force-stage dist/ to git index so vercel CLI uploads it.
-          # dist/ is in .gitignore so vercel deploy would otherwise skip it.
-          # Run from repo root so git can find the .git directory.
-          cd ../..
-          git add -f artifacts/academic-workspace/dist
-          echo "=== git ls-files showing staged dist ==="
-          git ls-files | grep "^artifacts/academic-workspace/dist/" | head -10
-          cd artifacts/academic-workspace
           echo "=== Running vercel deploy ==="
+          # Use --no-git so vercel uploads the directory as-is, bypassing .gitignore.
+          # dist/ is gitignored but --no-git makes vercel ignore git entirely.
+          # Run from artifacts/academic-workspace so vercel.json (outputDirectory: dist)
+          # points to the right local path.
           set -o pipefail
           vercel deploy \
             --token=${{ secrets.VERCEL_TOKEN }} \
             --project=academic-workspace \
             --prod \
-            --yes 2>&1 | tee deploy.log
+            --yes \
+            --no-git 2>&1 | tee deploy.log
           rc=${PIPESTATUS[0]}
-          # Unstage so we don't accidentally commit dist/
-          cd ../..
-          git restore --staged artifacts/academic-workspace/dist 2>/dev/null || true
-          cd artifacts/academic-workspace
           if [ "$rc" -ne 0 ]; then
             echo "::error::vercel deploy failed with exit code $rc"
             tail -60 deploy.log
