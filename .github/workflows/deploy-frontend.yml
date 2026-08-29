@@ -8,6 +8,7 @@ on:
       - "lib/api-client-react/**"
       - "lib/api-zod/**"
       - "lib/db/src/schema/**"
+      - ".vercelignore"
       - ".github/workflows/deploy-frontend.yml"
 
 permissions:
