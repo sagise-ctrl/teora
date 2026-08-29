@@ -33,41 +33,24 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
-      - name: Build Frontend
+      - name: Build & Deploy to Vercel
         working-directory: artifacts/academic-workspace
         env:
           VITE_SUPABASE_URL: ${{ secrets.FRONTEND_VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.FRONTEND_VITE_SUPABASE_ANON_KEY }}
           VITE_MOCK: "false"
           VITE_API_URL: "/api"
-        run: npm run build 2>&1 | tee build.log || { echo "::error::Frontend build failed"; tail -80 build.log; exit 1; }
-
-      - name: Deploy to Vercel
-        working-directory: artifacts/academic-workspace
         run: |
           npm install -g vercel
-          echo "=== vercel.json contents ==="
-          cat vercel.json
-          echo "=== dist/ contents ==="
-          ls -la dist/ | head -20
-          echo "=== Running vercel deploy ==="
-          # Use --no-git so vercel uploads the directory as-is, bypassing .gitignore.
-          # dist/ is gitignored but --no-git makes vercel ignore git entirely.
-          # Run from artifacts/academic-workspace so vercel.json (outputDirectory: dist)
-          # points to the right local path.
-          set -o pipefail
-          vercel deploy \
-            --token=${{ secrets.VERCEL_TOKEN }} \
-            --project=academic-workspace \
-            --prod \
-            --yes \
-            --no-git 2>&1 | tee deploy.log
-          rc=${PIPESTATUS[0]}
-          if [ "$rc" -ne 0 ]; then
-            echo "::error::vercel deploy failed with exit code $rc"
-            tail -60 deploy.log
-            exit "$rc"
-          fi
+          echo "=== Building with vercel CLI (local build, bypasses gitignore) ==="
+          # vercel build runs the project's buildCommand and puts output in .vercel/output.
+          # This local build bypasses git-based file discovery, so dist/ in .gitignore is not an issue.
+          echo "$VERCEL_TOKEN" | npx vercel build --prod --cwd . 2>&1 | tail -10
+          echo "=== Deploying prebuilt output ==="
+          echo "$VERCEL_TOKEN" | npx vercel deploy \
+            --prod --yes --prebuilt \
+            --project=academic-workspace 2>&1
+          echo "=== Deployment complete ==="
 
       - name: Deployment summary
         run: |
