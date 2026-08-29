@@ -8,6 +8,9 @@
 **/out-tsc
 **/tmp
 **/temp
+# Un-ignore frontend pre-built dist (Vercel needs it for CLI deploy via deploy-frontend.yml)
+# CI builds dist/ locally; .vercelignore would otherwise exclude it from upload → STATIC_BUILD_NO_OUT_DIR error
+!artifacts/academic-workspace/dist
 
 # Git
 .git
