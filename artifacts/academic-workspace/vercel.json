@@ -1,5 +1,6 @@
 {
   "framework": null,
+  "outputDirectory": "dist",
   "installCommand": ":",
   "buildCommand": ":",
   "rewrites": [
