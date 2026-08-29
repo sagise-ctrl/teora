@@ -58,6 +58,12 @@ jobs:
           cat vercel.json
           echo "=== dist/ contents ==="
           ls -la dist/ | head -20
+          # Force-stage dist/ to git index so vercel CLI uploads it.
+          # dist/ is in .gitignore so vercel deploy would otherwise skip it.
+          git config --global --add safe.directory /__w/teora/teora
+          git add -f dist
+          echo "=== git ls-files | grep dist (should now show files) ==="
+          git ls-files | grep "^dist/" | head -10
           echo "=== Running vercel deploy ==="
           set -o pipefail
           vercel deploy \
@@ -66,6 +72,8 @@ jobs:
             --prod \
             --yes 2>&1 | tee deploy.log
           rc=${PIPESTATUS[0]}
+          # Unstage so we don't accidentally commit dist/
+          git restore --staged dist 2>/dev/null || true
           if [ "$rc" -ne 0 ]; then
             echo "::error::vercel deploy failed with exit code $rc"
             tail -60 deploy.log
