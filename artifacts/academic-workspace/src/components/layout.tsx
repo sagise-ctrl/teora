@@ -205,11 +205,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             {/* Pustaka Saya */}
             <NavItem href="/pustaka-saya" icon={BookOpen} label="Pustaka Saya" active={location === "/pustaka-saya"} />
 
-            {/* Project (collapsible) */}
-            <NavGroup icon={FolderKanban} label="Project" active={isProjectActive}>
-              <NavSubItem href="/projects/new?type=general" label="General Project" />
-              <NavSubItem href="/projects/new?type=penelitian" label="Project Penelitian" />
-              <NavSubItem href="/projects/new?type=referensi" label="Referensi" />
+            {/* Task Mentor (collapsible) */}
+            <NavGroup icon={FolderKanban} label="Task Mentor" active={isProjectActive}>
+              <NavSubItem href="/projects/new?type=general" label="General Task" />
+              <NavSubItem href="/projects/new?type=academic" label="Academic Work" />
             </NavGroup>
 
             {/* Assessment */}
