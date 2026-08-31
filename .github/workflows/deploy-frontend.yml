@@ -31,7 +31,7 @@ jobs:
           cache: "npm"
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm ci --legacy-peer-deps --include=optional
 
       - name: Build & Deploy to Vercel
         working-directory: artifacts/academic-workspace
@@ -42,13 +42,16 @@ jobs:
           VITE_API_URL: "/api"
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          npm install -g vercel
+          npm install -g vercel@latest
           echo "=== Pulling project settings ==="
-          npx vercel pull --yes --token="$VERCEL_TOKEN" 2>&1 | tail -5
+          npx vercel pull --yes --token="$VERCEL_TOKEN" 2>&1 | tail -3
+          echo "=== Installing dependencies (include optional native binaries) ==="
+          # lightningcss native binary is optional — must use --include=optional in CI
+          npm ci --legacy-peer-deps --include=optional 2>&1 | tail -3
           echo "=== Building ==="
-          npx vercel build 2>&1 | tail -20
-          echo "=== Verifying .vercel/output ==="
-          ls .vercel/output/ 2>&1 | tail -3
+          npx vite build 2>&1 | tail -15
+          echo "=== Verifying dist/ ==="
+          ls dist/ 2>&1 | tail -3
           echo "=== Deploying prebuilt ==="
           npx vercel deploy \
             --token="$VERCEL_TOKEN" \
