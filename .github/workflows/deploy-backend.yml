@@ -120,14 +120,19 @@ jobs:
         run: |
           set -o pipefail
           npm install -g vercel
-          # @vercel/node runtime format requires @version suffix (see https://vercel.com/docs/project-configuration/vercel-json)
-          echo '{"framework":null,"installCommand":":","buildCommand":":","nodeVersion":"22","functions":{"api/index.mjs":{"runtime":"@vercel/node@3.2.29"}}}' > artifacts/api-server/vercel.json
+          echo "=== Deploying to Vercel ==="
+          cd artifacts/api-server
+          # Pull project settings first (creates .vercel/ with correct nodeVersion)
+          vercel pull --yes --force --token="$VERCEL_TOKEN" 2>&1 | tail -5 || true
+          # Write vercel.json AFTER pull (pull might create one; we need our custom one)
+          # Runtime format: @vercel/node@VERSION (community runtime spec)
+          echo '{"framework":null,"installCommand":":","buildCommand":":","functions":{"api/index.mjs":{"runtime":"@vercel/node@3.2.29"}}}' > vercel.json
+          # Deploy (uses project settings from .vercel/ including nodeVersion)
           vercel deploy \
             --token="$VERCEL_TOKEN" \
             --project=teora-backend \
             --prod \
-            --yes \
-            --cwd=artifacts/api-server 2>&1 | tee deploy.log
+            --yes 2>&1 | tee deploy.log
           rc=${PIPESTATUS[0]}
           if [ "$rc" -ne 0 ]; then
             echo "::error::vercel deploy failed with exit code $rc"

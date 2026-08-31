@@ -43,12 +43,12 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
           npm install -g vercel
-          echo "=== Building (local, creates .vercel/output/) ==="
-          # Build with --prebuilt so vercel deploy --prebuilt can use the output
-          # Omit --prod from build (only use it on deploy)
-          npx vercel build --cwd . 2>&1 | tail -15
+          echo "=== Pulling project settings (required for local build) ==="
+          npx vercel pull --yes --token="$VERCEL_TOKEN" --cwd . 2>&1 | tail -5
+          echo "=== Building (creates .vercel/output/) ==="
+          npx vercel build --cwd . 2>&1 | tail -10
           echo "=== Verifying .vercel/output exists ==="
-          ls .vercel/output/ 2>&1 | head -5
+          ls .vercel/output/ 2>&1 | tail -3
           echo "=== Deploying prebuilt output ==="
           npx vercel deploy \
             --token="$VERCEL_TOKEN" \
