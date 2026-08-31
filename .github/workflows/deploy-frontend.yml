@@ -49,8 +49,6 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
           npm install -g vercel@latest
-          echo "=== Pulling project settings ==="
-          npx vercel pull --yes --token="$VERCEL_TOKEN" 2>&1 | tail -3
           echo "=== Verifying deps are installed ==="
           ls ../../node_modules/@vitejs/plugin-react/package.json 2>&1
           ls ../../node_modules/vite/package.json 2>&1
@@ -58,11 +56,12 @@ jobs:
           npx vite build 2>&1 | tail -15
           echo "=== Verifying dist/ ==="
           ls dist/ 2>&1 | tail -3
-          echo "=== Deploying ==="
+          echo "=== Deploying (no-git to avoid pulling stale build cache) ==="
+          # Skip vercel pull to avoid stale builds.json/config.json
           # vercel.json handles SPA routing: rewrites /api/* to backend, (.*) to /index.html
           npx vercel deploy \
             --token="$VERCEL_TOKEN" \
-            --prod --yes \
+            --prod --yes --no-git \
             --project=academic-workspace 2>&1
           echo "=== Deployment complete ==="
 
