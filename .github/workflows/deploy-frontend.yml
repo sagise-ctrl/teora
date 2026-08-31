@@ -30,6 +30,9 @@ jobs:
           node-version: "22"
           cache: "npm"
 
+      - name: Install dependencies (repo root — has lockfile + workspace config)
+        run: npm ci --legacy-peer-deps --include=dev --include=optional
+
       - name: Build & Deploy to Vercel
         working-directory: artifacts/academic-workspace
         env:
@@ -39,15 +42,12 @@ jobs:
           VITE_API_URL: "/api"
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          echo "=== Installing Vercel CLI ==="
           npm install -g vercel@latest
           echo "=== Pulling project settings ==="
           npx vercel pull --yes --token="$VERCEL_TOKEN" 2>&1 | tail -3
-          echo "=== Installing workspace dependencies (include optional native binaries) ==="
-          npm ci --legacy-peer-deps --include=optional 2>&1 | tail -3
-          echo "=== Verifying vite is installed ==="
-          ls node_modules/vite/package.json 2>&1
-          ls node_modules/@vitejs/plugin-react/package.json 2>&1
+          echo "=== Verifying deps are installed ==="
+          ls ../../node_modules/@vitejs/plugin-react/package.json 2>&1
+          ls ../../node_modules/vite/package.json 2>&1
           echo "=== Building ==="
           npx vite build 2>&1 | tail -15
           echo "=== Verifying dist/ ==="
