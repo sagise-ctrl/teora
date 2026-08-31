@@ -61,8 +61,9 @@ jobs:
           echo "=== Creating Vercel prebuilt output ==="
           mkdir -p .vercel/output/static
           cp -r dist/* .vercel/output/static/
-          # SPA: all routes serve index.html
-          printf '{"version":3,"routes":[{"src":"/(.*)","dest":"/static/$1"},{"src":"/","dest":"/static/index.html"}]}' > .vercel/output/config.json
+          # SPA: (1) root serves index, (2) static assets, (3) all other paths fallback to index
+          # Route order matters — more specific first, wildcard last
+          printf '{"version":3,"routes":[{"src":"/","dest":"/static/index.html"},{"src":"/static/(.*)","dest":"/static/$1"},{"src":"/(.*)","dest":"/static/index.html"}]}' > .vercel/output/config.json
           echo "=== Deploying prebuilt ==="
           npx vercel deploy \
             --token="$VERCEL_TOKEN" \
