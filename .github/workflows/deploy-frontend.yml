@@ -28,7 +28,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: "npm"
+          # No cache — lightningcss optional binary must be freshly installed on Linux runner
 
       - name: Install dependencies (repo root — has lockfile + workspace config)
         run: npm ci --legacy-peer-deps --include=dev --include=optional
