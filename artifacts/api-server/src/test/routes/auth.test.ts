@@ -39,9 +39,9 @@ const { DB_MOCK, resetState, USER_ID, USER_EMAIL } = vi.hoisted(() => {
     then: (onFulfilled: (v: unknown[]) => unknown) => Promise.resolve(_result).then(onFulfilled),
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const selectFn = vi.fn().mockReturnValue(chain);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const fromFn = vi.fn().mockReturnValue(chain);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const whereFn = vi.fn().mockImplementation(function (this: any, _cond: unknown) {
@@ -72,7 +72,7 @@ const { DB_MOCK, resetState, USER_ID, USER_EMAIL } = vi.hoisted(() => {
     _insertTable = t?._?.table?.name ?? t?.name ?? "";
     return chain;
   });
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const valuesFn = vi.fn().mockReturnThis();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const returningFn = vi.fn().mockImplementation(function (this: any) {

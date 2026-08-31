@@ -88,7 +88,7 @@ const { DB_MOCK, resetState, USER_ID, USER_EMAIL } = vi.hoisted(() => {
   // Use Object.create to make it inherit from Array so destructuring works:
   //   const [x] = await db.select()...  →  chain[0]
   // Add toJSON so res.json(chain) serializes correctly
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const chain = Object.create(Array.prototype, {
     select: { value: vi.fn().mockReturnThis() },
     from: {
@@ -200,7 +200,7 @@ const { DB_MOCK, resetState, USER_ID, USER_EMAIL } = vi.hoisted(() => {
   });
   // Populate array indices so destructuring works: const [x] = chain
   Object.defineProperty(chain, "length", { get: () => _data.length });
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   for (let i = 0; i < 100; i++) Object.defineProperty(chain, i, { get: () => _data[i] });
 
   const resetState = () => {
