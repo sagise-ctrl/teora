@@ -56,13 +56,17 @@ jobs:
           npx vite build 2>&1 | tail -15
           echo "=== Verifying dist/ ==="
           ls dist/ 2>&1 | tail -3
-          echo "=== Deploying (no-git to avoid pulling stale build cache) ==="
-          # Skip vercel pull to avoid stale builds.json/config.json
-          # vercel.json handles SPA routing: rewrites /api/* to backend, (.*) to /index.html
+          echo "=== Checking Vercel CLI version ==="
+          npx vercel --version 2>&1
+          echo "=== Checking token format ==="
+          echo "Token prefix: ${VERCEL_TOKEN:0:4}..."
+          echo "Token length: ${#VERCEL_TOKEN}"
+          echo "=== Deploying ==="
+          # Use vercel deploy with --debug for more output
           npx vercel deploy \
             --token="$VERCEL_TOKEN" \
-            --prod --yes --no-git \
-            --project=academic-workspace 2>&1
+            --prod --yes \
+            --project=academic-workspace 2>&1 || echo "DEPLOY_FAILED=$?"
           echo "=== Deployment complete ==="
 
       - name: Deployment summary
