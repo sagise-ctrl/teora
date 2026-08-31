@@ -43,14 +43,17 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
           npm install -g vercel
-          echo "=== Building with vercel CLI (local build, bypasses gitignore) ==="
-          # vercel build runs the project's buildCommand and puts output in .vercel/output.
-          # This local build bypasses git-based file discovery, so dist/ in .gitignore is not an issue.
-          npx vercel build --prod --cwd . 2>&1 | tail -10
+          echo "=== Building (local, creates .vercel/output/) ==="
+          # Build with --prebuilt so vercel deploy --prebuilt can use the output
+          # Omit --prod from build (only use it on deploy)
+          npx vercel build --cwd . 2>&1 | tail -15
+          echo "=== Verifying .vercel/output exists ==="
+          ls .vercel/output/ 2>&1 | head -5
           echo "=== Deploying prebuilt output ==="
           npx vercel deploy \
             --token="$VERCEL_TOKEN" \
             --prod --yes --prebuilt \
+            --cwd=. \
             --project=academic-workspace 2>&1
           echo "=== Deployment complete ==="
 
