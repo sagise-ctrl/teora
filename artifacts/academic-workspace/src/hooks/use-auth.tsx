@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { customFetch, setAuthTokenGetter } from "../lib/api-client-react";
-import { getStoredToken, clearStoredToken, setStoredToken } from "../lib/session";
+import { getStoredToken, clearStoredToken, setStoredToken, clearStoredRefreshToken, getStoredRefreshToken } from "../lib/session";
 
 export interface AuthUser {
   id: string;
@@ -54,12 +54,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refresh = useCallback(async () => {
     const token = getStoredToken();
+    const refreshToken = getStoredRefreshToken();
     if (!token) {
       setUser(null);
       return;
     }
     try {
-      await customFetch("/api/auth/refresh", { method: "POST" });
+      await customFetch("/api/auth/refresh", {
+        method: "POST",
+        body: JSON.stringify({ refresh_token: refreshToken ?? undefined }),
+      });
       await fetchMe();
     } catch {
       setUser(null);
@@ -143,6 +147,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     clearStoredToken();
+    clearStoredRefreshToken();
     setAuthTokenGetter(null);
     try {
       const { supabase } = await import("../lib/supabase");

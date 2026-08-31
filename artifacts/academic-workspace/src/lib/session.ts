@@ -8,6 +8,7 @@
  */
 
 const SESSION_KEY = "teora_access_token";
+const REFRESH_KEY = "teora_refresh_token";
 
 export function getStoredToken(): string | null {
   try {
@@ -28,6 +29,30 @@ export function setStoredToken(token: string): void {
 export function clearStoredToken(): void {
   try {
     localStorage.removeItem(SESSION_KEY);
+  } catch {
+    // ignore
+  }
+}
+
+export function getStoredRefreshToken(): string | null {
+  try {
+    return localStorage.getItem(REFRESH_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function setStoredRefreshToken(token: string): void {
+  try {
+    localStorage.setItem(REFRESH_KEY, token);
+  } catch {
+    // ignore
+  }
+}
+
+export function clearStoredRefreshToken(): void {
+  try {
+    localStorage.removeItem(REFRESH_KEY);
   } catch {
     // ignore
   }

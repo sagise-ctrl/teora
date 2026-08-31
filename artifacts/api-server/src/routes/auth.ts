@@ -321,7 +321,11 @@ router.post("/auth/logout", (_req, res): void => {
 
 // POST /auth/refresh
 router.post("/auth/refresh", async (req, res): Promise<void> => {
-  const refreshToken = req.cookies?.sb_refresh_token;
+  // Accept refresh token from body (localStorage) or cookie (legacy).
+  // Cross-origin: cookie doesn't survive → localStorage + body is the reliable path.
+  const refreshToken =
+    (req.body as { refresh_token?: string })?.refresh_token ||
+    req.cookies?.sb_refresh_token;
 
   if (!refreshToken || !supabaseAdmin) {
     res.status(401).json({ error: "No refresh token" });
