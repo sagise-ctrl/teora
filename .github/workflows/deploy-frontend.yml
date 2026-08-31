@@ -58,23 +58,11 @@ jobs:
           npx vite build 2>&1 | tail -15
           echo "=== Verifying dist/ ==="
           ls dist/ 2>&1 | tail -3
-          echo "=== Creating Vercel prebuilt output ==="
-          mkdir -p .vercel/output/static
-          # Preserve dist/ directory structure — cp -r dist/* flattens nested dirs
-          cp -r dist .vercel/output/static/dist_tmp
-          mv .vercel/output/static/dist_tmp/dist .vercel/output/static/
-          rm -rf .vercel/output/static/dist_tmp
-          echo "Prebuilt structure:"
-          ls .vercel/output/static/
-          # SPA: static assets serve from /assets/*, all other routes fallback to index.html
-          # vite output is flat: index.html at root, assets/ at root
-          # SPA: (1) /api/* bypass to backend (vercel.json rewrite), (2) /assets/* serve from prebuilt,
-          # (3) all other routes fallback to index.html
-          printf '{"version":3,"routes":[{"src":"/api/(.*)","dest":"https://teora-backend.vercel.app/api/$1"},{"src":"/assets/(.*)","dest":"/static/assets/$1"},{"src":"/(.*)","dest":"/static/index.html"}]}' > .vercel/output/config.json
-          echo "=== Deploying prebuilt ==="
+          echo "=== Deploying ==="
+          # vercel.json handles SPA routing: rewrites /api/* to backend, (.*) to /index.html
           npx vercel deploy \
             --token="$VERCEL_TOKEN" \
-            --prod --yes --prebuilt \
+            --prod --yes \
             --project=academic-workspace 2>&1
           echo "=== Deployment complete ==="
 
@@ -82,4 +70,3 @@ jobs:
         run: |
           echo "Frontend deployed to Vercel production."
           echo "Verify at: https://academic-workspace-eta.vercel.app"
-          # retry: 2026-09-01
