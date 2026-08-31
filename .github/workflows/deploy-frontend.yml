@@ -60,10 +60,17 @@ jobs:
           ls dist/ 2>&1 | tail -3
           echo "=== Creating Vercel prebuilt output ==="
           mkdir -p .vercel/output/static
-          cp -r dist/* .vercel/output/static/
-          # SPA: (1) root serves index, (2) static assets, (3) all other paths fallback to index
-          # Route order matters — more specific first, wildcard last
-          printf '{"version":3,"routes":[{"src":"/","dest":"/static/index.html"},{"src":"/static/(.*)","dest":"/static/$1"},{"src":"/(.*)","dest":"/static/index.html"}]}' > .vercel/output/config.json
+          # Preserve dist/ directory structure — cp -r dist/* flattens nested dirs
+          cp -r dist .vercel/output/static/dist_tmp
+          mv .vercel/output/static/dist_tmp/dist .vercel/output/static/
+          rm -rf .vercel/output/static/dist_tmp
+          echo "Prebuilt structure:"
+          ls .vercel/output/static/
+          # SPA: static assets serve from /assets/*, all other routes fallback to index.html
+          # vite output is flat: index.html at root, assets/ at root
+          # SPA: (1) /api/* bypass to backend (vercel.json rewrite), (2) /assets/* serve from prebuilt,
+          # (3) all other routes fallback to index.html
+          printf '{"version":3,"routes":[{"src":"/api/(.*)","dest":"https://teora-backend.vercel.app/api/$1"},{"src":"/assets/(.*)","dest":"/static/assets/$1"},{"src":"/(.*)","dest":"/static/index.html"}]}' > .vercel/output/config.json
           echo "=== Deploying prebuilt ==="
           npx vercel deploy \
             --token="$VERCEL_TOKEN" \
