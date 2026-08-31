@@ -1,3 +1,8 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
+// This file uses require() inside vi.hoisted() and vi.mock() factories,
+// which run before ES module imports are available. This is the standard
+// vitest pattern — see https://vitest.dev/api/vi.html#vi-hoisted
+
 import { describe, it, expect, vi } from "vitest";
 import request from "supertest";
 import express, { type Request, type Response } from "express";
