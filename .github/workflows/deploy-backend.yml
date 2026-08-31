@@ -108,6 +108,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
@@ -123,7 +128,7 @@ jobs:
           echo "=== Deploying to Vercel ==="
           cd artifacts/api-server
           # Pull project settings first (creates .vercel/ with correct nodeVersion)
-          vercel pull --yes --force --token="$VERCEL_TOKEN" 2>&1 | tail -5 || true
+          vercel pull --yes --token="$VERCEL_TOKEN" 2>&1 | tail -5 || true
           # Write vercel.json AFTER pull (pull might create one; we need our custom one)
           # Runtime format: @vercel/node@VERSION (community runtime spec)
           echo '{"framework":null,"installCommand":":","buildCommand":":","functions":{"api/index.mjs":{"runtime":"@vercel/node@3.2.29"}}}' > vercel.json

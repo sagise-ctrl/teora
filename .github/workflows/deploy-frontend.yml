@@ -43,17 +43,16 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
           npm install -g vercel
-          echo "=== Pulling project settings (required for local build) ==="
-          npx vercel pull --yes --token="$VERCEL_TOKEN" --cwd . 2>&1 | tail -5
-          echo "=== Building (creates .vercel/output/) ==="
-          npx vercel build --cwd . 2>&1 | tail -10
-          echo "=== Verifying .vercel/output exists ==="
+          echo "=== Pulling project settings ==="
+          npx vercel pull --yes --token="$VERCEL_TOKEN" 2>&1 | tail -5
+          echo "=== Building ==="
+          npx vercel build 2>&1 | tail -20
+          echo "=== Verifying .vercel/output ==="
           ls .vercel/output/ 2>&1 | tail -3
-          echo "=== Deploying prebuilt output ==="
+          echo "=== Deploying prebuilt ==="
           npx vercel deploy \
             --token="$VERCEL_TOKEN" \
             --prod --yes --prebuilt \
-            --cwd=. \
             --project=academic-workspace 2>&1
           echo "=== Deployment complete ==="
 
