@@ -34,7 +34,7 @@ export async function authMiddleware(
   next: NextFunction
 ): Promise<void> {
   // Extract token from cookie first, then Authorization header
-  let token =
+  const token =
     req.cookies?.sb_access_token ||
     req.headers.authorization?.replace("Bearer ", "") ||
     req.headers["x-supabase-access-token"] as string | undefined;

@@ -338,7 +338,7 @@ function sanitizeAIResponse(content: string): string {
   // Remove any accidentally included credential patterns from AI output
   // (shouldn't happen with proper system prompt, but defense in depth)
   sanitized = sanitized.replace(
-    /(\b(API[_\s]?KEY|API[_\s]?TOKEN|SECRET|BEARER)\s*[:=]\s*["']?[\w\-]{8,})/gi,
+    /(\b(API[_\s]?KEY|API[_\s]?TOKEN|SECRET|BEARER)\s*[:=]\s*["']?[\w-]{8,})/gi,
     "[credential redacted]"
   );
 

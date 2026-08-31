@@ -155,7 +155,7 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
   ];
 
   // Call AI with selected tier
-  let usageResult: Awaited<ReturnType<typeof callAI>> | null = null;
+  let usageResult: Awaited<ReturnType<typeof callAI>>;
   try {
     usageResult = await callAI(aiMessages, selectedTier.id, mode);
   } catch (err) {
