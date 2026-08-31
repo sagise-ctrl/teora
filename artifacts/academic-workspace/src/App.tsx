@@ -64,6 +64,7 @@ function AppRouter() {
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/auth/confirm" component={Confirm} />
+      <Route path="/callback" component={AuthCallback} />
       <Route path="/auth/callback" component={AuthCallback} />
       {/* Public shared project route — no auth required */}
       <Route path="/shared/:token" component={SharedProject} />

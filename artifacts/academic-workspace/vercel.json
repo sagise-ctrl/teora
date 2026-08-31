@@ -5,5 +5,8 @@
   "rewrites": [
     { "source": "/api/(.*)", "destination": "https://teora-backend.vercel.app/api/$1" },
     { "source": "(.*)", "destination": "/index.html" }
+  ],
+  "redirects": [
+    { "source": "/favicon.ico", "destination": "/favicon.svg", "permanent": true }
   ]
 }
