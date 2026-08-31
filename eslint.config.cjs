@@ -33,6 +33,7 @@ module.exports = [
       "**/eslint.config.cjs",
       "check-runs.js",
       "check-workflow.js",
+      "**/ecosystem.config.cjs", // VPS backup config — kept per ADR-007, ignored until VPS migration (see docs/ai-team/production-operations/vps-migration-guide.md)
     ],
   },
   {
