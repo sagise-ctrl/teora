@@ -40,14 +40,16 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.FRONTEND_VITE_SUPABASE_ANON_KEY }}
           VITE_MOCK: "false"
           VITE_API_URL: "/api"
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
           npm install -g vercel
           echo "=== Building with vercel CLI (local build, bypasses gitignore) ==="
           # vercel build runs the project's buildCommand and puts output in .vercel/output.
           # This local build bypasses git-based file discovery, so dist/ in .gitignore is not an issue.
-          echo "$VERCEL_TOKEN" | npx vercel build --prod --cwd . 2>&1 | tail -10
+          npx vercel build --prod --cwd . 2>&1 | tail -10
           echo "=== Deploying prebuilt output ==="
-          echo "$VERCEL_TOKEN" | npx vercel deploy \
+          npx vercel deploy \
+            --token="$VERCEL_TOKEN" \
             --prod --yes --prebuilt \
             --project=academic-workspace 2>&1
           echo "=== Deployment complete ==="
