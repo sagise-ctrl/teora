@@ -126,15 +126,12 @@ jobs:
           set -o pipefail
           npm install -g vercel@latest
           cd artifacts/api-server
-          # Write vercel.json with no-op buildCommand (artifact already compiled)
-          echo '{"framework":null,"installCommand":":","buildCommand":"exit 0","functions":{"api/index.mjs":{"runtime":"@vercel/node@3.2.29"}}}' > vercel.json
-          # Deploy without server-side build (--no-build) — artifact is pre-compiled
+          # engines.node=22.x in package.json overrides project settings
           vercel deploy \
             --token="$VERCEL_TOKEN" \
             --project=teora-backend \
             --prod \
-            --yes \
-            --no-build 2>&1 | tee deploy.log
+            --yes 2>&1 | tee deploy.log
           rc=${PIPESTATUS[0]}
           if [ "$rc" -ne 0 ]; then
             echo "::error::vercel deploy failed with exit code $rc"
