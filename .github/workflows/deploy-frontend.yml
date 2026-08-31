@@ -8,6 +8,8 @@ on:
       - "lib/api-client-react/**"
       - "lib/api-zod/**"
       - "lib/db/src/schema/**"
+      - "package.json"
+      - "package-lock.json"
       - ".vercelignore"
       - ".github/workflows/deploy-frontend.yml"
 
