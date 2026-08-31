@@ -34,9 +34,9 @@ jobs:
 
       - name: Install dependencies (repo root — has lockfile + workspace config)
         run: |
-          # Use npm install instead of npm ci. npm has a bug where optional
-          # native binaries are not properly installed (npm/cli#4828).
-          # npm install forces fresh resolution of all optional deps.
+          # npm has a bug where optional native binaries corrupt across CI runs
+          # (npm/cli#4828). Fix: nuke node_modules and reinstall fresh.
+          rm -rf node_modules
           npm install --legacy-peer-deps --include=dev --include=optional
 
       - name: Build & Deploy to Vercel
