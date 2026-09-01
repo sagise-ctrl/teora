@@ -8,6 +8,10 @@ import { logger } from "./lib/logger.js";
 
 const app: Express = express();
 
+// Trust Vercel's proxy so req.ip reflects the real client IP.
+// Required by express-rate-limit when X-Forwarded-For is present.
+app.set("trust proxy", 1);
+
 // Test endpoint — if this returns 200, Express is running
 app.get("/test", (_req, res) => {
   res.json({ ok: true, ts: Date.now() });

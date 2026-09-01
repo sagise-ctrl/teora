@@ -1,19 +1,11 @@
 {
   "builds": [
-    {
-      "src": "api/index.mjs",
-      "use": "@vercel/node"
-    }
+    { "src": "api/index.mjs", "use": "@vercel/node" }
   ],
   "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "api/index.mjs"
-    }
+    { "src": "/(.*)", "dest": "api/index.mjs" }
   ],
   "build": {
-    "env": {
-      "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
-    }
+    "env": { "NPM_CONFIG_LEGACY_PEER_DEPS": "true" }
   }
 }
