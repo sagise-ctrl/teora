@@ -9,7 +9,10 @@ let jwks: jose.JWTVerifyGetKey | null = null;
 
 async function getJwks(): Promise<jose.JWTVerifyGetKey> {
   if (jwks) return jwks;
-  const jwksUrl = new URL(`${SUPABASE_URL}/jwt/v1/keys`);
+  // Supabase hosted JWKS endpoint: /auth/v1/.well-known/jwks.json (NOT /jwt/v1/keys)
+  // Modern Supabase (2024+) signs access tokens with ES256 (asymmetric, JWKS).
+  // Legacy / local dev uses HS256 (symmetric, SUPABASE_JWT_SECRET).
+  const jwksUrl = new URL(`${SUPABASE_URL}/auth/v1/.well-known/jwks.json`);
   jwks = jose.createRemoteJWKSet(jwksUrl);
   return jwks;
 }
@@ -48,12 +51,22 @@ export async function authMiddleware(
     const secret = SUPABASE_JWT_SECRET || undefined;
     let payload: jose.JWTPayload;
 
+    // Try HS256 first (legacy / local dev tokens).
+    // If SUPABASE_JWT_SECRET is set but the token is signed with ES256 (modern Supabase
+    // Google OAuth), HS256 verify throws "Invalid Compact JWS" — fall back to JWKS.
+    let verified = false;
     if (secret) {
-      // Use secret for local development / anon key verification
-      const { payload: p } = await jose.jwtVerify(token, new TextEncoder().encode(secret));
-      payload = p;
-    } else {
-      // Production: verify with JWKS
+      try {
+        const { payload: p } = await jose.jwtVerify(token, new TextEncoder().encode(secret));
+        payload = p;
+        verified = true;
+      } catch {
+        // HS256 failed — fall through to JWKS
+      }
+    }
+
+    if (!verified) {
+      // Production: verify with JWKS (covers ES256 and RS256).
       const keySet = await getJwks();
       const { payload: p } = await jose.jwtVerify(token, keySet);
       payload = p;
@@ -90,10 +103,18 @@ export async function optionalAuth(
     const secret = SUPABASE_JWT_SECRET || undefined;
     let payload: jose.JWTPayload;
 
+    let verified = false;
     if (secret) {
-      const { payload: p } = await jose.jwtVerify(token, new TextEncoder().encode(secret));
-      payload = p;
-    } else {
+      try {
+        const { payload: p } = await jose.jwtVerify(token, new TextEncoder().encode(secret));
+        payload = p;
+        verified = true;
+      } catch {
+        // HS256 failed — fall through to JWKS
+      }
+    }
+
+    if (!verified) {
       const keySet = await getJwks();
       const { payload: p } = await jose.jwtVerify(token, keySet);
       payload = p;

@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { customAlphabet } from "nanoid";
 import { db, usersTable, referralsTable, referralEventsTable } from "@workspace/db";
+import { authMiddleware } from "../middlewares/auth.js";
 
 const router: IRouter = Router();
 
@@ -50,7 +51,7 @@ async function logReferralEvent(
 }
 
 // GET /auth/me
-router.get("/auth/me", async (req, res): Promise<void> => {
+router.get("/auth/me", authMiddleware, async (req, res): Promise<void> => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -355,7 +356,7 @@ router.post("/auth/refresh", async (req, res): Promise<void> => {
 });
 
 // GET /auth/referrals
-router.get("/auth/referrals", async (req, res): Promise<void> => {
+router.get("/auth/referrals", authMiddleware, async (req, res): Promise<void> => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
