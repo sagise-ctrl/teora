@@ -1,0 +1,272 @@
+<!DOCTYPE html><html class="h-full bg-surface-lowest" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>TugasAI - Login</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&amp;family=Inter:wght@400;600&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary-container": "#131b2e",
+                      "secondary": "#006c49",
+                      "tertiary-container": "#001a42",
+                      "on-surface-variant": "#45464d",
+                      "inverse-on-surface": "#eaf1ff",
+                      "surface-container": "#e5eeff",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "error-container": "#ffdad6",
+                      "surface-container-high": "#dce9ff",
+                      "on-tertiary-container": "#3980f4",
+                      "on-error-container": "#93000a",
+                      "on-tertiary": "#ffffff",
+                      "tertiary-fixed": "#d8e2ff",
+                      "background": "#f8f9ff",
+                      "on-secondary-fixed": "#002113",
+                      "error": "#ba1a1a",
+                      "tertiary": "#000000",
+                      "outline-variant": "#c6c6cd",
+                      "inverse-primary": "#bec6e0",
+                      "on-primary-container": "#7c839b",
+                      "inverse-surface": "#213145",
+                      "surface-container-highest": "#d3e4fe",
+                      "on-primary-fixed": "#131b2e",
+                      "on-error": "#ffffff",
+                      "primary": "#000000",
+                      "surface-container-low": "#eff4ff",
+                      "on-secondary-container": "#00714d",
+                      "on-secondary": "#ffffff",
+                      "tertiary-fixed-dim": "#adc6ff",
+                      "outline": "#76777d",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-bright": "#f8f9ff",
+                      "on-secondary-fixed-variant": "#005236",
+                      "primary-fixed": "#dae2fd",
+                      "surface": "#f8f9ff",
+                      "on-background": "#0b1c30",
+                      "on-tertiary-fixed-variant": "#004395",
+                      "surface-dim": "#cbdbf5",
+                      "primary-fixed-dim": "#bec6e0",
+                      "on-primary": "#ffffff",
+                      "secondary-fixed": "#6ffbbe",
+                      "secondary-container": "#6cf8bb",
+                      "surface-variant": "#d3e4fe",
+                      "on-tertiary-fixed": "#001a42",
+                      "on-surface": "#0b1c30",
+                      "surface-tint": "#565e74",
+                      "secondary-fixed-dim": "#4edea3"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "gutter": "24px",
+                      "sm": "16px",
+                      "xs": "8px",
+                      "margin-desktop": "48px",
+                      "xl": "64px",
+                      "margin-mobile": "16px",
+                      "lg": "40px",
+                      "base": "4px",
+                      "md": "24px"
+              },
+              "fontFamily": {
+                      "headline-lg": [
+                              "Montserrat"
+                      ],
+                      "display-lg": [
+                              "Montserrat"
+                      ],
+                      "headline-lg-mobile": [
+                              "Montserrat"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "code-sm": [
+                              "JetBrains Mono"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Montserrat"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "code-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .custom-shadow {
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+        }
+        .custom-shadow-hover:hover {
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            transform: translateY(-2px);
+        }
+        .transition-all-custom {
+            transition-property: all;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 300ms;
+        }
+      </style>
+</head>
+<body class="h-full bg-background flex flex-col font-body-md text-on-background relative overflow-hidden">
+<!-- Decorative background elements -->
+<div aria-hidden="true" class="absolute inset-0 pointer-events-none overflow-hidden">
+<div class="absolute -top-[20%] -right-[10%] w-[50%] h-[50%] rounded-full bg-surface-container blur-[100px] opacity-70"></div>
+<div class="absolute -bottom-[20%] -left-[10%] w-[40%] h-[40%] rounded-full bg-surface-container-high blur-[120px] opacity-60"></div>
+</div>
+<!-- Main Content Canvas - Suppressing shell navigations for Transactional Page -->
+<main class="flex-grow flex items-center justify-center p-margin-mobile md:p-margin-desktop z-10">
+<div class="w-full max-w-[440px] bg-surface-container-lowest rounded-xl custom-shadow border border-outline-variant p-xl flex flex-col items-center">
+<!-- Branding -->
+<div class="mb-lg flex flex-col items-center">
+<div class="w-20 h-20 mb-sm bg-surface-container rounded-lg flex items-center justify-center overflow-hidden border border-outline-variant shadow-sm">
+<img alt="Teora Logo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdJjJt2XcrBZ08BXplXN7MztZYYwhXqeLBkz2J-51bMPZspi0ImeehfNIjcwaKYpRM8yRYCZwlWvPwuvYGAlz44lkcIN9IfCfG64Pm0ujejujJLBhG_9EVgcDn7zueAqr1vqDNX0zLMzQwziZvr_0pfhc49kInq7z9jikEIkF59RYoTA2fZEAFFmMr8euN-U3zGeQri5zvDQgF5ItwKzJ3_mGGw8FHj1zGeI3edve3LxYpOMmbidjjn4tfZdnQx7h_yA">
+</div>
+<h1 class="font-headline-md text-headline-md text-on-surface">Welcome to Teora</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs text-center">Empowering Academic Excellence through Artificial Intelligence.</p>
+</div>
+<!-- Social Login -->
+<button class="w-full flex items-center justify-center gap-sm py-sm px-md rounded-lg border border-outline-variant bg-surface-container-lowest hover:bg-surface-container-low transition-all-custom text-on-surface font-label-md text-label-md group mb-md">
+<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"></path>
+<path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
+</svg>
+                Continue with Google
+            </button>
+<!-- Divider -->
+<div class="w-full flex items-center gap-sm mb-md">
+<div class="h-px bg-outline-variant flex-grow"></div>
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider text-[10px]">Or</span>
+<div class="h-px bg-outline-variant flex-grow"></div>
+</div>
+<!-- Login Form -->
+<form class="w-full flex flex-col gap-sm">
+<div class="relative">
+<label class="sr-only" for="email">Email Address</label>
+<div class="absolute inset-y-0 left-0 pl-sm flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">mail</span>
+</div>
+<input class="block w-full pl-xl pr-sm py-sm rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-on-primary-container focus:ring-0 focus:border-[#3B82F6] focus:shadow-[0_0_0_3px_rgba(59,130,246,0.3)] transition-all-custom" id="email" name="email" placeholder="Email Address" required="" type="email">
+</div>
+<div class="relative mb-xs">
+<label class="sr-only" for="password">Password</label>
+<div class="absolute inset-y-0 left-0 pl-sm flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">lock</span>
+</div>
+<input class="block w-full pl-xl pr-sm py-sm rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-on-primary-container focus:ring-0 focus:border-[#3B82F6] focus:shadow-[0_0_0_3px_rgba(59,130,246,0.3)] transition-all-custom" id="password" name="password" placeholder="Password" required="" type="password">
+</div>
+<div class="flex items-center justify-between mb-sm px-base">
+<label class="flex items-center gap-xs cursor-pointer group">
+<input class="rounded border-outline-variant text-[#0F172A] focus:ring-[#0F172A] focus:ring-offset-surface-container-lowest bg-surface-container-lowest w-4 h-4 cursor-pointer transition-colors" type="checkbox">
+<span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Remember me</span>
+</label>
+<a class="font-label-md text-label-md text-[#3B82F6] hover:text-[#2563EB] transition-colors" href="#">Forgot Password?</a>
+</div>
+<button class="w-full bg-[#0F172A] text-on-primary py-sm px-md rounded-lg font-label-md text-label-md hover:bg-[#1E293B] transition-all-custom custom-shadow-hover flex justify-center items-center gap-xs" type="submit">
+                    Sign In
+                    <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</form>
+<div class="mt-lg pt-sm border-t border-outline-variant w-full text-center">
+<p class="font-body-sm text-body-sm text-on-surface-variant">New to Teora? <a class="font-label-md text-label-md text-[#3B82F6] hover:text-[#2563EB] transition-colors ml-base" href="#">Create an account</a></p>
+</div>
+</div>
+</main>
+<!-- Footer - Transactional page, keeping it minimal and suppressed from main nav -->
+<footer class="w-full py-md px-gutter flex flex-col md:flex-row justify-between items-center gap-md z-10 border-t border-outline-variant bg-surface-container-lowest/50 backdrop-blur-sm">
+<p class="font-body-sm text-body-sm text-on-surface-variant">© 2024 Teora - Empowering Academic Excellence</p>
+<div class="flex gap-md">
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-opacity hover:opacity-80" href="#">Help Center</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-opacity hover:opacity-80" href="#">Privacy Policy</a>
+</div>
+</footer>
+
+
+</body></html>

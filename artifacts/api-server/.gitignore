@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.bundled/
+
+# Vercel
+.vercel/
+
+# Environment
+.env
+.env*.local
+
+# Source maps (generated during Vercel build)
+*.mjs.map
+
+# OS
+.DS_Store
+Thumbs.db
+
+.vercel

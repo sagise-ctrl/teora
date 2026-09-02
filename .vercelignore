@@ -1,0 +1,58 @@
+# Dependencies
+**/node_modules
+**/.pnpm-store
+
+# Build outputs
+**/dist
+**/.next
+**/out-tsc
+**/tmp
+**/temp
+
+# Git
+.git
+.gitignore
+
+# IDEs
+**/.vscode
+**/.idea
+**/*.swp
+**/.DS_Store
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test coverage
+coverage
+**/__tests__
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+
+# Docs
+**/*.md
+docs
+README.md
+CLAUDE.md
+
+# CI/CD
+.github
+.claude
+
+# MCP
+.mcp.json
+
+# Schema source
+lib/api-spec
+
+# Misc
+pnpm-lock.yaml
+package-lock.json
+*.tsbuildinfo

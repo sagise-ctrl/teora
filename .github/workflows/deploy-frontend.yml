@@ -1,0 +1,75 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "artifacts/academic-workspace/**"
+      - "lib/api-client-react/**"
+      - "lib/api-zod/**"
+      - "lib/db/src/schema/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".vercelignore"
+      - ".github/workflows/deploy-frontend.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://academic-workspace-eta.vercel.app
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          # No cache — lightningcss optional binary must be freshly installed on Linux runner
+
+      - name: Install dependencies (repo root — has lockfile + workspace config)
+        run: |
+          # npm has a bug where optional native binaries corrupt across CI runs
+          # (npm/cli#4828). Fix: nuke node_modules and reinstall fresh.
+          rm -rf node_modules
+          npm install --legacy-peer-deps --include=dev --include=optional
+
+      - name: Build & Deploy to Vercel
+        working-directory: artifacts/academic-workspace
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.FRONTEND_VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.FRONTEND_VITE_SUPABASE_ANON_KEY }}
+          VITE_MOCK: "false"
+          VITE_API_URL: "/api"
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          npm install -g vercel@latest
+          echo "=== Verifying deps are installed ==="
+          ls ../../node_modules/@vitejs/plugin-react/package.json 2>&1
+          ls ../../node_modules/vite/package.json 2>&1
+          echo "=== Building ==="
+          npx vite build 2>&1 | tail -15
+          echo "=== Verifying dist/ ==="
+          ls dist/ 2>&1 | tail -3
+          echo "=== Checking Vercel CLI version ==="
+          npx vercel --version 2>&1
+          echo "=== Checking token format ==="
+          echo "Token prefix: ${VERCEL_TOKEN:0:4}..."
+          echo "Token length: ${#VERCEL_TOKEN}"
+          echo "=== Deploying ==="
+          # Use vercel deploy with --debug for more output
+          npx vercel deploy \
+            --token="$VERCEL_TOKEN" \
+            --prod --yes \
+            --project=academic-workspace 2>&1 || echo "DEPLOY_FAILED=$?"
+          echo "=== Deployment complete ==="
+
+      - name: Deployment summary
+        run: |
+          echo "Frontend deployed to Vercel production."
+          echo "Verify at: https://academic-workspace-eta.vercel.app"

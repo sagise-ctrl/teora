@@ -1,0 +1,61 @@
+import { Router, type IRouter } from "express";
+import { authMiddleware } from "../middlewares/auth.js";
+import healthRouter from "./health.js";
+import authRouter from "./auth.js";
+import sharedRouter from "./shared.js";
+import projectsRouter from "./projects.js";
+import messagesRouter from "./messages.js";
+import documentsRouter from "./documents.js";
+import referencesRouter from "./references.js";
+import attachmentsRouter from "./attachments.js";
+import activitiesRouter from "./activities.js";
+import jobsRouter from "./jobs.js";
+import metadataRouter from "./metadata.js";
+import exportsRouter from "./exports.js";
+import aiUsageRouter from "./ai-usage.js";
+import commentsRouter from "./comments.js";
+import projectMembersRouter from "./project-members.js";
+import quizzesRouter from "./quizzes.js";
+import rubricsRouter from "./rubrics.js";
+import writingStyleRouter from "./writing-style.js";
+import aiTiersRouter from "./ai-tiers.js";
+import balanceRouter from "./balance.js";
+import profileRouter from "./profile.js";
+import accountReferencesRouter from "./account-references.js";
+import usageRouter from "./usage.js";
+import documentTemplatesRouter from "./document-templates.js";
+import adminAiTiersRouter from "./admin-ai-tiers.js";
+import adminRouter from "./admin.js";
+
+const router: IRouter = Router();
+
+router.use(healthRouter);
+router.use(authRouter);
+// Public endpoint — no auth required for shared project access
+router.use(sharedRouter);
+// Public — price list
+router.use(aiTiersRouter);
+router.use(authMiddleware);
+router.use(projectsRouter);
+router.use(messagesRouter);
+router.use(documentsRouter);
+router.use(referencesRouter);
+router.use(accountReferencesRouter);
+router.use(attachmentsRouter);
+router.use(activitiesRouter);
+router.use(jobsRouter);
+router.use(metadataRouter);
+router.use(exportsRouter);
+router.use(aiUsageRouter);
+router.use(commentsRouter);
+router.use(projectMembersRouter);
+router.use(quizzesRouter);
+router.use(rubricsRouter);
+router.use(writingStyleRouter);
+router.use(balanceRouter);
+router.use(usageRouter);
+router.use(documentTemplatesRouter);
+router.use(adminAiTiersRouter);
+router.use(adminRouter);
+
+export default router;

@@ -1,0 +1,148 @@
+name: Deploy Backend
+# Builds and deploys api-server to Vercel on code changes — trigger redeploy
+on:
+  push:
+    branches: [main]
+    paths:
+      - "artifacts/api-server/**"
+      - "lib/db/**"
+      - ".github/workflows/deploy-backend.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: |
+          node --version
+          npm --version
+          npm ci --legacy-peer-deps 2>&1 | tail -5
+
+      - name: Verify workspace packages
+        run: |
+          echo "Repo root: $(pwd)"
+          echo "Workspace symlinks:"
+          ls -la node_modules/@workspace/ 2>&1 || echo "NO @workspace SYMLINKS!"
+          echo "@workspace/db:"
+          ls -la node_modules/@workspace/db 2>&1 | head -5 || echo "NOT FOUND"
+
+      - name: Build API server
+        id: build_api
+        run: |
+          export NODE_PATH="$(pwd)/node_modules"
+          cd artifacts/api-server
+          echo "::group::Build environment"
+          echo "Node version: $(node --version)"
+          echo "CWD: $(pwd)"
+          echo "Workspace symlinks:"
+          ls -la ../../node_modules/@workspace/ 2>&1 || echo "NO @workspace SYMLINKS!"
+          echo "::endgroup::"
+          echo "::group::Populating .bundled/ from workspace packages"
+          node setup-workspace.mjs
+          echo "Bundled contents:"
+          find .bundled -name "*.ts" | head -10
+          echo "::endgroup::"
+          echo "::group::Running build"
+          node build.mjs > build.log 2>&1 || {
+            echo "::error::node build.mjs failed with exit code $?"
+            echo "::error::===== Build log (first 50 lines) ====="
+            head -50 build.log
+            echo "::error::===== End build log ====="
+            exit 1
+          }
+          echo "::endgroup::"
+          echo "Build artifacts:"
+          ls -la api/index.mjs dist/index.mjs 2>&1
+
+      - name: Prepare deployment package
+        run: |
+          mkdir -p artifacts/api-server/node_modules/@workspace
+          cp -r node_modules/@workspace/* artifacts/api-server/node_modules/@workspace/
+          # Copy production deps
+          mkdir -p artifacts/api-server/node_modules
+          for dep in \
+            zod drizzle-orm drizzle-zod pg \
+            cookie-parser cors express express-rate-limit \
+            jose nanoid pino pino-http pino-pretty \
+            thread-stream docx \
+            @supabase/supabase-js \
+            @citation-js/core @citation-js/plugin-doi @citation-js/plugin-isbn \
+            @vercel/node; do
+            cp -r "node_modules/$dep" artifacts/api-server/node_modules/ 2>/dev/null || true
+          done
+          # Cleanup: remove dev-only deps from api-server node_modules
+          rm -rf artifacts/api-server/node_modules/@types 2>/dev/null || true
+          rm -rf artifacts/api-server/node_modules/esbuild 2>/dev/null || true
+          rm -rf artifacts/api-server/node_modules/typescript 2>/dev/null || true
+          echo "Deployment package prepared"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-server-dist
+          path: |
+            artifacts/api-server/api
+            artifacts/api-server/dist
+            artifacts/api-server/node_modules
+            artifacts/api-server/package.json
+          retention-days: 1
+
+  deploy:
+    name: Deploy to Vercel
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: production
+      url: https://teora-backend.vercel.app
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: api-server-dist
+          path: artifacts/api-server
+
+      - name: Deploy to Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -o pipefail
+          npm install -g vercel@latest
+          cd artifacts/api-server
+          # engines.node=22.x in package.json overrides project settings
+          vercel deploy \
+            --token="$VERCEL_TOKEN" \
+            --project=teora-backend \
+            --prod \
+            --yes 2>&1 | tee deploy.log
+          rc=${PIPESTATUS[0]}
+          if [ "$rc" -ne 0 ]; then
+            echo "::error::vercel deploy failed with exit code $rc"
+            tail -60 deploy.log
+            exit "$rc"
+          fi
+
+      - name: Health check
+        run: |
+          sleep 5
+          curl -sf --retry 5 --retry-delay 5 \
+            --retry-connrefused \
+            https://teora-backend.vercel.app/api/healthz \
+            || echo "Warning: Health check failed — verify manually at https://vercel.com/dashboard"
