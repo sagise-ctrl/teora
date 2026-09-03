@@ -48,6 +48,8 @@ tags:
     description: Document templates
   - name: account-references
     description: Global Reference Library — account-level personal reference pool
+  - name: learning-activity
+    description: Practice — Learning Activity tracking for personalized quiz recommendations
   - name: admin
     description: Admin (owner) dashboard — user management, financials, system config
 paths:
@@ -173,6 +175,12 @@ paths:
           in: query
           schema:
             type: string
+        - name: type
+          in: query
+          description: Filter by project type (general or academic)
+          schema:
+            type: string
+            enum: [general, academic]
       responses:
         "200":
           description: List of projects
@@ -734,6 +742,277 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BibliographyResult"
+
+  # ──────────────────────────────────────────────────────────────────
+  # Auto-cite — AI suggests citation positions (DECISION 014)
+  # ──────────────────────────────────────────────────────────────────
+  /projects/{projectId}/references/auto-cite:
+    post:
+      operationId: autoCiteReferences
+      tags: [references]
+      summary: AI suggests citation positions for selected references
+      description: |
+        Reads the current document + the references the user has ceklist (selected = true),
+        then asks the AI to find paragraphs where each reference is relevant and insert
+        a citation marker. Supports multi-cite — one reference can be cited in multiple
+        paragraphs. User reviews the suggestions before applying them.
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AutoCiteRequest"
+      responses:
+        "200":
+          description: Citation suggestions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutoCiteResponse"
+        "402":
+          description: Insufficient token balance
+        "404":
+          description: Project or document not found
+
+  # ──────────────────────────────────────────────────────────────────
+  # Reference ceklist — toggle selection for bibliography inclusion
+  # ──────────────────────────────────────────────────────────────────
+  /projects/{projectId}/references/{referenceId}/select:
+    patch:
+      operationId: toggleReferenceSelection
+      tags: [references]
+      summary: Toggle the ceklist status of a reference
+      description: |
+        When ceklist = true, the reference is included in the bibliography and eligible
+        for AI auto-cite. When false, the reference is hidden from auto-cite but still
+        visible in the Tab Referensi list.
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: referenceId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [isSelected]
+              properties:
+                isSelected:
+                  type: boolean
+                  description: New ceklist state
+      responses:
+        "200":
+          description: Updated reference
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reference"
+
+  # ──────────────────────────────────────────────────────────────────
+  # Citation management — track marker positions in document text
+  # ──────────────────────────────────────────────────────────────────
+  /projects/{projectId}/citations:
+    get:
+      operationId: listCitations
+      tags: [references]
+      summary: List all citation marker positions for a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Citations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ReferenceCitation"
+    post:
+      operationId: createCitation
+      tags: [references]
+      summary: Manually add a citation marker at a position
+      description: Used when user inserts citation manually (not via AI auto-cite).
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCitationRequest"
+      responses:
+        "201":
+          description: Created citation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReferenceCitation"
+
+  /projects/{projectId}/citations/{citationId}:
+    patch:
+      operationId: updateCitation
+      tags: [references]
+      summary: Update citation position (drag) or format marker
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: citationId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateCitationRequest"
+      responses:
+        "200":
+          description: Updated citation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReferenceCitation"
+        "404":
+          description: Citation not found
+    delete:
+      operationId: deleteCitation
+      tags: [references]
+      summary: Remove a citation marker
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: citationId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Citation not found
+
+  # ──────────────────────────────────────────────────────────────────
+  # Citation format selection — per project
+  # ──────────────────────────────────────────────────────────────────
+  /projects/{projectId}/citation-format:
+    patch:
+      operationId: setProjectCitationFormat
+      tags: [references]
+      summary: Set the citation format for a project
+      description: |
+        Updates the citation format used to render citation markers in the document
+        and generate the bibliography section. Triggers re-render of all existing
+        citation markers.
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetCitationFormatRequest"
+      responses:
+        "200":
+          description: Updated project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "400":
+          description: Invalid format
+
+  # DECISION 014 Phase 2 — Document preview with citation markers rendered inline
+  /projects/{projectId}/document/preview:
+    get:
+      operationId: getDocumentPreview
+      tags: [documents]
+      summary: Get rendered document preview with citation markers + bibliography
+      description: |
+        Returns the latest document version with citation markers injected inline
+        at their stored (paragraphIndex, offsetInParagraph) positions, plus a
+        formatted bibliography section. For numbered formats (IEEE, Vancouver,
+        Chicago) markers use sequential numbers based on order of appearance.
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Rendered document preview
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentPreviewResult"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Project not found
+
+  # DECISION 014 Phase 2 — GET bibliography (separate from POST /references/format
+  # which is for AI regeneration that costs credits)
+  /projects/{projectId}/bibliography:
+    get:
+      operationId: getBibliography
+      tags: [references]
+      summary: Get formatted bibliography for a project
+      description: |
+        Returns the CSL-formatted bibliography for all references that have
+        at least one citation in the project. Cheaper than
+        POST /references/regenerate (no AI call).
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Bibliography
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BibliographyResult"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Project not found
 
   /references/fetch-metadata:
     post:
@@ -2289,7 +2568,67 @@ paths:
         "409":
           description: Reference already exists in the project
 
-  # ── Admin ────────────────────────────────────────────────────────────────
+  # ── Learning Activity (Practice) ──────────────────────────────────────────────
+  /learning-activities:
+    get:
+      operationId: listLearningActivities
+      tags: [learning-activity]
+      summary: List learning activities for recommendations
+      description: Returns all learning activities for the authenticated user, ordered by recency. Used by Practice to build quiz recommendations.
+      responses:
+        "200":
+          description: Learning activities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LearningActivity"
+        "401":
+          description: Unauthorized
+
+    post:
+      operationId: createLearningActivity
+      tags: [learning-activity]
+      summary: Log a learning activity
+      description: Records topics extracted from a source (instruction, reference, or chat). Used to build the practice recommendation engine.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLearningActivityRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LearningActivity"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+
+  /learning-activities/recommendations:
+    get:
+      operationId: getPracticeRecommendations
+      tags: [learning-activity]
+      summary: Get quiz recommendations
+      description: Returns 2-3 quiz recommendations based on the user's learning activities. Recommendations prioritize recent activities and topics with quiz history.
+      responses:
+        "200":
+          description: Recommendations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PracticeRecommendation"
+        "401":
+          description: Unauthorized
+
+  # ── Admin ──────────────────────────────────────────────────────────────────────
   /admin/me:
     get:
       operationId: getAdminStatus
@@ -2365,7 +2704,7 @@ paths:
         "403":
           description: Forbidden
 
-  /admin/usage:
+  /admin/usage-breakdown:
     get:
       operationId: getAdminUsage
       tags: [admin]
@@ -2745,8 +3084,11 @@ components:
           type: ["string", "null"]
         taskType:
           type: ["string", "null"]
+          enum: [general, academic]
         citationFormat:
           type: ["string", "null"]
+          enum: [APA, APA7, IEEE, Vancouver, Chicago, MLA, Harvard, null]
+          description: Citation format used for in-text/footnote markers and bibliography. Default = APA.
         outputFormat:
           type: ["string", "null"]
         minRefYear:
@@ -2765,22 +3107,40 @@ components:
 
     ProjectInput:
       type: object
-      required: [title]
+      required: [instructionText]
       properties:
         title:
           type: string
-          minLength: 1
+          description: |
+            Optional. Project display name (used in document list, not in exported file).
+            If omitted, the workspace will auto-generate a title via AI from instructionText.
         instructionText:
           type: string
+          minLength: 1
+          description: |
+            REQUIRED for both General Task and Academic Work. The instructions or idea/gagasan
+            that AI uses to generate the title (if missing), analyze the task, and produce
+            the document.
         outputFormat:
           type: string
-          enum: [docx, pdf, markdown]
+          enum: [docx, pdf, pptx]
         minRefYear:
           type: number
         minRefCount:
           type: number
         aiDisclosure:
           type: boolean
+        taskType:
+          type: string
+          enum: [general, academic]
+          description: Project type — "general" for short tasks, "academic" for multi-section works
+        citationFormat:
+          type: string
+          enum: [APA, APA7, IEEE, Vancouver, Chicago, MLA, Harvard]
+          description: |
+            DECISION 014. Citation format used for in-text/footnote markers and bibliography.
+            Defaults to APA if omitted (workspace will create the project with APA and the
+            user can change via PATCH /projects/:id/citation-format).
 
     ProjectUpdate:
       type: object
@@ -2795,7 +3155,7 @@ components:
           type: string
         outputFormat:
           type: string
-          enum: [docx, pdf, markdown]
+          enum: [docx, pdf, pptx]
         minRefYear:
           type: number
         minRefCount:
@@ -2813,6 +3173,11 @@ components:
           type: number
         byStatus:
           type: object
+          additionalProperties:
+            type: number
+        byType:
+          type: object
+          description: Counts grouped by taskType (general, academic, null)
           additionalProperties:
             type: number
         recentActivity:
@@ -3024,6 +3389,11 @@ components:
           type: string
           enum: [manual, crossref, file]
           description: Source of the reference
+        isSelected:
+          type: boolean
+          description: |
+            Ceklist status — true means reference is included in bibliography and
+            eligible for AI auto-cite. (DECISION 014)
 
     ReferenceInput:
       type: object
@@ -3074,6 +3444,172 @@ components:
           type: string
         format:
           type: string
+
+    # ──────────────────────────────────────────────────────────────────
+    # DECISION 014 Phase 2 — Document preview schema
+    # ──────────────────────────────────────────────────────────────────
+    DocumentPreviewParagraph:
+      type: object
+      required: [index, html]
+      properties:
+        index:
+          type: number
+          description: Zero-based paragraph index matching original content split
+        html:
+          type: string
+          description: |
+            Rendered HTML for this paragraph with citation markers injected
+            as `<sup class="cite-marker" data-citation-id="N">marker</sup>`.
+            Marker text reflects the project's current citation format.
+
+    DocumentPreviewResult:
+      type: object
+      required: [paragraphs, citationFormat, citationCount]
+      properties:
+        paragraphs:
+          type: array
+          items:
+            $ref: "#/components/schemas/DocumentPreviewParagraph"
+        bibliography:
+          type: string
+          description: Auto-generated bibliography (CSL-formatted)
+        citationFormat:
+          type: string
+          enum: [APA, APA7, IEEE, Vancouver, Chicago, MLA, Harvard]
+        citationCount:
+          type: number
+          description: Total citation markers in this preview
+
+    # ──────────────────────────────────────────────────────────────────
+    # Reference Tool + Auto-Cite (DECISION 014)
+    # ──────────────────────────────────────────────────────────────────
+    AutoCiteRequest:
+      type: object
+      required: [referenceIds]
+      properties:
+        referenceIds:
+          type: array
+          items:
+            type: number
+          description: |
+            IDs of references to auto-cite. Only ceklist-selected references are used
+            in practice; this list lets user override (e.g. force a specific reference).
+          minItems: 1
+          maxItems: 50
+        maxCitationsPerReference:
+          type: number
+          description: |
+            Cap on how many distinct paragraphs the same reference can be cited in.
+            Default = 3 (Level C smart placement).
+          default: 3
+          minimum: 1
+          maximum: 20
+        tier:
+          type: string
+          enum: [low, mid, high]
+          default: mid
+          description: AI model tier to use for the suggestion
+
+    AutoCiteSuggestion:
+      type: object
+      required: [referenceId, paragraphIndex, offsetInParagraph, formatMarker, placementReason]
+      properties:
+        referenceId:
+          type: number
+        paragraphIndex:
+          type: number
+          description: 0-based paragraph index in the document text
+        offsetInParagraph:
+          type: number
+          description: Character offset within the paragraph (where the citation marker starts)
+        formatMarker:
+          type: string
+          description: |
+            Pre-rendered citation marker for the project's citationFormat
+            (e.g. "(Smith & Jones, 2023)" for APA, "[1]" for IEEE)
+        placementReason:
+          type: string
+          description: AI's explanation for why this citation belongs here
+
+    AutoCiteResponse:
+      type: object
+      required: [suggestions, totalTokensUsed, referencesAnalyzed]
+      properties:
+        suggestions:
+          type: array
+          items:
+            $ref: "#/components/schemas/AutoCiteSuggestion"
+        totalTokensUsed:
+          type: number
+        referencesAnalyzed:
+          type: number
+          description: How many ceklist-selected references were considered
+
+    ReferenceCitation:
+      type: object
+      required: [id, projectId, referenceId, paragraphIndex, offsetInParagraph, formatMarker, createdAt]
+      properties:
+        id:
+          type: number
+        projectId:
+          type: number
+        referenceId:
+          type: number
+        paragraphIndex:
+          type: number
+        offsetInParagraph:
+          type: number
+        formatMarker:
+          type: string
+        placementReason:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateCitationRequest:
+      type: object
+      required: [referenceId, paragraphIndex, formatMarker]
+      properties:
+        referenceId:
+          type: number
+        paragraphIndex:
+          type: number
+        offsetInParagraph:
+          type: number
+          default: 0
+        formatMarker:
+          type: string
+          description: Pre-rendered marker (frontend computes from current citationFormat)
+        placementReason:
+          type: string
+
+    UpdateCitationRequest:
+      type: object
+      properties:
+        paragraphIndex:
+          type: number
+          description: New paragraph index (for drag between paragraphs)
+        offsetInParagraph:
+          type: number
+          description: New character offset within the paragraph
+        formatMarker:
+          type: string
+          description: New pre-rendered marker (after citationFormat change)
+        placementReason:
+          type: string
+
+    SetCitationFormatRequest:
+      type: object
+      required: [citationFormat]
+      properties:
+        citationFormat:
+          type: string
+          enum: [APA, APA7, IEEE, Vancouver, Chicago, MLA, Harvard]
+          description: Citation format for the project
 
     ValidationIssue:
       type: object
@@ -3220,8 +3756,11 @@ components:
           type: ["string", "null"]
         taskType:
           type: ["string", "null"]
+          enum: [general, academic]
         citationFormat:
           type: ["string", "null"]
+          enum: [APA, APA7, IEEE, Vancouver, Chicago, MLA, Harvard, null]
+          description: Citation format used for in-text/footnote markers and bibliography. Default = APA.
         language:
           type: ["string", "null"]
         outline:
@@ -3246,7 +3785,7 @@ components:
           type: number
         format:
           type: string
-          enum: [docx, pdf, markdown]
+          enum: [docx, pdf, pptx]
         status:
           type: string
           enum: [pending, completed, failed]
@@ -3262,7 +3801,7 @@ components:
       properties:
         format:
           type: string
-          enum: [docx, pdf, markdown]
+          enum: [docx, pdf, pptx]
         documentVersionId:
           type: number
 
@@ -3689,6 +4228,7 @@ components:
           type: ["string", "null"]
         taskType:
           type: ["string", "null"]
+          enum: [general, academic]
         latestDocument:
           type: ["string", "null"]
           description: Latest document content (if accessMode is view or edit)
@@ -4449,6 +4989,75 @@ components:
               type: number
             failed:
               type: number
+
+    # ── Learning Activity (Practice) ───────────────────────────────────────────────
+    LearningActivity:
+      type: object
+      required: [id, userId, topics, extractedFrom, createdAt]
+      properties:
+        id:
+          type: number
+        userId:
+          type: string
+        topics:
+          type: array
+          description: Array of topic strings extracted from the source
+          items:
+            type: string
+        subject:
+          type: ["string", "null"]
+          description: Subject or course name if detectable
+        sourceProjectId:
+          type: ["number", "null"]
+          description: Link to the Task Mentor project that generated this activity
+        sourceProjectTitle:
+          type: ["string", "null"]
+          description: Denormalized title of the source project for display
+        extractedFrom:
+          type: string
+          enum: [instruction, reference, chat]
+          description: Where the topics were extracted from
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateLearningActivityRequest:
+      type: object
+      required: [topics, extractedFrom]
+      properties:
+        topics:
+          type: array
+          description: Array of topic strings
+          items:
+            type: string
+          minItems: 1
+        subject:
+          type: string
+          description: Optional subject/course name
+        sourceProjectId:
+          type: number
+          description: ID of the Task Mentor project this activity came from
+        extractedFrom:
+          type: string
+          enum: [instruction, reference, chat]
+          default: instruction
+
+    PracticeRecommendation:
+      type: object
+      required: [learningActivity, reason, type]
+      properties:
+        learningActivity:
+          $ref: "#/components/schemas/LearningActivity"
+        reason:
+          type: string
+          description: Human-readable reason for this recommendation
+        type:
+          type: string
+          enum: [recent_task, frequent_topic, weak_topic]
+          description: |
+            - recent_task: from the most recently created project
+            - frequent_topic: topics that appear most across activities
+            - weak_topic: topics where user scored poorly in past quizzes
 
     Pagination:
       type: object
