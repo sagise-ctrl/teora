@@ -26,6 +26,11 @@ import type {
   AccountReferenceInput,
   Activity,
   AddMemberRequest,
+  AdminAuditLogList,
+  AdminStats,
+  AdminStatus,
+  AdminUsage,
+  AdminUserList,
   AnalyzeMyWritingStyleBody,
   AnalyzeProjectBody,
   AnalyzeStyleRequest,
@@ -33,6 +38,8 @@ import type {
   Attachment,
   AttachmentUpload,
   AuthUser,
+  AutoCiteRequest,
+  AutoCiteResponse,
   AvatarUploadRequest,
   AvatarUploadResponse,
   BibliographyResult,
@@ -40,12 +47,15 @@ import type {
   Comment,
   CommentInput,
   CommentUpdate,
+  CreateCitationRequest,
+  CreateLearningActivityRequest,
   CreateShareLinkRequest,
   CrossRefSearchResponse,
   DeleteAccountRequest,
   DeleteAccountResponse,
   Document,
   DocumentInput,
+  DocumentPreviewResult,
   DocumentTemplate,
   DocumentTemplateInput,
   DocumentTemplateUpdate,
@@ -66,6 +76,9 @@ import type {
   GenerateRubricBody,
   GetAIUsageStatsParams,
   GetAdminAITiers200,
+  GetAdminAuditLogParams,
+  GetAdminStatsParams,
+  GetAdminUsageParams,
   GetAdminUsageStatsParams,
   GetMyUsageStatsParams,
   HealthStatus,
@@ -73,13 +86,17 @@ import type {
   ImportAccountReferencesResponse,
   InsufficientBalanceError,
   Job,
+  LearningActivity,
   ListAIUsage200,
   ListAIUsageParams,
+  ListAdminUsersParams,
   ListProjectsParams,
   ListTemplatesParams,
   LoginRequest,
   Message,
   MessageInput,
+  OverrideUserTierBody,
+  PracticeRecommendation,
   Project,
   ProjectInput,
   ProjectMember,
@@ -89,6 +106,7 @@ import type {
   Quiz,
   QuizSubmission,
   Reference,
+  ReferenceCitation,
   ReferenceInput,
   ReferenceValidationResult,
   ReferralListResponse,
@@ -98,13 +116,17 @@ import type {
   RegisterRequest,
   Rubric,
   SearchReferencesParams,
+  SetCitationFormatRequest,
   SetTierPreferenceRequest,
   ShareLink,
   SharedProject,
   SubmitQuizRequest,
+  SuspendUserBody,
   TierPreferenceResponse,
+  ToggleReferenceSelectionBody,
   UpdateAITierRequest,
   UpdateAdminAITier200,
+  UpdateCitationRequest,
   UpdateMemberRequest,
   UpdateMyWritingStyleBody,
   UpdateProfileRequest,
@@ -2524,6 +2546,722 @@ export const useFormatCSLBibliography = <TError = ErrorType<unknown>,
       > => {
       return useMutation(getFormatCSLBibliographyMutationOptions(options));
     }
+
+export const getAutoCiteReferencesUrl = (projectId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/references/auto-cite`
+}
+
+/**
+ * Reads the current document + the references the user has ceklist (selected = true),
+ * then asks the AI to find paragraphs where each reference is relevant and insert
+ * a citation marker. Supports multi-cite — one reference can be cited in multiple
+ * paragraphs. User reviews the suggestions before applying them.
+ * @summary AI suggests citation positions for selected references
+ */
+export const autoCiteReferences = async (projectId: number,
+    autoCiteRequest: AutoCiteRequest, options?: Parameters<typeof customFetch>[1]): Promise<AutoCiteResponse> => {
+
+    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<AutoCiteResponse>(getAutoCiteReferencesUrl(projectId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(autoCiteRequest)
+  }
+);}
+
+
+
+
+
+export const getAutoCiteReferencesMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof autoCiteReferences>>, TError,{projectId: number;data: BodyType<AutoCiteRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof autoCiteReferences>>, TError,{projectId: number;data: BodyType<AutoCiteRequest>}, TContext> => {
+
+const mutationKey = ['autoCiteReferences'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof autoCiteReferences>>, {projectId: number;data: BodyType<AutoCiteRequest>}> = (props) => {
+          const {projectId,data} = props ?? {};
+
+          return  autoCiteReferences(projectId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AutoCiteReferencesMutationResult = NonNullable<Awaited<ReturnType<typeof autoCiteReferences>>>
+    export type AutoCiteReferencesMutationBody = BodyType<AutoCiteRequest>
+    export type AutoCiteReferencesMutationError = ErrorType<void>
+
+    /**
+ * @summary AI suggests citation positions for selected references
+ */
+export const useAutoCiteReferences = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof autoCiteReferences>>, TError,{projectId: number;data: BodyType<AutoCiteRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof autoCiteReferences>>,
+        TError,
+        {projectId: number;data: BodyType<AutoCiteRequest>},
+        TContext
+      > => {
+      return useMutation(getAutoCiteReferencesMutationOptions(options));
+    }
+
+export const getToggleReferenceSelectionUrl = (projectId: number,
+    referenceId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/references/${referenceId}/select`
+}
+
+/**
+ * When ceklist = true, the reference is included in the bibliography and eligible
+ * for AI auto-cite. When false, the reference is hidden from auto-cite but still
+ * visible in the Tab Referensi list.
+ * @summary Toggle the ceklist status of a reference
+ */
+export const toggleReferenceSelection = async (projectId: number,
+    referenceId: number,
+    toggleReferenceSelectionBody: ToggleReferenceSelectionBody, options?: Parameters<typeof customFetch>[1]): Promise<Reference> => {
+
+    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<Reference>(getToggleReferenceSelectionUrl(projectId,referenceId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(toggleReferenceSelectionBody)
+  }
+);}
+
+
+
+
+
+export const getToggleReferenceSelectionMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof toggleReferenceSelection>>, TError,{projectId: number;referenceId: number;data: BodyType<ToggleReferenceSelectionBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof toggleReferenceSelection>>, TError,{projectId: number;referenceId: number;data: BodyType<ToggleReferenceSelectionBody>}, TContext> => {
+
+const mutationKey = ['toggleReferenceSelection'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof toggleReferenceSelection>>, {projectId: number;referenceId: number;data: BodyType<ToggleReferenceSelectionBody>}> = (props) => {
+          const {projectId,referenceId,data} = props ?? {};
+
+          return  toggleReferenceSelection(projectId,referenceId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ToggleReferenceSelectionMutationResult = NonNullable<Awaited<ReturnType<typeof toggleReferenceSelection>>>
+    export type ToggleReferenceSelectionMutationBody = BodyType<ToggleReferenceSelectionBody>
+    export type ToggleReferenceSelectionMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Toggle the ceklist status of a reference
+ */
+export const useToggleReferenceSelection = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof toggleReferenceSelection>>, TError,{projectId: number;referenceId: number;data: BodyType<ToggleReferenceSelectionBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof toggleReferenceSelection>>,
+        TError,
+        {projectId: number;referenceId: number;data: BodyType<ToggleReferenceSelectionBody>},
+        TContext
+      > => {
+      return useMutation(getToggleReferenceSelectionMutationOptions(options));
+    }
+
+export const getListCitationsUrl = (projectId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/citations`
+}
+
+/**
+ * @summary List all citation marker positions for a project
+ */
+export const listCitations = async (projectId: number, options?: Parameters<typeof customFetch>[1]): Promise<ReferenceCitation[]> => {
+
+  return customFetch<ReferenceCitation[]>(getListCitationsUrl(projectId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListCitationsQueryKey = (projectId: number,) => {
+    return [
+    `/api/projects/${projectId}/citations`
+    ] as const;
+    }
+
+
+export const getListCitationsQueryOptions = <TData = Awaited<ReturnType<typeof listCitations>>, TError = ErrorType<unknown>>(projectId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCitations>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListCitationsQueryKey(projectId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listCitations>>> = ({ signal }) => listCitations(projectId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: projectId !== null && projectId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listCitations>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListCitationsQueryResult = NonNullable<Awaited<ReturnType<typeof listCitations>>>
+export type ListCitationsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List all citation marker positions for a project
+ */
+
+export function useListCitations<TData = Awaited<ReturnType<typeof listCitations>>, TError = ErrorType<unknown>>(
+ projectId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCitations>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListCitationsQueryOptions(projectId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateCitationUrl = (projectId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/citations`
+}
+
+/**
+ * Used when user inserts citation manually (not via AI auto-cite).
+ * @summary Manually add a citation marker at a position
+ */
+export const createCitation = async (projectId: number,
+    createCitationRequest: CreateCitationRequest, options?: Parameters<typeof customFetch>[1]): Promise<ReferenceCitation> => {
+
+    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<ReferenceCitation>(getCreateCitationUrl(projectId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(createCitationRequest)
+  }
+);}
+
+
+
+
+
+export const getCreateCitationMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCitation>>, TError,{projectId: number;data: BodyType<CreateCitationRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createCitation>>, TError,{projectId: number;data: BodyType<CreateCitationRequest>}, TContext> => {
+
+const mutationKey = ['createCitation'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createCitation>>, {projectId: number;data: BodyType<CreateCitationRequest>}> = (props) => {
+          const {projectId,data} = props ?? {};
+
+          return  createCitation(projectId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateCitationMutationResult = NonNullable<Awaited<ReturnType<typeof createCitation>>>
+    export type CreateCitationMutationBody = BodyType<CreateCitationRequest>
+    export type CreateCitationMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Manually add a citation marker at a position
+ */
+export const useCreateCitation = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCitation>>, TError,{projectId: number;data: BodyType<CreateCitationRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createCitation>>,
+        TError,
+        {projectId: number;data: BodyType<CreateCitationRequest>},
+        TContext
+      > => {
+      return useMutation(getCreateCitationMutationOptions(options));
+    }
+
+export const getUpdateCitationUrl = (projectId: number,
+    citationId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/citations/${citationId}`
+}
+
+/**
+ * @summary Update citation position (drag) or format marker
+ */
+export const updateCitation = async (projectId: number,
+    citationId: number,
+    updateCitationRequest: UpdateCitationRequest, options?: Parameters<typeof customFetch>[1]): Promise<ReferenceCitation> => {
+
+    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<ReferenceCitation>(getUpdateCitationUrl(projectId,citationId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(updateCitationRequest)
+  }
+);}
+
+
+
+
+
+export const getUpdateCitationMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCitation>>, TError,{projectId: number;citationId: number;data: BodyType<UpdateCitationRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateCitation>>, TError,{projectId: number;citationId: number;data: BodyType<UpdateCitationRequest>}, TContext> => {
+
+const mutationKey = ['updateCitation'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateCitation>>, {projectId: number;citationId: number;data: BodyType<UpdateCitationRequest>}> = (props) => {
+          const {projectId,citationId,data} = props ?? {};
+
+          return  updateCitation(projectId,citationId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateCitationMutationResult = NonNullable<Awaited<ReturnType<typeof updateCitation>>>
+    export type UpdateCitationMutationBody = BodyType<UpdateCitationRequest>
+    export type UpdateCitationMutationError = ErrorType<void>
+
+    /**
+ * @summary Update citation position (drag) or format marker
+ */
+export const useUpdateCitation = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCitation>>, TError,{projectId: number;citationId: number;data: BodyType<UpdateCitationRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateCitation>>,
+        TError,
+        {projectId: number;citationId: number;data: BodyType<UpdateCitationRequest>},
+        TContext
+      > => {
+      return useMutation(getUpdateCitationMutationOptions(options));
+    }
+
+export const getDeleteCitationUrl = (projectId: number,
+    citationId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/citations/${citationId}`
+}
+
+/**
+ * @summary Remove a citation marker
+ */
+export const deleteCitation = async (projectId: number,
+    citationId: number, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteCitationUrl(projectId,citationId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteCitationMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCitation>>, TError,{projectId: number;citationId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteCitation>>, TError,{projectId: number;citationId: number}, TContext> => {
+
+const mutationKey = ['deleteCitation'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteCitation>>, {projectId: number;citationId: number}> = (props) => {
+          const {projectId,citationId} = props ?? {};
+
+          return  deleteCitation(projectId,citationId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteCitationMutationResult = NonNullable<Awaited<ReturnType<typeof deleteCitation>>>
+
+    export type DeleteCitationMutationError = ErrorType<void>
+
+    /**
+ * @summary Remove a citation marker
+ */
+export const useDeleteCitation = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCitation>>, TError,{projectId: number;citationId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteCitation>>,
+        TError,
+        {projectId: number;citationId: number},
+        TContext
+      > => {
+      return useMutation(getDeleteCitationMutationOptions(options));
+    }
+
+export const getSetProjectCitationFormatUrl = (projectId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/citation-format`
+}
+
+/**
+ * Updates the citation format used to render citation markers in the document
+ * and generate the bibliography section. Triggers re-render of all existing
+ * citation markers.
+ * @summary Set the citation format for a project
+ */
+export const setProjectCitationFormat = async (projectId: number,
+    setCitationFormatRequest: SetCitationFormatRequest, options?: Parameters<typeof customFetch>[1]): Promise<Project> => {
+
+    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<Project>(getSetProjectCitationFormatUrl(projectId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(setCitationFormatRequest)
+  }
+);}
+
+
+
+
+
+export const getSetProjectCitationFormatMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setProjectCitationFormat>>, TError,{projectId: number;data: BodyType<SetCitationFormatRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof setProjectCitationFormat>>, TError,{projectId: number;data: BodyType<SetCitationFormatRequest>}, TContext> => {
+
+const mutationKey = ['setProjectCitationFormat'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setProjectCitationFormat>>, {projectId: number;data: BodyType<SetCitationFormatRequest>}> = (props) => {
+          const {projectId,data} = props ?? {};
+
+          return  setProjectCitationFormat(projectId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SetProjectCitationFormatMutationResult = NonNullable<Awaited<ReturnType<typeof setProjectCitationFormat>>>
+    export type SetProjectCitationFormatMutationBody = BodyType<SetCitationFormatRequest>
+    export type SetProjectCitationFormatMutationError = ErrorType<void>
+
+    /**
+ * @summary Set the citation format for a project
+ */
+export const useSetProjectCitationFormat = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setProjectCitationFormat>>, TError,{projectId: number;data: BodyType<SetCitationFormatRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof setProjectCitationFormat>>,
+        TError,
+        {projectId: number;data: BodyType<SetCitationFormatRequest>},
+        TContext
+      > => {
+      return useMutation(getSetProjectCitationFormatMutationOptions(options));
+    }
+
+export const getGetDocumentPreviewUrl = (projectId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/document/preview`
+}
+
+/**
+ * Returns the latest document version with citation markers injected inline
+ * at their stored (paragraphIndex, offsetInParagraph) positions, plus a
+ * formatted bibliography section. For numbered formats (IEEE, Vancouver,
+ * Chicago) markers use sequential numbers based on order of appearance.
+ * @summary Get rendered document preview with citation markers + bibliography
+ */
+export const getDocumentPreview = async (projectId: number, options?: Parameters<typeof customFetch>[1]): Promise<DocumentPreviewResult> => {
+
+  return customFetch<DocumentPreviewResult>(getGetDocumentPreviewUrl(projectId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetDocumentPreviewQueryKey = (projectId: number,) => {
+    return [
+    `/api/projects/${projectId}/document/preview`
+    ] as const;
+    }
+
+
+export const getGetDocumentPreviewQueryOptions = <TData = Awaited<ReturnType<typeof getDocumentPreview>>, TError = ErrorType<void>>(projectId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDocumentPreview>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetDocumentPreviewQueryKey(projectId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDocumentPreview>>> = ({ signal }) => getDocumentPreview(projectId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: projectId !== null && projectId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDocumentPreview>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetDocumentPreviewQueryResult = NonNullable<Awaited<ReturnType<typeof getDocumentPreview>>>
+export type GetDocumentPreviewQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get rendered document preview with citation markers + bibliography
+ */
+
+export function useGetDocumentPreview<TData = Awaited<ReturnType<typeof getDocumentPreview>>, TError = ErrorType<void>>(
+ projectId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDocumentPreview>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetDocumentPreviewQueryOptions(projectId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetBibliographyUrl = (projectId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/bibliography`
+}
+
+/**
+ * Returns the CSL-formatted bibliography for all references that have
+ * at least one citation in the project. Cheaper than
+ * POST /references/regenerate (no AI call).
+ * @summary Get formatted bibliography for a project
+ */
+export const getBibliography = async (projectId: number, options?: Parameters<typeof customFetch>[1]): Promise<BibliographyResult> => {
+
+  return customFetch<BibliographyResult>(getGetBibliographyUrl(projectId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetBibliographyQueryKey = (projectId: number,) => {
+    return [
+    `/api/projects/${projectId}/bibliography`
+    ] as const;
+    }
+
+
+export const getGetBibliographyQueryOptions = <TData = Awaited<ReturnType<typeof getBibliography>>, TError = ErrorType<void>>(projectId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getBibliography>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetBibliographyQueryKey(projectId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getBibliography>>> = ({ signal }) => getBibliography(projectId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: projectId !== null && projectId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getBibliography>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetBibliographyQueryResult = NonNullable<Awaited<ReturnType<typeof getBibliography>>>
+export type GetBibliographyQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get formatted bibliography for a project
+ */
+
+export function useGetBibliography<TData = Awaited<ReturnType<typeof getBibliography>>, TError = ErrorType<void>>(
+ projectId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getBibliography>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetBibliographyQueryOptions(projectId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getFetchReferenceMetadataUrl = () => {
 
@@ -7520,5 +8258,809 @@ export const useAssignAccountReference = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getAssignAccountReferenceMutationOptions(options));
+    }
+
+export const getListLearningActivitiesUrl = () => {
+
+
+
+
+  return `/api/learning-activities`
+}
+
+/**
+ * Returns all learning activities for the authenticated user, ordered by recency. Used by Practice to build quiz recommendations.
+ * @summary List learning activities for recommendations
+ */
+export const listLearningActivities = async ( options?: Parameters<typeof customFetch>[1]): Promise<LearningActivity[]> => {
+
+  return customFetch<LearningActivity[]>(getListLearningActivitiesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListLearningActivitiesQueryKey = () => {
+    return [
+    `/api/learning-activities`
+    ] as const;
+    }
+
+
+export const getListLearningActivitiesQueryOptions = <TData = Awaited<ReturnType<typeof listLearningActivities>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listLearningActivities>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListLearningActivitiesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listLearningActivities>>> = ({ signal }) => listLearningActivities({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listLearningActivities>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListLearningActivitiesQueryResult = NonNullable<Awaited<ReturnType<typeof listLearningActivities>>>
+export type ListLearningActivitiesQueryError = ErrorType<void>
+
+
+/**
+ * @summary List learning activities for recommendations
+ */
+
+export function useListLearningActivities<TData = Awaited<ReturnType<typeof listLearningActivities>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listLearningActivities>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListLearningActivitiesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateLearningActivityUrl = () => {
+
+
+
+
+  return `/api/learning-activities`
+}
+
+/**
+ * Records topics extracted from a source (instruction, reference, or chat). Used to build the practice recommendation engine.
+ * @summary Log a learning activity
+ */
+export const createLearningActivity = async (createLearningActivityRequest: CreateLearningActivityRequest, options?: Parameters<typeof customFetch>[1]): Promise<LearningActivity> => {
+
+    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<LearningActivity>(getCreateLearningActivityUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(createLearningActivityRequest)
+  }
+);}
+
+
+
+
+
+export const getCreateLearningActivityMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createLearningActivity>>, TError,{data: BodyType<CreateLearningActivityRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createLearningActivity>>, TError,{data: BodyType<CreateLearningActivityRequest>}, TContext> => {
+
+const mutationKey = ['createLearningActivity'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createLearningActivity>>, {data: BodyType<CreateLearningActivityRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createLearningActivity(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateLearningActivityMutationResult = NonNullable<Awaited<ReturnType<typeof createLearningActivity>>>
+    export type CreateLearningActivityMutationBody = BodyType<CreateLearningActivityRequest>
+    export type CreateLearningActivityMutationError = ErrorType<void>
+
+    /**
+ * @summary Log a learning activity
+ */
+export const useCreateLearningActivity = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createLearningActivity>>, TError,{data: BodyType<CreateLearningActivityRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createLearningActivity>>,
+        TError,
+        {data: BodyType<CreateLearningActivityRequest>},
+        TContext
+      > => {
+      return useMutation(getCreateLearningActivityMutationOptions(options));
+    }
+
+export const getGetPracticeRecommendationsUrl = () => {
+
+
+
+
+  return `/api/learning-activities/recommendations`
+}
+
+/**
+ * Returns 2-3 quiz recommendations based on the user's learning activities. Recommendations prioritize recent activities and topics with quiz history.
+ * @summary Get quiz recommendations
+ */
+export const getPracticeRecommendations = async ( options?: Parameters<typeof customFetch>[1]): Promise<PracticeRecommendation[]> => {
+
+  return customFetch<PracticeRecommendation[]>(getGetPracticeRecommendationsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetPracticeRecommendationsQueryKey = () => {
+    return [
+    `/api/learning-activities/recommendations`
+    ] as const;
+    }
+
+
+export const getGetPracticeRecommendationsQueryOptions = <TData = Awaited<ReturnType<typeof getPracticeRecommendations>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPracticeRecommendations>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPracticeRecommendationsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPracticeRecommendations>>> = ({ signal }) => getPracticeRecommendations({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPracticeRecommendations>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetPracticeRecommendationsQueryResult = NonNullable<Awaited<ReturnType<typeof getPracticeRecommendations>>>
+export type GetPracticeRecommendationsQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get quiz recommendations
+ */
+
+export function useGetPracticeRecommendations<TData = Awaited<ReturnType<typeof getPracticeRecommendations>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPracticeRecommendations>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetPracticeRecommendationsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetAdminStatusUrl = () => {
+
+
+
+
+  return `/api/admin/me`
+}
+
+/**
+ * Returns whether the current user is the owner/admin.
+ * @summary Get admin (owner) status
+ */
+export const getAdminStatus = async ( options?: Parameters<typeof customFetch>[1]): Promise<AdminStatus> => {
+
+  return customFetch<AdminStatus>(getGetAdminStatusUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAdminStatusQueryKey = () => {
+    return [
+    `/api/admin/me`
+    ] as const;
+    }
+
+
+export const getGetAdminStatusQueryOptions = <TData = Awaited<ReturnType<typeof getAdminStatus>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminStatus>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAdminStatusQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAdminStatus>>> = ({ signal }) => getAdminStatus({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAdminStatus>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAdminStatusQueryResult = NonNullable<Awaited<ReturnType<typeof getAdminStatus>>>
+export type GetAdminStatusQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get admin (owner) status
+ */
+
+export function useGetAdminStatus<TData = Awaited<ReturnType<typeof getAdminStatus>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminStatus>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAdminStatusQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListAdminUsersUrl = (params?: ListAdminUsersParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/users?${stringifiedParams}` : `/api/admin/users`
+}
+
+/**
+ * @summary List all users (admin only)
+ */
+export const listAdminUsers = async (params?: ListAdminUsersParams, options?: Parameters<typeof customFetch>[1]): Promise<AdminUserList> => {
+
+  return customFetch<AdminUserList>(getListAdminUsersUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAdminUsersQueryKey = (params?: ListAdminUsersParams,) => {
+    return [
+    `/api/admin/users`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListAdminUsersQueryOptions = <TData = Awaited<ReturnType<typeof listAdminUsers>>, TError = ErrorType<void>>(params?: ListAdminUsersParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAdminUsers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAdminUsersQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAdminUsers>>> = ({ signal }) => listAdminUsers(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAdminUsers>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAdminUsersQueryResult = NonNullable<Awaited<ReturnType<typeof listAdminUsers>>>
+export type ListAdminUsersQueryError = ErrorType<void>
+
+
+/**
+ * @summary List all users (admin only)
+ */
+
+export function useListAdminUsers<TData = Awaited<ReturnType<typeof listAdminUsers>>, TError = ErrorType<void>>(
+ params?: ListAdminUsersParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAdminUsers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAdminUsersQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetAdminStatsUrl = (params?: GetAdminStatsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/stats?${stringifiedParams}` : `/api/admin/stats`
+}
+
+/**
+ * @summary Get aggregate system stats (admin only)
+ */
+export const getAdminStats = async (params?: GetAdminStatsParams, options?: Parameters<typeof customFetch>[1]): Promise<AdminStats> => {
+
+  return customFetch<AdminStats>(getGetAdminStatsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAdminStatsQueryKey = (params?: GetAdminStatsParams,) => {
+    return [
+    `/api/admin/stats`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetAdminStatsQueryOptions = <TData = Awaited<ReturnType<typeof getAdminStats>>, TError = ErrorType<void>>(params?: GetAdminStatsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminStats>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAdminStatsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAdminStats>>> = ({ signal }) => getAdminStats(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAdminStats>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAdminStatsQueryResult = NonNullable<Awaited<ReturnType<typeof getAdminStats>>>
+export type GetAdminStatsQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get aggregate system stats (admin only)
+ */
+
+export function useGetAdminStats<TData = Awaited<ReturnType<typeof getAdminStats>>, TError = ErrorType<void>>(
+ params?: GetAdminStatsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminStats>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAdminStatsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetAdminUsageUrl = (params?: GetAdminUsageParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/usage-breakdown?${stringifiedParams}` : `/api/admin/usage-breakdown`
+}
+
+/**
+ * @summary Get AI usage breakdown (admin only)
+ */
+export const getAdminUsage = async (params?: GetAdminUsageParams, options?: Parameters<typeof customFetch>[1]): Promise<AdminUsage> => {
+
+  return customFetch<AdminUsage>(getGetAdminUsageUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAdminUsageQueryKey = (params?: GetAdminUsageParams,) => {
+    return [
+    `/api/admin/usage-breakdown`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetAdminUsageQueryOptions = <TData = Awaited<ReturnType<typeof getAdminUsage>>, TError = ErrorType<void>>(params?: GetAdminUsageParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminUsage>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAdminUsageQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAdminUsage>>> = ({ signal }) => getAdminUsage(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAdminUsage>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAdminUsageQueryResult = NonNullable<Awaited<ReturnType<typeof getAdminUsage>>>
+export type GetAdminUsageQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get AI usage breakdown (admin only)
+ */
+
+export function useGetAdminUsage<TData = Awaited<ReturnType<typeof getAdminUsage>>, TError = ErrorType<void>>(
+ params?: GetAdminUsageParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminUsage>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAdminUsageQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetAdminAuditLogUrl = (params?: GetAdminAuditLogParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/audit-log?${stringifiedParams}` : `/api/admin/audit-log`
+}
+
+/**
+ * @summary Get admin audit log (admin only)
+ */
+export const getAdminAuditLog = async (params?: GetAdminAuditLogParams, options?: Parameters<typeof customFetch>[1]): Promise<AdminAuditLogList> => {
+
+  return customFetch<AdminAuditLogList>(getGetAdminAuditLogUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAdminAuditLogQueryKey = (params?: GetAdminAuditLogParams,) => {
+    return [
+    `/api/admin/audit-log`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetAdminAuditLogQueryOptions = <TData = Awaited<ReturnType<typeof getAdminAuditLog>>, TError = ErrorType<void>>(params?: GetAdminAuditLogParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminAuditLog>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAdminAuditLogQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAdminAuditLog>>> = ({ signal }) => getAdminAuditLog(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAdminAuditLog>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAdminAuditLogQueryResult = NonNullable<Awaited<ReturnType<typeof getAdminAuditLog>>>
+export type GetAdminAuditLogQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get admin audit log (admin only)
+ */
+
+export function useGetAdminAuditLog<TData = Awaited<ReturnType<typeof getAdminAuditLog>>, TError = ErrorType<void>>(
+ params?: GetAdminAuditLogParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminAuditLog>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAdminAuditLogQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getOverrideUserTierUrl = (userId: string,) => {
+
+
+
+
+  return `/api/admin/users/${userId}/tier`
+}
+
+/**
+ * @summary Override user tier (admin only)
+ */
+export const overrideUserTier = async (userId: string,
+    overrideUserTierBody: OverrideUserTierBody, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<void>(getOverrideUserTierUrl(userId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(overrideUserTierBody)
+  }
+);}
+
+
+
+
+
+export const getOverrideUserTierMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof overrideUserTier>>, TError,{userId: string;data: BodyType<OverrideUserTierBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof overrideUserTier>>, TError,{userId: string;data: BodyType<OverrideUserTierBody>}, TContext> => {
+
+const mutationKey = ['overrideUserTier'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof overrideUserTier>>, {userId: string;data: BodyType<OverrideUserTierBody>}> = (props) => {
+          const {userId,data} = props ?? {};
+
+          return  overrideUserTier(userId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OverrideUserTierMutationResult = NonNullable<Awaited<ReturnType<typeof overrideUserTier>>>
+    export type OverrideUserTierMutationBody = BodyType<OverrideUserTierBody>
+    export type OverrideUserTierMutationError = ErrorType<void>
+
+    /**
+ * @summary Override user tier (admin only)
+ */
+export const useOverrideUserTier = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof overrideUserTier>>, TError,{userId: string;data: BodyType<OverrideUserTierBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof overrideUserTier>>,
+        TError,
+        {userId: string;data: BodyType<OverrideUserTierBody>},
+        TContext
+      > => {
+      return useMutation(getOverrideUserTierMutationOptions(options));
+    }
+
+export const getSuspendUserUrl = (userId: string,) => {
+
+
+
+
+  return `/api/admin/users/${userId}/suspend`
+}
+
+/**
+ * @summary Suspend or unsuspend user (admin only)
+ */
+export const suspendUser = async (userId: string,
+    suspendUserBody: SuspendUserBody, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<void>(getSuspendUserUrl(userId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(suspendUserBody)
+  }
+);}
+
+
+
+
+
+export const getSuspendUserMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof suspendUser>>, TError,{userId: string;data: BodyType<SuspendUserBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof suspendUser>>, TError,{userId: string;data: BodyType<SuspendUserBody>}, TContext> => {
+
+const mutationKey = ['suspendUser'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof suspendUser>>, {userId: string;data: BodyType<SuspendUserBody>}> = (props) => {
+          const {userId,data} = props ?? {};
+
+          return  suspendUser(userId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SuspendUserMutationResult = NonNullable<Awaited<ReturnType<typeof suspendUser>>>
+    export type SuspendUserMutationBody = BodyType<SuspendUserBody>
+    export type SuspendUserMutationError = ErrorType<void>
+
+    /**
+ * @summary Suspend or unsuspend user (admin only)
+ */
+export const useSuspendUser = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof suspendUser>>, TError,{userId: string;data: BodyType<SuspendUserBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof suspendUser>>,
+        TError,
+        {userId: string;data: BodyType<SuspendUserBody>},
+        TContext
+      > => {
+      return useMutation(getSuspendUserMutationOptions(options));
     }
 

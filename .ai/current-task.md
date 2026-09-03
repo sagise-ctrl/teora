@@ -4,6 +4,45 @@
 
 ---
 
+## ACTIVE 2026-09-03 — Practice (Learning Activity System) — Implementation
+
+**Status:** ✅ Backend DONE, Frontend DONE, Build PASSED, Push pending
+**Model:** claude-opus-4-6
+
+### Summary
+
+DECISION 013 — Practice menu: quiz/recommendation system that auto-extracts topics from Task Mentor projects.
+
+### Components Done
+
+| Component | Status | Notes |
+|-----------|--------|-------|
+| DB Schema | ✅ | `learning_activities` table in `lib/db/src/schema/learning-activities.ts` |
+| OpenAPI spec | ✅ | 3 endpoints: GET/POST `/learning-activities`, GET `/learning-activities/recommendations` |
+| Backend routes | ✅ | `artifacts/api-server/src/routes/learning-activities.ts` with upsert logic |
+| Codegen | ✅ | `useListLearningActivities`, `useCreateLearningActivity`, `useGetPracticeRecommendations` |
+| Frontend route | ✅ | `/practice` in App.tsx |
+| Sidebar nav | ✅ | Brain icon between Pustaka Saya and Task Mentor |
+| Practice page | ✅ | Recommendations + activity history |
+| Build | ✅ | `npm run build` passed |
+| Typecheck | ✅ | No errors in practice.tsx |
+
+### Pending
+
+- Push branch + merge PR
+
+### Lessons
+
+- Codegen output in `lib/api-client-react/src/generated/` but frontend reads from `artifacts/academic-workspace/src/lib/api-client-react/generated/` — sync needed
+- pnpm install fails due to `@replit/vite-plugin-cartographer` catalog entry missing — use `npm install` locally instead
+
+### Commits (feat/practice-clean)
+
+- `0cfd834` — feat(practice): Learning Activity System — schema, OpenAPI, backend routes, upsert logic
+- Fresh practice page + route + sidebar + generated API sync
+
+---
+
 ## ACTIVE 2026-09-01 — SPA Routing Fix ✅ SELESAI
 
 **Status:** ✅ SELESAI — Deploy berhasil, semua route 200 OK
