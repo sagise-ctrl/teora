@@ -13,6 +13,7 @@ import {
   Sparkles,
   GraduationCap,
   ListChecks,
+  Quote,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -30,20 +31,39 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 
 type TaskType = "general" | "academic"
+type CitationFormat = "APA" | "APA7" | "IEEE" | "Vancouver" | "Chicago" | "MLA" | "Harvard"
 
 function getActiveType(search: string): TaskType {
   const params = new URLSearchParams(search.startsWith("?") ? search.slice(1) : search)
   return params.get("type") === "academic" ? "academic" : "general"
 }
 
+const CITATION_FORMAT_OPTIONS: Array<{ value: CitationFormat; label: string; description: string }> = [
+  { value: "APA", label: "APA (7th ed.)", description: "Paling populer di Indonesia" },
+  { value: "APA7", label: "APA 7th Edition", description: "Versi terbaru APA" },
+  { value: "IEEE", label: "IEEE", description: "Populer untuk teknik & IT" },
+  { value: "Vancouver", label: "Vancouver", description: "ICMJE — populer untuk jurnal medis" },
+  { value: "Chicago", label: "Chicago", description: "Humaniora dan sosial" },
+  { value: "MLA", label: "MLA", description: "Sastra dan bahasa" },
+  { value: "Harvard", label: "Harvard", description: "Populer di Australia dan UK" },
+]
+
 const formSchema = z.object({
   title: z.string().optional(),
   instructionText: z
     .string()
     .min(3, "Minimal 3 karakter agar Teora bisa menganalisis dengan baik."),
+  citationFormat: z.enum(["APA", "APA7", "IEEE", "Vancouver", "Chicago", "MLA", "Harvard"]).optional(),
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -110,7 +130,7 @@ export default function NewProject() {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: { title: "", instructionText: "" },
+    defaultValues: { title: "", instructionText: "", citationFormat: "APA" },
     mode: "onChange",
   })
 
@@ -146,6 +166,7 @@ export default function NewProject() {
           title: titleTrimmed.length > 0 ? titleTrimmed : undefined,
           instructionText: finalInstruction,
           taskType,
+          citationFormat: data.citationFormat,
         },
       },
       {
@@ -257,6 +278,46 @@ export default function NewProject() {
                   </FormItem>
                 )}
               />
+
+              {/* Citation Format: hanya untuk academic, opsional */}
+              {isAcademic && (
+                <FormField
+                  control={form.control}
+                  name="citationFormat"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base flex items-center gap-1.5">
+                        <Quote className="w-4 h-4" />
+                        Format Sitasi
+                      </FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value ?? "APA"}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Pilih format sitasi" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {CITATION_FORMAT_OPTIONS.map((opt) => (
+                            <SelectItem key={opt.value} value={opt.value}>
+                              <div className="flex flex-col">
+                                <span className="font-medium">{opt.label}</span>
+                                <span className="text-xs text-muted-foreground">{opt.description}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        Format default APA. Bisa diubah kapan saja di workspace.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
 
               {/* Upload File: OPSIONAL */}
               <div className="space-y-2 pt-2 border-t border-border">

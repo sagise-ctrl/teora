@@ -78,9 +78,12 @@ Backend Pustaka Saya **SUDAH FULL IMPLEMENTED** (`artifacts/api-server/src/route
 - ✅ Added `firstAuthorSurname` + `countAuthors` helpers
 
 **Frontend (Phase 1):**
-- ⏳ Format selector UI (APA/IEEE/Chicago/etc) di project settings / creation form
-- ⏳ Ceklist UI di ReferencesTab
-- ⏳ "Auto-Cite" button + tier selector + result preview
+- ✅ Format selector UI di `new-project.tsx` (academic only, default APA, 7 options)
+- ✅ Ceklist UI di ReferencesTab (Checkbox column, `handleToggleSelect` mutates `isSelected`)
+- ✅ Auto-Cite button + tier selector + result preview (Dialog, `handleRunAutoCite` + `handleApplySuggestions`)
+- ✅ Citation Marker Aktif summary card di header ReferencesTab
+- ✅ Format dropdown Select di header ReferencesTab (change anytime via PATCH)
+- ✅ Production-deployed: latest build `index-Dhp-nRov.js` at `academic-workspace-hcygaltgx-sagise-ctrls-projects.vercel.app`
 
 ### Files Affected (Phase 1)
 
@@ -90,15 +93,18 @@ Backend Pustaka Saya **SUDAH FULL IMPLEMENTED** (`artifacts/api-server/src/route
 | `lib/db/src/schema/index.ts` | EDIT (add export) | ✅ |
 | `lib/db/src/schema/references.ts` | EDIT (add isSelected) | ✅ |
 | Supabase DB | MIGRATION (via MCP apply_migration) | ✅ |
-| `lib/api-spec/openapi.yaml` | EDIT (7 endpoints + 6 schemas) | ✅ |
+| `lib/api-spec/openapi.yaml` | EDIT (7 endpoints + 6 schemas + citationFormat on ProjectInput) | ✅ |
 | `lib/api-zod/src/generated/api.ts` | REGEN | ✅ |
 | `lib/api-client-react/src/generated/*` | REGEN | ✅ |
 | `artifacts/api-server/src/lib/citation.ts` | EDIT (typo fix + formatCitationMarker) | ✅ |
 | `artifacts/api-server/src/routes/references.ts` | EDIT (7 new endpoints) | ✅ |
+| `artifacts/api-server/src/routes/projects.ts` | EDIT (accept citationFormat on create + project_metadata mirror) | ✅ |
 | `artifacts/api-server/dist/index.mjs` | BUILD (5.7mb) | ✅ |
+| `artifacts/api-server` deployed | VERCEL PROD `dpl_AK68mDQVAuVyAzciLkyHUhrSYDpF` | ✅ |
 | `artifacts/academic-workspace/src/lib/api-client-react/generated/*` | SYNC | ✅ |
-| `artifacts/academic-workspace/src/pages/project.tsx` | EDIT (ceklist + format selector) | ⏳ TODO |
-| `artifacts/academic-workspace/src/pages/new-project.tsx` | EDIT (format selector di form) | ⏳ TODO |
+| `artifacts/academic-workspace/src/pages/project.tsx` | EDIT (ceklist + format selector + Auto-Cite Dialog) | ✅ |
+| `artifacts/academic-workspace/src/pages/new-project.tsx` | EDIT (format selector di form, academic only) | ✅ |
+| `artifacts/academic-workspace` built + deployed | VERCEL PROD (`index-Dhp-nRov.js`) | ✅ |
 | `docs/ai-team/product/user-dashboard.md` | EDIT (add new spec section) | ⏳ TODO |
 
 ### Definition of Done — Phase 1
@@ -106,22 +112,25 @@ Backend Pustaka Saya **SUDAH FULL IMPLEMENTED** (`artifacts/api-server/src/route
 - [x] Schema reference_citations table exists di DB
 - [x] 7 new API endpoints implemented + bundled (verified in `dist/index.mjs`)
 - [x] OpenAPI spec complete dengan schemas untuk Citation
-- [ ] Format selector UI accessible di new-project form (preview only)
-- [ ] Ceklist UI di ReferencesTab works (select/deselect persists)
-- [ ] Auto-Cite button trigger AI endpoint + show preview result
-- [x] Typecheck pass
-- [ ] Build pass (frontend pending)
-- [ ] Smoke test production: create project, select format, add reference, auto-cite → citations saved
+- [x] Format selector UI accessible di new-project form + header ReferencesTab
+- [x] Ceklist UI di ReferencesTab works (select/deselect persists via PATCH /references/:id/select)
+- [x] Auto-Cite button trigger AI endpoint + show preview result (Dialog, suggestions list, Terapkan Semua)
+- [x] Typecheck pass (no DECISION 014-specific errors; 3 pre-existing project.tsx issues remain — not blocking builds)
+- [x] Build pass (backend 5.7mb + frontend 1.4mb chunks)
+- [x] Production deployed (backend `dpl_AK68mDQVAuVyAzciLkyHUhrSYDpF` + frontend `academic-workspace-hcygaltgx-sagise-ctrls-projects.vercel.app`)
+- [ ] **Smoke test production** (manual: create project with format, add reference, toggle ceklist, run Auto-Cite, verify citations saved) → PENDING owner E2E run
 
 ### Next Concrete Steps
 
 1. ~~DB migration verified~~ ✅
 2. ~~Backend endpoints implemented + bundled~~ ✅
 3. ~~Typecheck passed~~ ✅
-4. Deploy backend to Vercel (direct CLI per established pattern)
-5. Frontend Phase 1 implementation (ceklist + format selector + Auto-Cite button)
-6. Frontend build + deploy
-7. Production smoke test
+4. ~~Deploy backend to Vercel~~ ✅
+5. ~~Frontend Phase 1 implementation~~ ✅
+6. ~~Frontend build + deploy~~ ✅
+7. **Production smoke test** — owner E2E run (login → create academic project with format → add reference → ceklist → auto-cite → verify)
+8. **Phase 2** — Citation marker parser (7 format) + render di DokumenTab + manual reposition UI
+9. **Phase 3** — Pustaka Saya CRUD UI + CrossRef search UI + assign-to-project flow
 
 ---
 

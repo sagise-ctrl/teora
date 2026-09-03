@@ -38,6 +38,11 @@ import {
   useDeleteComment,
   useGetRubric,
   useSearchReferences,
+  useToggleReferenceSelection,
+  useAutoCiteReferences,
+  useListCitations,
+  useCreateCitation,
+  useSetProjectCitationFormat,
   getListQuizzesQueryKey,
   getGetQuizQueryKey,
   getGetLatestDocumentQueryKey,
@@ -50,6 +55,7 @@ import {
   getListJobsQueryKey,
   getListShareLinksQueryKey,
   getSearchReferencesQueryKey,
+  getListCitationsQueryKey,
   useGetAITiers,
   useGetMyBalance,
   type ChatMode,
@@ -61,6 +67,7 @@ import {
   type QuizSubmission,
   type Rubric,
   type CrossRefSearchResult,
+  type ProjectCitationFormat,
 } from "../lib/api-client-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
@@ -159,6 +166,18 @@ import type { InsufficientBalanceData } from "@/components/insufficient-balance-
 import { parseInsufficientBalance } from "@/components/parse-insufficient-balance"
 import { useInsufficientBalanceDialog } from "@/hooks/use-insufficient-balance-dialog"
 import { TierSelector } from "@/components/tier-selector"
+import { Checkbox } from "@/components/ui/checkbox"
+
+// Citation format options — sourced from backend `lib/citation.ts` (must match)
+const CITATION_FORMAT_OPTIONS: Array<{ value: NonNullable<ProjectCitationFormat>; label: string; description: string }> = [
+  { value: "APA", label: "APA (7th ed.)", description: "Paling populer di Indonesia" },
+  { value: "APA7", label: "APA 7th Edition", description: "Versi terbaru APA" },
+  { value: "IEEE", label: "IEEE", description: "Populer untuk teknik & IT" },
+  { value: "Vancouver", label: "Vancouver", description: "ICMJE — populer untuk jurnal medis" },
+  { value: "Chicago", label: "Chicago", description: "Humaniora dan sosial" },
+  { value: "MLA", label: "MLA", description: "Sastra dan bahasa" },
+  { value: "Harvard", label: "Harvard", description: "Populer di Australia dan UK" },
+]
 
 // - Document Bar -
 
@@ -621,7 +640,7 @@ export default function ProjectWorkspace() {
           </TabsContent>
 
           <TabsContent value="references" className="m-0">
-            <ReferencesTab projectId={projectId} />
+            <ReferencesTab projectId={projectId} citationFormat={project.citationFormat ?? null} />
           </TabsContent>
 
           <TabsContent value="attachments" className="m-0">
@@ -1508,12 +1527,17 @@ function ChatTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosure:
   )
 }
 
-function ReferencesTab({ projectId }: { projectId: number }) {
+function ReferencesTab({ projectId, citationFormat }: { projectId: number; citationFormat: ProjectCitationFormat }) {
   const { data: references, isLoading } = useListReferences(projectId)
+  const { data: citations } = useListCitations(projectId)
   const createRef = useCreateReference()
   const deleteRef = useDeleteReference()
   const regenBib = useRegenerateBibliography()
   const fetchMeta = useFetchReferenceMetadata()
+  const toggleSelect = useToggleReferenceSelection()
+  const autoCite = useAutoCiteReferences()
+  const setFormat = useSetProjectCitationFormat()
+  const createCitation = useCreateCitation()
   const searchCrossRef = useSearchReferences(
     { q: searchQuery },
     { query: { enabled: false } }
@@ -1532,6 +1556,19 @@ function ReferencesTab({ projectId }: { projectId: number }) {
     title: "", authors: "", year: "", journal: "", volume: "", issue: "", doi: ""
   })
   const [addedDois, setAddedDois] = useState<Set<string>>(new Set())
+
+  // DECISION 014 — Auto-Cite state
+  const [autoCiteOpen, setAutoCiteOpen] = useState(false)
+  const [autoCiteTierId, setAutoCiteTierId] = useState<string>("")
+  const [suggestions, setSuggestions] = useState<Array<{
+    referenceId: number
+    paragraphIndex: number
+    offsetInParagraph: number
+    formatMarker: string
+    placementReason: string
+  }> | null>(null)
+
+  const selectedRefCount = references?.filter(r => r.isSelected).length ?? 0
 
   const handleLookup = () => {
     if (!lookupId.trim()) return
@@ -1609,6 +1646,104 @@ function ReferencesTab({ projectId }: { projectId: number }) {
     })
   }
 
+  // DECISION 014 — Toggle ceklist status of a single reference
+  const handleToggleSelect = (referenceId: number, isSelected: boolean) => {
+    toggleSelect.mutate(
+      { projectId, referenceId, data: { isSelected } },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: getListReferencesQueryKey(projectId) })
+        },
+        onError: (err) => toast({ title: "Gagal mengubah ceklist", description: String(err), variant: "destructive" }),
+      }
+    )
+  }
+
+  // DECISION 014 — Update project's citation format (triggers re-render of all markers)
+  const handleFormatChange = (format: NonNullable<ProjectCitationFormat>) => {
+    setFormat.mutate(
+      { projectId, data: { citationFormat: format } },
+      {
+        onSuccess: () => {
+          toast({ title: `Format diubah ke ${format}` })
+          queryClient.invalidateQueries({ queryKey: getGetProjectQueryKey(projectId) })
+          queryClient.invalidateQueries({ queryKey: getListCitationsQueryKey(projectId) })
+        },
+        onError: (err) => toast({ title: "Gagal mengubah format", description: String(err), variant: "destructive" }),
+      }
+    )
+  }
+
+  // DECISION 014 — Run AI auto-cite (returns suggestions, no persistence until user clicks Apply)
+  const handleRunAutoCite = () => {
+    const selectedIds = (references ?? [])
+      .filter((r) => r.isSelected)
+      .map((r) => r.id)
+    if (selectedIds.length === 0) {
+      toast({
+        variant: "destructive",
+        title: "Pilih minimal 1 referensi",
+        description: "Centang referensi di tabel yang mau di-auto-cite.",
+      })
+      return
+    }
+    autoCite.mutate(
+      {
+        projectId,
+        data: {
+          referenceIds: selectedIds,
+          tier: (autoCiteTierId || undefined) as "low" | "mid" | "high" | undefined,
+          maxCitationsPerReference: 3,
+        },
+      },
+      {
+        onSuccess: (data) => {
+          setSuggestions(data.suggestions)
+        },
+        onError: (err) => {
+          if (insufficientBalance.handleError(err)) return
+          toast({ title: "Auto-cite gagal", description: String(err), variant: "destructive" })
+        },
+      }
+    )
+  }
+
+  // DECISION 014 — Apply all accepted suggestions (bulk create)
+  const handleApplySuggestions = async () => {
+    if (!suggestions || suggestions.length === 0) return
+    let successCount = 0
+    let firstError: string | null = null
+    for (const s of suggestions) {
+      try {
+        await createCitation.mutateAsync({
+          projectId,
+          data: {
+            referenceId: s.referenceId,
+            paragraphIndex: s.paragraphIndex,
+            offsetInParagraph: s.offsetInParagraph,
+            formatMarker: s.formatMarker,
+            placementReason: s.placementReason,
+          },
+        })
+        successCount++
+      } catch (err) {
+        if (!firstError) firstError = err instanceof Error ? err.message : String(err)
+      }
+    }
+    if (successCount === suggestions.length) {
+      toast({ title: "Saran diterapkan", description: `${successCount} sitasi berhasil ditambahkan` })
+    } else {
+      toast({
+        title: `${successCount}/${suggestions.length} sitasi diterapkan`,
+        description: firstError ?? "Sebagian saran gagal disimpan",
+        variant: "destructive",
+      })
+    }
+    setSuggestions(null)
+    setAutoCiteOpen(false)
+    queryClient.invalidateQueries({ queryKey: getListCitationsQueryKey(projectId) })
+  }
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (!searchQuery.trim() || searchQuery.trim().length < 3) return
@@ -1654,7 +1789,34 @@ function ReferencesTab({ projectId }: { projectId: number }) {
           <h2 className="text-xl font-serif font-semibold">References Database</h2>
           <p className="text-sm text-muted-foreground">Manage scholarly sources used in your project.</p>
         </div>
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-2 items-center flex-wrap justify-end">
+          {/* DECISION 014 — Citation format selector */}
+          <Select
+            value={citationFormat ?? "APA"}
+            onValueChange={(v) => handleFormatChange(v as NonNullable<ProjectCitationFormat>)}
+            disabled={setFormat.isPending}
+          >
+            <SelectTrigger className="w-44" aria-label="Format sitasi">
+              <SelectValue placeholder="Format sitasi" />
+            </SelectTrigger>
+            <SelectContent>
+              {CITATION_FORMAT_OPTIONS.map(f => (
+                <SelectItem key={f.value} value={f.value}>
+                  <span className="font-medium">{f.label}</span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {/* DECISION 014 — Auto-Cite button */}
+          <Button
+            variant="default"
+            onClick={() => setAutoCiteOpen(true)}
+            disabled={selectedRefCount === 0}
+            title={selectedRefCount === 0 ? "Ceklist minimal satu referensi dulu" : "Analisis dokumen dengan Teora"}
+          >
+            <Sparkles className="w-4 h-4 mr-2" />
+            Auto-Cite
+          </Button>
           <TierSelector value={bibTierId} onChange={setBibTierId} compact minimal />
           <Button variant="outline" onClick={handleRegen} disabled={regenBib.isPending}>
             <RefreshCw className={cn("w-4 h-4 mr-2", regenBib.isPending && "animate-spin")} />
@@ -1870,7 +2032,8 @@ function ReferencesTab({ projectId }: { projectId: number }) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Status</TableHead>
+              <TableHead className="w-12">Ceklist</TableHead>
+              <TableHead className="w-12">Status</TableHead>
               <TableHead className="w-[40%]">Source</TableHead>
               <TableHead>Year</TableHead>
               <TableHead>Used In</TableHead>
@@ -1879,10 +2042,10 @@ function ReferencesTab({ projectId }: { projectId: number }) {
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              <TableRow><TableCell colSpan={5} className="text-center py-8"><Loader2 className="w-6 h-6 animate-spin mx-auto text-muted-foreground" /></TableCell></TableRow>
+              <TableRow><TableCell colSpan={6} className="text-center py-8"><Loader2 className="w-6 h-6 animate-spin mx-auto text-muted-foreground" /></TableCell></TableRow>
             ) : references?.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-16">
+                <TableCell colSpan={6} className="text-center py-16">
                   <div className="flex flex-col items-center">
                     <EmptyMedia illustration="book" className="size-16 mb-4">
                       <EmptyIllustrationBook />
@@ -1893,7 +2056,16 @@ function ReferencesTab({ projectId }: { projectId: number }) {
                 </TableCell>
               </TableRow>
             ) : references?.map(ref => (
-              <TableRow key={ref.id}>
+              <TableRow key={ref.id} className={ref.isSelected ? "bg-primary/5" : undefined}>
+                <TableCell>
+                  <Checkbox
+                    checked={ref.isSelected ?? false}
+                    onCheckedChange={(checked) => handleToggleSelect(ref.id, !!checked)}
+                    disabled={toggleSelect.isPending}
+                    aria-label={`Ceklist ${ref.title}`}
+                    title="Centang untuk masukkan ke daftar pustaka dan Auto-Cite"
+                  />
+                </TableCell>
                 <TableCell>
                   {ref.validationStatus === 'verified' && <CheckCircle2 className="w-5 h-5 text-emerald-500" />}
                   {ref.validationStatus === 'unverified' && <AlertCircle className="w-5 h-5 text-amber-500" />}
@@ -1922,7 +2094,120 @@ function ReferencesTab({ projectId }: { projectId: number }) {
           </TableBody>
         </Table>
       </Card>
+
+      {/* Existing citations (read-only summary for Phase 1) */}
+      {citations && citations.length > 0 && (
+        <Card className="bg-muted/30 border-border/60">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-primary" />
+              {citations.length} Citation Marker Aktif
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Marker yang sudah dibuat akan dirender di preview saat dokumen siap.
+              Geser/hapus manual menyusul di Phase 2.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-1 text-xs">
+            {citations.slice(0, 5).map((c, i) => {
+              const ref = references?.find(r => r.id === c.referenceId)
+              return (
+                <div key={i} className="flex items-center gap-2 text-muted-foreground">
+                  <code className="bg-background px-1.5 py-0.5 rounded text-primary font-mono text-[11px]">{c.formatMarker}</code>
+                  <span className="truncate">— {ref?.title ?? `Ref #${c.referenceId}`}</span>
+                  <span className="ml-auto text-[10px]">¶{c.paragraphIndex + 1}</span>
+                </div>
+              )
+            })}
+            {citations.length > 5 && (
+              <p className="text-[10px] text-muted-foreground pt-1">+{citations.length - 5} lainnya</p>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       <insufficientBalance.InsufficientBalanceDialog {...insufficientBalance.dialogProps} />
+
+      {/* DECISION 014 — Auto-Cite Dialog */}
+      <Dialog open={autoCiteOpen} onOpenChange={(o) => {
+        setAutoCiteOpen(o)
+        if (!o) setSuggestions(null)
+      }}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Auto-Cite dengan Teora</DialogTitle>
+            <DialogDescription>
+              Teora akan menganalisis dokumen dan merekomendasikan posisi sitasi untuk {selectedRefCount} referensi yang Anda ceklist.
+            </DialogDescription>
+          </DialogHeader>
+
+          {suggestions === null ? (
+            <div className="space-y-4 py-2">
+              <div>
+                <Label className="text-sm font-medium">Tier Teora</Label>
+                <div className="mt-2">
+                  <TierSelector value={autoCiteTierId} onChange={setAutoCiteTierId} compact />
+                </div>
+              </div>
+              <div className="bg-muted/30 rounded-lg p-3 text-sm space-y-2">
+                <p className="font-medium">Catatan:</p>
+                <ul className="list-disc list-inside text-muted-foreground text-xs space-y-0.5">
+                  <li>Hanya referensi yang Anda <strong>ceklist</strong> akan dianalisis</li>
+                  <li>Maksimal 3 posisi sitasi per referensi</li>
+                  <li>Saran ditampilkan untuk review — klik "Terapkan" untuk simpan</li>
+                </ul>
+              </div>
+              {selectedRefCount === 0 && (
+                <p className="text-sm text-destructive">Ceklist minimal satu referensi di tabel terlebih dahulu.</p>
+              )}
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setAutoCiteOpen(false)}>Batal</Button>
+                <Button onClick={handleRunAutoCite} disabled={autoCite.isPending || selectedRefCount === 0}>
+                  {autoCite.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
+                  Analisis
+                </Button>
+              </DialogFooter>
+            </div>
+          ) : (
+            <div className="space-y-4 py-2">
+              <div className="bg-primary/10 rounded-lg p-3 text-sm">
+                {suggestions.length} saran sitasi dari Teora — review lalu klik "Terapkan" untuk menyimpan.
+              </div>
+              <div className="space-y-2 max-h-[50vh] overflow-y-auto">
+                {suggestions.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    Tidak ada saran. Coba ceklist lebih banyak referensi.
+                  </p>
+                ) : (
+                  suggestions.map((s, i) => {
+                    const ref = references?.find(r => r.id === s.referenceId)
+                    return (
+                      <Card key={i} className="p-3 bg-muted/20 border-border/50">
+                        <div className="text-sm font-medium leading-snug">{ref?.title ?? `Ref #${s.referenceId}`}</div>
+                        <div className="text-xs text-muted-foreground mt-1.5 flex items-center gap-2">
+                          <span>Paragraf {s.paragraphIndex + 1}, offset {s.offsetInParagraph}</span>
+                          <span>→</span>
+                          <code className="bg-background px-1.5 py-0.5 rounded text-primary font-mono text-[11px]">{s.formatMarker}</code>
+                        </div>
+                        {s.placementReason && (
+                          <p className="text-xs mt-1.5 italic text-muted-foreground">"{s.placementReason}"</p>
+                        )}
+                      </Card>
+                    )
+                  })
+                )}
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setSuggestions(null)}>Atur Ulang</Button>
+                <Button onClick={handleApplySuggestions} disabled={createCitation.isPending || suggestions.length === 0}>
+                  {createCitation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
+                  Terapkan Semua ({suggestions.length})
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

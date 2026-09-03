@@ -153,7 +153,8 @@ export const CreateProjectBody = zod.object({
   "minRefYear": zod.number().optional(),
   "minRefCount": zod.number().optional(),
   "aiDisclosure": zod.boolean().optional(),
-  "taskType": zod.enum(['general', 'academic']).optional().describe('Project type — \"general\" for short tasks, \"academic\" for multi-section works')
+  "taskType": zod.enum(['general', 'academic']).optional().describe('Project type — \"general\" for short tasks, \"academic\" for multi-section works'),
+  "citationFormat": zod.enum(['APA', 'APA7', 'IEEE', 'Vancouver', 'Chicago', 'MLA', 'Harvard']).optional().describe('DECISION 014. Citation format used for in-text\/footnote markers and bibliography.\nDefaults to APA if omitted (workspace will create the project with APA and the\nuser can change via PATCH \/projects\/:id\/citation-format).\n')
 })
 
 export const CreateProjectResponse = zod.object({

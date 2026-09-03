@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link, useLocation } from "wouter";
+import { Link, useLocation, useSearch } from "wouter";
 import { motion } from "framer-motion";
 import {
   useListProjects,
@@ -35,7 +35,8 @@ const STAGE_FILTER_KEY = "all" as const;
 type StageFilter = UserStage | typeof STAGE_FILTER_KEY;
 
 function getActiveType(search: string): TaskType {
-  const params = new URLSearchParams(search);
+  // search may start with "?" or not: URLSearchParams handles both
+  const params = new URLSearchParams(search.startsWith("?") ? search.slice(1) : search);
   const t = params.get("type");
   if (t === "academic" || t === "general") return t;
   return "general";
@@ -48,8 +49,10 @@ function setQueryType(currentSearch: string, next: TaskType): string {
 }
 
 export default function TaskListPage() {
-  const [location, setLocation] = useLocation();
-  const searchString = location.includes("?") ? location.slice(location.indexOf("?")) : "";
+  // wouter 3.x: useSearch() returns the raw query string (without leading "?").
+  // Reactive to URL changes: re-renders when ?type= updates.
+  const searchString = useSearch() ?? "";
+  const [, setLocation] = useLocation();
   const activeType: TaskType = getActiveType(searchString);
 
   const [stageFilter, setStageFilter] = useState<StageFilter>(STAGE_FILTER_KEY);

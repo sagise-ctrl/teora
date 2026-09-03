@@ -158,8 +158,24 @@ router.post("/projects", async (req, res): Promise<void> => {
       outputFormat: parsed.data.outputFormat,
       minRefYear: parsed.data.minRefYear,
       minRefCount: parsed.data.minRefCount,
+      // DECISION 014 — optional citation format on creation (defaults to APA via DB default)
+      citationFormat: parsed.data.citationFormat,
     })
     .returning();
+
+  // Mirror to project_metadata when provided
+  if (parsed.data.citationFormat) {
+    await db
+      .insert(projectMetadataTable)
+      .values({
+        projectId: project.id,
+        citationFormat: parsed.data.citationFormat,
+      })
+      .onConflictDoUpdate({
+        target: projectMetadataTable.projectId,
+        set: { citationFormat: parsed.data.citationFormat, updatedAt: new Date() },
+      });
+  }
 
   await logActivity(project.id, "project_created", `Project "${project.title}" dibuat`);
 

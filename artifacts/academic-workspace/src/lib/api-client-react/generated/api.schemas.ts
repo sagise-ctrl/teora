@@ -252,6 +252,24 @@ export const ProjectInputTaskType = {
   academic: 'academic',
 } as const;
 
+/**
+ * DECISION 014. Citation format used for in-text/footnote markers and bibliography.
+ * Defaults to APA if omitted (workspace will create the project with APA and the
+ * user can change via PATCH /projects/:id/citation-format).
+ */
+export type ProjectInputCitationFormat = typeof ProjectInputCitationFormat[keyof typeof ProjectInputCitationFormat];
+
+
+export const ProjectInputCitationFormat = {
+  APA: 'APA',
+  APA7: 'APA7',
+  IEEE: 'IEEE',
+  Vancouver: 'Vancouver',
+  Chicago: 'Chicago',
+  MLA: 'MLA',
+  Harvard: 'Harvard',
+} as const;
+
 export interface ProjectInput {
   /**
      * Optional. Project display name (used in document list, not in exported file).
@@ -271,6 +289,12 @@ export interface ProjectInput {
   aiDisclosure?: boolean;
   /** Project type — "general" for short tasks, "academic" for multi-section works */
   taskType?: ProjectInputTaskType;
+  /**
+     * DECISION 014. Citation format used for in-text/footnote markers and bibliography.
+     * Defaults to APA if omitted (workspace will create the project with APA and the
+     * user can change via PATCH /projects/:id/citation-format).
+     */
+  citationFormat?: ProjectInputCitationFormat;
 }
 
 export type ProjectUpdateStatus = typeof ProjectUpdateStatus[keyof typeof ProjectUpdateStatus];

@@ -182834,7 +182834,8 @@ var CreateProjectBody = zod.object({
   "minRefYear": zod.number().optional(),
   "minRefCount": zod.number().optional(),
   "aiDisclosure": zod.boolean().optional(),
-  "taskType": zod.enum(["general", "academic"]).optional().describe('Project type \u2014 "general" for short tasks, "academic" for multi-section works')
+  "taskType": zod.enum(["general", "academic"]).optional().describe('Project type \u2014 "general" for short tasks, "academic" for multi-section works'),
+  "citationFormat": zod.enum(["APA", "APA7", "IEEE", "Vancouver", "Chicago", "MLA", "Harvard"]).optional().describe("DECISION 014. Citation format used for in-text/footnote markers and bibliography.\nDefaults to APA if omitted (workspace will create the project with APA and the\nuser can change via PATCH /projects/:id/citation-format).\n")
 });
 var CreateProjectResponse = zod.object({
   "id": zod.number(),
@@ -235030,8 +235031,19 @@ router4.post("/projects", async (req, res) => {
     instructionText: parsed.data.instructionText,
     outputFormat: parsed.data.outputFormat,
     minRefYear: parsed.data.minRefYear,
-    minRefCount: parsed.data.minRefCount
+    minRefCount: parsed.data.minRefCount,
+    // DECISION 014 — optional citation format on creation (defaults to APA via DB default)
+    citationFormat: parsed.data.citationFormat
   }).returning();
+  if (parsed.data.citationFormat) {
+    await db.insert(projectMetadataTable).values({
+      projectId: project.id,
+      citationFormat: parsed.data.citationFormat
+    }).onConflictDoUpdate({
+      target: projectMetadataTable.projectId,
+      set: { citationFormat: parsed.data.citationFormat, updatedAt: /* @__PURE__ */ new Date() }
+    });
+  }
   await logActivity(project.id, "project_created", `Project "${project.title}" dibuat`);
   res.status(201).json({
     ...project,
