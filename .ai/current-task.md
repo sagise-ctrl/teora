@@ -4,6 +4,46 @@
 
 ---
 
+## ACTIVE 2026-09-04 — Full Project Audit ✅ DONE
+
+**Status:** ✅ DONE — Audit report written to `E:/teora/audit.md`
+**Model:** claude-opus-4-6
+
+### Scope
+
+All source files across frontend, backend, lib, root configs, workflows, docs.
+
+### Key Findings
+
+| Severity | Count | Examples |
+|----------|-------|----------|
+| Critical | 2 | `reference_citations` + `document_versions` tables in DB with no source code |
+| High | 4 | topics JSONB vs text, unique index NULL collision, upsert NULL comparison, duplicate generated files |
+| Medium | 5 | stale dist/, monolith OpenAPI, unused prop, no migrations history, unused import |
+| Low | 5 | outdated branding, duplicate tsconfig, package manager drift, deprecated workflow, committed MSW bundle |
+
+### Good Practices (15+)
+
+Clean architecture, OpenAPI as source of truth, Zod validation, Supabase JWT + backend token sync, MSW mocking, Vitest tests, Indonesian UI language, AI tier billing, etc.
+
+### Vision Alignment
+
+Well-aligned with AI Academic Workspace mission. Unclear: referral system, shared content page.
+
+### Recommendations (top 5)
+
+1. Create schema for `reference_citations` or drop from DB
+2. Investigate `document_versions` (add source or drop)
+3. Change `learning_activities.topics` from text to JSONB
+4. Fix unique index NULL collision risk
+5. Fix NULL-safe upsert condition
+
+### Audit File
+
+`E:/teora/audit.md`
+
+---
+
 ## ACTIVE 2026-09-03 — Practice (Learning Activity System) — Implementation
 
 **Status:** ✅ DONE — Branch pushed, awaiting PR merge

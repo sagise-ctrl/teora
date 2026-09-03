@@ -2,6 +2,13 @@
 
 > Completed work, newest first. Format: `YYYY-MM-DD | description | files | status`
 
+## 2026-09-04 | Full project audit | `E:/teora/audit.md` | ✅
+
+Read every source file across frontend (123+ files), backend, lib, root configs, workflows, docs.
+16 issues found: 2 critical (schema drift), 4 high (logic bugs), 5 medium, 5 low.
+15+ good practices documented. Vision alignment assessed.
+Recommendations prioritized: fix schema drift, JSONB topics, NULL collisions, deduplicate generated files.
+
 ## 2026-09-03/04 (Practice — Learning Activity System — opus-4-6)
 
 ### DECISION 013 — Practice Menu Implementation
