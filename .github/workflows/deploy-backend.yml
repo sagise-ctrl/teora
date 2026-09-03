@@ -7,6 +7,12 @@ on:
       - "artifacts/api-server/**"
       - "lib/db/**"
       - ".github/workflows/deploy-backend.yml"
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to deploy"
+        required: false
+        default: "main"
 
 permissions:
   contents: read
