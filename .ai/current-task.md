@@ -6,7 +6,7 @@
 
 ## ACTIVE 2026-09-03 — Practice (Learning Activity System) — Implementation
 
-**Status:** ✅ Backend DONE, Frontend DONE, Build PASSED, Push pending
+**Status:** ✅ DONE — Branch pushed, awaiting PR merge
 **Model:** claude-opus-4-6
 
 ### Summary
@@ -29,17 +29,19 @@ DECISION 013 — Practice menu: quiz/recommendation system that auto-extracts to
 
 ### Pending
 
-- Push branch + merge PR
+- Merge PR `feat/practice-clean` → `main` (frontend auto-deploys after merge)
+- Auto-extract trigger: extract topics when project is created (General Task on submit, Academic Work on create) — TBD
 
 ### Lessons
 
-- Codegen output in `lib/api-client-react/src/generated/` but frontend reads from `artifacts/academic-workspace/src/lib/api-client-react/generated/` — sync needed
+- Codegen output in `lib/api-client-react/src/generated/` but frontend reads from `artifacts/academic-workspace/src/lib/api-client-react/generated/` — sync manually after codegen
 - pnpm install fails due to `@replit/vite-plugin-cartographer` catalog entry missing — use `npm install` locally instead
+- `.ai/` is in `.gitignore` — must use `git add -f` to force-add
 
 ### Commits (feat/practice-clean)
 
-- `0cfd834` — feat(practice): Learning Activity System — schema, OpenAPI, backend routes, upsert logic
-- Fresh practice page + route + sidebar + generated API sync
+- `85e6d4a` — feat(practice): Learning Activity schema + backend API routes
+- `1619a0b` — feat(practice): frontend Practice page + generated API hooks
 
 ---
 
