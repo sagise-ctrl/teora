@@ -4,6 +4,7 @@ export * from "./documents";
 export * from "./multi-documents";
 export * from "./references";
 export * from "./account-references";
+export * from "./reference_citations";
 export * from "./attachments";
 export * from "./activities";
 export * from "./jobs";

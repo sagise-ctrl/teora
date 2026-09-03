@@ -129,7 +129,7 @@ export const ListProjectsResponseItem = zod.object({
   "instructionText": zod.string().nullish(),
   "subject": zod.string().nullish(),
   "taskType": zod.enum(['general', 'academic']).nullish(),
-  "citationFormat": zod.string().nullish(),
+  "citationFormat": zod.union([zod.literal('APA'),zod.literal('APA7'),zod.literal('IEEE'),zod.literal('Vancouver'),zod.literal('Chicago'),zod.literal('MLA'),zod.literal('Harvard'),zod.literal(null)]).nullish().describe('Citation format used for in-text\/footnote markers and bibliography. Default = APA.'),
   "outputFormat": zod.string().nullish(),
   "minRefYear": zod.number().nullish(),
   "minRefCount": zod.number().nullish(),
@@ -147,8 +147,8 @@ export const ListProjectsResponse = zod.array(ListProjectsResponseItem)
 
 
 export const CreateProjectBody = zod.object({
-  "title": zod.string().min(1),
-  "instructionText": zod.string().optional(),
+  "title": zod.string().optional().describe('Optional. Project display name (used in document list, not in exported file).\nIf omitted, the workspace will auto-generate a title via AI from instructionText.\n'),
+  "instructionText": zod.string().min(1).describe('REQUIRED for both General Task and Academic Work. The instructions or idea\/gagasan\nthat AI uses to generate the title (if missing), analyze the task, and produce\nthe document.\n'),
   "outputFormat": zod.enum(['docx', 'pdf', 'markdown']).optional(),
   "minRefYear": zod.number().optional(),
   "minRefCount": zod.number().optional(),
@@ -164,7 +164,7 @@ export const CreateProjectResponse = zod.object({
   "instructionText": zod.string().nullish(),
   "subject": zod.string().nullish(),
   "taskType": zod.enum(['general', 'academic']).nullish(),
-  "citationFormat": zod.string().nullish(),
+  "citationFormat": zod.union([zod.literal('APA'),zod.literal('APA7'),zod.literal('IEEE'),zod.literal('Vancouver'),zod.literal('Chicago'),zod.literal('MLA'),zod.literal('Harvard'),zod.literal(null)]).nullish().describe('Citation format used for in-text\/footnote markers and bibliography. Default = APA.'),
   "outputFormat": zod.string().nullish(),
   "minRefYear": zod.number().nullish(),
   "minRefCount": zod.number().nullish(),
@@ -206,7 +206,7 @@ export const GetProjectResponse = zod.object({
   "instructionText": zod.string().nullish(),
   "subject": zod.string().nullish(),
   "taskType": zod.enum(['general', 'academic']).nullish(),
-  "citationFormat": zod.string().nullish(),
+  "citationFormat": zod.union([zod.literal('APA'),zod.literal('APA7'),zod.literal('IEEE'),zod.literal('Vancouver'),zod.literal('Chicago'),zod.literal('MLA'),zod.literal('Harvard'),zod.literal(null)]).nullish().describe('Citation format used for in-text\/footnote markers and bibliography. Default = APA.'),
   "outputFormat": zod.string().nullish(),
   "minRefYear": zod.number().nullish(),
   "minRefCount": zod.number().nullish(),
@@ -245,7 +245,7 @@ export const UpdateProjectResponse = zod.object({
   "instructionText": zod.string().nullish(),
   "subject": zod.string().nullish(),
   "taskType": zod.enum(['general', 'academic']).nullish(),
-  "citationFormat": zod.string().nullish(),
+  "citationFormat": zod.union([zod.literal('APA'),zod.literal('APA7'),zod.literal('IEEE'),zod.literal('Vancouver'),zod.literal('Chicago'),zod.literal('MLA'),zod.literal('Harvard'),zod.literal(null)]).nullish().describe('Citation format used for in-text\/footnote markers and bibliography. Default = APA.'),
   "outputFormat": zod.string().nullish(),
   "minRefYear": zod.number().nullish(),
   "minRefCount": zod.number().nullish(),
@@ -532,7 +532,8 @@ export const ListReferencesResponseItem = zod.object({
   "usedInChapters": zod.string().nullish(),
   "createdAt": zod.coerce.date(),
   "isSuggested": zod.boolean().optional().describe('Whether this reference was auto-suggested by CrossRef'),
-  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference')
+  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference'),
+  "isSelected": zod.boolean().optional().describe('Ceklist status — true means reference is included in bibliography and\neligible for AI auto-cite. (DECISION 014)\n')
 })
 export const ListReferencesResponse = zod.array(ListReferencesResponseItem)
 
@@ -576,7 +577,8 @@ export const CreateReferenceResponse = zod.object({
   "usedInChapters": zod.string().nullish(),
   "createdAt": zod.coerce.date(),
   "isSuggested": zod.boolean().optional().describe('Whether this reference was auto-suggested by CrossRef'),
-  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference')
+  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference'),
+  "isSelected": zod.boolean().optional().describe('Ceklist status — true means reference is included in bibliography and\neligible for AI auto-cite. (DECISION 014)\n')
 })
 
 
@@ -625,7 +627,8 @@ export const BulkAddReferencesResponseItem = zod.object({
   "usedInChapters": zod.string().nullish(),
   "createdAt": zod.coerce.date(),
   "isSuggested": zod.boolean().optional().describe('Whether this reference was auto-suggested by CrossRef'),
-  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference')
+  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference'),
+  "isSelected": zod.boolean().optional().describe('Ceklist status — true means reference is included in bibliography and\neligible for AI auto-cite. (DECISION 014)\n')
 })
 export const BulkAddReferencesResponse = zod.array(BulkAddReferencesResponseItem)
 
@@ -699,6 +702,201 @@ export const FormatCSLBibliographyQueryParams = zod.object({
 export const FormatCSLBibliographyResponse = zod.object({
   "bibliography": zod.string(),
   "format": zod.string().optional()
+})
+
+
+/**
+ * Reads the current document + the references the user has ceklist (selected = true),
+ * then asks the AI to find paragraphs where each reference is relevant and insert
+ * a citation marker. Supports multi-cite — one reference can be cited in multiple
+ * paragraphs. User reviews the suggestions before applying them.
+ * @summary AI suggests citation positions for selected references
+ */
+export const AutoCiteReferencesParams = zod.object({
+  "projectId": zod.coerce.number()
+})
+
+export const autoCiteReferencesBodyReferenceIdsMax = 50;
+
+export const autoCiteReferencesBodyMaxCitationsPerReferenceDefault = 3;
+export const autoCiteReferencesBodyMaxCitationsPerReferenceMax = 20;
+
+export const autoCiteReferencesBodyTierDefault = `mid`;
+
+export const AutoCiteReferencesBody = zod.object({
+  "referenceIds": zod.array(zod.number()).min(1).max(autoCiteReferencesBodyReferenceIdsMax).describe('IDs of references to auto-cite. Only ceklist-selected references are used\nin practice; this list lets user override (e.g. force a specific reference).\n'),
+  "maxCitationsPerReference": zod.number().min(1).max(autoCiteReferencesBodyMaxCitationsPerReferenceMax).default(autoCiteReferencesBodyMaxCitationsPerReferenceDefault).describe('Cap on how many distinct paragraphs the same reference can be cited in.\nDefault = 3 (Level C smart placement).\n'),
+  "tier": zod.enum(['low', 'mid', 'high']).default(autoCiteReferencesBodyTierDefault).describe('AI model tier to use for the suggestion')
+})
+
+export const AutoCiteReferencesResponse = zod.object({
+  "suggestions": zod.array(zod.object({
+  "referenceId": zod.number(),
+  "paragraphIndex": zod.number().describe('0-based paragraph index in the document text'),
+  "offsetInParagraph": zod.number().describe('Character offset within the paragraph (where the citation marker starts)'),
+  "formatMarker": zod.string().describe('Pre-rendered citation marker for the project\'s citationFormat\n(e.g. \"(Smith & Jones, 2023)\" for APA, \"[1]\" for IEEE)\n'),
+  "placementReason": zod.string().describe('AI\'s explanation for why this citation belongs here')
+})),
+  "totalTokensUsed": zod.number(),
+  "referencesAnalyzed": zod.number().describe('How many ceklist-selected references were considered')
+})
+
+
+/**
+ * When ceklist = true, the reference is included in the bibliography and eligible
+ * for AI auto-cite. When false, the reference is hidden from auto-cite but still
+ * visible in the Tab Referensi list.
+ * @summary Toggle the ceklist status of a reference
+ */
+export const ToggleReferenceSelectionParams = zod.object({
+  "projectId": zod.coerce.number(),
+  "referenceId": zod.coerce.number()
+})
+
+export const ToggleReferenceSelectionBody = zod.object({
+  "isSelected": zod.boolean().describe('New ceklist state')
+})
+
+export const ToggleReferenceSelectionResponse = zod.object({
+  "id": zod.number(),
+  "projectId": zod.number(),
+  "title": zod.string(),
+  "authors": zod.string().nullish(),
+  "year": zod.number().nullish(),
+  "journal": zod.string().nullish(),
+  "volume": zod.string().nullish(),
+  "issue": zod.string().nullish(),
+  "doi": zod.string().nullish(),
+  "url": zod.string().nullish(),
+  "validationStatus": zod.enum(['unverified', 'verified', 'invalid']),
+  "usedInChapters": zod.string().nullish(),
+  "createdAt": zod.coerce.date(),
+  "isSuggested": zod.boolean().optional().describe('Whether this reference was auto-suggested by CrossRef'),
+  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference'),
+  "isSelected": zod.boolean().optional().describe('Ceklist status — true means reference is included in bibliography and\neligible for AI auto-cite. (DECISION 014)\n')
+})
+
+
+/**
+ * @summary List all citation marker positions for a project
+ */
+export const ListCitationsParams = zod.object({
+  "projectId": zod.coerce.number()
+})
+
+export const ListCitationsResponseItem = zod.object({
+  "id": zod.number(),
+  "projectId": zod.number(),
+  "referenceId": zod.number(),
+  "paragraphIndex": zod.number(),
+  "offsetInParagraph": zod.number(),
+  "formatMarker": zod.string(),
+  "placementReason": zod.string().nullish(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date().optional()
+})
+export const ListCitationsResponse = zod.array(ListCitationsResponseItem)
+
+
+/**
+ * Used when user inserts citation manually (not via AI auto-cite).
+ * @summary Manually add a citation marker at a position
+ */
+export const CreateCitationParams = zod.object({
+  "projectId": zod.coerce.number()
+})
+
+export const createCitationBodyOffsetInParagraphDefault = 0;
+
+export const CreateCitationBody = zod.object({
+  "referenceId": zod.number(),
+  "paragraphIndex": zod.number(),
+  "offsetInParagraph": zod.number().default(createCitationBodyOffsetInParagraphDefault),
+  "formatMarker": zod.string().describe('Pre-rendered marker (frontend computes from current citationFormat)'),
+  "placementReason": zod.string().optional()
+})
+
+export const CreateCitationResponse = zod.object({
+  "id": zod.number(),
+  "projectId": zod.number(),
+  "referenceId": zod.number(),
+  "paragraphIndex": zod.number(),
+  "offsetInParagraph": zod.number(),
+  "formatMarker": zod.string(),
+  "placementReason": zod.string().nullish(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date().optional()
+})
+
+
+/**
+ * @summary Update citation position (drag) or format marker
+ */
+export const UpdateCitationParams = zod.object({
+  "projectId": zod.coerce.number(),
+  "citationId": zod.coerce.number()
+})
+
+export const UpdateCitationBody = zod.object({
+  "paragraphIndex": zod.number().optional().describe('New paragraph index (for drag between paragraphs)'),
+  "offsetInParagraph": zod.number().optional().describe('New character offset within the paragraph'),
+  "formatMarker": zod.string().optional().describe('New pre-rendered marker (after citationFormat change)'),
+  "placementReason": zod.string().optional()
+})
+
+export const UpdateCitationResponse = zod.object({
+  "id": zod.number(),
+  "projectId": zod.number(),
+  "referenceId": zod.number(),
+  "paragraphIndex": zod.number(),
+  "offsetInParagraph": zod.number(),
+  "formatMarker": zod.string(),
+  "placementReason": zod.string().nullish(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date().optional()
+})
+
+
+/**
+ * @summary Remove a citation marker
+ */
+export const DeleteCitationParams = zod.object({
+  "projectId": zod.coerce.number(),
+  "citationId": zod.coerce.number()
+})
+
+export const DeleteCitationResponse = zod.void()
+
+
+/**
+ * Updates the citation format used to render citation markers in the document
+ * and generate the bibliography section. Triggers re-render of all existing
+ * citation markers.
+ * @summary Set the citation format for a project
+ */
+export const SetProjectCitationFormatParams = zod.object({
+  "projectId": zod.coerce.number()
+})
+
+export const SetProjectCitationFormatBody = zod.object({
+  "citationFormat": zod.enum(['APA', 'APA7', 'IEEE', 'Vancouver', 'Chicago', 'MLA', 'Harvard']).describe('Citation format for the project')
+})
+
+export const SetProjectCitationFormatResponse = zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "status": zod.enum(['draft', 'analyzing', 'writing', 'waiting_revision', 'completed', 'archived']),
+  "progress": zod.number().describe('0-100 percent'),
+  "instructionText": zod.string().nullish(),
+  "subject": zod.string().nullish(),
+  "taskType": zod.enum(['general', 'academic']).nullish(),
+  "citationFormat": zod.union([zod.literal('APA'),zod.literal('APA7'),zod.literal('IEEE'),zod.literal('Vancouver'),zod.literal('Chicago'),zod.literal('MLA'),zod.literal('Harvard'),zod.literal(null)]).nullish().describe('Citation format used for in-text\/footnote markers and bibliography. Default = APA.'),
+  "outputFormat": zod.string().nullish(),
+  "minRefYear": zod.number().nullish(),
+  "minRefCount": zod.number().nullish(),
+  "aiDisclosure": zod.boolean().optional().describe('Toggle AI disclosure labels (default true)'),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
 })
 
 
@@ -955,7 +1153,7 @@ export const GetProjectMetadataResponse = zod.object({
   "detectedTitle": zod.string().nullish(),
   "subject": zod.string().nullish(),
   "taskType": zod.enum(['general', 'academic']).nullish(),
-  "citationFormat": zod.string().nullish(),
+  "citationFormat": zod.union([zod.literal('APA'),zod.literal('APA7'),zod.literal('IEEE'),zod.literal('Vancouver'),zod.literal('Chicago'),zod.literal('MLA'),zod.literal('Harvard'),zod.literal(null)]).nullish().describe('Citation format used for in-text\/footnote markers and bibliography. Default = APA.'),
   "language": zod.string().nullish(),
   "outline": zod.string().nullish(),
   "contextSummary": zod.string().nullish(),
@@ -2424,7 +2622,8 @@ export const AssignAccountReferenceResponse = zod.object({
   "usedInChapters": zod.string().nullish(),
   "createdAt": zod.coerce.date(),
   "isSuggested": zod.boolean().optional().describe('Whether this reference was auto-suggested by CrossRef'),
-  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference')
+  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference'),
+  "isSelected": zod.boolean().optional().describe('Ceklist status — true means reference is included in bibliography and\neligible for AI auto-cite. (DECISION 014)\n')
 })
 
 

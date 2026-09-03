@@ -9,12 +9,128 @@
 
 ---
 
-## 🎯 EXECUTIVE SUMMARY (Last Updated: 2026-09-01 01:45)
+## 🎯 ACTIVE 2026-09-03 — Referensi Tool + Auto-Cite + Pustaka Saya (DECISION 014) 🔄 IN PROGRESS
+
+**Status:** 🔄 Phase 1 implementation started (backend foundation)
+**Model:** claude-opus-4-8
+**Owner:** sagise
+**Reference:** DECISION 014 di `.ai/decisions.md` — full spec approved
+
+### Problem Statement
+
+Owner mau fitur Referensi jadi **tool otomatis komprehensif**, bukan sekadar "generate daftar pustaka":
+
+1. **3 alur masuk referensi**: Cari otomatis (AI/CrossRef), Upload (PDF/DOC extract), Input manual (DOI auto-fill)
+2. **Semua otomatis masuk Pustaka Saya** (global library, account-level, lintas project)
+3. **Ceklist di workspace**: User pilih reference yang mau dipakai → AI auto-cite ke paragraf relevan
+4. **Multi-cite per referensi** + user bisa **geser/hapus manual**
+5. **Format sitasi dipilih per project**: APA/APA7/IEEE/Vancouver/Chicago/MLA/Harvard
+6. **Auto-render style**: APA=in-text, Chicago=footnote, IEEE=numbered, dll
+7. **Daftar Pustaka auto-update di akhir dokumen**
+
+### Implementation Plan (12-15 hari)
+
+| Phase | Scope | Status |
+|-------|-------|--------|
+| **Phase 1** (5-6 hari) | Schema + backend AI auto-cite + citations CRUD + OpenAPI + format selector UI + ceklist UI | 🔄 IN PROGRESS |
+| **Phase 2** (5-6 hari) | Citation marker parser (7 format) + render di DokumenTab + manual reposition UI | ⏳ PENDING |
+| **Phase 3** (2-3 hari) | Pustaka Saya CRUD UI + CrossRef search UI + assign-to-project flow | ⏳ PENDING (backend DONE) |
+
+### Surprise Discovery (2026-09-03)
+
+Backend Pustaka Saya **SUDAH FULL IMPLEMENTED** (`artifacts/api-server/src/routes/account-references.ts`, 435 baris):
+- GET/POST/PUT/DELETE/assign/import endpoints
+- Duplicate DOI detection
+- Wired di `routes/index.ts`
+- Schema `accountReferencesTable` ada
+
+**Implication:** Phase 3 effort turun dari 5-6 → 2-3 hari (tinggal frontend UI).
+
+### Phase 1 Implementation — What's Being Built Now
+
+**Schema & DB:**
+- ✅ NEW: `lib/db/src/schema/reference_citations.ts` — track citation positions per project
+- ✅ UPDATE: `lib/db/src/schema/index.ts` — export new schema
+- ✅ UPDATE: `lib/db/src/schema/references.ts` — added `isSelected` boolean column for ceklist
+- ✅ APPLY: DB migration via Supabase MCP `apply_migration`
+
+**Backend API (additions to `routes/references.ts`):**
+- ✅ POST `/projects/:id/references/auto-cite` — AI cari paragraf relevan + format markers (multi-cite)
+- ✅ PATCH `/projects/:id/references/:referenceId/select` — toggle ceklist status reference
+- ✅ GET `/projects/:id/citations` — list all citation positions
+- ✅ POST `/projects/:id/citations` — manual add citation
+- ✅ PATCH `/projects/:id/citations/:citationId` — update position (drag) or marker
+- ✅ DELETE `/projects/:id/citations/:citationId` — remove citation
+- ✅ PATCH `/projects/:id/citation-format` — update project format + re-render all markers
+
+**OpenAPI Spec:**
+- ✅ Add 7 new endpoint definitions (line 747-953 in `openapi.yaml`)
+- ✅ Add 6 new schemas (AutoCiteRequest, AutoCiteResponse, AutoCiteSuggestion, ReferenceCitation, CreateCitationRequest, UpdateCitationRequest, SetCitationFormatRequest)
+- ✅ Regenerate zod schemas (`lib/api-zod/src/generated/api.ts`)
+- ✅ Regenerate react-query hooks (`lib/api-client-react/src/generated/*`)
+- ✅ Sync workspace copy (`artifacts/academic-workspace/src/lib/api-client-react/generated/*`)
+- ✅ Rebuild backend bundle (`node build.mjs` — 5.7mb)
+- ✅ Typecheck pass (`npm run typecheck`)
+
+**Backend Helpers (`lib/citation.ts`):**
+- ✅ Fixed typo "Haravard" → "Harvard" (4 places: type union, FORMAT_REQUIRED_FIELDS, toCiteFormat, SUPPORTED_FORMATS)
+- ✅ Added `formatCitationMarker(ref, format, refId?)` — renders in-text markers like "(Smith, 2023)" or "[1]"
+- ✅ Added `firstAuthorSurname` + `countAuthors` helpers
+
+**Frontend (Phase 1):**
+- ⏳ Format selector UI (APA/IEEE/Chicago/etc) di project settings / creation form
+- ⏳ Ceklist UI di ReferencesTab
+- ⏳ "Auto-Cite" button + tier selector + result preview
+
+### Files Affected (Phase 1)
+
+| File | Action | Status |
+|------|--------|--------|
+| `lib/db/src/schema/reference_citations.ts` | NEW | ✅ |
+| `lib/db/src/schema/index.ts` | EDIT (add export) | ✅ |
+| `lib/db/src/schema/references.ts` | EDIT (add isSelected) | ✅ |
+| Supabase DB | MIGRATION (via MCP apply_migration) | ✅ |
+| `lib/api-spec/openapi.yaml` | EDIT (7 endpoints + 6 schemas) | ✅ |
+| `lib/api-zod/src/generated/api.ts` | REGEN | ✅ |
+| `lib/api-client-react/src/generated/*` | REGEN | ✅ |
+| `artifacts/api-server/src/lib/citation.ts` | EDIT (typo fix + formatCitationMarker) | ✅ |
+| `artifacts/api-server/src/routes/references.ts` | EDIT (7 new endpoints) | ✅ |
+| `artifacts/api-server/dist/index.mjs` | BUILD (5.7mb) | ✅ |
+| `artifacts/academic-workspace/src/lib/api-client-react/generated/*` | SYNC | ✅ |
+| `artifacts/academic-workspace/src/pages/project.tsx` | EDIT (ceklist + format selector) | ⏳ TODO |
+| `artifacts/academic-workspace/src/pages/new-project.tsx` | EDIT (format selector di form) | ⏳ TODO |
+| `docs/ai-team/product/user-dashboard.md` | EDIT (add new spec section) | ⏳ TODO |
+
+### Definition of Done — Phase 1
+
+- [x] Schema reference_citations table exists di DB
+- [x] 7 new API endpoints implemented + bundled (verified in `dist/index.mjs`)
+- [x] OpenAPI spec complete dengan schemas untuk Citation
+- [ ] Format selector UI accessible di new-project form (preview only)
+- [ ] Ceklist UI di ReferencesTab works (select/deselect persists)
+- [ ] Auto-Cite button trigger AI endpoint + show preview result
+- [x] Typecheck pass
+- [ ] Build pass (frontend pending)
+- [ ] Smoke test production: create project, select format, add reference, auto-cite → citations saved
+
+### Next Concrete Steps
+
+1. ~~DB migration verified~~ ✅
+2. ~~Backend endpoints implemented + bundled~~ ✅
+3. ~~Typecheck passed~~ ✅
+4. Deploy backend to Vercel (direct CLI per established pattern)
+5. Frontend Phase 1 implementation (ceklist + format selector + Auto-Cite button)
+6. Frontend build + deploy
+7. Production smoke test
+
+---
+
+## 🎯 EXECUTIVE SUMMARY (Last Updated: 2026-09-03)
 
 **Project:** Teora — AI Academic Workspace (React SPA + Express API + Supabase)
 **Owner:** sagise (non-technical, product-focused)
 **Architecture:** Vercel Function backend + Supabase (PostgreSQL + Auth) + Vercel static frontend
-**Latest activity:** Backend 401 auth fix selesai, production verified, menunggu owner test login flow end-to-end + push commits.
+**Latest activity:** Product spec discussion — Practice + Slide/PPT approved (DECISION 012 & 013)
 
 ### Production URLs
 
@@ -432,3 +548,92 @@ Owner must approve:
 - Workspace design untuk General vs Academic (perlu kerja besar)
 
 
+---
+
+## Handoff 2026-09-03 — model opus-4-6 → next session
+
+**Task active:** Product spec discussion (Task Mentor features)
+**Last 3 actions:**
+1. Clarified "Assessment" menu — not right for pelajar, discussed alternative names
+2. Owner approved: Slide/PPT in Task Mentor (DECISION 012) — General Task output format + Academic Work tab PPT
+3. Owner gave FULL spec for Practice menu + Learning Activity System (DECISION 013) — very detailed, comprehensive
+
+**Feature decisions recorded (2026-09-03):**
+
+| DECISION | Feature | Status |
+|----------|---------|--------|
+| DECISION 012 | Slide/PPT in Task Mentor | ✅ Approved |
+| DECISION 013 | Practice Menu + Learning Activity System | ✅ Approved |
+
+**Sidebar structure (updated):**
+1. Dashboard
+2. Task Mentor (General Task + Academic Work)
+3. **Practice** (NEW — menu utama)
+4. Pustaka Saya
+5. Assessment (Pengajar)
+6. Akun
+
+**Key principles established (owner):**
+- "Apakah fitur ini baca dari riwayat user di Teora?" — one test for all decisions
+- Practice: Recommendation-first, bukan input manual
+- Learning Activity: Log sederhana, jangan overengineer (no vector search/embedding)
+- Manual input sebagai fallback, bukan default
+- Practice prerequisite: Learning Activity system harus dibuat duluan
+
+**Files updated:**
+- `docs/ai-team/product/user-dashboard.md` — 3 new sections added (Practice Final spec, Learning Activity System spec, Slide/PPT), menu structure updated
+- `.ai/decisions.md` — DECISION 012 (Slide/PPT), DECISION 013 (Practice + Learning Activity)
+
+**Open questions:**
+- Assessment menu — tetap ada di sidebar? (Untuk pelajar tidak needed; untuk pengajar perlu tapi assessment builder belum ada)
+- Practice requires Learning Activity system ( prerequisite — tidak bisa langsung built )
+- Task Mentor workspace (General + Academic) masih prioritas utama untuk diselesaikan
+- feat/daftar-task branch: 3 commit belum di-push
+- Dashboard Toggle Pelajar/Pengajar — PENDING (owner akan lanjut sore ini)
+
+
+---
+
+## Handoff 2026-09-03 14:xx — model opus-4-6 → next session (owner lanjut sore)
+
+**Task active:** Product spec discussion (student features)
+**Session ends:** 2026-09-03 ~14:xx
+
+**Yang sudah disetujui owner (2026-09-03):**
+
+| Feature | Status | Location |
+|---------|--------|----------|
+| DECISION 012: Slide/PPT in Task Mentor | ✅ Approved | docs + decisions.md |
+| DECISION 013: Practice + Learning Activity | ✅ Approved | docs + decisions.md |
+| Practice v1: Quiz doang (tanpa Flashcard) | ✅ Approved | docs |
+| Practice v1: Layout 1 halaman (bukan hub/sub-menu) | ✅ Approved | docs |
+| Practice v1: Prioritas ekstraksi (instruksi > referensi > chat) | ✅ Approved | docs |
+| Practice v1: User baru — ajakan ke Task Mentor (bukan manual) | ✅ Approved | docs |
+| Practice v1: Manual fallback di pojok (bukan utama) | ✅ Approved | docs |
+| Assessment Builder (Pengajar) | ⏸️ DITUNDA — fokus pelajar dulu | docs |
+| Dashboard Toggle Pelajar/Pengajar | ⏸️ DITUNDA — fokus pelajar dulu | docs |
+
+**Sidebar structure final:**
+1. Dashboard
+2. Task Mentor (General + Academic)
+3. Practice (NEW — student main menu)
+4. Pustaka Saya
+5. ~~Assessment~~ (Pengajar — ditunda)
+6. Akun
+
+**Fokus开发 priority (2026-09-03 owner确认):**
+1. Task Mentor workspace (P0 — sedang berjalan)
+2. Practice + Learning Activity (P2 — approved, perlu Learning Activity duluan)
+3. Slide/PPT (P2 — approved)
+4. Assessment Builder (P3 — DITUNDA)
+5. Pustaka Saya (P3)
+6. Dashboard Toggle (P3 — DITUNDA)
+
+**Files updated today:**
+- `docs/ai-team/product/user-dashboard.md` — Practice v1 spec, Learning Activity spec, Slide/PPT spec, updated menu structure, Assessment (Pengajar) flagged as deferred
+- `.ai/decisions.md` — DECISION 012 (Slide/PPT), DECISION 013 (Practice + Learning Activity)
+- `.ai/current-task.md` — this handoff + executive summary
+
+**Owner mau lanjut sore ini:**
+- Lanjutkan diskusi Dashboard Toggle Pelajar/Pengajar?
+- Atau langsung implementasi Task Mentor workspace?

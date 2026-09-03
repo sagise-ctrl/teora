@@ -977,8 +977,8 @@ var require_depd = __commonJS({
       return typeName && callSite.getMethodName() ? typeName + "." + funcName : funcName;
     }
     function formatPlain(msg, caller, stack) {
-      var timestamp28 = (/* @__PURE__ */ new Date()).toUTCString();
-      var formatted = timestamp28 + " " + this._namespace + " deprecated " + msg;
+      var timestamp29 = (/* @__PURE__ */ new Date()).toUTCString();
+      var formatted = timestamp29 + " " + this._namespace + " deprecated " + msg;
       if (this._traced) {
         for (var i2 = 0; i2 < stack.length; i2++) {
           formatted += "\n    at " + stack[i2].toString();
@@ -15901,8 +15901,8 @@ var require_text = __commonJS({
     var debug = require_src()("body-parser:text");
     var read = require_read();
     var { normalizeOptions, passthrough } = require_utils();
-    module.exports = text28;
-    function text28(options) {
+    module.exports = text29;
+    function text29(options) {
       const normalizedOptions = normalizeOptions(options, "text/plain");
       return function textParser(req, res, next) {
         read(req, res, next, passthrough, debug, normalizedOptions);
@@ -20205,11 +20205,11 @@ var require_dist2 = __commonJS({
     exports.TokenData = TokenData;
     var PathError = class extends TypeError {
       constructor(message2, originalPath) {
-        let text28 = message2;
+        let text29 = message2;
         if (originalPath)
-          text28 += `: ${originalPath}`;
-        text28 += `; visit https://git.new/pathToRegexpError for info`;
-        super(text28);
+          text29 += `: ${originalPath}`;
+        text29 += `; visit https://git.new/pathToRegexpError for info`;
+        super(text29);
         this.originalPath = originalPath;
       }
     };
@@ -22033,8 +22033,8 @@ var require_fresh = __commonJS({
       return true;
     }
     function parseHttpDate(date2) {
-      var timestamp28 = date2 && Date.parse(date2);
-      return typeof timestamp28 === "number" ? timestamp28 : NaN;
+      var timestamp29 = date2 && Date.parse(date2);
+      return typeof timestamp29 === "number" ? timestamp29 : NaN;
     }
     function parseTokenList(str) {
       var end = 0;
@@ -23139,8 +23139,8 @@ var require_send = __commonJS({
       return list;
     }
     function parseHttpDate(date2) {
-      var timestamp28 = date2 && Date.parse(date2);
-      return typeof timestamp28 === "number" ? timestamp28 : NaN;
+      var timestamp29 = date2 && Date.parse(date2);
+      return typeof timestamp29 === "number" ? timestamp29 : NaN;
     }
     function parseTokenList(str) {
       var end = 0;
@@ -28342,7 +28342,7 @@ var require_pino = __commonJS({
         redact,
         crlf,
         serializers: serializers2,
-        timestamp: timestamp28,
+        timestamp: timestamp29,
         messageKey,
         errorKey,
         nestedKey,
@@ -28392,7 +28392,7 @@ var require_pino = __commonJS({
           chindings = coreChindings(Object.assign({}, base, { name }));
         }
       }
-      const time2 = timestamp28 instanceof Function ? timestamp28 : timestamp28 ? epochTime : nullTime;
+      const time2 = timestamp29 instanceof Function ? timestamp29 : timestamp29 ? epochTime : nullTime;
       const timeSliceIndex = time2().indexOf(":") + 1;
       if (useOnlyCustomLevels && !customLevels) throw Error("customLevels is required if useOnlyCustomLevels is set true");
       if (mixin2 && typeof mixin2 !== "function") throw Error(`Unknown mixin type "${typeof mixin2}" - expected "function"`);
@@ -176969,8 +176969,8 @@ var init_body = __esm({
        * @return  Promise
        */
       async json() {
-        const text28 = await this.text();
-        return JSON.parse(text28);
+        const text29 = await this.text();
+        return JSON.parse(text29);
       }
       /**
        * Decode response as text
@@ -182585,8 +182585,8 @@ async function fetchJwks(url2, headers, signal, fetchImpl = fetch) {
   }
 }
 var jwksCache = Symbol();
-function isFreshFor(timestamp28, duration) {
-  return Number.isFinite(timestamp28) && Date.now() < timestamp28 + duration;
+function isFreshFor(timestamp29, duration) {
+  return Number.isFinite(timestamp29) && Date.now() < timestamp29 + duration;
 }
 function validateDuration(value, fallback, option) {
   if (Number.isNaN(value)) {
@@ -182818,7 +182818,7 @@ var ListProjectsResponseItem = zod.object({
   "instructionText": zod.string().nullish(),
   "subject": zod.string().nullish(),
   "taskType": zod.enum(["general", "academic"]).nullish(),
-  "citationFormat": zod.string().nullish(),
+  "citationFormat": zod.union([zod.literal("APA"), zod.literal("APA7"), zod.literal("IEEE"), zod.literal("Vancouver"), zod.literal("Chicago"), zod.literal("MLA"), zod.literal("Harvard"), zod.literal(null)]).nullish().describe("Citation format used for in-text/footnote markers and bibliography. Default = APA."),
   "outputFormat": zod.string().nullish(),
   "minRefYear": zod.number().nullish(),
   "minRefCount": zod.number().nullish(),
@@ -182828,8 +182828,8 @@ var ListProjectsResponseItem = zod.object({
 });
 var ListProjectsResponse = zod.array(ListProjectsResponseItem);
 var CreateProjectBody = zod.object({
-  "title": zod.string().min(1),
-  "instructionText": zod.string().optional(),
+  "title": zod.string().optional().describe("Optional. Project display name (used in document list, not in exported file).\nIf omitted, the workspace will auto-generate a title via AI from instructionText.\n"),
+  "instructionText": zod.string().min(1).describe("REQUIRED for both General Task and Academic Work. The instructions or idea/gagasan\nthat AI uses to generate the title (if missing), analyze the task, and produce\nthe document.\n"),
   "outputFormat": zod.enum(["docx", "pdf", "markdown"]).optional(),
   "minRefYear": zod.number().optional(),
   "minRefCount": zod.number().optional(),
@@ -182844,7 +182844,7 @@ var CreateProjectResponse = zod.object({
   "instructionText": zod.string().nullish(),
   "subject": zod.string().nullish(),
   "taskType": zod.enum(["general", "academic"]).nullish(),
-  "citationFormat": zod.string().nullish(),
+  "citationFormat": zod.union([zod.literal("APA"), zod.literal("APA7"), zod.literal("IEEE"), zod.literal("Vancouver"), zod.literal("Chicago"), zod.literal("MLA"), zod.literal("Harvard"), zod.literal(null)]).nullish().describe("Citation format used for in-text/footnote markers and bibliography. Default = APA."),
   "outputFormat": zod.string().nullish(),
   "minRefYear": zod.number().nullish(),
   "minRefCount": zod.number().nullish(),
@@ -182875,7 +182875,7 @@ var GetProjectResponse = zod.object({
   "instructionText": zod.string().nullish(),
   "subject": zod.string().nullish(),
   "taskType": zod.enum(["general", "academic"]).nullish(),
-  "citationFormat": zod.string().nullish(),
+  "citationFormat": zod.union([zod.literal("APA"), zod.literal("APA7"), zod.literal("IEEE"), zod.literal("Vancouver"), zod.literal("Chicago"), zod.literal("MLA"), zod.literal("Harvard"), zod.literal(null)]).nullish().describe("Citation format used for in-text/footnote markers and bibliography. Default = APA."),
   "outputFormat": zod.string().nullish(),
   "minRefYear": zod.number().nullish(),
   "minRefCount": zod.number().nullish(),
@@ -182904,7 +182904,7 @@ var UpdateProjectResponse = zod.object({
   "instructionText": zod.string().nullish(),
   "subject": zod.string().nullish(),
   "taskType": zod.enum(["general", "academic"]).nullish(),
-  "citationFormat": zod.string().nullish(),
+  "citationFormat": zod.union([zod.literal("APA"), zod.literal("APA7"), zod.literal("IEEE"), zod.literal("Vancouver"), zod.literal("Chicago"), zod.literal("MLA"), zod.literal("Harvard"), zod.literal(null)]).nullish().describe("Citation format used for in-text/footnote markers and bibliography. Default = APA."),
   "outputFormat": zod.string().nullish(),
   "minRefYear": zod.number().nullish(),
   "minRefCount": zod.number().nullish(),
@@ -183099,7 +183099,8 @@ var ListReferencesResponseItem = zod.object({
   "usedInChapters": zod.string().nullish(),
   "createdAt": zod.coerce.date(),
   "isSuggested": zod.boolean().optional().describe("Whether this reference was auto-suggested by CrossRef"),
-  "source": zod.enum(["manual", "crossref", "file"]).optional().describe("Source of the reference")
+  "source": zod.enum(["manual", "crossref", "file"]).optional().describe("Source of the reference"),
+  "isSelected": zod.boolean().optional().describe("Ceklist status \u2014 true means reference is included in bibliography and\neligible for AI auto-cite. (DECISION 014)\n")
 });
 var ListReferencesResponse = zod.array(ListReferencesResponseItem);
 var CreateReferenceParams = zod.object({
@@ -183134,7 +183135,8 @@ var CreateReferenceResponse = zod.object({
   "usedInChapters": zod.string().nullish(),
   "createdAt": zod.coerce.date(),
   "isSuggested": zod.boolean().optional().describe("Whether this reference was auto-suggested by CrossRef"),
-  "source": zod.enum(["manual", "crossref", "file"]).optional().describe("Source of the reference")
+  "source": zod.enum(["manual", "crossref", "file"]).optional().describe("Source of the reference"),
+  "isSelected": zod.boolean().optional().describe("Ceklist status \u2014 true means reference is included in bibliography and\neligible for AI auto-cite. (DECISION 014)\n")
 });
 var BulkAddReferencesParams = zod.object({
   "projectId": zod.coerce.number()
@@ -183171,7 +183173,8 @@ var BulkAddReferencesResponseItem = zod.object({
   "usedInChapters": zod.string().nullish(),
   "createdAt": zod.coerce.date(),
   "isSuggested": zod.boolean().optional().describe("Whether this reference was auto-suggested by CrossRef"),
-  "source": zod.enum(["manual", "crossref", "file"]).optional().describe("Source of the reference")
+  "source": zod.enum(["manual", "crossref", "file"]).optional().describe("Source of the reference"),
+  "isSelected": zod.boolean().optional().describe("Ceklist status \u2014 true means reference is included in bibliography and\neligible for AI auto-cite. (DECISION 014)\n")
 });
 var BulkAddReferencesResponse = zod.array(BulkAddReferencesResponseItem);
 var DeleteReferenceParams = zod.object({
@@ -183219,6 +183222,141 @@ var FormatCSLBibliographyQueryParams = zod.object({
 var FormatCSLBibliographyResponse = zod.object({
   "bibliography": zod.string(),
   "format": zod.string().optional()
+});
+var AutoCiteReferencesParams = zod.object({
+  "projectId": zod.coerce.number()
+});
+var autoCiteReferencesBodyReferenceIdsMax = 50;
+var autoCiteReferencesBodyMaxCitationsPerReferenceDefault = 3;
+var autoCiteReferencesBodyMaxCitationsPerReferenceMax = 20;
+var autoCiteReferencesBodyTierDefault = `mid`;
+var AutoCiteReferencesBody = zod.object({
+  "referenceIds": zod.array(zod.number()).min(1).max(autoCiteReferencesBodyReferenceIdsMax).describe("IDs of references to auto-cite. Only ceklist-selected references are used\nin practice; this list lets user override (e.g. force a specific reference).\n"),
+  "maxCitationsPerReference": zod.number().min(1).max(autoCiteReferencesBodyMaxCitationsPerReferenceMax).default(autoCiteReferencesBodyMaxCitationsPerReferenceDefault).describe("Cap on how many distinct paragraphs the same reference can be cited in.\nDefault = 3 (Level C smart placement).\n"),
+  "tier": zod.enum(["low", "mid", "high"]).default(autoCiteReferencesBodyTierDefault).describe("AI model tier to use for the suggestion")
+});
+var AutoCiteReferencesResponse = zod.object({
+  "suggestions": zod.array(zod.object({
+    "referenceId": zod.number(),
+    "paragraphIndex": zod.number().describe("0-based paragraph index in the document text"),
+    "offsetInParagraph": zod.number().describe("Character offset within the paragraph (where the citation marker starts)"),
+    "formatMarker": zod.string().describe(`Pre-rendered citation marker for the project's citationFormat
+(e.g. "(Smith & Jones, 2023)" for APA, "[1]" for IEEE)
+`),
+    "placementReason": zod.string().describe("AI's explanation for why this citation belongs here")
+  })),
+  "totalTokensUsed": zod.number(),
+  "referencesAnalyzed": zod.number().describe("How many ceklist-selected references were considered")
+});
+var ToggleReferenceSelectionParams = zod.object({
+  "projectId": zod.coerce.number(),
+  "referenceId": zod.coerce.number()
+});
+var ToggleReferenceSelectionBody = zod.object({
+  "isSelected": zod.boolean().describe("New ceklist state")
+});
+var ToggleReferenceSelectionResponse = zod.object({
+  "id": zod.number(),
+  "projectId": zod.number(),
+  "title": zod.string(),
+  "authors": zod.string().nullish(),
+  "year": zod.number().nullish(),
+  "journal": zod.string().nullish(),
+  "volume": zod.string().nullish(),
+  "issue": zod.string().nullish(),
+  "doi": zod.string().nullish(),
+  "url": zod.string().nullish(),
+  "validationStatus": zod.enum(["unverified", "verified", "invalid"]),
+  "usedInChapters": zod.string().nullish(),
+  "createdAt": zod.coerce.date(),
+  "isSuggested": zod.boolean().optional().describe("Whether this reference was auto-suggested by CrossRef"),
+  "source": zod.enum(["manual", "crossref", "file"]).optional().describe("Source of the reference"),
+  "isSelected": zod.boolean().optional().describe("Ceklist status \u2014 true means reference is included in bibliography and\neligible for AI auto-cite. (DECISION 014)\n")
+});
+var ListCitationsParams = zod.object({
+  "projectId": zod.coerce.number()
+});
+var ListCitationsResponseItem = zod.object({
+  "id": zod.number(),
+  "projectId": zod.number(),
+  "referenceId": zod.number(),
+  "paragraphIndex": zod.number(),
+  "offsetInParagraph": zod.number(),
+  "formatMarker": zod.string(),
+  "placementReason": zod.string().nullish(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date().optional()
+});
+var ListCitationsResponse = zod.array(ListCitationsResponseItem);
+var CreateCitationParams = zod.object({
+  "projectId": zod.coerce.number()
+});
+var createCitationBodyOffsetInParagraphDefault = 0;
+var CreateCitationBody = zod.object({
+  "referenceId": zod.number(),
+  "paragraphIndex": zod.number(),
+  "offsetInParagraph": zod.number().default(createCitationBodyOffsetInParagraphDefault),
+  "formatMarker": zod.string().describe("Pre-rendered marker (frontend computes from current citationFormat)"),
+  "placementReason": zod.string().optional()
+});
+var CreateCitationResponse = zod.object({
+  "id": zod.number(),
+  "projectId": zod.number(),
+  "referenceId": zod.number(),
+  "paragraphIndex": zod.number(),
+  "offsetInParagraph": zod.number(),
+  "formatMarker": zod.string(),
+  "placementReason": zod.string().nullish(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date().optional()
+});
+var UpdateCitationParams = zod.object({
+  "projectId": zod.coerce.number(),
+  "citationId": zod.coerce.number()
+});
+var UpdateCitationBody = zod.object({
+  "paragraphIndex": zod.number().optional().describe("New paragraph index (for drag between paragraphs)"),
+  "offsetInParagraph": zod.number().optional().describe("New character offset within the paragraph"),
+  "formatMarker": zod.string().optional().describe("New pre-rendered marker (after citationFormat change)"),
+  "placementReason": zod.string().optional()
+});
+var UpdateCitationResponse = zod.object({
+  "id": zod.number(),
+  "projectId": zod.number(),
+  "referenceId": zod.number(),
+  "paragraphIndex": zod.number(),
+  "offsetInParagraph": zod.number(),
+  "formatMarker": zod.string(),
+  "placementReason": zod.string().nullish(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date().optional()
+});
+var DeleteCitationParams = zod.object({
+  "projectId": zod.coerce.number(),
+  "citationId": zod.coerce.number()
+});
+var DeleteCitationResponse = zod.void();
+var SetProjectCitationFormatParams = zod.object({
+  "projectId": zod.coerce.number()
+});
+var SetProjectCitationFormatBody = zod.object({
+  "citationFormat": zod.enum(["APA", "APA7", "IEEE", "Vancouver", "Chicago", "MLA", "Harvard"]).describe("Citation format for the project")
+});
+var SetProjectCitationFormatResponse = zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "status": zod.enum(["draft", "analyzing", "writing", "waiting_revision", "completed", "archived"]),
+  "progress": zod.number().describe("0-100 percent"),
+  "instructionText": zod.string().nullish(),
+  "subject": zod.string().nullish(),
+  "taskType": zod.enum(["general", "academic"]).nullish(),
+  "citationFormat": zod.union([zod.literal("APA"), zod.literal("APA7"), zod.literal("IEEE"), zod.literal("Vancouver"), zod.literal("Chicago"), zod.literal("MLA"), zod.literal("Harvard"), zod.literal(null)]).nullish().describe("Citation format used for in-text/footnote markers and bibliography. Default = APA."),
+  "outputFormat": zod.string().nullish(),
+  "minRefYear": zod.number().nullish(),
+  "minRefCount": zod.number().nullish(),
+  "aiDisclosure": zod.boolean().optional().describe("Toggle AI disclosure labels (default true)"),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
 });
 var FetchReferenceMetadataBody = zod.object({
   "identifier": zod.string().describe("DOI (e.g. 10.1000/xyz123) or ISBN-10/ISBN-13")
@@ -183390,7 +183528,7 @@ var GetProjectMetadataResponse = zod.object({
   "detectedTitle": zod.string().nullish(),
   "subject": zod.string().nullish(),
   "taskType": zod.enum(["general", "academic"]).nullish(),
-  "citationFormat": zod.string().nullish(),
+  "citationFormat": zod.union([zod.literal("APA"), zod.literal("APA7"), zod.literal("IEEE"), zod.literal("Vancouver"), zod.literal("Chicago"), zod.literal("MLA"), zod.literal("Harvard"), zod.literal(null)]).nullish().describe("Citation format used for in-text/footnote markers and bibliography. Default = APA."),
   "language": zod.string().nullish(),
   "outline": zod.string().nullish(),
   "contextSummary": zod.string().nullish(),
@@ -184435,7 +184573,8 @@ var AssignAccountReferenceResponse = zod.object({
   "usedInChapters": zod.string().nullish(),
   "createdAt": zod.coerce.date(),
   "isSuggested": zod.boolean().optional().describe("Whether this reference was auto-suggested by CrossRef"),
-  "source": zod.enum(["manual", "crossref", "file"]).optional().describe("Source of the reference")
+  "source": zod.enum(["manual", "crossref", "file"]).optional().describe("Source of the reference"),
+  "isSelected": zod.boolean().optional().describe("Ceklist status \u2014 true means reference is included in bibliography and\neligible for AI auto-cite. (DECISION 014)\n")
 });
 var GetAdminStatusResponse = zod.object({
   "isOwner": zod.boolean(),
@@ -188463,9 +188602,9 @@ function createFetchClient(options) {
         },
         body: body ? JSON.stringify(body) : void 0
       });
-      const text28 = await res.text();
+      const text29 = await res.text();
       const isJson = (res.headers.get("content-type") || "").includes("application/json");
-      const data = isJson && text28 ? JSON.parse(text28) : text28;
+      const data = isJson && text29 ? JSON.parse(text29) : text29;
       if (!res.ok) {
         const errBody = isJson ? data : void 0;
         const errorDetail = errBody?.error;
@@ -192533,6 +192672,7 @@ __export(schema_exports, {
   insertProjectSchema: () => insertProjectSchema,
   insertQuizSchema: () => insertQuizSchema,
   insertQuizSubmissionSchema: () => insertQuizSubmissionSchema,
+  insertReferenceCitationSchema: () => insertReferenceCitationSchema,
   insertReferenceSchema: () => insertReferenceSchema,
   insertReferralEventSchema: () => insertReferralEventSchema,
   insertReferralSchema: () => insertReferralSchema,
@@ -192552,6 +192692,7 @@ __export(schema_exports, {
   quizResponseSchema: () => quizResponseSchema,
   quizSubmissionsTable: () => quizSubmissionsTable,
   quizzesTable: () => quizzesTable,
+  referenceCitationsTable: () => referenceCitationsTable,
   referencesTable: () => referencesTable,
   referralEventsTable: () => referralEventsTable,
   referralStatuses: () => referralStatuses,
@@ -192668,7 +192809,9 @@ var referencesTable = pgTable5("references", {
   // Track whether this reference was auto-suggested by CrossRef or confirmed by user
   isSuggested: boolean4("is_suggested").notNull().default(false),
   // Source of the reference
-  source: text5("source").notNull().default("manual")
+  source: text5("source").notNull().default("manual"),
+  // DECISION 014 — ceklist status: true if included in bibliography + eligible for AI auto-cite
+  isSelected: boolean4("is_selected").notNull().default(false)
 });
 var insertReferenceSchema = createInsertSchema5(referencesTable).omit({
   id: true,
@@ -192700,149 +192843,175 @@ var insertAccountReferenceSchema = createInsertSchema6(accountReferencesTable).o
   createdAt: true
 });
 
-// ../../lib/db/src/schema/attachments.ts
+// ../../lib/db/src/schema/reference_citations.ts
 import { pgTable as pgTable7, text as text7, serial as serial7, integer as integer7, timestamp as timestamp7 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema7 } from "drizzle-zod";
-var attachmentsTable = pgTable7("attachments", {
+var referenceCitationsTable = pgTable7("reference_citations", {
   id: serial7("id").primaryKey(),
-  projectId: integer7("project_id").notNull(),
-  filename: text7("filename").notNull(),
-  originalName: text7("original_name").notNull(),
-  mimeType: text7("mime_type"),
-  sizeBytes: integer7("size_bytes"),
-  attachmentType: text7("attachment_type").notNull().default("supplement"),
-  extractedText: text7("extracted_text"),
-  createdAt: timestamp7("created_at", { withTimezone: true }).notNull().defaultNow()
+  projectId: integer7("project_id").notNull().references(() => projectsTable.id, { onDelete: "cascade" }),
+  referenceId: integer7("reference_id").notNull().references(() => referencesTable.id, { onDelete: "cascade" }),
+  // 0-based paragraph index in the document text
+  paragraphIndex: integer7("paragraph_index").notNull(),
+  // Character offset within the paragraph (where the citation marker starts)
+  offsetInParagraph: integer7("offset_in_paragraph").notNull().default(0),
+  // Pre-rendered citation marker (e.g., "(Smith & Jones, 2023)" or "[1]")
+  // Re-rendered when citationFormat changes
+  formatMarker: text7("format_marker").notNull(),
+  // Optional AI explanation for why this citation was placed here
+  // Useful for the auto-cite preview UI
+  placementReason: text7("placement_reason"),
+  createdAt: timestamp7("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp7("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => /* @__PURE__ */ new Date())
 });
-var insertAttachmentSchema = createInsertSchema7(attachmentsTable).omit({
+var insertReferenceCitationSchema = createInsertSchema7(referenceCitationsTable).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true
+});
+
+// ../../lib/db/src/schema/attachments.ts
+import { pgTable as pgTable8, text as text8, serial as serial8, integer as integer8, timestamp as timestamp8 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema8 } from "drizzle-zod";
+var attachmentsTable = pgTable8("attachments", {
+  id: serial8("id").primaryKey(),
+  projectId: integer8("project_id").notNull(),
+  filename: text8("filename").notNull(),
+  originalName: text8("original_name").notNull(),
+  mimeType: text8("mime_type"),
+  sizeBytes: integer8("size_bytes"),
+  attachmentType: text8("attachment_type").notNull().default("supplement"),
+  extractedText: text8("extracted_text"),
+  createdAt: timestamp8("created_at", { withTimezone: true }).notNull().defaultNow()
+});
+var insertAttachmentSchema = createInsertSchema8(attachmentsTable).omit({
   id: true,
   createdAt: true
 });
 
 // ../../lib/db/src/schema/activities.ts
-import { pgTable as pgTable8, text as text8, serial as serial8, integer as integer8, timestamp as timestamp8 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema8 } from "drizzle-zod";
-var activitiesTable = pgTable8("activities", {
-  id: serial8("id").primaryKey(),
-  projectId: integer8("project_id").notNull(),
-  eventType: text8("event_type").notNull(),
-  description: text8("description").notNull(),
-  createdAt: timestamp8("created_at", { withTimezone: true }).notNull().defaultNow()
+import { pgTable as pgTable9, text as text9, serial as serial9, integer as integer9, timestamp as timestamp9 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema9 } from "drizzle-zod";
+var activitiesTable = pgTable9("activities", {
+  id: serial9("id").primaryKey(),
+  projectId: integer9("project_id").notNull(),
+  eventType: text9("event_type").notNull(),
+  description: text9("description").notNull(),
+  createdAt: timestamp9("created_at", { withTimezone: true }).notNull().defaultNow()
 });
-var insertActivitySchema = createInsertSchema8(activitiesTable).omit({
+var insertActivitySchema = createInsertSchema9(activitiesTable).omit({
   id: true,
   createdAt: true
 });
 
 // ../../lib/db/src/schema/jobs.ts
-import { pgTable as pgTable9, text as text9, serial as serial9, integer as integer9, timestamp as timestamp9 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema9 } from "drizzle-zod";
-var jobsTable = pgTable9("jobs", {
-  id: serial9("id").primaryKey(),
-  projectId: integer9("project_id").notNull(),
-  jobType: text9("job_type").notNull(),
-  status: text9("status").notNull().default("pending"),
-  result: text9("result"),
-  errorMessage: text9("error_message"),
-  createdAt: timestamp9("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp9("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => /* @__PURE__ */ new Date())
+import { pgTable as pgTable10, text as text10, serial as serial10, integer as integer10, timestamp as timestamp10 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema10 } from "drizzle-zod";
+var jobsTable = pgTable10("jobs", {
+  id: serial10("id").primaryKey(),
+  projectId: integer10("project_id").notNull(),
+  jobType: text10("job_type").notNull(),
+  status: text10("status").notNull().default("pending"),
+  result: text10("result"),
+  errorMessage: text10("error_message"),
+  createdAt: timestamp10("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp10("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => /* @__PURE__ */ new Date())
 });
-var insertJobSchema = createInsertSchema9(jobsTable).omit({
+var insertJobSchema = createInsertSchema10(jobsTable).omit({
   id: true,
   createdAt: true,
   updatedAt: true
 });
 
 // ../../lib/db/src/schema/project_metadata.ts
-import { pgTable as pgTable10, text as text10, serial as serial10, integer as integer10, timestamp as timestamp10 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema10 } from "drizzle-zod";
-var projectMetadataTable = pgTable10("project_metadata", {
-  id: serial10("id").primaryKey(),
-  projectId: integer10("project_id").notNull().unique(),
-  detectedTitle: text10("detected_title"),
-  subject: text10("subject"),
-  taskType: text10("task_type"),
-  citationFormat: text10("citation_format"),
-  language: text10("language"),
-  outline: text10("outline"),
-  contextSummary: text10("context_summary"),
-  createdAt: timestamp10("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp10("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => /* @__PURE__ */ new Date())
+import { pgTable as pgTable11, text as text11, serial as serial11, integer as integer11, timestamp as timestamp11 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema11 } from "drizzle-zod";
+var projectMetadataTable = pgTable11("project_metadata", {
+  id: serial11("id").primaryKey(),
+  projectId: integer11("project_id").notNull().unique(),
+  detectedTitle: text11("detected_title"),
+  subject: text11("subject"),
+  taskType: text11("task_type"),
+  citationFormat: text11("citation_format"),
+  language: text11("language"),
+  outline: text11("outline"),
+  contextSummary: text11("context_summary"),
+  createdAt: timestamp11("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp11("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => /* @__PURE__ */ new Date())
 });
-var insertProjectMetadataSchema = createInsertSchema10(projectMetadataTable).omit({
+var insertProjectMetadataSchema = createInsertSchema11(projectMetadataTable).omit({
   id: true,
   createdAt: true,
   updatedAt: true
 });
 
 // ../../lib/db/src/schema/exports.ts
-import { pgTable as pgTable11, text as text11, serial as serial11, integer as integer11, timestamp as timestamp11 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema11 } from "drizzle-zod";
-var exportsTable = pgTable11("exports", {
-  id: serial11("id").primaryKey(),
-  projectId: integer11("project_id").notNull(),
-  format: text11("format").notNull(),
-  status: text11("status").notNull().default("pending"),
-  filePath: text11("file_path"),
-  createdAt: timestamp11("created_at", { withTimezone: true }).notNull().defaultNow()
+import { pgTable as pgTable12, text as text12, serial as serial12, integer as integer12, timestamp as timestamp12 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema12 } from "drizzle-zod";
+var exportsTable = pgTable12("exports", {
+  id: serial12("id").primaryKey(),
+  projectId: integer12("project_id").notNull(),
+  format: text12("format").notNull(),
+  status: text12("status").notNull().default("pending"),
+  filePath: text12("file_path"),
+  createdAt: timestamp12("created_at", { withTimezone: true }).notNull().defaultNow()
 });
-var insertExportSchema = createInsertSchema11(exportsTable).omit({
+var insertExportSchema = createInsertSchema12(exportsTable).omit({
   id: true,
   createdAt: true
 });
 
 // ../../lib/db/src/schema/users.ts
-import { pgTable as pgTable12, text as text12, timestamp as timestamp12, boolean as boolean6 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema12 } from "drizzle-zod";
-var usersTable2 = pgTable12("users", {
+import { pgTable as pgTable13, text as text13, timestamp as timestamp13, boolean as boolean6 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema13 } from "drizzle-zod";
+var usersTable2 = pgTable13("users", {
   // Supabase auth user ID (UUID from Supabase)
-  id: text12("id").primaryKey(),
-  email: text12("email").notNull(),
+  id: text13("id").primaryKey(),
+  email: text13("email").notNull(),
   // Owner flag: owner doesn't need subscription
   isOwner: boolean6("is_owner").notNull().default(false),
   // Optional display info
-  displayName: text12("display_name"),
-  avatarUrl: text12("avatar_url"),
+  displayName: text13("display_name"),
+  avatarUrl: text13("avatar_url"),
   // Unique referral code this user can share
-  referralCode: text12("referral_code").unique(),
-  createdAt: timestamp12("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp12("updated_at", { withTimezone: true }).notNull().defaultNow()
+  referralCode: text13("referral_code").unique(),
+  createdAt: timestamp13("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp13("updated_at", { withTimezone: true }).notNull().defaultNow()
 });
-var insertUserSchema = createInsertSchema12(usersTable2).omit({
+var insertUserSchema = createInsertSchema13(usersTable2).omit({
   createdAt: true,
   updatedAt: true
 });
 
 // ../../lib/db/src/schema/referrals.ts
 import {
-  pgTable as pgTable13,
-  serial as serial12,
-  text as text13,
-  timestamp as timestamp13,
+  pgTable as pgTable14,
+  serial as serial13,
+  text as text14,
+  timestamp as timestamp14,
   index
 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema13 } from "drizzle-zod";
-var referralsTable = pgTable13(
+import { createInsertSchema as createInsertSchema14 } from "drizzle-zod";
+var referralsTable = pgTable14(
   "referrals",
   {
-    id: serial12("id").primaryKey(),
+    id: serial13("id").primaryKey(),
     // Who invited
-    referrerId: text13("referrer_id").notNull().references(() => usersTable2.id, { onDelete: "set null" }),
+    referrerId: text14("referrer_id").notNull().references(() => usersTable2.id, { onDelete: "set null" }),
     // Who was invited (exactly one referrer per user)
-    referredId: text13("referred_id").notNull().unique().references(() => usersTable2.id, { onDelete: "set null" }),
+    referredId: text14("referred_id").notNull().unique().references(() => usersTable2.id, { onDelete: "set null" }),
     // Email at time of registration (denormalized for audit trail)
-    referredEmail: text13("referred_email").notNull(),
+    referredEmail: text14("referred_email").notNull(),
     // Referral code used at time of registration
-    referralCode: text13("referral_code").notNull(),
+    referralCode: text14("referral_code").notNull(),
     // Lifecycle status
-    status: text13("status").notNull().default("pending"),
+    status: text14("status").notNull().default("pending"),
     // pending   = newly registered, awaiting email verification
     // verified  = email confirmed
     // qualified = email confirmed + first payment (future)
     // rewarded  = commission/reward paid out (future)
     // rejected  = abuse detected
-    createdAt: timestamp13("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp13("updated_at", { withTimezone: true }).notNull().defaultNow()
+    createdAt: timestamp14("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp14("updated_at", { withTimezone: true }).notNull().defaultNow()
   },
   (table2) => [
     index("idx_referrals_referrer").on(table2.referrerId),
@@ -192858,7 +193027,7 @@ var referralStatuses = [
   "rewarded",
   "rejected"
 ];
-var insertReferralSchema = createInsertSchema13(referralsTable).omit({
+var insertReferralSchema = createInsertSchema14(referralsTable).omit({
   id: true,
   createdAt: true,
   updatedAt: true
@@ -192866,46 +193035,46 @@ var insertReferralSchema = createInsertSchema13(referralsTable).omit({
 
 // ../../lib/db/src/schema/referral_events.ts
 import {
-  pgTable as pgTable14,
-  serial as serial13,
-  text as text14,
-  timestamp as timestamp14,
+  pgTable as pgTable15,
+  serial as serial14,
+  text as text15,
+  timestamp as timestamp15,
   jsonb,
   index as index2,
-  integer as integer12
+  integer as integer13
 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema14 } from "drizzle-zod";
-var referralEventsTable = pgTable14(
+import { createInsertSchema as createInsertSchema15 } from "drizzle-zod";
+var referralEventsTable = pgTable15(
   "referral_events",
   {
-    id: serial13("id").primaryKey(),
+    id: serial14("id").primaryKey(),
     // Which referral this event belongs to
-    referralId: integer12("referral_id").notNull().references(() => referralsTable.id, { onDelete: "cascade" }),
+    referralId: integer13("referral_id").notNull().references(() => referralsTable.id, { onDelete: "cascade" }),
     // Who or what triggered this event
-    actorId: text14("actor_id").references(() => usersTable2.id, {
+    actorId: text15("actor_id").references(() => usersTable2.id, {
       onDelete: "set null"
     }),
-    actorType: text14("actor_type").notNull(),
+    actorType: text15("actor_type").notNull(),
     // 'system' = automated process (email verified, payment confirmed)
     // 'user'   = user-initiated action
     // 'admin'  = manual admin override
     // State transition
-    fromStatus: text14("from_status"),
-    toStatus: text14("to_status").notNull(),
+    fromStatus: text15("from_status"),
+    toStatus: text15("to_status").notNull(),
     // Human-readable reason
-    reason: text14("reason"),
+    reason: text15("reason"),
     // e.g. "user_registered", "email_verified", "payment_confirmed",
     //       "abuse_detected", "manual_approval"
     // Additional context (IP address, payment ID, etc.)
     metadata: jsonb("metadata").$type(),
-    createdAt: timestamp14("created_at", { withTimezone: true }).notNull().defaultNow()
+    createdAt: timestamp15("created_at", { withTimezone: true }).notNull().defaultNow()
   },
   (table2) => [
     index2("idx_referral_events_referral").on(table2.referralId),
     index2("idx_referral_events_created").on(table2.createdAt)
   ]
 );
-var insertReferralEventSchema = createInsertSchema14(referralEventsTable).omit(
+var insertReferralEventSchema = createInsertSchema15(referralEventsTable).omit(
   {
     id: true,
     createdAt: true
@@ -192914,91 +193083,91 @@ var insertReferralEventSchema = createInsertSchema14(referralEventsTable).omit(
 
 // ../../lib/db/src/schema/ai_usage_log.ts
 import {
-  pgTable as pgTable16,
-  serial as serial14,
-  text as text16,
-  integer as integer14,
+  pgTable as pgTable17,
+  serial as serial15,
+  text as text17,
+  integer as integer15,
   real,
-  timestamp as timestamp16,
+  timestamp as timestamp17,
   index as index4,
   jsonb as jsonb2
 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema16 } from "drizzle-zod";
+import { createInsertSchema as createInsertSchema17 } from "drizzle-zod";
 import { z } from "zod/v4";
 
 // ../../lib/db/src/schema/ai_tiers.ts
 import {
-  pgTable as pgTable15,
-  text as text15,
+  pgTable as pgTable16,
+  text as text16,
   boolean as boolean7,
-  integer as integer13,
-  timestamp as timestamp15,
+  integer as integer14,
+  timestamp as timestamp16,
   index as index3
 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema15 } from "drizzle-zod";
-var aiTiersTable = pgTable15(
+import { createInsertSchema as createInsertSchema16 } from "drizzle-zod";
+var aiTiersTable = pgTable16(
   "ai_tiers",
   {
-    id: text15("id").primaryKey(),
+    id: text16("id").primaryKey(),
     // e.g. "free", "standard", "premium", "ultra"
-    name: text15("name").notNull(),
+    name: text16("name").notNull(),
     // e.g. "Gratis", "Standar", "Premium"
-    provider: text15("provider").notNull(),
+    provider: text16("provider").notNull(),
     // "groq", "anthropic", "openai"
-    model: text15("model").notNull(),
+    model: text16("model").notNull(),
     // Model ID, e.g. "llama-3.1-8b-instant"
-    baseUrl: text15("base_url").notNull(),
+    baseUrl: text16("base_url").notNull(),
     // API base URL
-    apiKeyEnvVar: text15("api_key_env_var").notNull(),
+    apiKeyEnvVar: text16("api_key_env_var").notNull(),
     // ENV var name for API key
     // Prices are stored in IDR cents per 1M tokens
     // e.g. 500 = Rp 5 per 1M tokens
-    pricePer1MInputCents: integer13("price_per_1m_input_cents").notNull().default(0),
-    pricePer1MOutputCents: integer13("price_per_1m_output_cents").notNull().default(0),
+    pricePer1MInputCents: integer14("price_per_1m_input_cents").notNull().default(0),
+    pricePer1MOutputCents: integer14("price_per_1m_output_cents").notNull().default(0),
     // Provider cost in USD cents per 1M tokens (for margin calculation)
-    providerCostPer1MInputCents: integer13("provider_cost_per_1m_input_cents").notNull().default(0),
-    providerCostPer1MOutputCents: integer13("provider_cost_per_1m_output_cents").notNull().default(0),
+    providerCostPer1MInputCents: integer14("provider_cost_per_1m_input_cents").notNull().default(0),
+    providerCostPer1MOutputCents: integer14("provider_cost_per_1m_output_cents").notNull().default(0),
     // Rate limits
-    rateLimitRpm: integer13("rate_limit_rpm"),
-    rateLimitTpd: integer13("rate_limit_tpd"),
+    rateLimitRpm: integer14("rate_limit_rpm"),
+    rateLimitTpd: integer14("rate_limit_tpd"),
     isFree: boolean7("is_free").notNull().default(false),
     isActive: boolean7("is_active").notNull().default(true),
-    displayOrder: integer13("display_order").notNull().default(0),
-    description: text15("description").notNull().default(""),
-    usageTips: text15("usage_tips"),
+    displayOrder: integer14("display_order").notNull().default(0),
+    description: text16("description").notNull().default(""),
+    usageTips: text16("usage_tips"),
     // Tips shown to users
-    createdAt: timestamp15("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp15("updated_at", { withTimezone: true }).notNull().defaultNow()
+    createdAt: timestamp16("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp16("updated_at", { withTimezone: true }).notNull().defaultNow()
   },
   (table2) => [
     index3("idx_ai_tiers_active").on(table2.isActive, table2.displayOrder)
   ]
 );
-var insertAiTierSchema = createInsertSchema15(aiTiersTable).omit({
+var insertAiTierSchema = createInsertSchema16(aiTiersTable).omit({
   createdAt: true,
   updatedAt: true
 });
 
 // ../../lib/db/src/schema/ai_usage_log.ts
-var aiUsageLogTable = pgTable16(
+var aiUsageLogTable = pgTable17(
   "ai_usage_log",
   {
-    id: serial14("id").primaryKey(),
-    userId: text16("user_id").notNull().references(() => usersTable2.id, { onDelete: "cascade" }),
-    projectId: integer14("project_id").references(() => projectsTable.id, {
+    id: serial15("id").primaryKey(),
+    userId: text17("user_id").notNull().references(() => usersTable2.id, { onDelete: "cascade" }),
+    projectId: integer15("project_id").references(() => projectsTable.id, {
       onDelete: "set null"
     }),
-    tierId: text16("tier_id").references(() => aiTiersTable.id, { onDelete: "set null" }),
-    model: text16("model").notNull(),
-    provider: text16("provider").notNull(),
-    inputTokens: integer14("input_tokens").notNull().default(0),
-    outputTokens: integer14("output_tokens").notNull().default(0),
+    tierId: text17("tier_id").references(() => aiTiersTable.id, { onDelete: "set null" }),
+    model: text17("model").notNull(),
+    provider: text17("provider").notNull(),
+    inputTokens: integer15("input_tokens").notNull().default(0),
+    outputTokens: integer15("output_tokens").notNull().default(0),
     estimatedCostUsd: real("estimated_cost_usd").notNull().default(0),
     // Cost charged to user in IDR cents
-    costCents: integer14("cost_cents").notNull().default(0),
-    requestType: text16("request_type").notNull(),
+    costCents: integer15("cost_cents").notNull().default(0),
+    requestType: text17("request_type").notNull(),
     metadata: jsonb2("metadata"),
-    createdAt: timestamp16("created_at", { withTimezone: true }).notNull().defaultNow()
+    createdAt: timestamp17("created_at", { withTimezone: true }).notNull().defaultNow()
   },
   (table2) => [
     index4("idx_ai_usage_user_created").on(table2.userId, table2.createdAt),
@@ -193014,7 +193183,7 @@ var requestTypes = [
   "bibliography",
   "export"
 ];
-var insertAIUsageLogSchema = createInsertSchema16(aiUsageLogTable).omit({
+var insertAIUsageLogSchema = createInsertSchema17(aiUsageLogTable).omit({
   id: true,
   createdAt: true
 });
@@ -193036,31 +193205,31 @@ var aiUsageStatsSchema = z.object({
 
 // ../../lib/db/src/schema/user_balances.ts
 import {
-  pgTable as pgTable17,
-  text as text17,
-  integer as integer15,
-  timestamp as timestamp17,
+  pgTable as pgTable18,
+  text as text18,
+  integer as integer16,
+  timestamp as timestamp18,
   index as index5
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
-import { createInsertSchema as createInsertSchema17 } from "drizzle-zod";
-var userBalancesTable = pgTable17(
+import { createInsertSchema as createInsertSchema18 } from "drizzle-zod";
+var userBalancesTable = pgTable18(
   "user_balances",
   {
-    id: text17("id").primaryKey().default(sql`gen_random_uuid()`),
-    userId: text17("user_id").notNull().unique().references(() => usersTable2.id, { onDelete: "cascade" }),
+    id: text18("id").primaryKey().default(sql`gen_random_uuid()`),
+    userId: text18("user_id").notNull().unique().references(() => usersTable2.id, { onDelete: "cascade" }),
     // Balance in IDR cents. e.g. 50000 = Rp 500
-    balanceCents: integer15("balance_cents").notNull().default(0),
+    balanceCents: integer16("balance_cents").notNull().default(0),
     // Default tier preference for this user
-    preferredTierId: text17("preferred_tier_id").references(() => aiTiersTable.id, { onDelete: "set null" }),
-    createdAt: timestamp17("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp17("updated_at", { withTimezone: true }).notNull().defaultNow()
+    preferredTierId: text18("preferred_tier_id").references(() => aiTiersTable.id, { onDelete: "set null" }),
+    createdAt: timestamp18("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp18("updated_at", { withTimezone: true }).notNull().defaultNow()
   },
   (table2) => [
     index5("idx_user_balances_user").on(table2.userId)
   ]
 );
-var insertUserBalanceSchema = createInsertSchema17(userBalancesTable).omit({
+var insertUserBalanceSchema = createInsertSchema18(userBalancesTable).omit({
   id: true,
   createdAt: true,
   updatedAt: true
@@ -193068,14 +193237,14 @@ var insertUserBalanceSchema = createInsertSchema17(userBalancesTable).omit({
 
 // ../../lib/db/src/schema/token_transactions.ts
 import {
-  pgTable as pgTable18,
-  text as text18,
-  integer as integer16,
-  timestamp as timestamp18,
+  pgTable as pgTable19,
+  text as text19,
+  integer as integer17,
+  timestamp as timestamp19,
   index as index6
 } from "drizzle-orm/pg-core";
 import { sql as sql2 } from "drizzle-orm";
-import { createInsertSchema as createInsertSchema18 } from "drizzle-zod";
+import { createInsertSchema as createInsertSchema19 } from "drizzle-zod";
 var transactionTypes = [
   "topup",
   "ai_usage",
@@ -193083,25 +193252,25 @@ var transactionTypes = [
   "bonus",
   "adjustment"
 ];
-var tokenTransactionsTable = pgTable18(
+var tokenTransactionsTable = pgTable19(
   "token_transactions",
   {
-    id: text18("id").primaryKey().default(sql2`gen_random_uuid()`),
-    userId: text18("user_id").notNull().references(() => usersTable2.id, { onDelete: "cascade" }),
-    type: text18("type").notNull(),
+    id: text19("id").primaryKey().default(sql2`gen_random_uuid()`),
+    userId: text19("user_id").notNull().references(() => usersTable2.id, { onDelete: "cascade" }),
+    type: text19("type").notNull(),
     // Amount in IDR cents. Positive = credit (incoming), Negative = debit (outgoing)
-    amountCents: integer16("amount_cents").notNull(),
+    amountCents: integer17("amount_cents").notNull(),
     // Balance snapshot after this transaction
-    balanceAfterCents: integer16("balance_after_cents").notNull(),
+    balanceAfterCents: integer17("balance_after_cents").notNull(),
     // For AI usage: reference to ai_usage_log
-    aiUsageLogId: integer16("ai_usage_log_id"),
+    aiUsageLogId: integer17("ai_usage_log_id"),
     // For topup: Stripe payment reference
-    stripePaymentIntentId: text18("stripe_payment_intent_id"),
+    stripePaymentIntentId: text19("stripe_payment_intent_id"),
     // For topup: amount paid in cents (may differ from amountCents due to bonus)
-    paidAmountCents: integer16("paid_amount_cents"),
+    paidAmountCents: integer17("paid_amount_cents"),
     // Human-readable description
-    description: text18("description").notNull(),
-    createdAt: timestamp18("created_at", { withTimezone: true }).notNull().defaultNow()
+    description: text19("description").notNull(),
+    createdAt: timestamp19("created_at", { withTimezone: true }).notNull().defaultNow()
   },
   (table2) => [
     index6("idx_token_trans_user_created").on(table2.userId, table2.createdAt),
@@ -193109,69 +193278,69 @@ var tokenTransactionsTable = pgTable18(
     index6("idx_token_trans_stripe").on(table2.stripePaymentIntentId)
   ]
 );
-var insertTokenTransactionSchema = createInsertSchema18(tokenTransactionsTable).omit({
+var insertTokenTransactionSchema = createInsertSchema19(tokenTransactionsTable).omit({
   id: true,
   createdAt: true
 });
 
 // ../../lib/db/src/schema/share_tokens.ts
-import { pgTable as pgTable19, text as text19, serial as serial15, integer as integer17, timestamp as timestamp19 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema19 } from "drizzle-zod";
-var shareTokensTable = pgTable19("share_tokens", {
-  id: serial15("id").primaryKey(),
-  projectId: integer17("project_id").notNull().references(() => projectsTable.id, { onDelete: "cascade" }),
-  token: text19("token").notNull().unique(),
+import { pgTable as pgTable20, text as text20, serial as serial16, integer as integer18, timestamp as timestamp20 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema20 } from "drizzle-zod";
+var shareTokensTable = pgTable20("share_tokens", {
+  id: serial16("id").primaryKey(),
+  projectId: integer18("project_id").notNull().references(() => projectsTable.id, { onDelete: "cascade" }),
+  token: text20("token").notNull().unique(),
   /** view = read-only, comment = view + annotations, edit = view + modify */
-  accessMode: text19("access_mode").notNull().default("view"),
+  accessMode: text20("access_mode").notNull().default("view"),
   /** Optional label to help owner remember what the link is for */
-  label: text19("label"),
+  label: text20("label"),
   /** Null = never expires */
-  expiresAt: timestamp19("expires_at", { withTimezone: true }),
-  createdAt: timestamp19("created_at", { withTimezone: true }).notNull().defaultNow()
+  expiresAt: timestamp20("expires_at", { withTimezone: true }),
+  createdAt: timestamp20("created_at", { withTimezone: true }).notNull().defaultNow()
 });
-var insertShareTokenSchema = createInsertSchema19(shareTokensTable).omit({
+var insertShareTokenSchema = createInsertSchema20(shareTokensTable).omit({
   id: true,
   createdAt: true
 });
 
 // ../../lib/db/src/schema/comments.ts
-import { pgTable as pgTable20, text as text20, serial as serial16, integer as integer18, timestamp as timestamp20, boolean as boolean8 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema20 } from "drizzle-zod";
-var commentsTable = pgTable20("comments", {
-  id: serial16("id").primaryKey(),
-  projectId: integer18("project_id").notNull(),
-  documentId: integer18("document_id").notNull(),
-  userId: text20("user_id").notNull(),
+import { pgTable as pgTable21, text as text21, serial as serial17, integer as integer19, timestamp as timestamp21, boolean as boolean8 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema21 } from "drizzle-zod";
+var commentsTable = pgTable21("comments", {
+  id: serial17("id").primaryKey(),
+  projectId: integer19("project_id").notNull(),
+  documentId: integer19("document_id").notNull(),
+  userId: text21("user_id").notNull(),
   /** Display name of commenter (denormalized for query convenience) */
-  userName: text20("user_name").notNull(),
+  userName: text21("user_name").notNull(),
   /** The comment text */
-  content: text20("content").notNull(),
+  content: text21("content").notNull(),
   /**
    * Text selection this comment refers to.
    * Stores the selected text so we can re-attach comments
    * if content changes.
    */
-  quoteText: text20("quote_text"),
+  quoteText: text21("quote_text"),
   /**
    * Start offset of selection in the document content.
    * Null for comments not anchored to specific text.
    */
-  offsetStart: integer18("offset_start"),
+  offsetStart: integer19("offset_start"),
   /**
    * End offset of selection.
    * Null for comments not anchored to specific text.
    */
-  offsetEnd: integer18("offset_end"),
+  offsetEnd: integer19("offset_end"),
   /** Parent comment ID for threaded replies */
-  parentId: integer18("parent_id"),
+  parentId: integer19("parent_id"),
   /** Whether the comment has been resolved/dismissed */
   resolved: boolean8("resolved").notNull().default(false),
-  resolvedBy: text20("resolved_by"),
-  resolvedAt: timestamp20("resolved_at", { withTimezone: true }),
-  createdAt: timestamp20("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp20("updated_at", { withTimezone: true }).notNull().defaultNow()
+  resolvedBy: text21("resolved_by"),
+  resolvedAt: timestamp21("resolved_at", { withTimezone: true }),
+  createdAt: timestamp21("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp21("updated_at", { withTimezone: true }).notNull().defaultNow()
 });
-var insertCommentSchema = createInsertSchema20(commentsTable).omit({
+var insertCommentSchema = createInsertSchema21(commentsTable).omit({
   id: true,
   createdAt: true,
   updatedAt: true
@@ -193179,42 +193348,42 @@ var insertCommentSchema = createInsertSchema20(commentsTable).omit({
 
 // ../../lib/db/src/schema/project_members.ts
 import {
-  pgTable as pgTable21,
-  text as text21,
-  serial as serial17,
-  integer as integer19,
-  timestamp as timestamp21,
+  pgTable as pgTable22,
+  text as text22,
+  serial as serial18,
+  integer as integer20,
+  timestamp as timestamp22,
   uniqueIndex
 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema21 } from "drizzle-zod";
+import { createInsertSchema as createInsertSchema22 } from "drizzle-zod";
 var projectMembersRoles = ["owner", "collaborator", "viewer"];
-var projectMembersTable = pgTable21("project_members", {
-  id: serial17("id").primaryKey(),
-  projectId: integer19("project_id").notNull(),
-  userId: text21("user_id").notNull(),
-  role: text21("role", { enum: projectMembersRoles }).notNull().default("collaborator"),
-  createdAt: timestamp21("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp21("updated_at", { withTimezone: true }).notNull().defaultNow()
+var projectMembersTable = pgTable22("project_members", {
+  id: serial18("id").primaryKey(),
+  projectId: integer20("project_id").notNull(),
+  userId: text22("user_id").notNull(),
+  role: text22("role", { enum: projectMembersRoles }).notNull().default("collaborator"),
+  createdAt: timestamp22("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp22("updated_at", { withTimezone: true }).notNull().defaultNow()
 }, (table2) => ({
   projectUserIdx: uniqueIndex("project_members_project_user_idx").on(
     table2.projectId,
     table2.userId
   )
 }));
-var insertProjectMemberSchema = createInsertSchema21(
+var insertProjectMemberSchema = createInsertSchema22(
   projectMembersTable
 ).omit({ id: true, createdAt: true, updatedAt: true });
 
 // ../../lib/db/src/schema/quizzes.ts
 import {
-  pgTable as pgTable22,
-  text as text22,
-  serial as serial18,
-  integer as integer20,
-  timestamp as timestamp22,
+  pgTable as pgTable23,
+  text as text23,
+  serial as serial19,
+  integer as integer21,
+  timestamp as timestamp23,
   jsonb as jsonb3
 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema22 } from "drizzle-zod";
+import { createInsertSchema as createInsertSchema23 } from "drizzle-zod";
 import { z as z2 } from "zod/v4";
 var questionSchema = z2.object({
   id: z2.string(),
@@ -193228,20 +193397,20 @@ var questionSchema = z2.object({
   ).optional(),
   points: z2.number().int().positive().default(1)
 });
-var quizzesTable = pgTable22("quizzes", {
-  id: serial18("id").primaryKey(),
-  projectId: integer20("project_id").notNull(),
-  title: text22("title").notNull(),
-  description: text22("description"),
+var quizzesTable = pgTable23("quizzes", {
+  id: serial19("id").primaryKey(),
+  projectId: integer21("project_id").notNull(),
+  title: text23("title").notNull(),
+  description: text23("description"),
   /** Array of question definitions */
   questions: jsonb3("questions").$type().notNull(),
   /** Extra metadata (difficulty, topic, estimatedTime, etc.) */
   metadata: jsonb3("metadata").$type(),
-  createdBy: text22("created_by").notNull(),
-  createdAt: timestamp22("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp22("updated_at", { withTimezone: true }).notNull().defaultNow()
+  createdBy: text23("created_by").notNull(),
+  createdAt: timestamp23("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp23("updated_at", { withTimezone: true }).notNull().defaultNow()
 });
-var insertQuizSchema = createInsertSchema22(quizzesTable).omit({
+var insertQuizSchema = createInsertSchema23(quizzesTable).omit({
   id: true,
   createdAt: true,
   updatedAt: true
@@ -193249,36 +193418,36 @@ var insertQuizSchema = createInsertSchema22(quizzesTable).omit({
 
 // ../../lib/db/src/schema/quiz_submissions.ts
 import {
-  pgTable as pgTable23,
-  text as text23,
-  serial as serial19,
-  integer as integer21,
-  timestamp as timestamp23,
+  pgTable as pgTable24,
+  text as text24,
+  serial as serial20,
+  integer as integer22,
+  timestamp as timestamp24,
   jsonb as jsonb4
 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema23 } from "drizzle-zod";
+import { createInsertSchema as createInsertSchema24 } from "drizzle-zod";
 import { z as z3 } from "zod/v4";
 var quizResponseSchema = z3.object({
   questionId: z3.string(),
   answer: z3.string()
 });
-var quizSubmissionsTable = pgTable23("quiz_submissions", {
-  id: serial19("id").primaryKey(),
-  quizId: integer21("quiz_id").notNull(),
-  studentId: text23("student_id").notNull(),
+var quizSubmissionsTable = pgTable24("quiz_submissions", {
+  id: serial20("id").primaryKey(),
+  quizId: integer22("quiz_id").notNull(),
+  studentId: text24("student_id").notNull(),
   /** Array of student responses {questionId, answer} */
   responses: jsonb4("responses").$type().notNull(),
   /** Total score (null = not yet graded) */
-  score: integer21("score"),
+  score: integer22("score"),
   /** Max possible score for this quiz */
-  maxScore: integer21("max_score"),
+  maxScore: integer22("max_score"),
   /** Individual question scores {questionId, score, maxScore} */
   gradingDetails: jsonb4("grading_details").$type(),
-  gradedAt: timestamp23("graded_at", { withTimezone: true }),
-  submittedAt: timestamp23("submitted_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp23("updated_at", { withTimezone: true }).notNull().defaultNow()
+  gradedAt: timestamp24("graded_at", { withTimezone: true }),
+  submittedAt: timestamp24("submitted_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp24("updated_at", { withTimezone: true }).notNull().defaultNow()
 });
-var insertQuizSubmissionSchema = createInsertSchema23(
+var insertQuizSubmissionSchema = createInsertSchema24(
   quizSubmissionsTable
 ).omit({
   id: true,
@@ -193291,14 +193460,14 @@ var insertQuizSubmissionSchema = createInsertSchema23(
 
 // ../../lib/db/src/schema/rubrics.ts
 import {
-  pgTable as pgTable24,
-  text as text24,
-  serial as serial20,
-  integer as integer22,
-  timestamp as timestamp24,
+  pgTable as pgTable25,
+  text as text25,
+  serial as serial21,
+  integer as integer23,
+  timestamp as timestamp25,
   jsonb as jsonb5
 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema24 } from "drizzle-zod";
+import { createInsertSchema as createInsertSchema25 } from "drizzle-zod";
 import { z as z4 } from "zod/v4";
 var rubricCriterionSchema = z4.object({
   questionId: z4.string(),
@@ -193310,18 +193479,18 @@ var rubricCriterionSchema = z4.object({
   /** Min keyword matches required (0-1 = percentage) */
   keywordThreshold: z4.number().min(0).max(1).optional()
 });
-var rubricsTable = pgTable24("rubrics", {
-  id: serial20("id").primaryKey(),
-  quizId: integer22("quiz_id").notNull(),
+var rubricsTable = pgTable25("rubrics", {
+  id: serial21("id").primaryKey(),
+  quizId: integer23("quiz_id").notNull(),
   /** Array of per-question grading criteria */
   criteria: jsonb5("criteria").$type().notNull(),
   /** Manual grading notes for essay questions */
-  manualNotes: text24("manual_notes"),
-  createdBy: text24("created_by").notNull(),
-  createdAt: timestamp24("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp24("updated_at", { withTimezone: true }).notNull().defaultNow()
+  manualNotes: text25("manual_notes"),
+  createdBy: text25("created_by").notNull(),
+  createdAt: timestamp25("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp25("updated_at", { withTimezone: true }).notNull().defaultNow()
 });
-var insertRubricSchema = createInsertSchema24(rubricsTable).omit({
+var insertRubricSchema = createInsertSchema25(rubricsTable).omit({
   id: true,
   createdAt: true,
   updatedAt: true
@@ -193329,14 +193498,14 @@ var insertRubricSchema = createInsertSchema24(rubricsTable).omit({
 
 // ../../lib/db/src/schema/writing_style_profiles.ts
 import {
-  pgTable as pgTable25,
-  text as text25,
-  serial as serial21,
-  integer as integer23,
-  timestamp as timestamp25,
+  pgTable as pgTable26,
+  text as text26,
+  serial as serial22,
+  integer as integer24,
+  timestamp as timestamp26,
   jsonb as jsonb6
 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema25 } from "drizzle-zod";
+import { createInsertSchema as createInsertSchema26 } from "drizzle-zod";
 import { z as z5 } from "zod/v4";
 var styleCharacteristicsSchema = z5.object({
   formality: z5.number().min(0).max(1).describe("0=informal, 1=formal"),
@@ -193349,18 +193518,18 @@ var styleCharacteristicsSchema = z5.object({
   commonPhrases: z5.array(z5.string()),
   structuralPatterns: z5.array(z5.string())
 });
-var writingStyleProfilesTable = pgTable25("writing_style_profiles", {
-  id: serial21("id").primaryKey(),
-  userId: text25("user_id").notNull(),
-  projectId: integer23("project_id"),
+var writingStyleProfilesTable = pgTable26("writing_style_profiles", {
+  id: serial22("id").primaryKey(),
+  userId: text26("user_id").notNull(),
+  projectId: integer24("project_id"),
   /** AI-extracted style characteristics */
   styleCharacteristics: jsonb6("style_characteristics").$type().notNull(),
   /** Number of documents analyzed to build this profile */
-  sampleSize: integer23("sample_size").notNull().default(1),
-  analyzedAt: timestamp25("analyzed_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp25("updated_at", { withTimezone: true }).notNull().defaultNow()
+  sampleSize: integer24("sample_size").notNull().default(1),
+  analyzedAt: timestamp26("analyzed_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp26("updated_at", { withTimezone: true }).notNull().defaultNow()
 });
-var insertWritingStyleProfileSchema = createInsertSchema25(
+var insertWritingStyleProfileSchema = createInsertSchema26(
   writingStyleProfilesTable
 ).omit({
   id: true,
@@ -193369,23 +193538,23 @@ var insertWritingStyleProfileSchema = createInsertSchema25(
 });
 
 // ../../lib/db/src/schema/document-templates.ts
-import { pgTable as pgTable26, text as text26, serial as serial22, integer as integer24, boolean as boolean9, timestamp as timestamp26 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema26 } from "drizzle-zod";
-var documentTemplatesTable = pgTable26("document_templates", {
-  id: serial22("id").primaryKey(),
-  userId: text26("user_id"),
-  name: text26("name").notNull(),
-  category: text26("category").notNull().default("custom"),
-  outline: text26("outline").notNull(),
-  citationFormat: text26("citation_format"),
-  minRefCount: integer24("min_ref_count").notNull().default(5),
-  description: text26("description"),
-  tags: text26("tags"),
+import { pgTable as pgTable27, text as text27, serial as serial23, integer as integer25, boolean as boolean9, timestamp as timestamp27 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema27 } from "drizzle-zod";
+var documentTemplatesTable = pgTable27("document_templates", {
+  id: serial23("id").primaryKey(),
+  userId: text27("user_id"),
+  name: text27("name").notNull(),
+  category: text27("category").notNull().default("custom"),
+  outline: text27("outline").notNull(),
+  citationFormat: text27("citation_format"),
+  minRefCount: integer25("min_ref_count").notNull().default(5),
+  description: text27("description"),
+  tags: text27("tags"),
   isPublic: boolean9("is_public").notNull().default(false),
-  createdAt: timestamp26("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp26("updated_at", { withTimezone: true }).notNull().defaultNow()
+  createdAt: timestamp27("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp27("updated_at", { withTimezone: true }).notNull().defaultNow()
 });
-var insertDocumentTemplateSchema = createInsertSchema26(documentTemplatesTable).omit({
+var insertDocumentTemplateSchema = createInsertSchema27(documentTemplatesTable).omit({
   id: true,
   createdAt: true,
   updatedAt: true
@@ -193393,32 +193562,32 @@ var insertDocumentTemplateSchema = createInsertSchema26(documentTemplatesTable).
 
 // ../../lib/db/src/schema/admin-audit-log.ts
 import {
-  pgTable as pgTable27,
-  serial as serial23,
-  text as text27,
-  timestamp as timestamp27,
+  pgTable as pgTable28,
+  serial as serial24,
+  text as text28,
+  timestamp as timestamp28,
   index as index7,
   jsonb as jsonb7
 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema27 } from "drizzle-zod";
-var adminAuditLogTable = pgTable27(
+import { createInsertSchema as createInsertSchema28 } from "drizzle-zod";
+var adminAuditLogTable = pgTable28(
   "admin_audit_log",
   {
-    id: serial23("id").primaryKey(),
+    id: serial24("id").primaryKey(),
     // Admin user who performed the action (owner email)
-    adminEmail: text27("admin_email").notNull(),
+    adminEmail: text28("admin_email").notNull(),
     // Action type
-    action: text27("action").notNull(),
+    action: text28("action").notNull(),
     // Target resource
-    targetType: text27("target_type").notNull(),
+    targetType: text28("target_type").notNull(),
     // user, tier, pricing, system
-    targetId: text27("target_id"),
+    targetId: text28("target_id"),
     // user_id, tier_id, etc.
     // Details as JSON
     details: jsonb7("details"),
     // IP address of admin
-    ipAddress: text27("ip_address"),
-    createdAt: timestamp27("created_at", { withTimezone: true }).notNull().defaultNow()
+    ipAddress: text28("ip_address"),
+    createdAt: timestamp28("created_at", { withTimezone: true }).notNull().defaultNow()
   },
   (table2) => [
     index7("idx_admin_audit_admin_created").on(table2.adminEmail, table2.createdAt),
@@ -193434,7 +193603,7 @@ var adminActionTypes = [
   "tier_change",
   "system_config"
 ];
-var insertAdminAuditLogSchema = createInsertSchema27(adminAuditLogTable).omit({
+var insertAdminAuditLogSchema = createInsertSchema28(adminAuditLogTable).omit({
   id: true,
   createdAt: true
 });
@@ -197642,7 +197811,7 @@ var require_util = /* @__PURE__ */ __commonJSMin(((exports) => {
     "Nov",
     "Dec"
   ];
-  function timestamp28() {
+  function timestamp29() {
     var d = /* @__PURE__ */ new Date();
     var time = [
       pad2(d.getHours()),
@@ -197656,7 +197825,7 @@ var require_util = /* @__PURE__ */ __commonJSMin(((exports) => {
     ].join(" ");
   }
   exports.log = function() {
-    console.log("%s - %s", timestamp28(), exports.format.apply(exports, arguments));
+    console.log("%s - %s", timestamp29(), exports.format.apply(exports, arguments));
   };
   exports.inherits = require_inherits_browser2();
   exports._extend = function(origin, add2) {
@@ -200621,10 +200790,10 @@ var require_sax = /* @__PURE__ */ __commonJSMin(((exports) => {
       if (parser.textNode) emit(parser, "ontext", parser.textNode);
       parser.textNode = "";
     }
-    function textopts(opt, text28) {
-      if (opt.trim) text28 = text28.trim();
-      if (opt.normalize) text28 = text28.replace(/\s+/g, " ");
-      return text28;
+    function textopts(opt, text29) {
+      if (opt.trim) text29 = text29.trim();
+      if (opt.normalize) text29 = text29.replace(/\s+/g, " ");
+      return text29;
     }
     function error(parser, er) {
       closeText(parser);
@@ -201476,13 +201645,13 @@ var require_xml2js = /* @__PURE__ */ __commonJSMin(((exports, module) => {
     element[options.parentKey] = currentElement;
     currentElement = element;
   }
-  function onText(text28) {
+  function onText(text29) {
     if (options.ignoreText) return;
-    if (!text28.trim() && !options.captureSpacesBetweenElements) return;
-    if (options.trim) text28 = text28.trim();
-    if (options.nativeType) text28 = nativeType(text28);
-    if (options.sanitize) text28 = text28.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    addField("text", text28);
+    if (!text29.trim() && !options.captureSpacesBetweenElements) return;
+    if (options.trim) text29 = text29.trim();
+    if (options.nativeType) text29 = nativeType(text29);
+    if (options.sanitize) text29 = text29.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    addField("text", text29);
   }
   function onComment(comment) {
     if (options.ignoreComment) return;
@@ -201650,12 +201819,12 @@ var require_js2xml = /* @__PURE__ */ __commonJSMin(((exports, module) => {
   function writeDoctype(doctype, options) {
     return options.ignoreDoctype ? "" : "<!DOCTYPE " + ("doctypeFn" in options ? options.doctypeFn(doctype, currentElementName, currentElement) : doctype) + ">";
   }
-  function writeText(text28, options) {
+  function writeText(text29, options) {
     if (options.ignoreText) return "";
-    text28 = "" + text28;
-    text28 = text28.replace(/&amp;/g, "&");
-    text28 = text28.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    return "textFn" in options ? options.textFn(text28, currentElementName, currentElement) : text28;
+    text29 = "" + text29;
+    text29 = text29.replace(/&amp;/g, "&");
+    text29 = text29.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    return "textFn" in options ? options.textFn(text29, currentElementName, currentElement) : text29;
   }
   function hasContent(element, options) {
     var i2;
@@ -206317,7 +206486,7 @@ var LevelBase = class extends XmlComponent {
   * @param options - Level configuration options
   * @throws Error if level is greater than 9 (Word limitation)
   */
-  constructor({ level, format, text: text28, alignment = AlignmentType.START, start = 1, style, suffix, isLegalNumberingStyle }) {
+  constructor({ level, format, text: text29, alignment = AlignmentType.START, start = 1, style, suffix, isLegalNumberingStyle }) {
     super("w:lvl");
     _defineProperty4(this, "paragraphProperties", void 0);
     _defineProperty4(this, "runProperties", void 0);
@@ -206325,7 +206494,7 @@ var LevelBase = class extends XmlComponent {
     if (format) this.root.push(new NumberFormat$1(format));
     if (suffix) this.root.push(new Suffix(suffix));
     if (isLegalNumberingStyle) this.root.push(new IsLegalNumberingStyle());
-    if (text28) this.root.push(new LevelText(text28));
+    if (text29) this.root.push(new LevelText(text29));
     this.root.push(new LevelJc(alignment));
     if (style === null || style === void 0 ? void 0 : style.style) this.root.push(createParagraphStyle(style.style));
     this.paragraphProperties = new ParagraphProperties(style && style.paragraph);
@@ -211316,9 +211485,9 @@ var toJson = (xmlData) => {
     captureSpacesBetweenElements: true
   });
 };
-var createTextElementContents = (text28) => {
+var createTextElementContents = (text29) => {
   var _textJson$elements$0$;
-  return (_textJson$elements$0$ = toJson((0, import_xml.default)(formatter$1.format(new Text({ text: text28 })))).elements[0].elements) !== null && _textJson$elements$0$ !== void 0 ? _textJson$elements$0$ : [];
+  return (_textJson$elements$0$ = toJson((0, import_xml.default)(formatter$1.format(new Text({ text: text29 })))).elements[0].elements) !== null && _textJson$elements$0$ !== void 0 ? _textJson$elements$0$ : [];
 };
 var patchSpaceAttribute = (element) => _objectSpread24(_objectSpread24({}, element), {}, { attributes: { "xml:space": "preserve" } });
 var getFirstLevelElements = (relationships, id) => {
@@ -211377,10 +211546,10 @@ var findRunElementIndexWithToken = (paragraphElement, token) => {
     if (element.type === "element" && element.name === "w:r") {
       var _element$elements;
       const textElement = ((_element$elements = element.elements) !== null && _element$elements !== void 0 ? _element$elements : []).filter((e2) => e2.type === "element" && e2.name === "w:t");
-      for (const text28 of textElement) {
+      for (const text29 of textElement) {
         var _text$elements, _text$elements$0$text;
-        if (!((_text$elements = text28.elements) === null || _text$elements === void 0 ? void 0 : _text$elements[0])) continue;
-        if ((_text$elements$0$text = text28.elements[0].text) === null || _text$elements$0$text === void 0 ? void 0 : _text$elements$0$text.includes(token)) return i2;
+        if (!((_text$elements = text29.elements) === null || _text$elements === void 0 ? void 0 : _text$elements[0])) continue;
+        if ((_text$elements$0$text = text29.elements[0].text) === null || _text$elements$0$text === void 0 ? void 0 : _text$elements$0$text.includes(token)) return i2;
       }
     }
   }
@@ -211416,14 +211585,14 @@ var replaceTokenInParagraphElement = ({ paragraphElement, renderedParagraph, ori
   const startIndex = renderedParagraph.text.indexOf(originalText);
   const endIndex = startIndex + originalText.length - 1;
   let replaceMode = ReplaceMode.START;
-  for (const run of renderedParagraph.runs) for (const { text: text28, index: index8, start, end } of run.parts) switch (replaceMode) {
+  for (const run of renderedParagraph.runs) for (const { text: text29, index: index8, start, end } of run.parts) switch (replaceMode) {
     case ReplaceMode.START:
       if (startIndex >= start && startIndex <= end) {
         const offsetStartIndex = startIndex - start;
         const offsetEndIndex = Math.min(endIndex, end) - start;
         const partToReplace = run.text.substring(offsetStartIndex, offsetEndIndex + 1);
         if (partToReplace === "") continue;
-        const firstPart = text28.replace(partToReplace, replacementText);
+        const firstPart = text29.replace(partToReplace, replacementText);
         patchTextElement(paragraphElement.elements[run.index].elements[index8], firstPart);
         replaceMode = ReplaceMode.MIDDLE;
         continue;
@@ -211431,7 +211600,7 @@ var replaceTokenInParagraphElement = ({ paragraphElement, renderedParagraph, ori
       break;
     case ReplaceMode.MIDDLE:
       if (endIndex <= end) {
-        const lastPart = text28.substring(endIndex - start + 1);
+        const lastPart = text29.substring(endIndex - start + 1);
         patchTextElement(paragraphElement.elements[run.index].elements[index8], lastPart);
         const currentElement = paragraphElement.elements[run.index].elements[index8];
         paragraphElement.elements[run.index].elements[index8] = patchSpaceAttribute(currentElement);
@@ -211442,8 +211611,8 @@ var replaceTokenInParagraphElement = ({ paragraphElement, renderedParagraph, ori
   }
   return paragraphElement;
 };
-var patchTextElement = (element, text28) => {
-  element.elements = createTextElementContents(text28);
+var patchTextElement = (element, text29) => {
+  element.elements = createTextElementContents(text29);
   return element;
 };
 var renderParagraphNode = (node) => {
@@ -211524,7 +211693,7 @@ var traverse = (node) => {
   }
   return renderedParagraphs;
 };
-var findLocationOfText = (node, text28) => traverse(node).filter((p) => p.text.includes(text28));
+var findLocationOfText = (node, text29) => traverse(node).filter((p) => p.text.includes(text29));
 var formatter = new Formatter();
 var SPLIT_TOKEN = "\u0275";
 var replacer = ({ json, patch, patchText, context, keepOriginalStyles = true }) => {
@@ -211767,10 +211936,10 @@ var patchDetector = (function() {
     return _ref.apply(this, arguments);
   };
 })();
-var findPatchKeys = (text28) => {
+var findPatchKeys = (text29) => {
   var _text$match;
   const pattern2 = /* @__PURE__ */ new RegExp("(?<=\\{\\{).+?(?=\\}\\})", "gs");
-  return (_text$match = text28.match(pattern2)) !== null && _text$match !== void 0 ? _text$match : [];
+  return (_text$match = text29.match(pattern2)) !== null && _text$match !== void 0 ? _text$match : [];
 };
 
 // src/lib/docx-export.ts
@@ -211831,7 +212000,7 @@ function parseOutlineToHeadings(outline) {
   }
   return headings;
 }
-function makeHeading(text28, level) {
+function makeHeading(text29, level) {
   const headingLevel = [
     HeadingLevel.HEADING_1,
     HeadingLevel.HEADING_2,
@@ -211841,14 +212010,14 @@ function makeHeading(text28, level) {
     HeadingLevel.HEADING_6
   ][Math.min(level - 1, 5)];
   return new Paragraph({
-    text: text28,
+    text: text29,
     heading: headingLevel,
     spacing: { before: 240, after: 120 }
   });
 }
-function makeParagraph(text28) {
+function makeParagraph(text29) {
   return new Paragraph({
-    children: [new TextRun({ text: text28, size: 24 })],
+    children: [new TextRun({ text: text29, size: 24 })],
     spacing: { before: 0, after: 120 }
   });
 }
@@ -211940,11 +212109,11 @@ async function generateDocx(projectTitle, documents, references, options) {
         if (block.match(/^[-*]\s+/m)) {
           const items = block.split(/\n/).filter((l) => l.match(/^[-*]\s+/));
           for (const item of items) {
-            const text28 = item.replace(/^[-*]\s+/, "").trim();
+            const text29 = item.replace(/^[-*]\s+/, "").trim();
             sections.push(
               new Paragraph({
                 children: [
-                  new TextRun({ text: `\u2022 ${text28}`, size: 24 })
+                  new TextRun({ text: `\u2022 ${text29}`, size: 24 })
                 ],
                 indent: { left: convertInchesToTwip(0.25) },
                 spacing: { before: 60, after: 60 }
@@ -227240,12 +227409,12 @@ var PNG = class _PNG {
           }
           break;
         case "tEXt":
-          var text28 = this.read(chunkSize);
-          var index8 = text28.indexOf(0);
-          var key = String.fromCharCode.apply(String, text28.slice(0, index8));
+          var text29 = this.read(chunkSize);
+          var index8 = text29.indexOf(0);
+          var key = String.fromCharCode.apply(String, text29.slice(0, index8));
           this.text[key] = String.fromCharCode.apply(
             String,
-            text28.slice(index8 + 1)
+            text29.slice(index8 + 1)
           );
           break;
         case "IEND":
@@ -230657,10 +230826,10 @@ var AFMFont = class {
       }
     }
   }
-  encodeText(text28) {
+  encodeText(text29) {
     const res = [];
-    for (let i2 = 0, len = text28.length; i2 < len; i2++) {
-      let char = text28.charCodeAt(i2);
+    for (let i2 = 0, len = text29.length; i2 < len; i2++) {
+      let char = text29.charCodeAt(i2);
       char = WIN_ANSI_MAP[char] || char;
       res.push(char.toString(16));
     }
@@ -230745,9 +230914,9 @@ var StandardFont = class extends PDFFont {
     };
     return this.dictionary.end();
   }
-  encode(text28) {
-    const encoded = this.font.encodeText(text28);
-    const glyphs = this.font.glyphsForString(`${text28}`);
+  encode(text29) {
+    const encoded = this.font.encodeText(text29);
+    const glyphs = this.font.glyphsForString(`${text29}`);
     const advances = this.font.advancesForGlyphs(glyphs);
     const positions = [];
     for (let i2 = 0; i2 < glyphs.length; i2++) {
@@ -230797,8 +230966,8 @@ var EmbeddedFont = class extends PDFFont {
       this.layoutCache = /* @__PURE__ */ Object.create(null);
     }
   }
-  layoutRun(text28, features) {
-    const run = this.font.layout(text28, features);
+  layoutRun(text29, features) {
+    const run = this.font.layout(text29, features);
     for (let i2 = 0; i2 < run.positions.length; i2++) {
       const position = run.positions[i2];
       for (let key in position) {
@@ -230808,31 +230977,31 @@ var EmbeddedFont = class extends PDFFont {
     }
     return run;
   }
-  layoutCached(text28) {
+  layoutCached(text29) {
     if (!this.layoutCache) {
-      return this.layoutRun(text28);
+      return this.layoutRun(text29);
     }
     let cached2;
-    if (cached2 = this.layoutCache[text28]) {
+    if (cached2 = this.layoutCache[text29]) {
       return cached2;
     }
-    const run = this.layoutRun(text28);
-    this.layoutCache[text28] = run;
+    const run = this.layoutRun(text29);
+    this.layoutCache[text29] = run;
     return run;
   }
-  layout(text28, features, onlyWidth) {
+  layout(text29, features, onlyWidth) {
     if (features) {
-      return this.layoutRun(text28, features);
+      return this.layoutRun(text29, features);
     }
     let glyphs = onlyWidth ? null : [];
     let positions = onlyWidth ? null : [];
     let advanceWidth = 0;
     let last2 = 0;
     let index8 = 0;
-    while (index8 <= text28.length) {
+    while (index8 <= text29.length) {
       var needle;
-      if (index8 === text28.length && last2 < index8 || (needle = text28.charAt(index8), [" ", "	"].includes(needle))) {
-        const run = this.layoutCached(text28.slice(last2, ++index8));
+      if (index8 === text29.length && last2 < index8 || (needle = text29.charAt(index8), [" ", "	"].includes(needle))) {
+        const run = this.layoutCached(text29.slice(last2, ++index8));
         if (!onlyWidth) {
           glyphs = glyphs.concat(run.glyphs);
           positions = positions.concat(run.positions);
@@ -230849,11 +231018,11 @@ var EmbeddedFont = class extends PDFFont {
       advanceWidth
     };
   }
-  encode(text28, features) {
+  encode(text29, features) {
     const {
       glyphs,
       positions
-    } = this.layout(text28, features);
+    } = this.layout(text29, features);
     const res = [];
     for (let i2 = 0; i2 < glyphs.length; i2++) {
       const glyph = glyphs[i2];
@@ -231311,14 +231480,14 @@ var LineWrapper = class extends EventEmitter {
     }
     return w + this.wordWidth(HYPHEN) <= this.spaceLeft;
   }
-  eachWord(text28, fn) {
+  eachWord(text29, fn) {
     let bk;
-    const breaker = new $557adaaeb0c7885f$exports(text28);
+    const breaker = new $557adaaeb0c7885f$exports(text29);
     let last2 = null;
     const wordWidths = /* @__PURE__ */ Object.create(null);
     while (bk = breaker.nextBreak()) {
       var shouldContinue;
-      let word = text28.slice((last2 != null ? last2.position : void 0) || 0, bk.position);
+      let word = text29.slice((last2 != null ? last2.position : void 0) || 0, bk.position);
       let w = wordWidths[word] != null ? wordWidths[word] : wordWidths[word] = this.wordWidth(word);
       if (w > this.lineWidth + this.continuedX) {
         let lbk = last2;
@@ -231366,7 +231535,7 @@ var LineWrapper = class extends EventEmitter {
       last2 = bk;
     }
   }
-  wrap(text28, options) {
+  wrap(text29, options) {
     const {
       document: document2
     } = this;
@@ -231401,7 +231570,7 @@ var LineWrapper = class extends EventEmitter {
       return lc++;
     };
     this.emit("sectionStart", options, this);
-    this.eachWord(text28, (word, w, bk, last2) => {
+    this.eachWord(text29, (word, w, bk, last2) => {
       if (last2 == null || last2.required) {
         this.emit("firstLine", options, this);
         this.spaceLeft = this.lineWidth;
@@ -231519,8 +231688,8 @@ function formatListLabel(n, listType) {
   }
   var letter = String.fromCharCode((n - 1) % 26 + 65);
   var times = Math.floor((n - 1) / 26 + 1);
-  var text28 = Array(times + 1).join(letter);
-  return `${text28}.`;
+  var text29 = Array(times + 1).join(letter);
+  return `${text29}.`;
 }
 var TextMixin = {
   initText() {
@@ -231547,11 +231716,11 @@ var TextMixin = {
     this.y -= this.currentLineHeight(true) * lines + this._lineGap;
     return this;
   },
-  _text(text28, x2, y, options, lineCallback) {
+  _text(text29, x2, y, options, lineCallback) {
     options = this._initOptions(x2, y, options);
-    text28 = text28 == null ? "" : `${text28}`;
+    text29 = text29 == null ? "" : `${text29}`;
     if (options.wordSpacing) {
-      text28 = text28.replace(/\s{2,}/g, " ");
+      text29 = text29.replace(/\s{2,}/g, " ");
     }
     const addStructure = () => {
       if (options.structParent) {
@@ -231573,9 +231742,9 @@ var TextMixin = {
       }
       this._wrapper = options.continued ? wrapper : null;
       this._textOptions = options.continued ? options : null;
-      wrapper.wrap(text28, options);
+      wrapper.wrap(text29, options);
     } else {
-      for (let line of text28.split("\n")) {
+      for (let line of text29.split("\n")) {
         addStructure();
         lineCallback(line, options);
       }
@@ -231583,8 +231752,8 @@ var TextMixin = {
     if (options.rotation !== 0) this.restore();
     return this;
   },
-  text(text28, x2, y, options) {
-    return this._text(text28, x2, y, options, this._line);
+  text(text29, x2, y, options) {
+    return this._text(text29, x2, y, options, this._line);
   },
   widthOfString(string2, options = {}) {
     const horizontalScaling = options.horizontalScaling || 100;
@@ -231605,19 +231774,19 @@ var TextMixin = {
     }
     if (options.width) {
       let wrapper = new LineWrapper(this, options);
-      wrapper.on("line", (text28, options2) => {
+      wrapper.on("line", (text29, options2) => {
         this.y += lineHeight;
-        text28 = text28.replace(/\n/g, "");
-        if (text28.length) {
+        text29 = text29.replace(/\n/g, "");
+        if (text29.length) {
           let wordSpacing = options2.wordSpacing ?? 0;
           const characterSpacing = options2.characterSpacing ?? 0;
           if (options2.width && options2.align === "justify") {
-            const words = text28.trim().split(/\s+/);
-            const textWidth = this.widthOfString(text28.replace(/\s+/g, ""), options2);
+            const words = text29.trim().split(/\s+/);
+            const textWidth = this.widthOfString(text29.replace(/\s+/g, ""), options2);
             const spaceWidth = this.widthOfString(" ") + characterSpacing;
             wordSpacing = Math.max(0, (options2.lineWidth - textWidth) / Math.max(1, words.length - 1) - spaceWidth);
           }
-          contentWidth = Math.max(contentWidth, options2.textWidth + wordSpacing * (options2.wordCount - 1) + characterSpacing * (text28.length - 1));
+          contentWidth = Math.max(contentWidth, options2.textWidth + wordSpacing * (options2.wordCount - 1) + characterSpacing * (text29.length - 1));
         }
       });
       wrapper.wrap(string2, options);
@@ -231682,7 +231851,7 @@ var TextMixin = {
       height: yMax - yMin
     };
   },
-  heightOfString(text28, options) {
+  heightOfString(text29, options) {
     const {
       x: x2,
       y
@@ -231690,7 +231859,7 @@ var TextMixin = {
     options = this._initOptions(options);
     options.height = Infinity;
     const lineGap = options.lineGap || this._lineGap || 0;
-    this._text(text28, this.x, this.y, options, () => {
+    this._text(text29, this.x, this.y, options, () => {
       this.y += this.currentLineHeight(true) + lineGap;
     });
     const height = this.y - y;
@@ -231764,8 +231933,8 @@ var TextMixin = {
             break;
           case "numbered":
           case "lettered":
-            var text28 = formatListLabel(numbers[i2 - 1], listType);
-            this._fragment(text28, this.x - indent, this.y, options);
+            var text29 = formatListLabel(numbers[i2 - 1], listType);
+            this._fragment(text29, this.x - indent, this.y, options);
             break;
         }
         if (item && labelType && bodyType) {
@@ -231830,19 +231999,19 @@ var TextMixin = {
     if (result.rotation < 0) result.rotation += 360;
     return result;
   },
-  _line(text28, options = {}, wrapper) {
-    this._fragment(text28, this.x, this.y, options);
+  _line(text29, options = {}, wrapper) {
+    this._fragment(text29, this.x, this.y, options);
     if (wrapper) {
       const lineGap = options.lineGap || this._lineGap || 0;
       this.y += this.currentLineHeight(true) + lineGap;
     } else {
-      this.x += this.widthOfString(text28, options);
+      this.x += this.widthOfString(text29, options);
     }
   },
-  _fragment(text28, x2, y, options) {
+  _fragment(text29, x2, y, options) {
     let dy, encoded, i2, positions, textWidth, words;
-    text28 = `${text28}`.replace(/\n/g, "");
-    if (text28.length === 0) {
+    text29 = `${text29}`.replace(/\n/g, "");
+    if (text29.length === 0) {
       return;
     }
     const align = options.align || "left";
@@ -231852,15 +232021,15 @@ var TextMixin = {
     if (options.width) {
       switch (align) {
         case "right":
-          textWidth = this.widthOfString(text28.replace(/\s+$/, ""), options);
+          textWidth = this.widthOfString(text29.replace(/\s+$/, ""), options);
           x2 += options.lineWidth - textWidth;
           break;
         case "center":
           x2 += options.lineWidth / 2 - options.textWidth / 2;
           break;
         case "justify":
-          words = text28.trim().split(/\s+/);
-          textWidth = this.widthOfString(text28.replace(/\s+/g, ""), options);
+          words = text29.trim().split(/\s+/);
+          textWidth = this.widthOfString(text29.replace(/\s+/g, ""), options);
           var spaceWidth = this.widthOfString(" ") + characterSpacing;
           wordSpacing = Math.max(0, (options.lineWidth - textWidth) / Math.max(1, words.length - 1) - spaceWidth);
           break;
@@ -231898,7 +232067,7 @@ var TextMixin = {
       }
       dy = dy / 1e3 * this._fontSize;
     }
-    const renderedWidth = options.textWidth + wordSpacing * (options.wordCount - 1) + characterSpacing * (text28.length - 1);
+    const renderedWidth = options.textWidth + wordSpacing * (options.wordCount - 1) + characterSpacing * (text29.length - 1);
     if (options.link != null) {
       const linkOptions = {};
       if (this._currentStructureElement && this._currentStructureElement.dictionary.data.S === "Link") {
@@ -231969,7 +232138,7 @@ var TextMixin = {
       this.addContent(`${horizontalScaling} Tz`);
     }
     if (wordSpacing) {
-      words = text28.trim().split(/\s+/);
+      words = text29.trim().split(/\s+/);
       wordSpacing += this.widthOfString(" ") + characterSpacing;
       wordSpacing *= 1e3 / this._fontSize;
       encoded = [];
@@ -231988,7 +232157,7 @@ var TextMixin = {
         positions[positions.length - 1] = space;
       }
     } else {
-      [encoded, positions] = this._font.encode(text28, options.features);
+      [encoded, positions] = this._font.encode(text29, options.features);
     }
     const scale = this._fontSize / 1e3;
     const commands = [];
@@ -232628,11 +232797,11 @@ var AnnotationsMixin = {
     };
     return this.annotate(x2, y, w, h2, annotationOptions);
   },
-  textAnnotation(x2, y, w, h2, text28, options) {
+  textAnnotation(x2, y, w, h2, text29, options) {
     const annotationOptions = {
       ...options,
       Subtype: "FreeText",
-      Contents: new String(text28),
+      Contents: new String(text29),
       DA: new String()
     };
     return this.annotate(x2, y, w, h2, annotationOptions);
@@ -233736,9 +233905,9 @@ function normalizeTable() {
   if (!rowStyle) rowStyle = () => ({});
   this._rowStyle = normalizedRowStyle.bind(this, defaultRowStyle, rowStyle);
 }
-function normalizeText(text28) {
-  if (text28 != null) text28 = `${text28}`;
-  return text28;
+function normalizeText(text29) {
+  if (text29 != null) text29 = `${text29}`;
+  return text29;
 }
 function normalizeCell(cell, rowIndex, colIndex) {
   const colStyle = this._colStyle(colIndex);
@@ -235958,7 +236127,7 @@ var documents_default = router6;
 
 // src/routes/references.ts
 var import_express7 = __toESM(require_express2(), 1);
-import { eq as eq9, desc as desc5 } from "drizzle-orm";
+import { eq as eq9, and as and7, desc as desc5, inArray } from "drizzle-orm";
 
 // src/lib/citation.ts
 var import_core = __toESM(require_lib5(), 1);
@@ -235979,7 +236148,7 @@ var FORMAT_REQUIRED_FIELDS = {
   Vancouver: ["author", "title", "source", "issued"],
   Chicago: ["author", "title", "publisher", "issued"],
   MLA: ["author", "title", "container-title", "publisher", "issued"],
-  Haravard: ["author", "title", "issued", "URL"]
+  Harvard: ["author", "title", "issued", "URL"]
 };
 function toCSLJSON(ref) {
   const issued = {};
@@ -236196,7 +236365,7 @@ function toCiteFormat(format) {
     Vancouver: "vancouver",
     Chicago: "chicago",
     MLA: "mla",
-    Haravard: "harvard1"
+    Harvard: "harvard1"
   };
   return map[format] ?? "apa";
 }
@@ -236220,6 +236389,41 @@ function formatFallback(refs, format) {
         return `${author} (${year}). ${title}. ${journal}${volume}${issue}.${doi}`;
     }
   }).join("\n\n");
+}
+function firstAuthorSurname(authors) {
+  if (!authors) return "Anon.";
+  const firstAuthorRaw = authors.split(";")[0]?.split(",")[0]?.trim();
+  return firstAuthorRaw || "Anon.";
+}
+function countAuthors(authors) {
+  if (!authors) return 0;
+  return authors.split(";").filter((a) => a.trim()).length;
+}
+function formatCitationMarker(ref, format, refId) {
+  const surname = firstAuthorSurname(ref.authors);
+  const nAuthors = countAuthors(ref.authors);
+  const year = ref.year ? String(ref.year) : "n.d.";
+  const yearShort = year.length >= 4 ? year.slice(0, 4) : year;
+  switch (format) {
+    case "APA":
+    case "APA7":
+      if (nAuthors === 0) return `(${yearShort})`;
+      if (nAuthors === 1) return `(${surname}, ${yearShort})`;
+      if (nAuthors === 2) return `(${surname} et al., ${yearShort})`;
+      return `(${surname} et al., ${yearShort})`;
+    case "Harvard":
+      if (nAuthors === 0) return `(${yearShort})`;
+      if (nAuthors === 1) return `(${surname}, ${yearShort})`;
+      return `(${surname} et al., ${yearShort})`;
+    case "IEEE":
+    case "Vancouver":
+    case "Chicago":
+      return `[${refId ?? 0}]`;
+    case "MLA":
+      return `(${surname})`;
+    default:
+      return `(${surname}, ${yearShort})`;
+  }
 }
 
 // src/lib/fetch-reference-metadata.ts
@@ -236797,6 +237001,503 @@ router7.post("/references/fetch-metadata", async (req, res) => {
   }
   res.json(metadata);
 });
+router7.patch("/projects/:projectId/references/:referenceId/select", async (req, res) => {
+  const params = ToggleReferenceSelectionParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
+  if (!ok) return;
+  const body = ToggleReferenceSelectionBody.safeParse(req.body);
+  if (!body.success) {
+    res.status(400).json({ error: body.error.message });
+    return;
+  }
+  const [ref] = await db.update(referencesTable).set({ isSelected: body.data.isSelected }).where(
+    and7(
+      eq9(referencesTable.id, params.data.referenceId),
+      eq9(referencesTable.projectId, params.data.projectId)
+    )
+  ).returning();
+  if (!ref) {
+    res.status(404).json({ error: "Reference not found" });
+    return;
+  }
+  await logActivity(
+    params.data.projectId,
+    "reference_selection_toggled",
+    `Referensi "${ref.title}" ${body.data.isSelected ? "dicentang" : "dihilangkan"} dari daftar pustaka`
+  );
+  res.json({
+    ...ref,
+    authors: ref.authors ?? null,
+    year: ref.year ?? null,
+    journal: ref.journal ?? null,
+    volume: ref.volume ?? null,
+    issue: ref.issue ?? null,
+    doi: ref.doi ?? null,
+    url: ref.url ?? null,
+    usedInChapters: ref.usedInChapters ?? null,
+    isSuggested: ref.isSuggested,
+    isSelected: ref.isSelected,
+    source: ref.source
+  });
+});
+router7.get("/projects/:projectId/citations", async (req, res) => {
+  const params = ListCitationsParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
+  if (!ok) return;
+  const rows = await db.select().from(referenceCitationsTable).where(eq9(referenceCitationsTable.projectId, params.data.projectId));
+  res.json(
+    rows.map((c) => ({
+      id: c.id,
+      projectId: c.projectId,
+      referenceId: c.referenceId,
+      paragraphIndex: c.paragraphIndex,
+      offsetInParagraph: c.offsetInParagraph,
+      formatMarker: c.formatMarker,
+      placementReason: c.placementReason ?? null,
+      createdAt: c.createdAt instanceof Date ? c.createdAt.toISOString() : c.createdAt,
+      updatedAt: c.updatedAt instanceof Date ? c.updatedAt.toISOString() : c.updatedAt
+    }))
+  );
+});
+router7.post("/projects/:projectId/citations", async (req, res) => {
+  const params = CreateCitationParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
+  if (!ok) return;
+  const body = CreateCitationBody.safeParse(req.body);
+  if (!body.success) {
+    res.status(400).json({ error: body.error.message });
+    return;
+  }
+  const [ref] = await db.select().from(referencesTable).where(
+    and7(
+      eq9(referencesTable.id, body.data.referenceId),
+      eq9(referencesTable.projectId, params.data.projectId)
+    )
+  );
+  if (!ref) {
+    res.status(404).json({ error: "Reference not found in this project" });
+    return;
+  }
+  const [citation] = await db.insert(referenceCitationsTable).values({
+    projectId: params.data.projectId,
+    referenceId: body.data.referenceId,
+    paragraphIndex: body.data.paragraphIndex,
+    offsetInParagraph: body.data.offsetInParagraph ?? 0,
+    formatMarker: body.data.formatMarker,
+    placementReason: body.data.placementReason ?? null
+  }).returning();
+  await logActivity(
+    params.data.projectId,
+    "citation_added",
+    `Sitasi manual ditambahkan untuk referensi "${ref.title}" di paragraf ${body.data.paragraphIndex}`
+  );
+  res.status(201).json({
+    id: citation.id,
+    projectId: citation.projectId,
+    referenceId: citation.referenceId,
+    paragraphIndex: citation.paragraphIndex,
+    offsetInParagraph: citation.offsetInParagraph,
+    formatMarker: citation.formatMarker,
+    placementReason: citation.placementReason ?? null,
+    createdAt: citation.createdAt instanceof Date ? citation.createdAt.toISOString() : citation.createdAt,
+    updatedAt: citation.updatedAt instanceof Date ? citation.updatedAt.toISOString() : citation.updatedAt
+  });
+});
+router7.patch("/projects/:projectId/citations/:citationId", async (req, res) => {
+  const params = UpdateCitationParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
+  if (!ok) return;
+  const body = UpdateCitationBody.safeParse(req.body);
+  if (!body.success) {
+    res.status(400).json({ error: body.error.message });
+    return;
+  }
+  const [existing] = await db.select().from(referenceCitationsTable).where(
+    and7(
+      eq9(referenceCitationsTable.id, params.data.citationId),
+      eq9(referenceCitationsTable.projectId, params.data.projectId)
+    )
+  );
+  if (!existing) {
+    res.status(404).json({ error: "Citation not found" });
+    return;
+  }
+  const [updated] = await db.update(referenceCitationsTable).set({
+    paragraphIndex: body.data.paragraphIndex ?? existing.paragraphIndex,
+    offsetInParagraph: body.data.offsetInParagraph ?? existing.offsetInParagraph,
+    formatMarker: body.data.formatMarker ?? existing.formatMarker,
+    placementReason: body.data.placementReason ?? existing.placementReason
+  }).where(eq9(referenceCitationsTable.id, params.data.citationId)).returning();
+  res.json({
+    id: updated.id,
+    projectId: updated.projectId,
+    referenceId: updated.referenceId,
+    paragraphIndex: updated.paragraphIndex,
+    offsetInParagraph: updated.offsetInParagraph,
+    formatMarker: updated.formatMarker,
+    placementReason: updated.placementReason ?? null,
+    createdAt: updated.createdAt instanceof Date ? updated.createdAt.toISOString() : updated.createdAt,
+    updatedAt: updated.updatedAt instanceof Date ? updated.updatedAt.toISOString() : updated.updatedAt
+  });
+});
+router7.delete("/projects/:projectId/citations/:citationId", async (req, res) => {
+  const params = DeleteCitationParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
+  if (!ok) return;
+  const [deleted] = await db.delete(referenceCitationsTable).where(
+    and7(
+      eq9(referenceCitationsTable.id, params.data.citationId),
+      eq9(referenceCitationsTable.projectId, params.data.projectId)
+    )
+  ).returning();
+  if (!deleted) {
+    res.status(404).json({ error: "Citation not found" });
+    return;
+  }
+  await logActivity(
+    params.data.projectId,
+    "citation_removed",
+    `Sitasi dihapus dari paragraf ${deleted.paragraphIndex}`
+  );
+  res.sendStatus(204);
+});
+router7.patch("/projects/:projectId/citation-format", async (req, res) => {
+  const params = SetProjectCitationFormatParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
+  if (!ok) return;
+  const body = SetProjectCitationFormatBody.safeParse(req.body);
+  if (!body.success) {
+    res.status(400).json({ error: body.error.message });
+    return;
+  }
+  const newFormat = body.data.citationFormat;
+  const [project] = await db.update(projectsTable).set({ citationFormat: newFormat, updatedAt: /* @__PURE__ */ new Date() }).where(eq9(projectsTable.id, params.data.projectId)).returning();
+  await db.insert(projectMetadataTable).values({
+    projectId: params.data.projectId,
+    citationFormat: newFormat
+  }).onConflictDoUpdate({
+    target: projectMetadataTable.projectId,
+    set: { citationFormat: newFormat, updatedAt: /* @__PURE__ */ new Date() }
+  });
+  const citations = await db.select({
+    citation: referenceCitationsTable,
+    reference: referencesTable
+  }).from(referenceCitationsTable).innerJoin(
+    referencesTable,
+    eq9(referenceCitationsTable.referenceId, referencesTable.id)
+  ).where(eq9(referenceCitationsTable.projectId, params.data.projectId));
+  for (const { citation, reference } of citations) {
+    const newMarker = formatCitationMarker(
+      {
+        title: reference.title,
+        authors: reference.authors,
+        year: reference.year,
+        journal: reference.journal,
+        volume: reference.volume,
+        issue: reference.issue,
+        doi: reference.doi,
+        url: reference.url
+      },
+      newFormat,
+      reference.id
+    );
+    if (newMarker !== citation.formatMarker) {
+      await db.update(referenceCitationsTable).set({ formatMarker: newMarker, updatedAt: /* @__PURE__ */ new Date() }).where(eq9(referenceCitationsTable.id, citation.id));
+    }
+  }
+  await logActivity(
+    params.data.projectId,
+    "citation_format_changed",
+    `Format sitasi diubah ke ${newFormat}, ${citations.length} marker diperbarui`
+  );
+  res.json({
+    ...project,
+    instructionText: project.instructionText ?? null,
+    subject: project.subject ?? null,
+    taskType: project.taskType ?? null,
+    citationFormat: project.citationFormat ?? null,
+    outputFormat: project.outputFormat ?? null,
+    minRefYear: project.minRefYear ?? null,
+    minRefCount: project.minRefCount ?? null,
+    aiDisclosure: project.aiDisclosure,
+    status: project.status,
+    progress: project.progress
+  });
+});
+router7.post("/projects/:projectId/references/auto-cite", async (req, res) => {
+  const params = AutoCiteReferencesParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
+  if (!ok) return;
+  const body = AutoCiteReferencesBody.safeParse(req.body);
+  if (!body.success) {
+    res.status(400).json({ error: body.error.message });
+    return;
+  }
+  const [project] = await db.select().from(projectsTable).where(eq9(projectsTable.id, params.data.projectId));
+  if (!project) {
+    res.status(404).json({ error: "Project not found" });
+    return;
+  }
+  const [metadata] = await db.select().from(projectMetadataTable).where(eq9(projectMetadataTable.projectId, params.data.projectId));
+  const citationFormat = metadata?.citationFormat ?? project.citationFormat ?? "APA";
+  let candidateReferences;
+  if (body.data.referenceIds && body.data.referenceIds.length > 0) {
+    candidateReferences = await db.select().from(referencesTable).where(
+      and7(
+        eq9(referencesTable.projectId, params.data.projectId),
+        inArray(referencesTable.id, body.data.referenceIds)
+      )
+    );
+  } else {
+    candidateReferences = await db.select().from(referencesTable).where(
+      and7(
+        eq9(referencesTable.projectId, params.data.projectId),
+        eq9(referencesTable.isSelected, true)
+      )
+    );
+  }
+  if (candidateReferences.length === 0) {
+    res.json({
+      suggestions: [],
+      totalTokensUsed: 0,
+      referencesAnalyzed: 0
+    });
+    return;
+  }
+  const [latestVersion] = await db.select().from(documentVersionsTable).where(eq9(documentVersionsTable.projectId, params.data.projectId)).orderBy(desc5(documentVersionsTable.versionNumber)).limit(1);
+  const documentText = latestVersion?.content ?? "";
+  const paragraphs = documentText.split(/\n\s*\n/).map((p) => p.trim()).filter((p) => p.length > 0);
+  if (paragraphs.length === 0) {
+    res.json({
+      suggestions: [],
+      totalTokensUsed: 0,
+      referencesAnalyzed: candidateReferences.length,
+      warning: "Dokumen kosong \u2014 tidak ada paragraf untuk dianalisis."
+    });
+    return;
+  }
+  const requestedTier = body.data.tier;
+  const selectedTier = requestedTier ? await getTierConfig(requestedTier) : await getTierForUser(project.userId, null);
+  if (!selectedTier) {
+    res.status(400).json({ error: "Tier tidak valid" });
+    return;
+  }
+  if (!selectedTier.isFree) {
+    const estimatedCostCents = Math.max(
+      100,
+      selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents
+    );
+    const creditCheck = await checkCreditBalance(
+      project.userId,
+      estimatedCostCents,
+      false
+    );
+    if (!creditCheck.allowed) {
+      res.status(402).json({
+        error: creditCheck.reason,
+        balanceCents: creditCheck.balanceCents,
+        costCents: creditCheck.costCents,
+        tierName: selectedTier.name
+      });
+      return;
+    }
+  }
+  const maxPerReference = body.data.maxCitationsPerReference ?? 3;
+  const systemPrompt = buildSystemPrompt({
+    title: project.title ?? "",
+    instructionText: project.instructionText,
+    citationFormat
+  });
+  const userPrompt = `TUGAS: Sarankan posisi sitasi untuk ${candidateReferences.length} referensi di dokumen dengan ${paragraphs.length} paragraf.
+
+KONTEKS PROJECT:
+- Judul: ${sanitizeUserMessage(project.title ?? "(tanpa judul)")}
+- Format sitasi: ${citationFormat}
+- Maksimal sitasi per referensi: ${maxPerReference}
+
+ATURAN KETAT:
+- Output JSON MURNI. Tidak ada teks lain.
+- Hanya paragraf yang truly relevan. Jangan dipaksakan.
+- offsetInParagraph: posisi karakter (0-based) di akhir kalimat yang relevan dalam paragraf. Jika ragu, gunakan panjang paragraf (akhir paragraf).
+- reason: 1 kalimat singkat dalam Bahasa Indonesia.
+
+FORMAT OUTPUT:
+{
+  "citations": [
+    {
+      "referenceId": <number>,
+      "paragraphIndex": <number>,
+      "offsetInParagraph": <number>,
+      "reason": "<string>"
+    }
+  ]
+}
+
+DOKUMEN (${paragraphs.length} paragraf):
+${paragraphs.slice(0, 80).map((p, i2) => `[Paragraf ${i2}]
+${sanitizeUserMessage(p.substring(0, 800))}${p.length > 800 ? "\n...[dipotong]" : ""}`).join("\n\n")}
+
+REFERENSI YANG HARUS DIANALISIS (${candidateReferences.length}):
+${candidateReferences.map(
+    (r2) => `[ID ${r2.id}] ${sanitizeUserMessage(r2.authors ?? "Anon.")} (${r2.year ?? "t.t."}). ${sanitizeUserMessage(r2.title)}.${r2.journal ? ` ${sanitizeUserMessage(r2.journal)}.` : ""}`
+  ).join("\n")}`;
+  let aiResponse;
+  let usage;
+  let tierConfig;
+  try {
+    const result = await callAI(
+      [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt }
+      ],
+      selectedTier.id
+    );
+    aiResponse = result.content;
+    usage = result.usage;
+    tierConfig = result.tierConfig;
+  } catch (err) {
+    console.error("[auto-cite] AI call failed:", err);
+    res.status(502).json({ error: "AI provider error", detail: err instanceof Error ? err.message : String(err) });
+    return;
+  }
+  const usageLog = await logAIUsage({
+    userId: req.user.id,
+    projectId: params.data.projectId,
+    requestType: "citations",
+    usage,
+    tierConfig
+  });
+  if (!selectedTier.isFree && usage.costCents > 0) {
+    await deductCredit({
+      userId: project.userId,
+      costCents: usage.costCents,
+      tierIsFree: false,
+      tierId: selectedTier.id,
+      aiUsageLogId: usageLog?.id,
+      description: `AI auto-cite \u2014 ${selectedTier.name} tier`
+    });
+  }
+  let suggestions = [];
+  try {
+    const cleaned = aiResponse.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
+    const parsed = JSON.parse(cleaned);
+    if (parsed && Array.isArray(parsed.citations)) {
+      suggestions = parsed.citations.filter((c) => {
+        return typeof c === "object" && c !== null && typeof c.referenceId === "number" && typeof c.paragraphIndex === "number";
+      }).map((c) => ({
+        referenceId: c.referenceId,
+        paragraphIndex: c.paragraphIndex,
+        offsetInParagraph: typeof c.offsetInParagraph === "number" ? c.offsetInParagraph : 0,
+        placementReason: typeof c.reason === "string" ? c.reason : ""
+      })).reduce((acc, c) => {
+        const count3 = acc.filter((x2) => x2.referenceId === c.referenceId).length;
+        if (count3 < maxPerReference) acc.push(c);
+        return acc;
+      }, []);
+    }
+  } catch {
+    console.warn("[auto-cite] AI response not valid JSON:", aiResponse.substring(0, 200));
+  }
+  const validSuggestions = [];
+  const referencesById = new Map(candidateReferences.map((r2) => [r2.id, r2]));
+  for (const s2 of suggestions) {
+    const ref = referencesById.get(s2.referenceId);
+    if (!ref) continue;
+    if (s2.paragraphIndex < 0 || s2.paragraphIndex >= paragraphs.length) continue;
+    const paragraphText = paragraphs[s2.paragraphIndex];
+    let offset = s2.offsetInParagraph;
+    if (offset < 0 || offset > paragraphText.length) {
+      offset = paragraphText.length;
+    }
+    const marker = formatCitationMarker(
+      {
+        title: ref.title,
+        authors: ref.authors,
+        year: ref.year,
+        journal: ref.journal,
+        volume: ref.volume,
+        issue: ref.issue,
+        doi: ref.doi,
+        url: ref.url
+      },
+      citationFormat,
+      ref.id
+    );
+    validSuggestions.push({
+      referenceId: s2.referenceId,
+      paragraphIndex: s2.paragraphIndex,
+      offsetInParagraph: offset,
+      formatMarker: marker,
+      placementReason: s2.placementReason || ""
+    });
+  }
+  await logActivity(
+    params.data.projectId,
+    "auto_cite_suggestions",
+    `${validSuggestions.length} saran sitasi AI untuk ${candidateReferences.length} referensi`
+  );
+  res.json({
+    suggestions: validSuggestions,
+    totalTokensUsed: usage.inputTokens + usage.outputTokens,
+    referencesAnalyzed: candidateReferences.length
+  });
+});
 var references_default = router7;
 
 // src/routes/attachments.ts
@@ -237038,7 +237739,7 @@ var metadata_default = router11;
 
 // src/routes/exports.ts
 var import_express12 = __toESM(require_express2(), 1);
-import { eq as eq14, desc as desc8, and as and7, isNull as isNull5 } from "drizzle-orm";
+import { eq as eq14, desc as desc8, and as and8, isNull as isNull5 } from "drizzle-orm";
 import path2 from "path";
 import fs4 from "fs/promises";
 var EXPORT_DIR = process.env.EXPORT_DIR ?? "/tmp/academic-workspace-exports";
@@ -237083,10 +237784,10 @@ function markdownToParagraphs(markdown) {
       continue;
     }
     if (line.startsWith("- ") || line.startsWith("* ")) {
-      const text28 = line.substring(2).replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1");
+      const text29 = line.substring(2).replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1");
       paragraphs.push(
         new Paragraph({
-          text: text28,
+          text: text29,
           bullet: { level: 0 },
           spacing: { before: 60, after: 60 }
         })
@@ -237094,10 +237795,10 @@ function markdownToParagraphs(markdown) {
       continue;
     }
     if (/^\d+\.\s/.test(line)) {
-      const text28 = line.replace(/^\d+\.\s/, "").replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1");
+      const text29 = line.replace(/^\d+\.\s/, "").replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1");
       paragraphs.push(
         new Paragraph({
-          text: text28,
+          text: text29,
           spacing: { before: 60, after: 60 }
         })
       );
@@ -237113,14 +237814,14 @@ function markdownToParagraphs(markdown) {
   }
   return paragraphs;
 }
-function parseInlineRuns(text28) {
+function parseInlineRuns(text29) {
   const runs = [];
   const regex = /\*\*(.+?)\*\*|\*(.+?)\*|__(.+?)__|_(.+?)_/g;
   let lastIndex = 0;
   let match;
-  while ((match = regex.exec(text28)) !== null) {
+  while ((match = regex.exec(text29)) !== null) {
     if (match.index > lastIndex) {
-      runs.push(new TextRun({ text: text28.substring(lastIndex, match.index) }));
+      runs.push(new TextRun({ text: text29.substring(lastIndex, match.index) }));
     }
     if (match[1]) {
       runs.push(new TextRun({ text: match[1], bold: true }));
@@ -237133,11 +237834,11 @@ function parseInlineRuns(text28) {
     }
     lastIndex = regex.lastIndex;
   }
-  if (lastIndex < text28.length) {
-    runs.push(new TextRun({ text: text28.substring(lastIndex) }));
+  if (lastIndex < text29.length) {
+    runs.push(new TextRun({ text: text29.substring(lastIndex) }));
   }
   if (runs.length === 0) {
-    runs.push(new TextRun({ text: text28 }));
+    runs.push(new TextRun({ text: text29 }));
   }
   return runs;
 }
@@ -237183,12 +237884,12 @@ router12.post("/projects/:projectId/exports", async (req, res) => {
     [doc] = await db.select().from(documentVersionsTable).where(eq14(documentVersionsTable.id, parsed.data.documentVersionId));
   } else {
     const projectId = params.data.projectId;
-    const [activeDoc] = await db.select().from(documentsTable).where(and7(eq14(documentsTable.projectId, projectId), eq14(documentsTable.isActive, true)));
+    const [activeDoc] = await db.select().from(documentsTable).where(and8(eq14(documentsTable.projectId, projectId), eq14(documentsTable.isActive, true)));
     if (activeDoc) {
       [doc] = await db.select().from(documentVersionsTable).where(eq14(documentVersionsTable.documentId, activeDoc.id)).orderBy(desc8(documentVersionsTable.versionNumber)).limit(1);
     }
     if (!doc) {
-      [doc] = await db.select().from(documentVersionsTable).where(and7(eq14(documentVersionsTable.projectId, projectId), isNull5(documentVersionsTable.documentId))).orderBy(desc8(documentVersionsTable.versionNumber)).limit(1);
+      [doc] = await db.select().from(documentVersionsTable).where(and8(eq14(documentVersionsTable.projectId, projectId), isNull5(documentVersionsTable.documentId))).orderBy(desc8(documentVersionsTable.versionNumber)).limit(1);
     }
   }
   if (!doc) {
@@ -237196,8 +237897,8 @@ router12.post("/projects/:projectId/exports", async (req, res) => {
     return;
   }
   await fs4.mkdir(EXPORT_DIR, { recursive: true });
-  const timestamp28 = Date.now();
-  const filename = `export-${params.data.projectId}-v${doc.versionNumber}-${timestamp28}`;
+  const timestamp29 = Date.now();
+  const filename = `export-${params.data.projectId}-v${doc.versionNumber}-${timestamp29}`;
   const content = doc.content ?? "";
   if (parsed.data.format === "docx") {
     const paragraphs = markdownToParagraphs(content);
@@ -237277,7 +237978,7 @@ var exports_default = router12;
 
 // src/routes/ai-usage.ts
 var import_express13 = __toESM(require_express2(), 1);
-import { eq as eq15, and as and8, gte, lte, sql as sql5 } from "drizzle-orm";
+import { eq as eq15, and as and9, gte, lte, sql as sql5 } from "drizzle-orm";
 var router13 = (0, import_express13.Router)();
 function getUserId2(req) {
   if (!req.user?.id) throw new Error("User not authenticated");
@@ -237300,7 +238001,7 @@ router13.get("/ai-usage", async (req, res) => {
   if (endDate) {
     conditions.push(lte(aiUsageLogTable.createdAt, endDate));
   }
-  const whereClause = conditions.length === 1 ? conditions[0] : and8(...conditions);
+  const whereClause = conditions.length === 1 ? conditions[0] : and9(...conditions);
   const [totalResult] = await db.select({ count: sql5`count(*)` }).from(aiUsageLogTable).where(whereClause);
   const records = await db.select().from(aiUsageLogTable).where(whereClause).orderBy(sql5`created_at desc`).limit(limit).offset(offset);
   res.json({
@@ -237318,7 +238019,7 @@ router13.get("/ai-usage/stats", async (req, res) => {
   if (projectId !== void 0) {
     conditions.push(eq15(aiUsageLogTable.projectId, projectId));
   }
-  const whereClause = conditions.length === 1 ? conditions[0] : and8(...conditions);
+  const whereClause = conditions.length === 1 ? conditions[0] : and9(...conditions);
   const records = await db.select({
     requestType: aiUsageLogTable.requestType,
     inputTokens: aiUsageLogTable.inputTokens,
@@ -237356,7 +238057,7 @@ var ai_usage_default = router13;
 
 // src/routes/comments.ts
 var import_express14 = __toESM(require_express2(), 1);
-import { eq as eq16, and as and9, desc as desc9 } from "drizzle-orm";
+import { eq as eq16, and as and10, desc as desc9 } from "drizzle-orm";
 var router14 = (0, import_express14.Router)();
 router14.get("/projects/:projectId/documents/:documentId/comments", async (req, res) => {
   const projectId = Number(req.params.projectId);
@@ -237371,7 +238072,7 @@ router14.get("/projects/:projectId/documents/:documentId/comments", async (req, 
   }
   const ok = await requireProjectWriteAccess(projectId, req.user.id, res);
   if (!ok) return;
-  const comments = await db.select().from(commentsTable).where(and9(eq16(commentsTable.projectId, projectId), eq16(commentsTable.documentId, documentId))).orderBy(desc9(commentsTable.createdAt));
+  const comments = await db.select().from(commentsTable).where(and10(eq16(commentsTable.projectId, projectId), eq16(commentsTable.documentId, documentId))).orderBy(desc9(commentsTable.createdAt));
   res.json(comments);
 });
 router14.post("/projects/:projectId/documents/:documentId/comments", async (req, res) => {
@@ -237421,7 +238122,7 @@ router14.patch("/projects/:projectId/comments/:commentId", async (req, res) => {
   }
   const ok = await requireProjectWriteAccess(projectId, req.user.id, res);
   if (!ok) return;
-  const [existing] = await db.select().from(commentsTable).where(and9(eq16(commentsTable.id, commentId), eq16(commentsTable.projectId, projectId)));
+  const [existing] = await db.select().from(commentsTable).where(and10(eq16(commentsTable.id, commentId), eq16(commentsTable.projectId, projectId)));
   if (!existing) {
     res.status(404).json({ error: "Comment not found" });
     return;
@@ -237443,13 +238144,13 @@ router14.patch("/projects/:projectId/comments/:commentId", async (req, res) => {
       resolvedBy: resolved ? req.user.id : null,
       resolvedAt: resolved ? /* @__PURE__ */ new Date() : null,
       updatedAt: /* @__PURE__ */ new Date()
-    }).where(and9(eq16(commentsTable.id, commentId), eq16(commentsTable.projectId, projectId))).returning();
+    }).where(and10(eq16(commentsTable.id, commentId), eq16(commentsTable.projectId, projectId))).returning();
     res.json(updated);
     return;
   }
   if (content !== void 0) {
     const sanitizedContent = sanitizeInstructionText(content.trim());
-    const [updated] = await db.update(commentsTable).set({ content: sanitizedContent, updatedAt: /* @__PURE__ */ new Date() }).where(and9(eq16(commentsTable.id, commentId), eq16(commentsTable.projectId, projectId))).returning();
+    const [updated] = await db.update(commentsTable).set({ content: sanitizedContent, updatedAt: /* @__PURE__ */ new Date() }).where(and10(eq16(commentsTable.id, commentId), eq16(commentsTable.projectId, projectId))).returning();
     res.json(updated);
     return;
   }
@@ -237468,7 +238169,7 @@ router14.delete("/projects/:projectId/comments/:commentId", async (req, res) => 
   }
   const ok = await requireProjectWriteAccess(projectId, req.user.id, res);
   if (!ok) return;
-  const [existing] = await db.select().from(commentsTable).where(and9(eq16(commentsTable.id, commentId), eq16(commentsTable.projectId, projectId)));
+  const [existing] = await db.select().from(commentsTable).where(and10(eq16(commentsTable.id, commentId), eq16(commentsTable.projectId, projectId)));
   if (!existing) {
     res.status(404).json({ error: "Comment not found" });
     return;
@@ -237477,14 +238178,14 @@ router14.delete("/projects/:projectId/comments/:commentId", async (req, res) => 
     res.status(403).json({ error: "You can only delete your own comments" });
     return;
   }
-  await db.delete(commentsTable).where(and9(eq16(commentsTable.id, commentId), eq16(commentsTable.projectId, projectId)));
+  await db.delete(commentsTable).where(and10(eq16(commentsTable.id, commentId), eq16(commentsTable.projectId, projectId)));
   res.status(204).send();
 });
 var comments_default = router14;
 
 // src/routes/project-members.ts
 var import_express15 = __toESM(require_express2(), 1);
-import { eq as eq17, and as and10 } from "drizzle-orm";
+import { eq as eq17, and as and11 } from "drizzle-orm";
 var router15 = (0, import_express15.Router)();
 router15.get("/projects/:projectId/members", async (req, res) => {
   const projectId = Number(req.params.projectId);
@@ -237540,7 +238241,7 @@ router15.patch("/projects/:projectId/members/:memberId", async (req, res) => {
   }
   const ok = await requireProjectOwnership(projectId, req.user.id, res);
   if (!ok) return;
-  const [existing] = await db.select().from(projectMembersTable).where(and10(eq17(projectMembersTable.id, memberId), eq17(projectMembersTable.projectId, projectId)));
+  const [existing] = await db.select().from(projectMembersTable).where(and11(eq17(projectMembersTable.id, memberId), eq17(projectMembersTable.projectId, projectId)));
   if (!existing) {
     res.status(404).json({ error: "Member not found" });
     return;
@@ -237552,7 +238253,7 @@ router15.patch("/projects/:projectId/members/:memberId", async (req, res) => {
     return;
   }
   const updatedRole = role;
-  const [updated] = await db.update(projectMembersTable).set({ role: updatedRole, updatedAt: /* @__PURE__ */ new Date() }).where(and10(eq17(projectMembersTable.id, memberId), eq17(projectMembersTable.projectId, projectId))).returning();
+  const [updated] = await db.update(projectMembersTable).set({ role: updatedRole, updatedAt: /* @__PURE__ */ new Date() }).where(and11(eq17(projectMembersTable.id, memberId), eq17(projectMembersTable.projectId, projectId))).returning();
   res.json(updated);
 });
 router15.delete("/projects/:projectId/members/:memberId", async (req, res) => {
@@ -237568,12 +238269,12 @@ router15.delete("/projects/:projectId/members/:memberId", async (req, res) => {
   }
   const ok = await requireProjectOwnership(projectId, req.user.id, res);
   if (!ok) return;
-  const [member] = await db.select().from(projectMembersTable).where(and10(eq17(projectMembersTable.id, memberId), eq17(projectMembersTable.projectId, projectId)));
+  const [member] = await db.select().from(projectMembersTable).where(and11(eq17(projectMembersTable.id, memberId), eq17(projectMembersTable.projectId, projectId)));
   if (!member) {
     res.status(404).json({ error: "Member not found" });
     return;
   }
-  await db.delete(projectMembersTable).where(and10(eq17(projectMembersTable.id, memberId), eq17(projectMembersTable.projectId, projectId)));
+  await db.delete(projectMembersTable).where(and11(eq17(projectMembersTable.id, memberId), eq17(projectMembersTable.projectId, projectId)));
   res.status(204).send();
 });
 var project_members_default = router15;
@@ -238210,7 +238911,7 @@ var balance_default = router20;
 
 // src/routes/account-references.ts
 var import_express21 = __toESM(require_express2(), 1);
-import { eq as eq23, desc as desc15, and as and11 } from "drizzle-orm";
+import { eq as eq23, desc as desc15, and as and12 } from "drizzle-orm";
 var router21 = (0, import_express21.Router)();
 router21.get("/account/references", async (req, res) => {
   if (!req.user?.id) {
@@ -238243,7 +238944,7 @@ router21.post("/account/references", async (req, res) => {
   }
   if (doi && typeof doi === "string") {
     const existing = await db.select({ id: accountReferencesTable.id }).from(accountReferencesTable).where(
-      and11(
+      and12(
         eq23(accountReferencesTable.userId, req.user.id),
         eq23(accountReferencesTable.doi, doi)
       )
@@ -238288,7 +238989,7 @@ router21.put("/account/references/:id", async (req, res) => {
     return;
   }
   const [existing] = await db.select().from(accountReferencesTable).where(
-    and11(
+    and12(
       eq23(accountReferencesTable.id, id),
       eq23(accountReferencesTable.userId, req.user.id)
     )
@@ -238300,7 +239001,7 @@ router21.put("/account/references/:id", async (req, res) => {
   const { title, authors, year, journal, volume, issue, doi, url: url2, isSuggested, source } = req.body;
   if (doi && doi !== existing.doi) {
     const duplicate = await db.select({ id: accountReferencesTable.id }).from(accountReferencesTable).where(
-      and11(
+      and12(
         eq23(accountReferencesTable.userId, req.user.id),
         eq23(accountReferencesTable.doi, doi)
       )
@@ -238322,7 +239023,7 @@ router21.put("/account/references/:id", async (req, res) => {
   if (isSuggested !== void 0) updates.isSuggested = isSuggested;
   if (source !== void 0) updates.source = source;
   const [updated] = await db.update(accountReferencesTable).set(updates).where(
-    and11(
+    and12(
       eq23(accountReferencesTable.id, id),
       eq23(accountReferencesTable.userId, req.user.id)
     )
@@ -238349,7 +239050,7 @@ router21.delete("/account/references/:id", async (req, res) => {
     return;
   }
   const [deleted] = await db.delete(accountReferencesTable).where(
-    and11(
+    and12(
       eq23(accountReferencesTable.id, id),
       eq23(accountReferencesTable.userId, req.user.id)
     )
@@ -238376,7 +239077,7 @@ router21.post("/account/references/:id/assign", async (req, res) => {
     return;
   }
   const [accountRef] = await db.select().from(accountReferencesTable).where(
-    and11(
+    and12(
       eq23(accountReferencesTable.id, accountRefId),
       eq23(accountReferencesTable.userId, req.user.id)
     )
@@ -238387,7 +239088,7 @@ router21.post("/account/references/:id/assign", async (req, res) => {
   }
   if (accountRef.doi) {
     const existingInProject = await db.select({ id: referencesTable.id }).from(referencesTable).where(
-      and11(
+      and12(
         eq23(referencesTable.projectId, projectId),
         eq23(referencesTable.doi, accountRef.doi)
       )
@@ -238504,7 +239205,7 @@ var account_references_default = router21;
 
 // src/routes/usage.ts
 var import_express22 = __toESM(require_express2(), 1);
-import { eq as eq24, and as and12, gte as gte2, sql as sql6, desc as desc16 } from "drizzle-orm";
+import { eq as eq24, and as and13, gte as gte2, sql as sql6, desc as desc16 } from "drizzle-orm";
 import { z as z6 } from "zod/v4";
 var router22 = (0, import_express22.Router)();
 router22.use(authMiddleware);
@@ -238575,7 +239276,7 @@ router22.get("/users/me/usage", async (req, res) => {
     inputTokens: aiUsageLogTable.inputTokens,
     outputTokens: aiUsageLogTable.outputTokens,
     estimatedCostUsd: aiUsageLogTable.estimatedCostUsd
-  }).from(aiUsageLogTable).where(and12(...conditions));
+  }).from(aiUsageLogTable).where(and13(...conditions));
   const aggregated = aggregateRecords(records, true);
   res.json({
     ...aggregated,
@@ -238598,7 +239299,7 @@ router22.get("/users/me/usage/projects/:projectId", async (req, res) => {
     outputTokens: aiUsageLogTable.outputTokens,
     estimatedCostUsd: aiUsageLogTable.estimatedCostUsd
   }).from(aiUsageLogTable).where(
-    and12(
+    and13(
       eq24(aiUsageLogTable.userId, req.user.id),
       eq24(aiUsageLogTable.projectId, projectId)
     )
@@ -238650,7 +239351,7 @@ router22.get("/admin/usage", async (req, res) => {
   const conditions = [];
   const periodCond = buildPeriodCondition(period);
   if (periodCond) conditions.push(periodCond);
-  const whereClause = conditions.length > 0 ? and12(...conditions) : void 0;
+  const whereClause = conditions.length > 0 ? and13(...conditions) : void 0;
   const perUserRaw = await db.select({
     userId: aiUsageLogTable.userId,
     email: usersTable2.email,
@@ -238974,7 +239675,7 @@ function requireOwner2(req, res, next) {
 }
 
 // src/routes/admin.ts
-import { sql as sql7, eq as eq27, count as count2, or as or2, and as and13, gte as gte3 } from "drizzle-orm";
+import { sql as sql7, eq as eq27, count as count2, or as or2, and as and14, gte as gte3 } from "drizzle-orm";
 var router25 = (0, import_express25.Router)();
 router25.get("/me", authMiddleware, (req, res) => {
   const OWNER_EMAIL2 = process.env.OWNER_EMAIL ?? "";
@@ -239079,7 +239780,7 @@ router25.get("/stats", authMiddleware, requireOwner2, async (req, res) => {
         totalRequests: count2(),
         totalCostUsd: sql7`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`
       }).from(aiUsageLogTable).where(
-        and13(
+        and14(
           eq27(aiUsageLogTable.userId, ownerUser[0].id),
           gte3(aiUsageLogTable.createdAt, startDate)
         )

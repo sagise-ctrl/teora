@@ -741,6 +741,219 @@ paths:
               schema:
                 $ref: "#/components/schemas/BibliographyResult"
 
+  # ──────────────────────────────────────────────────────────────────
+  # Auto-cite — AI suggests citation positions (DECISION 014)
+  # ──────────────────────────────────────────────────────────────────
+  /projects/{projectId}/references/auto-cite:
+    post:
+      operationId: autoCiteReferences
+      tags: [references]
+      summary: AI suggests citation positions for selected references
+      description: |
+        Reads the current document + the references the user has ceklist (selected = true),
+        then asks the AI to find paragraphs where each reference is relevant and insert
+        a citation marker. Supports multi-cite — one reference can be cited in multiple
+        paragraphs. User reviews the suggestions before applying them.
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AutoCiteRequest"
+      responses:
+        "200":
+          description: Citation suggestions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutoCiteResponse"
+        "402":
+          description: Insufficient token balance
+        "404":
+          description: Project or document not found
+
+  # ──────────────────────────────────────────────────────────────────
+  # Reference ceklist — toggle selection for bibliography inclusion
+  # ──────────────────────────────────────────────────────────────────
+  /projects/{projectId}/references/{referenceId}/select:
+    patch:
+      operationId: toggleReferenceSelection
+      tags: [references]
+      summary: Toggle the ceklist status of a reference
+      description: |
+        When ceklist = true, the reference is included in the bibliography and eligible
+        for AI auto-cite. When false, the reference is hidden from auto-cite but still
+        visible in the Tab Referensi list.
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: referenceId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [isSelected]
+              properties:
+                isSelected:
+                  type: boolean
+                  description: New ceklist state
+      responses:
+        "200":
+          description: Updated reference
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reference"
+
+  # ──────────────────────────────────────────────────────────────────
+  # Citation management — track marker positions in document text
+  # ──────────────────────────────────────────────────────────────────
+  /projects/{projectId}/citations:
+    get:
+      operationId: listCitations
+      tags: [references]
+      summary: List all citation marker positions for a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Citations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ReferenceCitation"
+    post:
+      operationId: createCitation
+      tags: [references]
+      summary: Manually add a citation marker at a position
+      description: Used when user inserts citation manually (not via AI auto-cite).
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCitationRequest"
+      responses:
+        "201":
+          description: Created citation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReferenceCitation"
+
+  /projects/{projectId}/citations/{citationId}:
+    patch:
+      operationId: updateCitation
+      tags: [references]
+      summary: Update citation position (drag) or format marker
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: citationId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateCitationRequest"
+      responses:
+        "200":
+          description: Updated citation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReferenceCitation"
+        "404":
+          description: Citation not found
+    delete:
+      operationId: deleteCitation
+      tags: [references]
+      summary: Remove a citation marker
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: citationId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Citation not found
+
+  # ──────────────────────────────────────────────────────────────────
+  # Citation format selection — per project
+  # ──────────────────────────────────────────────────────────────────
+  /projects/{projectId}/citation-format:
+    patch:
+      operationId: setProjectCitationFormat
+      tags: [references]
+      summary: Set the citation format for a project
+      description: |
+        Updates the citation format used to render citation markers in the document
+        and generate the bibliography section. Triggers re-render of all existing
+        citation markers.
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetCitationFormatRequest"
+      responses:
+        "200":
+          description: Updated project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "400":
+          description: Invalid format
+
   /references/fetch-metadata:
     post:
       operationId: fetchReferenceMetadata
@@ -2754,6 +2967,8 @@ components:
           enum: [general, academic]
         citationFormat:
           type: ["string", "null"]
+          enum: [APA, APA7, IEEE, Vancouver, Chicago, MLA, Harvard, null]
+          description: Citation format used for in-text/footnote markers and bibliography. Default = APA.
         outputFormat:
           type: ["string", "null"]
         minRefYear:
@@ -2772,13 +2987,20 @@ components:
 
     ProjectInput:
       type: object
-      required: [title]
+      required: [instructionText]
       properties:
         title:
           type: string
-          minLength: 1
+          description: |
+            Optional. Project display name (used in document list, not in exported file).
+            If omitted, the workspace will auto-generate a title via AI from instructionText.
         instructionText:
           type: string
+          minLength: 1
+          description: |
+            REQUIRED for both General Task and Academic Work. The instructions or idea/gagasan
+            that AI uses to generate the title (if missing), analyze the task, and produce
+            the document.
         outputFormat:
           type: string
           enum: [docx, pdf, markdown]
@@ -3040,6 +3262,11 @@ components:
           type: string
           enum: [manual, crossref, file]
           description: Source of the reference
+        isSelected:
+          type: boolean
+          description: |
+            Ceklist status — true means reference is included in bibliography and
+            eligible for AI auto-cite. (DECISION 014)
 
     ReferenceInput:
       type: object
@@ -3090,6 +3317,137 @@ components:
           type: string
         format:
           type: string
+
+    # ──────────────────────────────────────────────────────────────────
+    # Reference Tool + Auto-Cite (DECISION 014)
+    # ──────────────────────────────────────────────────────────────────
+    AutoCiteRequest:
+      type: object
+      required: [referenceIds]
+      properties:
+        referenceIds:
+          type: array
+          items:
+            type: number
+          description: |
+            IDs of references to auto-cite. Only ceklist-selected references are used
+            in practice; this list lets user override (e.g. force a specific reference).
+          minItems: 1
+          maxItems: 50
+        maxCitationsPerReference:
+          type: number
+          description: |
+            Cap on how many distinct paragraphs the same reference can be cited in.
+            Default = 3 (Level C smart placement).
+          default: 3
+          minimum: 1
+          maximum: 20
+        tier:
+          type: string
+          enum: [low, mid, high]
+          default: mid
+          description: AI model tier to use for the suggestion
+
+    AutoCiteSuggestion:
+      type: object
+      required: [referenceId, paragraphIndex, offsetInParagraph, formatMarker, placementReason]
+      properties:
+        referenceId:
+          type: number
+        paragraphIndex:
+          type: number
+          description: 0-based paragraph index in the document text
+        offsetInParagraph:
+          type: number
+          description: Character offset within the paragraph (where the citation marker starts)
+        formatMarker:
+          type: string
+          description: |
+            Pre-rendered citation marker for the project's citationFormat
+            (e.g. "(Smith & Jones, 2023)" for APA, "[1]" for IEEE)
+        placementReason:
+          type: string
+          description: AI's explanation for why this citation belongs here
+
+    AutoCiteResponse:
+      type: object
+      required: [suggestions, totalTokensUsed, referencesAnalyzed]
+      properties:
+        suggestions:
+          type: array
+          items:
+            $ref: "#/components/schemas/AutoCiteSuggestion"
+        totalTokensUsed:
+          type: number
+        referencesAnalyzed:
+          type: number
+          description: How many ceklist-selected references were considered
+
+    ReferenceCitation:
+      type: object
+      required: [id, projectId, referenceId, paragraphIndex, offsetInParagraph, formatMarker, createdAt]
+      properties:
+        id:
+          type: number
+        projectId:
+          type: number
+        referenceId:
+          type: number
+        paragraphIndex:
+          type: number
+        offsetInParagraph:
+          type: number
+        formatMarker:
+          type: string
+        placementReason:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateCitationRequest:
+      type: object
+      required: [referenceId, paragraphIndex, formatMarker]
+      properties:
+        referenceId:
+          type: number
+        paragraphIndex:
+          type: number
+        offsetInParagraph:
+          type: number
+          default: 0
+        formatMarker:
+          type: string
+          description: Pre-rendered marker (frontend computes from current citationFormat)
+        placementReason:
+          type: string
+
+    UpdateCitationRequest:
+      type: object
+      properties:
+        paragraphIndex:
+          type: number
+          description: New paragraph index (for drag between paragraphs)
+        offsetInParagraph:
+          type: number
+          description: New character offset within the paragraph
+        formatMarker:
+          type: string
+          description: New pre-rendered marker (after citationFormat change)
+        placementReason:
+          type: string
+
+    SetCitationFormatRequest:
+      type: object
+      required: [citationFormat]
+      properties:
+        citationFormat:
+          type: string
+          enum: [APA, APA7, IEEE, Vancouver, Chicago, MLA, Harvard]
+          description: Citation format for the project
 
     ValidationIssue:
       type: object
@@ -3239,6 +3597,8 @@ components:
           enum: [general, academic]
         citationFormat:
           type: ["string", "null"]
+          enum: [APA, APA7, IEEE, Vancouver, Chicago, MLA, Harvard, null]
+          description: Citation format used for in-text/footnote markers and bibliography. Default = APA.
         language:
           type: ["string", "null"]
         outline:

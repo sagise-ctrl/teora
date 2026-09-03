@@ -1,10 +1,12 @@
 import { Router, type IRouter } from "express";
-import { eq, desc } from "drizzle-orm";
+import { eq, and, desc, inArray } from "drizzle-orm";
 import {
   db,
   referencesTable,
+  referenceCitationsTable,
   projectMetadataTable,
   projectsTable,
+  documentVersionsTable,
 } from "@workspace/db";
 import {
   ListReferencesParams,
@@ -17,6 +19,19 @@ import {
   FormatCSLBibliographyQueryParams,
   BulkAddReferencesParams,
   BulkAddReferencesBody,
+  // DECISION 014 — Reference Tool + Auto-Cite
+  AutoCiteReferencesParams,
+  AutoCiteReferencesBody,
+  ToggleReferenceSelectionParams,
+  ToggleReferenceSelectionBody,
+  ListCitationsParams,
+  CreateCitationParams,
+  CreateCitationBody,
+  UpdateCitationParams,
+  UpdateCitationBody,
+  DeleteCitationParams,
+  SetProjectCitationFormatParams,
+  SetProjectCitationFormatBody,
 } from "@workspace/api-zod";
 import { callAI, buildSystemPrompt, getTierConfig, getTierForUser } from "../lib/ai.js";
 import { logActivity } from "../lib/activity.js";
@@ -24,7 +39,7 @@ import { requireProjectOwnership } from "../lib/ownership.js";
 import { logAIUsage } from "../lib/ai-usage-log.js";
 import { checkCreditBalance, deductCredit } from "../lib/credit.js";
 import { sanitizeUserMessage } from "../lib/prompt-injection.js";
-import { validateReference, validateDOI, validateISBN, formatBibliography, type CitationFormat } from "../lib/citation.js";
+import { validateReference, validateDOI, validateISBN, formatBibliography, formatCitationMarker, type CitationFormat } from "../lib/citation.js";
 import { fetchMetadata, detectIdentifierType } from "../lib/fetch-reference-metadata.js";
 import { searchCrossRef } from "../lib/crossref-search.js";
 
@@ -560,6 +575,718 @@ router.post("/references/fetch-metadata", async (req, res): Promise<void> => {
   }
 
   res.json(metadata);
+});
+
+// ──────────────────────────────────────────────────────────────────
+// DECISION 014 — Reference Tool + Auto-Cite + Pustaka Saya
+// Phase 1: Citation management (CRUD) + ceklist toggle + citation-format
+// + AI auto-cite endpoint
+// ──────────────────────────────────────────────────────────────────
+
+// PATCH /projects/:projectId/references/:referenceId/select
+// Toggle the ceklist status of a single reference. When true, the reference is
+// included in the bibliography and eligible for AI auto-cite.
+router.patch("/projects/:projectId/references/:referenceId/select", async (req, res): Promise<void> => {
+  const params = ToggleReferenceSelectionParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
+  if (!ok) return;
+
+  const body = ToggleReferenceSelectionBody.safeParse(req.body);
+  if (!body.success) {
+    res.status(400).json({ error: body.error.message });
+    return;
+  }
+
+  const [ref] = await db
+    .update(referencesTable)
+    .set({ isSelected: body.data.isSelected })
+    .where(
+      and(
+        eq(referencesTable.id, params.data.referenceId),
+        eq(referencesTable.projectId, params.data.projectId),
+      ),
+    )
+    .returning();
+
+  if (!ref) {
+    res.status(404).json({ error: "Reference not found" });
+    return;
+  }
+
+  await logActivity(
+    params.data.projectId,
+    "reference_selection_toggled",
+    `Referensi "${ref.title}" ${body.data.isSelected ? "dicentang" : "dihilangkan"} dari daftar pustaka`,
+  );
+
+  res.json({
+    ...ref,
+    authors: ref.authors ?? null,
+    year: ref.year ?? null,
+    journal: ref.journal ?? null,
+    volume: ref.volume ?? null,
+    issue: ref.issue ?? null,
+    doi: ref.doi ?? null,
+    url: ref.url ?? null,
+    usedInChapters: ref.usedInChapters ?? null,
+    isSuggested: ref.isSuggested,
+    isSelected: ref.isSelected,
+    source: ref.source,
+  });
+});
+
+// GET /projects/:projectId/citations
+// List all citation marker positions for a project.
+router.get("/projects/:projectId/citations", async (req, res): Promise<void> => {
+  const params = ListCitationsParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
+  if (!ok) return;
+
+  const rows = await db
+    .select()
+    .from(referenceCitationsTable)
+    .where(eq(referenceCitationsTable.projectId, params.data.projectId));
+
+  res.json(
+    rows.map((c) => ({
+      id: c.id,
+      projectId: c.projectId,
+      referenceId: c.referenceId,
+      paragraphIndex: c.paragraphIndex,
+      offsetInParagraph: c.offsetInParagraph,
+      formatMarker: c.formatMarker,
+      placementReason: c.placementReason ?? null,
+      createdAt: c.createdAt instanceof Date ? c.createdAt.toISOString() : c.createdAt,
+      updatedAt: c.updatedAt instanceof Date ? c.updatedAt.toISOString() : c.updatedAt,
+    })),
+  );
+});
+
+// POST /projects/:projectId/citations
+// Manually add a citation marker at a specific position. Used when user inserts
+// citation manually (not via AI auto-cite).
+router.post("/projects/:projectId/citations", async (req, res): Promise<void> => {
+  const params = CreateCitationParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
+  if (!ok) return;
+
+  const body = CreateCitationBody.safeParse(req.body);
+  if (!body.success) {
+    res.status(400).json({ error: body.error.message });
+    return;
+  }
+
+  // Verify the reference belongs to the project
+  const [ref] = await db
+    .select()
+    .from(referencesTable)
+    .where(
+      and(
+        eq(referencesTable.id, body.data.referenceId),
+        eq(referencesTable.projectId, params.data.projectId),
+      ),
+    );
+
+  if (!ref) {
+    res.status(404).json({ error: "Reference not found in this project" });
+    return;
+  }
+
+  const [citation] = await db
+    .insert(referenceCitationsTable)
+    .values({
+      projectId: params.data.projectId,
+      referenceId: body.data.referenceId,
+      paragraphIndex: body.data.paragraphIndex,
+      offsetInParagraph: body.data.offsetInParagraph ?? 0,
+      formatMarker: body.data.formatMarker,
+      placementReason: body.data.placementReason ?? null,
+    })
+    .returning();
+
+  await logActivity(
+    params.data.projectId,
+    "citation_added",
+    `Sitasi manual ditambahkan untuk referensi "${ref.title}" di paragraf ${body.data.paragraphIndex}`,
+  );
+
+  res.status(201).json({
+    id: citation.id,
+    projectId: citation.projectId,
+    referenceId: citation.referenceId,
+    paragraphIndex: citation.paragraphIndex,
+    offsetInParagraph: citation.offsetInParagraph,
+    formatMarker: citation.formatMarker,
+    placementReason: citation.placementReason ?? null,
+    createdAt: citation.createdAt instanceof Date ? citation.createdAt.toISOString() : citation.createdAt,
+    updatedAt: citation.updatedAt instanceof Date ? citation.updatedAt.toISOString() : citation.updatedAt,
+  });
+});
+
+// PATCH /projects/:projectId/citations/:citationId
+// Update citation position (drag) or format marker (after format change).
+router.patch("/projects/:projectId/citations/:citationId", async (req, res): Promise<void> => {
+  const params = UpdateCitationParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
+  if (!ok) return;
+
+  const body = UpdateCitationBody.safeParse(req.body);
+  if (!body.success) {
+    res.status(400).json({ error: body.error.message });
+    return;
+  }
+
+  // Verify the citation belongs to the project
+  const [existing] = await db
+    .select()
+    .from(referenceCitationsTable)
+    .where(
+      and(
+        eq(referenceCitationsTable.id, params.data.citationId),
+        eq(referenceCitationsTable.projectId, params.data.projectId),
+      ),
+    );
+
+  if (!existing) {
+    res.status(404).json({ error: "Citation not found" });
+    return;
+  }
+
+  const [updated] = await db
+    .update(referenceCitationsTable)
+    .set({
+      paragraphIndex: body.data.paragraphIndex ?? existing.paragraphIndex,
+      offsetInParagraph: body.data.offsetInParagraph ?? existing.offsetInParagraph,
+      formatMarker: body.data.formatMarker ?? existing.formatMarker,
+      placementReason: body.data.placementReason ?? existing.placementReason,
+    })
+    .where(eq(referenceCitationsTable.id, params.data.citationId))
+    .returning();
+
+  res.json({
+    id: updated.id,
+    projectId: updated.projectId,
+    referenceId: updated.referenceId,
+    paragraphIndex: updated.paragraphIndex,
+    offsetInParagraph: updated.offsetInParagraph,
+    formatMarker: updated.formatMarker,
+    placementReason: updated.placementReason ?? null,
+    createdAt: updated.createdAt instanceof Date ? updated.createdAt.toISOString() : updated.createdAt,
+    updatedAt: updated.updatedAt instanceof Date ? updated.updatedAt.toISOString() : updated.updatedAt,
+  });
+});
+
+// DELETE /projects/:projectId/citations/:citationId
+// Remove a citation marker.
+router.delete("/projects/:projectId/citations/:citationId", async (req, res): Promise<void> => {
+  const params = DeleteCitationParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
+  if (!ok) return;
+
+  const [deleted] = await db
+    .delete(referenceCitationsTable)
+    .where(
+      and(
+        eq(referenceCitationsTable.id, params.data.citationId),
+        eq(referenceCitationsTable.projectId, params.data.projectId),
+      ),
+    )
+    .returning();
+
+  if (!deleted) {
+    res.status(404).json({ error: "Citation not found" });
+    return;
+  }
+
+  await logActivity(
+    params.data.projectId,
+    "citation_removed",
+    `Sitasi dihapus dari paragraf ${deleted.paragraphIndex}`,
+  );
+
+  res.sendStatus(204);
+});
+
+// PATCH /projects/:projectId/citation-format
+// Set the citation format for a project. Triggers re-render of all citation
+// markers using the new format (so APA → IEEE changes all "(Smith, 2023)"
+// markers to "[42]").
+router.patch("/projects/:projectId/citation-format", async (req, res): Promise<void> => {
+  const params = SetProjectCitationFormatParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
+  if (!ok) return;
+
+  const body = SetProjectCitationFormatBody.safeParse(req.body);
+  if (!body.success) {
+    res.status(400).json({ error: body.error.message });
+    return;
+  }
+
+  const newFormat = body.data.citationFormat as CitationFormat;
+
+  // Update project
+  const [project] = await db
+    .update(projectsTable)
+    .set({ citationFormat: newFormat, updatedAt: new Date() })
+    .where(eq(projectsTable.id, params.data.projectId))
+    .returning();
+
+  // Mirror to projectMetadataTable
+  await db
+    .insert(projectMetadataTable)
+    .values({
+      projectId: params.data.projectId,
+      citationFormat: newFormat,
+    })
+    .onConflictDoUpdate({
+      target: projectMetadataTable.projectId,
+      set: { citationFormat: newFormat, updatedAt: new Date() },
+    });
+
+  // Re-render all existing citation markers using the new format
+  const citations = await db
+    .select({
+      citation: referenceCitationsTable,
+      reference: referencesTable,
+    })
+    .from(referenceCitationsTable)
+    .innerJoin(
+      referencesTable,
+      eq(referenceCitationsTable.referenceId, referencesTable.id),
+    )
+    .where(eq(referenceCitationsTable.projectId, params.data.projectId));
+
+  for (const { citation, reference } of citations) {
+    const newMarker = formatCitationMarker(
+      {
+        title: reference.title,
+        authors: reference.authors,
+        year: reference.year,
+        journal: reference.journal,
+        volume: reference.volume,
+        issue: reference.issue,
+        doi: reference.doi,
+        url: reference.url,
+      },
+      newFormat,
+      reference.id,
+    );
+    if (newMarker !== citation.formatMarker) {
+      await db
+        .update(referenceCitationsTable)
+        .set({ formatMarker: newMarker, updatedAt: new Date() })
+        .where(eq(referenceCitationsTable.id, citation.id));
+    }
+  }
+
+  await logActivity(
+    params.data.projectId,
+    "citation_format_changed",
+    `Format sitasi diubah ke ${newFormat}, ${citations.length} marker diperbarui`,
+  );
+
+  res.json({
+    ...project,
+    instructionText: project.instructionText ?? null,
+    subject: project.subject ?? null,
+    taskType: project.taskType ?? null,
+    citationFormat: project.citationFormat ?? null,
+    outputFormat: project.outputFormat ?? null,
+    minRefYear: project.minRefYear ?? null,
+    minRefCount: project.minRefCount ?? null,
+    aiDisclosure: project.aiDisclosure,
+    status: project.status,
+    progress: project.progress,
+  });
+});
+
+// POST /projects/:projectId/references/auto-cite
+// AI suggests citation positions for selected references. The AI reads the
+// document + references, then returns structured JSON with positions to cite
+// each reference. Suggestions are returned to the frontend for user review
+// before being persisted (user clicks "Apply" → frontend POSTs each accepted
+// one to /citations).
+router.post("/projects/:projectId/references/auto-cite", async (req, res): Promise<void> => {
+  const params = AutoCiteReferencesParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
+  if (!ok) return;
+
+  const body = AutoCiteReferencesBody.safeParse(req.body);
+  if (!body.success) {
+    res.status(400).json({ error: body.error.message });
+    return;
+  }
+
+  // Load project + metadata for citation format
+  const [project] = await db
+    .select()
+    .from(projectsTable)
+    .where(eq(projectsTable.id, params.data.projectId));
+
+  if (!project) {
+    res.status(404).json({ error: "Project not found" });
+    return;
+  }
+
+  const [metadata] = await db
+    .select()
+    .from(projectMetadataTable)
+    .where(eq(projectMetadataTable.projectId, params.data.projectId));
+
+  const citationFormat = (metadata?.citationFormat ?? project.citationFormat ?? "APA") as CitationFormat;
+
+  // Determine which references to consider:
+  // - If body.referenceIds provided AND non-empty, use those
+  // - Otherwise, use ceklist-selected references (isSelected = true)
+  let candidateReferences;
+  if (body.data.referenceIds && body.data.referenceIds.length > 0) {
+    candidateReferences = await db
+      .select()
+      .from(referencesTable)
+      .where(
+        and(
+          eq(referencesTable.projectId, params.data.projectId),
+          inArray(referencesTable.id, body.data.referenceIds),
+        ),
+      );
+  } else {
+    candidateReferences = await db
+      .select()
+      .from(referencesTable)
+      .where(
+        and(
+          eq(referencesTable.projectId, params.data.projectId),
+          eq(referencesTable.isSelected, true),
+        ),
+      );
+  }
+
+  if (candidateReferences.length === 0) {
+    res.json({
+      suggestions: [],
+      totalTokensUsed: 0,
+      referencesAnalyzed: 0,
+    });
+    return;
+  }
+
+  // Get latest document content
+  const [latestVersion] = await db
+    .select()
+    .from(documentVersionsTable)
+    .where(eq(documentVersionsTable.projectId, params.data.projectId))
+    .orderBy(desc(documentVersionsTable.versionNumber))
+    .limit(1);
+
+  const documentText = latestVersion?.content ?? "";
+  // Split into paragraphs by double newline (or single newline fallback)
+  const paragraphs = documentText
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter((p) => p.length > 0);
+
+  if (paragraphs.length === 0) {
+    res.json({
+      suggestions: [],
+      totalTokensUsed: 0,
+      referencesAnalyzed: candidateReferences.length,
+      warning: "Dokumen kosong — tidak ada paragraf untuk dianalisis.",
+    });
+    return;
+  }
+
+  // Resolve tier
+  const requestedTier = body.data.tier;
+  const selectedTier = requestedTier
+    ? await getTierConfig(requestedTier)
+    : await getTierForUser(project.userId, null);
+
+  if (!selectedTier) {
+    res.status(400).json({ error: "Tier tidak valid" });
+    return;
+  }
+
+  // Pre-check credit for paid tiers
+  if (!selectedTier.isFree) {
+    const estimatedCostCents = Math.max(
+      100,
+      selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents,
+    );
+    const creditCheck = await checkCreditBalance(
+      project.userId,
+      estimatedCostCents,
+      false,
+    );
+    if (!creditCheck.allowed) {
+      res.status(402).json({
+        error: creditCheck.reason,
+        balanceCents: creditCheck.balanceCents,
+        costCents: creditCheck.costCents,
+        tierName: selectedTier.name,
+      });
+      return;
+    }
+  }
+
+  const maxPerReference = body.data.maxCitationsPerReference ?? 3;
+
+  // Build AI prompt
+  const systemPrompt = buildSystemPrompt({
+    title: project.title ?? "",
+    instructionText: project.instructionText,
+    citationFormat,
+  });
+
+  const userPrompt = `TUGAS: Sarankan posisi sitasi untuk ${candidateReferences.length} referensi di dokumen dengan ${paragraphs.length} paragraf.
+
+KONTEKS PROJECT:
+- Judul: ${sanitizeUserMessage(project.title ?? "(tanpa judul)")}
+- Format sitasi: ${citationFormat}
+- Maksimal sitasi per referensi: ${maxPerReference}
+
+ATURAN KETAT:
+- Output JSON MURNI. Tidak ada teks lain.
+- Hanya paragraf yang truly relevan. Jangan dipaksakan.
+- offsetInParagraph: posisi karakter (0-based) di akhir kalimat yang relevan dalam paragraf. Jika ragu, gunakan panjang paragraf (akhir paragraf).
+- reason: 1 kalimat singkat dalam Bahasa Indonesia.
+
+FORMAT OUTPUT:
+{
+  "citations": [
+    {
+      "referenceId": <number>,
+      "paragraphIndex": <number>,
+      "offsetInParagraph": <number>,
+      "reason": "<string>"
+    }
+  ]
+}
+
+DOKUMEN (${paragraphs.length} paragraf):
+${paragraphs
+  .slice(0, 80)
+  .map((p, i) => `[Paragraf ${i}]\n${sanitizeUserMessage(p.substring(0, 800))}${p.length > 800 ? "\n...[dipotong]" : ""}`)
+  .join("\n\n")}
+
+REFERENSI YANG HARUS DIANALISIS (${candidateReferences.length}):
+${candidateReferences
+  .map(
+    (r) =>
+      `[ID ${r.id}] ${sanitizeUserMessage(r.authors ?? "Anon.")} (${r.year ?? "t.t."}). ${sanitizeUserMessage(r.title)}.${r.journal ? ` ${sanitizeUserMessage(r.journal)}.` : ""}`,
+  )
+  .join("\n")}`;
+
+  let aiResponse: string;
+  let usage: { inputTokens: number; outputTokens: number; estimatedCostUsd: number; costCents: number; tierId: string };
+  let tierConfig: typeof selectedTier;
+
+  try {
+    const result = await callAI(
+      [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      selectedTier.id,
+    );
+    aiResponse = result.content;
+    usage = result.usage;
+    tierConfig = result.tierConfig;
+  } catch (err) {
+    console.error("[auto-cite] AI call failed:", err);
+    res.status(502).json({ error: "AI provider error", detail: err instanceof Error ? err.message : String(err) });
+    return;
+  }
+
+  // Log AI usage
+  const usageLog = await logAIUsage({
+    userId: req.user!.id,
+    projectId: params.data.projectId,
+    requestType: "citations",
+    usage,
+    tierConfig,
+  });
+
+  if (!selectedTier.isFree && usage.costCents > 0) {
+    await deductCredit({
+      userId: project.userId,
+      costCents: usage.costCents,
+      tierIsFree: false,
+      tierId: selectedTier.id,
+      aiUsageLogId: usageLog?.id,
+      description: `AI auto-cite — ${selectedTier.name} tier`,
+    });
+  }
+
+  // Parse AI response as JSON
+  let suggestions: Array<{
+    referenceId: number;
+    paragraphIndex: number;
+    offsetInParagraph: number;
+    placementReason: string;
+  }> = [];
+
+  try {
+    // AI sometimes wraps JSON in code fences; strip them if present
+    const cleaned = aiResponse
+      .replace(/^```(?:json)?\s*/i, "")
+      .replace(/\s*```\s*$/i, "")
+      .trim();
+    const parsed = JSON.parse(cleaned);
+    if (parsed && Array.isArray(parsed.citations)) {
+      suggestions = parsed.citations
+        .filter((c: unknown): c is { referenceId: number; paragraphIndex: number; offsetInParagraph: number; reason: string } => {
+          return (
+            typeof c === "object" &&
+            c !== null &&
+            typeof (c as Record<string, unknown>).referenceId === "number" &&
+            typeof (c as Record<string, unknown>).paragraphIndex === "number"
+          );
+        })
+        .map((c) => ({
+          referenceId: c.referenceId,
+          paragraphIndex: c.paragraphIndex,
+          offsetInParagraph: typeof c.offsetInParagraph === "number" ? c.offsetInParagraph : 0,
+          placementReason: typeof c.reason === "string" ? c.reason : "",
+        }))
+        // Cap to maxPerReference per refId
+        .reduce((acc: typeof suggestions, c) => {
+          const count = acc.filter((x) => x.referenceId === c.referenceId).length;
+          if (count < maxPerReference) acc.push(c);
+          return acc;
+        }, []);
+    }
+  } catch {
+    // AI response is not valid JSON — return empty suggestions + raw content for debug
+    console.warn("[auto-cite] AI response not valid JSON:", aiResponse.substring(0, 200));
+  }
+
+  // Validate suggestions and compute formatMarker for each
+  const validSuggestions: Array<{
+    referenceId: number;
+    paragraphIndex: number;
+    offsetInParagraph: number;
+    formatMarker: string;
+    placementReason: string;
+  }> = [];
+
+  const referencesById = new Map(candidateReferences.map((r) => [r.id, r]));
+
+  for (const s of suggestions) {
+    const ref = referencesById.get(s.referenceId);
+    if (!ref) continue; // AI referenced an ID we don't have — skip
+    if (s.paragraphIndex < 0 || s.paragraphIndex >= paragraphs.length) continue; // out of range
+
+    const paragraphText = paragraphs[s.paragraphIndex];
+    let offset = s.offsetInParagraph;
+    if (offset < 0 || offset > paragraphText.length) {
+      offset = paragraphText.length;
+    }
+
+    const marker = formatCitationMarker(
+      {
+        title: ref.title,
+        authors: ref.authors,
+        year: ref.year,
+        journal: ref.journal,
+        volume: ref.volume,
+        issue: ref.issue,
+        doi: ref.doi,
+        url: ref.url,
+      },
+      citationFormat,
+      ref.id,
+    );
+
+    validSuggestions.push({
+      referenceId: s.referenceId,
+      paragraphIndex: s.paragraphIndex,
+      offsetInParagraph: offset,
+      formatMarker: marker,
+      placementReason: s.placementReason || "",
+    });
+  }
+
+  await logActivity(
+    params.data.projectId,
+    "auto_cite_suggestions",
+    `${validSuggestions.length} saran sitasi AI untuk ${candidateReferences.length} referensi`,
+  );
+
+  res.json({
+    suggestions: validSuggestions,
+    totalTokensUsed: usage.inputTokens + usage.outputTokens,
+    referencesAnalyzed: candidateReferences.length,
+  });
 });
 
 export default router;

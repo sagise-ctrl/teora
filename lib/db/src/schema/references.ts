@@ -20,6 +20,8 @@ export const referencesTable = pgTable("references", {
   isSuggested: boolean("is_suggested").notNull().default(false),
   // Source of the reference
   source: text("source").notNull().default("manual"),
+  // DECISION 014 — ceklist status: true if included in bibliography + eligible for AI auto-cite
+  isSelected: boolean("is_selected").notNull().default(false),
 });
 
 export const insertReferenceSchema = createInsertSchema(referencesTable).omit({

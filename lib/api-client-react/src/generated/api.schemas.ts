@@ -186,6 +186,23 @@ export const ProjectTaskType = {
   academic: 'academic',
 } as const;
 
+/**
+ * Citation format used for in-text/footnote markers and bibliography. Default = APA.
+ * @nullable
+ */
+export type ProjectCitationFormat = typeof ProjectCitationFormat[keyof typeof ProjectCitationFormat] | null;
+
+
+export const ProjectCitationFormat = {
+  APA: 'APA',
+  APA7: 'APA7',
+  IEEE: 'IEEE',
+  Vancouver: 'Vancouver',
+  Chicago: 'Chicago',
+  MLA: 'MLA',
+  Harvard: 'Harvard',
+} as const;
+
 export interface Project {
   id: number;
   title: string;
@@ -198,8 +215,11 @@ export interface Project {
   subject?: string | null;
   /** @nullable */
   taskType?: ProjectTaskType;
-  /** @nullable */
-  citationFormat?: string | null;
+  /**
+     * Citation format used for in-text/footnote markers and bibliography. Default = APA.
+     * @nullable
+     */
+  citationFormat?: ProjectCitationFormat;
   /** @nullable */
   outputFormat?: string | null;
   /** @nullable */
@@ -233,9 +253,18 @@ export const ProjectInputTaskType = {
 } as const;
 
 export interface ProjectInput {
-  /** @minLength 1 */
-  title: string;
-  instructionText?: string;
+  /**
+     * Optional. Project display name (used in document list, not in exported file).
+     * If omitted, the workspace will auto-generate a title via AI from instructionText.
+     */
+  title?: string;
+  /**
+     * REQUIRED for both General Task and Academic Work. The instructions or idea/gagasan
+     * that AI uses to generate the title (if missing), analyze the task, and produce
+     * the document.
+     * @minLength 1
+     */
+  instructionText: string;
   outputFormat?: ProjectInputOutputFormat;
   minRefYear?: number;
   minRefCount?: number;
@@ -461,6 +490,11 @@ export interface Reference {
   isSuggested?: boolean;
   /** Source of the reference */
   source?: ReferenceSource;
+  /**
+     * Ceklist status — true means reference is included in bibliography and
+     * eligible for AI auto-cite. (DECISION 014)
+     */
+  isSelected?: boolean;
 }
 
 /**
@@ -499,6 +533,112 @@ export interface BulkAddReferencesRequest {
 export interface BibliographyResult {
   bibliography: string;
   format?: string;
+}
+
+/**
+ * AI model tier to use for the suggestion
+ */
+export type AutoCiteRequestTier = typeof AutoCiteRequestTier[keyof typeof AutoCiteRequestTier];
+
+
+export const AutoCiteRequestTier = {
+  low: 'low',
+  mid: 'mid',
+  high: 'high',
+} as const;
+
+export interface AutoCiteRequest {
+  /**
+     * IDs of references to auto-cite. Only ceklist-selected references are used
+     * in practice; this list lets user override (e.g. force a specific reference).
+     * @minItems 1
+     * @maxItems 50
+     */
+  referenceIds: number[];
+  /**
+     * Cap on how many distinct paragraphs the same reference can be cited in.
+     * Default = 3 (Level C smart placement).
+     * @minimum 1
+     * @maximum 20
+     */
+  maxCitationsPerReference?: number;
+  /** AI model tier to use for the suggestion */
+  tier?: AutoCiteRequestTier;
+}
+
+export interface AutoCiteSuggestion {
+  referenceId: number;
+  /** 0-based paragraph index in the document text */
+  paragraphIndex: number;
+  /** Character offset within the paragraph (where the citation marker starts) */
+  offsetInParagraph: number;
+  /**
+     * Pre-rendered citation marker for the project's citationFormat
+     * (e.g. "(Smith & Jones, 2023)" for APA, "[1]" for IEEE)
+     */
+  formatMarker: string;
+  /** AI's explanation for why this citation belongs here */
+  placementReason: string;
+}
+
+export interface AutoCiteResponse {
+  suggestions: AutoCiteSuggestion[];
+  totalTokensUsed: number;
+  /** How many ceklist-selected references were considered */
+  referencesAnalyzed: number;
+}
+
+export interface ReferenceCitation {
+  id: number;
+  projectId: number;
+  referenceId: number;
+  paragraphIndex: number;
+  offsetInParagraph: number;
+  formatMarker: string;
+  /** @nullable */
+  placementReason?: string | null;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface CreateCitationRequest {
+  referenceId: number;
+  paragraphIndex: number;
+  offsetInParagraph?: number;
+  /** Pre-rendered marker (frontend computes from current citationFormat) */
+  formatMarker: string;
+  placementReason?: string;
+}
+
+export interface UpdateCitationRequest {
+  /** New paragraph index (for drag between paragraphs) */
+  paragraphIndex?: number;
+  /** New character offset within the paragraph */
+  offsetInParagraph?: number;
+  /** New pre-rendered marker (after citationFormat change) */
+  formatMarker?: string;
+  placementReason?: string;
+}
+
+/**
+ * Citation format for the project
+ */
+export type SetCitationFormatRequestCitationFormat = typeof SetCitationFormatRequestCitationFormat[keyof typeof SetCitationFormatRequestCitationFormat];
+
+
+export const SetCitationFormatRequestCitationFormat = {
+  APA: 'APA',
+  APA7: 'APA7',
+  IEEE: 'IEEE',
+  Vancouver: 'Vancouver',
+  Chicago: 'Chicago',
+  MLA: 'MLA',
+  Harvard: 'Harvard',
+} as const;
+
+export interface SetCitationFormatRequest {
+  /** Citation format for the project */
+  citationFormat: SetCitationFormatRequestCitationFormat;
 }
 
 export type ValidationIssueSeverity = typeof ValidationIssueSeverity[keyof typeof ValidationIssueSeverity];
@@ -621,6 +761,23 @@ export const ProjectMetadataTaskType = {
   academic: 'academic',
 } as const;
 
+/**
+ * Citation format used for in-text/footnote markers and bibliography. Default = APA.
+ * @nullable
+ */
+export type ProjectMetadataCitationFormat = typeof ProjectMetadataCitationFormat[keyof typeof ProjectMetadataCitationFormat] | null;
+
+
+export const ProjectMetadataCitationFormat = {
+  APA: 'APA',
+  APA7: 'APA7',
+  IEEE: 'IEEE',
+  Vancouver: 'Vancouver',
+  Chicago: 'Chicago',
+  MLA: 'MLA',
+  Harvard: 'Harvard',
+} as const;
+
 export interface ProjectMetadata {
   id: number;
   projectId: number;
@@ -630,8 +787,11 @@ export interface ProjectMetadata {
   subject?: string | null;
   /** @nullable */
   taskType?: ProjectMetadataTaskType;
-  /** @nullable */
-  citationFormat?: string | null;
+  /**
+     * Citation format used for in-text/footnote markers and bibliography. Default = APA.
+     * @nullable
+     */
+  citationFormat?: ProjectMetadataCitationFormat;
   /** @nullable */
   language?: string | null;
   /** @nullable */
@@ -1713,6 +1873,11 @@ export const FormatCSLBibliographyFormat = {
   MLA: 'MLA',
   Harvard: 'Harvard',
 } as const;
+
+export type ToggleReferenceSelectionBody = {
+  /** New ceklist state */
+  isSelected: boolean;
+};
 
 export type SearchReferencesParams = {
 /**
