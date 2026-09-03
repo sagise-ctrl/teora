@@ -149,7 +149,7 @@ export const ListProjectsResponse = zod.array(ListProjectsResponseItem)
 export const CreateProjectBody = zod.object({
   "title": zod.string().optional().describe('Optional. Project display name (used in document list, not in exported file).\nIf omitted, the workspace will auto-generate a title via AI from instructionText.\n'),
   "instructionText": zod.string().min(1).describe('REQUIRED for both General Task and Academic Work. The instructions or idea\/gagasan\nthat AI uses to generate the title (if missing), analyze the task, and produce\nthe document.\n'),
-  "outputFormat": zod.enum(['docx', 'pdf', 'markdown']).optional(),
+  "outputFormat": zod.enum(['docx', 'pdf', 'pptx']).optional(),
   "minRefYear": zod.number().optional(),
   "minRefCount": zod.number().optional(),
   "aiDisclosure": zod.boolean().optional(),
@@ -231,7 +231,7 @@ export const UpdateProjectBody = zod.object({
   "title": zod.string().min(1).optional(),
   "status": zod.enum(['draft', 'analyzing', 'writing', 'waiting_revision', 'completed', 'archived']).optional(),
   "instructionText": zod.string().optional(),
-  "outputFormat": zod.enum(['docx', 'pdf', 'markdown']).optional(),
+  "outputFormat": zod.enum(['docx', 'pdf', 'pptx']).optional(),
   "minRefYear": zod.number().optional(),
   "minRefCount": zod.number().optional(),
   "progress": zod.number().optional(),
@@ -902,6 +902,44 @@ export const SetProjectCitationFormatResponse = zod.object({
 
 
 /**
+ * Returns the latest document version with citation markers injected inline
+ * at their stored (paragraphIndex, offsetInParagraph) positions, plus a
+ * formatted bibliography section. For numbered formats (IEEE, Vancouver,
+ * Chicago) markers use sequential numbers based on order of appearance.
+ * @summary Get rendered document preview with citation markers + bibliography
+ */
+export const GetDocumentPreviewParams = zod.object({
+  "projectId": zod.coerce.number()
+})
+
+export const GetDocumentPreviewResponse = zod.object({
+  "paragraphs": zod.array(zod.object({
+  "index": zod.number().describe('Zero-based paragraph index matching original content split'),
+  "html": zod.string().describe('Rendered HTML for this paragraph with citation markers injected\nas `<sup class=\"cite-marker\" data-citation-id=\"N\">marker<\/sup>`.\nMarker text reflects the project\'s current citation format.\n')
+})),
+  "bibliography": zod.string().optional().describe('Auto-generated bibliography (CSL-formatted)'),
+  "citationFormat": zod.enum(['APA', 'APA7', 'IEEE', 'Vancouver', 'Chicago', 'MLA', 'Harvard']),
+  "citationCount": zod.number().describe('Total citation markers in this preview')
+})
+
+
+/**
+ * Returns the CSL-formatted bibliography for all references that have
+ * at least one citation in the project. Cheaper than
+ * POST /references/regenerate (no AI call).
+ * @summary Get formatted bibliography for a project
+ */
+export const GetBibliographyParams = zod.object({
+  "projectId": zod.coerce.number()
+})
+
+export const GetBibliographyResponse = zod.object({
+  "bibliography": zod.string(),
+  "format": zod.string().optional()
+})
+
+
+/**
  * Accepts a DOI or ISBN identifier and fetches metadata from CrossRef or Open Library.
  * @summary Fetch reference metadata by DOI or ISBN
  */
@@ -1327,7 +1365,7 @@ export const ListExportsParams = zod.object({
 export const ListExportsResponseItem = zod.object({
   "id": zod.number(),
   "projectId": zod.number(),
-  "format": zod.enum(['docx', 'pdf', 'markdown']),
+  "format": zod.enum(['docx', 'pdf', 'pptx']),
   "status": zod.enum(['pending', 'completed', 'failed']),
   "filePath": zod.string().nullish(),
   "createdAt": zod.coerce.date()
@@ -1343,14 +1381,14 @@ export const CreateExportParams = zod.object({
 })
 
 export const CreateExportBody = zod.object({
-  "format": zod.enum(['docx', 'pdf', 'markdown']),
+  "format": zod.enum(['docx', 'pdf', 'pptx']),
   "documentVersionId": zod.number().optional()
 })
 
 export const CreateExportResponse = zod.object({
   "id": zod.number(),
   "projectId": zod.number(),
-  "format": zod.enum(['docx', 'pdf', 'markdown']),
+  "format": zod.enum(['docx', 'pdf', 'pptx']),
   "status": zod.enum(['pending', 'completed', 'failed']),
   "filePath": zod.string().nullish(),
   "createdAt": zod.coerce.date()

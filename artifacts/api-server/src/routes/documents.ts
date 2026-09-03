@@ -1,6 +1,14 @@
 import { Router, type IRouter } from "express";
 import { eq, desc, and, isNull, sql, count } from "drizzle-orm";
-import { db, documentVersionsTable, documentsTable } from "@workspace/db";
+import {
+  db,
+  documentVersionsTable,
+  documentsTable,
+  projectsTable,
+  projectMetadataTable,
+  referenceCitationsTable,
+  referencesTable,
+} from "@workspace/db";
 import {
   ListDocumentsParams,
   CreateDocumentParams,
@@ -10,9 +18,19 @@ import {
   UpdateDocumentParams,
   UpdateDocumentBody,
   DeleteDocumentParams,
+  GetDocumentPreviewParams,
+  GetBibliographyParams,
 } from "@workspace/api-zod";
 import { requireProjectOwnership } from "../lib/ownership.js";
 import { logActivity } from "../lib/activity.js";
+import {
+  renderDocument,
+  type CitationForRender,
+} from "../lib/citation-rendering.js";
+import {
+  type CitationFormat,
+  formatBibliography,
+} from "../lib/citation.js";
 
 const router: IRouter = Router();
 
@@ -434,6 +452,180 @@ router.delete("/projects/:projectId/documents/:documentId", async (req, res): Pr
   await logActivity(projectId, "document_deleted", `Deleted document: ${doc.title}`);
 
   res.status(204).send();
+});
+
+// GET /projects/:projectId/document/preview
+// DECISION 014 Phase 2: Return document content with citation markers rendered
+// inline + auto-generated bibliography. One endpoint so frontend doesn't need to
+// merge content + citations + format on the client.
+router.get("/projects/:projectId/document/preview", async (req, res): Promise<void> => {
+  const params = GetDocumentPreviewParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
+  if (!ok) return;
+
+  const projectId = params.data.projectId;
+
+  // 1. Get project + metadata for citationFormat (metadata takes precedence)
+  const [project] = await db
+    .select()
+    .from(projectsTable)
+    .where(eq(projectsTable.id, projectId));
+  const [metadata] = await db
+    .select()
+    .from(projectMetadataTable)
+    .where(eq(projectMetadataTable.projectId, projectId));
+
+  if (!project) {
+    res.status(404).json({ error: "Project not found" });
+    return;
+  }
+
+  const format = (metadata?.citationFormat ??
+    project.citationFormat ??
+    "APA") as CitationFormat;
+
+  // 2. Get the latest document version (any document in this project)
+  const [latest] = await db
+    .select()
+    .from(documentVersionsTable)
+    .where(eq(documentVersionsTable.projectId, projectId))
+    .orderBy(desc(documentVersionsTable.versionNumber))
+    .limit(1);
+
+  if (!latest) {
+    res.json({
+      paragraphs: [],
+      bibliography: "",
+      citationFormat: format,
+      citationCount: 0,
+    });
+    return;
+  }
+
+  // 3. Get all citations + joined references
+  const rows = await db
+    .select({
+      citation: referenceCitationsTable,
+      reference: referencesTable,
+    })
+    .from(referenceCitationsTable)
+    .innerJoin(
+      referencesTable,
+      eq(referenceCitationsTable.referenceId, referencesTable.id),
+    )
+    .where(eq(referenceCitationsTable.projectId, projectId));
+
+  const citations: CitationForRender[] = rows.map(({ citation, reference }) => ({
+    id: citation.id,
+    referenceId: citation.referenceId,
+    paragraphIndex: citation.paragraphIndex,
+    offsetInParagraph: citation.offsetInParagraph,
+    formatMarker: citation.formatMarker,
+    placementReason: citation.placementReason ?? null,
+    reference: {
+      title: reference.title,
+      authors: reference.authors,
+      year: reference.year,
+      journal: reference.journal,
+      doi: reference.doi,
+      url: reference.url,
+    },
+  }));
+
+  // 4. Render the document
+  const rendered = renderDocument({
+    content: latest.content ?? "",
+    citations,
+    format,
+    formatBibliographyFn: (refs) => formatBibliography(refs, format),
+  });
+
+  res.json({
+    paragraphs: rendered.paragraphs,
+    bibliography: rendered.bibliography,
+    citationFormat: format,
+    citationCount: rendered.citationCount,
+  });
+});
+
+// GET /projects/:projectId/bibliography
+// DECISION 014 Phase 2: Returns the CSL-formatted bibliography for the
+// project. Reuses the same logic as POST /references/format but as a GET
+// so React Query can cache it cleanly.
+router.get("/projects/:projectId/bibliography", async (req, res): Promise<void> => {
+  const params = GetBibliographyParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
+  if (!ok) return;
+
+  const projectId = params.data.projectId;
+
+  // Get format with same precedence as /preview
+  const [project] = await db
+    .select()
+    .from(projectsTable)
+    .where(eq(projectsTable.id, projectId));
+  const [metadata] = await db
+    .select()
+    .from(projectMetadataTable)
+    .where(eq(projectMetadataTable.projectId, projectId));
+
+  const format = (metadata?.citationFormat ??
+    project?.citationFormat ??
+    "APA") as CitationFormat;
+
+  // Get all references that have at least one citation
+  const refs = await db
+    .select({ reference: referencesTable })
+    .from(referenceCitationsTable)
+    .innerJoin(
+      referencesTable,
+      eq(referenceCitationsTable.referenceId, referencesTable.id),
+    )
+    .where(eq(referenceCitationsTable.projectId, projectId));
+
+  // Deduplicate references
+  const seen = new Set<number>();
+  const uniqueRefs = refs
+    .map((r) => r.reference)
+    .filter((r) => {
+      if (seen.has(r.id)) return false;
+      seen.add(r.id);
+      return true;
+    })
+    .map((r) => ({
+      title: r.title,
+      authors: r.authors,
+      year: r.year,
+      journal: r.journal,
+      volume: r.volume,
+      issue: r.issue,
+      doi: r.doi,
+      url: r.url,
+    }));
+
+  const bibliography = formatBibliography(uniqueRefs, format);
+
+  res.json({ bibliography, format });
 });
 
 export default router;

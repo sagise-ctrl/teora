@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useMemo } from "react"
 import { useParams, Link } from "wouter"
 import {
   useGetProject,
@@ -42,6 +42,10 @@ import {
   useAutoCiteReferences,
   useListCitations,
   useCreateCitation,
+  useGetDocumentPreview,
+  useGetBibliography,
+  useUpdateCitation,
+  useDeleteCitation,
   useSetProjectCitationFormat,
   getListQuizzesQueryKey,
   getGetQuizQueryKey,
@@ -111,6 +115,7 @@ import {
   ExternalLink,
   Download,
   Zap,
+  Presentation,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -166,6 +171,7 @@ import type { InsufficientBalanceData } from "@/components/insufficient-balance-
 import { parseInsufficientBalance } from "@/components/parse-insufficient-balance"
 import { useInsufficientBalanceDialog } from "@/hooks/use-insufficient-balance-dialog"
 import { TierSelector } from "@/components/tier-selector"
+import { CitationMarkerMenu } from "@/components/citation-marker-menu"
 import { Checkbox } from "@/components/ui/checkbox"
 
 // Citation format options — sourced from backend `lib/citation.ts` (must match)
@@ -398,11 +404,15 @@ export default function ProjectWorkspace() {
   const { toast } = useToast()
 
   const [selectedDocId, setSelectedDocId] = useState<number | null>(null)
+  const [activeCitationId, setActiveCitationId] = useState<number | null>(null)
+  const previewHtmlRef = useRef<HTMLDivElement>(null)
 
   const { data: project, isLoading: projectLoading } = useGetProject(projectId)
   const { data: documents, isLoading: docsLoading } = useListDocuments(projectId)
   const { data: selectedDoc } = useGetDocument(projectId, selectedDocId ?? 0)
   const { data: latestDoc } = useGetLatestDocument(projectId)
+  const { data: documentPreview, isLoading: previewLoading } = useGetDocumentPreview(projectId)
+  const { data: bibliographyData } = useGetBibliography(projectId)
   const { data: jobs } = useListJobs(projectId, { query: { queryKey: getListJobsQueryKey(projectId), refetchInterval: 5000 } })
 
   // Set default selected document
@@ -412,6 +422,26 @@ export default function ProjectWorkspace() {
       setSelectedDocId(active.id)
     }
   }, [documents, selectedDocId])
+
+  // DECISION 014 Phase 2 — Delegate citation marker clicks to open the action menu.
+  // Rendered HTML uses <sup data-citation-id="N">; clicking bubbles up here.
+  useEffect(() => {
+    const container = previewHtmlRef.current
+    if (!container) return
+    const handleClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement | null
+      const marker = target?.closest("[data-citation-id]") as HTMLElement | null
+      if (marker) {
+        const citationId = Number(marker.dataset.citationId)
+        if (!Number.isNaN(citationId)) {
+          event.preventDefault()
+          setActiveCitationId(citationId)
+        }
+      }
+    }
+    container.addEventListener("click", handleClick)
+    return () => container.removeEventListener("click", handleClick)
+  }, [documentPreview])
 
   const analyzeProject = useAnalyzeProject()
   const updateProject = useUpdateProject()
@@ -576,6 +606,12 @@ export default function ProjectWorkspace() {
             <BookMarked className="w-4 h-4 mr-2" />
             Referensi
           </TabsTrigger>
+          {project.outputFormat === "pptx" && (
+            <TabsTrigger value="ppt" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
+              <Presentation className="w-4 h-4 mr-2" />
+              Slide
+            </TabsTrigger>
+          )}
           <TabsTrigger value="attachments" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
             <Paperclip className="w-4 h-4 mr-2" />
             Lampiran
@@ -604,7 +640,27 @@ export default function ProjectWorkspace() {
               <CardContent className="p-8 prose prose-slate dark:prose-invert max-w-none">
                 {selectedDoc?.versions?.[0] ? (
                   <>
-                    <div dangerouslySetInnerHTML={{ __html: selectedDoc.versions[0].content.replace(/\n/g, '<br/>') }} />
+                    {previewLoading && !documentPreview ? (
+                      <div className="space-y-3">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-11/12" />
+                        <Skeleton className="h-4 w-10/12" />
+                        <Skeleton className="h-4 w-full" />
+                      </div>
+                    ) : documentPreview?.paragraphs && documentPreview.paragraphs.length > 0 ? (
+                      <div ref={previewHtmlRef}>
+                        {documentPreview.paragraphs.map((p) => (
+                          <div
+                            key={p.index}
+                            dangerouslySetInnerHTML={{ __html: p.html }}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      // Fallback when preview endpoint not yet available (e.g., before
+                      // any citations exist or before first document version rendered).
+                      <div dangerouslySetInnerHTML={{ __html: selectedDoc.versions[0].content.replace(/\n/g, "<br/>") }} />
+                    )}
                   </>
                 ) : (
                   <div className="h-full flex flex-col items-center justify-center py-24">
@@ -629,6 +685,36 @@ export default function ProjectWorkspace() {
                 </CardFooter>
               )}
             </Card>
+
+            {/* DECISION 014 Phase 2 — Daftar Pustaka section */}
+            {bibliographyData?.bibliography && (
+              <Card className="bg-card border-none shadow-sm rounded-xl overflow-hidden mt-4">
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <BookMarked className="w-5 h-5 text-primary" />
+                    <CardTitle>Daftar Pustaka</CardTitle>
+                  </div>
+                  <CardDescription>
+                    Format: {bibliographyData.format}
+                    {documentPreview && documentPreview.citationCount > 0 && (
+                      <> · {documentPreview.citationCount} sitasi</>
+                    )}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="prose prose-slate dark:prose-invert max-w-none whitespace-pre-wrap text-sm">
+                  {bibliographyData.bibliography}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* DECISION 014 Phase 2 — Citation action menu (Edit/Reposition/Hapus) */}
+            {activeCitationId !== null && (
+              <CitationMarkerMenu
+                projectId={projectId}
+                citationId={activeCitationId}
+                onClose={() => setActiveCitationId(null)}
+              />
+            )}
           </TabsContent>
 
           <TabsContent value="outline" className="m-0 focus-visible:outline-none">
@@ -642,6 +728,12 @@ export default function ProjectWorkspace() {
           <TabsContent value="references" className="m-0">
             <ReferencesTab projectId={projectId} citationFormat={project.citationFormat ?? null} />
           </TabsContent>
+
+          {project.outputFormat === "pptx" && (
+            <TabsContent value="ppt" className="m-0">
+              <PptTab projectId={projectId} projectTitle={project.title} />
+            </TabsContent>
+          )}
 
           <TabsContent value="attachments" className="m-0">
             <AttachmentsTab projectId={projectId} />
@@ -2693,10 +2785,10 @@ function ShareButton({ projectId }: { projectId: number }) {
 
 function ExportButton({ projectId, projectTitle }: { projectId: number; projectTitle: string }) {
   const [open, setOpen] = useState(false)
-  const [loading, setLoading] = useState<"docx" | "pdf" | null>(null)
+  const [loading, setLoading] = useState<"docx" | "pdf" | "pptx" | null>(null)
   const { toast } = useToast()
 
-  const handleDownload = async (format: "docx" | "pdf") => {
+  const handleDownload = async (format: "docx" | "pdf" | "pptx") => {
     setLoading(format)
     try {
       const baseUrl = (import.meta as unknown as Record<string, Record<string, string>>).env?.VITE_API_URL ?? ""
@@ -2714,7 +2806,7 @@ function ExportButton({ projectId, projectTitle }: { projectId: number; projectT
       URL.revokeObjectURL(blobUrl)
       setOpen(false)
       toast({ title: `Download ${format.toUpperCase()} berhasil` })
-    } catch (err) {
+    } catch {
       toast({ title: `Gagal mengunduh ${format.toUpperCase()}`, variant: "destructive" })
     } finally {
       setLoading(null)
@@ -2733,7 +2825,7 @@ function ExportButton({ projectId, projectTitle }: { projectId: number; projectT
         <DialogHeader>
           <DialogTitle>Export Dokumen</DialogTitle>
           <DialogDescription>
-            Unduh dokumen project sebagai file Word (DOCX) atau PDF.
+            Unduh dokumen project sebagai file Word, PDF, atau Slide PowerPoint.
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-3 pt-2">
@@ -2761,8 +2853,194 @@ function ExportButton({ projectId, projectTitle }: { projectId: number; projectT
             )}
             Download PDF
           </Button>
+          <Button
+            onClick={() => handleDownload("pptx")}
+            disabled={loading !== null}
+          >
+            {loading === "pptx" ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Presentation className="w-4 h-4 mr-2" />
+            )}
+            Download PPTX (Slide)
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
+  )
+}
+
+// ─── PPT Tab ───────────────────────────────────────────────────────────────────
+
+interface PptTabProps {
+  projectId: number
+  projectTitle: string
+}
+
+function PptTab({ projectId, projectTitle }: PptTabProps) {
+  const { data: documents } = useListDocuments(projectId)
+  const [previewOpen, setPreviewOpen] = useState(false)
+
+  const latestVersion = documents?.[0]?.versions?.[0]
+  const outline = latestVersion?.outline ?? latestVersion?.content ?? null
+
+  const slides = useMemo(() => {
+    if (!outline) return []
+    const lines = outline.split("\n").map((l) => l.trim()).filter(Boolean)
+    const result: { title: string; level: number }[] = []
+
+    for (const line of lines) {
+      const h1 = line.match(/^#\s+(.+)/)
+      const h2 = line.match(/^##\s+(.+)/)
+      const bold = line.match(/^\*\*(.+)\*\*$/)
+      const dash = line.match(/^[-*]\s+(.+)/)
+      const num = line.match(/^\d+(?:\.\d+)*[\.)]\s+(.+)/)
+
+      const title = h1?.[1] ?? h2?.[1] ?? bold?.[1] ?? dash?.[1] ?? num?.[1]
+      const level = h1 ? 1 : h2 ? 2 : 3
+
+      if (title) {
+        result.push({ title, level })
+      }
+    }
+    return result
+  }, [outline])
+
+  const handleDownload = async () => {
+    try {
+      const baseUrl = (import.meta as unknown as Record<string, Record<string, string>>).env?.VITE_API_URL ?? ""
+      const response = await fetch(`${baseUrl}/projects/${projectId}/export/pptx`, {
+        credentials: "include",
+      })
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `${projectTitle.replace(/[^a-zA-Z0-9_-]/g, "_")}.pptx`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch {
+      // silent
+    }
+  }
+
+  const previewHtml = useMemo(() => {
+    if (slides.length === 0) return ""
+    const titleSlide = `<section data-background-color="#1a3a5c"><h1>${projectTitle}</h1><p>Dibuat dengan Teora AI</p></section>`
+    const contentSlides = slides
+      .map(
+        (s: { title: string; level: number }, i: number) =>
+          `<section><h${Math.min(s.level + 1, 4)}>${i + 1}. ${s.title}</h${Math.min(s.level + 1, 4)}></section>`
+      )
+      .join("\n")
+
+    return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/black.min.css">
+<style>
+.reveal { height: 100vh; }
+.reveal .slides section { text-align: left; padding: 40px; }
+.reveal h1 { font-size: 1.8em; color: #fff; }
+.reveal h2 { font-size: 1.4em; }
+.reveal h3 { font-size: 1.2em; }
+.reveal p { font-size: 0.8em; color: #cbd5e1; }
+.reveal [data-background-color="#1a3a5c"] { display: flex; align-items: center; justify-content: center; flex-direction: column; }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+${titleSlide}
+${contentSlides}
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.min.js"></script>
+<script>Reveal.initialize({ controls: true, progress: true, center: false });</script>
+</body>
+</html>`
+  }, [slides, projectTitle])
+
+  if (slides.length === 0) {
+    return (
+      <Card className="bg-card border-none shadow-sm rounded-xl">
+        <CardContent className="p-8 text-center space-y-4">
+          <Presentation className="w-12 h-12 mx-auto text-muted-foreground/40" />
+          <div>
+            <h3 className="text-lg font-semibold mb-2">Belum ada outline slide</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Buka tab <strong>Outline</strong> untuk membuat kerangka slide, atau minta AI
+              melalui <strong>Chat AI</strong> untuk generate outline.
+            </p>
+            <Button variant="outline" size="sm" onClick={handleDownload}>
+              <Download className="w-4 h-4 mr-2" />
+              Download PPTX Kosong
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold">Slide Presentasi</h2>
+          <p className="text-sm text-muted-foreground">
+            {slides.length} slide · {projectTitle}
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => setPreviewOpen(true)}>
+            <Presentation className="w-4 h-4 mr-2" />
+            Preview
+          </Button>
+          <Button size="sm" onClick={handleDownload}>
+            <Download className="w-4 h-4 mr-2" />
+            Download PPTX
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {slides.map((slide, i) => (
+          <Card key={i} className="bg-card">
+            <CardHeader className="p-3 pb-1">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-muted-foreground">
+                  Slide {i + 1}
+                </span>
+                <span
+                  className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground"
+                  style={{ fontSize: 10 }}
+                >
+                  H{slide.level}
+                </span>
+              </div>
+            </CardHeader>
+            <CardContent className="p-3 pt-1">
+              <p className="text-sm font-medium leading-snug line-clamp-3">{slide.title}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="max-w-5xl w-[95vw] h-[85vh] p-0 overflow-hidden">
+          <iframe
+            srcDoc={previewHtml}
+            className="w-full h-full border-0"
+            title="Slide Preview"
+            sandbox="allow-scripts"
+          />
+        </DialogContent>
+      </Dialog>
+    </div>
   )
 }

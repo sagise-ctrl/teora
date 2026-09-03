@@ -9,9 +9,59 @@
 
 ---
 
-## 🎯 ACTIVE 2026-09-03 — Referensi Tool + Auto-Cite + Pustaka Saya (DECISION 014) 🔄 IN PROGRESS
+## 🎯 ACTIVE 2026-09-03 — PPTX Export (Slide/PPT) ✅ DONE
 
-**Status:** 🔄 Phase 1 implementation started (backend foundation)
+**Status:** ✅ DONE — committed `d3141de`, backend deployed `dpl_D45wtbFEJkD9bNVyQbHpGH25cjTR`, frontend deployed `dpl_9yU9hqKYLe6HatQpSTsD93dN7y6m`
+**Model:** claude-opus-4-6
+**Branch:** `feat/daftar-task` (unmerged — 4 commits ahead of main)
+
+### What Was Built
+
+| Layer | File | Change |
+|-------|------|--------|
+| Backend lib | `src/lib/pptx-export.ts` (271 lines) | `generatePptx()` — parse outline into slides, theme rendering, bibliography |
+| Backend route | `routes/projects.ts` (+102 lines) | `GET /projects/:id/export/pptx` — fetch docs + refs, call generatePptx, stream .pptx |
+| Dependency | `package.json` | `pptxgenjs` v4.0.1 added |
+| OpenAPI | `openapi.yaml` | `outputFormat` enum extended with `pptx` |
+| Codegen | `lib/api-zod`, `lib/api-client-react` | Regenerated |
+| Frontend | `new-project.tsx` | Output format toggle (Dokumen/Slide) in creation form |
+| Frontend | `project.tsx` | Export dialog (DOCX/PDF/PPTX), Slide tab (`PptTab`) with reveal.js preview |
+
+### Commit
+
+`d3141de` — feat(ppt): Full PPTX export — backend + frontend + reveal.js preview (12 files, +1453/-1198)
+
+### Production URLs
+
+| Service | URL | Deploy ID |
+|---------|-----|-----------|
+| Backend | https://teora-backend.vercel.app | `dpl_D45wtbFEJkD9bNVyQbHpGH25cjTR` |
+| Frontend | https://academic-workspace-eta.vercel.app | `dpl_9yU9hqKYLe6HatQpSTsD93dN7y6m` |
+
+### How It Works
+
+1. User buat project Academic Work → pilih format **Slide** (outputFormat=pptx)
+2. Di workspace → tab **Slide** muncul
+3. User buka tab **Outline** → bikin kerangka slide (markdown: # Heading, ## Subheading, dll)
+4. Di tab **Slide** → preview reveal.js, grid card per slide, download PPTX
+5. Export button → download DOCX / PDF / PPTX
+
+### Yang BELUM ada (out of scope for PPT spec)
+
+- AI slide generation endpoint (generate outline from AI — deferred)
+- PPT preview dari document content (currently uses outline only)
+
+### Next Steps
+
+1. Owner test: login → buat Academic Work → pilih Slide → outline → tab Slide → preview → download PPTX
+2. Push `feat/daftar-task` to main (4 commits ahead: branding + daftar task + Phase 1/2/3 refs + PPT)
+3. AI slide generation (future enhancement — generate outline via AI chat)
+
+---
+
+## 🎯 ACTIVE 2026-09-03 — Referensi Tool + Auto-Cite + Pustaka Saya (DECISION 014) ✅ ALL PHASES COMPLETE
+
+**Status:** ✅ Phase 1+2 DONE + Phase 3 DONE 2026-09-03 PM — committed `6d082a4`, deployed
 **Model:** claude-opus-4-8
 **Owner:** sagise
 **Reference:** DECISION 014 di `.ai/decisions.md` — full spec approved
@@ -32,9 +82,9 @@ Owner mau fitur Referensi jadi **tool otomatis komprehensif**, bukan sekadar "ge
 
 | Phase | Scope | Status |
 |-------|-------|--------|
-| **Phase 1** (5-6 hari) | Schema + backend AI auto-cite + citations CRUD + OpenAPI + format selector UI + ceklist UI | 🔄 IN PROGRESS |
-| **Phase 2** (5-6 hari) | Citation marker parser (7 format) + render di DokumenTab + manual reposition UI | ⏳ PENDING |
-| **Phase 3** (2-3 hari) | Pustaka Saya CRUD UI + CrossRef search UI + assign-to-project flow | ⏳ PENDING (backend DONE) |
+| **Phase 1** (5-6 hari) | Schema + backend AI auto-cite + citations CRUD + OpenAPI + format selector UI + ceklist UI | ✅ DONE 2026-09-03 |
+| **Phase 2** (5-6 hari) | Citation marker parser (7 format) + render di DokumenTab + manual reposition UI | ✅ DONE 2026-09-03 |
+| **Phase 3** (2-3 hari) | Pustaka Saya CRUD UI + CrossRef search UI + assign-to-project flow | ✅ DONE 2026-09-03 PM — committed `6d082a4`, deployed |
 
 ### Surprise Discovery (2026-09-03)
 
@@ -46,7 +96,7 @@ Backend Pustaka Saya **SUDAH FULL IMPLEMENTED** (`artifacts/api-server/src/route
 
 **Implication:** Phase 3 effort turun dari 5-6 → 2-3 hari (tinggal frontend UI).
 
-### Phase 1 Implementation — What's Being Built Now
+### Phase 1 Implementation — COMPLETE ✅ (commit d7cba29)
 
 **Schema & DB:**
 - ✅ NEW: `lib/db/src/schema/reference_citations.ts` — track citation positions per project
@@ -115,22 +165,56 @@ Backend Pustaka Saya **SUDAH FULL IMPLEMENTED** (`artifacts/api-server/src/route
 - [x] Format selector UI accessible di new-project form + header ReferencesTab
 - [x] Ceklist UI di ReferencesTab works (select/deselect persists via PATCH /references/:id/select)
 - [x] Auto-Cite button trigger AI endpoint + show preview result (Dialog, suggestions list, Terapkan Semua)
-- [x] Typecheck pass (no DECISION 014-specific errors; 3 pre-existing project.tsx issues remain — not blocking builds)
+- [x] **Frontend production-deployed** (bundle `index-*)`)
+- [x] Typecheck pass (no DECISION 014-specific errors; pre-existing issues remain)
 - [x] Build pass (backend 5.7mb + frontend 1.4mb chunks)
-- [x] Production deployed (backend `dpl_AK68mDQVAuVyAzciLkyHUhrSYDpF` + frontend `academic-workspace-hcygaltgx-sagise-ctrls-projects.vercel.app`)
+- [x] Production deployed
 - [ ] **Smoke test production** (manual: create project with format, add reference, toggle ceklist, run Auto-Cite, verify citations saved) → PENDING owner E2E run
+
+### Phase 2 Implementation — COMPLETE ✅ (commit 805f04a)
+
+**What was built:**
+
+| Layer | File | Change |
+|-------|------|--------|
+| Backend core | `lib/citation-rendering.ts` (NEW, 408 baris) | `renderDocument`, `renderMarkerHtml`, `splitParagraphs`, `computeSequentialNumbers`, `renderMarkdownLight`, `renumberMarkers`, `escapeHtml` |
+| Backend routes | `routes/documents.ts` (+194 baris) | `GET /document/preview` + `GET /bibliography` |
+| Backend routes | `routes/references.ts` (+53 baris) | PATCH `/citation-format` sequential renumbering for IEEE/Vancouver/Chicago |
+| OpenAPI | `openapi.yaml` (+93 baris) | 2 new endpoints + schemas |
+| Generated | `lib/api-zod`, `lib/api-client-react` | `useGetDocumentPreview`, `useGetBibliography`, `useUpdateCitation`, `useDeleteCitation` |
+| Frontend core | `components/citation-marker-menu.tsx` (NEW, 362 baris) | Dialog: reference detail + Pindahkan + Hapus sitasi |
+| Frontend wiring | `pages/project.tsx` (+81 baris) | Preview tab → HTML render, `<sup>` click → CitationMarkerMenu, Daftar Pustaka section |
+| Tests | `test/citation-rendering.test.ts` (NEW, 60 tests) | All 60 passing ✅ |
+| Docs | `docs/ai-team/product/user-dashboard.md` | Phase 2 spec |
+
+**Definition of Done — Phase 2:**
+- [x] `citation-rendering.ts` implemented (408 lines, 8 exported functions)
+- [x] `renderDocument` + `renderParagraph` + `renderMarkerHtml` all tested (60/60 pass)
+- [x] Sequential numbering for IEEE/Vancouver/Chicago (order-of-appearance, not reference.id)
+- [x] XSS protection via `escapeHtml()` on all user-generated content
+- [x] `GET /document/preview` endpoint registered (auth + ownership check)
+- [x] `GET /bibliography` endpoint registered (auth + ownership check)
+- [x] OpenAPI spec complete (DocumentPreviewParagraph, DocumentPreviewResult, BibliographyResult)
+- [x] `CitationMarkerMenu` component (Pindahkan dialog + Hapus confirmation)
+- [x] Preview tab rendering with citation markers + Daftar Pustaka section
+- [x] `PATCH /citation-format` renumbers markers on format change
+- [x] Typecheck pass (backend ✅, frontend ✅ — no Phase 2 errors)
+- [x] Build pass (backend 5.7mb, frontend 1.4mb)
+- [x] Backend deployed (`dpl_5JqLGS6V8iY39TUsqAgyTGerbKvy` → `teora-backend.vercel.app`)
+- [x] Frontend deployed (`dpl_6ZtwgM6RPWL29V7G7dp4p6v1w34F` → `academic-workspace-hpm9fiw8f-sagise-ctrls-projects.vercel.app`, alias `academic-workspace-eta.vercel.app`)
+- [ ] **Production smoke test** (manual E2E: login → open academic project → verify Preview tab shows markers + Daftar Pustaka → click marker → Pindahkan/Hapus) → PENDING owner
 
 ### Next Concrete Steps
 
 1. ~~DB migration verified~~ ✅
-2. ~~Backend endpoints implemented + bundled~~ ✅
+2. ~~Backend Phase 1 endpoints implemented + bundled~~ ✅
 3. ~~Typecheck passed~~ ✅
-4. ~~Deploy backend to Vercel~~ ✅
+4. ~~Deploy backend to Vercel~~ ✅ Phase 1 + Phase 2
 5. ~~Frontend Phase 1 implementation~~ ✅
-6. ~~Frontend build + deploy~~ ✅
-7. **Production smoke test** — owner E2E run (login → create academic project with format → add reference → ceklist → auto-cite → verify)
-8. **Phase 2** — Citation marker parser (7 format) + render di DokumenTab + manual reposition UI
-9. **Phase 3** — Pustaka Saya CRUD UI + CrossRef search UI + assign-to-project flow
+6. ~~Frontend Phase 2 implementation~~ ✅
+7. ~~Frontend build + deploy~~ ✅
+8. **Phase 3 — Pustaka Saya CRUD UI** — Pustaka Saya page rewrite from placeholder to real CRUD + CrossRef search + assign-to-project flow. Backend (`routes/account-references.ts`) is fully implemented.
+9. **Production smoke test** — owner E2E run for Phase 1 + 2 combined
 
 ---
 

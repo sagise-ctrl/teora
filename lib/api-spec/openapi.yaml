@@ -48,6 +48,8 @@ tags:
     description: Document templates
   - name: account-references
     description: Global Reference Library — account-level personal reference pool
+  - name: learning-activity
+    description: Practice — Learning Activity tracking for personalized quiz recommendations
   - name: admin
     description: Admin (owner) dashboard — user management, financials, system config
 paths:
@@ -953,6 +955,64 @@ paths:
                 $ref: "#/components/schemas/Project"
         "400":
           description: Invalid format
+
+  # DECISION 014 Phase 2 — Document preview with citation markers rendered inline
+  /projects/{projectId}/document/preview:
+    get:
+      operationId: getDocumentPreview
+      tags: [documents]
+      summary: Get rendered document preview with citation markers + bibliography
+      description: |
+        Returns the latest document version with citation markers injected inline
+        at their stored (paragraphIndex, offsetInParagraph) positions, plus a
+        formatted bibliography section. For numbered formats (IEEE, Vancouver,
+        Chicago) markers use sequential numbers based on order of appearance.
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Rendered document preview
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentPreviewResult"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Project not found
+
+  # DECISION 014 Phase 2 — GET bibliography (separate from POST /references/format
+  # which is for AI regeneration that costs credits)
+  /projects/{projectId}/bibliography:
+    get:
+      operationId: getBibliography
+      tags: [references]
+      summary: Get formatted bibliography for a project
+      description: |
+        Returns the CSL-formatted bibliography for all references that have
+        at least one citation in the project. Cheaper than
+        POST /references/regenerate (no AI call).
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Bibliography
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BibliographyResult"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Project not found
 
   /references/fetch-metadata:
     post:
@@ -2508,7 +2568,67 @@ paths:
         "409":
           description: Reference already exists in the project
 
-  # ── Admin ────────────────────────────────────────────────────────────────
+  # ── Learning Activity (Practice) ──────────────────────────────────────────────
+  /learning-activities:
+    get:
+      operationId: listLearningActivities
+      tags: [learning-activity]
+      summary: List learning activities for recommendations
+      description: Returns all learning activities for the authenticated user, ordered by recency. Used by Practice to build quiz recommendations.
+      responses:
+        "200":
+          description: Learning activities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LearningActivity"
+        "401":
+          description: Unauthorized
+
+    post:
+      operationId: createLearningActivity
+      tags: [learning-activity]
+      summary: Log a learning activity
+      description: Records topics extracted from a source (instruction, reference, or chat). Used to build the practice recommendation engine.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLearningActivityRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LearningActivity"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+
+  /learning-activities/recommendations:
+    get:
+      operationId: getPracticeRecommendations
+      tags: [learning-activity]
+      summary: Get quiz recommendations
+      description: Returns 2-3 quiz recommendations based on the user's learning activities. Recommendations prioritize recent activities and topics with quiz history.
+      responses:
+        "200":
+          description: Recommendations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PracticeRecommendation"
+        "401":
+          description: Unauthorized
+
+  # ── Admin ──────────────────────────────────────────────────────────────────────
   /admin/me:
     get:
       operationId: getAdminStatus
@@ -3003,7 +3123,7 @@ components:
             the document.
         outputFormat:
           type: string
-          enum: [docx, pdf, markdown]
+          enum: [docx, pdf, pptx]
         minRefYear:
           type: number
         minRefCount:
@@ -3035,7 +3155,7 @@ components:
           type: string
         outputFormat:
           type: string
-          enum: [docx, pdf, markdown]
+          enum: [docx, pdf, pptx]
         minRefYear:
           type: number
         minRefCount:
@@ -3324,6 +3444,41 @@ components:
           type: string
         format:
           type: string
+
+    # ──────────────────────────────────────────────────────────────────
+    # DECISION 014 Phase 2 — Document preview schema
+    # ──────────────────────────────────────────────────────────────────
+    DocumentPreviewParagraph:
+      type: object
+      required: [index, html]
+      properties:
+        index:
+          type: number
+          description: Zero-based paragraph index matching original content split
+        html:
+          type: string
+          description: |
+            Rendered HTML for this paragraph with citation markers injected
+            as `<sup class="cite-marker" data-citation-id="N">marker</sup>`.
+            Marker text reflects the project's current citation format.
+
+    DocumentPreviewResult:
+      type: object
+      required: [paragraphs, citationFormat, citationCount]
+      properties:
+        paragraphs:
+          type: array
+          items:
+            $ref: "#/components/schemas/DocumentPreviewParagraph"
+        bibliography:
+          type: string
+          description: Auto-generated bibliography (CSL-formatted)
+        citationFormat:
+          type: string
+          enum: [APA, APA7, IEEE, Vancouver, Chicago, MLA, Harvard]
+        citationCount:
+          type: number
+          description: Total citation markers in this preview
 
     # ──────────────────────────────────────────────────────────────────
     # Reference Tool + Auto-Cite (DECISION 014)
@@ -3630,7 +3785,7 @@ components:
           type: number
         format:
           type: string
-          enum: [docx, pdf, markdown]
+          enum: [docx, pdf, pptx]
         status:
           type: string
           enum: [pending, completed, failed]
@@ -3646,7 +3801,7 @@ components:
       properties:
         format:
           type: string
-          enum: [docx, pdf, markdown]
+          enum: [docx, pdf, pptx]
         documentVersionId:
           type: number
 
@@ -4834,6 +4989,75 @@ components:
               type: number
             failed:
               type: number
+
+    # ── Learning Activity (Practice) ───────────────────────────────────────────────
+    LearningActivity:
+      type: object
+      required: [id, userId, topics, extractedFrom, createdAt]
+      properties:
+        id:
+          type: number
+        userId:
+          type: string
+        topics:
+          type: array
+          description: Array of topic strings extracted from the source
+          items:
+            type: string
+        subject:
+          type: ["string", "null"]
+          description: Subject or course name if detectable
+        sourceProjectId:
+          type: ["number", "null"]
+          description: Link to the Task Mentor project that generated this activity
+        sourceProjectTitle:
+          type: ["string", "null"]
+          description: Denormalized title of the source project for display
+        extractedFrom:
+          type: string
+          enum: [instruction, reference, chat]
+          description: Where the topics were extracted from
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateLearningActivityRequest:
+      type: object
+      required: [topics, extractedFrom]
+      properties:
+        topics:
+          type: array
+          description: Array of topic strings
+          items:
+            type: string
+          minItems: 1
+        subject:
+          type: string
+          description: Optional subject/course name
+        sourceProjectId:
+          type: number
+          description: ID of the Task Mentor project this activity came from
+        extractedFrom:
+          type: string
+          enum: [instruction, reference, chat]
+          default: instruction
+
+    PracticeRecommendation:
+      type: object
+      required: [learningActivity, reason, type]
+      properties:
+        learningActivity:
+          $ref: "#/components/schemas/LearningActivity"
+        reason:
+          type: string
+          description: Human-readable reason for this recommendation
+        type:
+          type: string
+          enum: [recent_task, frequent_topic, weak_topic]
+          description: |
+            - recent_task: from the most recently created project
+            - frequent_topic: topics that appear most across activities
+            - weak_topic: topics where user scored poorly in past quizzes
 
     Pagination:
       type: object

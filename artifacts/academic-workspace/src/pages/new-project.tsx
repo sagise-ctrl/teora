@@ -3,7 +3,7 @@ import { useLocation, useSearch } from "wouter"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { useCreateProject } from "../lib/api-client-react"
+import { useCreateProject, type ProjectInputOutputFormat } from "../lib/api-client-react"
 import {
   ArrowLeft,
   Loader2,
@@ -14,6 +14,8 @@ import {
   GraduationCap,
   ListChecks,
   Quote,
+  Presentation,
+  FileText,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -64,6 +66,7 @@ const formSchema = z.object({
     .string()
     .min(3, "Minimal 3 karakter agar Teora bisa menganalisis dengan baik."),
   citationFormat: z.enum(["APA", "APA7", "IEEE", "Vancouver", "Chicago", "MLA", "Harvard"]).optional(),
+  outputFormat: z.enum(["docx", "pptx"]).optional(),
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -130,7 +133,7 @@ export default function NewProject() {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: { title: "", instructionText: "", citationFormat: "APA" },
+    defaultValues: { title: "", instructionText: "", citationFormat: "APA", outputFormat: "docx" },
     mode: "onChange",
   })
 
@@ -167,6 +170,7 @@ export default function NewProject() {
           instructionText: finalInstruction,
           taskType,
           citationFormat: data.citationFormat,
+          outputFormat: (data.outputFormat ?? "docx") as ProjectInputOutputFormat,
         },
       },
       {
@@ -257,7 +261,52 @@ export default function NewProject() {
                 )}
               />
 
-              {/* Instruksi / Ide: WAJIB */}
+              {/* Output Format: Dokumen / Slide */}
+              <FormField
+                control={form.control}
+                name="outputFormat"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base flex items-center gap-1.5">
+                      <Presentation className="w-4 h-4" />
+                      Format Output
+                    </FormLabel>
+                    <div className="flex rounded-lg border border-border overflow-hidden w-fit">
+                      <button
+                        type="button"
+                        className={cn(
+                          "flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors",
+                          field.value === "docx" || !field.value
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-background text-muted-foreground hover:bg-muted"
+                        )}
+                        onClick={() => field.onChange("docx")}
+                      >
+                        <FileText className="w-4 h-4" />
+                        Dokumen
+                      </button>
+                      <button
+                        type="button"
+                        className={cn(
+                          "flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors",
+                          field.value === "pptx"
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-background text-muted-foreground hover:bg-muted"
+                        )}
+                        onClick={() => field.onChange("pptx")}
+                      >
+                        <Presentation className="w-4 h-4" />
+                        Slide
+                      </button>
+                    </div>
+                    <FormDescription>
+                      Dokumen = teks/WORD, Slide = PowerPoint presentasi.
+                    </FormDescription>
+                  </FormItem>
+                )}
+              />
+
+
               <FormField
                 control={form.control}
                 name="instructionText"

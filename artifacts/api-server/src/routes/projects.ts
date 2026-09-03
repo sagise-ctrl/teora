@@ -1079,6 +1079,108 @@ router.get("/projects/:projectId/export/pdf", async (req, res): Promise<void> =>
   }
 });
 
+// ── Export PPTX ────────────────────────────────────────────────────────────────
+
+import { generatePptx } from "../lib/pptx-export.js";
+
+// GET /projects/:projectId/export/pptx
+router.get("/projects/:projectId/export/pptx", async (req, res): Promise<void> => {
+  const projectId = Number(req.params.projectId);
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const ok = await requireProjectOwnership(projectId, req.user.id, res);
+  if (!ok) return;
+
+  const [project] = await db
+    .select()
+    .from(projectsTable)
+    .where(eq(projectsTable.id, projectId));
+
+  if (!project) {
+    res.status(404).json({ error: "Project not found" });
+    return;
+  }
+
+  // Get all documents ordered by index
+  const docs = await db
+    .select()
+    .from(documentsTable)
+    .where(eq(documentsTable.projectId, projectId))
+    .orderBy(documentsTable.orderIndex);
+
+  const documentsWithContent = await Promise.all(
+    docs.map(async (doc) => {
+      const versions = await db
+        .select()
+        .from(documentVersionsTable)
+        .where(eq(documentVersionsTable.documentId, doc.id))
+        .orderBy(desc(documentVersionsTable.versionNumber))
+        .limit(1);
+      return { document: doc, version: versions[0] ?? null };
+    })
+  );
+
+  // Fallback: standalone versions
+  const standaloneVersions = await db
+    .select()
+    .from(documentVersionsTable)
+    .where(and(eq(documentVersionsTable.projectId, projectId), isNull(documentVersionsTable.documentId)))
+    .orderBy(desc(documentVersionsTable.versionNumber));
+
+  const allDocuments =
+    docs.length > 0
+      ? documentsWithContent
+      : standaloneVersions.map((v) => ({
+          document: {
+            id: 0,
+            projectId,
+            title: project.title,
+            orderIndex: 0,
+            createdAt: v.createdAt,
+            updatedAt: v.updatedAt,
+          },
+          version: v,
+        }));
+
+  // Get references
+  const refs = await db
+    .select()
+    .from(referencesTable)
+    .where(eq(referencesTable.projectId, projectId));
+
+  try {
+    const buffer = await generatePptx(
+      project.title,
+      allDocuments,
+      refs.map((r) => ({
+        title: r.title,
+        authors: r.authors,
+        year: r.year,
+        journal: r.journal,
+        doi: r.doi,
+      })),
+      {
+        projectTitle: project.title,
+        citationFormat: project.citationFormat ?? undefined,
+        includeReferences: true,
+        theme: project.taskType === "academic" ? "academic" : "modern",
+      }
+    );
+
+    const safeName = project.title.replace(/[^a-zA-Z0-9_-]/g, "_");
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
+    res.setHeader("Content-Disposition", `attachment; filename="${safeName}.pptx"`);
+    res.setHeader("Content-Length", buffer.length);
+    res.send(buffer);
+  } catch (err) {
+    req.log.error({ err, projectId }, "PPTX export failed");
+    res.status(500).json({ error: "Gagal mengekspor slide" });
+  }
+});
+
 // ── Share Links ──────────────────────────────────────────────────────────────
 
 function generateToken(): string {

@@ -40,6 +40,7 @@ import { logAIUsage } from "../lib/ai-usage-log.js";
 import { checkCreditBalance, deductCredit } from "../lib/credit.js";
 import { sanitizeUserMessage } from "../lib/prompt-injection.js";
 import { validateReference, validateDOI, validateISBN, formatBibliography, formatCitationMarker, type CitationFormat } from "../lib/citation.js";
+import { computeSequentialNumbers } from "../lib/citation-rendering.js";
 import { fetchMetadata, detectIdentifierType } from "../lib/fetch-reference-metadata.js";
 import { searchCrossRef } from "../lib/crossref-search.js";
 
@@ -916,21 +917,57 @@ router.patch("/projects/:projectId/citation-format", async (req, res): Promise<v
     )
     .where(eq(referenceCitationsTable.projectId, params.data.projectId));
 
-  for (const { citation, reference } of citations) {
-    const newMarker = formatCitationMarker(
-      {
+  // DECISION 014 Phase 2: For numbered formats (IEEE, Vancouver, Chicago),
+  // use sequential numbers based on order of appearance in the document
+  // (not reference.id which doesn't follow IEEE convention).
+  const sequentialNumbers = computeSequentialNumbers(
+    citations.map(({ citation, reference }) => ({
+      id: citation.id,
+      referenceId: citation.referenceId,
+      paragraphIndex: citation.paragraphIndex,
+      offsetInParagraph: citation.offsetInParagraph,
+      formatMarker: citation.formatMarker,
+      placementReason: citation.placementReason ?? null,
+      reference: {
         title: reference.title,
         authors: reference.authors,
         year: reference.year,
         journal: reference.journal,
-        volume: reference.volume,
-        issue: reference.issue,
         doi: reference.doi,
         url: reference.url,
       },
-      newFormat,
-      reference.id,
-    );
+    })),
+  );
+
+  const NUMBERED_FORMATS: ReadonlySet<CitationFormat> = new Set([
+    "IEEE",
+    "Vancouver",
+    "Chicago",
+  ]);
+
+  for (const { citation, reference } of citations) {
+    let newMarker: string;
+    if (
+      NUMBERED_FORMATS.has(newFormat) &&
+      sequentialNumbers.has(citation.referenceId)
+    ) {
+      newMarker = `[${sequentialNumbers.get(citation.referenceId)}]`;
+    } else {
+      newMarker = formatCitationMarker(
+        {
+          title: reference.title,
+          authors: reference.authors,
+          year: reference.year,
+          journal: reference.journal,
+          volume: reference.volume,
+          issue: reference.issue,
+          doi: reference.doi,
+          url: reference.url,
+        },
+        newFormat,
+        reference.id,
+      );
+    }
     if (newMarker !== citation.formatMarker) {
       await db
         .update(referenceCitationsTable)

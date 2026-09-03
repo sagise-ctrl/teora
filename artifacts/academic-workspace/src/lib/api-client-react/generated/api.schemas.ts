@@ -238,7 +238,7 @@ export type ProjectInputOutputFormat = typeof ProjectInputOutputFormat[keyof typ
 export const ProjectInputOutputFormat = {
   docx: 'docx',
   pdf: 'pdf',
-  markdown: 'markdown',
+  pptx: 'pptx',
 } as const;
 
 /**
@@ -315,7 +315,7 @@ export type ProjectUpdateOutputFormat = typeof ProjectUpdateOutputFormat[keyof t
 export const ProjectUpdateOutputFormat = {
   docx: 'docx',
   pdf: 'pdf',
-  markdown: 'markdown',
+  pptx: 'pptx',
 } as const;
 
 export interface ProjectUpdate {
@@ -557,6 +557,39 @@ export interface BulkAddReferencesRequest {
 export interface BibliographyResult {
   bibliography: string;
   format?: string;
+}
+
+export interface DocumentPreviewParagraph {
+  /** Zero-based paragraph index matching original content split */
+  index: number;
+  /**
+     * Rendered HTML for this paragraph with citation markers injected
+     * as `<sup class="cite-marker" data-citation-id="N">marker</sup>`.
+     * Marker text reflects the project's current citation format.
+     */
+  html: string;
+}
+
+export type DocumentPreviewResultCitationFormat = typeof DocumentPreviewResultCitationFormat[keyof typeof DocumentPreviewResultCitationFormat];
+
+
+export const DocumentPreviewResultCitationFormat = {
+  APA: 'APA',
+  APA7: 'APA7',
+  IEEE: 'IEEE',
+  Vancouver: 'Vancouver',
+  Chicago: 'Chicago',
+  MLA: 'MLA',
+  Harvard: 'Harvard',
+} as const;
+
+export interface DocumentPreviewResult {
+  paragraphs: DocumentPreviewParagraph[];
+  /** Auto-generated bibliography (CSL-formatted) */
+  bibliography?: string;
+  citationFormat: DocumentPreviewResultCitationFormat;
+  /** Total citation markers in this preview */
+  citationCount: number;
 }
 
 /**
@@ -832,7 +865,7 @@ export type ExportFormat = typeof ExportFormat[keyof typeof ExportFormat];
 export const ExportFormat = {
   docx: 'docx',
   pdf: 'pdf',
-  markdown: 'markdown',
+  pptx: 'pptx',
 } as const;
 
 export type ExportStatus = typeof ExportStatus[keyof typeof ExportStatus];
@@ -860,7 +893,7 @@ export type ExportInputFormat = typeof ExportInputFormat[keyof typeof ExportInpu
 export const ExportInputFormat = {
   docx: 'docx',
   pdf: 'pdf',
-  markdown: 'markdown',
+  pptx: 'pptx',
 } as const;
 
 export interface ExportInput {
