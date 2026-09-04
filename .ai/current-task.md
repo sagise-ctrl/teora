@@ -14,7 +14,15 @@
 **Status:** ✅ DONE — All done, deployed
 **Model:** claude-opus-4-6
 **Branch:** `feat/daftar-task`
-**Committed:** `4e00ed0` (username feature), `b763025` (workflow fix)
+**Committed:** `4e00ed0` (username feature), `b763025` (workflow fix), `ed9c6db` (enhanced landing page)
+
+### Landing Page Enhanced — ✅ DONE (2026-09-04, session ini)
+
+Commit `ed9c6db`: Full public landing page with hero section, 5 feature cards, CTA, footer. Font change DM Sans/Fraunces/Space Mono → Inter/Space Grotesk/JetBrains Mono. Google Fonts loaded via CSS @import for reliability.
+
+**Deployed:** `dpl_CyQ9ndXKcX8s7VLbM4f72BmAYtWV` → `academic-workspace-eta.vercel.app`
+**Bundle:** `index-DyW80fAi.js` — verified contains "Asisten Akademik", "Belajar Memahami", "Daftar Sekarang", "Mulai Gratis", all 5 feature titles
+**Routes:** / /login /register /dashboard → all 200 ✅
 
 ### Done
 
@@ -213,7 +221,38 @@ Validate DECISION 015 applied config. If `vercel build --prod` or `vercel deploy
 
 ---
 
-## 🎯 HISTORICAL 2026-09-04 — Em Dash Cleanup (Round 3)
+## COMPLETED 2026-09-04 — Font Replacement (Inter + Space Grotesk + JetBrains Mono)
+
+**Status:** ✅ DONE — Production deployed
+**Model:** claude-opus-4-6
+**Branch:** `feat/daftar-task`
+
+### What
+
+Font replacement across entire web:
+
+| Role | Before | After |
+|------|--------|-------|
+| Headings (h1-h6) | Fraunces (serif) | Space Grotesk |
+| UI / body text | DM Sans | Inter |
+| AI / technical | Space Mono | JetBrains Mono |
+
+### Changes Applied
+
+| File | Change |
+|------|--------|
+| `artifacts/academic-workspace/src/index.css` | Google Fonts @import: DM Sans + Fraunces + Space Mono → Inter + Space Grotesk + JetBrains Mono; CSS vars `--app-font-sans/serif/mono` updated; prose-academic + .prose typography updated |
+| `artifacts/academic-workspace/index.html` | Removed duplicate Google Fonts link (consolidated to CSS @import) |
+
+### Deploy
+
+- **Production:** `dpl_2uUCX4bMLfUWmwQvHJ3SjnjXa7Ug` → `academic-workspace-eoylah87i-sagise-ctrls-projects.vercel.app`
+- **Alias:** `https://academic-workspace-eta.vercel.app`
+- **Verified:** CSS bundle contains Inter, JetBrains Mono, Space Grotesk — old fonts (DM Sans, Fraunces, Space Mono) completely removed
+
+---
+
+## COMPLETED 2026-09-04 — Em Dash Cleanup
 
 **Status:** ✅ DONE — Deployed `dpl_CPMaNRUgRYfrbLFFrTjeyBhaauqv` to production
 **Model:** claude-opus-4-8
