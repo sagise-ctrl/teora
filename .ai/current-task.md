@@ -4,6 +4,40 @@
 
 ---
 
+## COMPLETED 2026-09-04 — Error Messages → Bahasa Indonesia
+
+**Status:** ✅ DONE — Backend + Frontend deployed
+**Model:** claude-opus-4-6
+
+### Apa yang Dilakukan
+
+~120 error messages di backend di-translate ke Bahasa Indonesia. Frontend custom-fetch di-fix untuk tidak tampilkan HTTP status code.
+
+### Error Messages Fixed
+
+| Sumber | Sebelum | Sesudah |
+|--------|---------|---------|
+| 90+ route files | "Unauthorized" | "Sesi Anda habis. Silakan login kembali." |
+| 90+ route files | "Project not found" | "Proyek tidak ditemukan." |
+| 90+ route files | "Access denied" | "Anda tidak memiliki akses ke proyek ini." |
+| All routes | "HTTP 401 Unauthorized" | "Sesi Anda habis. Silakan login kembali." |
+| All routes | "HTTP 500 Internal server error" | "Terjadi kesalahan di server. Silakan coba lagi." |
+| All routes | +100 validation/auth messages | Bahasa Indonesia |
+
+### Files Changed
+
+- `custom-fetch.ts` — hapus prefix "HTTP XXX", translate status codes
+- 22 backend route files — semua error message → ID
+- 2 middleware files — auth, owner
+- 1 lib file — ownership
+
+### Deploy
+
+- Backend: `cbf3077` → deployed ✅
+- Frontend: deployed ✅
+
+---
+
 ## COMPLETED 2026-09-04 — Full Project Audit
 
 **Status:** ✅ DONE — Audit report at `E:/teora/audit.md` (680 lines, 24 issues)
