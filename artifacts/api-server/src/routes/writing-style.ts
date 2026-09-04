@@ -12,7 +12,7 @@ const router: IRouter = Router();
 // GET /users/me/writing-style
 router.get("/users/me/writing-style", async (req, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -34,7 +34,7 @@ router.get("/users/me/writing-style", async (req, res): Promise<void> => {
 // POST /users/me/writing-style/analyze — AI analyzes writing and creates style profile
 router.post("/users/me/writing-style/analyze", async (req, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -45,7 +45,7 @@ router.post("/users/me/writing-style/analyze", async (req, res): Promise<void> =
   };
 
   if (!documents || !Array.isArray(documents) || documents.length === 0) {
-    res.status(400).json({ error: "documents array is required with at least one document" });
+    res.status(400).json({ error: "Dokumen wajib diisi minimal 1." });
     return;
   }
 
@@ -141,14 +141,14 @@ IMPORTANT: Return ONLY the JSON object, no markdown code blocks.`;
     res.status(201).json(profile);
   } catch (err) {
     console.error("Writing style analysis error:", err);
-    res.status(500).json({ error: "Failed to analyze writing style" });
+    res.status(500).json({ error: "Gagal menganalisis gaya penulisan." });
   }
 });
 
 // PATCH /users/me/writing-style
 router.patch("/users/me/writing-style", async (req, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -169,7 +169,7 @@ router.patch("/users/me/writing-style", async (req, res): Promise<void> => {
   };
 
   if (!styleCharacteristics) {
-    res.status(400).json({ error: "styleCharacteristics is required" });
+    res.status(400).json({ error: "Karakteristik gaya wajib diisi." });
     return;
   }
 

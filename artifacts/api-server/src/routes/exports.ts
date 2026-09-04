@@ -162,7 +162,7 @@ router.get("/projects/:projectId/exports", async (req, res): Promise<void> => {
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -192,7 +192,7 @@ router.post("/projects/:projectId/exports", async (req, res): Promise<void> => {
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -239,7 +239,7 @@ router.post("/projects/:projectId/exports", async (req, res): Promise<void> => {
   }
 
   if (!doc) {
-    res.status(404).json({ error: "No document to export" });
+    res.status(404).json({ error: "Tidak ada dokumen untuk di-export." });
     return;
   }
 
@@ -312,13 +312,13 @@ router.post("/projects/:projectId/exports", async (req, res): Promise<void> => {
 router.get("/exports/download/:filename", async (req, res): Promise<void> => {
   const { filename } = req.params as { filename?: string };
   if (!filename) {
-    res.status(400).json({ error: "Missing filename" });
+    res.status(400).json({ error: "Nama file wajib diisi." });
     return;
   }
 
   // Sanitize: only allow alphanumeric, dash, dot
   if (!/^[a-zA-Z0-9_.-]+$/.test(filename)) {
-    res.status(400).json({ error: "Invalid filename" });
+    res.status(400).json({ error: "Nama file tidak valid." });
     return;
   }
 
@@ -327,11 +327,11 @@ router.get("/exports/download/:filename", async (req, res): Promise<void> => {
   try {
     const stat = await fs.stat(filePath);
     if (!stat.isFile()) {
-      res.status(404).json({ error: "File not found" });
+      res.status(404).json({ error: "File tidak ditemukan." });
       return;
     }
   } catch {
-    res.status(404).json({ error: "File not found" });
+    res.status(404).json({ error: "File tidak ditemukan." });
     return;
   }
 

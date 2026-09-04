@@ -14,12 +14,12 @@ const router: IRouter = Router();
 router.get("/projects/:projectId/quizzes/:quizId/rubric", async (req, res): Promise<void> => {
   const quizId = Number(req.params.quizId);
   if (!quizId || isNaN(quizId)) {
-    res.status(400).json({ error: "Invalid quizId" });
+    res.status(400).json({ error: "ID kuis tidak valid." });
     return;
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -42,12 +42,12 @@ router.get("/projects/:projectId/quizzes/:quizId/rubric", async (req, res): Prom
 router.post("/projects/:projectId/quizzes/:quizId/rubric", async (req, res): Promise<void> => {
   const quizId = Number(req.params.quizId);
   if (!quizId || isNaN(quizId)) {
-    res.status(400).json({ error: "Invalid quizId" });
+    res.status(400).json({ error: "ID kuis tidak valid." });
     return;
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -73,7 +73,7 @@ router.post("/projects/:projectId/quizzes/:quizId/rubric", async (req, res): Pro
     .from(projectsTable)
     .where(eq(projectsTable.id, quiz.projectId));
   if (!project) {
-    res.status(404).json({ error: "Project not found" });
+    res.status(404).json({ error: "Proyek tidak ditemukan." });
     return;
   }
   const selectedTier = requestedTier
@@ -170,7 +170,7 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks.`;
     res.status(201).json(rubric);
   } catch (err) {
     console.error("Rubric generation error:", err);
-    res.status(500).json({ error: "Failed to generate rubric" });
+    res.status(500).json({ error: "Gagal membuat rubrik." });
   }
 });
 
@@ -178,12 +178,12 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks.`;
 router.patch("/projects/:projectId/quizzes/:quizId/rubric", async (req, res): Promise<void> => {
   const quizId = Number(req.params.quizId);
   if (!quizId || isNaN(quizId)) {
-    res.status(400).json({ error: "Invalid quizId" });
+    res.status(400).json({ error: "ID kuis tidak valid." });
     return;
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -193,7 +193,7 @@ router.patch("/projects/:projectId/quizzes/:quizId/rubric", async (req, res): Pr
     .where(eq(rubricsTable.quizId, quizId));
 
   if (!rubric) {
-    res.status(404).json({ error: "Rubric not found" });
+    res.status(404).json({ error: "Rubrik tidak ditemukan." });
     return;
   }
 
@@ -223,12 +223,12 @@ router.patch("/projects/:projectId/quizzes/:quizId/rubric", async (req, res): Pr
 router.delete("/projects/:projectId/quizzes/:quizId/rubric", async (req, res): Promise<void> => {
   const quizId = Number(req.params.quizId);
   if (!quizId || isNaN(quizId)) {
-    res.status(400).json({ error: "Invalid quizId" });
+    res.status(400).json({ error: "ID kuis tidak valid." });
     return;
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -238,7 +238,7 @@ router.delete("/projects/:projectId/quizzes/:quizId/rubric", async (req, res): P
     .where(eq(rubricsTable.quizId, quizId));
 
   if (!rubric) {
-    res.status(404).json({ error: "Rubric not found" });
+    res.status(404).json({ error: "Rubrik tidak ditemukan." });
     return;
   }
 

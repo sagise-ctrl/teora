@@ -17,12 +17,12 @@ const router: IRouter = Router();
 router.get("/projects/:projectId/quizzes", async (req, res): Promise<void> => {
   const projectId = Number(req.params.projectId);
   if (!projectId || isNaN(projectId)) {
-    res.status(400).json({ error: "Invalid projectId" });
+    res.status(400).json({ error: "ID proyek tidak valid." });
     return;
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -43,12 +43,12 @@ router.get("/projects/:projectId/quizzes/:quizId", async (req, res): Promise<voi
   const projectId = Number(req.params.projectId);
   const quizId = Number(req.params.quizId);
   if (!projectId || isNaN(projectId) || !quizId || isNaN(quizId)) {
-    res.status(400).json({ error: "Invalid projectId or quizId" });
+    res.status(400).json({ error: "ID proyek atau kuis tidak valid." });
     return;
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -72,12 +72,12 @@ router.get("/projects/:projectId/quizzes/:quizId", async (req, res): Promise<voi
 router.post("/projects/:projectId/quizzes", async (req, res): Promise<void> => {
   const projectId = Number(req.params.projectId);
   if (!projectId || isNaN(projectId)) {
-    res.status(400).json({ error: "Invalid projectId" });
+    res.status(400).json({ error: "ID proyek tidak valid." });
     return;
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -95,7 +95,7 @@ router.post("/projects/:projectId/quizzes", async (req, res): Promise<void> => {
   };
 
   if (!title || typeof title !== "string") {
-    res.status(400).json({ error: "title is required" });
+    res.status(400).json({ error: "Judul referensi wajib diisi." });
     return;
   }
 
@@ -105,7 +105,7 @@ router.post("/projects/:projectId/quizzes", async (req, res): Promise<void> => {
     .from(projectsTable)
     .where(eq(projectsTable.id, projectId));
   if (!project) {
-    res.status(404).json({ error: "Project not found" });
+    res.status(404).json({ error: "Proyek tidak ditemukan." });
     return;
   }
   const selectedTier = requestedTier
@@ -191,7 +191,7 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks, no explanation.`;
       const rawQuestions = parsed.questions ?? [];
       questions = rawQuestions.map((q: unknown) => questionSchema.parse(q));
     } catch {
-      res.status(500).json({ error: "Failed to parse AI response as JSON" });
+      res.status(500).json({ error: "Gagal memproses respons dari AI." });
       return;
     }
 
@@ -235,7 +235,7 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks, no explanation.`;
     res.status(201).json(quiz);
   } catch (err) {
     console.error("Quiz generation error:", err);
-    res.status(500).json({ error: "Failed to generate quiz" });
+    res.status(500).json({ error: "Gagal membuat kuis." });
   }
 });
 
@@ -243,12 +243,12 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks, no explanation.`;
 router.get("/quizzes/:quizId/submissions", async (req, res): Promise<void> => {
   const quizId = Number(req.params.quizId);
   if (!quizId || isNaN(quizId)) {
-    res.status(400).json({ error: "Invalid quizId" });
+    res.status(400).json({ error: "ID kuis tidak valid." });
     return;
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -265,12 +265,12 @@ router.get("/quizzes/:quizId/submissions", async (req, res): Promise<void> => {
 router.post("/quizzes/:quizId/submissions", async (req, res): Promise<void> => {
   const quizId = Number(req.params.quizId);
   if (!quizId || isNaN(quizId)) {
-    res.status(400).json({ error: "Invalid quizId" });
+    res.status(400).json({ error: "ID kuis tidak valid." });
     return;
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -286,7 +286,7 @@ router.post("/quizzes/:quizId/submissions", async (req, res): Promise<void> => {
 
   const { responses } = req.body as { responses?: z.infer<typeof quizResponseSchema>[] };
   if (!responses || !Array.isArray(responses)) {
-    res.status(400).json({ error: "responses is required and must be an array" });
+    res.status(400).json({ error: "Respons wajib diisi dan harus berupa array." });
     return;
   }
 
@@ -326,12 +326,12 @@ router.post("/quizzes/:quizId/submissions", async (req, res): Promise<void> => {
 router.get("/quizzes/:quizId/submissions/me", async (req, res): Promise<void> => {
   const quizId = Number(req.params.quizId);
   if (!quizId || isNaN(quizId)) {
-    res.status(400).json({ error: "Invalid quizId" });
+    res.status(400).json({ error: "ID kuis tidak valid." });
     return;
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 

@@ -53,7 +53,7 @@ async function logReferralEvent(
 // GET /auth/me
 router.get("/auth/me", authMiddleware, async (req, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -63,7 +63,7 @@ router.get("/auth/me", authMiddleware, async (req, res): Promise<void> => {
     .where(eq(usersTable.id, req.user.id));
 
   if (!user) {
-    res.status(404).json({ error: "User not found" });
+    res.status(404).json({ error: "Akun tidak ditemukan." });
     return;
   }
 
@@ -78,14 +78,14 @@ router.post("/auth/login", async (req, res): Promise<void> => {
   };
 
   if (!access_token) {
-    res.status(400).json({ error: "access_token is required" });
+    res.status(400).json({ error: "Token tidak ditemukan. Silakan login ulang." });
     return;
   }
 
   const userResponse = await supabaseAdmin?.auth.getUser(access_token);
 
   if (!userResponse || userResponse.error || !userResponse.data?.user) {
-    res.status(401).json({ error: "Invalid token" });
+    res.status(401).json({ error: "Token tidak valid." });
     return;
   }
 
@@ -136,17 +136,17 @@ router.post("/auth/register", async (req, res): Promise<void> => {
   };
 
   if (!email || !password) {
-    res.status(400).json({ error: "email and password are required" });
+    res.status(400).json({ error: "Email dan password wajib diisi." });
     return;
   }
 
   if (password.length < 6) {
-    res.status(400).json({ error: "Password must be at least 6 characters" });
+    res.status(400).json({ error: "Password minimal 6 karakter." });
     return;
   }
 
   if (!supabaseAdmin) {
-    res.status(500).json({ error: "Auth not configured" });
+    res.status(500).json({ error: "Fitur login belum tersedia. Hubungi administrator." });
     return;
   }
 
@@ -183,7 +183,7 @@ router.post("/auth/register", async (req, res): Promise<void> => {
   if (authError) {
     const isDuplicate = authError.message.toLowerCase().includes("already");
     if (isDuplicate) {
-      res.status(400).json({ error: "An account with this email already exists" });
+      res.status(400).json({ error: "Email sudah terdaftar. Gunakan email lain atau login." });
       return;
     }
     res.status(400).json({ error: authError.message });
@@ -191,7 +191,7 @@ router.post("/auth/register", async (req, res): Promise<void> => {
   }
 
   if (!authData?.user) {
-    res.status(500).json({ error: "Failed to create user" });
+    res.status(500).json({ error: "Gagal membuat akun. Silakan coba lagi." });
     return;
   }
 
@@ -226,7 +226,7 @@ router.post("/auth/register", async (req, res): Promise<void> => {
   }
 
   if (!newUserReferralCode) {
-    res.status(500).json({ error: "Failed to generate referral code" });
+    res.status(500).json({ error: "Gagal membuat kode referral. Silakan coba lagi." });
     return;
   }
 
@@ -329,7 +329,7 @@ router.post("/auth/refresh", async (req, res): Promise<void> => {
     req.cookies?.sb_refresh_token;
 
   if (!refreshToken || !supabaseAdmin) {
-    res.status(401).json({ error: "No refresh token" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -340,7 +340,7 @@ router.post("/auth/refresh", async (req, res): Promise<void> => {
   if (error || !data.session) {
     res.clearCookie("sb_access_token", { path: "/" });
     res.clearCookie("sb_refresh_token", { path: "/" });
-    res.status(401).json({ error: "Session expired" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -358,7 +358,7 @@ router.post("/auth/refresh", async (req, res): Promise<void> => {
 // GET /auth/referrals
 router.get("/auth/referrals", authMiddleware, async (req, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 

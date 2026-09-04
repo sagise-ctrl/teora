@@ -12,12 +12,12 @@ export function requireOwner(
   next: NextFunction
 ): void {
   if (!req.user) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
   if (req.user.email?.toLowerCase() !== OWNER_EMAIL.toLowerCase()) {
-    res.status(403).json({ error: "Forbidden — admin access required" });
+    res.status(403).json({ error: "Anda tidak memiliki akses halaman ini." });
     return;
   }
 

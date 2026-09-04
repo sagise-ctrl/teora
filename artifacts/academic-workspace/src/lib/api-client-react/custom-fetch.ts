@@ -157,12 +157,31 @@ function truncate(text: string, maxLength = 300): string {
   return text.length > maxLength ? `${text.slice(0, maxLength - 1)}…` : text;
 }
 
+const STATUS_TRANSLATION: Record<number, string> = {
+  400: "Permintaan tidak valid",
+  401: "Sesi Anda habis. Silakan login kembali.",
+  403: "Anda tidak memiliki akses ke fitur ini.",
+  404: "Data tidak ditemukan.",
+  409: "Permintaan bentrok dengan data yang ada.",
+  410: "Data sudah tidak tersedia lagi.",
+  422: "Data yang dikirim tidak valid.",
+  429: "Terlalu banyak permintaan. Silakan tunggu sebentar.",
+  500: "Terjadi kesalahan di server. Silakan coba lagi.",
+  502: "Server tidak merespons. Silakan coba lagi.",
+  503: "Layanan sedang tidak tersedia.",
+};
+
+function translateStatus(status: number, fallback: string): string {
+  return STATUS_TRANSLATION[status] ?? fallback;
+}
+
 function buildErrorMessage(response: Response, data: unknown): string {
-  const prefix = `HTTP ${response.status} ${response.statusText}`;
+  const status = response.status;
 
   if (typeof data === "string") {
     const text = data.trim();
-    return text ? `${prefix}: ${truncate(text)}` : prefix;
+    if (!text) return translateStatus(status, response.statusText);
+    return text;
   }
 
   const title = getStringField(data, "title");
@@ -172,12 +191,12 @@ function buildErrorMessage(response: Response, data: unknown): string {
     getStringField(data, "error_description") ??
     getStringField(data, "error");
 
-  if (title && detail) return `${prefix}: ${title} — ${detail}`;
-  if (detail) return `${prefix}: ${detail}`;
-  if (message) return `${prefix}: ${message}`;
-  if (title) return `${prefix}: ${title}`;
+  if (title && detail) return `${title} — ${detail}`;
+  if (detail) return detail;
+  if (message) return message;
+  if (title) return title;
 
-  return prefix;
+  return translateStatus(status, response.statusText);
 }
 
 export class ApiError<T = unknown> extends Error {

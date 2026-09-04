@@ -38,7 +38,7 @@ function toTemplateJson(t: typeof documentTemplatesTable.$inferSelect) {
 // GET /templates — list templates (user's own + public system templates)
 router.get("/templates", async (req: Request, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -59,7 +59,7 @@ router.get("/templates", async (req: Request, res): Promise<void> => {
 // GET /templates/categories — list distinct categories
 router.get("/templates/categories", async (req: Request, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -82,13 +82,13 @@ router.get("/templates/categories", async (req: Request, res): Promise<void> => 
 // GET /templates/:templateId — get one template
 router.get("/templates/:templateId", async (req: Request, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
   const templateId = Number(req.params.templateId);
   if (isNaN(templateId)) {
-    res.status(400).json({ error: "Invalid template ID" });
+    res.status(400).json({ error: "ID template tidak valid." });
     return;
   }
 
@@ -99,7 +99,7 @@ router.get("/templates/:templateId", async (req: Request, res): Promise<void> =>
     .limit(1);
 
   if (!template) {
-    res.status(404).json({ error: "Template not found" });
+    res.status(404).json({ error: "Template tidak ditemukan." });
     return;
   }
 
@@ -109,7 +109,7 @@ router.get("/templates/:templateId", async (req: Request, res): Promise<void> =>
   const isSystem = template.userId === null;
 
   if (!isOwn && !isPublic && !isSystem) {
-    res.status(403).json({ error: "Access denied" });
+    res.status(403).json({ error: "Anda tidak memiliki akses ke proyek ini." });
     return;
   }
 
@@ -119,7 +119,7 @@ router.get("/templates/:templateId", async (req: Request, res): Promise<void> =>
 // POST /templates — create user template
 router.post("/templates", async (req: Request, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -152,13 +152,13 @@ router.post("/templates", async (req: Request, res): Promise<void> => {
 // PUT /templates/:templateId — update template (only own)
 router.put("/templates/:templateId", async (req: Request, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
   const templateId = Number(req.params.templateId);
   if (isNaN(templateId)) {
-    res.status(400).json({ error: "Invalid template ID" });
+    res.status(400).json({ error: "ID template tidak valid." });
     return;
   }
 
@@ -176,18 +176,18 @@ router.put("/templates/:templateId", async (req: Request, res): Promise<void> =>
     .limit(1);
 
   if (!existing) {
-    res.status(404).json({ error: "Template not found" });
+    res.status(404).json({ error: "Template tidak ditemukan." });
     return;
   }
 
   // System templates (userId=null) cannot be modified
   if (existing.userId === null) {
-    res.status(403).json({ error: "System templates cannot be modified" });
+    res.status(403).json({ error: "Template sistem tidak bisa diubah." });
     return;
   }
 
   if (existing.userId !== req.user.id) {
-    res.status(403).json({ error: "Access denied" });
+    res.status(403).json({ error: "Anda tidak memiliki akses ke proyek ini." });
     return;
   }
 
@@ -215,13 +215,13 @@ router.put("/templates/:templateId", async (req: Request, res): Promise<void> =>
 // DELETE /templates/:templateId — delete template (only own)
 router.delete("/templates/:templateId", async (req: Request, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
   const templateId = Number(req.params.templateId);
   if (isNaN(templateId)) {
-    res.status(400).json({ error: "Invalid template ID" });
+    res.status(400).json({ error: "ID template tidak valid." });
     return;
   }
 
@@ -233,18 +233,18 @@ router.delete("/templates/:templateId", async (req: Request, res): Promise<void>
     .limit(1);
 
   if (!existing) {
-    res.status(404).json({ error: "Template not found" });
+    res.status(404).json({ error: "Template tidak ditemukan." });
     return;
   }
 
   // System templates (userId=null) cannot be deleted
   if (existing.userId === null) {
-    res.status(403).json({ error: "System templates cannot be deleted" });
+    res.status(403).json({ error: "Template sistem tidak bisa dihapus." });
     return;
   }
 
   if (existing.userId !== req.user.id) {
-    res.status(403).json({ error: "Access denied" });
+    res.status(403).json({ error: "Anda tidak memiliki akses ke proyek ini." });
     return;
   }
 

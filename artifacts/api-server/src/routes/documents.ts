@@ -25,7 +25,7 @@ router.get("/projects/:projectId/documents", async (req, res): Promise<void> => 
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -114,7 +114,7 @@ router.post("/projects/:projectId/documents", async (req, res): Promise<void> =>
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -157,7 +157,7 @@ router.get("/projects/:projectId/documents/latest", async (req, res): Promise<vo
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -250,7 +250,7 @@ router.get("/projects/:projectId/documents/:documentId", async (req, res): Promi
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -302,7 +302,7 @@ router.patch("/projects/:projectId/documents/:documentId", async (req, res): Pro
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -361,7 +361,7 @@ router.delete("/projects/:projectId/documents/:documentId", async (req, res): Pr
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 

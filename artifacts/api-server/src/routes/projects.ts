@@ -110,13 +110,13 @@ router.get("/projects/:projectId", async (req, res): Promise<void> => {
     .where(eq(projectsTable.id, params.data.projectId));
 
   if (!project) {
-    res.status(404).json({ error: "Project not found" });
+    res.status(404).json({ error: "Proyek tidak ditemukan." });
     return;
   }
 
   // Ownership check
   if (project.userId !== userId) {
-    res.status(403).json({ error: "Access denied" });
+    res.status(403).json({ error: "Anda tidak memiliki akses ke proyek ini." });
     return;
   }
 
@@ -182,12 +182,12 @@ router.patch("/projects/:projectId", async (req, res): Promise<void> => {
     .where(eq(projectsTable.id, params.data.projectId));
 
   if (!existing) {
-    res.status(404).json({ error: "Project not found" });
+    res.status(404).json({ error: "Proyek tidak ditemukan." });
     return;
   }
 
   if (existing.userId !== userId) {
-    res.status(403).json({ error: "Access denied" });
+    res.status(403).json({ error: "Anda tidak memiliki akses ke proyek ini." });
     return;
   }
 
@@ -230,12 +230,12 @@ router.delete("/projects/:projectId", async (req, res): Promise<void> => {
     .where(eq(projectsTable.id, params.data.projectId));
 
   if (!existing) {
-    res.status(404).json({ error: "Project not found" });
+    res.status(404).json({ error: "Proyek tidak ditemukan." });
     return;
   }
 
   if (existing.userId !== userId) {
-    res.status(403).json({ error: "Access denied" });
+    res.status(403).json({ error: "Anda tidak memiliki akses ke proyek ini." });
     return;
   }
 
@@ -259,12 +259,12 @@ router.post("/projects/:projectId/analyze", async (req, res): Promise<void> => {
     .where(eq(projectsTable.id, params.data.projectId));
 
   if (!project) {
-    res.status(404).json({ error: "Project not found" });
+    res.status(404).json({ error: "Proyek tidak ditemukan." });
     return;
   }
 
   if (project.userId !== userId) {
-    res.status(403).json({ error: "Access denied" });
+    res.status(403).json({ error: "Anda tidak memiliki akses ke proyek ini." });
     return;
   }
 
@@ -337,7 +337,7 @@ async function runAnalysisPipeline(
       .from(projectsTable)
       .where(eq(projectsTable.id, projectId));
 
-    if (!project) throw new Error("Project not found");
+    if (!project) { res.status(404).json({ error: "Proyek tidak ditemukan." }); return; }
 
     // Sanitize instruction text against prompt injection before it enters AI prompts
     const safeInstructionText = sanitizeInstructionText(project.instructionText ?? "");
@@ -553,12 +553,12 @@ router.post("/projects/:projectId/outline", async (req, res): Promise<void> => {
     .where(eq(projectsTable.id, params.data.projectId));
 
   if (!project) {
-    res.status(404).json({ error: "Project not found" });
+    res.status(404).json({ error: "Proyek tidak ditemukan." });
     return;
   }
 
   if (project.userId !== userId) {
-    res.status(403).json({ error: "Access denied" });
+    res.status(403).json({ error: "Anda tidak memiliki akses ke proyek ini." });
     return;
   }
 
@@ -669,12 +669,12 @@ router.post("/projects/:projectId/documents/generate", async (req, res): Promise
     .where(eq(projectsTable.id, params.data.projectId));
 
   if (!project) {
-    res.status(404).json({ error: "Project not found" });
+    res.status(404).json({ error: "Proyek tidak ditemukan." });
     return;
   }
 
   if (project.userId !== userId) {
-    res.status(403).json({ error: "Access denied" });
+    res.status(403).json({ error: "Anda tidak memiliki akses ke proyek ini." });
     return;
   }
 
@@ -773,7 +773,7 @@ async function runDocumentGeneration(
       .from(projectsTable)
       .where(eq(projectsTable.id, projectId));
 
-    if (!project) throw new Error("Project not found");
+    if (!project) { res.status(404).json({ error: "Proyek tidak ditemukan." }); return; }
 
     const systemPrompt = buildSystemPrompt({
       title: project.title,
@@ -885,7 +885,7 @@ import { generatePDF } from "../lib/pdf-export.js";
 router.get("/projects/:projectId/export/docx", async (req, res): Promise<void> => {
   const projectId = Number(req.params.projectId);
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -898,7 +898,7 @@ router.get("/projects/:projectId/export/docx", async (req, res): Promise<void> =
     .where(eq(projectsTable.id, projectId));
 
   if (!project) {
-    res.status(404).json({ error: "Project not found" });
+    res.status(404).json({ error: "Proyek tidak ditemukan." });
     return;
   }
 
@@ -986,7 +986,7 @@ router.get("/projects/:projectId/export/docx", async (req, res): Promise<void> =
 router.get("/projects/:projectId/export/pdf", async (req, res): Promise<void> => {
   const projectId = Number(req.params.projectId);
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -999,7 +999,7 @@ router.get("/projects/:projectId/export/pdf", async (req, res): Promise<void> =>
     .where(eq(projectsTable.id, projectId));
 
   if (!project) {
-    res.status(404).json({ error: "Project not found" });
+    res.status(404).json({ error: "Proyek tidak ditemukan." });
     return;
   }
 
@@ -1070,7 +1070,7 @@ function generateToken(): string {
 router.get("/projects/:projectId/share", async (req, res): Promise<void> => {
   const projectId = Number(req.params.projectId);
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -1096,7 +1096,7 @@ router.get("/projects/:projectId/share", async (req, res): Promise<void> => {
 router.post("/projects/:projectId/share", async (req, res): Promise<void> => {
   const projectId = Number(req.params.projectId);
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -1144,7 +1144,7 @@ router.delete("/projects/:projectId/share/:shareId", async (req, res): Promise<v
   const projectId = Number(req.params.projectId);
   const shareId = Number(req.params.shareId);
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -1157,7 +1157,7 @@ router.delete("/projects/:projectId/share/:shareId", async (req, res): Promise<v
     .returning();
 
   if (!deleted) {
-    res.status(404).json({ error: "Share link not found" });
+    res.status(404).json({ error: "Link berbagi tidak ditemukan." });
     return;
   }
 

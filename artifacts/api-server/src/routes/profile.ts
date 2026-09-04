@@ -39,7 +39,7 @@ function toProfileJson(user: typeof usersTable.$inferSelect) {
 // GET /users/me/profile
 router.get("/users/me/profile", async (req, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -49,7 +49,7 @@ router.get("/users/me/profile", async (req, res): Promise<void> => {
     .where(eq(usersTable.id, req.user.id));
 
   if (!user) {
-    res.status(404).json({ error: "User not found" });
+    res.status(404).json({ error: "Akun tidak ditemukan." });
     return;
   }
 
@@ -59,7 +59,7 @@ router.get("/users/me/profile", async (req, res): Promise<void> => {
 // PATCH /users/me/profile
 router.patch("/users/me/profile", async (req, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -71,7 +71,7 @@ router.patch("/users/me/profile", async (req, res): Promise<void> => {
 
   const { displayName, avatarUrl } = parsed.data;
   if (!displayName && avatarUrl === undefined) {
-    res.status(400).json({ error: "No fields to update" });
+    res.status(400).json({ error: "Tidak ada data yang diubah." });
     return;
   }
 
@@ -90,7 +90,7 @@ router.patch("/users/me/profile", async (req, res): Promise<void> => {
     .returning();
 
   if (!updated) {
-    res.status(404).json({ error: "User not found" });
+    res.status(404).json({ error: "Akun tidak ditemukan." });
     return;
   }
 
@@ -100,7 +100,7 @@ router.patch("/users/me/profile", async (req, res): Promise<void> => {
 // POST /users/me/avatar
 router.post("/users/me/avatar", async (req, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -135,7 +135,7 @@ router.post("/users/me/avatar", async (req, res): Promise<void> => {
   const storagePath = `${req.user.id}/${safeFilename}`;
 
   if (!supabaseAdmin) {
-    res.status(500).json({ error: "Storage not configured" });
+    res.status(500).json({ error: "Layanan penyimpanan belum tersedia." });
     return;
   }
 
@@ -171,7 +171,7 @@ router.post("/users/me/avatar", async (req, res): Promise<void> => {
 // DELETE /users/me/account
 router.delete("/users/me/account", async (req, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -185,7 +185,7 @@ router.delete("/users/me/account", async (req, res): Promise<void> => {
 
   // Verify password via Supabase
   if (!supabaseAdmin) {
-    res.status(500).json({ error: "Auth not configured" });
+    res.status(500).json({ error: "Fitur login belum tersedia. Hubungi administrator." });
     return;
   }
 
@@ -196,7 +196,7 @@ router.delete("/users/me/account", async (req, res): Promise<void> => {
     .where(eq(usersTable.id, req.user.id));
 
   if (!userRecord) {
-    res.status(404).json({ error: "User not found" });
+    res.status(404).json({ error: "Akun tidak ditemukan." });
     return;
   }
 

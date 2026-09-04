@@ -8,7 +8,7 @@ const router: IRouter = Router();
 // GET /users/me/balance — Get current balance and transaction history
 router.get("/users/me/balance", async (req, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
   const userId = req.user!.id;
@@ -47,7 +47,7 @@ router.get("/users/me/balance", async (req, res): Promise<void> => {
 // PUT /users/me/ai-tier-preference — Set default tier
 router.put("/users/me/ai-tier-preference", async (req, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
   const userId = req.user!.id;

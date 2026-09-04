@@ -14,12 +14,12 @@ router.get("/shared/:token", async (req, res): Promise<void> => {
     .where(eq(shareTokensTable.token, token));
 
   if (!shareToken) {
-    res.status(404).json({ error: "Invalid or expired share link" });
+    res.status(404).json({ error: "Link berbagi tidak valid atau sudah kadaluarsa." });
     return;
   }
 
   if (shareToken.expiresAt && new Date(shareToken.expiresAt) < new Date()) {
-    res.status(404).json({ error: "Share link has expired" });
+    res.status(404).json({ error: "Link berbagi sudah kadaluarsa." });
     return;
   }
 
@@ -29,7 +29,7 @@ router.get("/shared/:token", async (req, res): Promise<void> => {
     .where(eq(projectsTable.id, shareToken.projectId));
 
   if (!project) {
-    res.status(404).json({ error: "Project not found" });
+    res.status(404).json({ error: "Proyek tidak ditemukan." });
     return;
   }
 

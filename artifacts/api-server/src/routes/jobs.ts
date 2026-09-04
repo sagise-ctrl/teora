@@ -15,7 +15,7 @@ router.get("/projects/:projectId/jobs", async (req, res): Promise<void> => {
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 

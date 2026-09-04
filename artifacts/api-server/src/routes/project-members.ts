@@ -9,12 +9,12 @@ const router: IRouter = Router();
 router.get("/projects/:projectId/members", async (req, res): Promise<void> => {
   const projectId = Number(req.params.projectId);
   if (!projectId || isNaN(projectId)) {
-    res.status(400).json({ error: "Invalid projectId" });
+    res.status(400).json({ error: "ID proyek tidak valid." });
     return;
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -33,12 +33,12 @@ router.get("/projects/:projectId/members", async (req, res): Promise<void> => {
 router.post("/projects/:projectId/members", async (req, res): Promise<void> => {
   const projectId = Number(req.params.projectId);
   if (!projectId || isNaN(projectId)) {
-    res.status(400).json({ error: "Invalid projectId" });
+    res.status(400).json({ error: "ID proyek tidak valid." });
     return;
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -47,7 +47,7 @@ router.post("/projects/:projectId/members", async (req, res): Promise<void> => {
 
   const { userId, role } = req.body as { userId?: string; role?: string };
   if (!userId || typeof userId !== "string") {
-    res.status(400).json({ error: "userId is required" });
+    res.status(400).json({ error: "ID pengguna wajib diisi." });
     return;
   }
 
@@ -72,12 +72,12 @@ router.patch("/projects/:projectId/members/:memberId", async (req, res): Promise
   const projectId = Number(req.params.projectId);
   const memberId = Number(req.params.memberId);
   if (!projectId || isNaN(projectId) || !memberId || isNaN(memberId)) {
-    res.status(400).json({ error: "Invalid projectId or memberId" });
+    res.status(400).json({ error: "ID proyek atau anggota tidak valid." });
     return;
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -117,12 +117,12 @@ router.delete("/projects/:projectId/members/:memberId", async (req, res): Promis
   const projectId = Number(req.params.projectId);
   const memberId = Number(req.params.memberId);
   if (!projectId || isNaN(projectId) || !memberId || isNaN(memberId)) {
-    res.status(400).json({ error: "Invalid projectId or memberId" });
+    res.status(400).json({ error: "ID proyek atau anggota tidak valid." });
     return;
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 

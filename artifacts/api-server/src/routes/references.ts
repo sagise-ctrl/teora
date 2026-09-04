@@ -39,7 +39,7 @@ router.get("/projects/:projectId/references", async (req, res): Promise<void> =>
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -78,7 +78,7 @@ router.post("/projects/:projectId/references", async (req, res): Promise<void> =
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -134,7 +134,7 @@ router.delete("/projects/:projectId/references/:referenceId", async (req, res): 
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -147,7 +147,7 @@ router.delete("/projects/:projectId/references/:referenceId", async (req, res): 
     .returning();
 
   if (!ref) {
-    res.status(404).json({ error: "Reference not found" });
+    res.status(404).json({ error: "Referensi tidak ditemukan." });
     return;
   }
 
@@ -164,7 +164,7 @@ router.post("/projects/:projectId/references/bulk", async (req, res): Promise<vo
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -178,12 +178,12 @@ router.post("/projects/:projectId/references/bulk", async (req, res): Promise<vo
   }
 
   if (!parsed.data.references || parsed.data.references.length === 0) {
-    res.status(400).json({ error: "references array is required and cannot be empty" });
+    res.status(400).json({ error: "Daftar referensi wajib diisi." });
     return;
   }
 
   if (parsed.data.references.length > 100) {
-    res.status(400).json({ error: "Maximum 100 references per bulk add" });
+    res.status(400).json({ error: "Maksimal 100 referensi per sekali tambah." });
     return;
   }
 
@@ -259,7 +259,7 @@ router.post("/projects/:projectId/references/validate", async (req, res): Promis
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -332,7 +332,7 @@ router.post("/projects/:projectId/references/format", async (req, res): Promise<
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -390,7 +390,7 @@ router.post("/projects/:projectId/references/regenerate", async (req, res): Prom
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -403,7 +403,7 @@ router.post("/projects/:projectId/references/regenerate", async (req, res): Prom
     .where(eq(projectsTable.id, params.data.projectId));
 
   if (!project) {
-    res.status(404).json({ error: "Project not found" });
+    res.status(404).json({ error: "Proyek tidak ditemukan." });
     return;
   }
 
@@ -509,13 +509,13 @@ router.post("/projects/:projectId/references/regenerate", async (req, res): Prom
 // Search CrossRef for academic papers by topic
 router.get("/references/search", async (req, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
   const q = (req.query.q as string | undefined)?.trim();
   if (!q || q.length < 3) {
-    res.status(400).json({ error: "Query must be at least 3 characters" });
+    res.status(400).json({ error: "Pencarian minimal 3 karakter." });
     return;
   }
 
@@ -536,19 +536,19 @@ router.get("/references/search", async (req, res): Promise<void> => {
 // Fetches reference metadata from CrossRef (DOI) or Open Library (ISBN)
 router.post("/references/fetch-metadata", async (req, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
   const { identifier } = req.body as { identifier?: string };
   if (!identifier || typeof identifier !== "string") {
-    res.status(400).json({ error: "identifier is required" });
+    res.status(400).json({ error: "DOI atau ISBN harus diisi." });
     return;
   }
 
   const type = detectIdentifierType(identifier);
   if (type === "unknown") {
-    res.status(400).json({ error: "Identifier must be a valid DOI or ISBN-10/ISBN-13" });
+    res.status(400).json({ error: "Harus berupa DOI atau ISBN yang valid." });
     return;
   }
 

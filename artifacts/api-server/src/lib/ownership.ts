@@ -18,12 +18,12 @@ export async function requireProjectOwnership(
     .where(eq(projectsTable.id, projectId));
 
   if (!project) {
-    res.status(404).json({ error: "Project not found" });
+    res.status(404).json({ error: "Proyek tidak ditemukan." });
     return false;
   }
 
   if (project.userId !== userId) {
-    res.status(403).json({ error: "Access denied" });
+    res.status(403).json({ error: "Anda tidak memiliki akses ke proyek ini." });
     return false;
   }
 
@@ -46,7 +46,7 @@ export async function requireProjectAccess(
     .where(eq(projectsTable.id, projectId));
 
   if (!project) {
-    res.status(404).json({ error: "Project not found" });
+    res.status(404).json({ error: "Proyek tidak ditemukan." });
     return false;
   }
 
@@ -65,7 +65,7 @@ export async function requireProjectAccess(
     );
 
   if (!member) {
-    res.status(403).json({ error: "Access denied" });
+    res.status(403).json({ error: "Anda tidak memiliki akses ke proyek ini." });
     return false;
   }
 
@@ -88,7 +88,7 @@ export async function requireProjectWriteAccess(
     .where(eq(projectsTable.id, projectId));
 
   if (!project) {
-    res.status(404).json({ error: "Project not found" });
+    res.status(404).json({ error: "Proyek tidak ditemukan." });
     return false;
   }
 
@@ -107,12 +107,12 @@ export async function requireProjectWriteAccess(
     );
 
   if (!member) {
-    res.status(403).json({ error: "Access denied" });
+    res.status(403).json({ error: "Anda tidak memiliki akses ke proyek ini." });
     return false;
   }
 
   if (member.role === "viewer") {
-    res.status(403).json({ error: "Viewers cannot modify content" });
+    res.status(403).json({ error: "Peran viewer tidak dapat mengubah konten." });
     return false;
   }
 

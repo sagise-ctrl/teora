@@ -26,7 +26,7 @@ router.get("/projects/:projectId/attachments", async (req, res): Promise<void> =
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -57,7 +57,7 @@ router.post("/projects/:projectId/attachments", async (req, res): Promise<void> 
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -130,7 +130,7 @@ router.delete(
     }
 
     if (!req.user?.id) {
-      res.status(401).json({ error: "Unauthorized" });
+      res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
       return;
     }
 
@@ -143,7 +143,7 @@ router.delete(
       .returning();
 
     if (!attachment) {
-      res.status(404).json({ error: "Attachment not found" });
+      res.status(404).json({ error: "Lampiran tidak ditemukan." });
       return;
     }
 
@@ -166,7 +166,7 @@ router.get(
     }
 
     if (!req.user?.id) {
-      res.status(401).json({ error: "Unauthorized" });
+      res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
       return;
     }
 
@@ -179,7 +179,7 @@ router.get(
       .where(eq(attachmentsTable.id, params.data.attachmentId));
 
     if (!attachment) {
-      res.status(404).json({ error: "Attachment not found" });
+      res.status(404).json({ error: "Lampiran tidak ditemukan." });
       return;
     }
 
@@ -188,7 +188,7 @@ router.get(
       .download(attachment.filename);
 
     if (error || !data) {
-      res.status(404).json({ error: "File not found in storage" });
+      res.status(404).json({ error: "File tidak ditemukan di penyimpanan." });
       return;
     }
 

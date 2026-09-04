@@ -11,7 +11,7 @@ const router: IRouter = Router();
  */
 async function requireOwner(req: any, res: any, next: any): Promise<void> {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 

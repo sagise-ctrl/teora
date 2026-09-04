@@ -61,7 +61,7 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
     .where(eq(projectsTable.id, params.data.projectId));
 
   if (!project) {
-    res.status(404).json({ error: "Project not found" });
+    res.status(404).json({ error: "Proyek tidak ditemukan." });
     return;
   }
 

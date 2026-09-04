@@ -43,7 +43,7 @@ export async function authMiddleware(
     req.headers["x-supabase-access-token"] as string | undefined;
 
   if (!token) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -78,8 +78,8 @@ export async function authMiddleware(
     };
 
     next();
-  } catch (err) {
-    res.status(401).json({ error: "Invalid or expired token" });
+  } catch {
+    res.status(401).json({ error: "Token tidak valid atau sudah kadaluarsa. Silakan login kembali." });
   }
 }
 

@@ -8,7 +8,7 @@ const router: IRouter = Router();
 // GET /account/references — list user's account-level references
 router.get("/account/references", async (req, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -35,7 +35,7 @@ router.get("/account/references", async (req, res): Promise<void> => {
 // POST /account/references — add reference to personal pool
 router.post("/account/references", async (req, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -53,7 +53,7 @@ router.post("/account/references", async (req, res): Promise<void> => {
   };
 
   if (!title || typeof title !== "string" || !title.trim()) {
-    res.status(400).json({ error: "title is required" });
+    res.status(400).json({ error: "Judul referensi wajib diisi." });
     return;
   }
 
@@ -108,13 +108,13 @@ router.post("/account/references", async (req, res): Promise<void> => {
 // PUT /account/references/:id — update reference
 router.put("/account/references/:id", async (req, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
   const id = parseInt(req.params.id);
   if (isNaN(id)) {
-    res.status(400).json({ error: "Invalid reference ID" });
+    res.status(400).json({ error: "ID referensi tidak valid." });
     return;
   }
 
@@ -131,7 +131,7 @@ router.put("/account/references/:id", async (req, res): Promise<void> => {
     .limit(1);
 
   if (!existing) {
-    res.status(404).json({ error: "Reference not found" });
+    res.status(404).json({ error: "Referensi tidak ditemukan." });
     return;
   }
 
@@ -205,13 +205,13 @@ router.put("/account/references/:id", async (req, res): Promise<void> => {
 // DELETE /account/references/:id — delete reference
 router.delete("/account/references/:id", async (req, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
   const id = parseInt(req.params.id);
   if (isNaN(id)) {
-    res.status(400).json({ error: "Invalid reference ID" });
+    res.status(400).json({ error: "ID referensi tidak valid." });
     return;
   }
 
@@ -226,7 +226,7 @@ router.delete("/account/references/:id", async (req, res): Promise<void> => {
     .returning();
 
   if (!deleted) {
-    res.status(404).json({ error: "Reference not found" });
+    res.status(404).json({ error: "Referensi tidak ditemukan." });
     return;
   }
 
@@ -236,19 +236,19 @@ router.delete("/account/references/:id", async (req, res): Promise<void> => {
 // POST /account/references/:id/assign — assign account reference to a project
 router.post("/account/references/:id/assign", async (req, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
   const accountRefId = parseInt(req.params.id);
   if (isNaN(accountRefId)) {
-    res.status(400).json({ error: "Invalid reference ID" });
+    res.status(400).json({ error: "ID referensi tidak valid." });
     return;
   }
 
   const { projectId } = req.body as { projectId?: number };
   if (!projectId || typeof projectId !== "number") {
-    res.status(400).json({ error: "projectId is required" });
+    res.status(400).json({ error: "ID proyek wajib diisi." });
     return;
   }
 
@@ -265,7 +265,7 @@ router.post("/account/references/:id/assign", async (req, res): Promise<void> =>
     .limit(1);
 
   if (!accountRef) {
-    res.status(404).json({ error: "Account reference not found" });
+    res.status(404).json({ error: "Referensi tidak ditemukan di pustaka Anda." });
     return;
   }
 
@@ -321,18 +321,18 @@ router.post("/account/references/:id/assign", async (req, res): Promise<void> =>
 // POST /account/references/import — bulk import from CrossRef DOIs
 router.post("/account/references/import", async (req, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
   const { dois } = req.body as { dois?: string[] };
   if (!dois || !Array.isArray(dois) || dois.length === 0) {
-    res.status(400).json({ error: "dois array is required and cannot be empty" });
+    res.status(400).json({ error: "Daftar DOI wajib diisi." });
     return;
   }
 
   if (dois.length > 50) {
-    res.status(400).json({ error: "Maximum 50 DOIs per import" });
+    res.status(400).json({ error: "Maksimal 50 DOI per import." });
     return;
   }
 

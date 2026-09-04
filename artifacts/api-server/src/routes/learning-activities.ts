@@ -8,7 +8,7 @@ const router: IRouter = Router();
 // GET /learning-activities
 router.get("/learning-activities", async (req, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -24,7 +24,7 @@ router.get("/learning-activities", async (req, res): Promise<void> => {
 // POST /learning-activities
 router.post("/learning-activities", async (req, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -81,7 +81,7 @@ router.post("/learning-activities", async (req, res): Promise<void> => {
 // GET /learning-activities/recommendations
 router.get("/learning-activities/recommendations", async (req, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 

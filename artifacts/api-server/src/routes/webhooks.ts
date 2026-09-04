@@ -14,7 +14,7 @@ const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET ?? "";
 router.post("/webhooks/email-verified", async (req, res): Promise<void> => {
   // Validate webhook secret
   if (WEBHOOK_SECRET && req.headers["x-webhook-secret"] !== WEBHOOK_SECRET) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 

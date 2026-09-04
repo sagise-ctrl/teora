@@ -80,13 +80,13 @@ function aggregateRecords(records: Array<{
 // GET /users/me/usage — user's own usage stats with period filter
 router.get("/users/me/usage", async (req, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
   const parsed = periodSchema.safeParse(req.query.period);
   if (!parsed.success) {
-    res.status(400).json({ error: "Invalid period. Use: 7d, 30d, or all" });
+    res.status(400).json({ error: "Periode tidak valid. Gunakan: 7d, 30d, atau all." });
     return;
   }
   const period = parsed.data;
@@ -117,13 +117,13 @@ router.get("/users/me/usage", async (req, res): Promise<void> => {
 // GET /users/me/usage/projects/:projectId — per-project token breakdown
 router.get("/users/me/usage/projects/:projectId", async (req, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
   const projectId = Number(req.params.projectId);
   if (isNaN(projectId)) {
-    res.status(400).json({ error: "Invalid project ID" });
+    res.status(400).json({ error: "ID proyek tidak valid." });
     return;
   }
 
@@ -177,7 +177,7 @@ router.get("/users/me/usage/projects/:projectId", async (req, res): Promise<void
 // GET /admin/usage — aggregated admin stats
 router.get("/admin/usage", async (req, res): Promise<void> => {
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -195,7 +195,7 @@ router.get("/admin/usage", async (req, res): Promise<void> => {
 
   const parsed = periodSchema.safeParse(req.query.period);
   if (!parsed.success) {
-    res.status(400).json({ error: "Invalid period. Use: 7d, 30d, or all" });
+    res.status(400).json({ error: "Periode tidak valid. Gunakan: 7d, 30d, atau all." });
     return;
   }
   const period = parsed.data;

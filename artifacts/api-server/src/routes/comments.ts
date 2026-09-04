@@ -11,12 +11,12 @@ router.get("/projects/:projectId/documents/:documentId/comments", async (req, re
   const projectId = Number(req.params.projectId);
   const documentId = Number(req.params.documentId);
   if (!projectId || isNaN(projectId) || !documentId || isNaN(documentId)) {
-    res.status(400).json({ error: "Invalid projectId or documentId" });
+    res.status(400).json({ error: "ID proyek atau dokumen tidak valid." });
     return;
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -37,12 +37,12 @@ router.post("/projects/:projectId/documents/:documentId/comments", async (req, r
   const projectId = Number(req.params.projectId);
   const documentId = Number(req.params.documentId);
   if (!projectId || isNaN(projectId) || !documentId || isNaN(documentId)) {
-    res.status(400).json({ error: "Invalid projectId or documentId" });
+    res.status(400).json({ error: "ID proyek atau dokumen tidak valid." });
     return;
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -89,12 +89,12 @@ router.patch("/projects/:projectId/comments/:commentId", async (req, res): Promi
   const projectId = Number(req.params.projectId);
   const commentId = Number(req.params.commentId);
   if (!projectId || isNaN(projectId) || !commentId || isNaN(commentId)) {
-    res.status(400).json({ error: "Invalid projectId or commentId" });
+    res.status(400).json({ error: "ID proyek atau komentar tidak valid." });
     return;
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -107,7 +107,7 @@ router.patch("/projects/:projectId/comments/:commentId", async (req, res): Promi
     .where(and(eq(commentsTable.id, commentId), eq(commentsTable.projectId, projectId)));
 
   if (!existing) {
-    res.status(404).json({ error: "Comment not found" });
+    res.status(404).json({ error: "Komentar tidak ditemukan." });
     return;
   }
 
@@ -116,11 +116,11 @@ router.patch("/projects/:projectId/comments/:commentId", async (req, res): Promi
 
   if (content !== undefined) {
     if (existing.userId !== req.user.id) {
-      res.status(403).json({ error: "You can only edit your own comments" });
+      res.status(403).json({ error: "Anda hanya bisa edit komentar sendiri." });
       return;
     }
     if (typeof content !== "string" || content.trim().length === 0) {
-      res.status(400).json({ error: "content must be a non-empty string" });
+      res.status(400).json({ error: "Komentar tidak boleh kosong." });
       return;
     }
   }
@@ -160,12 +160,12 @@ router.delete("/projects/:projectId/comments/:commentId", async (req, res): Prom
   const projectId = Number(req.params.projectId);
   const commentId = Number(req.params.commentId);
   if (!projectId || isNaN(projectId) || !commentId || isNaN(commentId)) {
-    res.status(400).json({ error: "Invalid projectId or commentId" });
+    res.status(400).json({ error: "ID proyek atau komentar tidak valid." });
     return;
   }
 
   if (!req.user?.id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Sesi Anda habis. Silakan login kembali." });
     return;
   }
 
@@ -178,13 +178,13 @@ router.delete("/projects/:projectId/comments/:commentId", async (req, res): Prom
     .where(and(eq(commentsTable.id, commentId), eq(commentsTable.projectId, projectId)));
 
   if (!existing) {
-    res.status(404).json({ error: "Comment not found" });
+    res.status(404).json({ error: "Komentar tidak ditemukan." });
     return;
   }
 
   // Only the comment author can delete their comment
   if (existing.userId !== req.user.id) {
-    res.status(403).json({ error: "You can only delete your own comments" });
+    res.status(403).json({ error: "Anda hanya bisa hapus komentar sendiri." });
     return;
   }
 
