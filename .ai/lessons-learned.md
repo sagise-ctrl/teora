@@ -275,6 +275,151 @@ Monorepo pakai fitur pnpm (`workspace:*`, `catalog:`, overrides) tanpa verifikas
 
 ---
 
+## [Vercel deploy — npm 11 strict rejects `link:` in pnpm-managed node_modules]
+
+**Tanggal:** 2026-09-04
+**Severity:** P2 Deploy Blocker
+**Kelas masalah:** Vercel CLI build/install dengan pnpm-managed monorepo
+
+### Gejala
+
+```
+npm error code EUNSUPPORTEDPROTOCOL
+npm error Unsupported URL Type "link:": link:../drizzle-orm/dist
+```
+
+`vercel build --prod` gagal → `vercel deploy --prebuilt --prod --yes` gagal ("Prebuilt deployment cannot be created because vercel build failed").
+
+### Root cause
+
+- `drizzle-zod@0.8.3` di root monorepo punya `"drizzle-orm": "link:../drizzle-orm/dist"` di **devDependencies**
+- Local `node_modules/drizzle-zod/package.json` punya `link:` ini (sisa dari pnpm install sebelumnya)
+- npm 11 strict mode reject `link:` protocol
+- `vercel.json` `installCommand: "npm install --legacy-peer-deps"` → Vercel jalanin → fail
+
+### Kalau error berulang
+
+**Kelas masalah baru**, bukan berulang. Tapi yang berulang: tanpa workaround, deploy dari branch non-main akan selalu pakai pattern ini.
+
+### Opsi yang dipertimbangkan
+
+1. Fix `package.json` root — hapus `drizzle-zod` dari root deps kalau memang tidak dipakai di runtime frontend
+2. Tambah `.vercelignore` exclude `node_modules/drizzle-zod/package.json` agar tidak terbaca Vercel
+3. Pakai `npm install --no-optional` atau override install command
+4. **Deploy tanpa `--prebuilt`** — biarkan Vercel run fresh install di remote
+
+### Kenapa pilih pendekatan ini
+
+**Opsi 4 (`vercel deploy --prod --yes` no `--prebuilt`):** Paling minimal invasive — tidak perlu edit package config atau vercel config. Vercel remote environment tidak punya `node_modules/drizzle-zod/package.json` cached dengan `link:` (karena Vercel selalu install fresh dari `package-lock.json` yang resolusinya peer-based). Bundle tetap dibuild di remote dengan environment variables yang sama.
+
+Opsi 1-3 perlu perubahan config yang akan persisted dan mungkin affect CI workflow lain.
+
+### Yang harus dicek di masa depan supaya tidak terulang
+
+- [ ] Kalau `vercel build --prod` gagal dengan `EUNSUPPORTEDPROTOCOL` atau `link:` errors, langsung fallback ke `vercel deploy --prod --yes` (tanpa `--prebuilt`) — biarkan Vercel run remote build
+- [ ] Build time lebih lama (~3 min) karena Vercel install fresh — acceptable trade-off vs stuck tanpa deploy
+- [ ] Jangan hapus `drizzle-zod` dari root package.json tanpa diskusi — dipakai di `lib/db` schema generation
+- [ ] Related: memory `vercel-deploy-without-prebuilt-drizzle-zod-fix-20260904`
+
+---
+
+## [Deploy Errors — Comprehensive Playbook]
+
+**Tanggal:** 2026-09-04
+**Severity:** P1 Dev (deploy blocker, owner time wasted)
+**Kelas masalah:** Vercel CLI + npm 11 + pnpm leftover + `.vercelignore` + runtime deploy config
+
+**Owner directive:** "issue case deploy selalu error ini sering banget, harus punya catatan khusus agar case tidak terulang dan bisa cepat cari penyebabnya kalau bisa hilangkan sebab error agar kedepannya selalu lancar, tolong catat"
+
+### Gejala (klasifikasi per fase)
+
+**Phase A — Install (`npm install`):**
+- `EUNSUPPORTEDPROTOCOL link:../drizzle-orm/dist` (2026-09-04)
+- `Unsupported URL Type "workspace:*"` (2026-08-22)
+- `settings.onlyBuiltDependencies.push is not a function` (2026-08-22)
+- `EBADENGINE Unsupported engine { node: '22.x' }` (recurring warning)
+- `ERR_PNPM_IGNORED_BUILDS` playwright/esbuild/msw (recurring)
+- npm audit vulnerabilities blocking CI (2026-08-31)
+
+**Phase B — Build (`npm run build`):**
+- `failed to resolve "extends":"../../tsconfig.base.json"` (2026-09-01)
+- `Error: No Output Directory named "dist" found` (2026-08-31)
+- `MODULE_NOT_FOUND` for tsc when running `npx tsc` (2026-09-04)
+- Sourcemap warnings `Can't resolve original location` (recurring, non-fatal)
+
+**Phase C — Deploy (`vercel deploy`):**
+- `Prebuilt deployment cannot be created because vercel build failed` (2026-09-04)
+- `STATIC_BUILD_NO_OUT_DIR` (2026-08-29)
+- Cache stale bundle hash served after deploy (recurring)
+- Wrong project linked (`Workspace not found`) (2026-08-26)
+
+**Phase D — Runtime (post-deploy):**
+- SPA routes 404 (`/auth/callback`, dll) — build silently failed
+- Backend 401, 429 errors (covered in separate entries)
+- Bundle filename local ≠ production (memory warning)
+- Branding not live — static HTML not updated (covered 2026-09-04)
+
+### Root cause classes
+
+1. **Tool mismatch**: pnpm workspace syntax (`workspace:*`, `link:`) tidak supported npm/Vercel
+2. **Vercel vs local divergence**: Vercel install environment berbeda dari local (`node_modules/drizzle-zod` cached)
+3. **`.vercelignore` over-broad**: `**/dist` blocks legitimate uploads
+4. **CI/CD bypass**: GitHub Actions workflows broken → manual CLI deploy required
+5. **`.gitignore` cross-contamination**: `dist/` excluded globally, breaks Vercel GitHub source
+6. **Version pinning**: `@vercel/node` auto-injected by Vercel, may be vulnerable version
+7. **Build context isolation**: Vercel builds in `/vercel/path0/` from subdirectory — parent config files not accessible
+
+### Kalau error berulang
+
+**SUDAH BERULANG** — kelas masalah ini muncul hampir setiap deploy attempt:
+- 2026-08-22: pnpm→npm conversion
+- 2026-08-26: wrong Vercel project linked
+- 2026-08-29: `.vercelignore` blocking dist/
+- 2026-08-31: CI `dist/` missing
+- 2026-09-01: tsconfig extends parent
+- 2026-09-04: `link:` drizzle-zod
+
+**Penyebab utama berulang:** Tidak ada single playbook untuk diagnosis. Setiap error solved dengan cara berbeda. Owner harus tunggu AI debug, banyak waktu terbuang.
+
+### Opsi yang dipertimbangkan
+
+1. **Document-only** — tulis playbook, tidak fix root causes. Cepat tapi tidak menyelesaikan.
+2. **Fix root causes + document** — apply permanent fixes untuk semua known patterns + maintain playbook. Lebih invasive.
+3. **Migrate ke Vercel Native CI** — fix GitHub Actions workflows fully. Risiko tinggi, butuh re-validasi.
+
+### Kenapa pilih pendekatan ini
+
+**Opsi 2 (fix + document):** Permanent fixes untuk root causes yang bisa dihilangkan (low-risk config changes), comprehensive playbook untuk yang tidak bisa dihilangkan (e.g., npm strict mode vs drizzle-zod transitive dep).
+
+Specific permanent fixes applied 2026-09-04:
+- `artifacts/academic-workspace/vercel.json`: `installCommand: "npm install --legacy-peer-deps --omit=dev"` + `build.env.NPM_CONFIG_PRODUCTION=true`
+- Reasoning: `drizzle-zod@0.8.3` has `link:` in devDeps; skipping devDeps in production install eliminates `EUNSUPPORTEDPROTOCOL`
+- Risk: low — devDeps are not needed for Vite build (Vite is in dependencies, not devDependencies of academic-workspace)
+
+Pending fixes tracked in memory `deploy-error-playbook-20260904.md`.
+
+### Yang harus dicek di masa depan supaya tidak terulang
+
+**Sebelum setiap deploy attempt:**
+- [ ] Baca `.ai/lessons-learned.md` entry ini — cek apakah ada kelas masalah yang sama
+- [ ] Baca `memory/deploy-error-playbook-20260904.md` — symptom-first diagnosis
+- [ ] Run sanity check: `cd artifacts/academic-workspace && VITE_* npm run build` — kalau gagal, fix source dulu
+- [ ] Cek `.vercel/output/` dan `dist/assets/index-*.js` timestamps — pastikan fresh
+
+**Setelah deploy gagal:**
+- [ ] Update playbook entry dengan error message exact + fix yang worked
+- [ ] Cross-check apakah ada permanent fix yang belum applied
+- [ ] Cek `.ai/issue-tracker.md` untuk pattern sebelumnya
+- [ ] Kalau pattern baru: tambah entry di playbook, jangan cuma solve
+
+**Setelah deploy sukses:**
+- [ ] Verify via curl + bundle grep (pattern di playbook)
+- [ ] Update `.ai/current-task.md` dengan deployment ID + bundle hash
+
+---
+
+
+
 ## Cara Pakai File Ini
 
 **Setiap model baru di awal sesi:**

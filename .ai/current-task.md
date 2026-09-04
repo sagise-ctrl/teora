@@ -9,19 +9,209 @@
 
 ---
 
-## 🎯 ACTIVE 2026-09-04 — Production Full Restore (Practice + Silent Errors)
+## 🎯 ACTIVE 2026-09-04 — User Identity: Username + DisplayName
 
-**Status:** ⏳ Cherry-picking `1619a0b` (Practice frontend) + `62ef81a` + `5ff4daa` (silent errors), then redeploy
-**Model:** claude-opus-4-8
-**Branch:** `feat/daftar-task` (after cherry-pick)
+**Status:** 🔄 In Progress
+**Model:** claude-opus-4-6
+**Branch:** `feat/daftar-task`
 
 ### What
 
-Owner directive (2026-09-04): "menu terbaru yg sudah dibuat itu harrus live". 
+User registration needs two identity fields:
+1. **displayName** — untuk sapaan (sudah ada, nullable, opsional) → perlu jadi required?
+2. **username** — unik, untuk share URL project (`/u/budi`), required saat registrasi
 
-Round 1: Cherry-picked silent errors fixes (`62ef81a` + `5ff4daa`) → deployed. But audit revealed **Practice menu MISSING from production** — Practice frontend (`1619a0b`) was only on feat/practice-clean, not in feat/daftar-task.
+### Scope
 
-Round 2 (NOW): Cherry-pick `1619a0b` (Practice frontend) onto feat/daftar-task so Practice menu is live alongside Daftar Task, Branding, DECISION 014, PPTX.
+| Layer | Change |
+|-------|--------|
+| DB | `usersTable`: add `username` (unique, not null) |
+| OpenAPI | `RegisterRequest`: add `username` required; `AuthUser`/`UserProfile`/`UpdateProfileRequest`: add `username` |
+| Backend | Validasi format + uniqueness; endpoint `/auth/check-username` untuk availability check |
+| Frontend | Registration form: tambah field username + availability check |
+| Frontend | Akun page: tampilkan username |
+| Codegen | `lib/api-zod` + `lib/api-client-react` |
+
+### Next
+
+1. DB migration
+2. OpenAPI update
+3. Backend validation + endpoint
+4. Frontend registration form
+5. Frontend account page
+6. Codegen
+7. Build + test
+8. Deploy
+
+**Status:** ✅ Discussion report DONE. Pending owner review.
+**Model:** claude-opus-4-8
+**Branch:** `feat/daftar-task`
+
+### Why
+
+Owner: "fitur kuis yang menarik dengan parameter penilaian dan hasil yang memperlihatkan beberapa parameter pemahaman, serta riwayat quiz serta ada semacam riwayat progres perkembangan user di suatu materi"
+
+### Done
+
+- ✅ Research Agent 1: Quiz scoring best practices — Bloom's taxonomy (6-level simplified to 3-dimension MVP), Khan Academy mastery levels, FSRS spaced repetition, Recharts for visualization, multi-platform comparison (Quizizz/NotebookLM/Anki/Brilliant)
+- ✅ Research Agent 2: OCR tech stack — Google Cloud Vision API (primary), Gemini 2.5 Flash Vision (fallback), unpdf for PDF, Tesseract.js browser-only
+- ✅ AI Team discussion report: `.ai/practice-upload-discussion.md` — 10 sections, 28KB
+
+### Report Summary
+
+| Topic | Recommendation |
+|-------|---------------|
+| Scoring dimensions | 3-dimension simplified Bloom: Pemahaman Konsep / Penerapan / Analisis |
+| Upload pipeline | Supabase Storage signed URL → unpdf (PDF) / Google Vision (OCR) → Gemini Flash fallback |
+| SRS | FSRS (20-30% more efficient than Anki's SM-2), TypeScript library |
+| Mastery levels | Belum Belajar → Sedang Belajar → Terbiasa → Menguasai (Khan-style) |
+| Cost per user | ~$0.12/bulan (OCR + AI generation) — negligible margin impact |
+| Effort | Fase 1 (Foundation): 20 days, Fase 2 (Progress): 14 days, Fase 3 (Advanced): 16 days |
+
+### Next
+
+Owner review discussion report, answer open questions, give direction.
+
+### Open Questions Owner
+
+1. Skip OCR → feed image directly to multimodal LLM? (A/B test recommendation)
+2. Storage retention policy? (default 12 bulan?)
+3. Free tier users dapat akses upload? (3 upload/bulan limit?)
+4. Mastery challenge UX: pop-up interrupt atau tab pojok?
+
+---
+
+## 🎯 PENDING — 4 Open Discussion Topics (Owner 2026-09-04)
+
+**Status:** ⏳ Saved — awaiting detailed discussion
+**Owner input:** "tambah untuk bahan diskusi"
+**Saved:** `.ai/open-discussion-topics.md`
+
+### Topics
+
+| # | Topik | Tipe | Prioritas |
+|---|-------|------|-----------|
+| 1 | Non-owner email dapat opsi Admin Dashboard | Bug | High |
+| 2 | Landing page / hero section sebelum login | Missing Feature | Medium |
+| 3 | AI API integration verification — semua fitur jalan? | Audit | High |
+| 4 | Token limit, sisa token, AI usage per user | Feature | High |
+
+### Status Detail
+
+1. **Bug** — login dengan email non-owner masih lihat opsi Admin Dashboard. Whitelist check perlu dicek.
+2. **Missing** — URL langsung redirect ke login, tidak ada landing page publik.
+3. **Audit** — semua AI routes (quiz, rubric, PPTX, chat, etc.) perlu diverifikasi jalan di production.
+4. **Partial** — `ai_usage_log` + `user_balances` tables sudah ada, perlu UI + logic lengkap.
+
+### Next
+
+Owner signals untuk mulai diskusi salah satu topik.
+
+---
+
+## 🎯 HISTORICAL 2026-09-04 — Deploy Robustness Strategy (DECISION 015)
+
+**Status:** ✅ Documentation + 1 permanent fix applied. Validation pending next deploy.
+**Model:** claude-opus-4-8
+**Branch:** `feat/daftar-task`
+
+### Why
+
+Owner directive: "issue case deploy selalu error ini sering banget, harus punya catatan khusus agar case tidak terulang dan bisa cepat cari penyebabnya kalau bisa hilangkan sebab error agar kedepannya selalu lancar, tolong catat"
+
+7 distinct deploy error patterns observed 2026-08-22 to 2026-09-04. No single source of truth for diagnosis.
+
+### Done
+
+- ✅ DECISION 015 logged: 7 patterns analyzed, 4 root cause classes identified, strategy = Fix + Document
+- ✅ Permanent fix applied: `artifacts/academic-workspace/vercel.json` installCommand `--omit=dev` + `NPM_CONFIG_PRODUCTION=true` (commit `93b29d0`)
+- ✅ Master playbook: `memory/deploy-error-playbook-20260904.md` — symptom-first diagnosis table untuk 4 phases
+- ✅ Lessons-learned entry with format WAJIB (Gejala/Root cause/Opsi/Kenapa pilih/Cek masa depan)
+- ✅ Issue-tracker entry with 7-pattern historical + cumulative impact
+
+### Pending Permanent Fixes (Tracked, Not Applied Yet)
+
+- [ ] Pin `@vercel/node` version in api-server (prevent Vercel auto-inject vulnerable)
+- [ ] Schedule `npm audit --audit-level=critical` as separate weekly CI job
+- [ ] Add `build.sourcemap: false` to vite.config.ts (suppress sourcemap warnings)
+- [ ] Add `.npmrc` `engine-strict=false` at root (suppress EBADENGINE warnings)
+
+### Next Deploy
+
+Validate DECISION 015 applied config. If `vercel build --prod` or `vercel deploy --prod --yes` succeeds with new installCommand → permanent fix confirmed. If fails → rollback vercel.json (`npm install --legacy-peer-deps` only) + rely on `vercel deploy --prod --yes` no `--prebuilt` workaround (already proven working).
+
+---
+
+## 🎯 HISTORICAL 2026-09-04 — Em Dash Cleanup (Round 3)
+
+**Status:** ✅ DONE — Deployed `dpl_CPMaNRUgRYfrbLFFrTjeyBhaauqv` to production
+**Model:** claude-opus-4-8
+**Branch:** `feat/daftar-task`
+
+### Round 3 — Em Dash (—, U+2014) Audit & Removal
+
+Owner directive (2026-09-04): "saya menghindari ' — ' muncul di fronted. bisa cek ada dimana saja, jangan setup apapun dulu"
+
+Audit found **21 files** with em dash:
+- **15 user-facing** (HTML/JSX strings/dialogs/toasts/mock content) → fixed
+- **6 non-user-facing** (code comments, generated OpenAPI files, tests) → left per owner decision (B)
+
+### Fixes Applied (commit `3f3dcd9`)
+
+| # | File | Replacement |
+|---|------|-------------|
+| 1-3 | `index.html` (title, og:title, twitter:title) | `Teora: AI Academic Workspace` |
+| 4 | `insufficient-balance-dialog.tsx` (line 30) | `"-"` (ASCII hyphen) |
+| 5 | `custom-fetch.ts` (line 175) | `${prefix}: ${title} - ${detail}` |
+| 6-7 | `admin-audit-log.tsx` (lines 121, 124) | `"-"` (ASCII hyphen) |
+| 8 | `new-project.tsx` (line 57) | `ICMJE: populer untuk jurnal medis` |
+| 9 | `project.tsx` (line 182) | `ICMJE: populer untuk jurnal medis` |
+| 10 | `project.tsx` (line 2220) | `- {ref.title}` (ASCII hyphen) |
+| 11 | `project.tsx` (line 2260) | `untuk review, klik` (comma) |
+| 12 | `project.tsx` (line 2277) | `dari Teora. Review lalu klik` (period) |
+| 13 | `pustaka-saya.tsx` (line 676) | `Pilih proyek` |
+| 14 | `referral.tsx` (line 128) | `Join Teora: AI Academic Workspace` |
+
+### Non-Fixed (per owner choice B for both)
+
+- `lib/api-zod/src/generated/api.ts` (OpenAPI Zod `.describe()` — auto-regenerated from `openapi.yaml`)
+- `lib/api-client-react/generated/api.ts` + `api.schemas.ts` (Orval-generated JSDoc headers)
+- `mocks/data.ts` (line 150 — visible only in MSW dev mode)
+- All code comments in `App.tsx`, `project.tsx`, `supabase.ts`, `status-mapping.ts`, `index.css`, `use-auth.test.tsx`, `setup.ts`
+
+### Verification
+
+- `tsc --noEmit` — 0 NEW errors (admin-audit-log line 40 `searchParams.page` is pre-existing on main)
+- `vite build` — successful, `dist/index.html` + bundle contain no user-facing em dash
+- Bundle filename: `index-CpsFdlsq.js` (local) — Vercel will produce different filename, but content matches
+
+### Next
+
+✅ DEPLOYED — production URL `https://academic-workspace-eta.vercel.app`
+
+**Deploy details:**
+- Method: `vercel deploy --prod --yes` (no `--prebuilt` due to local `vercel build` failure on `drizzle-zod/link:../` npm strict mode)
+- Build: `npm run build` with inline env vars from `.env.production`
+- Vercel buildCommand `npm run build` ran remotely (clean node_modules, no pnpm leftover)
+- Deployment ID: `dpl_CPMaNRUgRYfrbLFFrTjeyBhaauqv`
+- Bundle filename: `index-DAsXU2mi.js` (production) — different from local `index-DwfueVLp.js`, matches memory warning
+- Ready in <3 min
+
+**Verification done:**
+- `dist/index.html` no em dash in title/og/twitter meta ✅
+- Bundle grep: `Teora\xe2\x80\x94` count = 0 ✅
+- Bundle contains: `/practice`, `Daftar Task`, `Pustaka Saya`, `Teora: AI`, `ICMJE:`, `Pilih proyek`, `Join Teora: AI` ✅
+- All 7 routes (/ /practice /pustaka-saya /projects /assessment /referral /admin/users) HTTP 200 ✅
+
+### Issue encountered
+
+`vercel build --prod` (and `vercel deploy --prebuilt`) failed with `EUNSUPPORTEDPROTOCOL: link:../drizzle-orm/dist` — root cause: `node_modules/drizzle-zod/package.json` has `link:` in devDependencies, npm 11 strict mode rejects it when re-installing.
+
+**Workaround used:** `vercel deploy --prod --yes` (no `--prebuilt`) — Vercel runs `npm run build` per `vercel.json` buildCommand, which uses clean remote node_modules (no pnpm leftover).
+
+**Pattern sumber:** Deploy via `vercel deploy --prod --yes` (without `--prebuilt`) WORKS even when local `vercel build` fails, because Vercel's remote install environment doesn't have the cached `drizzle-zod` with `link:` devDeps.
+
+### Original Round 3 Plan
 
 ### Practice (DECISION 013) Implementation
 

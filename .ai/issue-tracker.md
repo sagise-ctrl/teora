@@ -765,4 +765,70 @@ When running `npm test` (vitest) after Phase 1.5 ESLint cleanup, 11 tests fail a
 
 ---
 
+## [2026-09-04] Deploy Errors — Recurring Class (7 distinct symptoms in 2 weeks)
+
+**Divisi:** AI Engineering (Production Operations)
+**Severity:** P1 Dev (deploy blocker, owner time wasted)
+**Status:** Open — Permanent fixes applied per DECISION 015, validation pending next deploy
+**Divisi Owner:** AI Engineering
+
+**Deskripsi:**
+
+7 distinct deploy error patterns observed 2026-08-22 to 2026-09-04. Each caused deploy blockage, owner wait time, or CI failure.
+
+**Ringkasan 7 patterns:**
+
+| # | Tanggal | Pattern | Symptom | Resolusi |
+|---|---------|---------|---------|----------|
+| 1 | 2026-08-22 | pnpm workspace incompatible | `Unsupported URL Type "workspace:*"` | Convert to npm (`6bc4103`) |
+| 2 | 2026-08-26 | Wrong Vercel project | `Workspace not found` / silent build | Re-link project.json |
+| 3 | 2026-08-29 | `.vercelignore` blocking dist/ | `STATIC_BUILD_NO_OUT_DIR` | Allowlist specific dirs (DECISION 008) |
+| 4 | 2026-08-31 | CI `dist/` missing | `No Output Directory named "dist" found` | Direct CLI deploy (DECISION 003) |
+| 5 | 2026-09-01 | tsconfig extends parent | `failed to resolve "extends":"../../tsconfig.base.json"` | Inline tsconfig per workspace |
+| 6 | 2026-09-04 | `link:` drizzle-zod devDep | `EUNSUPPORTEDPROTOCOL link:../drizzle-orm/dist` | `installCommand --omit=dev` + `NPM_CONFIG_PRODUCTION=true` |
+| 7 | 2026-09-04 | pnpm/npm path mismatch | `Cannot find module 'typescript/bin/tsc'` | Use direct path or `pnpm exec` |
+
+**Dampak Kumulatif:**
+- 7 deploy blockage incidents
+- Owner waiting time per incident: 10-60 min (debug + retry + verify)
+- Total owner time wasted: ~3-5 jam
+- Vercel build minutes terbuang: ~30+ build attempts
+
+**Root Cause Classes (dari lessons-learned entry playbook):**
+
+1. **Tool mismatch** — pnpm syntax tidak supported Vercel
+2. **Vercel vs local divergence** — Vercel install environment berbeda
+3. **`.vercelignore` over-broad** — `**/dist` blocks legitimate uploads
+4. **CI/CD bypass** — GitHub Actions workflows broken
+5. **`.gitignore` cross-contamination** — `dist/` excluded globally
+6. **Version pinning** — `@vercel/node` auto-injected vulnerable version
+7. **Build context isolation** — Vercel builds in `/vercel/path0/` from subdir
+
+**Rencana Fix — DECISION 015:**
+
+- ✅ Apply permanent fixes untuk semua low-risk patterns (installCommand override)
+- ✅ Document playbook untuk diagnosis cepat (memory + lessons-learned + decisions)
+- ⏳ Pin `@vercel/node` version (pending)
+- ⏳ Schedule npm audit as separate CI job (pending)
+- ⏳ Verify DECISION 015 applied config works in next deploy (validation)
+
+**Verifikasi setiap deploy baru (playbook checklist):**
+- [ ] Baca playbook entry sebelum deploy attempt
+- [ ] Sanity check local build dulu
+- [ ] Cek timestamp `dist/assets/index-*.js`
+- [ ] Setelah deploy, verify via curl + bundle grep
+- [ ] Kalau error pattern baru, tambah entry playbook
+
+**Related:**
+- `.ai/decisions.md` DECISION 015 (Deploy Robustness Strategy)
+- `.ai/lessons-learned.md` entry "Deploy Errors — Comprehensive Playbook"
+- `memory/deploy-error-playbook-20260904.md` (master playbook)
+- `memory/vercel-prebuilt-deploy-with-inline-env-20260904.md`
+- `memory/vercel-deploy-without-prebuilt-drizzle-zod-fix-20260904.md`
+- `memory/vercel-mcp-blind-spot.md`
+- `memory/deployment-environment-limits.md`
+
+---
+
+
 ---
