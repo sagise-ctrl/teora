@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 @import 'tailwindcss';
 @import 'tw-animate-css';
@@ -125,9 +125,9 @@
   --chart-4: 40 40% 60%;
   --chart-5: 220 20% 40%;
 
-  --app-font-sans: 'DM Sans', sans-serif;
-  --app-font-serif: 'Fraunces', serif;
-  --app-font-mono: 'Space Mono', monospace;
+  --app-font-sans: 'Inter', sans-serif;
+  --app-font-serif: 'Space Grotesk', sans-serif;
+  --app-font-mono: 'JetBrains Mono', monospace;
   
   --radius: 0.375rem; /* 6px */
   
@@ -231,12 +231,13 @@
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-serif tracking-tight text-foreground;
+    font-weight: 600;
   }
 }
 
 /* Academic Prose Styling — for document preview and outline tabs */
 .prose-academic {
-  font-family: var(--app-font-serif);
+  font-family: var(--app-font-sans);
   line-height: 1.8;
   font-size: 1rem;
 }
@@ -275,7 +276,7 @@
   --tw-prose-pre-bg: hsl(var(--muted));
   --tw-prose-th-borders: hsl(var(--border));
   --tw-prose-td-borders: hsl(var(--border));
-  font-family: var(--app-font-serif);
+  font-family: var(--app-font-sans);
   line-height: 1.8;
 }
 .prose h1,

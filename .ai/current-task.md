@@ -9,12 +9,50 @@
 
 ---
 
-## 🎯 ACTIVE 2026-09-04 — Landing Page + AI Usage Audit
+## 🎯 ACTIVE 2026-09-04 — Username + DisplayName Identity
 
-**Status:** ✅ DONE — Both tasks complete
+**Status:** ✅ DONE — All done, deployed
 **Model:** claude-opus-4-6
 **Branch:** `feat/daftar-task`
-**Committed:** `4e00ed0`
+**Committed:** `4e00ed0` (username feature), `b763025` (workflow fix)
+
+### Done
+
+| Component | Status |
+|-----------|--------|
+| DB: `username` column | ✅ Added via Supabase MCP, existing users backfilled from email |
+| OpenAPI spec | ✅ `username` in `RegisterRequest` (required), `AuthUser`, `UserProfile`, `UpdateProfileRequest` |
+| Backend `/auth/register` | ✅ Requires username, validates format, checks uniqueness |
+| Backend `/auth/login` | ✅ Backfills existing users without username (COALESCE + collision loop) |
+| Backend `/auth/check-username` | ✅ Debounced availability check endpoint |
+| Backend `/users/me/profile` PATCH | ✅ Username update with uniqueness check |
+| Frontend registration form | ✅ Username field with debounced availability check + checkmark/X icon |
+| Frontend account page | ✅ Shows `@username` in Account Info card |
+| Codegen | ✅ Orval ran, types include `username` in all schemas |
+| Build | ✅ `pnpm run build` passes |
+| DB migration | ✅ Applied via Supabase MCP (nullable first, backfill, NOT NULL) |
+| Backend deploy | ✅ `vercel deploy --prod` → `dpl_76ghKvEFDoN9E9AZMe174cvxgjtC` → `teora-backend.vercel.app` |
+| Frontend deploy | ✅ `vercel deploy --prod` → `dpl_Azm3e7Eq9Rw3xKyYxtEoAxULjdSx` → `academic-workspace-eta.vercel.app` |
+
+### Feature Summary
+
+- **username** — unique, required at registration, 3-30 chars, `[a-zA-Z0-9_]`
+- **displayName** — already existed (nullable, optional, for greeting)
+- Existing users backfilled: `sagiseainun@gmail.com` → `sagiseainun`, `ainunnaim546153@gmail.com` → `ainunnaim546153`
+- `/auth/check-username?username=xxx` returns `{ available: boolean, username: string }`
+- Registration form shows real-time availability check (debounced 500ms) with check/X icons
+
+### Fixes Applied This Session
+
+1. `register.tsx`: Fixed import `apiClient` → `customFetch` from `@/lib/api-client-react`
+2. `deploy-backend.yml`: Added `workflow_dispatch` trigger for non-main branch deploys (commit `b763025`)
+
+### Production URLs
+
+| Service | URL |
+|---------|-----|
+| Backend | https://teora-backend.vercel.app |
+| Frontend | https://academic-workspace-eta.vercel.app |
 
 ### Landing Page — ✅ DONE
 - `src/pages/landing.tsx` created — hero + 5 feature cards + CTA + footer
