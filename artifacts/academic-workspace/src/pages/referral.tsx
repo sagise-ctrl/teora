@@ -125,7 +125,7 @@ export default function ReferralPage() {
     try {
       if (navigator.share) {
         await navigator.share({
-          title: "Join Teora: AI Academic Workspace",
+          title: "Join Teora — AI Academic Workspace",
           text: "Get 500 free tokens when you sign up via my referral link!",
           url: referralUrl,
         });

@@ -34,6 +34,7 @@ import Profile from "@/pages/profile";
 import PustakaSaya from "@/pages/pustaka-saya";
 import Assessment from "@/pages/assessment";
 import Akun from "@/pages/akun";
+import Practice from "@/pages/practice";
 import SharedProject from "@/pages/shared";
 import Layout from "@/components/layout";
 
@@ -153,6 +154,13 @@ function AppRouter() {
         <ProtectedRoute>
           <Layout>
             <AnimatedPage><PustakaSaya /></AnimatedPage>
+          </Layout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/practice">
+        <ProtectedRoute>
+          <Layout>
+            <AnimatedPage><Practice /></AnimatedPage>
           </Layout>
         </ProtectedRoute>
       </Route>

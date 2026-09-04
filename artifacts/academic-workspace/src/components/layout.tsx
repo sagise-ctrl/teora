@@ -3,6 +3,7 @@ import { useLocation, Link } from "wouter";
 import {
   LayoutDashboard,
   BookOpen,
+  Brain,
   FolderKanban,
   ClipboardList,
   CreditCard,
@@ -210,6 +211,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
             {/* Assessment */}
             <NavItem href="/assessment" icon={ClipboardList} label="Assessment" active={location === "/assessment"} />
+
+            {/* Practice */}
+            <NavItem href="/practice" icon={Brain} label="Practice" active={location === "/practice"} />
 
             {/* Pustaka Saya */}
             <NavItem href="/pustaka-saya" icon={BookOpen} label="Pustaka Saya" active={location === "/pustaka-saya"} />

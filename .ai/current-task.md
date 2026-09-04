@@ -9,7 +9,30 @@
 
 ---
 
-## 🎯 ACTIVE 2026-09-04 — Production Restore feat/daftar-task + Silent Errors Fix P3
+## 🎯 ACTIVE 2026-09-04 — Production Full Restore (Practice + Silent Errors)
+
+**Status:** ⏳ Cherry-picking `1619a0b` (Practice frontend) + `62ef81a` + `5ff4daa` (silent errors), then redeploy
+**Model:** claude-opus-4-8
+**Branch:** `feat/daftar-task` (after cherry-pick)
+
+### What
+
+Owner directive (2026-09-04): "menu terbaru yg sudah dibuat itu harrus live". 
+
+Round 1: Cherry-picked silent errors fixes (`62ef81a` + `5ff4daa`) → deployed. But audit revealed **Practice menu MISSING from production** — Practice frontend (`1619a0b`) was only on feat/practice-clean, not in feat/daftar-task.
+
+Round 2 (NOW): Cherry-pick `1619a0b` (Practice frontend) onto feat/daftar-task so Practice menu is live alongside Daftar Task, Branding, DECISION 014, PPTX.
+
+### Practice (DECISION 013) Implementation
+
+| Component | Status | Notes |
+|-----------|--------|-------|
+| DB Schema | ✅ | `learning_activities` table |
+| Backend routes | ✅ | `artifacts/api-server/src/routes/learning-activities.ts` with upsert logic |
+| Frontend route | ✅ | `/practice` in App.tsx |
+| Sidebar nav | ✅ | Brain icon between Assessment and Pustaka Saya |
+| Practice page | ✅ | Recommendations + activity history (247 lines) |
+| Codegen | ✅ | `useListLearningActivities`, `useCreateLearningActivity`, `useGetPracticeRecommendations` |
 
 **Status:** ⏳ Cherry-picking `62ef81a` + `5ff4daa` onto `feat/daftar-task`, then redeploy
 **Model:** claude-opus-4-8
