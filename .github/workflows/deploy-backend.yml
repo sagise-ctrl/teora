@@ -7,6 +7,12 @@ on:
       - "artifacts/api-server/**"
       - "lib/db/**"
       - ".github/workflows/deploy-backend.yml"
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to deploy"
+        required: true
+        default: "feat/daftar-task"
 
 permissions:
   contents: read
@@ -17,6 +23,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -107,6 +115,8 @@ jobs:
       url: https://teora-backend.vercel.app
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
