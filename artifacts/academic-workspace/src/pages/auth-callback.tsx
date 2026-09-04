@@ -80,7 +80,7 @@ export default function AuthCallback() {
         // new access_token and calls /api/auth/me. wouter's setLocation
         // only swaps the path; React state (including AuthProvider's user)
         // stays stale and ProtectedRoute would bounce back to /login.
-        setTimeout(() => (window.location.href = "/landing-admin"), 800);
+        setTimeout(() => (window.location.href = "/dashboard"), 800);
       } catch (err) {
         console.error("[auth-callback]", err);
         setState("error");

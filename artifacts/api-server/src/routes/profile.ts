@@ -13,6 +13,10 @@ const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const updateProfileSchema = z.object({
   displayName: z.string().min(1).max(100).optional(),
   avatarUrl: z.string().url().optional(),
+  username: z
+    .string()
+    .regex(/^[a-zA-Z0-9_]{3,30}$/, "Username must be 3-30 characters, letters, numbers, and underscores only")
+    .optional(),
 });
 
 const avatarUploadSchema = z.object({
@@ -28,6 +32,7 @@ function toProfileJson(user: typeof usersTable.$inferSelect) {
   return {
     id: user.id,
     email: user.email,
+    username: user.username,
     displayName: user.displayName,
     avatarUrl: user.avatarUrl,
     isOwner: user.isOwner,
@@ -69,8 +74,8 @@ router.patch("/users/me/profile", async (req, res): Promise<void> => {
     return;
   }
 
-  const { displayName, avatarUrl } = parsed.data;
-  if (!displayName && avatarUrl === undefined) {
+  const { displayName, avatarUrl, username } = parsed.data;
+  if (!displayName && avatarUrl === undefined && username === undefined) {
     res.status(400).json({ error: "No fields to update" });
     return;
   }
@@ -81,6 +86,19 @@ router.patch("/users/me/profile", async (req, res): Promise<void> => {
   }
   if (avatarUrl !== undefined) {
     updates.avatarUrl = avatarUrl || null;
+  }
+  if (username !== undefined) {
+    const normalizedUsername = username.trim().toLowerCase();
+    // Check uniqueness
+    const [existing] = await db
+      .select({ id: usersTable.id })
+      .from(usersTable)
+      .where(eq(usersTable.username, normalizedUsername));
+    if (existing && existing.id !== req.user.id) {
+      res.status(400).json({ error: "Username already taken" });
+      return;
+    }
+    updates.username = normalizedUsername;
   }
 
   const [updated] = await db

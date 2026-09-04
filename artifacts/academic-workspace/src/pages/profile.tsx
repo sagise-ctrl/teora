@@ -260,6 +260,13 @@ export default function Profile() {
                   <span className="text-muted-foreground">Email:</span>
                   <span className="font-medium">{profile?.email}</span>
                 </div>
+                {profile?.username && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="w-4 text-center text-muted-foreground text-xs">@</span>
+                    <span className="text-muted-foreground">Username:</span>
+                    <span className="font-mono font-medium">@{profile?.username}</span>
+                  </div>
+                )}
                 {profile?.createdAt && (
                   <div className="flex items-center gap-2 text-sm">
                     <Calendar className="w-4 h-4 text-muted-foreground" />

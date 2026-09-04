@@ -86,6 +86,60 @@ Teora punya banyak fitur AI:
 - PDF text extraction
 - OCR (masa depan)
 
+### Tech Stack AI (yang sudah ada)
+```
+AI_TIERS:
+├─ Gratis: Groq Llama 3.1 8B
+├─ Standar: Groq Llama 3.3 70B
+├─ Premium: Anthropic Claude 3.5 Sonnet
+└─ Ultra: OpenAI GPT-4o
+```
+
+### Verdict: READY for use
+
+**Schema Layer:**
+- `ai_usage_log` table: full with user/project/tier, tokens, costs, request type
+- `user_balances` table: balance in IDR cents, preferred tier
+- `token_transactions` audit trail: deduct + topup operations
+
+**Backend Routes (sudah ada logging + credit deduction):**
+| Route | Status |
+|-------|--------|
+| Chat (messages.ts) | ✅ logAIUsage + deductCredit |
+| Quiz (quizzes.ts) | ✅ logAIUsage + deductCredit |
+| Bibliography (references.ts) | ✅ logAIUsage + deductCredit |
+| Citations/Auto-Cite (references.ts) | ✅ logAIUsage + deductCredit |
+| Analyze (projects.ts) | ✅ logAIUsage + deductCredit |
+| Write/Generate (projects.ts) | ✅ logAIUsage + deductCredit |
+| Usage stats API | ✅ GET /ai-usage, /ai-usage/stats |
+| Balance API | ✅ GET /users/me/balance |
+| AI Tiers | ✅ GET /ai-tiers (public) |
+
+**Frontend:**
+- `usage.tsx`: stats per period (7d/30d/all), by request type, token counts
+
+**Gaps (minor):**
+- Export routes (PPTX/DOCX/PDF): perlu dicek apakah ada AI usage logging
+- Rubric generation: perlu dicek
+- Writing style: perlu dicek
+- No AI provider fallback (jika Groq/OpenAI down, user dapat 500)
+- No user-facing rate limit message
+
+**Status: Partial** — core pipeline lengkap, 3 route belum dicek (export, rubric, writing style).
+
+### Konteks
+Teora punya banyak fitur AI:
+- Document generation (Task Mentor)
+- Quiz generation
+- Rubric generation
+- PPTX export
+- AI Assistant chat
+- Practice recommendations
+- Reference search
+- Citation formatting
+- PDF text extraction
+- OCR (masa depan)
+
 ### Yang Perlu Dicek
 Semua fitur AI tersebut:
 1. **Sudah jalan di production?** — test setiap fitur

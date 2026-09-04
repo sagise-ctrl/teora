@@ -120,6 +120,31 @@ paths:
         "200":
           description: Logged out
 
+  /auth/check-username:
+    get:
+      operationId: checkUsername
+      tags: [auth]
+      summary: Check if a username is available
+      parameters:
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Availability result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  available:
+                    type: boolean
+                    description: Whether the username is available
+                  username:
+                    type: string
+
   /auth/refresh:
     post:
       operationId: refreshToken
@@ -3011,12 +3036,15 @@ components:
     # ── Auth ─────────────────────────────────────────────────────────────────
     AuthUser:
       type: object
-      required: [id, email, isOwner, createdAt]
+      required: [id, email, username, isOwner, createdAt]
       properties:
         id:
           type: string
         email:
           type: string
+        username:
+          type: string
+          description: Unique username for sharing URLs
         displayName:
           type: ["string", "null"]
         avatarUrl:
@@ -3041,7 +3069,7 @@ components:
 
     RegisterRequest:
       type: object
-      required: [email, password]
+      required: [email, password, username]
       properties:
         email:
           type: string
@@ -3049,6 +3077,12 @@ components:
         password:
           type: string
           minLength: 6
+        username:
+          type: string
+          description: Unique username for sharing (3-30 chars, alphanumeric + underscore)
+          minLength: 3
+          maxLength: 30
+          pattern: "^[a-zA-Z0-9_]+$"
         displayName:
           type: string
         referralCode:
@@ -4812,11 +4846,13 @@ components:
     # ── User Profile ────────────────────────────────────────────────────────────
     UserProfile:
       type: object
-      required: [id, email, displayName, avatarUrl, isOwner, createdAt]
+      required: [id, email, username, displayName, avatarUrl, isOwner, createdAt]
       properties:
         id:
           type: string
         email:
+          type: string
+        username:
           type: string
         displayName:
           type: ["string", "null"]
@@ -4840,6 +4876,12 @@ components:
         avatarUrl:
           type: string
           format: uri
+        username:
+          type: string
+          description: Unique username for sharing (3-30 chars, alphanumeric + underscore)
+          minLength: 3
+          maxLength: 30
+          pattern: "^[a-zA-Z0-9_]+$"
 
     AvatarUploadRequest:
       type: object

@@ -131,6 +131,8 @@ export interface AdminAuditLogList {
 export interface AuthUser {
   id: string;
   email: string;
+  /** Unique username for sharing URLs */
+  username: string;
   /** @nullable */
   displayName?: string | null;
   /** @nullable */
@@ -154,6 +156,13 @@ export interface RegisterRequest {
   email: string;
   /** @minLength 6 */
   password: string;
+  /**
+     * Unique username for sharing (3-30 chars, alphanumeric + underscore)
+     * @minLength 3
+     * @maxLength 30
+     * @pattern ^[a-zA-Z0-9_]+$
+     */
+  username: string;
   displayName?: string;
   /** Optional referral code used during registration */
   referralCode?: string;
@@ -1727,6 +1736,7 @@ export interface InsufficientBalanceError {
 export interface UserProfile {
   id: string;
   email: string;
+  username: string;
   /** @nullable */
   displayName: string | null;
   /** @nullable */
@@ -1744,6 +1754,13 @@ export interface UpdateProfileRequest {
      */
   displayName?: string;
   avatarUrl?: string;
+  /**
+     * Unique username for sharing (3-30 chars, alphanumeric + underscore)
+     * @minLength 3
+     * @maxLength 30
+     * @pattern ^[a-zA-Z0-9_]+$
+     */
+  username?: string;
 }
 
 export interface AvatarUploadRequest {
@@ -1946,6 +1963,16 @@ export interface PracticeRecommendation {
      */
   type: PracticeRecommendationType;
 }
+
+export type CheckUsernameParams = {
+username: string;
+};
+
+export type CheckUsername200 = {
+  /** Whether the username is available */
+  available?: boolean;
+  username?: string;
+};
 
 export type ListProjectsParams = {
 status?: string;

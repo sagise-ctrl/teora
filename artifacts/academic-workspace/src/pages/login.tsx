@@ -43,7 +43,7 @@ export default function Login() {
     try {
       await login(data.email, data.password);
       toast({ title: "Welcome back!", description: "You are now logged in." });
-      setLocation("/");
+      setLocation("/dashboard");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Login failed";
       setGlobalError(msg);

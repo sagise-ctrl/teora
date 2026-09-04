@@ -192430,6 +192430,7 @@ import * as zod from "zod";
 var GetCurrentUserResponse = zod.object({
   "id": zod.string(),
   "email": zod.string(),
+  "username": zod.string().describe("Unique username for sharing URLs"),
   "displayName": zod.string().nullish(),
   "avatarUrl": zod.string().nullish(),
   "isOwner": zod.boolean(),
@@ -192443,6 +192444,7 @@ var LoginBody = zod.object({
 var LoginResponse = zod.object({
   "id": zod.string(),
   "email": zod.string(),
+  "username": zod.string().describe("Unique username for sharing URLs"),
   "displayName": zod.string().nullish(),
   "avatarUrl": zod.string().nullish(),
   "isOwner": zod.boolean(),
@@ -192451,15 +192453,20 @@ var LoginResponse = zod.object({
 });
 var registerBodyEmailRegExp = new RegExp("^[^@]+@[^@]+\\.[^@]+$");
 var registerBodyPasswordMin = 6;
+var registerBodyUsernameMin = 3;
+var registerBodyUsernameMax = 30;
+var registerBodyUsernameRegExp = new RegExp("^[a-zA-Z0-9_]+$");
 var RegisterBody = zod.object({
   "email": zod.string().regex(registerBodyEmailRegExp),
   "password": zod.string().min(registerBodyPasswordMin),
+  "username": zod.string().min(registerBodyUsernameMin).max(registerBodyUsernameMax).regex(registerBodyUsernameRegExp).describe("Unique username for sharing (3-30 chars, alphanumeric + underscore)"),
   "displayName": zod.string().optional(),
   "referralCode": zod.string().optional().describe("Optional referral code used during registration")
 });
 var RegisterResponse = zod.object({
   "id": zod.string(),
   "email": zod.string(),
+  "username": zod.string().describe("Unique username for sharing URLs"),
   "displayName": zod.string().nullish(),
   "avatarUrl": zod.string().nullish(),
   "isOwner": zod.boolean(),
@@ -192467,6 +192474,13 @@ var RegisterResponse = zod.object({
   "createdAt": zod.coerce.date()
 });
 var LogoutResponse = zod.unknown();
+var CheckUsernameQueryParams = zod.object({
+  "username": zod.coerce.string()
+});
+var CheckUsernameResponse = zod.object({
+  "available": zod.boolean().optional().describe("Whether the username is available"),
+  "username": zod.string().optional()
+});
 var RefreshTokenResponse = zod.unknown();
 var GetReferralsResponse = zod.object({
   "stats": zod.object({
@@ -194045,6 +194059,7 @@ var UpdateAdminAITierResponse = zod.object({
 var GetMyProfileResponse = zod.object({
   "id": zod.string(),
   "email": zod.string(),
+  "username": zod.string(),
   "displayName": zod.string().nullable(),
   "avatarUrl": zod.string().nullable(),
   "isOwner": zod.boolean(),
@@ -194052,13 +194067,18 @@ var GetMyProfileResponse = zod.object({
   "createdAt": zod.coerce.date()
 });
 var updateMyProfileBodyDisplayNameMax = 100;
+var updateMyProfileBodyUsernameMin = 3;
+var updateMyProfileBodyUsernameMax = 30;
+var updateMyProfileBodyUsernameRegExp = new RegExp("^[a-zA-Z0-9_]+$");
 var UpdateMyProfileBody = zod.object({
   "displayName": zod.string().min(1).max(updateMyProfileBodyDisplayNameMax).optional(),
-  "avatarUrl": zod.url().optional()
+  "avatarUrl": zod.url().optional(),
+  "username": zod.string().min(updateMyProfileBodyUsernameMin).max(updateMyProfileBodyUsernameMax).regex(updateMyProfileBodyUsernameRegExp).optional().describe("Unique username for sharing (3-30 chars, alphanumeric + underscore)")
 });
 var UpdateMyProfileResponse = zod.object({
   "id": zod.string(),
   "email": zod.string(),
+  "username": zod.string(),
   "displayName": zod.string().nullable(),
   "avatarUrl": zod.string().nullable(),
   "isOwner": zod.boolean(),
@@ -202718,6 +202738,8 @@ var usersTable2 = pgTable13("users", {
   // Supabase auth user ID (UUID from Supabase)
   id: text13("id").primaryKey(),
   email: text13("email").notNull(),
+  // Username: unique, used for sharing URLs (e.g., /u/budi)
+  username: text13("username").unique().notNull(),
   // Owner flag: owner doesn't need subscription
   isOwner: boolean6("is_owner").notNull().default(false),
   // Optional display info
@@ -203416,10 +203438,18 @@ var supabaseAdmin = SUPABASE_SERVICE_ROLE_KEY ? createClient(SUPABASE_URL2, SUPA
   auth: { autoRefreshToken: false, persistSession: false }
 }) : null;
 var generateReferralCode = customAlphabet("ABCDEFGHJKMNPQRSTUVWXYZ23456789", 8);
+var USERNAME_REGEX = /^[a-zA-Z0-9_]{3,30}$/;
+function validateUsername(username) {
+  if (!USERNAME_REGEX.test(username)) {
+    return "Username must be 3-30 characters, letters, numbers, and underscores only";
+  }
+  return null;
+}
 function toUserJson(user) {
   return {
     id: user.id,
     email: user.email,
+    username: user.username,
     displayName: user.displayName,
     avatarUrl: user.avatarUrl,
     isOwner: user.isOwner,
@@ -203462,15 +203492,28 @@ router2.post("/auth/login", async (req, res) => {
     return;
   }
   const supabaseUser = userResponse.data.user;
-  const [localUser] = await db.insert(usersTable2).values({
-    id: supabaseUser.id,
-    email: supabaseUser.email ?? ""
-  }).onConflictDoUpdate({
+  const deriveUsername = () => {
+    const raw = supabaseUser.user_metadata?.displayName || supabaseUser.email?.split("@")[0] || "user";
+    return raw.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase().replace(/^[0-9_]+/, "").substring(0, 20) || "user";
+  };
+  const [localUser] = await db.insert(usersTable2).values({ id: supabaseUser.id, email: supabaseUser.email ?? "", username: deriveUsername() }).onConflictDoUpdate({
     target: usersTable2.id,
     set: {
-      email: supabaseUser.email ?? ""
+      email: supabaseUser.email ?? "",
+      username: db.sql`COALESCE(${usersTable2.username}, ${deriveUsername()})`
     }
   }).returning();
+  if (!localUser.username) {
+    let candidate = deriveUsername();
+    for (let i2 = 0; i2 < 10; i2++) {
+      const suffix = i2 === 0 ? "" : String(i2 + 1);
+      const [existing] = await db.select({ id: usersTable2.id }).from(usersTable2).where(eq(usersTable2.username, candidate + suffix));
+      if (!existing) {
+        await db.update(usersTable2).set({ username: candidate + suffix }).where(eq(usersTable2.id, supabaseUser.id));
+        break;
+      }
+    }
+  }
   res.cookie("sb_access_token", access_token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -203490,9 +203533,18 @@ router2.post("/auth/login", async (req, res) => {
   res.json(toUserJson(localUser));
 });
 router2.post("/auth/register", async (req, res) => {
-  const { email, password, displayName, referralCode } = req.body;
+  const { email, password, username, displayName, referralCode } = req.body;
   if (!email || !password) {
     res.status(400).json({ error: "email and password are required" });
+    return;
+  }
+  if (!username) {
+    res.status(400).json({ error: "username is required" });
+    return;
+  }
+  const usernameError = validateUsername(username);
+  if (usernameError) {
+    res.status(400).json({ error: usernameError });
     return;
   }
   if (password.length < 6) {
@@ -203504,6 +203556,12 @@ router2.post("/auth/register", async (req, res) => {
     return;
   }
   const normalizedEmail = email.trim().toLowerCase();
+  const normalizedUsername = username.trim().toLowerCase();
+  const [existingUsername] = await db.select({ id: usersTable2.id }).from(usersTable2).where(eq(usersTable2.username, normalizedUsername));
+  if (existingUsername) {
+    res.status(400).json({ error: "This username is already taken. Please choose another." });
+    return;
+  }
   let referrerUser = null;
   if (referralCode && referralCode.trim() !== "") {
     const code = referralCode.trim().toUpperCase();
@@ -203516,7 +203574,7 @@ router2.post("/auth/register", async (req, res) => {
     email: normalizedEmail,
     password,
     email_confirm: process.env.NODE_ENV === "development",
-    user_metadata: { displayName: displayName ?? null }
+    user_metadata: { displayName: displayName ?? null, username: normalizedUsername }
   });
   if (authError) {
     const isDuplicate = authError.message.toLowerCase().includes("already");
@@ -203554,6 +203612,7 @@ router2.post("/auth/register", async (req, res) => {
   const [localUser] = await db.insert(usersTable2).values({
     id: newUserId,
     email: normalizedEmail,
+    username: normalizedUsername,
     displayName: displayName ?? null,
     referralCode: newUserReferralCode
   }).returning();
@@ -203645,6 +203704,20 @@ router2.get("/auth/referrals", authMiddleware, async (req, res) => {
     rejected: referrals.filter((r2) => r2.status === "rejected").length
   };
   res.json({ stats, referrals });
+});
+router2.get("/auth/check-username", async (req, res) => {
+  const username = req.query.username?.trim().toLowerCase();
+  if (!username) {
+    res.status(400).json({ error: "username query parameter is required" });
+    return;
+  }
+  const usernameError = validateUsername(username);
+  if (usernameError) {
+    res.json({ available: false, username });
+    return;
+  }
+  const [existing] = await db.select({ id: usersTable2.id }).from(usersTable2).where(eq(usersTable2.username, username));
+  res.json({ available: !existing, username });
 });
 var auth_default = router2;
 

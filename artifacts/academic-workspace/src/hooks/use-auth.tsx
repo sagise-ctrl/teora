@@ -13,6 +13,7 @@ import { useToast } from "./use-toast";
 export interface AuthUser {
   id: string;
   email: string;
+  username: string;
   displayName: string | null;
   avatarUrl: string | null;
   isOwner: boolean;
@@ -23,7 +24,7 @@ interface AuthContextValue {
   user: AuthUser | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, displayName?: string, referralCode?: string) => Promise<void>;
+  register: (email: string, password: string, username: string, displayName?: string, referralCode?: string) => Promise<void>;
   signInWithOAuth: (provider: "google") => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
@@ -123,6 +124,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = useCallback(async (
     email: string,
     password: string,
+    username: string,
     displayName?: string,
     referralCode?: string
   ) => {
@@ -131,7 +133,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // When email confirm is on (prod), backend returns user without access_token.
     const response = await customFetch<AuthUser & { access_token?: string }>("/api/auth/register", {
       method: "POST",
-      body: JSON.stringify({ email, password, displayName, referralCode }),
+      body: JSON.stringify({ email, password, username, displayName, referralCode }),
     });
 
     if ("error" in response) {

@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useSearchParams } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Loader2, Eye, EyeOff, CheckCircle2, Users } from "lucide-react";
+import { Loader2, Eye, EyeOff, CheckCircle2, Users, Check, X } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { TeoraLogo } from "@/components/brand/teora-logo";
@@ -17,9 +17,16 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { customFetch } from "@/lib/api-client-react";
+
+const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,30}$/;
 
 const formSchema = z
   .object({
+    username: z
+      .string()
+      .min(1, "Username is required")
+      .regex(USERNAME_REGEX, "3-30 characters, letters, numbers, and underscores only"),
     displayName: z.string().optional(),
     email: z.string().email("Invalid email address"),
     password: z.string().min(6, "Password must be at least 6 characters"),
@@ -37,15 +44,20 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [globalError, setGlobalError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [usernameChecked, setUsernameChecked] = useState(false);
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [usernameChecking, setUsernameChecking] = useState(false);
   const { register: doRegister } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  const usernameCheckTimer = useRef<ReturnType<typeof setTimeout>>();
 
   const referralCode = searchParams.get("ref") ?? undefined;
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      username: "",
       displayName: "",
       email: "",
       password: "",
@@ -53,12 +65,56 @@ export default function Register() {
     },
   });
 
+  const watchedUsername = form.watch("username");
+
+  // Check username availability after user stops typing (debounced)
+  useEffect(() => {
+    const username = watchedUsername?.trim().toLowerCase();
+    if (!username || !USERNAME_REGEX.test(username)) {
+      setUsernameAvailable(null);
+      setUsernameChecked(false);
+      return;
+    }
+
+    if (usernameCheckTimer.current) {
+      clearTimeout(usernameCheckTimer.current);
+    }
+
+    setUsernameChecking(true);
+    setUsernameChecked(false);
+
+    usernameCheckTimer.current = setTimeout(async () => {
+      try {
+        const res = await customFetch<{ available: boolean; username: string }>(
+          `/api/auth/check-username?username=${encodeURIComponent(username)}`
+        );
+        setUsernameAvailable(res.available);
+        setUsernameChecked(true);
+      } catch {
+        setUsernameAvailable(null);
+        setUsernameChecked(true);
+      } finally {
+        setUsernameChecking(false);
+      }
+    }, 500);
+
+    return () => {
+      if (usernameCheckTimer.current) clearTimeout(usernameCheckTimer.current);
+    };
+  }, [watchedUsername]);
+
   async function onSubmit(data: FormValues) {
+    if (usernameAvailable === false) {
+      setGlobalError("Username is already taken. Please choose another.");
+      return;
+    }
+
     setGlobalError(null);
     try {
       await doRegister(
         data.email,
         data.password,
+        data.username.toLowerCase().trim(),
         data.displayName || undefined,
         referralCode
       );
@@ -71,11 +127,10 @@ export default function Register() {
       });
       setTimeout(() => setLocation("/login"), 2000);
     } catch (err) {
-      // Map technical error messages to friendly Indonesian messages
       const raw = err instanceof Error ? err.message : String(err);
       const friendly = mapErrorToIndonesian(raw);
       setGlobalError(friendly);
-      form.reset(); // Reset isSubmitting so the button becomes clickable again
+      form.reset();
       toast({
         variant: "destructive",
         title: "Registrasi gagal",
@@ -98,7 +153,6 @@ export default function Register() {
     if (lower.includes("rate limit") || lower.includes("too many requests")) {
       return "Terlalu banyak percobaan. Tunggu beberapa saat sebelum mencoba lagi.";
     }
-    // Return the raw message as fallback (already friendly from backend)
     return raw;
   }
 
@@ -181,10 +235,54 @@ export default function Register() {
 
                 <FormField
                   control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Username <span className="text-destructive">*</span>
+                      </FormLabel>
+                      <div className="relative">
+                        <FormControl>
+                          <Input
+                            placeholder="e.g. john_doe"
+                            className="pr-10"
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              setUsernameChecked(false);
+                              setUsernameAvailable(null);
+                            }}
+                          />
+                        </FormControl>
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          {usernameChecking ? (
+                            <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                          ) : usernameChecked && usernameAvailable === true ? (
+                            <Check className="w-4 h-4 text-emerald-600" />
+                          ) : usernameChecked && usernameAvailable === false ? (
+                            <X className="w-4 h-4 text-destructive" />
+                          ) : null}
+                        </div>
+                      </div>
+                      {usernameChecked && usernameAvailable === false && (
+                        <p className="text-xs text-destructive">Username already taken</p>
+                      )}
+                      {usernameChecked && usernameAvailable === true && (
+                        <p className="text-xs text-emerald-600">Username available</p>
+                      )}
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
                   name="displayName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Display Name <span className="text-muted-foreground">(optional)</span></FormLabel>
+                      <FormLabel>
+                        Display Name <span className="text-muted-foreground">(optional)</span>
+                      </FormLabel>
                       <FormControl>
                         <Input placeholder="Your name" {...field} />
                       </FormControl>
@@ -257,7 +355,7 @@ export default function Register() {
                   type="submit"
                   variant="gradient"
                   className="w-full font-medium shadow-sm"
-                  disabled={form.formState.isSubmitting}
+                  disabled={form.formState.isSubmitting || usernameAvailable === false}
                 >
                   {form.formState.isSubmitting ? (
                     <>

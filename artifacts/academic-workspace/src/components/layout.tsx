@@ -201,7 +201,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="flex-1 p-3 space-y-1 overflow-y-auto">
           <nav className="space-y-1">
             {/* Dashboard */}
-            <NavItem href="/" icon={LayoutDashboard} label="Dashboard" active={location === "/"} />
+            <NavItem href="/dashboard" icon={LayoutDashboard} label="Dashboard" active={location === "/dashboard"} />
 
             {/* Task Mentor (collapsible) */}
             <NavGroup icon={FolderKanban} label="Task Mentor" active={isProjectActive}>

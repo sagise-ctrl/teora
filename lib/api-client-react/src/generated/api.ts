@@ -44,6 +44,8 @@ import type {
   AvatarUploadResponse,
   BibliographyResult,
   BulkAddReferencesRequest,
+  CheckUsername200,
+  CheckUsernameParams,
   Comment,
   CommentInput,
   CommentUpdate,
@@ -464,6 +466,90 @@ export const useLogout = <TError = ErrorType<unknown>,
       > => {
       return useMutation(getLogoutMutationOptions(options));
     }
+
+export const getCheckUsernameUrl = (params: CheckUsernameParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/auth/check-username?${stringifiedParams}` : `/api/auth/check-username`
+}
+
+/**
+ * @summary Check if a username is available
+ */
+export const checkUsername = async (params: CheckUsernameParams, options?: Parameters<typeof customFetch>[1]): Promise<CheckUsername200> => {
+
+  return customFetch<CheckUsername200>(getCheckUsernameUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getCheckUsernameQueryKey = (params?: CheckUsernameParams,) => {
+    return [
+    `/api/auth/check-username`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getCheckUsernameQueryOptions = <TData = Awaited<ReturnType<typeof checkUsername>>, TError = ErrorType<unknown>>(params: CheckUsernameParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof checkUsername>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCheckUsernameQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof checkUsername>>> = ({ signal }) => checkUsername(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof checkUsername>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type CheckUsernameQueryResult = NonNullable<Awaited<ReturnType<typeof checkUsername>>>
+export type CheckUsernameQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Check if a username is available
+ */
+
+export function useCheckUsername<TData = Awaited<ReturnType<typeof checkUsername>>, TError = ErrorType<unknown>>(
+ params: CheckUsernameParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof checkUsername>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getCheckUsernameQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getRefreshTokenUrl = () => {
 
@@ -8259,6 +8345,240 @@ export const useAssignAccountReference = <TError = ErrorType<void>,
       > => {
       return useMutation(getAssignAccountReferenceMutationOptions(options));
     }
+
+export const getListLearningActivitiesUrl = () => {
+
+
+
+
+  return `/api/learning-activities`
+}
+
+/**
+ * Returns all learning activities for the authenticated user, ordered by recency. Used by Practice to build quiz recommendations.
+ * @summary List learning activities for recommendations
+ */
+export const listLearningActivities = async ( options?: Parameters<typeof customFetch>[1]): Promise<LearningActivity[]> => {
+
+  return customFetch<LearningActivity[]>(getListLearningActivitiesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListLearningActivitiesQueryKey = () => {
+    return [
+    `/api/learning-activities`
+    ] as const;
+    }
+
+
+export const getListLearningActivitiesQueryOptions = <TData = Awaited<ReturnType<typeof listLearningActivities>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listLearningActivities>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListLearningActivitiesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listLearningActivities>>> = ({ signal }) => listLearningActivities({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listLearningActivities>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListLearningActivitiesQueryResult = NonNullable<Awaited<ReturnType<typeof listLearningActivities>>>
+export type ListLearningActivitiesQueryError = ErrorType<void>
+
+
+/**
+ * @summary List learning activities for recommendations
+ */
+
+export function useListLearningActivities<TData = Awaited<ReturnType<typeof listLearningActivities>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listLearningActivities>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListLearningActivitiesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateLearningActivityUrl = () => {
+
+
+
+
+  return `/api/learning-activities`
+}
+
+/**
+ * Records topics extracted from a source (instruction, reference, or chat). Used to build the practice recommendation engine.
+ * @summary Log a learning activity
+ */
+export const createLearningActivity = async (createLearningActivityRequest: CreateLearningActivityRequest, options?: Parameters<typeof customFetch>[1]): Promise<LearningActivity> => {
+
+    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<LearningActivity>(getCreateLearningActivityUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(createLearningActivityRequest)
+  }
+);}
+
+
+
+
+
+export const getCreateLearningActivityMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createLearningActivity>>, TError,{data: BodyType<CreateLearningActivityRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createLearningActivity>>, TError,{data: BodyType<CreateLearningActivityRequest>}, TContext> => {
+
+const mutationKey = ['createLearningActivity'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createLearningActivity>>, {data: BodyType<CreateLearningActivityRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createLearningActivity(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateLearningActivityMutationResult = NonNullable<Awaited<ReturnType<typeof createLearningActivity>>>
+    export type CreateLearningActivityMutationBody = BodyType<CreateLearningActivityRequest>
+    export type CreateLearningActivityMutationError = ErrorType<void>
+
+    /**
+ * @summary Log a learning activity
+ */
+export const useCreateLearningActivity = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createLearningActivity>>, TError,{data: BodyType<CreateLearningActivityRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createLearningActivity>>,
+        TError,
+        {data: BodyType<CreateLearningActivityRequest>},
+        TContext
+      > => {
+      return useMutation(getCreateLearningActivityMutationOptions(options));
+    }
+
+export const getGetPracticeRecommendationsUrl = () => {
+
+
+
+
+  return `/api/learning-activities/recommendations`
+}
+
+/**
+ * Returns 2-3 quiz recommendations based on the user's learning activities. Recommendations prioritize recent activities and topics with quiz history.
+ * @summary Get quiz recommendations
+ */
+export const getPracticeRecommendations = async ( options?: Parameters<typeof customFetch>[1]): Promise<PracticeRecommendation[]> => {
+
+  return customFetch<PracticeRecommendation[]>(getGetPracticeRecommendationsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetPracticeRecommendationsQueryKey = () => {
+    return [
+    `/api/learning-activities/recommendations`
+    ] as const;
+    }
+
+
+export const getGetPracticeRecommendationsQueryOptions = <TData = Awaited<ReturnType<typeof getPracticeRecommendations>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPracticeRecommendations>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPracticeRecommendationsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPracticeRecommendations>>> = ({ signal }) => getPracticeRecommendations({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPracticeRecommendations>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetPracticeRecommendationsQueryResult = NonNullable<Awaited<ReturnType<typeof getPracticeRecommendations>>>
+export type GetPracticeRecommendationsQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get quiz recommendations
+ */
+
+export function useGetPracticeRecommendations<TData = Awaited<ReturnType<typeof getPracticeRecommendations>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPracticeRecommendations>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetPracticeRecommendationsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getGetAdminStatusUrl = () => {
 

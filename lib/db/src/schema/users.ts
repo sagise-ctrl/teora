@@ -6,6 +6,8 @@ export const usersTable = pgTable("users", {
   // Supabase auth user ID (UUID from Supabase)
   id: text("id").primaryKey(),
   email: text("email").notNull(),
+  // Username: unique, used for sharing URLs (e.g., /u/budi)
+  username: text("username").unique().notNull(),
   // Owner flag: owner doesn't need subscription
   isOwner: boolean("is_owner").notNull().default(false),
   // Optional display info

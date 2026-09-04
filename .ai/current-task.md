@@ -9,7 +9,51 @@
 
 ---
 
-## 🎯 ACTIVE 2026-09-04 — User Identity: Username + DisplayName
+## 🎯 ACTIVE 2026-09-04 — Landing Page + AI Usage Audit
+
+**Status:** In progress — push done, Vercel deploy pending
+**Model:** claude-opus-4-6
+**Branch:** `feat/daftar-task`
+
+### Landing Page
+- `src/pages/landing.tsx` created — hero + 5 feature cards + CTA + footer (174 lines)
+- Route `/` registered in App.tsx (line 68)
+- Auth redirect: logged-in users go to `/dashboard` (via `<Redirect>` from wouter)
+- Build: `vite build` ✅ (bundle 1.46 MB)
+- Commit: `4648ba0` (landing + scripts)
+- Git history rewrite: removed `.ai/progress.md` from 3 commits (contained GitHub PAT)
+- Vercel token redacted from `.ai/sessions/2026-08-26-backend-deploy-and-cors-fix.md`
+- Push: `1fb9ffa` — Vercel auto-deploy triggered
+- **Pending:** Vercel build → production URL
+
+### AI Usage Audit
+
+**Summary:** AI usage tracking READY. Core logging + credit deduction pipeline lengkap.
+
+| Component | Status |
+|-----------|--------|
+| `ai_usage_log` table | ✅ |
+| `user_balances` table | ✅ |
+| `token_transactions` audit trail | ✅ |
+| Chat (messages.ts) | ✅ logAIUsage + deductCredit |
+| Quiz (quizzes.ts) | ✅ logAIUsage + deductCredit |
+| Bibliography (references.ts) | ✅ logAIUsage + deductCredit |
+| Citations/Auto-Cite (references.ts) | ✅ logAIUsage + deductCredit |
+| Analyze (projects.ts) | ✅ logAIUsage + deductCredit |
+| Write/Generate (projects.ts) | ✅ logAIUsage + deductCredit |
+| Usage stats API | ✅ GET /ai-usage, /ai-usage/stats |
+| Balance API | ✅ GET /users/me/balance |
+| Frontend usage page | ✅ usage.tsx with period filters |
+| Export (PPTX/DOCX/PDF) | ❓ Not audited — needs check |
+| Rubric | ❓ Not audited |
+| Writing style | ❓ Not audited |
+| AI provider fallback | ❌ No fallback if Groq/OpenAI down |
+| Rate limit UX | ❌ No user-facing message |
+
+### Next
+1. Wait for Vercel deploy → verify landing page
+2. Audit export routes for AI usage logging
+3. Push remaining modified files
 
 **Status:** 🔄 In Progress
 **Model:** claude-opus-4-6

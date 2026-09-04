@@ -41,7 +41,7 @@ export default function Confirm() {
 
         setStatus("success");
         setTimeout(() => {
-          setLocation(nextPath ?? "/");
+          setLocation(nextPath ?? "/dashboard");
         }, 2000);
       } catch (err) {
         setStatus("error");
@@ -76,7 +76,7 @@ export default function Confirm() {
             <p className="text-muted-foreground">
               Your account has been verified. Redirecting you now...
             </p>
-            <Button onClick={() => setLocation("/")} variant="outline">
+            <Button onClick={() => setLocation("/dashboard")} variant="outline">
               Go to Dashboard
             </Button>
           </>

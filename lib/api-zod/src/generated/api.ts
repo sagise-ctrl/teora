@@ -13,6 +13,7 @@ import * as zod from 'zod';
 export const GetCurrentUserResponse = zod.object({
   "id": zod.string(),
   "email": zod.string(),
+  "username": zod.string().describe('Unique username for sharing URLs'),
   "displayName": zod.string().nullish(),
   "avatarUrl": zod.string().nullish(),
   "isOwner": zod.boolean(),
@@ -32,6 +33,7 @@ export const LoginBody = zod.object({
 export const LoginResponse = zod.object({
   "id": zod.string(),
   "email": zod.string(),
+  "username": zod.string().describe('Unique username for sharing URLs'),
   "displayName": zod.string().nullish(),
   "avatarUrl": zod.string().nullish(),
   "isOwner": zod.boolean(),
@@ -46,11 +48,17 @@ export const LoginResponse = zod.object({
 export const registerBodyEmailRegExp = new RegExp('^[^@]+@[^@]+\\.[^@]+$');
 export const registerBodyPasswordMin = 6;
 
+export const registerBodyUsernameMin = 3;
+export const registerBodyUsernameMax = 30;
+
+
+export const registerBodyUsernameRegExp = new RegExp('^[a-zA-Z0-9_]+$');
 
 
 export const RegisterBody = zod.object({
   "email": zod.string().regex(registerBodyEmailRegExp),
   "password": zod.string().min(registerBodyPasswordMin),
+  "username": zod.string().min(registerBodyUsernameMin).max(registerBodyUsernameMax).regex(registerBodyUsernameRegExp).describe('Unique username for sharing (3-30 chars, alphanumeric + underscore)'),
   "displayName": zod.string().optional(),
   "referralCode": zod.string().optional().describe('Optional referral code used during registration')
 })
@@ -58,6 +66,7 @@ export const RegisterBody = zod.object({
 export const RegisterResponse = zod.object({
   "id": zod.string(),
   "email": zod.string(),
+  "username": zod.string().describe('Unique username for sharing URLs'),
   "displayName": zod.string().nullish(),
   "avatarUrl": zod.string().nullish(),
   "isOwner": zod.boolean(),
@@ -70,6 +79,19 @@ export const RegisterResponse = zod.object({
  * @summary Sign out and clear session
  */
 export const LogoutResponse = zod.unknown()
+
+
+/**
+ * @summary Check if a username is available
+ */
+export const CheckUsernameQueryParams = zod.object({
+  "username": zod.coerce.string()
+})
+
+export const CheckUsernameResponse = zod.object({
+  "available": zod.boolean().optional().describe('Whether the username is available'),
+  "username": zod.string().optional()
+})
 
 
 /**
@@ -2310,6 +2332,7 @@ export const UpdateAdminAITierResponse = zod.object({
 export const GetMyProfileResponse = zod.object({
   "id": zod.string(),
   "email": zod.string(),
+  "username": zod.string(),
   "displayName": zod.string().nullable(),
   "avatarUrl": zod.string().nullable(),
   "isOwner": zod.boolean(),
@@ -2324,16 +2347,23 @@ export const GetMyProfileResponse = zod.object({
  */
 export const updateMyProfileBodyDisplayNameMax = 100;
 
+export const updateMyProfileBodyUsernameMin = 3;
+export const updateMyProfileBodyUsernameMax = 30;
+
+
+export const updateMyProfileBodyUsernameRegExp = new RegExp('^[a-zA-Z0-9_]+$');
 
 
 export const UpdateMyProfileBody = zod.object({
   "displayName": zod.string().min(1).max(updateMyProfileBodyDisplayNameMax).optional(),
-  "avatarUrl": zod.url().optional()
+  "avatarUrl": zod.url().optional(),
+  "username": zod.string().min(updateMyProfileBodyUsernameMin).max(updateMyProfileBodyUsernameMax).regex(updateMyProfileBodyUsernameRegExp).optional().describe('Unique username for sharing (3-30 chars, alphanumeric + underscore)')
 })
 
 export const UpdateMyProfileResponse = zod.object({
   "id": zod.string(),
   "email": zod.string(),
+  "username": zod.string(),
   "displayName": zod.string().nullable(),
   "avatarUrl": zod.string().nullable(),
   "isOwner": zod.boolean(),
@@ -2664,6 +2694,70 @@ export const AssignAccountReferenceResponse = zod.object({
   "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference'),
   "isSelected": zod.boolean().optional().describe('Ceklist status — true means reference is included in bibliography and\neligible for AI auto-cite. (DECISION 014)\n')
 })
+
+
+/**
+ * Returns all learning activities for the authenticated user, ordered by recency. Used by Practice to build quiz recommendations.
+ * @summary List learning activities for recommendations
+ */
+export const ListLearningActivitiesResponseItem = zod.object({
+  "id": zod.number(),
+  "userId": zod.string(),
+  "topics": zod.array(zod.string()).describe('Array of topic strings extracted from the source'),
+  "subject": zod.string().nullish().describe('Subject or course name if detectable'),
+  "sourceProjectId": zod.number().nullish().describe('Link to the Task Mentor project that generated this activity'),
+  "sourceProjectTitle": zod.string().nullish().describe('Denormalized title of the source project for display'),
+  "extractedFrom": zod.enum(['instruction', 'reference', 'chat']).describe('Where the topics were extracted from'),
+  "createdAt": zod.coerce.date()
+})
+export const ListLearningActivitiesResponse = zod.array(ListLearningActivitiesResponseItem)
+
+
+/**
+ * Records topics extracted from a source (instruction, reference, or chat). Used to build the practice recommendation engine.
+ * @summary Log a learning activity
+ */
+
+export const createLearningActivityBodyExtractedFromDefault = `instruction`;
+
+export const CreateLearningActivityBody = zod.object({
+  "topics": zod.array(zod.string()).min(1).describe('Array of topic strings'),
+  "subject": zod.string().optional().describe('Optional subject\/course name'),
+  "sourceProjectId": zod.number().optional().describe('ID of the Task Mentor project this activity came from'),
+  "extractedFrom": zod.enum(['instruction', 'reference', 'chat']).default(createLearningActivityBodyExtractedFromDefault)
+})
+
+export const CreateLearningActivityResponse = zod.object({
+  "id": zod.number(),
+  "userId": zod.string(),
+  "topics": zod.array(zod.string()).describe('Array of topic strings extracted from the source'),
+  "subject": zod.string().nullish().describe('Subject or course name if detectable'),
+  "sourceProjectId": zod.number().nullish().describe('Link to the Task Mentor project that generated this activity'),
+  "sourceProjectTitle": zod.string().nullish().describe('Denormalized title of the source project for display'),
+  "extractedFrom": zod.enum(['instruction', 'reference', 'chat']).describe('Where the topics were extracted from'),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * Returns 2-3 quiz recommendations based on the user's learning activities. Recommendations prioritize recent activities and topics with quiz history.
+ * @summary Get quiz recommendations
+ */
+export const GetPracticeRecommendationsResponseItem = zod.object({
+  "learningActivity": zod.object({
+  "id": zod.number(),
+  "userId": zod.string(),
+  "topics": zod.array(zod.string()).describe('Array of topic strings extracted from the source'),
+  "subject": zod.string().nullish().describe('Subject or course name if detectable'),
+  "sourceProjectId": zod.number().nullish().describe('Link to the Task Mentor project that generated this activity'),
+  "sourceProjectTitle": zod.string().nullish().describe('Denormalized title of the source project for display'),
+  "extractedFrom": zod.enum(['instruction', 'reference', 'chat']).describe('Where the topics were extracted from'),
+  "createdAt": zod.coerce.date()
+}),
+  "reason": zod.string().describe('Human-readable reason for this recommendation'),
+  "type": zod.enum(['recent_task', 'frequent_topic', 'weak_topic']).describe('- recent_task: from the most recently created project\n- frequent_topic: topics that appear most across activities\n- weak_topic: topics where user scored poorly in past quizzes\n')
+})
+export const GetPracticeRecommendationsResponse = zod.array(GetPracticeRecommendationsResponseItem)
 
 
 /**
