@@ -2,7 +2,28 @@
 
 > Completed work, newest first. Format: `YYYY-MM-DD | description | files | status`
 
-## 2026-09-04 (Deploy Robustness Strategy + Playbook — opus-4-8)
+## 2026-09-04 | Landing Page + AI Usage Audit (opus-4-6)
+
+### Landing Page — ✅ DONE + DEPLOYED
+
+**What:** Public landing page at `/` — hero section, 5 feature cards, CTA buttons. Logged-in users redirect to `/dashboard`.
+
+**Files:**
+- `src/pages/landing.tsx` (created, 174 lines)
+- `src/App.tsx` (route + import)
+- `src/components/layout.tsx` (Dashboard nav updated to /dashboard)
+
+**Deploy:** `dpl_57hbZ1X9ar9BdKwbBx6CpDaiBFnL` → `academic-workspace-eta.vercel.app` ✅
+**Verified:** bundle contains "mulai", "masuk", "gratis", "Task Mentor", "dashboard" ✅
+**Commit:** `4e00ed0`
+
+### AI Usage Audit — ✅ DONE
+
+**What:** Full audit of all AI routes for `logAIUsage` + `deductCredit` integration.
+
+**Result:** All 10 AI routes verified. Export routes (PPTX/DOCX/MD) are pure data transformation, no AI involved. Rubric + Writing-style also verified ✅. Minor gaps: no provider fallback, no rate limit UX message.
+
+**Commit:** `4e00ed0` (included in same commit as landing page)
 
 ### DECISION 015: Deploy Robustness Strategy — Fix + Document
 

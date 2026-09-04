@@ -11,51 +11,40 @@
 
 ## 🎯 ACTIVE 2026-09-04 — Landing Page + AI Usage Audit
 
-**Status:** In progress — push done, Vercel deploy pending
+**Status:** ✅ DONE — Both tasks complete
 **Model:** claude-opus-4-6
 **Branch:** `feat/daftar-task`
+**Committed:** `4e00ed0`
 
-### Landing Page
-- `src/pages/landing.tsx` created — hero + 5 feature cards + CTA + footer (174 lines)
-- Route `/` registered in App.tsx (line 68)
+### Landing Page — ✅ DONE
+- `src/pages/landing.tsx` created — hero + 5 feature cards + CTA + footer
+- Route `/` registered in App.tsx (line 68), Dashboard nav updated to `/dashboard`
 - Auth redirect: logged-in users go to `/dashboard` (via `<Redirect>` from wouter)
-- Build: `vite build` ✅ (bundle 1.46 MB)
-- Commit: `4648ba0` (landing + scripts)
-- Git history rewrite: removed `.ai/progress.md` from 3 commits (contained GitHub PAT)
-- Vercel token redacted from `.ai/sessions/2026-08-26-backend-deploy-and-cors-fix.md`
-- Push: `1fb9ffa` — Vercel auto-deploy triggered
-- **Pending:** Vercel build → production URL
+- Build: `vite build` ✅
+- **Deployed:** `dpl_57hbZ1X9ar9BdKwbBx6CpDaiBFnL` → `academic-workspace-eta.vercel.app` ✅
+- **Verified:** bundle contains "mulai", "masuk", "gratis", "Task Mentor", "dashboard" ✅
 
-### AI Usage Audit
+### AI Usage Audit — ✅ DONE
+All AI routes verified with `logAIUsage` + `deductCredit`:
 
-**Summary:** AI usage tracking READY. Core logging + credit deduction pipeline lengkap.
-
-| Component | Status |
-|-----------|--------|
-| `ai_usage_log` table | ✅ |
-| `user_balances` table | ✅ |
-| `token_transactions` audit trail | ✅ |
-| Chat (messages.ts) | ✅ logAIUsage + deductCredit |
-| Quiz (quizzes.ts) | ✅ logAIUsage + deductCredit |
-| Bibliography (references.ts) | ✅ logAIUsage + deductCredit |
-| Citations/Auto-Cite (references.ts) | ✅ logAIUsage + deductCredit |
-| Analyze (projects.ts) | ✅ logAIUsage + deductCredit |
-| Write/Generate (projects.ts) | ✅ logAIUsage + deductCredit |
-| Usage stats API | ✅ GET /ai-usage, /ai-usage/stats |
-| Balance API | ✅ GET /users/me/balance |
-| Frontend usage page | ✅ usage.tsx with period filters |
-| Export (PPTX/DOCX/PDF) | ❓ Not audited — needs check |
-| Rubric | ❓ Not audited |
-| Writing style | ❓ Not audited |
+| Route | Status |
+|-------|--------|
+| Chat (messages.ts) | ✅ |
+| Quiz (quizzes.ts) | ✅ |
+| Bibliography (references.ts) | ✅ |
+| Citations/Auto-Cite (references.ts) | ✅ |
+| Analyze (projects.ts) | ✅ |
+| Write/Generate (projects.ts) | ✅ |
+| Rubric (rubrics.ts) | ✅ |
+| Writing style (writing-style.ts) | ✅ |
+| Usage stats API | ✅ |
+| Balance API | ✅ |
+| Export PPTX/DOCX/MD | N/A — pure data transformation, no AI |
 | AI provider fallback | ❌ No fallback if Groq/OpenAI down |
 | Rate limit UX | ❌ No user-facing message |
 
-### Next
-1. Wait for Vercel deploy → verify landing page
-2. Audit export routes for AI usage logging
-3. Push remaining modified files
-
-**Status:** 🔄 In Progress
+### Remaining Modified Files — ✅ COMMITTED + PUSHED
+- `4e00ed0` — landing page + username registration + operational updates (21 files)
 **Model:** claude-opus-4-6
 **Branch:** `feat/daftar-task`
 
