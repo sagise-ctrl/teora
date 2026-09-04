@@ -8,6 +8,7 @@ import {
 } from "react";
 import { customFetch, setAuthTokenGetter } from "../lib/api-client-react";
 import { getStoredToken, clearStoredToken, setStoredToken, clearStoredRefreshToken, getStoredRefreshToken } from "../lib/session";
+import { useToast } from "./use-toast";
 
 export interface AuthUser {
   id: string;
@@ -33,6 +34,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   // Restore token from localStorage and register as the auth getter
   // so customFetch attaches it to every API request.
@@ -48,6 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const data = await customFetch<AuthUser>("/api/auth/me");
       setUser(data);
     } catch {
+      toast({ title: "Sesi Anda habis", description: "Silakan login kembali.", variant: "destructive" });
       setUser(null);
     }
   }, []);
@@ -66,6 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       await fetchMe();
     } catch {
+      toast({ title: "Sesi Anda habis", description: "Silakan login kembali.", variant: "destructive" });
       setUser(null);
     }
   }, [fetchMe]);

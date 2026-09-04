@@ -20,13 +20,16 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
 
 function CopyButton({
   text,
   className,
+  onError,
 }: {
   text: string;
   className?: string;
+  onError?: (msg: string) => void;
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -36,7 +39,7 @@ function CopyButton({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // ignore
+      onError?.("Tidak dapat menyalin ke clipboard. Coba salin manual.");
     }
   }
 
@@ -103,6 +106,7 @@ const TOKEN_PACKAGES = [
 export default function ReferralPage() {
   const { user } = useAuth();
   const [sharing, setSharing] = useState(false);
+  const { toast } = useToast();
 
   const referralCode = user?.referralCode ?? "demo-user-xyz";
   const referralUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/register?ref=${referralCode}`;
@@ -127,7 +131,7 @@ export default function ReferralPage() {
         });
       } else {
         await navigator.clipboard.writeText(referralUrl);
-        // Show feedback
+        toast({ title: "Tersalin!", description: "Link referral berhasil disalin ke clipboard." });
       }
     } catch {
       // User cancelled or error
@@ -181,7 +185,7 @@ export default function ReferralPage() {
                   <div className="flex-1 bg-muted/50 rounded-lg px-3 py-2 text-sm font-mono text-muted-foreground truncate border border-border/50">
                     {referralUrl}
                   </div>
-                  <CopyButton text={referralUrl} />
+                  <CopyButton text={referralUrl} onError={(msg) => toast({ title: "Gagal", description: msg, variant: "destructive" })} />
                 </div>
               </div>
 

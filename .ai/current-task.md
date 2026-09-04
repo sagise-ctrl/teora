@@ -9,7 +9,49 @@
 
 ---
 
-## 🎯 ACTIVE 2026-09-03 — PPTX Export (Slide/PPT) ✅ DONE
+## 🎯 ACTIVE 2026-09-04 — Production Restore feat/daftar-task + Silent Errors Fix P3
+
+**Status:** ⏳ Cherry-picking `62ef81a` + `5ff4daa` onto `feat/daftar-task`, then redeploy
+**Model:** claude-opus-4-8
+**Branch:** `feat/daftar-task` (after cherry-pick)
+
+### What
+
+Owner directive (2026-09-04): "menu terbaru yg sudah dibuat itu harrus live"
+
+`feat/practice-clean` was deployed earlier today but REGRESSED feat/daftar-task features (Daftar Task, Branding, DECISION 014 Phase 1/2/3, PPTX). Cherry-picking the silent errors fixes (commits `5ff4daa` + `62ef81a`) from feat/practice-clean onto feat/daftar-task to restore production.
+
+### Silent Errors Fixes Applied
+
+| # | Case | File | Fix |
+|---|------|------|-----|
+| CRITICAL #1 | `handleSetActive` — phantom success | `project.tsx` | `onError` toast added |
+| CRITICAL #2 | `handleTierChange` — silent fail | `admin-users.tsx` | `toast` on error |
+| CRITICAL #3 | `handleSuspend` — silent fail | `admin-users.tsx` | `toast` on error |
+| HIGH #4 | `fetchMe` — silent logout | `use-auth.tsx` | `toast` before logout |
+| HIGH #5 | `refresh` — silent logout | `use-auth.tsx` | `toast` before logout |
+| P3 #7 | `handleSelectQuiz` fallback — stale data | `project.tsx` | warning toast |
+| P3 #9 | Bibliography regeneration — no success | `project.tsx` | success toast "Daftar pustaka berhasil diperbarui." |
+| P3 #10 | Clipboard copy — silent fail | `referral.tsx` | error toast "Tidak dapat menyalin" |
+| P3 #12 | Admin users list error — generic | `admin-users.tsx` | separate error state, "Gagal memuat data" cell |
+
+### Commits
+
+- `5ff4daa` fix: add missing error toasts for critical silent errors (already on feat/daftar-task after cherry-pick)
+- `62ef81a` fix: complete P3 silent error fixes (#7 #9 #10 #12) (cherry-picked from feat/practice-clean)
+
+### Plan
+
+1. ✅ Cherry-pick `62ef81a` + `5ff4daa` onto feat/daftar-task
+2. ⏳ Resolve conflicts (admin-users.tsx, .ai/current-task.md) — both DONE
+3. ⏳ Build with env vars
+4. ⏳ Deploy via Vercel CLI `--prebuilt`
+5. ⏳ Verify all 4 toast strings + Daftar Task + PPTX + Pustaka Saya features live
+6. ⏳ Report to owner
+
+---
+
+## COMPLETED 2026-09-03 — PPTX Export (Slide/PPT) ✅ DONE
 
 **Status:** ✅ DONE — committed `d3141de`, backend deployed `dpl_D45wtbFEJkD9bNVyQbHpGH25cjTR`, frontend deployed `dpl_9yU9hqKYLe6HatQpSTsD93dN7y6m`
 **Model:** claude-opus-4-6
@@ -36,697 +78,77 @@
 | Service | URL | Deploy ID |
 |---------|-----|-----------|
 | Backend | https://teora-backend.vercel.app | `dpl_D45wtbFEJkD9bNVyQbHpGH25cjTR` |
-| Frontend | https://academic-workspace-eta.vercel.app | `dpl_9yU9hqKYLe6HatQpSTsD93dN7y6m` |
-
-### How It Works
-
-1. User buat project Academic Work → pilih format **Slide** (outputFormat=pptx)
-2. Di workspace → tab **Slide** muncul
-3. User buka tab **Outline** → bikin kerangka slide (markdown: # Heading, ## Subheading, dll)
-4. Di tab **Slide** → preview reveal.js, grid card per slide, download PPTX
-5. Export button → download DOCX / PDF / PPTX
-
-### Yang BELUM ada (out of scope for PPT spec)
-
-- AI slide generation endpoint (generate outline from AI — deferred)
-- PPT preview dari document content (currently uses outline only)
-
-### Next Steps
-
-1. Owner test: login → buat Academic Work → pilih Slide → outline → tab Slide → preview → download PPTX
-2. Push `feat/daftar-task` to main (4 commits ahead: branding + daftar task + Phase 1/2/3 refs + PPT)
-3. AI slide generation (future enhancement — generate outline via AI chat)
+| Frontend | https://academic-workspace-eta.vercel.app | `dpl_9yU9hqKYLe6HatQpSTsD93dN7y6m` (pending redeploy) |
 
 ---
 
-## 🎯 ACTIVE 2026-09-03 — Referensi Tool + Auto-Cite + Pustaka Saya (DECISION 014) ✅ ALL PHASES COMPLETE
+## 🎯 COMPLETED 2026-09-03 — Referensi Tool + Auto-Cite + Pustaka Saya (DECISION 014) ✅ ALL PHASES COMPLETE
 
-**Status:** ✅ Phase 1+2 DONE + Phase 3 DONE 2026-09-03 PM — committed `6d082a4`, deployed
+**Status:** ✅ Phase 1+2+3 DONE 2026-09-03 PM — committed `6d082a4`, deployed
 **Model:** claude-opus-4-8
 **Owner:** sagise
 **Reference:** DECISION 014 di `.ai/decisions.md` — full spec approved
 
-### Problem Statement
-
-Owner mau fitur Referensi jadi **tool otomatis komprehensif**, bukan sekadar "generate daftar pustaka":
-
-1. **3 alur masuk referensi**: Cari otomatis (AI/CrossRef), Upload (PDF/DOC extract), Input manual (DOI auto-fill)
-2. **Semua otomatis masuk Pustaka Saya** (global library, account-level, lintas project)
-3. **Ceklist di workspace**: User pilih reference yang mau dipakai → AI auto-cite ke paragraf relevan
-4. **Multi-cite per referensi** + user bisa **geser/hapus manual**
-5. **Format sitasi dipilih per project**: APA/APA7/IEEE/Vancouver/Chicago/MLA/Harvard
-6. **Auto-render style**: APA=in-text, Chicago=footnote, IEEE=numbered, dll
-7. **Daftar Pustaka auto-update di akhir dokumen**
-
-### Implementation Plan (12-15 hari)
-
-| Phase | Scope | Status |
-|-------|-------|--------|
-| **Phase 1** (5-6 hari) | Schema + backend AI auto-cite + citations CRUD + OpenAPI + format selector UI + ceklist UI | ✅ DONE 2026-09-03 |
-| **Phase 2** (5-6 hari) | Citation marker parser (7 format) + render di DokumenTab + manual reposition UI | ✅ DONE 2026-09-03 |
-| **Phase 3** (2-3 hari) | Pustaka Saya CRUD UI + CrossRef search UI + assign-to-project flow | ✅ DONE 2026-09-03 PM — committed `6d082a4`, deployed |
-
 ### Surprise Discovery (2026-09-03)
 
-Backend Pustaka Saya **SUDAH FULL IMPLEMENTED** (`artifacts/api-server/src/routes/account-references.ts`, 435 baris):
-- GET/POST/PUT/DELETE/assign/import endpoints
-- Duplicate DOI detection
-- Wired di `routes/index.ts`
-- Schema `accountReferencesTable` ada
-
-**Implication:** Phase 3 effort turun dari 5-6 → 2-3 hari (tinggal frontend UI).
-
-### Phase 1 Implementation — COMPLETE ✅ (commit d7cba29)
-
-**Schema & DB:**
-- ✅ NEW: `lib/db/src/schema/reference_citations.ts` — track citation positions per project
-- ✅ UPDATE: `lib/db/src/schema/index.ts` — export new schema
-- ✅ UPDATE: `lib/db/src/schema/references.ts` — added `isSelected` boolean column for ceklist
-- ✅ APPLY: DB migration via Supabase MCP `apply_migration`
-
-**Backend API (additions to `routes/references.ts`):**
-- ✅ POST `/projects/:id/references/auto-cite` — AI cari paragraf relevan + format markers (multi-cite)
-- ✅ PATCH `/projects/:id/references/:referenceId/select` — toggle ceklist status reference
-- ✅ GET `/projects/:id/citations` — list all citation positions
-- ✅ POST `/projects/:id/citations` — manual add citation
-- ✅ PATCH `/projects/:id/citations/:citationId` — update position (drag) or marker
-- ✅ DELETE `/projects/:id/citations/:citationId` — remove citation
-- ✅ PATCH `/projects/:id/citation-format` — update project format + re-render all markers
-
-**OpenAPI Spec:**
-- ✅ Add 7 new endpoint definitions (line 747-953 in `openapi.yaml`)
-- ✅ Add 6 new schemas (AutoCiteRequest, AutoCiteResponse, AutoCiteSuggestion, ReferenceCitation, CreateCitationRequest, UpdateCitationRequest, SetCitationFormatRequest)
-- ✅ Regenerate zod schemas (`lib/api-zod/src/generated/api.ts`)
-- ✅ Regenerate react-query hooks (`lib/api-client-react/src/generated/*`)
-- ✅ Sync workspace copy (`artifacts/academic-workspace/src/lib/api-client-react/generated/*`)
-- ✅ Rebuild backend bundle (`node build.mjs` — 5.7mb)
-- ✅ Typecheck pass (`npm run typecheck`)
-
-**Backend Helpers (`lib/citation.ts`):**
-- ✅ Fixed typo "Haravard" → "Harvard" (4 places: type union, FORMAT_REQUIRED_FIELDS, toCiteFormat, SUPPORTED_FORMATS)
-- ✅ Added `formatCitationMarker(ref, format, refId?)` — renders in-text markers like "(Smith, 2023)" or "[1]"
-- ✅ Added `firstAuthorSurname` + `countAuthors` helpers
-
-**Frontend (Phase 1):**
-- ✅ Format selector UI di `new-project.tsx` (academic only, default APA, 7 options)
-- ✅ Ceklist UI di ReferencesTab (Checkbox column, `handleToggleSelect` mutates `isSelected`)
-- ✅ Auto-Cite button + tier selector + result preview (Dialog, `handleRunAutoCite` + `handleApplySuggestions`)
-- ✅ Citation Marker Aktif summary card di header ReferencesTab
-- ✅ Format dropdown Select di header ReferencesTab (change anytime via PATCH)
-- ✅ Production-deployed: latest build `index-Dhp-nRov.js` at `academic-workspace-hcygaltgx-sagise-ctrls-projects.vercel.app`
-
-### Files Affected (Phase 1)
-
-| File | Action | Status |
-|------|--------|--------|
-| `lib/db/src/schema/reference_citations.ts` | NEW | ✅ |
-| `lib/db/src/schema/index.ts` | EDIT (add export) | ✅ |
-| `lib/db/src/schema/references.ts` | EDIT (add isSelected) | ✅ |
-| Supabase DB | MIGRATION (via MCP apply_migration) | ✅ |
-| `lib/api-spec/openapi.yaml` | EDIT (7 endpoints + 6 schemas + citationFormat on ProjectInput) | ✅ |
-| `lib/api-zod/src/generated/api.ts` | REGEN | ✅ |
-| `lib/api-client-react/src/generated/*` | REGEN | ✅ |
-| `artifacts/api-server/src/lib/citation.ts` | EDIT (typo fix + formatCitationMarker) | ✅ |
-| `artifacts/api-server/src/routes/references.ts` | EDIT (7 new endpoints) | ✅ |
-| `artifacts/api-server/src/routes/projects.ts` | EDIT (accept citationFormat on create + project_metadata mirror) | ✅ |
-| `artifacts/api-server/dist/index.mjs` | BUILD (5.7mb) | ✅ |
-| `artifacts/api-server` deployed | VERCEL PROD `dpl_AK68mDQVAuVyAzciLkyHUhrSYDpF` | ✅ |
-| `artifacts/academic-workspace/src/lib/api-client-react/generated/*` | SYNC | ✅ |
-| `artifacts/academic-workspace/src/pages/project.tsx` | EDIT (ceklist + format selector + Auto-Cite Dialog) | ✅ |
-| `artifacts/academic-workspace/src/pages/new-project.tsx` | EDIT (format selector di form, academic only) | ✅ |
-| `artifacts/academic-workspace` built + deployed | VERCEL PROD (`index-Dhp-nRov.js`) | ✅ |
-| `docs/ai-team/product/user-dashboard.md` | EDIT (add new spec section) | ⏳ TODO |
-
-### Definition of Done — Phase 1
-
-- [x] Schema reference_citations table exists di DB
-- [x] 7 new API endpoints implemented + bundled (verified in `dist/index.mjs`)
-- [x] OpenAPI spec complete dengan schemas untuk Citation
-- [x] Format selector UI accessible di new-project form + header ReferencesTab
-- [x] Ceklist UI di ReferencesTab works (select/deselect persists via PATCH /references/:id/select)
-- [x] Auto-Cite button trigger AI endpoint + show preview result (Dialog, suggestions list, Terapkan Semua)
-- [x] **Frontend production-deployed** (bundle `index-*)`)
-- [x] Typecheck pass (no DECISION 014-specific errors; pre-existing issues remain)
-- [x] Build pass (backend 5.7mb + frontend 1.4mb chunks)
-- [x] Production deployed
-- [ ] **Smoke test production** (manual: create project with format, add reference, toggle ceklist, run Auto-Cite, verify citations saved) → PENDING owner E2E run
-
-### Phase 2 Implementation — COMPLETE ✅ (commit 805f04a)
-
-**What was built:**
-
-| Layer | File | Change |
-|-------|------|--------|
-| Backend core | `lib/citation-rendering.ts` (NEW, 408 baris) | `renderDocument`, `renderMarkerHtml`, `splitParagraphs`, `computeSequentialNumbers`, `renderMarkdownLight`, `renumberMarkers`, `escapeHtml` |
-| Backend routes | `routes/documents.ts` (+194 baris) | `GET /document/preview` + `GET /bibliography` |
-| Backend routes | `routes/references.ts` (+53 baris) | PATCH `/citation-format` sequential renumbering for IEEE/Vancouver/Chicago |
-| OpenAPI | `openapi.yaml` (+93 baris) | 2 new endpoints + schemas |
-| Generated | `lib/api-zod`, `lib/api-client-react` | `useGetDocumentPreview`, `useGetBibliography`, `useUpdateCitation`, `useDeleteCitation` |
-| Frontend core | `components/citation-marker-menu.tsx` (NEW, 362 baris) | Dialog: reference detail + Pindahkan + Hapus sitasi |
-| Frontend wiring | `pages/project.tsx` (+81 baris) | Preview tab → HTML render, `<sup>` click → CitationMarkerMenu, Daftar Pustaka section |
-| Tests | `test/citation-rendering.test.ts` (NEW, 60 tests) | All 60 passing ✅ |
-| Docs | `docs/ai-team/product/user-dashboard.md` | Phase 2 spec |
-
-**Definition of Done — Phase 2:**
-- [x] `citation-rendering.ts` implemented (408 lines, 8 exported functions)
-- [x] `renderDocument` + `renderParagraph` + `renderMarkerHtml` all tested (60/60 pass)
-- [x] Sequential numbering for IEEE/Vancouver/Chicago (order-of-appearance, not reference.id)
-- [x] XSS protection via `escapeHtml()` on all user-generated content
-- [x] `GET /document/preview` endpoint registered (auth + ownership check)
-- [x] `GET /bibliography` endpoint registered (auth + ownership check)
-- [x] OpenAPI spec complete (DocumentPreviewParagraph, DocumentPreviewResult, BibliographyResult)
-- [x] `CitationMarkerMenu` component (Pindahkan dialog + Hapus confirmation)
-- [x] Preview tab rendering with citation markers + Daftar Pustaka section
-- [x] `PATCH /citation-format` renumbers markers on format change
-- [x] Typecheck pass (backend ✅, frontend ✅ — no Phase 2 errors)
-- [x] Build pass (backend 5.7mb, frontend 1.4mb)
-- [x] Backend deployed (`dpl_5JqLGS6V8iY39TUsqAgyTGerbKvy` → `teora-backend.vercel.app`)
-- [x] Frontend deployed (`dpl_6ZtwgM6RPWL29V7G7dp4p6v1w34F` → `academic-workspace-hpm9fiw8f-sagise-ctrls-projects.vercel.app`, alias `academic-workspace-eta.vercel.app`)
-- [ ] **Production smoke test** (manual E2E: login → open academic project → verify Preview tab shows markers + Daftar Pustaka → click marker → Pindahkan/Hapus) → PENDING owner
-
-### Next Concrete Steps
-
-1. ~~DB migration verified~~ ✅
-2. ~~Backend Phase 1 endpoints implemented + bundled~~ ✅
-3. ~~Typecheck passed~~ ✅
-4. ~~Deploy backend to Vercel~~ ✅ Phase 1 + Phase 2
-5. ~~Frontend Phase 1 implementation~~ ✅
-6. ~~Frontend Phase 2 implementation~~ ✅
-7. ~~Frontend build + deploy~~ ✅
-8. **Phase 3 — Pustaka Saya CRUD UI** — Pustaka Saya page rewrite from placeholder to real CRUD + CrossRef search + assign-to-project flow. Backend (`routes/account-references.ts`) is fully implemented.
-9. **Production smoke test** — owner E2E run for Phase 1 + 2 combined
+Backend Pustaka Saya **SUDAH FULL IMPLEMENTED** (`artifacts/api-server/src/routes/account-references.ts`, 435 baris) — Phase 3 effort turun dari 5-6 → 2-3 hari (tinggal frontend UI).
 
 ---
 
-## 🎯 EXECUTIVE SUMMARY (Last Updated: 2026-09-03)
+## COMPLETED 2026-09-04 — Error Messages → Bahasa Indonesia
 
-**Project:** Teora — AI Academic Workspace (React SPA + Express API + Supabase)
-**Owner:** sagise (non-technical, product-focused)
-**Architecture:** Vercel Function backend + Supabase (PostgreSQL + Auth) + Vercel static frontend
-**Latest activity:** Product spec discussion — Practice + Slide/PPT approved (DECISION 012 & 013)
+**Status:** ✅ DONE — Backend + Frontend deployed
 
-### Production URLs
-
-| Service | URL | Status |
-|---------|-----|--------|
-| Backend | https://teora-backend.vercel.app | ✅ Live (`dpl_9ducQJCXfJh3u1ec34sceQyYK8bx`) |
-| Frontend | https://academic-workspace-eta.vercel.app | ✅ Live |
-
-### Key Files untuk Context
-
-| File | Isi |
-|------|-----|
-| `CLAUDE.md` | Project rules, autonomy policy, Session Start Protocol |
-| `.ai/current-task.md` (file ini) | Active task + handoff |
-| `.ai/progress.md` | Completed work log |
-| `.ai/decisions.md` | Architecture decisions (006 keputusan terbesar: Backend Auth Pattern) |
-| `.ai/issue-tracker.md` | All bugs/errors + root cause + prevention |
-| `docs/ai-team/` | Knowledge base per division (product, architecture, security, etc) |
+~120 error messages di backend di-translate ke Bahasa Indonesia. Frontend custom-fetch di-fix untuk tidak tampilkan HTTP status code.
 
 ---
 
-## ACTIVE 2026-09-01 — Backend 401 Auth Fix ✅ SELESAI
+## COMPLETED 2026-09-04 — Full Project Audit
 
-**Status:** ✅ SELESAI — Production deploy `dpl_9ducQJCXfJh3u1ec34sceQyYK8bx` live & verified
-**Model:** claude-opus-4-8
-**Duration:** ~3 jam (continuation dari sesi sebelumnya)
-**Owner:** sagise (handoff dari opus-4-6)
-
-### Problem Statement
-
-Browser console spam `GET /api/auth/me 401 (Unauthorized)` setiap page reload. Owner frustrasi — semalam opus-4-6 ngoding tapi error persisten.
-
-### Root Causes (3 bugs simultan)
-
-| Bug | Lokasi | Fix |
-|-----|--------|-----|
-| A: Mount order | `src/routes/index.ts` — `router.use(authRouter)` di-mount SEBELUM `router.use(authMiddleware)`. Express hanya apply middleware ke routes seterusnya. | `src/routes/auth.ts` — per-route `authMiddleware` di `/auth/me` dan `/auth/referrals` |
-| B: JWT verify | `src/middlewares/auth.ts` — Modern Supabase pakai ES256 (JWKS), bukan HS256 (JWT_SECRET). JWKS URL salah. Hard if/else tanpa fallback. | HS256-first dengan catch+JWKS fallback. JWKS URL: `/auth/v1/.well-known/jwks.json` |
-| C: Trust proxy | `src/app.ts` — Vercel set `X-Forwarded-For` tapi `app.set('trust proxy', 1)` belum ada. | `app.set("trust proxy", 1)` setelah init Express |
-
-### Verifikasi Post-Deploy
-
-| Endpoint | Scenario | Status | Body |
-|----------|----------|--------|------|
-| `/api/healthz` | - | 200 | `{"status":"ok"}` |
-| `/api/auth/me` | no token | 401 | `{"error":"Unauthorized"}` (route handler) |
-| `/api/auth/me` | bad token | 401 | `{"error":"Invalid or expired token"}` (middleware) |
-| Vercel logs | last 30m | 0 ValidationError | ✅ `ERR_ERL_UNEXPECTED_X_FORWARDED_FOR` cleared |
-
-### Commits
-
-1. `af06d83` — fix(auth): per-route authMiddleware on /me and /referrals + HS256 to JWKS fallback with correct JWKS URL
-2. `694d8f1` — fix(api): trust proxy for Vercel + cleanup vercel.json
-
-### Deploy
-
-- Backend: `dpl_9ducQJCXfJh3u1ec34sceQyYK8bx` aliased ke `teora-backend.vercel.app`
-- Build: 10s, 0 errors, 3 warnings (duplicate skipLibCheck tsconfig.base.json — non-blocking)
-- Upload: 30.9 MB
-
-### Lessons Learned
-
-1. **Mount order bug pattern** — `router.use(path, middleware)` only protects routes mounted AFTER it. Selalu pakai per-route middleware untuk critical auth.
-2. **Modern Supabase → ES256** — Backend HARUS implement JWKS fallback. Hard HS256-only akan selalu gagal untuk Google OAuth login.
-3. **Trust proxy is mandatory** — `app.set("trust proxy", 1)` atau `req.ip` tidak reflect real client IP di serverless behind proxy.
-4. **Bundle verification** — Selalu `grep "fix-pattern" api/index.mjs` setelah rebuild, sebelum commit/deploy, untuk confirm fix ada di compiled output.
-
-### Next Steps (Owner Decision Needed)
-
-- [ ] Test login flow end-to-end via browser (Google OAuth login → `/auth/me` returns user)
-- [ ] Verify production console clear dari 401 errors
-- [ ] (Optional) Improve Vitest test untuk middleware — ada pre-existing test failure yg belum di-resolve (routes.integration.test.ts + use-auth.test.tsx)
-
----
-
-## Handoff 2026-09-01 01:45 — model opus-4-8 → next session
-
-**Task active:** Backend 401 auth fix ✅ DONE.
-**Last 3 actions:**
-1. Verified trust proxy fix live — `/api/auth/me` bad token return "Invalid or expired token" (middleware catch path)
-2. Committed `694d8f1` — fix(api): trust proxy for Vercel + cleanup vercel.json
-3. Verified Vercel logs last 30m has 0 ValidationError
-
-**Next 3 actions:**
-1. Owner manual test login flow di production
-2. (If green) mark resolved, move on ke task berikutnya (post-launch monitoring setup?)
-3. (If red) re-investigate
-
-**Open questions:**
-- Apa next priority? (post-launch monitoring SOP masih pending per issue-tracker [2026-08-23])
-
----
-
-## PREVIOUSLY — SPA Routing Fix ✅ SELESAI (2026-09-01)
-
-**Status:** ✅ SELESAI — Deploy berhasil, semua route 200 OK
+**Status:** ✅ DONE — Audit report at `E:/teora/audit.md` (680 lines, 24 issues)
 **Model:** claude-opus-4-6
 
-### Bug Fix
+### Key Findings
 
-| Error | Root Cause (sebenarnya) | Fix | Status |
-|-------|----------------------|-----|--------|
-| `/auth/callback` 404 | `tsconfig.json` extends `../../tsconfig.base.json` — tidak accessible saat Vercel build di subdirectory → build FAIL → tidak ada dist/ → SPA rewrite tidak punya HTML untuk di-serve | Inline `tsconfig.base.json` compilerOptions ke workspace `tsconfig.json` | ✅ Deploy 2026-09-01 |
-
-### Yang Terjadi
-
-Deploy pipeline terlihat berhasil (CI green) tapi route tetap 404. Setelah dapat Vercel build logs, ketemu: build FAIL karena tsconfig extends path. Vercel SPA routing (vercel.json rewrites) sebenarnya SUDAH BENAR — tapi tidak bisa serve HTML kalau build gagal.
-
-Root cause berlapis:
-1. vercel.json rewrites: `/(.*)` → `/index.html` ✅ (already correct)
-2. tsconfig.json: extends `../../tsconfig.base.json` → FAIL ❌
-
-Fix: inline tsconfig.base.json jadi self-contained.
-
-### Verifikasi
-
-```
-/login         → 200 HTML
-/auth/callback → 200 HTML
-/callback      → 200 HTML
-/              → 200 HTML
-/favicon.ico   → 200 SVG
-/api/v1/health → 401 (backend proxy works)
-```
-
-### Lesson Learned
-
-- vercel.json SPA rewrites SUDAH auto-fallback — tidak perlu manual config.json
-- tsconfig yang extend parent config TIDAK portable untuk Vercel build
-- Build failure di Vercel = 404 untuk semua route, bukan error message
-- Cek Vercel build logs untuk diagnosis — bukan cuma workflow status
-
-### Commits
-
-- `ace7bae` — fix(build): inline tsconfig.base.json into workspace tsconfig.json
-- `14c49e6` — fix(deploy): add diagnostic output to find root cause
-- `9e321d6` — fix(deploy): use vercel deploy (not --prebuilt) — vercel.json handles SPA routing
-- `9d882c5` — fix(deploy): SPA routing — correct asset paths + /api bypass
-- `b135ccb` — fix(deploy): SPA fallback route loop (merge)
-- `a8e8a87` — fix(ui): add /callback route + redirect favicon.ico
+| Severity | Count | Examples |
+|----------|-------|---------|
+| Critical | 3 | `reference_citations` (DB only), `usersTable` import missing, `Math.random()` for tokens |
+| High | 7 | outdated AI model names, no API timeout, duplicate queries, topics JSONB/text |
+| Medium | 9 | double JSON ops, type shadowing, raw SQL ordering, stale dist/ |
+| Low | 5 | outdated branding, duplicate tsconfig, orphan files |
 
 ---
 
-## ACTIVE 2026-09-02 — Daftar Task + Split New Project Form ✅ SELESAI
+## COMPLETED 2026-09-03 — Practice (Learning Activity System)
 
-**Status:** ✅ SELESAI — Both deployed & verified
-**Model:** claude-opus-4-8
-**Owner:** sagise
+**Status:** ✅ DONE — Branch pushed, awaiting PR merge
+**Model:** claude-opus-4-6
 
-### Sub-task A: Daftar Task — DEPLOYED 2026-09-02
+DECISION 013 — Practice menu: quiz/recommendation system that auto-extracts topics from Task Mentor projects.
 
-Route `/projects?type=general|academic` — tab segmented + filter stage + search.
+### Components Done
 
-### Sub-task B: New Project Form — Split per Type — DEPLOYED 2026-09-02
+| Component | Status | Notes |
+|-----------|--------|-------|
+| DB Schema | ✅ | `learning_activities` table |
+| OpenAPI spec | ✅ | 3 endpoints: GET/POST `/learning-activities`, GET `/learning-activities/recommendations` |
+| Backend routes | ✅ | `artifacts/api-server/src/routes/learning-activities.ts` with upsert logic |
+| Frontend route | ✅ | `/practice` in App.tsx |
+| Sidebar nav | ✅ | Brain icon between Pustaka Saya and Task Mentor |
+| Practice page | ✅ | Recommendations + activity history |
+| Build | ✅ | `npm run build` passed |
 
-**Spec (owner, 2026-09-02):** General ≠ Academic = 2 project berbeda, web pisahkan.
+### Pending
 
-**General Task** (simpel):
-| Field | Required | Notes |
-|-------|----------|-------|
-| Judul | ❌ Opsional | Fungsi: nama dokumen, tidak tampil di file download. AI generate di workspace kalau kosong |
-| Instruksi Tugas | ✅ Wajib | Acuan AI: generate judul + analisis awal |
-| Upload File | ❌ Opsional | Bisa: instruksi detail / bahan acuan / referensi. AI analisis di workspace |
-| ~~Format / Min. Ref / Min. Tahun / Referensi panel~~ | Dihapus | Pindah ke workspace |
-
-**Academic Work** (lebih dalam):
-| Field | Required | Notes |
-|-------|----------|-------|
-| Tema | ❌ Opsional | AI generate judul dari analisis tema di workspace. User bisa edit manual atau minta AI rekomendasi via chat |
-| Ide / Gagasan | ✅ Wajib | AI pakai untuk buat outline/kerangka awal/Plan di workspace |
-| Upload File | ❌ Opsional | Referensi/bahan pendukung. AI analisis di workspace |
-| ~~Format / Min. Ref / Min. Tahun / Referensi panel~~ | Dihapus | Pindah ke workspace |
-
-**Owner decisions (2026-09-02 AskUserQuestion):**
-1. Tema Academic: Opsional (sama seperti General)
-2. AI title generation: Nanti di workspace (placeholder dulu saat creation)
-3. Upload file extraction: Simpan file mentah dulu (UI only, AI analyze di workspace nanti)
-
-### What Was Built
-
-| File | Change |
-|------|--------|
-| `lib/api-spec/openapi.yaml` | ProjectInput: `required: [instructionText]` (was `[title]`); title jadi optional; tambah description di title & instructionText |
-| `lib/api-zod/src/generated/api.ts` | Regen: `title: zod.string().optional()`, `instructionText: zod.string().min(1)` |
-| `lib/api-client-react/src/generated/*` | Regen: TypeScript `ProjectInput` types |
-| `artifacts/academic-workspace/src/lib/api-client-react/generated/*` | Synced from workspace (vite reads local copy) |
-| `artifacts/academic-workspace/src/pages/new-project.tsx` | Rewrite: split layout per type. Fix `useSearch()` bug. Hapus referensi panel, format, minRef, minYear. Type-specific copy. Visual indicator (icon, color, header) per type |
-| `artifacts/api-server/api/index.mjs` | Rebuild: backend schema updated |
-
-### Bug Fix Included
-
-- **new-project.tsx line 57** — same `useLocation()` query parsing bug as tasks.tsx. Fixed with `useSearch()`. Without this fix, `/projects/new?type=academic` would always save as `taskType="general"` regardless of URL.
-
-### Production Deploy
-
-| Deploy | URL | ID | Status |
-|--------|-----|----|----|
-| Backend | https://teora-backend.vercel.app | `dpl_<new>` | ✅ READY (schema updated) |
-| Frontend | https://academic-workspace-eta.vercel.app | `dpl_<new>` | ✅ READY (bundle `index-DYO6ISll.js`) |
-
-### Verification
-
-| Test | Result |
-|------|--------|
-| Backend schema in bundle | ✅ `title: zod.string().optional()`, `instructionText: zod.string().min(1)` |
-| Bundle has new form strings | ✅ "Task Umum Baru"×2, "Karya Ilmiah Baru"×1, "Tema"×1, "Ide / Gagasan"×1, "Mulai Kerjakan"×2, "Mulai dengan AI"×1 |
-| Bundle removed old references panel | ✅ JS size down 12KB (1400→1388) |
-| Backend smoke test (POST /api/projects) | 401 (auth required — expected; schema correct in compiled bundle) |
-
-### Out of Scope (deferred to workspace implementation)
-
-- Workspace General Task vs Academic Work (different layouts/flows)
-- AI auto-generate judul feature (button/chat command in workspace)
-- Upload file binary storage + AI extraction (workspace will add)
-- Bibliography Generator for Academic Work
-- Multi-section document for Academic Work (Plan stage)
-- Section AI Chat + Section References for Academic Work
+- Merge PR `feat/practice-clean` → `main`
+- Auto-extract trigger: extract topics when project is created
 
 ---
 
-## Handoff 2026-09-02 — model opus-4-8 → next session
+## COMPLETED 2026-09-01 — SPA Routing Fix
 
-**Task active:** Daftar Task + Split New Project Form both deployed ✅
-**Last 3 actions:**
-1. Updated OpenAPI spec: title optional, instructionText required
-2. Rewrote new-project.tsx: split per type, removed referensi panel, fixed query bug
-3. Deployed backend + frontend to production
+**Status:** ✅ SELESAI — Deploy berhasil, semua route 200 OK
 
-**Next 3 actions:**
-1. Owner manual UI test di https://academic-workspace-eta.vercel.app/projects/new?type=general dan ?type=academic
-2. Owner pilih next priority (General Task Workspace / Academic Work Workspace / Pustaka Saya / Assessment)
-3. Implement chosen feature
-
-**Open questions:**
-- Next priority pilihan owner (4 opsi)
-- AI Report panel untuk Academic Work (owner masih pending)
-- Workspace design untuk General vs Academic (perlu kerja besar)
-
-
-### Problem Statement
-
-Menu Task Mentor di sidebar (per DECISION 009) butuh halaman `/projects` yang proper. Sebelumnya `/projects` route menunjuk ke NewProject form. Owner minta:
-- Daftar Task = list view, separate dari workspace
-- Tab segmented control: General Task vs Academic Work
-- Filter chip per stage (Idea/Writing/Revision/Done, plus Plan untuk academic)
-- Status mapping backend 6-state → frontend 4-5 user-facing stage
-- TaskType enum strict (general | academic), NULL → "general" di-display
-
-### What Was Built
-
-| File | Change |
-|------|--------|
-| `artifacts/api-server/src/routes/projects.ts` | GET /projects accepts `?type=` filter; GET /projects/stats returns `byType` aggregation |
-| `artifacts/api-server/src/routes/admin.ts` | Renamed `/admin/usage` → `/admin/usage-breakdown` (pre-existing duplicate path conflict) |
-| `artifacts/api-server/src/test/routes.integration.test.ts` | `essay` → `general` (2 fixtures) |
-| `lib/api-spec/openapi.yaml` | `/projects` GET `type` enum param; Project/ProjectInput/ProjectStats enum; /admin/usage duplicate rename |
-| `lib/api-zod/src/generated/api.ts` | Regen: zod taskType enum + byType schema |
-| `lib/api-client-react/src/generated/*.ts` | Regen: TypeScript types + ListProjectsType |
-| `artifacts/academic-workspace/src/lib/api-client-react/generated/*` | Synced from workspace (vite reads local copy) |
-| `artifacts/academic-workspace/src/lib/status-mapping.ts` | NEW: UserStage type, BACKEND_TO_STAGE map, stageMeta, displayStagesFor, TASK_TYPE_LABEL |
-| `artifacts/academic-workspace/src/pages/tasks.tsx` | NEW: TaskListPage with tabs, filter sidebar, search, empty state |
-| `artifacts/academic-workspace/src/App.tsx` | Added /projects route BEFORE /projects/:id (ordering per ADR) |
-| `artifacts/academic-workspace/src/components/layout.tsx` | Task Mentor subitems now point to /projects?type=... |
-| `artifacts/academic-workspace/src/pages/new-project.tsx` | Read ?type= from URL, set taskType on create |
-| `artifacts/academic-workspace/src/pages/dashboard.tsx` | Added "Lihat semua →" link to /projects |
-| `pnpm-workspace.yaml` | Excluded artifacts/mockup-sandbox (catalog: refs missing → pnpm install fails) |
-| `.npmrc` | Added verify-deps-before-run=false |
-
-### Decisions
-
-- **DECISION 010** — Halaman Daftar Task: spec, architecture, status mapping layer, taskType enum strict. Added to `.ai/decisions.md`.
-- **DECISION 009** retroactive confirmation — sidebar menu order Dashboard → Task Mentor → Assessment → Pustaka Saya → Akun.
-- **Removed input** (owner feedback) — "Default Tab = Last Accessed" dan "icon kosmetik" tidak jadi feature.
-
-### Validation
-
-| Check | Result |
-|-------|--------|
-| typecheck (tsc --build --force) | ✅ exit 0 (lib/api-zod, lib/api-client-react, lib/db) |
-| typecheck (frontend) | ✅ no new errors from my changes (pre-existing 8 errors unrelated) |
-| typecheck (backend) | ✅ no new errors from my changes (pre-existing implicit-any errors unrelated) |
-| build frontend (vite) | ✅ 2m 10s, 3852 modules, dist 1.4MB JS |
-| build backend (build.mjs) | ✅ 4s, dist/index.mjs 5.7MB |
-| vitest (128 tests) | 126 pass, 2 pre-existing auth.test.ts failures (unrelated, not regressions) |
-| integration.test.ts (20) | ✅ all pass |
-| pre-existing | auth.test.ts /auth/me + /auth/referrals tests still 401 — known issue (test mocks per-route middleware belum di-update) |
-
-### Pre-Existing Issues (NOT regressions)
-
-1. `auth.test.ts` — 2 tests expecting 200 return 401. Test mocks not aligned with per-route authMiddleware fix from af06d83. Out of scope for Daftar Task.
-2. `references.ts`, `shared.ts`, `webhooks.ts`, `rubrics.ts`, `usage.ts`, `writing-style.ts` — implicit-any errors (pre-existing, not changed by me).
-3. `new-project.tsx` — setFormValues undefined, queryKey missing options (pre-existing).
-4. `App.tsx` line 51 — pageVariants typed wrong (pre-existing).
-5. `layout.tsx` line 119 — NavGroup href prop missing (pre-existing).
-
-### Pre-Deploy Action Required
-
-Owner must approve:
-1. Commit + push all changes
-2. Deploy backend → https://teora-backend.vercel.app
-3. Deploy frontend → https://academic-workspace-eta.vercel.app
-4. Production smoke test: /projects route loads, /projects?type=academic filter works, create project with taskType persists.
-
-### Production Deploy 2026-09-02 ✅ DONE
-
-| Deploy | URL | ID | Status |
-|--------|-----|----|----|
-| Backend | https://teora-backend.vercel.app | `dpl_G5z5FtD5sGzSEcwnBKjNNzYwFWCL` | ✅ READY (build 11s, cached) |
-| Frontend | https://academic-workspace-eta.vercel.app | `dpl_87mBecirXZAPpwW4kRs7Udb4LEQV` | ✅ READY (build 1m 15s) |
-
-**Smoke test production:**
-
-| Test | Expected | Actual | Status |
-|------|----------|--------|--------|
-| `GET /api/healthz` | 200 `{"status":"ok"}` | ✅ matched | OK |
-| `GET /api/projects?type=academic` (no auth) | 401 | 401 `{"error":"Unauthorized"}` | OK |
-| `GET /api/projects/stats` (no auth) | 401 | 401 `{"error":"Unauthorized"}` | OK |
-| `GET /api/auth/me` (no token) | 401 | 401 | OK |
-| `GET /api/auth/me` (bad token) | 401 "Invalid or expired token" | matched | OK |
-| `GET /` (frontend index) | 200 | 200 | OK |
-| `GET /projects` (SPA fallback) | 200 HTML | 200 | OK |
-| `GET /projects?type=academic` (SPA fallback) | 200 HTML | 200 | OK |
-| `GET /api/healthz` via frontend (vercel.json rewrite) | 200 | 200 | OK |
-| Bundle has Daftar Task strings | yes | "Academic Work"×5, "taskType"×4, "Done"×7, "Writing"×2, "Revision"×2, "Idea"×1, "General Task"×1 | OK |
-
-**Owner manual test required:** Browser login → /projects → toggle tab General/Academic → filter by stage → create new task dengan type general/academic. Verifikasi taskType persisted di database.
-
-### Next Priority (Owner Decision)
-
-1. ~~Deploy Daftar Task~~ ✅ DONE
-2. Choose next implementation:
-   - **Task Mentor — General Task Workspace** (toolbar Dokumen/AI Assistant/Referensi — 5 tools)
-   - **Pustaka Saya** (global library + AI Search + Reference AI Chat)
-   - **Assessment** (main menu untuk pengajar)
-   - **Task Mentor — Academic Work Workspace** (multi-section, kerangka awal)
-
----
-
-## 2026-09-02 — Branding: AI→Teora, User→Anda, Em Dash Removal ✅ SELESAI
-
-**Status:** ✅ SELESAI — Production deployed, bundle verified
-**Model:** claude-opus-4-6 (session 1) + opus-4-8 (session 2, continuation)
-**Owner:** sagise
-**Commit:** `97dc255`
-
-### Changes
-
-| Category | Before | After | Files |
-|---------|--------|-------|-------|
-| Product name | "AI" in UI text | "Teora" | 30+ files |
-| Politeness | "user"/"User" | "Anda" | 10+ files |
-| Punctuation | "—" (em dash) | ":" (colon) | 30+ files |
-
-### Key Changes by Area
-
-- **Admin**: "Users" → "Pengguna", "AI Usage" → "Usage Teora", "AI Cost" → "Biaya Teora"
-- **Dashboard**: "AI Assistant" → "Teora Assistant", fallback displayName "User" → "Anda"
-- **Footer**: "Teora —" → "Teora:" (login, register, landing pages)
-- **New Project**: "dianalisis AI" → "dianalisis Teora"
-- **Usage**: "Chat AI" → "Chat Teora", "sent to AI models" → "dikirim ke model"
-- **Project**: "The AI is now analyzing" → "Teora sedang menganalisis"
-- **Topup**: "← Lihat AI Pricing" → "← Lihat Teora Pricing"
-- **Referral**: "500 AI tokens" → "500 Teora tokens"
-
-### Excluded (Correctly)
-
-| File | Reason |
-|------|--------|
-| `lib/api-client-react/generated/*` | Generated code, not user-facing |
-| `terms.tsx` / `privacy.tsx` | Legal text — "AI" = technology, not product |
-| Code identifiers | `user.email`, `msg.role === "user"`, route `/ai-pricing` |
-| `insufficient-balance-dialog.tsx` | `"—"` as null display placeholder — reverted |
-| `admin-audit-log.tsx` | `"—"` as table cell null placeholder — reverted |
-
-### Code Fixes from Sed Collateral
-
-- `insufficient-balance-dialog.tsx` line 30: `":"` → `"—"` (reverted)
-- `admin-audit-log.tsx` lines 121, 124: `":"` → `"—"` (reverted)
-
-### Production Deploy
-
-| Step | Command | Result |
-|------|---------|--------|
-| Build | `node node_modules/vite/bin/vite.js build` | ✅ 2m22s, 1388KB JS |
-| Copy | `cp -r dist .vercel/output/static` | ✅ |
-| Deploy | `npx vercel deploy --prod --prebuilt --yes` | ✅ `dpl_n9sv0b96f` |
-| Verify | curl JS bundle | ✅ "Teora Assistant", "Penggunaan Teora" present |
-
-### Lessons
-
-- sed em dash → colon safe for UI prose; NOT safe for code display placeholders
-- pnpm workspace fails → use `node node_modules/vite/bin/vite.js build` directly
-- `--prebuilt` flag avoids 30000+ file limit on deploy
-
----
-
-## Handoff 2026-09-02 — model opus-4-8 → current session
-
-**Task active:** Branding: AI→Teora, User→Anda ✅ DONE
-**Last 3 actions:**
-1. Verified branding in production bundle — "Teora Assistant", "Penggunaan Teora", "Pengguna" present
-2. Committed 30 files: `4fe467c` feat(branding) on `feat/daftar-task`
-3. Fixed 3 sed collateral issues (reverted `"—"` display placeholders in insufficient-balance-dialog.tsx + admin-audit-log.tsx)
-4. Amend commit to include updated .ai/current-task.md + .ai/progress.md
-
-**Next 3 actions:**
-1. Owner test: browse https://academic-workspace-eta.vercel.app — verify "Teora" branding visible in nav, dashboard, admin pages
-2. Owner test: Daftar Task `/projects` — toggle General/Academic tabs, filter by stage
-3. Owner decide next priority: General Task Workspace / Pustaka Saya / Assessment / Academic Work Workspace
-
-**Open questions:**
-- Next priority pilihan owner (4 opsi di atas)
-- Apakah owner mau push `feat/daftar-task` branch ke main (sekarang 3 commit di branch: branding + daftar task + parent, belum di-push per Git Rules)
-- AI Report panel untuk Academic Work (owner mau jawab isi panel-nya)
-- Workspace design untuk General vs Academic (perlu kerja besar)
-
-
----
-
-## Handoff 2026-09-03 — model opus-4-6 → next session
-
-**Task active:** Product spec discussion (Task Mentor features)
-**Last 3 actions:**
-1. Clarified "Assessment" menu — not right for pelajar, discussed alternative names
-2. Owner approved: Slide/PPT in Task Mentor (DECISION 012) — General Task output format + Academic Work tab PPT
-3. Owner gave FULL spec for Practice menu + Learning Activity System (DECISION 013) — very detailed, comprehensive
-
-**Feature decisions recorded (2026-09-03):**
-
-| DECISION | Feature | Status |
-|----------|---------|--------|
-| DECISION 012 | Slide/PPT in Task Mentor | ✅ Approved |
-| DECISION 013 | Practice Menu + Learning Activity System | ✅ Approved |
-
-**Sidebar structure (updated):**
-1. Dashboard
-2. Task Mentor (General Task + Academic Work)
-3. **Practice** (NEW — menu utama)
-4. Pustaka Saya
-5. Assessment (Pengajar)
-6. Akun
-
-**Key principles established (owner):**
-- "Apakah fitur ini baca dari riwayat user di Teora?" — one test for all decisions
-- Practice: Recommendation-first, bukan input manual
-- Learning Activity: Log sederhana, jangan overengineer (no vector search/embedding)
-- Manual input sebagai fallback, bukan default
-- Practice prerequisite: Learning Activity system harus dibuat duluan
-
-**Files updated:**
-- `docs/ai-team/product/user-dashboard.md` — 3 new sections added (Practice Final spec, Learning Activity System spec, Slide/PPT), menu structure updated
-- `.ai/decisions.md` — DECISION 012 (Slide/PPT), DECISION 013 (Practice + Learning Activity)
-
-**Open questions:**
-- Assessment menu — tetap ada di sidebar? (Untuk pelajar tidak needed; untuk pengajar perlu tapi assessment builder belum ada)
-- Practice requires Learning Activity system ( prerequisite — tidak bisa langsung built )
-- Task Mentor workspace (General + Academic) masih prioritas utama untuk diselesaikan
-- feat/daftar-task branch: 3 commit belum di-push
-- Dashboard Toggle Pelajar/Pengajar — PENDING (owner akan lanjut sore ini)
-
-
----
-
-## Handoff 2026-09-03 14:xx — model opus-4-6 → next session (owner lanjut sore)
-
-**Task active:** Product spec discussion (student features)
-**Session ends:** 2026-09-03 ~14:xx
-
-**Yang sudah disetujui owner (2026-09-03):**
-
-| Feature | Status | Location |
-|---------|--------|----------|
-| DECISION 012: Slide/PPT in Task Mentor | ✅ Approved | docs + decisions.md |
-| DECISION 013: Practice + Learning Activity | ✅ Approved | docs + decisions.md |
-| Practice v1: Quiz doang (tanpa Flashcard) | ✅ Approved | docs |
-| Practice v1: Layout 1 halaman (bukan hub/sub-menu) | ✅ Approved | docs |
-| Practice v1: Prioritas ekstraksi (instruksi > referensi > chat) | ✅ Approved | docs |
-| Practice v1: User baru — ajakan ke Task Mentor (bukan manual) | ✅ Approved | docs |
-| Practice v1: Manual fallback di pojok (bukan utama) | ✅ Approved | docs |
-| Assessment Builder (Pengajar) | ⏸️ DITUNDA — fokus pelajar dulu | docs |
-| Dashboard Toggle Pelajar/Pengajar | ⏸️ DITUNDA — fokus pelajar dulu | docs |
-
-**Sidebar structure final:**
-1. Dashboard
-2. Task Mentor (General + Academic)
-3. Practice (NEW — student main menu)
-4. Pustaka Saya
-5. ~~Assessment~~ (Pengajar — ditunda)
-6. Akun
-
-**Fokus开发 priority (2026-09-03 owner确认):**
-1. Task Mentor workspace (P0 — sedang berjalan)
-2. Practice + Learning Activity (P2 — approved, perlu Learning Activity duluan)
-3. Slide/PPT (P2 — approved)
-4. Assessment Builder (P3 — DITUNDA)
-5. Pustaka Saya (P3)
-6. Dashboard Toggle (P3 — DITUNDA)
-
-**Files updated today:**
-- `docs/ai-team/product/user-dashboard.md` — Practice v1 spec, Learning Activity spec, Slide/PPT spec, updated menu structure, Assessment (Pengajar) flagged as deferred
-- `.ai/decisions.md` — DECISION 012 (Slide/PPT), DECISION 013 (Practice + Learning Activity)
-- `.ai/current-task.md` — this handoff + executive summary
-
-**Owner mau lanjut sore ini:**
-- Lanjutkan diskusi Dashboard Toggle Pelajar/Pengajar?
-- Atau langsung implementasi Task Mentor workspace?
+| Error | Root Cause | Fix | Status |
+|-------|-----------|-----|--------|
+| `/auth/callback` 404 | `tsconfig.json` extends `../../tsconfig.base.json` — not accessible at Vercel build in subdirectory → build FAIL | Inline `tsconfig.base.json` compilerOptions into workspace `tsconfig.json` | ✅ Deploy 2026-09-01 |

@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import AdminLayout from "@/components/admin-layout";
 import { customFetch } from "@/lib/api-client-react";
 import { formatUsd } from "@/lib/admin-utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface AdminUser {
   id: string;
@@ -44,14 +45,20 @@ export default function AdminUsers() {
   const [data, setData] = useState<AdminUserList | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const fetchUsers = () => {
     setLoading(true);
+    setFetchError(null);
     const params = new URLSearchParams({ page: String(page), pageSize: "20" });
     if (search) params.set("search", search);
     customFetch<AdminUserList>(`/api/admin/users?${params}`)
       .then(setData)
-      .catch(() => setData(null))
+      .catch((err) => {
+        setFetchError(String(err));
+        setData(null);
+      })
       .finally(() => setLoading(false));
   };
 
@@ -70,9 +77,10 @@ export default function AdminUsers() {
         method: "POST",
         body: JSON.stringify({ tier }),
       });
+      toast({ title: "Berhasil", description: `Tier pengguna diubah ke ${tier}.` });
       fetchUsers();
-    } catch {
-      // silently fail
+    } catch (err) {
+      toast({ title: "Gagal", description: String(err), variant: "destructive" });
     } finally {
       setActionLoading(null);
     }
@@ -85,9 +93,10 @@ export default function AdminUsers() {
         method: "POST",
         body: JSON.stringify({ suspended: suspend }),
       });
+      toast({ title: "Berhasil", description: suspend ? "Pengguna ditangguhkan." : "Pengguna diaktifkan kembali." });
       fetchUsers();
-    } catch {
-      // silently fail
+    } catch (err) {
+      toast({ title: "Gagal", description: String(err), variant: "destructive" });
     } finally {
       setActionLoading(null);
     }
@@ -144,6 +153,13 @@ export default function AdminUsers() {
                         ))}
                       </tr>
                     ))
+                  ) : fetchError ? (
+                    <tr>
+                      <td colSpan={7} className="px-4 py-8 text-center">
+                        <p className="text-destructive font-medium">Gagal memuat data</p>
+                        <p className="text-xs text-muted-foreground mt-1">{fetchError}</p>
+                      </td>
+                    </tr>
                   ) : data?.users.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">

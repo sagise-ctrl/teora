@@ -276,6 +276,7 @@ function DocumentBar({
           onSelect(doc.id)
           onRefresh()
         },
+        onError: (err) => toast({ title: "Gagal", description: String(err), variant: "destructive" }),
       }
     )
   }
@@ -832,8 +833,18 @@ function QuizTab({ projectId }: { projectId: number }) {
   const handleSelectQuiz = async (quiz: Quiz) => {
     setSelectedQuiz(quiz)
     setAnswers({})
-    const full = await fetch(`/api/projects/${projectId}/quizzes/${quiz.id}`).then(r => r.json()).catch(() => quiz)
-    setSelectedQuiz(full)
+    try {
+      const response = await fetch(`/api/projects/${projectId}/quizzes/${quiz.id}`)
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      const full = await response.json()
+      setSelectedQuiz(full)
+    } catch {
+      toast({
+        title: "Data quiz tidak terbaru",
+        description: "Tidak dapat memuat data terbaru. Menampilkan data tersimpan.",
+        variant: "destructive",
+      })
+    }
   }
 
   const questions = (selectedQuiz?.questions as unknown as QuizQuestion[]) ?? []
@@ -1734,7 +1745,7 @@ function ReferencesTab({ projectId, citationFormat }: { projectId: number; citat
         if (insufficientBalance.handleError(err)) return
         toast({ title: "Bibliography regeneration failed", description: String(err), variant: "destructive" })
       },
-      onSuccess: () => toast({ title: "Bibliography regenerated" })
+      onSuccess: () => toast({ title: "Berhasil", description: "Daftar pustaka berhasil diperbarui." })
     })
   }
 
