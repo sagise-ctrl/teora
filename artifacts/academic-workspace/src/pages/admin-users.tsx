@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import AdminLayout from "@/components/admin-layout";
 import { customFetch } from "@/lib/api-client-react";
 import { formatUsd } from "@/lib/admin-utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface AdminUser {
   id: string;
@@ -44,6 +45,7 @@ export default function AdminUsers() {
   const [data, setData] = useState<AdminUserList | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const fetchUsers = () => {
     setLoading(true);
@@ -71,8 +73,8 @@ export default function AdminUsers() {
         body: JSON.stringify({ tier }),
       });
       fetchUsers();
-    } catch {
-      // silently fail
+    } catch (err) {
+      toast({ title: "Gagal", description: String(err), variant: "destructive" });
     } finally {
       setActionLoading(null);
     }
@@ -86,8 +88,8 @@ export default function AdminUsers() {
         body: JSON.stringify({ suspended: suspend }),
       });
       fetchUsers();
-    } catch {
-      // silently fail
+    } catch (err) {
+      toast({ title: "Gagal", description: String(err), variant: "destructive" });
     } finally {
       setActionLoading(null);
     }

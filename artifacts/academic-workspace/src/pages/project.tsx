@@ -251,6 +251,7 @@ function DocumentBar({
           onSelect(doc.id)
           onRefresh()
         },
+        onError: (err) => toast({ title: "Gagal", description: String(err), variant: "destructive" }),
       }
     )
   }
