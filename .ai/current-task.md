@@ -9,7 +9,59 @@
 
 ---
 
-## 🎯 ACTIVE 2026-09-05 — Topic #4: Token Limit, Sisa Token, AI Usage per User
+## 🎯 ACTIVE 2026-09-05 — Full Feature Audit + Fixes (Non-Payment/AI Provider)
+
+**Status:** ✅ DONE — Committed `ae99552`, pushed, frontend deployed, backend deploying
+**Model:** claude-opus-4-8
+**Branch:** `feat/daftar-task`
+**Commit:** `ae99552`
+
+### What
+
+Owner directive: "clear all non-payment/non-AI-provider features — audit everything, find gaps, fix ALL, deploy live."
+
+### Fixes Applied
+
+| # | Issue | File | Fix |
+|---|-------|------|-----|
+| P1 | Compile error (usersTable missing) | `api-server/src/routes/projects.ts` | Add to destructured import |
+| P1 | ToS consent missing | `pages/register.tsx` | Add agreeToS Zod schema + Checkbox UI |
+| P1 | No support/help channel | `pages/help.tsx` (NEW) | Full FAQ page (7 items, Indonesian) |
+| P2 | Legal dates 2025 → 2026 | `pages/terms.tsx`, `pages/privacy.tsx` | Update effectiveDate + copyright |
+| P2 | Garbled text in privacy policy | `pages/privacy.tsx` | Fix `行使` → `menggunakan` |
+| P3 | Hardcoded brand colors | `pages/landing.tsx` | Replace `bg-[#2D79FF]/10` → `bg-brand/10` |
+| P3 | CSS brand token system | `index.css` | Add HSL component vars for `--color-brand` |
+| P3 | Footer links wrong | `pages/register.tsx` | `href="#"` → `/privacy`, `Help Center` → `Pusat Bantuan` |
+| P3 | Help link missing from sidebar | `components/layout.tsx` | Add `<NavSubItem href="/bantuan" label="Pusat Bantuan" />` |
+
+### Deploy
+
+- **Frontend:** GitHub Actions `deploy-frontend.yml` → ✅ COMPLETED at `ae99552`
+  - URL: `https://academic-workspace-sagise-ctrls-projects.vercel.app`
+- **Backend:** GitHub Actions `deploy-backend.yml` → 🔄 IN PROGRESS
+  - URL: `https://teora-backend.vercel.app` (existing)
+  - Build: `node build.mjs` → `api/index.mjs` + `dist/index.mjs`
+
+### Remaining Non-Payment/Non-AI Tasks (Lower Priority)
+
+| # | Task | Notes |
+|---|------|-------|
+| 1 | Consent tracking DB columns | Need `tos_consented_at`, `privacy_consented_at` columns + backend |
+| 2 | Spend-cap middleware | Prevents AI usage when balance = 0 |
+| 3 | E2E tests | No Playwright/Cypress setup |
+| 4 | CI path filter fixes | lib/api-spec → frontend deploy; lib/ → backend deploy |
+| 5 | OpenAPI spec completeness | Check against actual routes |
+| 6 | Decisions.md duplicate fix | DECISION 006 duplicate entries |
+| 7 | Operational docs cleanup | Stale content in blockers.md, decisions.md |
+
+### Owner Remaining Actions (ONLY these 2)
+
+1. **Payment Gateway**: Setup Midtrans or Stripe
+2. **AI API Provider**: Setup Groq or OpenAI API key
+
+---
+
+## HISTORICAL 2026-09-05 — Token Limit, Sisa Token, AI Usage per User
 
 **Status:** ✅ DONE — Committed `d357662`, pushed, frontend CI/CD running
 **Model:** claude-opus-4-6
