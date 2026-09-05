@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { customAlphabet } from "nanoid";
 import { db, usersTable, referralsTable, referralEventsTable } from "@workspace/db";
@@ -83,90 +83,97 @@ router.get("/auth/me", authMiddleware, async (req, res): Promise<void> => {
 
 // POST /auth/login
 router.post("/auth/login", async (req, res): Promise<void> => {
-  const { access_token, refresh_token } = req.body as {
-    access_token?: string;
-    refresh_token?: string;
-  };
+  try {
+    const { access_token, refresh_token } = req.body as {
+      access_token?: string;
+      refresh_token?: string;
+    };
 
-  if (!access_token) {
-    res.status(400).json({ error: "access_token is required" });
-    return;
-  }
+    if (!access_token) {
+      res.status(400).json({ error: "access_token is required" });
+      return;
+    }
 
-  const userResponse = await supabaseAdmin?.auth.getUser(access_token);
+    const userResponse = await supabaseAdmin?.auth.getUser(access_token);
 
-  if (!userResponse || userResponse.error || !userResponse.data?.user) {
-    res.status(401).json({ error: "Invalid token" });
-    return;
-  }
+    if (!userResponse || userResponse.error || !userResponse.data?.user) {
+      res.status(401).json({ error: "Invalid token" });
+      return;
+    }
 
-  const supabaseUser = userResponse.data.user;
+    const supabaseUser = userResponse.data.user;
 
-  // Backfill username from displayName or email for existing users (migration)
-  const deriveUsername = (): string => {
-    const raw =
-      supabaseUser.user_metadata?.displayName ||
-      supabaseUser.email?.split("@")[0] ||
-      "user";
-    return (
-      raw
-        .replace(/[^a-zA-Z0-9]/g, "_")
-        .toLowerCase()
-        .replace(/^[0-9_]+/, "")
-        .substring(0, 20) || "user"
-    );
-  };
+    // Backfill username from displayName or email for existing users (migration)
+    const deriveUsername = (): string => {
+      const raw =
+        supabaseUser.user_metadata?.displayName ||
+        supabaseUser.email?.split("@")[0] ||
+        "user";
+      return (
+        raw
+          .replace(/[^a-zA-Z0-9]/g, "_")
+          .toLowerCase()
+          .replace(/^[0-9_]+/, "")
+          .substring(0, 20) || "user"
+      );
+    };
 
-  const [localUser] = await db
-    .insert(usersTable)
-    .values({ id: supabaseUser.id, email: supabaseUser.email ?? "", username: deriveUsername() })
-    .onConflictDoUpdate({
-      target: usersTable.id,
-      set: {
-        email: supabaseUser.email ?? "",
-        username: db.sql`COALESCE(${usersTable.username}, ${deriveUsername()})`,
-      },
-    })
-    .returning();
+    const [localUser] = await db
+      .insert(usersTable)
+      .values({ id: supabaseUser.id, email: supabaseUser.email ?? "", username: deriveUsername() })
+      .onConflictDoUpdate({
+        target: usersTable.id,
+        set: {
+          email: supabaseUser.email ?? "",
+          username: sql`COALESCE(${usersTable.username}, ${deriveUsername()})`,
+        },
+      })
+      .returning();
 
-  // Safety: if username is null, find unique suffix
-  if (!localUser.username) {
-    let candidate = deriveUsername();
-    for (let i = 0; i < 10; i++) {
-      const suffix = i === 0 ? "" : String(i + 1);
-      const [existing] = await db
-        .select({ id: usersTable.id })
-        .from(usersTable)
-        .where(eq(usersTable.username, candidate + suffix));
-      if (!existing) {
-        await db
-          .update(usersTable)
-          .set({ username: candidate + suffix })
-          .where(eq(usersTable.id, supabaseUser.id));
-        break;
+    // Safety: if username is null, find unique suffix
+    if (!localUser.username) {
+      let candidate = deriveUsername();
+      for (let i = 0; i < 10; i++) {
+        const suffix = i === 0 ? "" : String(i + 1);
+        const [existing] = await db
+          .select({ id: usersTable.id })
+          .from(usersTable)
+          .where(eq(usersTable.username, candidate + suffix));
+        if (!existing) {
+          await db
+            .update(usersTable)
+            .set({ username: candidate + suffix })
+            .where(eq(usersTable.id, supabaseUser.id));
+          break;
+        }
       }
     }
-  }
 
-  res.cookie("sb_access_token", access_token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 3600000,
-    path: "/",
-  });
-
-  if (refresh_token) {
-    res.cookie("sb_refresh_token", refresh_token, {
+    res.cookie("sb_access_token", access_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 604800000,
+      maxAge: 3600000,
       path: "/",
     });
-  }
 
-  res.json(toUserJson(localUser));
+    if (refresh_token) {
+      res.cookie("sb_refresh_token", refresh_token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 604800000,
+        path: "/",
+      });
+    }
+
+    res.json(toUserJson(localUser));
+  } catch (err) {
+    console.error("[auth/login] unhandled error", err);
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Login gagal. Silakan coba lagi." });
+    }
+  }
 });
 
 // POST /auth/register
