@@ -416,7 +416,7 @@ Once all external services are configured, AI team operates the entire stack aut
 
 ---
 
-## [2026-08-29] DECISION 006: User Dashboard — Menu Structure
+## [2026-08-29] DECISION 016: User Dashboard — Menu Structure
 
 **Status:** ACTIVE — approved by owner 2026-08-29
 **Author:** AI Engineering + Owner discussion
