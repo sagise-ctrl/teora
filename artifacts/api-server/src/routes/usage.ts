@@ -25,7 +25,13 @@ type UsageBreakdown = {
   inputTokens: number;
   outputTokens: number;
   costUsd: number;
+  /** Yang benar-benar dipotong dari saldo user, dalam IDR cents. */
+  costCents: number;
 };
+
+function emptyBreakdown(): UsageBreakdown {
+  return { requests: 0, inputTokens: 0, outputTokens: 0, costUsd: 0, costCents: 0 };
+}
 
 function aggregateRecords(records: Array<{
   requestType: string;
@@ -33,11 +39,13 @@ function aggregateRecords(records: Array<{
   inputTokens: number;
   outputTokens: number;
   estimatedCostUsd: number;
+  costCents: number;
 }>, groupByProject = false) {
   let totalRequests = 0;
   let totalInputTokens = 0;
   let totalOutputTokens = 0;
   let totalCostUsd = 0;
+  let totalCostCents = 0;
   const byRequestType: Record<string, UsageBreakdown> = {};
   const byProject: Record<number, UsageBreakdown> = {};
 
@@ -46,24 +54,28 @@ function aggregateRecords(records: Array<{
     totalInputTokens += r.inputTokens;
     totalOutputTokens += r.outputTokens;
     const cost = Number(r.estimatedCostUsd);
+    const cents = Number(r.costCents) || 0;
     totalCostUsd += cost;
+    totalCostCents += cents;
 
     if (!byRequestType[r.requestType]) {
-      byRequestType[r.requestType] = { requests: 0, inputTokens: 0, outputTokens: 0, costUsd: 0 };
+      byRequestType[r.requestType] = emptyBreakdown();
     }
     byRequestType[r.requestType].requests += 1;
     byRequestType[r.requestType].inputTokens += r.inputTokens;
     byRequestType[r.requestType].outputTokens += r.outputTokens;
     byRequestType[r.requestType].costUsd += cost;
+    byRequestType[r.requestType].costCents += cents;
 
     if (groupByProject && r.projectId !== null) {
       if (!byProject[r.projectId]) {
-        byProject[r.projectId] = { requests: 0, inputTokens: 0, outputTokens: 0, costUsd: 0 };
+        byProject[r.projectId] = emptyBreakdown();
       }
       byProject[r.projectId].requests += 1;
       byProject[r.projectId].inputTokens += r.inputTokens;
       byProject[r.projectId].outputTokens += r.outputTokens;
       byProject[r.projectId].costUsd += cost;
+      byProject[r.projectId].costCents += cents;
     }
   }
 
@@ -72,6 +84,7 @@ function aggregateRecords(records: Array<{
     totalInputTokens,
     totalOutputTokens,
     totalCostUsd: Math.round(totalCostUsd * 1_000_000) / 1_000_000,
+    totalCostCents,
     byRequestType,
     byProject,
   };
@@ -102,6 +115,7 @@ router.get("/users/me/usage", async (req, res): Promise<void> => {
       inputTokens: aiUsageLogTable.inputTokens,
       outputTokens: aiUsageLogTable.outputTokens,
       estimatedCostUsd: aiUsageLogTable.estimatedCostUsd,
+      costCents: aiUsageLogTable.costCents,
     })
     .from(aiUsageLogTable)
     .where(and(...conditions));
@@ -133,6 +147,7 @@ router.get("/users/me/usage/projects/:projectId", async (req, res): Promise<void
       inputTokens: aiUsageLogTable.inputTokens,
       outputTokens: aiUsageLogTable.outputTokens,
       estimatedCostUsd: aiUsageLogTable.estimatedCostUsd,
+      costCents: aiUsageLogTable.costCents,
     })
     .from(aiUsageLogTable)
     .where(
@@ -147,21 +162,25 @@ router.get("/users/me/usage/projects/:projectId", async (req, res): Promise<void
   let totalInputTokens = 0;
   let totalOutputTokens = 0;
   let totalCostUsd = 0;
+  let totalCostCents = 0;
 
   for (const r of records) {
     totalRequests += 1;
     totalInputTokens += r.inputTokens;
     totalOutputTokens += r.outputTokens;
     const cost = Number(r.estimatedCostUsd);
+    const cents = Number(r.costCents) || 0;
     totalCostUsd += cost;
+    totalCostCents += cents;
 
     if (!byRequestType[r.requestType]) {
-      byRequestType[r.requestType] = { requests: 0, inputTokens: 0, outputTokens: 0, costUsd: 0 };
+      byRequestType[r.requestType] = emptyBreakdown();
     }
     byRequestType[r.requestType].requests += 1;
     byRequestType[r.requestType].inputTokens += r.inputTokens;
     byRequestType[r.requestType].outputTokens += r.outputTokens;
     byRequestType[r.requestType].costUsd += cost;
+    byRequestType[r.requestType].costCents += cents;
   }
 
   res.json({
@@ -170,6 +189,7 @@ router.get("/users/me/usage/projects/:projectId", async (req, res): Promise<void
     totalInputTokens,
     totalOutputTokens,
     totalCostUsd: Math.round(totalCostUsd * 1_000_000) / 1_000_000,
+    totalCostCents,
     byRequestType,
   });
 });

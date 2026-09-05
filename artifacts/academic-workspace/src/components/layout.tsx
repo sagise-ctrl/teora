@@ -13,6 +13,7 @@ import {
   ChevronDown,
   ChevronRight,
   Bell,
+  AlertCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
@@ -21,6 +22,8 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TeoraLogo } from "@/components/brand/teora-logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { SALDO_WARNING_CENTS, SALDO_BANNER_CENTS } from "@/lib/balance-thresholds";
+import { LowBalanceBanner } from "@/components/low-balance-banner";
 
 interface NavItemProps {
   href: string;
@@ -151,6 +154,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   const { data: balanceData, isLoading: balanceLoading } = useGetMyBalance();
 
+  const balanceCents = balanceData?.balanceCents ?? 0;
+  const isLowBalance = balanceCents < SALDO_WARNING_CENTS;
+
   const initials = user?.displayName
     ? user.displayName
         .split(" ")
@@ -161,7 +167,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     : user?.email?.[0]?.toUpperCase() ?? "U";
 
   const isProjectActive = location.startsWith("/projects");
-  const isAkunActive = location === "/akun" || location === "/topup" || location === "/ai-pricing" || location === "/profile";
+  const isAkunActive = location === "/akun" || location === "/topup" || location === "/ai-pricing" || location === "/profile" || location === "/usage";
 
   return (
     <div className="flex min-h-[100dvh] w-full bg-background text-foreground">
@@ -224,6 +230,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             {/* Akun (collapsible) */}
             <NavGroup icon={CreditCard} label="Akun" active={isAkunActive}>
               <NavSubItem href="/akun" label="Profil & Pengaturan" />
+              <NavSubItem href="/usage" label="Penggunaan" />
               <NavSubItem href="/topup" label="Topup Saldo" />
               <NavSubItem href="/ai-pricing" label="Teora Pricing" />
             </NavGroup>
@@ -234,11 +241,27 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="p-3 border-t border-border space-y-3">
           {/* Balance Display */}
           <Link href="/topup">
-            <div className="bg-sidebar-accent/50 rounded-lg p-3 space-y-2 hover:bg-sidebar-accent transition-colors cursor-pointer">
+            <div
+              className={cn(
+                "relative rounded-lg p-3 space-y-2 transition-colors cursor-pointer border",
+                isLowBalance
+                  ? "bg-orange-500/10 border-orange-500/40 hover:bg-orange-500/15"
+                  : "bg-sidebar-accent/50 border-transparent hover:bg-sidebar-accent"
+              )}
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Coins className="w-4 h-4 text-[#2D79FF]" />
-                  <span className="text-xs font-medium text-sidebar-foreground">Saldo</span>
+                  {isLowBalance ? (
+                    <AlertCircle className="w-4 h-4 text-orange-500" />
+                  ) : (
+                    <Coins className="w-4 h-4 text-[#2D79FF]" />
+                  )}
+                  <span className="text-xs font-medium text-sidebar-foreground">
+                    {isLowBalance ? "Saldo rendah" : "Saldo"}
+                  </span>
+                  {isLowBalance && (
+                    <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-orange-500" />
+                  )}
                 </div>
                 {balanceLoading ? (
                   <Skeleton className="h-3 w-16" />
@@ -248,7 +271,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   </span>
                 )}
               </div>
-              <p className="text-[10px] text-sidebar-foreground/60">Klik untuk topup saldo</p>
+              <p className="text-[10px] text-sidebar-foreground/60">
+                {isLowBalance ? "Topup sekarang untuk lanjut pakai Teora" : "Klik untuk topup saldo"}
+              </p>
             </div>
           </Link>
 
@@ -290,7 +315,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </button>
         </div>
         <div className="flex-1 overflow-auto p-4 md:p-8">
-          <div className="mx-auto max-w-6xl">{children}</div>
+          <div className="mx-auto max-w-6xl">
+            <LowBalanceBanner balanceCents={balanceCents} />
+            </div>
         </div>
       </main>
     </div>

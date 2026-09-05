@@ -1027,6 +1027,7 @@ export type FinOpsUserUsageStatsByRequestType = {[key: string]: {
   inputTokens?: number;
   outputTokens?: number;
   costUsd?: number;
+  costCents?: number;
 }};
 
 export type FinOpsUserUsageStatsByProject = {[key: string]: {
@@ -1034,6 +1035,7 @@ export type FinOpsUserUsageStatsByProject = {[key: string]: {
   inputTokens?: number;
   outputTokens?: number;
   costUsd?: number;
+  costCents?: number;
 }};
 
 export type FinOpsUserUsageStatsPeriod = typeof FinOpsUserUsageStatsPeriod[keyof typeof FinOpsUserUsageStatsPeriod];
@@ -1050,6 +1052,8 @@ export interface FinOpsUserUsageStats {
   totalInputTokens: number;
   totalOutputTokens: number;
   totalCostUsd: number;
+  /** Total saldo terpakai dalam IDR cents. Ini angka yang dilihat user. */
+  totalCostCents?: number;
   byRequestType: FinOpsUserUsageStatsByRequestType;
   byProject: FinOpsUserUsageStatsByProject;
   period: FinOpsUserUsageStatsPeriod;
@@ -1060,6 +1064,7 @@ export type FinOpsProjectUsageStatsByRequestType = {[key: string]: {
   inputTokens?: number;
   outputTokens?: number;
   costUsd?: number;
+  costCents?: number;
 }};
 
 export interface FinOpsProjectUsageStats {
@@ -1068,6 +1073,8 @@ export interface FinOpsProjectUsageStats {
   totalInputTokens: number;
   totalOutputTokens: number;
   totalCostUsd: number;
+  /** Total saldo terpakai dalam IDR cents (project scope). */
+  totalCostCents?: number;
   byRequestType: FinOpsProjectUsageStatsByRequestType;
 }
 

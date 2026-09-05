@@ -7,7 +7,7 @@ import {
   Cpu,
   FileText,
   ActivitySquare,
-  TrendingDown,
+  Wallet,
   ArrowLeft,
   BarChart3,
 } from "lucide-react";
@@ -24,9 +24,9 @@ import { Button } from "@/components/ui/button";
 import type { FinOpsUserUsageStatsByRequestType } from "@/lib/api-client-react";
 
 const PERIODS: { label: string; value: FinOpsUserUsageStatsPeriod }[] = [
-  { label: "7 Days", value: "7d" },
-  { label: "30 Days", value: "30d" },
-  { label: "All Time", value: "all" },
+  { label: "7 Hari", value: "7d" },
+  { label: "30 Hari", value: "30d" },
+  { label: "Semua", value: "all" },
 ];
 
 const REQUEST_TYPE_LABELS: Record<string, string> = {
@@ -49,18 +49,12 @@ function formatNumber(n: number | undefined | null): string {
   if (n == null || typeof n !== "number") return "0";
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
   if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return n.toLocaleString();
+  return n.toLocaleString("id-ID");
 }
 
-function formatCost(cost: number | undefined | null): string {
-  if (cost == null || typeof cost !== "number") return "$0.00";
-  if (cost < 0.01) return `$${(cost * 1000).toFixed(2)}m`;
-  if (cost >= 1) return `$${cost.toFixed(2)}`;
-  return `$${cost.toFixed(6)}`;
-}
-
-function formatIDR(cents: number): string {
-  return (cents / 100).toLocaleString("id-ID", {
+function formatIDR(cents: number | undefined | null): string {
+  const value = typeof cents === "number" ? cents : 0;
+  return (value / 100).toLocaleString("id-ID", {
     style: "currency",
     currency: "IDR",
     maximumFractionDigits: 0,
@@ -165,7 +159,7 @@ function TokenBalanceSection() {
             </div>
             <div>
               <p className="text-xs text-muted-foreground font-medium">
-                Token Balance
+                Sisa Saldo
               </p>
               <p className="text-xl font-bold font-mono">
                 {balance?.balanceDisplay ?? formatIDR(balanceCents)}
@@ -174,7 +168,8 @@ function TokenBalanceSection() {
           </div>
           <Link href="/topup">
             <Button variant="outline" size="sm" className="text-xs shrink-0">
-              Top up
+              <Wallet className="w-3.5 h-3.5 mr-1.5" />
+              Topup
             </Button>
           </Link>
         </div>
@@ -191,7 +186,7 @@ function RequestTypeBreakdown({
   if (!byRequestType || Object.keys(byRequestType).length === 0) {
     return (
       <div className="h-40 flex items-center justify-center text-muted-foreground text-sm">
-        No usage data for this period
+        Belum ada data penggunaan untuk periode ini.
       </div>
     );
   }
@@ -200,22 +195,22 @@ function RequestTypeBreakdown({
     ([, v]) => (v.requests ?? 0) > 0
   );
   const maxCost = Math.max(
-    ...entries.map(([, v]) => v.costUsd ?? 0),
-    0.000001
+    ...entries.map(([, v]) => v.costCents ?? 0),
+    1
   );
 
   return (
     <div className="space-y-4">
       {entries
-        .sort(([, a], [, b]) => (b.costUsd ?? 0) - (a.costUsd ?? 0))
+        .sort(([, a], [, b]) => (b.costCents ?? 0) - (a.costCents ?? 0))
         .map(([type, v]) => (
           <CssBar
             key={type}
             label={REQUEST_TYPE_LABELS[type] ?? type}
-            value={v.costUsd ?? 0}
+            value={v.costCents ?? 0}
             max={maxCost}
             color={REQUEST_TYPE_COLORS[type] ?? "#94A3B8"}
-            subLabel={`${formatNumber(v.requests ?? 0)} req · ${formatCost(v.costUsd ?? 0)}`}
+            subLabel={`${formatNumber(v.requests ?? 0)} permintaan · ${formatIDR(v.costCents ?? 0)}`}
           />
         ))}
     </div>
@@ -225,12 +220,12 @@ function RequestTypeBreakdown({
 function ProjectBreakdown({
   byProject,
 }: {
-  byProject: Record<string, { requests?: number; costUsd?: number }> | undefined;
+  byProject: FinOpsUserUsageStatsByRequestType | undefined;
 }) {
   if (!byProject || Object.keys(byProject).length === 0) {
     return (
       <div className="h-40 flex items-center justify-center text-muted-foreground text-sm">
-        No project data for this period
+        Belum ada data project untuk periode ini.
       </div>
     );
   }
@@ -239,14 +234,14 @@ function ProjectBreakdown({
     ([, v]) => (v.requests ?? 0) > 0
   );
   const maxCost = Math.max(
-    ...entries.map(([, v]) => v.costUsd ?? 0),
-    0.000001
+    ...entries.map(([, v]) => v.costCents ?? 0),
+    1
   );
 
   return (
     <div className="space-y-3">
       {entries
-        .sort(([, a], [, b]) => (b.costUsd ?? 0) - (a.costUsd ?? 0))
+        .sort(([, a], [, b]) => (b.costCents ?? 0) - (a.costCents ?? 0))
         .slice(0, 8)
         .map(([projectId, v]) => (
           <Link key={projectId} href={`/projects/${projectId}`}>
@@ -256,69 +251,20 @@ function ProjectBreakdown({
                   Project #{projectId}
                 </span>
                 <span className="text-muted-foreground font-mono text-xs">
-                  {formatNumber(v.requests ?? 0)} req · {formatCost(v.costUsd ?? 0)}
+                  {formatNumber(v.requests ?? 0)} permintaan · {formatIDR(v.costCents ?? 0)}
                 </span>
               </div>
               <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                 <div
                   className="h-full rounded-full bg-[#2D79FF] transition-all duration-500 ease-out"
                   style={{
-                    width: `${Math.min(100, ((v.costUsd ?? 0) / maxCost) * 100)}%`,
+                    width: `${Math.min(100, ((v.costCents ?? 0) / maxCost) * 100)}%`,
                   }}
                 />
               </div>
             </div>
           </Link>
         ))}
-    </div>
-  );
-}
-
-function DailyBarChart({
-  dailyTotals,
-}: {
-  dailyTotals?: Array<{ date: string; totalCostUsd: number; totalRequests: number }>;
-}) {
-  if (!dailyTotals || dailyTotals.length === 0) {
-    return (
-      <div className="h-32 flex items-center justify-center text-muted-foreground text-sm">
-        No daily data
-      </div>
-    );
-  }
-
-  const maxCost = Math.max(...dailyTotals.map((d) => d.totalCostUsd), 0.000001);
-  const maxBars = 14;
-  const displayDays = dailyTotals.slice(0, maxBars);
-
-  return (
-    <div className="space-y-2">
-      <div className="flex items-end justify-between gap-1 h-28">
-        {displayDays.map((day, i) => {
-          const pct = Math.min(100, (day.totalCostUsd / maxCost) * 100);
-          const dateLabel = new Date(day.date).toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-          });
-          return (
-            <div
-              key={i}
-              className="flex-1 flex flex-col items-center gap-1"
-              title={`${dateLabel}: ${formatCost(day.totalCostUsd)} (${day.totalRequests} requests)`}
-            >
-              <div className="w-full flex flex-col items-center justify-end h-20">
-                <div
-                  className="w-full max-w-8 rounded-sm bg-gradient-to-t from-[#2D79FF]/80 to-[#8E54E9]/60 transition-all duration-300 hover:from-[#2D79FF] hover:to-[#8E54E9]"
-                  style={{ height: `${Math.max(pct, 4)}%` }}
-                />
-              </div>
-              <span className="text-[9px] text-muted-foreground font-mono leading-none">
-                {dateLabel.split(" ")[1]}
-              </span>
-            </div>
-          );
-        })}
-      </div>
     </div>
   );
 }
@@ -337,7 +283,7 @@ export default function Usage() {
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <Link href="/">
+          <Link href="/dashboard">
             <Button variant="ghost" size="icon" className="shrink-0">
               <ArrowLeft className="w-4 h-4" />
             </Button>
@@ -347,7 +293,7 @@ export default function Usage() {
               Penggunaan Teora
             </h1>
             <p className="text-sm text-muted-foreground">
-              Monitor your token consumption and costs
+              Pantau konsumsi token dan biaya penggunaan AI Anda.
             </p>
           </div>
         </div>
@@ -387,30 +333,30 @@ export default function Usage() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             icon={ActivitySquare}
-            label="Total Requests"
+            label="Total Permintaan"
             value={formatNumber(stats!.totalRequests)}
-            subValue="across all features"
+            subValue="di semua fitur"
             color="#2D79FF"
           />
           <StatCard
             icon={Cpu}
-            label="Input Tokens"
+            label="Token Input"
             value={formatNumber(stats!.totalInputTokens)}
             subValue="dikirim ke model"
             color="#8E54E9"
           />
           <StatCard
             icon={FileText}
-            label="Output Tokens"
+            label="Token Output"
             value={formatNumber(stats!.totalOutputTokens)}
             subValue="diterima dari model"
             color="#10B981"
           />
           <StatCard
-            icon={TrendingDown}
-            label="Total Cost"
-            value={formatCost(stats!.totalCostUsd)}
-            subValue="based on current pricing"
+            icon={Wallet}
+            label="Total Biaya"
+            value={formatIDR(stats!.totalCostCents)}
+            subValue="sesuai tarif aktif"
             color="#F59E0B"
           />
         </div>
@@ -418,48 +364,32 @@ export default function Usage() {
         <Card className="bg-card border-border/50">
           <CardContent className="p-8 text-center">
             <p className="text-muted-foreground text-sm">
-              Belum ada data penggunaan untuk periode ini. Buat project untuk mulai melihat statistik penggunaan Teora Anda.
+              Belum ada data penggunaan untuk periode ini. Mulai buat project untuk melihat statistik penggunaan Teora Anda.
             </p>
             <Link href="/projects/new">
               <Button variant="outline" size="sm" className="mt-4">
-                Create Project
+                Buat Project
               </Button>
             </Link>
           </CardContent>
         </Card>
       )}
 
-      {/* Cost by Feature + Daily Trend */}
+      {/* Cost by Feature */}
       {hasData && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="bg-card border-border/50">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base font-medium">
-                Cost by Feature
-              </CardTitle>
-              <CardDescription className="text-xs">
-                Relative cost distribution
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <RequestTypeBreakdown byRequestType={stats?.byRequestType} />
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border-border/50">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base font-medium">
-                Daily Usage
-              </CardTitle>
-              <CardDescription className="text-xs">
-                Requests per day
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <DailyBarChart />
-            </CardContent>
-          </Card>
-        </div>
+        <Card className="bg-card border-border/50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-medium">
+              Biaya per Fitur
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Distribusi saldo terpakai berdasarkan jenis permintaan AI.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <RequestTypeBreakdown byRequestType={stats?.byRequestType} />
+          </CardContent>
+        </Card>
       )}
 
       {/* Project Breakdown */}
@@ -467,10 +397,10 @@ export default function Usage() {
         <Card className="bg-card border-border/50">
           <CardHeader className="pb-3">
             <CardTitle className="text-base font-medium">
-              Usage by Project
+              Penggunaan per Project
             </CardTitle>
             <CardDescription className="text-xs">
-              Token consumption per project
+              Konsumsi token dan biaya untuk masing-masing project.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -484,7 +414,7 @@ export default function Usage() {
         <Card className="bg-card border-border/50">
           <CardHeader className="pb-3">
             <CardTitle className="text-base font-medium">
-              Detailed Breakdown
+              Rincian Lengkap
             </CardTitle>
           </CardHeader>
           <CardContent className="overflow-x-auto">
@@ -492,26 +422,26 @@ export default function Usage() {
               <thead>
                 <tr className="border-b border-border/50">
                   <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground">
-                    Feature
+                    Fitur
                   </th>
                   <th className="text-right py-2 px-3 text-xs font-medium text-muted-foreground">
-                    Requests
+                    Permintaan
                   </th>
                   <th className="text-right py-2 px-3 text-xs font-medium text-muted-foreground">
-                    Input Tokens
+                    Token Input
                   </th>
                   <th className="text-right py-2 px-3 text-xs font-medium text-muted-foreground">
-                    Output Tokens
+                    Token Output
                   </th>
                   <th className="text-right py-2 px-3 text-xs font-medium text-muted-foreground">
-                    Cost
+                    Biaya
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {Object.entries(stats!.byRequestType)
                   .filter(([, v]) => (v.requests ?? 0) > 0)
-                  .sort(([, a], [, b]) => (b.costUsd ?? 0) - (a.costUsd ?? 0))
+                  .sort(([, a], [, b]) => (b.costCents ?? 0) - (a.costCents ?? 0))
                   .map(([type, v]) => (
                     <tr key={type} className="border-b border-border/30 hover:bg-muted/30 transition-colors">
                       <td className="py-2.5 px-3">
@@ -537,7 +467,7 @@ export default function Usage() {
                         {formatNumber(v.outputTokens ?? 0)}
                       </td>
                       <td className="py-2.5 px-3 text-right font-mono font-medium">
-                        {formatCost(v.costUsd ?? 0)}
+                        {formatIDR(v.costCents ?? 0)}
                       </td>
                     </tr>
                   ))}

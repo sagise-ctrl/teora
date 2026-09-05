@@ -3994,6 +3994,9 @@ components:
           type: number
         totalCostUsd:
           type: number
+        totalCostCents:
+          type: number
+          description: Total saldo terpakai dalam IDR cents. Ini angka yang dilihat user.
         byRequestType:
           type: object
           additionalProperties:
@@ -4007,6 +4010,8 @@ components:
                 type: number
               costUsd:
                 type: number
+              costCents:
+                type: number
         byProject:
           type: object
           additionalProperties:
@@ -4019,6 +4024,8 @@ components:
               outputTokens:
                 type: number
               costUsd:
+                type: number
+              costCents:
                 type: number
         period:
           type: string
@@ -4038,6 +4045,9 @@ components:
           type: number
         totalCostUsd:
           type: number
+        totalCostCents:
+          type: number
+          description: Total saldo terpakai dalam IDR cents (project scope).
         byRequestType:
           type: object
           additionalProperties:
@@ -4050,6 +4060,8 @@ components:
               outputTokens:
                 type: number
               costUsd:
+                type: number
+              costCents:
                 type: number
 
     FinOpsAdminUsageStats:

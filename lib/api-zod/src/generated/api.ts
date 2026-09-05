@@ -1294,17 +1294,20 @@ export const GetMyUsageStatsResponse = zod.object({
   "totalInputTokens": zod.number(),
   "totalOutputTokens": zod.number(),
   "totalCostUsd": zod.number(),
+  "totalCostCents": zod.number().optional().describe('Total saldo terpakai dalam IDR cents. Ini angka yang dilihat user.'),
   "byRequestType": zod.record(zod.string(), zod.object({
   "requests": zod.number().optional(),
   "inputTokens": zod.number().optional(),
   "outputTokens": zod.number().optional(),
-  "costUsd": zod.number().optional()
+  "costUsd": zod.number().optional(),
+  "costCents": zod.number().optional()
 })),
   "byProject": zod.record(zod.string(), zod.object({
   "requests": zod.number().optional(),
   "inputTokens": zod.number().optional(),
   "outputTokens": zod.number().optional(),
-  "costUsd": zod.number().optional()
+  "costUsd": zod.number().optional(),
+  "costCents": zod.number().optional()
 })),
   "period": zod.enum(['7d', '30d', 'all'])
 })
@@ -1323,11 +1326,13 @@ export const GetMyProjectUsageStatsResponse = zod.object({
   "totalInputTokens": zod.number(),
   "totalOutputTokens": zod.number(),
   "totalCostUsd": zod.number(),
+  "totalCostCents": zod.number().optional().describe('Total saldo terpakai dalam IDR cents (project scope).'),
   "byRequestType": zod.record(zod.string(), zod.object({
   "requests": zod.number().optional(),
   "inputTokens": zod.number().optional(),
   "outputTokens": zod.number().optional(),
-  "costUsd": zod.number().optional()
+  "costUsd": zod.number().optional(),
+  "costCents": zod.number().optional()
 }))
 })
 

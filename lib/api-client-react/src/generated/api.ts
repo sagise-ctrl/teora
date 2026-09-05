@@ -255,7 +255,7 @@ export const getLoginUrl = () => {
  */
 export const login = async (loginRequest: LoginRequest, options?: Parameters<typeof customFetch>[1]): Promise<AuthUser> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -274,11 +274,13 @@ return customFetch<AuthUser>(getLoginUrl(),
 
 
 
-export const getLoginMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof login>>, TError,{data: BodyType<LoginRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof login>>, TError,{data: BodyType<LoginRequest>}, TContext> => {
+export const getLoginMutationKey = () => ['login'] as const;
 
-const mutationKey = ['login'];
+export const getLoginMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof login>>, TError,LoginMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof login>>, TError,LoginMutationVariables, TContext> => {
+
+const mutationKey = getLoginMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -288,7 +290,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof login>>, {data: BodyType<LoginRequest>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof login>>, LoginMutationVariables> = (props) => {
           const {data} = props ?? {};
 
           return  login(data,requestOptions)
@@ -304,16 +306,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type LoginMutationResult = NonNullable<Awaited<ReturnType<typeof login>>>
     export type LoginMutationBody = BodyType<LoginRequest>
     export type LoginMutationError = ErrorType<void>
+    export type LoginMutationVariables = {data: BodyType<LoginRequest>}
 
     /**
  * @summary Exchange Supabase token for server session
  */
 export const useLogin = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof login>>, TError,{data: BodyType<LoginRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof login>>, TError,LoginMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof login>>,
         TError,
-        {data: BodyType<LoginRequest>},
+        LoginMutationVariables,
         TContext
       > => {
       return useMutation(getLoginMutationOptions(options));
@@ -332,7 +335,7 @@ export const getRegisterUrl = () => {
  */
 export const register = async (registerRequest: RegisterRequest, options?: Parameters<typeof customFetch>[1]): Promise<AuthUser> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -351,11 +354,13 @@ return customFetch<AuthUser>(getRegisterUrl(),
 
 
 
-export const getRegisterMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof register>>, TError,{data: BodyType<RegisterRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof register>>, TError,{data: BodyType<RegisterRequest>}, TContext> => {
+export const getRegisterMutationKey = () => ['register'] as const;
 
-const mutationKey = ['register'];
+export const getRegisterMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof register>>, TError,RegisterMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof register>>, TError,RegisterMutationVariables, TContext> => {
+
+const mutationKey = getRegisterMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -365,7 +370,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof register>>, {data: BodyType<RegisterRequest>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof register>>, RegisterMutationVariables> = (props) => {
           const {data} = props ?? {};
 
           return  register(data,requestOptions)
@@ -381,16 +386,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type RegisterMutationResult = NonNullable<Awaited<ReturnType<typeof register>>>
     export type RegisterMutationBody = BodyType<RegisterRequest>
     export type RegisterMutationError = ErrorType<void>
+    export type RegisterMutationVariables = {data: BodyType<RegisterRequest>}
 
     /**
  * @summary Create a new account
  */
 export const useRegister = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof register>>, TError,{data: BodyType<RegisterRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof register>>, TError,RegisterMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof register>>,
         TError,
-        {data: BodyType<RegisterRequest>},
+        RegisterMutationVariables,
         TContext
       > => {
       return useMutation(getRegisterMutationOptions(options));
@@ -422,11 +428,13 @@ export const logout = async ( options?: Parameters<typeof customFetch>[1]): Prom
 
 
 
+export const getLogoutMutationKey = () => ['logout'] as const;
+
 export const getLogoutMutationOptions = <TError = ErrorType<unknown>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof logout>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof logout>>, TError,void, TContext> => {
 
-const mutationKey = ['logout'];
+const mutationKey = getLogoutMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -452,6 +460,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type LogoutMutationResult = NonNullable<Awaited<ReturnType<typeof logout>>>
 
     export type LogoutMutationError = ErrorType<unknown>
+
 
     /**
  * @summary Sign out and clear session
@@ -577,11 +586,13 @@ export const refreshToken = async ( options?: Parameters<typeof customFetch>[1])
 
 
 
+export const getRefreshTokenMutationKey = () => ['refreshToken'] as const;
+
 export const getRefreshTokenMutationOptions = <TError = ErrorType<void>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof refreshToken>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof refreshToken>>, TError,void, TContext> => {
 
-const mutationKey = ['refreshToken'];
+const mutationKey = getRefreshTokenMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -607,6 +618,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type RefreshTokenMutationResult = NonNullable<Awaited<ReturnType<typeof refreshToken>>>
 
     export type RefreshTokenMutationError = ErrorType<void>
+
 
     /**
  * @summary Refresh access token
@@ -874,7 +886,7 @@ export const getCreateProjectUrl = () => {
  */
 export const createProject = async (projectInput: ProjectInput, options?: Parameters<typeof customFetch>[1]): Promise<Project> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -893,11 +905,13 @@ return customFetch<Project>(getCreateProjectUrl(),
 
 
 
-export const getCreateProjectMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createProject>>, TError,{data: BodyType<ProjectInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof createProject>>, TError,{data: BodyType<ProjectInput>}, TContext> => {
+export const getCreateProjectMutationKey = () => ['createProject'] as const;
 
-const mutationKey = ['createProject'];
+export const getCreateProjectMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createProject>>, TError,CreateProjectMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createProject>>, TError,CreateProjectMutationVariables, TContext> => {
+
+const mutationKey = getCreateProjectMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -907,7 +921,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createProject>>, {data: BodyType<ProjectInput>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createProject>>, CreateProjectMutationVariables> = (props) => {
           const {data} = props ?? {};
 
           return  createProject(data,requestOptions)
@@ -923,16 +937,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type CreateProjectMutationResult = NonNullable<Awaited<ReturnType<typeof createProject>>>
     export type CreateProjectMutationBody = BodyType<ProjectInput>
     export type CreateProjectMutationError = ErrorType<unknown>
+    export type CreateProjectMutationVariables = {data: BodyType<ProjectInput>}
 
     /**
  * @summary Create a new project
  */
 export const useCreateProject = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createProject>>, TError,{data: BodyType<ProjectInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createProject>>, TError,CreateProjectMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof createProject>>,
         TError,
-        {data: BodyType<ProjectInput>},
+        CreateProjectMutationVariables,
         TContext
       > => {
       return useMutation(getCreateProjectMutationOptions(options));
@@ -1106,7 +1121,7 @@ export const getUpdateProjectUrl = (projectId: number,) => {
 export const updateProject = async (projectId: number,
     projectUpdate: ProjectUpdate, options?: Parameters<typeof customFetch>[1]): Promise<Project> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -1125,11 +1140,13 @@ return customFetch<Project>(getUpdateProjectUrl(projectId),
 
 
 
-export const getUpdateProjectMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateProject>>, TError,{projectId: number;data: BodyType<ProjectUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof updateProject>>, TError,{projectId: number;data: BodyType<ProjectUpdate>}, TContext> => {
+export const getUpdateProjectMutationKey = () => ['updateProject'] as const;
 
-const mutationKey = ['updateProject'];
+export const getUpdateProjectMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateProject>>, TError,UpdateProjectMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateProject>>, TError,UpdateProjectMutationVariables, TContext> => {
+
+const mutationKey = getUpdateProjectMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -1139,7 +1156,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateProject>>, {projectId: number;data: BodyType<ProjectUpdate>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateProject>>, UpdateProjectMutationVariables> = (props) => {
           const {projectId,data} = props ?? {};
 
           return  updateProject(projectId,data,requestOptions)
@@ -1155,16 +1172,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type UpdateProjectMutationResult = NonNullable<Awaited<ReturnType<typeof updateProject>>>
     export type UpdateProjectMutationBody = BodyType<ProjectUpdate>
     export type UpdateProjectMutationError = ErrorType<unknown>
+    export type UpdateProjectMutationVariables = {projectId: number;data: BodyType<ProjectUpdate>}
 
     /**
  * @summary Update a project
  */
 export const useUpdateProject = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateProject>>, TError,{projectId: number;data: BodyType<ProjectUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateProject>>, TError,UpdateProjectMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof updateProject>>,
         TError,
-        {projectId: number;data: BodyType<ProjectUpdate>},
+        UpdateProjectMutationVariables,
         TContext
       > => {
       return useMutation(getUpdateProjectMutationOptions(options));
@@ -1196,11 +1214,13 @@ export const deleteProject = async (projectId: number, options?: Parameters<type
 
 
 
-export const getDeleteProjectMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteProject>>, TError,{projectId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof deleteProject>>, TError,{projectId: number}, TContext> => {
+export const getDeleteProjectMutationKey = () => ['deleteProject'] as const;
 
-const mutationKey = ['deleteProject'];
+export const getDeleteProjectMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteProject>>, TError,DeleteProjectMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteProject>>, TError,DeleteProjectMutationVariables, TContext> => {
+
+const mutationKey = getDeleteProjectMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -1210,7 +1230,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteProject>>, {projectId: number}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteProject>>, DeleteProjectMutationVariables> = (props) => {
           const {projectId} = props ?? {};
 
           return  deleteProject(projectId,requestOptions)
@@ -1226,16 +1246,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type DeleteProjectMutationResult = NonNullable<Awaited<ReturnType<typeof deleteProject>>>
 
     export type DeleteProjectMutationError = ErrorType<unknown>
+    export type DeleteProjectMutationVariables = {projectId: number}
 
     /**
  * @summary Delete a project
  */
 export const useDeleteProject = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteProject>>, TError,{projectId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteProject>>, TError,DeleteProjectMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof deleteProject>>,
         TError,
-        {projectId: number},
+        DeleteProjectMutationVariables,
         TContext
       > => {
       return useMutation(getDeleteProjectMutationOptions(options));
@@ -1255,7 +1276,7 @@ export const getAnalyzeProjectUrl = (projectId: number,) => {
 export const analyzeProject = async (projectId: number,
     analyzeProjectBody?: AnalyzeProjectBody, options?: Parameters<typeof customFetch>[1]): Promise<Job> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -1274,11 +1295,13 @@ return customFetch<Job>(getAnalyzeProjectUrl(projectId),
 
 
 
-export const getAnalyzeProjectMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeProject>>, TError,{projectId: number;data?: BodyType<AnalyzeProjectBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof analyzeProject>>, TError,{projectId: number;data?: BodyType<AnalyzeProjectBody>}, TContext> => {
+export const getAnalyzeProjectMutationKey = () => ['analyzeProject'] as const;
 
-const mutationKey = ['analyzeProject'];
+export const getAnalyzeProjectMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeProject>>, TError,AnalyzeProjectMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof analyzeProject>>, TError,AnalyzeProjectMutationVariables, TContext> => {
+
+const mutationKey = getAnalyzeProjectMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -1288,7 +1311,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof analyzeProject>>, {projectId: number;data?: BodyType<AnalyzeProjectBody>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof analyzeProject>>, AnalyzeProjectMutationVariables> = (props) => {
           const {projectId,data} = props ?? {};
 
           return  analyzeProject(projectId,data,requestOptions)
@@ -1304,16 +1327,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type AnalyzeProjectMutationResult = NonNullable<Awaited<ReturnType<typeof analyzeProject>>>
     export type AnalyzeProjectMutationBody = BodyType<AnalyzeProjectBody> | undefined
     export type AnalyzeProjectMutationError = ErrorType<unknown>
+    export type AnalyzeProjectMutationVariables = {projectId: number;data?: BodyType<AnalyzeProjectBody>}
 
     /**
  * @summary Trigger full AI analysis pipeline for a project
  */
 export const useAnalyzeProject = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeProject>>, TError,{projectId: number;data?: BodyType<AnalyzeProjectBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeProject>>, TError,AnalyzeProjectMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof analyzeProject>>,
         TError,
-        {projectId: number;data?: BodyType<AnalyzeProjectBody>},
+        AnalyzeProjectMutationVariables,
         TContext
       > => {
       return useMutation(getAnalyzeProjectMutationOptions(options));
@@ -1410,7 +1434,7 @@ export const getSendMessageUrl = (projectId: number,) => {
 export const sendMessage = async (projectId: number,
     messageInput: MessageInput, options?: Parameters<typeof customFetch>[1]): Promise<Message> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -1429,11 +1453,13 @@ return customFetch<Message>(getSendMessageUrl(projectId),
 
 
 
-export const getSendMessageMutationOptions = <TError = ErrorType<InsufficientBalanceError>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sendMessage>>, TError,{projectId: number;data: BodyType<MessageInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof sendMessage>>, TError,{projectId: number;data: BodyType<MessageInput>}, TContext> => {
+export const getSendMessageMutationKey = () => ['sendMessage'] as const;
 
-const mutationKey = ['sendMessage'];
+export const getSendMessageMutationOptions = <TError = ErrorType<InsufficientBalanceError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sendMessage>>, TError,SendMessageMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof sendMessage>>, TError,SendMessageMutationVariables, TContext> => {
+
+const mutationKey = getSendMessageMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -1443,7 +1469,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof sendMessage>>, {projectId: number;data: BodyType<MessageInput>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof sendMessage>>, SendMessageMutationVariables> = (props) => {
           const {projectId,data} = props ?? {};
 
           return  sendMessage(projectId,data,requestOptions)
@@ -1459,16 +1485,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type SendMessageMutationResult = NonNullable<Awaited<ReturnType<typeof sendMessage>>>
     export type SendMessageMutationBody = BodyType<MessageInput>
     export type SendMessageMutationError = ErrorType<InsufficientBalanceError>
+    export type SendMessageMutationVariables = {projectId: number;data: BodyType<MessageInput>}
 
     /**
  * @summary Send a message and get AI response
  */
 export const useSendMessage = <TError = ErrorType<InsufficientBalanceError>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sendMessage>>, TError,{projectId: number;data: BodyType<MessageInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sendMessage>>, TError,SendMessageMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof sendMessage>>,
         TError,
-        {projectId: number;data: BodyType<MessageInput>},
+        SendMessageMutationVariables,
         TContext
       > => {
       return useMutation(getSendMessageMutationOptions(options));
@@ -1565,7 +1592,7 @@ export const getCreateDocumentUrl = (projectId: number,) => {
 export const createDocument = async (projectId: number,
     documentInput: DocumentInput, options?: Parameters<typeof customFetch>[1]): Promise<Document> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -1584,11 +1611,13 @@ return customFetch<Document>(getCreateDocumentUrl(projectId),
 
 
 
-export const getCreateDocumentMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createDocument>>, TError,{projectId: number;data: BodyType<DocumentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof createDocument>>, TError,{projectId: number;data: BodyType<DocumentInput>}, TContext> => {
+export const getCreateDocumentMutationKey = () => ['createDocument'] as const;
 
-const mutationKey = ['createDocument'];
+export const getCreateDocumentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createDocument>>, TError,CreateDocumentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createDocument>>, TError,CreateDocumentMutationVariables, TContext> => {
+
+const mutationKey = getCreateDocumentMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -1598,7 +1627,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createDocument>>, {projectId: number;data: BodyType<DocumentInput>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createDocument>>, CreateDocumentMutationVariables> = (props) => {
           const {projectId,data} = props ?? {};
 
           return  createDocument(projectId,data,requestOptions)
@@ -1614,16 +1643,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type CreateDocumentMutationResult = NonNullable<Awaited<ReturnType<typeof createDocument>>>
     export type CreateDocumentMutationBody = BodyType<DocumentInput>
     export type CreateDocumentMutationError = ErrorType<unknown>
+    export type CreateDocumentMutationVariables = {projectId: number;data: BodyType<DocumentInput>}
 
     /**
  * @summary Create a new document in a project
  */
 export const useCreateDocument = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createDocument>>, TError,{projectId: number;data: BodyType<DocumentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createDocument>>, TError,CreateDocumentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof createDocument>>,
         TError,
-        {projectId: number;data: BodyType<DocumentInput>},
+        CreateDocumentMutationVariables,
         TContext
       > => {
       return useMutation(getCreateDocumentMutationOptions(options));
@@ -1804,7 +1834,7 @@ export const updateDocument = async (projectId: number,
     documentId: number,
     documentUpdate: DocumentUpdate, options?: Parameters<typeof customFetch>[1]): Promise<Document> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -1823,11 +1853,13 @@ return customFetch<Document>(getUpdateDocumentUrl(projectId,documentId),
 
 
 
-export const getUpdateDocumentMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateDocument>>, TError,{projectId: number;documentId: number;data: BodyType<DocumentUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof updateDocument>>, TError,{projectId: number;documentId: number;data: BodyType<DocumentUpdate>}, TContext> => {
+export const getUpdateDocumentMutationKey = () => ['updateDocument'] as const;
 
-const mutationKey = ['updateDocument'];
+export const getUpdateDocumentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateDocument>>, TError,UpdateDocumentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateDocument>>, TError,UpdateDocumentMutationVariables, TContext> => {
+
+const mutationKey = getUpdateDocumentMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -1837,7 +1869,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateDocument>>, {projectId: number;documentId: number;data: BodyType<DocumentUpdate>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateDocument>>, UpdateDocumentMutationVariables> = (props) => {
           const {projectId,documentId,data} = props ?? {};
 
           return  updateDocument(projectId,documentId,data,requestOptions)
@@ -1853,16 +1885,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type UpdateDocumentMutationResult = NonNullable<Awaited<ReturnType<typeof updateDocument>>>
     export type UpdateDocumentMutationBody = BodyType<DocumentUpdate>
     export type UpdateDocumentMutationError = ErrorType<unknown>
+    export type UpdateDocumentMutationVariables = {projectId: number;documentId: number;data: BodyType<DocumentUpdate>}
 
     /**
  * @summary Update a document
  */
 export const useUpdateDocument = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateDocument>>, TError,{projectId: number;documentId: number;data: BodyType<DocumentUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateDocument>>, TError,UpdateDocumentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof updateDocument>>,
         TError,
-        {projectId: number;documentId: number;data: BodyType<DocumentUpdate>},
+        UpdateDocumentMutationVariables,
         TContext
       > => {
       return useMutation(getUpdateDocumentMutationOptions(options));
@@ -1896,11 +1929,13 @@ export const deleteDocument = async (projectId: number,
 
 
 
-export const getDeleteDocumentMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDocument>>, TError,{projectId: number;documentId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof deleteDocument>>, TError,{projectId: number;documentId: number}, TContext> => {
+export const getDeleteDocumentMutationKey = () => ['deleteDocument'] as const;
 
-const mutationKey = ['deleteDocument'];
+export const getDeleteDocumentMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDocument>>, TError,DeleteDocumentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteDocument>>, TError,DeleteDocumentMutationVariables, TContext> => {
+
+const mutationKey = getDeleteDocumentMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -1910,7 +1945,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteDocument>>, {projectId: number;documentId: number}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteDocument>>, DeleteDocumentMutationVariables> = (props) => {
           const {projectId,documentId} = props ?? {};
 
           return  deleteDocument(projectId,documentId,requestOptions)
@@ -1926,16 +1961,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type DeleteDocumentMutationResult = NonNullable<Awaited<ReturnType<typeof deleteDocument>>>
 
     export type DeleteDocumentMutationError = ErrorType<void>
+    export type DeleteDocumentMutationVariables = {projectId: number;documentId: number}
 
     /**
  * @summary Delete a document and all its versions
  */
 export const useDeleteDocument = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDocument>>, TError,{projectId: number;documentId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDocument>>, TError,DeleteDocumentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof deleteDocument>>,
         TError,
-        {projectId: number;documentId: number},
+        DeleteDocumentMutationVariables,
         TContext
       > => {
       return useMutation(getDeleteDocumentMutationOptions(options));
@@ -1955,7 +1991,7 @@ export const getRegenerateOutlineUrl = (projectId: number,) => {
 export const regenerateOutline = async (projectId: number,
     regenerateOutlineBody?: RegenerateOutlineBody, options?: Parameters<typeof customFetch>[1]): Promise<RegenerateOutline200> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -1974,11 +2010,13 @@ return customFetch<RegenerateOutline200>(getRegenerateOutlineUrl(projectId),
 
 
 
-export const getRegenerateOutlineMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof regenerateOutline>>, TError,{projectId: number;data?: BodyType<RegenerateOutlineBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof regenerateOutline>>, TError,{projectId: number;data?: BodyType<RegenerateOutlineBody>}, TContext> => {
+export const getRegenerateOutlineMutationKey = () => ['regenerateOutline'] as const;
 
-const mutationKey = ['regenerateOutline'];
+export const getRegenerateOutlineMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof regenerateOutline>>, TError,RegenerateOutlineMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof regenerateOutline>>, TError,RegenerateOutlineMutationVariables, TContext> => {
+
+const mutationKey = getRegenerateOutlineMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -1988,7 +2026,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof regenerateOutline>>, {projectId: number;data?: BodyType<RegenerateOutlineBody>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof regenerateOutline>>, RegenerateOutlineMutationVariables> = (props) => {
           const {projectId,data} = props ?? {};
 
           return  regenerateOutline(projectId,data,requestOptions)
@@ -2004,16 +2042,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type RegenerateOutlineMutationResult = NonNullable<Awaited<ReturnType<typeof regenerateOutline>>>
     export type RegenerateOutlineMutationBody = BodyType<RegenerateOutlineBody> | undefined
     export type RegenerateOutlineMutationError = ErrorType<unknown>
+    export type RegenerateOutlineMutationVariables = {projectId: number;data?: BodyType<RegenerateOutlineBody>}
 
     /**
  * @summary Regenerate outline for the active document
  */
 export const useRegenerateOutline = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof regenerateOutline>>, TError,{projectId: number;data?: BodyType<RegenerateOutlineBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof regenerateOutline>>, TError,RegenerateOutlineMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof regenerateOutline>>,
         TError,
-        {projectId: number;data?: BodyType<RegenerateOutlineBody>},
+        RegenerateOutlineMutationVariables,
         TContext
       > => {
       return useMutation(getRegenerateOutlineMutationOptions(options));
@@ -2033,7 +2072,7 @@ export const getGenerateDocumentUrl = (projectId: number,) => {
 export const generateDocument = async (projectId: number,
     generateDocumentBody?: GenerateDocumentBody, options?: Parameters<typeof customFetch>[1]): Promise<GenerateDocument202> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -2052,11 +2091,13 @@ return customFetch<GenerateDocument202>(getGenerateDocumentUrl(projectId),
 
 
 
-export const getGenerateDocumentMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateDocument>>, TError,{projectId: number;data?: BodyType<GenerateDocumentBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof generateDocument>>, TError,{projectId: number;data?: BodyType<GenerateDocumentBody>}, TContext> => {
+export const getGenerateDocumentMutationKey = () => ['generateDocument'] as const;
 
-const mutationKey = ['generateDocument'];
+export const getGenerateDocumentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateDocument>>, TError,GenerateDocumentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof generateDocument>>, TError,GenerateDocumentMutationVariables, TContext> => {
+
+const mutationKey = getGenerateDocumentMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -2066,7 +2107,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof generateDocument>>, {projectId: number;data?: BodyType<GenerateDocumentBody>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof generateDocument>>, GenerateDocumentMutationVariables> = (props) => {
           const {projectId,data} = props ?? {};
 
           return  generateDocument(projectId,data,requestOptions)
@@ -2082,16 +2123,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type GenerateDocumentMutationResult = NonNullable<Awaited<ReturnType<typeof generateDocument>>>
     export type GenerateDocumentMutationBody = BodyType<GenerateDocumentBody> | undefined
     export type GenerateDocumentMutationError = ErrorType<unknown>
+    export type GenerateDocumentMutationVariables = {projectId: number;data?: BodyType<GenerateDocumentBody>}
 
     /**
  * @summary Generate content for a document (or active document if documentId not provided)
  */
 export const useGenerateDocument = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateDocument>>, TError,{projectId: number;data?: BodyType<GenerateDocumentBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateDocument>>, TError,GenerateDocumentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof generateDocument>>,
         TError,
-        {projectId: number;data?: BodyType<GenerateDocumentBody>},
+        GenerateDocumentMutationVariables,
         TContext
       > => {
       return useMutation(getGenerateDocumentMutationOptions(options));
@@ -2188,7 +2230,7 @@ export const getCreateReferenceUrl = (projectId: number,) => {
 export const createReference = async (projectId: number,
     referenceInput: ReferenceInput, options?: Parameters<typeof customFetch>[1]): Promise<Reference> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -2207,11 +2249,13 @@ return customFetch<Reference>(getCreateReferenceUrl(projectId),
 
 
 
-export const getCreateReferenceMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createReference>>, TError,{projectId: number;data: BodyType<ReferenceInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof createReference>>, TError,{projectId: number;data: BodyType<ReferenceInput>}, TContext> => {
+export const getCreateReferenceMutationKey = () => ['createReference'] as const;
 
-const mutationKey = ['createReference'];
+export const getCreateReferenceMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createReference>>, TError,CreateReferenceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createReference>>, TError,CreateReferenceMutationVariables, TContext> => {
+
+const mutationKey = getCreateReferenceMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -2221,7 +2265,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createReference>>, {projectId: number;data: BodyType<ReferenceInput>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createReference>>, CreateReferenceMutationVariables> = (props) => {
           const {projectId,data} = props ?? {};
 
           return  createReference(projectId,data,requestOptions)
@@ -2237,16 +2281,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type CreateReferenceMutationResult = NonNullable<Awaited<ReturnType<typeof createReference>>>
     export type CreateReferenceMutationBody = BodyType<ReferenceInput>
     export type CreateReferenceMutationError = ErrorType<unknown>
+    export type CreateReferenceMutationVariables = {projectId: number;data: BodyType<ReferenceInput>}
 
     /**
  * @summary Add a reference manually
  */
 export const useCreateReference = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createReference>>, TError,{projectId: number;data: BodyType<ReferenceInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createReference>>, TError,CreateReferenceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof createReference>>,
         TError,
-        {projectId: number;data: BodyType<ReferenceInput>},
+        CreateReferenceMutationVariables,
         TContext
       > => {
       return useMutation(getCreateReferenceMutationOptions(options));
@@ -2267,7 +2312,7 @@ export const getBulkAddReferencesUrl = (projectId: number,) => {
 export const bulkAddReferences = async (projectId: number,
     bulkAddReferencesRequest: BulkAddReferencesRequest, options?: Parameters<typeof customFetch>[1]): Promise<Reference[]> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -2286,11 +2331,13 @@ return customFetch<Reference[]>(getBulkAddReferencesUrl(projectId),
 
 
 
-export const getBulkAddReferencesMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkAddReferences>>, TError,{projectId: number;data: BodyType<BulkAddReferencesRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof bulkAddReferences>>, TError,{projectId: number;data: BodyType<BulkAddReferencesRequest>}, TContext> => {
+export const getBulkAddReferencesMutationKey = () => ['bulkAddReferences'] as const;
 
-const mutationKey = ['bulkAddReferences'];
+export const getBulkAddReferencesMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkAddReferences>>, TError,BulkAddReferencesMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof bulkAddReferences>>, TError,BulkAddReferencesMutationVariables, TContext> => {
+
+const mutationKey = getBulkAddReferencesMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -2300,7 +2347,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof bulkAddReferences>>, {projectId: number;data: BodyType<BulkAddReferencesRequest>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof bulkAddReferences>>, BulkAddReferencesMutationVariables> = (props) => {
           const {projectId,data} = props ?? {};
 
           return  bulkAddReferences(projectId,data,requestOptions)
@@ -2316,16 +2363,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type BulkAddReferencesMutationResult = NonNullable<Awaited<ReturnType<typeof bulkAddReferences>>>
     export type BulkAddReferencesMutationBody = BodyType<BulkAddReferencesRequest>
     export type BulkAddReferencesMutationError = ErrorType<unknown>
+    export type BulkAddReferencesMutationVariables = {projectId: number;data: BodyType<BulkAddReferencesRequest>}
 
     /**
  * @summary Add multiple references at once
  */
 export const useBulkAddReferences = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkAddReferences>>, TError,{projectId: number;data: BodyType<BulkAddReferencesRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkAddReferences>>, TError,BulkAddReferencesMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof bulkAddReferences>>,
         TError,
-        {projectId: number;data: BodyType<BulkAddReferencesRequest>},
+        BulkAddReferencesMutationVariables,
         TContext
       > => {
       return useMutation(getBulkAddReferencesMutationOptions(options));
@@ -2359,11 +2407,13 @@ export const deleteReference = async (projectId: number,
 
 
 
-export const getDeleteReferenceMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteReference>>, TError,{projectId: number;referenceId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof deleteReference>>, TError,{projectId: number;referenceId: number}, TContext> => {
+export const getDeleteReferenceMutationKey = () => ['deleteReference'] as const;
 
-const mutationKey = ['deleteReference'];
+export const getDeleteReferenceMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteReference>>, TError,DeleteReferenceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteReference>>, TError,DeleteReferenceMutationVariables, TContext> => {
+
+const mutationKey = getDeleteReferenceMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -2373,7 +2423,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteReference>>, {projectId: number;referenceId: number}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteReference>>, DeleteReferenceMutationVariables> = (props) => {
           const {projectId,referenceId} = props ?? {};
 
           return  deleteReference(projectId,referenceId,requestOptions)
@@ -2389,16 +2439,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type DeleteReferenceMutationResult = NonNullable<Awaited<ReturnType<typeof deleteReference>>>
 
     export type DeleteReferenceMutationError = ErrorType<unknown>
+    export type DeleteReferenceMutationVariables = {projectId: number;referenceId: number}
 
     /**
  * @summary Delete a reference
  */
 export const useDeleteReference = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteReference>>, TError,{projectId: number;referenceId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteReference>>, TError,DeleteReferenceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof deleteReference>>,
         TError,
-        {projectId: number;referenceId: number},
+        DeleteReferenceMutationVariables,
         TContext
       > => {
       return useMutation(getDeleteReferenceMutationOptions(options));
@@ -2418,7 +2469,7 @@ export const getRegenerateBibliographyUrl = (projectId: number,) => {
 export const regenerateBibliography = async (projectId: number,
     regenerateBibliographyBody?: RegenerateBibliographyBody, options?: Parameters<typeof customFetch>[1]): Promise<BibliographyResult> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -2437,11 +2488,13 @@ return customFetch<BibliographyResult>(getRegenerateBibliographyUrl(projectId),
 
 
 
-export const getRegenerateBibliographyMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof regenerateBibliography>>, TError,{projectId: number;data?: BodyType<RegenerateBibliographyBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof regenerateBibliography>>, TError,{projectId: number;data?: BodyType<RegenerateBibliographyBody>}, TContext> => {
+export const getRegenerateBibliographyMutationKey = () => ['regenerateBibliography'] as const;
 
-const mutationKey = ['regenerateBibliography'];
+export const getRegenerateBibliographyMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof regenerateBibliography>>, TError,RegenerateBibliographyMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof regenerateBibliography>>, TError,RegenerateBibliographyMutationVariables, TContext> => {
+
+const mutationKey = getRegenerateBibliographyMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -2451,7 +2504,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof regenerateBibliography>>, {projectId: number;data?: BodyType<RegenerateBibliographyBody>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof regenerateBibliography>>, RegenerateBibliographyMutationVariables> = (props) => {
           const {projectId,data} = props ?? {};
 
           return  regenerateBibliography(projectId,data,requestOptions)
@@ -2467,16 +2520,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type RegenerateBibliographyMutationResult = NonNullable<Awaited<ReturnType<typeof regenerateBibliography>>>
     export type RegenerateBibliographyMutationBody = BodyType<RegenerateBibliographyBody> | undefined
     export type RegenerateBibliographyMutationError = ErrorType<unknown>
+    export type RegenerateBibliographyMutationVariables = {projectId: number;data?: BodyType<RegenerateBibliographyBody>}
 
     /**
  * @summary Regenerate bibliography for a project
  */
 export const useRegenerateBibliography = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof regenerateBibliography>>, TError,{projectId: number;data?: BodyType<RegenerateBibliographyBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof regenerateBibliography>>, TError,RegenerateBibliographyMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof regenerateBibliography>>,
         TError,
-        {projectId: number;data?: BodyType<RegenerateBibliographyBody>},
+        RegenerateBibliographyMutationVariables,
         TContext
       > => {
       return useMutation(getRegenerateBibliographyMutationOptions(options));
@@ -2508,11 +2562,13 @@ export const validateReferences = async (projectId: number, options?: Parameters
 
 
 
-export const getValidateReferencesMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof validateReferences>>, TError,{projectId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof validateReferences>>, TError,{projectId: number}, TContext> => {
+export const getValidateReferencesMutationKey = () => ['validateReferences'] as const;
 
-const mutationKey = ['validateReferences'];
+export const getValidateReferencesMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof validateReferences>>, TError,ValidateReferencesMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof validateReferences>>, TError,ValidateReferencesMutationVariables, TContext> => {
+
+const mutationKey = getValidateReferencesMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -2522,7 +2578,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof validateReferences>>, {projectId: number}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof validateReferences>>, ValidateReferencesMutationVariables> = (props) => {
           const {projectId} = props ?? {};
 
           return  validateReferences(projectId,requestOptions)
@@ -2538,16 +2594,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type ValidateReferencesMutationResult = NonNullable<Awaited<ReturnType<typeof validateReferences>>>
 
     export type ValidateReferencesMutationError = ErrorType<unknown>
+    export type ValidateReferencesMutationVariables = {projectId: number}
 
     /**
  * @summary Validate all references against the citation format
  */
 export const useValidateReferences = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof validateReferences>>, TError,{projectId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof validateReferences>>, TError,ValidateReferencesMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof validateReferences>>,
         TError,
-        {projectId: number},
+        ValidateReferencesMutationVariables,
         TContext
       > => {
       return useMutation(getValidateReferencesMutationOptions(options));
@@ -2588,11 +2645,13 @@ export const formatCSLBibliography = async (projectId: number,
 
 
 
-export const getFormatCSLBibliographyMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof formatCSLBibliography>>, TError,{projectId: number;params?: FormatCSLBibliographyParams}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof formatCSLBibliography>>, TError,{projectId: number;params?: FormatCSLBibliographyParams}, TContext> => {
+export const getFormatCSLBibliographyMutationKey = () => ['formatCSLBibliography'] as const;
 
-const mutationKey = ['formatCSLBibliography'];
+export const getFormatCSLBibliographyMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof formatCSLBibliography>>, TError,FormatCSLBibliographyMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof formatCSLBibliography>>, TError,FormatCSLBibliographyMutationVariables, TContext> => {
+
+const mutationKey = getFormatCSLBibliographyMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -2602,7 +2661,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof formatCSLBibliography>>, {projectId: number;params?: FormatCSLBibliographyParams}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof formatCSLBibliography>>, FormatCSLBibliographyMutationVariables> = (props) => {
           const {projectId,params} = props ?? {};
 
           return  formatCSLBibliography(projectId,params,requestOptions)
@@ -2618,16 +2677,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type FormatCSLBibliographyMutationResult = NonNullable<Awaited<ReturnType<typeof formatCSLBibliography>>>
 
     export type FormatCSLBibliographyMutationError = ErrorType<unknown>
+    export type FormatCSLBibliographyMutationVariables = {projectId: number;params?: FormatCSLBibliographyParams}
 
     /**
  * @summary Format references as a CSL-formatted bibliography
  */
 export const useFormatCSLBibliography = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof formatCSLBibliography>>, TError,{projectId: number;params?: FormatCSLBibliographyParams}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof formatCSLBibliography>>, TError,FormatCSLBibliographyMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof formatCSLBibliography>>,
         TError,
-        {projectId: number;params?: FormatCSLBibliographyParams},
+        FormatCSLBibliographyMutationVariables,
         TContext
       > => {
       return useMutation(getFormatCSLBibliographyMutationOptions(options));
@@ -2651,7 +2711,7 @@ export const getAutoCiteReferencesUrl = (projectId: number,) => {
 export const autoCiteReferences = async (projectId: number,
     autoCiteRequest: AutoCiteRequest, options?: Parameters<typeof customFetch>[1]): Promise<AutoCiteResponse> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -2670,11 +2730,13 @@ return customFetch<AutoCiteResponse>(getAutoCiteReferencesUrl(projectId),
 
 
 
-export const getAutoCiteReferencesMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof autoCiteReferences>>, TError,{projectId: number;data: BodyType<AutoCiteRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof autoCiteReferences>>, TError,{projectId: number;data: BodyType<AutoCiteRequest>}, TContext> => {
+export const getAutoCiteReferencesMutationKey = () => ['autoCiteReferences'] as const;
 
-const mutationKey = ['autoCiteReferences'];
+export const getAutoCiteReferencesMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof autoCiteReferences>>, TError,AutoCiteReferencesMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof autoCiteReferences>>, TError,AutoCiteReferencesMutationVariables, TContext> => {
+
+const mutationKey = getAutoCiteReferencesMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -2684,7 +2746,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof autoCiteReferences>>, {projectId: number;data: BodyType<AutoCiteRequest>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof autoCiteReferences>>, AutoCiteReferencesMutationVariables> = (props) => {
           const {projectId,data} = props ?? {};
 
           return  autoCiteReferences(projectId,data,requestOptions)
@@ -2700,16 +2762,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type AutoCiteReferencesMutationResult = NonNullable<Awaited<ReturnType<typeof autoCiteReferences>>>
     export type AutoCiteReferencesMutationBody = BodyType<AutoCiteRequest>
     export type AutoCiteReferencesMutationError = ErrorType<void>
+    export type AutoCiteReferencesMutationVariables = {projectId: number;data: BodyType<AutoCiteRequest>}
 
     /**
  * @summary AI suggests citation positions for selected references
  */
 export const useAutoCiteReferences = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof autoCiteReferences>>, TError,{projectId: number;data: BodyType<AutoCiteRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof autoCiteReferences>>, TError,AutoCiteReferencesMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof autoCiteReferences>>,
         TError,
-        {projectId: number;data: BodyType<AutoCiteRequest>},
+        AutoCiteReferencesMutationVariables,
         TContext
       > => {
       return useMutation(getAutoCiteReferencesMutationOptions(options));
@@ -2734,7 +2797,7 @@ export const toggleReferenceSelection = async (projectId: number,
     referenceId: number,
     toggleReferenceSelectionBody: ToggleReferenceSelectionBody, options?: Parameters<typeof customFetch>[1]): Promise<Reference> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -2753,11 +2816,13 @@ return customFetch<Reference>(getToggleReferenceSelectionUrl(projectId,reference
 
 
 
-export const getToggleReferenceSelectionMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof toggleReferenceSelection>>, TError,{projectId: number;referenceId: number;data: BodyType<ToggleReferenceSelectionBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof toggleReferenceSelection>>, TError,{projectId: number;referenceId: number;data: BodyType<ToggleReferenceSelectionBody>}, TContext> => {
+export const getToggleReferenceSelectionMutationKey = () => ['toggleReferenceSelection'] as const;
 
-const mutationKey = ['toggleReferenceSelection'];
+export const getToggleReferenceSelectionMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof toggleReferenceSelection>>, TError,ToggleReferenceSelectionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof toggleReferenceSelection>>, TError,ToggleReferenceSelectionMutationVariables, TContext> => {
+
+const mutationKey = getToggleReferenceSelectionMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -2767,7 +2832,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof toggleReferenceSelection>>, {projectId: number;referenceId: number;data: BodyType<ToggleReferenceSelectionBody>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof toggleReferenceSelection>>, ToggleReferenceSelectionMutationVariables> = (props) => {
           const {projectId,referenceId,data} = props ?? {};
 
           return  toggleReferenceSelection(projectId,referenceId,data,requestOptions)
@@ -2783,16 +2848,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type ToggleReferenceSelectionMutationResult = NonNullable<Awaited<ReturnType<typeof toggleReferenceSelection>>>
     export type ToggleReferenceSelectionMutationBody = BodyType<ToggleReferenceSelectionBody>
     export type ToggleReferenceSelectionMutationError = ErrorType<unknown>
+    export type ToggleReferenceSelectionMutationVariables = {projectId: number;referenceId: number;data: BodyType<ToggleReferenceSelectionBody>}
 
     /**
  * @summary Toggle the ceklist status of a reference
  */
 export const useToggleReferenceSelection = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof toggleReferenceSelection>>, TError,{projectId: number;referenceId: number;data: BodyType<ToggleReferenceSelectionBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof toggleReferenceSelection>>, TError,ToggleReferenceSelectionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof toggleReferenceSelection>>,
         TError,
-        {projectId: number;referenceId: number;data: BodyType<ToggleReferenceSelectionBody>},
+        ToggleReferenceSelectionMutationVariables,
         TContext
       > => {
       return useMutation(getToggleReferenceSelectionMutationOptions(options));
@@ -2890,7 +2956,7 @@ export const getCreateCitationUrl = (projectId: number,) => {
 export const createCitation = async (projectId: number,
     createCitationRequest: CreateCitationRequest, options?: Parameters<typeof customFetch>[1]): Promise<ReferenceCitation> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -2909,11 +2975,13 @@ return customFetch<ReferenceCitation>(getCreateCitationUrl(projectId),
 
 
 
-export const getCreateCitationMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCitation>>, TError,{projectId: number;data: BodyType<CreateCitationRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof createCitation>>, TError,{projectId: number;data: BodyType<CreateCitationRequest>}, TContext> => {
+export const getCreateCitationMutationKey = () => ['createCitation'] as const;
 
-const mutationKey = ['createCitation'];
+export const getCreateCitationMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCitation>>, TError,CreateCitationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createCitation>>, TError,CreateCitationMutationVariables, TContext> => {
+
+const mutationKey = getCreateCitationMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -2923,7 +2991,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createCitation>>, {projectId: number;data: BodyType<CreateCitationRequest>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createCitation>>, CreateCitationMutationVariables> = (props) => {
           const {projectId,data} = props ?? {};
 
           return  createCitation(projectId,data,requestOptions)
@@ -2939,16 +3007,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type CreateCitationMutationResult = NonNullable<Awaited<ReturnType<typeof createCitation>>>
     export type CreateCitationMutationBody = BodyType<CreateCitationRequest>
     export type CreateCitationMutationError = ErrorType<unknown>
+    export type CreateCitationMutationVariables = {projectId: number;data: BodyType<CreateCitationRequest>}
 
     /**
  * @summary Manually add a citation marker at a position
  */
 export const useCreateCitation = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCitation>>, TError,{projectId: number;data: BodyType<CreateCitationRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCitation>>, TError,CreateCitationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof createCitation>>,
         TError,
-        {projectId: number;data: BodyType<CreateCitationRequest>},
+        CreateCitationMutationVariables,
         TContext
       > => {
       return useMutation(getCreateCitationMutationOptions(options));
@@ -2970,7 +3039,7 @@ export const updateCitation = async (projectId: number,
     citationId: number,
     updateCitationRequest: UpdateCitationRequest, options?: Parameters<typeof customFetch>[1]): Promise<ReferenceCitation> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -2989,11 +3058,13 @@ return customFetch<ReferenceCitation>(getUpdateCitationUrl(projectId,citationId)
 
 
 
-export const getUpdateCitationMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCitation>>, TError,{projectId: number;citationId: number;data: BodyType<UpdateCitationRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof updateCitation>>, TError,{projectId: number;citationId: number;data: BodyType<UpdateCitationRequest>}, TContext> => {
+export const getUpdateCitationMutationKey = () => ['updateCitation'] as const;
 
-const mutationKey = ['updateCitation'];
+export const getUpdateCitationMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCitation>>, TError,UpdateCitationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateCitation>>, TError,UpdateCitationMutationVariables, TContext> => {
+
+const mutationKey = getUpdateCitationMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -3003,7 +3074,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateCitation>>, {projectId: number;citationId: number;data: BodyType<UpdateCitationRequest>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateCitation>>, UpdateCitationMutationVariables> = (props) => {
           const {projectId,citationId,data} = props ?? {};
 
           return  updateCitation(projectId,citationId,data,requestOptions)
@@ -3019,16 +3090,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type UpdateCitationMutationResult = NonNullable<Awaited<ReturnType<typeof updateCitation>>>
     export type UpdateCitationMutationBody = BodyType<UpdateCitationRequest>
     export type UpdateCitationMutationError = ErrorType<void>
+    export type UpdateCitationMutationVariables = {projectId: number;citationId: number;data: BodyType<UpdateCitationRequest>}
 
     /**
  * @summary Update citation position (drag) or format marker
  */
 export const useUpdateCitation = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCitation>>, TError,{projectId: number;citationId: number;data: BodyType<UpdateCitationRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCitation>>, TError,UpdateCitationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof updateCitation>>,
         TError,
-        {projectId: number;citationId: number;data: BodyType<UpdateCitationRequest>},
+        UpdateCitationMutationVariables,
         TContext
       > => {
       return useMutation(getUpdateCitationMutationOptions(options));
@@ -3062,11 +3134,13 @@ export const deleteCitation = async (projectId: number,
 
 
 
-export const getDeleteCitationMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCitation>>, TError,{projectId: number;citationId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof deleteCitation>>, TError,{projectId: number;citationId: number}, TContext> => {
+export const getDeleteCitationMutationKey = () => ['deleteCitation'] as const;
 
-const mutationKey = ['deleteCitation'];
+export const getDeleteCitationMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCitation>>, TError,DeleteCitationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteCitation>>, TError,DeleteCitationMutationVariables, TContext> => {
+
+const mutationKey = getDeleteCitationMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -3076,7 +3150,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteCitation>>, {projectId: number;citationId: number}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteCitation>>, DeleteCitationMutationVariables> = (props) => {
           const {projectId,citationId} = props ?? {};
 
           return  deleteCitation(projectId,citationId,requestOptions)
@@ -3092,16 +3166,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type DeleteCitationMutationResult = NonNullable<Awaited<ReturnType<typeof deleteCitation>>>
 
     export type DeleteCitationMutationError = ErrorType<void>
+    export type DeleteCitationMutationVariables = {projectId: number;citationId: number}
 
     /**
  * @summary Remove a citation marker
  */
 export const useDeleteCitation = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCitation>>, TError,{projectId: number;citationId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCitation>>, TError,DeleteCitationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof deleteCitation>>,
         TError,
-        {projectId: number;citationId: number},
+        DeleteCitationMutationVariables,
         TContext
       > => {
       return useMutation(getDeleteCitationMutationOptions(options));
@@ -3124,7 +3199,7 @@ export const getSetProjectCitationFormatUrl = (projectId: number,) => {
 export const setProjectCitationFormat = async (projectId: number,
     setCitationFormatRequest: SetCitationFormatRequest, options?: Parameters<typeof customFetch>[1]): Promise<Project> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -3143,11 +3218,13 @@ return customFetch<Project>(getSetProjectCitationFormatUrl(projectId),
 
 
 
-export const getSetProjectCitationFormatMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setProjectCitationFormat>>, TError,{projectId: number;data: BodyType<SetCitationFormatRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof setProjectCitationFormat>>, TError,{projectId: number;data: BodyType<SetCitationFormatRequest>}, TContext> => {
+export const getSetProjectCitationFormatMutationKey = () => ['setProjectCitationFormat'] as const;
 
-const mutationKey = ['setProjectCitationFormat'];
+export const getSetProjectCitationFormatMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setProjectCitationFormat>>, TError,SetProjectCitationFormatMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof setProjectCitationFormat>>, TError,SetProjectCitationFormatMutationVariables, TContext> => {
+
+const mutationKey = getSetProjectCitationFormatMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -3157,7 +3234,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setProjectCitationFormat>>, {projectId: number;data: BodyType<SetCitationFormatRequest>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setProjectCitationFormat>>, SetProjectCitationFormatMutationVariables> = (props) => {
           const {projectId,data} = props ?? {};
 
           return  setProjectCitationFormat(projectId,data,requestOptions)
@@ -3173,16 +3250,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type SetProjectCitationFormatMutationResult = NonNullable<Awaited<ReturnType<typeof setProjectCitationFormat>>>
     export type SetProjectCitationFormatMutationBody = BodyType<SetCitationFormatRequest>
     export type SetProjectCitationFormatMutationError = ErrorType<void>
+    export type SetProjectCitationFormatMutationVariables = {projectId: number;data: BodyType<SetCitationFormatRequest>}
 
     /**
  * @summary Set the citation format for a project
  */
 export const useSetProjectCitationFormat = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setProjectCitationFormat>>, TError,{projectId: number;data: BodyType<SetCitationFormatRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setProjectCitationFormat>>, TError,SetProjectCitationFormatMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof setProjectCitationFormat>>,
         TError,
-        {projectId: number;data: BodyType<SetCitationFormatRequest>},
+        SetProjectCitationFormatMutationVariables,
         TContext
       > => {
       return useMutation(getSetProjectCitationFormatMutationOptions(options));
@@ -3363,7 +3441,7 @@ export const getFetchReferenceMetadataUrl = () => {
  */
 export const fetchReferenceMetadata = async (fetchReferenceMetadataRequest: FetchReferenceMetadataRequest, options?: Parameters<typeof customFetch>[1]): Promise<FetchedReferenceMetadata> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -3382,11 +3460,13 @@ return customFetch<FetchedReferenceMetadata>(getFetchReferenceMetadataUrl(),
 
 
 
-export const getFetchReferenceMetadataMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof fetchReferenceMetadata>>, TError,{data: BodyType<FetchReferenceMetadataRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof fetchReferenceMetadata>>, TError,{data: BodyType<FetchReferenceMetadataRequest>}, TContext> => {
+export const getFetchReferenceMetadataMutationKey = () => ['fetchReferenceMetadata'] as const;
 
-const mutationKey = ['fetchReferenceMetadata'];
+export const getFetchReferenceMetadataMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof fetchReferenceMetadata>>, TError,FetchReferenceMetadataMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof fetchReferenceMetadata>>, TError,FetchReferenceMetadataMutationVariables, TContext> => {
+
+const mutationKey = getFetchReferenceMetadataMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -3396,7 +3476,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof fetchReferenceMetadata>>, {data: BodyType<FetchReferenceMetadataRequest>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof fetchReferenceMetadata>>, FetchReferenceMetadataMutationVariables> = (props) => {
           const {data} = props ?? {};
 
           return  fetchReferenceMetadata(data,requestOptions)
@@ -3412,16 +3492,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type FetchReferenceMetadataMutationResult = NonNullable<Awaited<ReturnType<typeof fetchReferenceMetadata>>>
     export type FetchReferenceMetadataMutationBody = BodyType<FetchReferenceMetadataRequest>
     export type FetchReferenceMetadataMutationError = ErrorType<void>
+    export type FetchReferenceMetadataMutationVariables = {data: BodyType<FetchReferenceMetadataRequest>}
 
     /**
  * @summary Fetch reference metadata by DOI or ISBN
  */
 export const useFetchReferenceMetadata = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof fetchReferenceMetadata>>, TError,{data: BodyType<FetchReferenceMetadataRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof fetchReferenceMetadata>>, TError,FetchReferenceMetadataMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof fetchReferenceMetadata>>,
         TError,
-        {data: BodyType<FetchReferenceMetadataRequest>},
+        FetchReferenceMetadataMutationVariables,
         TContext
       > => {
       return useMutation(getFetchReferenceMetadataMutationOptions(options));
@@ -3603,7 +3684,7 @@ export const getCreateShareLinkUrl = (projectId: number,) => {
 export const createShareLink = async (projectId: number,
     createShareLinkRequest: CreateShareLinkRequest, options?: Parameters<typeof customFetch>[1]): Promise<ShareLink> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -3622,11 +3703,13 @@ return customFetch<ShareLink>(getCreateShareLinkUrl(projectId),
 
 
 
-export const getCreateShareLinkMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createShareLink>>, TError,{projectId: number;data: BodyType<CreateShareLinkRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof createShareLink>>, TError,{projectId: number;data: BodyType<CreateShareLinkRequest>}, TContext> => {
+export const getCreateShareLinkMutationKey = () => ['createShareLink'] as const;
 
-const mutationKey = ['createShareLink'];
+export const getCreateShareLinkMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createShareLink>>, TError,CreateShareLinkMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createShareLink>>, TError,CreateShareLinkMutationVariables, TContext> => {
+
+const mutationKey = getCreateShareLinkMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -3636,7 +3719,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createShareLink>>, {projectId: number;data: BodyType<CreateShareLinkRequest>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createShareLink>>, CreateShareLinkMutationVariables> = (props) => {
           const {projectId,data} = props ?? {};
 
           return  createShareLink(projectId,data,requestOptions)
@@ -3652,16 +3735,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type CreateShareLinkMutationResult = NonNullable<Awaited<ReturnType<typeof createShareLink>>>
     export type CreateShareLinkMutationBody = BodyType<CreateShareLinkRequest>
     export type CreateShareLinkMutationError = ErrorType<void>
+    export type CreateShareLinkMutationVariables = {projectId: number;data: BodyType<CreateShareLinkRequest>}
 
     /**
  * @summary Create a share link for a project
  */
 export const useCreateShareLink = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createShareLink>>, TError,{projectId: number;data: BodyType<CreateShareLinkRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createShareLink>>, TError,CreateShareLinkMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof createShareLink>>,
         TError,
-        {projectId: number;data: BodyType<CreateShareLinkRequest>},
+        CreateShareLinkMutationVariables,
         TContext
       > => {
       return useMutation(getCreateShareLinkMutationOptions(options));
@@ -3695,11 +3779,13 @@ export const deleteShareLink = async (projectId: number,
 
 
 
-export const getDeleteShareLinkMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteShareLink>>, TError,{projectId: number;shareId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof deleteShareLink>>, TError,{projectId: number;shareId: number}, TContext> => {
+export const getDeleteShareLinkMutationKey = () => ['deleteShareLink'] as const;
 
-const mutationKey = ['deleteShareLink'];
+export const getDeleteShareLinkMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteShareLink>>, TError,DeleteShareLinkMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteShareLink>>, TError,DeleteShareLinkMutationVariables, TContext> => {
+
+const mutationKey = getDeleteShareLinkMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -3709,7 +3795,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteShareLink>>, {projectId: number;shareId: number}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteShareLink>>, DeleteShareLinkMutationVariables> = (props) => {
           const {projectId,shareId} = props ?? {};
 
           return  deleteShareLink(projectId,shareId,requestOptions)
@@ -3725,16 +3811,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type DeleteShareLinkMutationResult = NonNullable<Awaited<ReturnType<typeof deleteShareLink>>>
 
     export type DeleteShareLinkMutationError = ErrorType<void>
+    export type DeleteShareLinkMutationVariables = {projectId: number;shareId: number}
 
     /**
  * @summary Revoke a share link
  */
 export const useDeleteShareLink = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteShareLink>>, TError,{projectId: number;shareId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteShareLink>>, TError,DeleteShareLinkMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof deleteShareLink>>,
         TError,
-        {projectId: number;shareId: number},
+        DeleteShareLinkMutationVariables,
         TContext
       > => {
       return useMutation(getDeleteShareLinkMutationOptions(options));
@@ -3908,7 +3995,7 @@ export const getUploadAttachmentUrl = (projectId: number,) => {
 export const uploadAttachment = async (projectId: number,
     attachmentUpload: AttachmentUpload, options?: Parameters<typeof customFetch>[1]): Promise<Attachment> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -3927,11 +4014,13 @@ return customFetch<Attachment>(getUploadAttachmentUrl(projectId),
 
 
 
-export const getUploadAttachmentMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadAttachment>>, TError,{projectId: number;data: BodyType<AttachmentUpload>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof uploadAttachment>>, TError,{projectId: number;data: BodyType<AttachmentUpload>}, TContext> => {
+export const getUploadAttachmentMutationKey = () => ['uploadAttachment'] as const;
 
-const mutationKey = ['uploadAttachment'];
+export const getUploadAttachmentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadAttachment>>, TError,UploadAttachmentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof uploadAttachment>>, TError,UploadAttachmentMutationVariables, TContext> => {
+
+const mutationKey = getUploadAttachmentMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -3941,7 +4030,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof uploadAttachment>>, {projectId: number;data: BodyType<AttachmentUpload>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof uploadAttachment>>, UploadAttachmentMutationVariables> = (props) => {
           const {projectId,data} = props ?? {};
 
           return  uploadAttachment(projectId,data,requestOptions)
@@ -3957,16 +4046,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type UploadAttachmentMutationResult = NonNullable<Awaited<ReturnType<typeof uploadAttachment>>>
     export type UploadAttachmentMutationBody = BodyType<AttachmentUpload>
     export type UploadAttachmentMutationError = ErrorType<unknown>
+    export type UploadAttachmentMutationVariables = {projectId: number;data: BodyType<AttachmentUpload>}
 
     /**
  * @summary Upload an attachment as base64 JSON
  */
 export const useUploadAttachment = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadAttachment>>, TError,{projectId: number;data: BodyType<AttachmentUpload>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadAttachment>>, TError,UploadAttachmentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof uploadAttachment>>,
         TError,
-        {projectId: number;data: BodyType<AttachmentUpload>},
+        UploadAttachmentMutationVariables,
         TContext
       > => {
       return useMutation(getUploadAttachmentMutationOptions(options));
@@ -4000,11 +4090,13 @@ export const deleteAttachment = async (projectId: number,
 
 
 
-export const getDeleteAttachmentMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAttachment>>, TError,{projectId: number;attachmentId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof deleteAttachment>>, TError,{projectId: number;attachmentId: number}, TContext> => {
+export const getDeleteAttachmentMutationKey = () => ['deleteAttachment'] as const;
 
-const mutationKey = ['deleteAttachment'];
+export const getDeleteAttachmentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAttachment>>, TError,DeleteAttachmentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteAttachment>>, TError,DeleteAttachmentMutationVariables, TContext> => {
+
+const mutationKey = getDeleteAttachmentMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -4014,7 +4106,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteAttachment>>, {projectId: number;attachmentId: number}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteAttachment>>, DeleteAttachmentMutationVariables> = (props) => {
           const {projectId,attachmentId} = props ?? {};
 
           return  deleteAttachment(projectId,attachmentId,requestOptions)
@@ -4030,16 +4122,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type DeleteAttachmentMutationResult = NonNullable<Awaited<ReturnType<typeof deleteAttachment>>>
 
     export type DeleteAttachmentMutationError = ErrorType<unknown>
+    export type DeleteAttachmentMutationVariables = {projectId: number;attachmentId: number}
 
     /**
  * @summary Delete an attachment
  */
 export const useDeleteAttachment = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAttachment>>, TError,{projectId: number;attachmentId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAttachment>>, TError,DeleteAttachmentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof deleteAttachment>>,
         TError,
-        {projectId: number;attachmentId: number},
+        DeleteAttachmentMutationVariables,
         TContext
       > => {
       return useMutation(getDeleteAttachmentMutationOptions(options));
@@ -4862,7 +4955,7 @@ export const getCreateExportUrl = (projectId: number,) => {
 export const createExport = async (projectId: number,
     exportInput: ExportInput, options?: Parameters<typeof customFetch>[1]): Promise<Export> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -4881,11 +4974,13 @@ return customFetch<Export>(getCreateExportUrl(projectId),
 
 
 
-export const getCreateExportMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createExport>>, TError,{projectId: number;data: BodyType<ExportInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof createExport>>, TError,{projectId: number;data: BodyType<ExportInput>}, TContext> => {
+export const getCreateExportMutationKey = () => ['createExport'] as const;
 
-const mutationKey = ['createExport'];
+export const getCreateExportMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createExport>>, TError,CreateExportMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createExport>>, TError,CreateExportMutationVariables, TContext> => {
+
+const mutationKey = getCreateExportMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -4895,7 +4990,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createExport>>, {projectId: number;data: BodyType<ExportInput>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createExport>>, CreateExportMutationVariables> = (props) => {
           const {projectId,data} = props ?? {};
 
           return  createExport(projectId,data,requestOptions)
@@ -4911,16 +5006,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type CreateExportMutationResult = NonNullable<Awaited<ReturnType<typeof createExport>>>
     export type CreateExportMutationBody = BodyType<ExportInput>
     export type CreateExportMutationError = ErrorType<unknown>
+    export type CreateExportMutationVariables = {projectId: number;data: BodyType<ExportInput>}
 
     /**
  * @summary Create a new export
  */
 export const useCreateExport = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createExport>>, TError,{projectId: number;data: BodyType<ExportInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createExport>>, TError,CreateExportMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof createExport>>,
         TError,
-        {projectId: number;data: BodyType<ExportInput>},
+        CreateExportMutationVariables,
         TContext
       > => {
       return useMutation(getCreateExportMutationOptions(options));
@@ -5024,7 +5120,7 @@ export const createComment = async (projectId: number,
     documentId: number,
     commentInput: CommentInput, options?: Parameters<typeof customFetch>[1]): Promise<Comment> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -5043,11 +5139,13 @@ return customFetch<Comment>(getCreateCommentUrl(projectId,documentId),
 
 
 
-export const getCreateCommentMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createComment>>, TError,{projectId: number;documentId: number;data: BodyType<CommentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof createComment>>, TError,{projectId: number;documentId: number;data: BodyType<CommentInput>}, TContext> => {
+export const getCreateCommentMutationKey = () => ['createComment'] as const;
 
-const mutationKey = ['createComment'];
+export const getCreateCommentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createComment>>, TError,CreateCommentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createComment>>, TError,CreateCommentMutationVariables, TContext> => {
+
+const mutationKey = getCreateCommentMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -5057,7 +5155,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createComment>>, {projectId: number;documentId: number;data: BodyType<CommentInput>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createComment>>, CreateCommentMutationVariables> = (props) => {
           const {projectId,documentId,data} = props ?? {};
 
           return  createComment(projectId,documentId,data,requestOptions)
@@ -5073,16 +5171,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type CreateCommentMutationResult = NonNullable<Awaited<ReturnType<typeof createComment>>>
     export type CreateCommentMutationBody = BodyType<CommentInput>
     export type CreateCommentMutationError = ErrorType<unknown>
+    export type CreateCommentMutationVariables = {projectId: number;documentId: number;data: BodyType<CommentInput>}
 
     /**
  * @summary Add a comment to a document
  */
 export const useCreateComment = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createComment>>, TError,{projectId: number;documentId: number;data: BodyType<CommentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createComment>>, TError,CreateCommentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof createComment>>,
         TError,
-        {projectId: number;documentId: number;data: BodyType<CommentInput>},
+        CreateCommentMutationVariables,
         TContext
       > => {
       return useMutation(getCreateCommentMutationOptions(options));
@@ -5104,7 +5203,7 @@ export const updateComment = async (projectId: number,
     commentId: number,
     commentUpdate: CommentUpdate, options?: Parameters<typeof customFetch>[1]): Promise<Comment> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -5123,11 +5222,13 @@ return customFetch<Comment>(getUpdateCommentUrl(projectId,commentId),
 
 
 
-export const getUpdateCommentMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateComment>>, TError,{projectId: number;commentId: number;data: BodyType<CommentUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof updateComment>>, TError,{projectId: number;commentId: number;data: BodyType<CommentUpdate>}, TContext> => {
+export const getUpdateCommentMutationKey = () => ['updateComment'] as const;
 
-const mutationKey = ['updateComment'];
+export const getUpdateCommentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateComment>>, TError,UpdateCommentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateComment>>, TError,UpdateCommentMutationVariables, TContext> => {
+
+const mutationKey = getUpdateCommentMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -5137,7 +5238,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateComment>>, {projectId: number;commentId: number;data: BodyType<CommentUpdate>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateComment>>, UpdateCommentMutationVariables> = (props) => {
           const {projectId,commentId,data} = props ?? {};
 
           return  updateComment(projectId,commentId,data,requestOptions)
@@ -5153,16 +5254,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type UpdateCommentMutationResult = NonNullable<Awaited<ReturnType<typeof updateComment>>>
     export type UpdateCommentMutationBody = BodyType<CommentUpdate>
     export type UpdateCommentMutationError = ErrorType<unknown>
+    export type UpdateCommentMutationVariables = {projectId: number;commentId: number;data: BodyType<CommentUpdate>}
 
     /**
  * @summary Update a comment or resolve it
  */
 export const useUpdateComment = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateComment>>, TError,{projectId: number;commentId: number;data: BodyType<CommentUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateComment>>, TError,UpdateCommentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof updateComment>>,
         TError,
-        {projectId: number;commentId: number;data: BodyType<CommentUpdate>},
+        UpdateCommentMutationVariables,
         TContext
       > => {
       return useMutation(getUpdateCommentMutationOptions(options));
@@ -5196,11 +5298,13 @@ export const deleteComment = async (projectId: number,
 
 
 
-export const getDeleteCommentMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteComment>>, TError,{projectId: number;commentId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof deleteComment>>, TError,{projectId: number;commentId: number}, TContext> => {
+export const getDeleteCommentMutationKey = () => ['deleteComment'] as const;
 
-const mutationKey = ['deleteComment'];
+export const getDeleteCommentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteComment>>, TError,DeleteCommentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteComment>>, TError,DeleteCommentMutationVariables, TContext> => {
+
+const mutationKey = getDeleteCommentMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -5210,7 +5314,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteComment>>, {projectId: number;commentId: number}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteComment>>, DeleteCommentMutationVariables> = (props) => {
           const {projectId,commentId} = props ?? {};
 
           return  deleteComment(projectId,commentId,requestOptions)
@@ -5226,16 +5330,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type DeleteCommentMutationResult = NonNullable<Awaited<ReturnType<typeof deleteComment>>>
 
     export type DeleteCommentMutationError = ErrorType<unknown>
+    export type DeleteCommentMutationVariables = {projectId: number;commentId: number}
 
     /**
  * @summary Delete a comment
  */
 export const useDeleteComment = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteComment>>, TError,{projectId: number;commentId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteComment>>, TError,DeleteCommentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof deleteComment>>,
         TError,
-        {projectId: number;commentId: number},
+        DeleteCommentMutationVariables,
         TContext
       > => {
       return useMutation(getDeleteCommentMutationOptions(options));
@@ -5332,7 +5437,7 @@ export const getAddMemberUrl = (projectId: number,) => {
 export const addMember = async (projectId: number,
     addMemberRequest: AddMemberRequest, options?: Parameters<typeof customFetch>[1]): Promise<ProjectMember> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -5351,11 +5456,13 @@ return customFetch<ProjectMember>(getAddMemberUrl(projectId),
 
 
 
-export const getAddMemberMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addMember>>, TError,{projectId: number;data: BodyType<AddMemberRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof addMember>>, TError,{projectId: number;data: BodyType<AddMemberRequest>}, TContext> => {
+export const getAddMemberMutationKey = () => ['addMember'] as const;
 
-const mutationKey = ['addMember'];
+export const getAddMemberMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addMember>>, TError,AddMemberMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof addMember>>, TError,AddMemberMutationVariables, TContext> => {
+
+const mutationKey = getAddMemberMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -5365,7 +5472,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof addMember>>, {projectId: number;data: BodyType<AddMemberRequest>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof addMember>>, AddMemberMutationVariables> = (props) => {
           const {projectId,data} = props ?? {};
 
           return  addMember(projectId,data,requestOptions)
@@ -5381,16 +5488,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type AddMemberMutationResult = NonNullable<Awaited<ReturnType<typeof addMember>>>
     export type AddMemberMutationBody = BodyType<AddMemberRequest>
     export type AddMemberMutationError = ErrorType<unknown>
+    export type AddMemberMutationVariables = {projectId: number;data: BodyType<AddMemberRequest>}
 
     /**
  * @summary Add a collaborator to a project
  */
 export const useAddMember = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addMember>>, TError,{projectId: number;data: BodyType<AddMemberRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addMember>>, TError,AddMemberMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof addMember>>,
         TError,
-        {projectId: number;data: BodyType<AddMemberRequest>},
+        AddMemberMutationVariables,
         TContext
       > => {
       return useMutation(getAddMemberMutationOptions(options));
@@ -5412,7 +5520,7 @@ export const updateMember = async (projectId: number,
     memberId: number,
     updateMemberRequest: UpdateMemberRequest, options?: Parameters<typeof customFetch>[1]): Promise<ProjectMember> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -5431,11 +5539,13 @@ return customFetch<ProjectMember>(getUpdateMemberUrl(projectId,memberId),
 
 
 
-export const getUpdateMemberMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMember>>, TError,{projectId: number;memberId: number;data: BodyType<UpdateMemberRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof updateMember>>, TError,{projectId: number;memberId: number;data: BodyType<UpdateMemberRequest>}, TContext> => {
+export const getUpdateMemberMutationKey = () => ['updateMember'] as const;
 
-const mutationKey = ['updateMember'];
+export const getUpdateMemberMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMember>>, TError,UpdateMemberMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateMember>>, TError,UpdateMemberMutationVariables, TContext> => {
+
+const mutationKey = getUpdateMemberMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -5445,7 +5555,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateMember>>, {projectId: number;memberId: number;data: BodyType<UpdateMemberRequest>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateMember>>, UpdateMemberMutationVariables> = (props) => {
           const {projectId,memberId,data} = props ?? {};
 
           return  updateMember(projectId,memberId,data,requestOptions)
@@ -5461,16 +5571,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type UpdateMemberMutationResult = NonNullable<Awaited<ReturnType<typeof updateMember>>>
     export type UpdateMemberMutationBody = BodyType<UpdateMemberRequest>
     export type UpdateMemberMutationError = ErrorType<unknown>
+    export type UpdateMemberMutationVariables = {projectId: number;memberId: number;data: BodyType<UpdateMemberRequest>}
 
     /**
  * @summary Update a member's role
  */
 export const useUpdateMember = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMember>>, TError,{projectId: number;memberId: number;data: BodyType<UpdateMemberRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMember>>, TError,UpdateMemberMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof updateMember>>,
         TError,
-        {projectId: number;memberId: number;data: BodyType<UpdateMemberRequest>},
+        UpdateMemberMutationVariables,
         TContext
       > => {
       return useMutation(getUpdateMemberMutationOptions(options));
@@ -5504,11 +5615,13 @@ export const removeMember = async (projectId: number,
 
 
 
-export const getRemoveMemberMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof removeMember>>, TError,{projectId: number;memberId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof removeMember>>, TError,{projectId: number;memberId: number}, TContext> => {
+export const getRemoveMemberMutationKey = () => ['removeMember'] as const;
 
-const mutationKey = ['removeMember'];
+export const getRemoveMemberMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof removeMember>>, TError,RemoveMemberMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof removeMember>>, TError,RemoveMemberMutationVariables, TContext> => {
+
+const mutationKey = getRemoveMemberMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -5518,7 +5631,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof removeMember>>, {projectId: number;memberId: number}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof removeMember>>, RemoveMemberMutationVariables> = (props) => {
           const {projectId,memberId} = props ?? {};
 
           return  removeMember(projectId,memberId,requestOptions)
@@ -5534,16 +5647,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type RemoveMemberMutationResult = NonNullable<Awaited<ReturnType<typeof removeMember>>>
 
     export type RemoveMemberMutationError = ErrorType<unknown>
+    export type RemoveMemberMutationVariables = {projectId: number;memberId: number}
 
     /**
  * @summary Remove a collaborator from a project
  */
 export const useRemoveMember = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof removeMember>>, TError,{projectId: number;memberId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof removeMember>>, TError,RemoveMemberMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof removeMember>>,
         TError,
-        {projectId: number;memberId: number},
+        RemoveMemberMutationVariables,
         TContext
       > => {
       return useMutation(getRemoveMemberMutationOptions(options));
@@ -5640,7 +5754,7 @@ export const getGenerateQuizUrl = (projectId: number,) => {
 export const generateQuiz = async (projectId: number,
     generateQuizRequest: GenerateQuizRequest, options?: Parameters<typeof customFetch>[1]): Promise<Quiz | void> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -5659,11 +5773,13 @@ return customFetch<Quiz | void>(getGenerateQuizUrl(projectId),
 
 
 
-export const getGenerateQuizMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateQuiz>>, TError,{projectId: number;data: BodyType<GenerateQuizRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof generateQuiz>>, TError,{projectId: number;data: BodyType<GenerateQuizRequest>}, TContext> => {
+export const getGenerateQuizMutationKey = () => ['generateQuiz'] as const;
 
-const mutationKey = ['generateQuiz'];
+export const getGenerateQuizMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateQuiz>>, TError,GenerateQuizMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof generateQuiz>>, TError,GenerateQuizMutationVariables, TContext> => {
+
+const mutationKey = getGenerateQuizMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -5673,7 +5789,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof generateQuiz>>, {projectId: number;data: BodyType<GenerateQuizRequest>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof generateQuiz>>, GenerateQuizMutationVariables> = (props) => {
           const {projectId,data} = props ?? {};
 
           return  generateQuiz(projectId,data,requestOptions)
@@ -5689,16 +5805,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type GenerateQuizMutationResult = NonNullable<Awaited<ReturnType<typeof generateQuiz>>>
     export type GenerateQuizMutationBody = BodyType<GenerateQuizRequest>
     export type GenerateQuizMutationError = ErrorType<unknown>
+    export type GenerateQuizMutationVariables = {projectId: number;data: BodyType<GenerateQuizRequest>}
 
     /**
  * @summary AI-generate a new quiz
  */
 export const useGenerateQuiz = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateQuiz>>, TError,{projectId: number;data: BodyType<GenerateQuizRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateQuiz>>, TError,GenerateQuizMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof generateQuiz>>,
         TError,
-        {projectId: number;data: BodyType<GenerateQuizRequest>},
+        GenerateQuizMutationVariables,
         TContext
       > => {
       return useMutation(getGenerateQuizMutationOptions(options));
@@ -5877,7 +5994,7 @@ export const getSubmitQuizUrl = (quizId: number,) => {
 export const submitQuiz = async (quizId: number,
     submitQuizRequest: SubmitQuizRequest, options?: Parameters<typeof customFetch>[1]): Promise<QuizSubmission> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -5896,11 +6013,13 @@ return customFetch<QuizSubmission>(getSubmitQuizUrl(quizId),
 
 
 
-export const getSubmitQuizMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitQuiz>>, TError,{quizId: number;data: BodyType<SubmitQuizRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof submitQuiz>>, TError,{quizId: number;data: BodyType<SubmitQuizRequest>}, TContext> => {
+export const getSubmitQuizMutationKey = () => ['submitQuiz'] as const;
 
-const mutationKey = ['submitQuiz'];
+export const getSubmitQuizMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitQuiz>>, TError,SubmitQuizMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof submitQuiz>>, TError,SubmitQuizMutationVariables, TContext> => {
+
+const mutationKey = getSubmitQuizMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -5910,7 +6029,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof submitQuiz>>, {quizId: number;data: BodyType<SubmitQuizRequest>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof submitQuiz>>, SubmitQuizMutationVariables> = (props) => {
           const {quizId,data} = props ?? {};
 
           return  submitQuiz(quizId,data,requestOptions)
@@ -5926,16 +6045,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type SubmitQuizMutationResult = NonNullable<Awaited<ReturnType<typeof submitQuiz>>>
     export type SubmitQuizMutationBody = BodyType<SubmitQuizRequest>
     export type SubmitQuizMutationError = ErrorType<unknown>
+    export type SubmitQuizMutationVariables = {quizId: number;data: BodyType<SubmitQuizRequest>}
 
     /**
  * @summary Submit quiz answers
  */
 export const useSubmitQuiz = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitQuiz>>, TError,{quizId: number;data: BodyType<SubmitQuizRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitQuiz>>, TError,SubmitQuizMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof submitQuiz>>,
         TError,
-        {quizId: number;data: BodyType<SubmitQuizRequest>},
+        SubmitQuizMutationVariables,
         TContext
       > => {
       return useMutation(getSubmitQuizMutationOptions(options));
@@ -6116,7 +6236,7 @@ export const generateRubric = async (projectId: number,
     quizId: number,
     generateRubricBody?: GenerateRubricBody, options?: Parameters<typeof customFetch>[1]): Promise<Rubric> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -6135,11 +6255,13 @@ return customFetch<Rubric>(getGenerateRubricUrl(projectId,quizId),
 
 
 
-export const getGenerateRubricMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateRubric>>, TError,{projectId: number;quizId: number;data?: BodyType<GenerateRubricBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof generateRubric>>, TError,{projectId: number;quizId: number;data?: BodyType<GenerateRubricBody>}, TContext> => {
+export const getGenerateRubricMutationKey = () => ['generateRubric'] as const;
 
-const mutationKey = ['generateRubric'];
+export const getGenerateRubricMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateRubric>>, TError,GenerateRubricMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof generateRubric>>, TError,GenerateRubricMutationVariables, TContext> => {
+
+const mutationKey = getGenerateRubricMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -6149,7 +6271,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof generateRubric>>, {projectId: number;quizId: number;data?: BodyType<GenerateRubricBody>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof generateRubric>>, GenerateRubricMutationVariables> = (props) => {
           const {projectId,quizId,data} = props ?? {};
 
           return  generateRubric(projectId,quizId,data,requestOptions)
@@ -6165,16 +6287,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type GenerateRubricMutationResult = NonNullable<Awaited<ReturnType<typeof generateRubric>>>
     export type GenerateRubricMutationBody = BodyType<GenerateRubricBody> | undefined
     export type GenerateRubricMutationError = ErrorType<unknown>
+    export type GenerateRubricMutationVariables = {projectId: number;quizId: number;data?: BodyType<GenerateRubricBody>}
 
     /**
  * @summary Generate AI rubric for a quiz
  */
 export const useGenerateRubric = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateRubric>>, TError,{projectId: number;quizId: number;data?: BodyType<GenerateRubricBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateRubric>>, TError,GenerateRubricMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof generateRubric>>,
         TError,
-        {projectId: number;quizId: number;data?: BodyType<GenerateRubricBody>},
+        GenerateRubricMutationVariables,
         TContext
       > => {
       return useMutation(getGenerateRubricMutationOptions(options));
@@ -6196,7 +6319,7 @@ export const updateRubric = async (projectId: number,
     quizId: number,
     updateRubricBody?: UpdateRubricBody, options?: Parameters<typeof customFetch>[1]): Promise<Rubric> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -6215,11 +6338,13 @@ return customFetch<Rubric>(getUpdateRubricUrl(projectId,quizId),
 
 
 
-export const getUpdateRubricMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateRubric>>, TError,{projectId: number;quizId: number;data?: BodyType<UpdateRubricBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof updateRubric>>, TError,{projectId: number;quizId: number;data?: BodyType<UpdateRubricBody>}, TContext> => {
+export const getUpdateRubricMutationKey = () => ['updateRubric'] as const;
 
-const mutationKey = ['updateRubric'];
+export const getUpdateRubricMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateRubric>>, TError,UpdateRubricMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateRubric>>, TError,UpdateRubricMutationVariables, TContext> => {
+
+const mutationKey = getUpdateRubricMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -6229,7 +6354,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateRubric>>, {projectId: number;quizId: number;data?: BodyType<UpdateRubricBody>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateRubric>>, UpdateRubricMutationVariables> = (props) => {
           const {projectId,quizId,data} = props ?? {};
 
           return  updateRubric(projectId,quizId,data,requestOptions)
@@ -6245,16 +6370,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type UpdateRubricMutationResult = NonNullable<Awaited<ReturnType<typeof updateRubric>>>
     export type UpdateRubricMutationBody = BodyType<UpdateRubricBody> | undefined
     export type UpdateRubricMutationError = ErrorType<unknown>
+    export type UpdateRubricMutationVariables = {projectId: number;quizId: number;data?: BodyType<UpdateRubricBody>}
 
     /**
  * @summary Update rubric criteria
  */
 export const useUpdateRubric = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateRubric>>, TError,{projectId: number;quizId: number;data?: BodyType<UpdateRubricBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateRubric>>, TError,UpdateRubricMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof updateRubric>>,
         TError,
-        {projectId: number;quizId: number;data?: BodyType<UpdateRubricBody>},
+        UpdateRubricMutationVariables,
         TContext
       > => {
       return useMutation(getUpdateRubricMutationOptions(options));
@@ -6288,11 +6414,13 @@ export const deleteRubric = async (projectId: number,
 
 
 
-export const getDeleteRubricMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteRubric>>, TError,{projectId: number;quizId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof deleteRubric>>, TError,{projectId: number;quizId: number}, TContext> => {
+export const getDeleteRubricMutationKey = () => ['deleteRubric'] as const;
 
-const mutationKey = ['deleteRubric'];
+export const getDeleteRubricMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteRubric>>, TError,DeleteRubricMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteRubric>>, TError,DeleteRubricMutationVariables, TContext> => {
+
+const mutationKey = getDeleteRubricMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -6302,7 +6430,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteRubric>>, {projectId: number;quizId: number}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteRubric>>, DeleteRubricMutationVariables> = (props) => {
           const {projectId,quizId} = props ?? {};
 
           return  deleteRubric(projectId,quizId,requestOptions)
@@ -6318,16 +6446,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type DeleteRubricMutationResult = NonNullable<Awaited<ReturnType<typeof deleteRubric>>>
 
     export type DeleteRubricMutationError = ErrorType<unknown>
+    export type DeleteRubricMutationVariables = {projectId: number;quizId: number}
 
     /**
  * @summary Delete rubric
  */
 export const useDeleteRubric = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteRubric>>, TError,{projectId: number;quizId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteRubric>>, TError,DeleteRubricMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof deleteRubric>>,
         TError,
-        {projectId: number;quizId: number},
+        DeleteRubricMutationVariables,
         TContext
       > => {
       return useMutation(getDeleteRubricMutationOptions(options));
@@ -6423,7 +6552,7 @@ export const getUpdateMyWritingStyleUrl = () => {
  */
 export const updateMyWritingStyle = async (updateMyWritingStyleBody: UpdateMyWritingStyleBody, options?: Parameters<typeof customFetch>[1]): Promise<WritingStyleProfile> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -6442,11 +6571,13 @@ return customFetch<WritingStyleProfile>(getUpdateMyWritingStyleUrl(),
 
 
 
-export const getUpdateMyWritingStyleMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMyWritingStyle>>, TError,{data: BodyType<UpdateMyWritingStyleBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof updateMyWritingStyle>>, TError,{data: BodyType<UpdateMyWritingStyleBody>}, TContext> => {
+export const getUpdateMyWritingStyleMutationKey = () => ['updateMyWritingStyle'] as const;
 
-const mutationKey = ['updateMyWritingStyle'];
+export const getUpdateMyWritingStyleMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMyWritingStyle>>, TError,UpdateMyWritingStyleMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateMyWritingStyle>>, TError,UpdateMyWritingStyleMutationVariables, TContext> => {
+
+const mutationKey = getUpdateMyWritingStyleMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -6456,7 +6587,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateMyWritingStyle>>, {data: BodyType<UpdateMyWritingStyleBody>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateMyWritingStyle>>, UpdateMyWritingStyleMutationVariables> = (props) => {
           const {data} = props ?? {};
 
           return  updateMyWritingStyle(data,requestOptions)
@@ -6472,16 +6603,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type UpdateMyWritingStyleMutationResult = NonNullable<Awaited<ReturnType<typeof updateMyWritingStyle>>>
     export type UpdateMyWritingStyleMutationBody = BodyType<UpdateMyWritingStyleBody>
     export type UpdateMyWritingStyleMutationError = ErrorType<unknown>
+    export type UpdateMyWritingStyleMutationVariables = {data: BodyType<UpdateMyWritingStyleBody>}
 
     /**
  * @summary Update writing style profile
  */
 export const useUpdateMyWritingStyle = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMyWritingStyle>>, TError,{data: BodyType<UpdateMyWritingStyleBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMyWritingStyle>>, TError,UpdateMyWritingStyleMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof updateMyWritingStyle>>,
         TError,
-        {data: BodyType<UpdateMyWritingStyleBody>},
+        UpdateMyWritingStyleMutationVariables,
         TContext
       > => {
       return useMutation(getUpdateMyWritingStyleMutationOptions(options));
@@ -6500,7 +6632,7 @@ export const getAnalyzeMyWritingStyleUrl = () => {
  */
 export const analyzeMyWritingStyle = async (analyzeMyWritingStyleBody: AnalyzeMyWritingStyleBody, options?: Parameters<typeof customFetch>[1]): Promise<WritingStyleProfile> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -6519,11 +6651,13 @@ return customFetch<WritingStyleProfile>(getAnalyzeMyWritingStyleUrl(),
 
 
 
-export const getAnalyzeMyWritingStyleMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeMyWritingStyle>>, TError,{data: BodyType<AnalyzeMyWritingStyleBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof analyzeMyWritingStyle>>, TError,{data: BodyType<AnalyzeMyWritingStyleBody>}, TContext> => {
+export const getAnalyzeMyWritingStyleMutationKey = () => ['analyzeMyWritingStyle'] as const;
 
-const mutationKey = ['analyzeMyWritingStyle'];
+export const getAnalyzeMyWritingStyleMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeMyWritingStyle>>, TError,AnalyzeMyWritingStyleMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof analyzeMyWritingStyle>>, TError,AnalyzeMyWritingStyleMutationVariables, TContext> => {
+
+const mutationKey = getAnalyzeMyWritingStyleMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -6533,7 +6667,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof analyzeMyWritingStyle>>, {data: BodyType<AnalyzeMyWritingStyleBody>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof analyzeMyWritingStyle>>, AnalyzeMyWritingStyleMutationVariables> = (props) => {
           const {data} = props ?? {};
 
           return  analyzeMyWritingStyle(data,requestOptions)
@@ -6549,16 +6683,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type AnalyzeMyWritingStyleMutationResult = NonNullable<Awaited<ReturnType<typeof analyzeMyWritingStyle>>>
     export type AnalyzeMyWritingStyleMutationBody = BodyType<AnalyzeMyWritingStyleBody>
     export type AnalyzeMyWritingStyleMutationError = ErrorType<unknown>
+    export type AnalyzeMyWritingStyleMutationVariables = {data: BodyType<AnalyzeMyWritingStyleBody>}
 
     /**
  * @summary Analyze writing style from documents
  */
 export const useAnalyzeMyWritingStyle = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeMyWritingStyle>>, TError,{data: BodyType<AnalyzeMyWritingStyleBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeMyWritingStyle>>, TError,AnalyzeMyWritingStyleMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof analyzeMyWritingStyle>>,
         TError,
-        {data: BodyType<AnalyzeMyWritingStyleBody>},
+        AnalyzeMyWritingStyleMutationVariables,
         TContext
       > => {
       return useMutation(getAnalyzeMyWritingStyleMutationOptions(options));
@@ -6655,7 +6790,7 @@ export const getAnalyzeStyleUrl = (projectId: number,) => {
 export const analyzeStyle = async (projectId: number,
     analyzeStyleRequest: AnalyzeStyleRequest, options?: Parameters<typeof customFetch>[1]): Promise<WritingStyleProfile> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -6674,11 +6809,13 @@ return customFetch<WritingStyleProfile>(getAnalyzeStyleUrl(projectId),
 
 
 
-export const getAnalyzeStyleMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeStyle>>, TError,{projectId: number;data: BodyType<AnalyzeStyleRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof analyzeStyle>>, TError,{projectId: number;data: BodyType<AnalyzeStyleRequest>}, TContext> => {
+export const getAnalyzeStyleMutationKey = () => ['analyzeStyle'] as const;
 
-const mutationKey = ['analyzeStyle'];
+export const getAnalyzeStyleMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeStyle>>, TError,AnalyzeStyleMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof analyzeStyle>>, TError,AnalyzeStyleMutationVariables, TContext> => {
+
+const mutationKey = getAnalyzeStyleMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -6688,7 +6825,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof analyzeStyle>>, {projectId: number;data: BodyType<AnalyzeStyleRequest>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof analyzeStyle>>, AnalyzeStyleMutationVariables> = (props) => {
           const {projectId,data} = props ?? {};
 
           return  analyzeStyle(projectId,data,requestOptions)
@@ -6704,16 +6841,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type AnalyzeStyleMutationResult = NonNullable<Awaited<ReturnType<typeof analyzeStyle>>>
     export type AnalyzeStyleMutationBody = BodyType<AnalyzeStyleRequest>
     export type AnalyzeStyleMutationError = ErrorType<unknown>
+    export type AnalyzeStyleMutationVariables = {projectId: number;data: BodyType<AnalyzeStyleRequest>}
 
     /**
  * @summary Analyze writing style and store profile
  */
 export const useAnalyzeStyle = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeStyle>>, TError,{projectId: number;data: BodyType<AnalyzeStyleRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeStyle>>, TError,AnalyzeStyleMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof analyzeStyle>>,
         TError,
-        {projectId: number;data: BodyType<AnalyzeStyleRequest>},
+        AnalyzeStyleMutationVariables,
         TContext
       > => {
       return useMutation(getAnalyzeStyleMutationOptions(options));
@@ -6886,7 +7024,7 @@ export const getSetAITierPreferenceUrl = () => {
  */
 export const setAITierPreference = async (setTierPreferenceRequest: SetTierPreferenceRequest, options?: Parameters<typeof customFetch>[1]): Promise<TierPreferenceResponse> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -6905,11 +7043,13 @@ return customFetch<TierPreferenceResponse>(getSetAITierPreferenceUrl(),
 
 
 
-export const getSetAITierPreferenceMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setAITierPreference>>, TError,{data: BodyType<SetTierPreferenceRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof setAITierPreference>>, TError,{data: BodyType<SetTierPreferenceRequest>}, TContext> => {
+export const getSetAITierPreferenceMutationKey = () => ['setAITierPreference'] as const;
 
-const mutationKey = ['setAITierPreference'];
+export const getSetAITierPreferenceMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setAITierPreference>>, TError,SetAITierPreferenceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof setAITierPreference>>, TError,SetAITierPreferenceMutationVariables, TContext> => {
+
+const mutationKey = getSetAITierPreferenceMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -6919,7 +7059,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setAITierPreference>>, {data: BodyType<SetTierPreferenceRequest>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setAITierPreference>>, SetAITierPreferenceMutationVariables> = (props) => {
           const {data} = props ?? {};
 
           return  setAITierPreference(data,requestOptions)
@@ -6935,16 +7075,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type SetAITierPreferenceMutationResult = NonNullable<Awaited<ReturnType<typeof setAITierPreference>>>
     export type SetAITierPreferenceMutationBody = BodyType<SetTierPreferenceRequest>
     export type SetAITierPreferenceMutationError = ErrorType<void>
+    export type SetAITierPreferenceMutationVariables = {data: BodyType<SetTierPreferenceRequest>}
 
     /**
  * @summary Set default AI tier preference
  */
 export const useSetAITierPreference = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setAITierPreference>>, TError,{data: BodyType<SetTierPreferenceRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setAITierPreference>>, TError,SetAITierPreferenceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof setAITierPreference>>,
         TError,
-        {data: BodyType<SetTierPreferenceRequest>},
+        SetAITierPreferenceMutationVariables,
         TContext
       > => {
       return useMutation(getSetAITierPreferenceMutationOptions(options));
@@ -7041,7 +7182,7 @@ export const getUpdateAdminAITierUrl = (tierId: string,) => {
 export const updateAdminAITier = async (tierId: string,
     updateAITierRequest: UpdateAITierRequest, options?: Parameters<typeof customFetch>[1]): Promise<UpdateAdminAITier200> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -7060,11 +7201,13 @@ return customFetch<UpdateAdminAITier200>(getUpdateAdminAITierUrl(tierId),
 
 
 
-export const getUpdateAdminAITierMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAdminAITier>>, TError,{tierId: string;data: BodyType<UpdateAITierRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof updateAdminAITier>>, TError,{tierId: string;data: BodyType<UpdateAITierRequest>}, TContext> => {
+export const getUpdateAdminAITierMutationKey = () => ['updateAdminAITier'] as const;
 
-const mutationKey = ['updateAdminAITier'];
+export const getUpdateAdminAITierMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAdminAITier>>, TError,UpdateAdminAITierMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateAdminAITier>>, TError,UpdateAdminAITierMutationVariables, TContext> => {
+
+const mutationKey = getUpdateAdminAITierMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -7074,7 +7217,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateAdminAITier>>, {tierId: string;data: BodyType<UpdateAITierRequest>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateAdminAITier>>, UpdateAdminAITierMutationVariables> = (props) => {
           const {tierId,data} = props ?? {};
 
           return  updateAdminAITier(tierId,data,requestOptions)
@@ -7090,16 +7233,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type UpdateAdminAITierMutationResult = NonNullable<Awaited<ReturnType<typeof updateAdminAITier>>>
     export type UpdateAdminAITierMutationBody = BodyType<UpdateAITierRequest>
     export type UpdateAdminAITierMutationError = ErrorType<void>
+    export type UpdateAdminAITierMutationVariables = {tierId: string;data: BodyType<UpdateAITierRequest>}
 
     /**
  * @summary Owner: update tier pricing, rate limits, and visibility
  */
 export const useUpdateAdminAITier = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAdminAITier>>, TError,{tierId: string;data: BodyType<UpdateAITierRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAdminAITier>>, TError,UpdateAdminAITierMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof updateAdminAITier>>,
         TError,
-        {tierId: string;data: BodyType<UpdateAITierRequest>},
+        UpdateAdminAITierMutationVariables,
         TContext
       > => {
       return useMutation(getUpdateAdminAITierMutationOptions(options));
@@ -7197,7 +7341,7 @@ export const getUpdateMyProfileUrl = () => {
  */
 export const updateMyProfile = async (updateProfileRequest: UpdateProfileRequest, options?: Parameters<typeof customFetch>[1]): Promise<UserProfile> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -7216,11 +7360,13 @@ return customFetch<UserProfile>(getUpdateMyProfileUrl(),
 
 
 
-export const getUpdateMyProfileMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMyProfile>>, TError,{data: BodyType<UpdateProfileRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof updateMyProfile>>, TError,{data: BodyType<UpdateProfileRequest>}, TContext> => {
+export const getUpdateMyProfileMutationKey = () => ['updateMyProfile'] as const;
 
-const mutationKey = ['updateMyProfile'];
+export const getUpdateMyProfileMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMyProfile>>, TError,UpdateMyProfileMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateMyProfile>>, TError,UpdateMyProfileMutationVariables, TContext> => {
+
+const mutationKey = getUpdateMyProfileMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -7230,7 +7376,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateMyProfile>>, {data: BodyType<UpdateProfileRequest>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateMyProfile>>, UpdateMyProfileMutationVariables> = (props) => {
           const {data} = props ?? {};
 
           return  updateMyProfile(data,requestOptions)
@@ -7246,16 +7392,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type UpdateMyProfileMutationResult = NonNullable<Awaited<ReturnType<typeof updateMyProfile>>>
     export type UpdateMyProfileMutationBody = BodyType<UpdateProfileRequest>
     export type UpdateMyProfileMutationError = ErrorType<void>
+    export type UpdateMyProfileMutationVariables = {data: BodyType<UpdateProfileRequest>}
 
     /**
  * @summary Update current user's profile
  */
 export const useUpdateMyProfile = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMyProfile>>, TError,{data: BodyType<UpdateProfileRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMyProfile>>, TError,UpdateMyProfileMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof updateMyProfile>>,
         TError,
-        {data: BodyType<UpdateProfileRequest>},
+        UpdateMyProfileMutationVariables,
         TContext
       > => {
       return useMutation(getUpdateMyProfileMutationOptions(options));
@@ -7275,7 +7422,7 @@ export const getUploadMyAvatarUrl = () => {
  */
 export const uploadMyAvatar = async (avatarUploadRequest: AvatarUploadRequest, options?: Parameters<typeof customFetch>[1]): Promise<AvatarUploadResponse> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -7294,11 +7441,13 @@ return customFetch<AvatarUploadResponse>(getUploadMyAvatarUrl(),
 
 
 
-export const getUploadMyAvatarMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadMyAvatar>>, TError,{data: BodyType<AvatarUploadRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof uploadMyAvatar>>, TError,{data: BodyType<AvatarUploadRequest>}, TContext> => {
+export const getUploadMyAvatarMutationKey = () => ['uploadMyAvatar'] as const;
 
-const mutationKey = ['uploadMyAvatar'];
+export const getUploadMyAvatarMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadMyAvatar>>, TError,UploadMyAvatarMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof uploadMyAvatar>>, TError,UploadMyAvatarMutationVariables, TContext> => {
+
+const mutationKey = getUploadMyAvatarMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -7308,7 +7457,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof uploadMyAvatar>>, {data: BodyType<AvatarUploadRequest>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof uploadMyAvatar>>, UploadMyAvatarMutationVariables> = (props) => {
           const {data} = props ?? {};
 
           return  uploadMyAvatar(data,requestOptions)
@@ -7324,16 +7473,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type UploadMyAvatarMutationResult = NonNullable<Awaited<ReturnType<typeof uploadMyAvatar>>>
     export type UploadMyAvatarMutationBody = BodyType<AvatarUploadRequest>
     export type UploadMyAvatarMutationError = ErrorType<void>
+    export type UploadMyAvatarMutationVariables = {data: BodyType<AvatarUploadRequest>}
 
     /**
  * @summary Upload avatar image
  */
 export const useUploadMyAvatar = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadMyAvatar>>, TError,{data: BodyType<AvatarUploadRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadMyAvatar>>, TError,UploadMyAvatarMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof uploadMyAvatar>>,
         TError,
-        {data: BodyType<AvatarUploadRequest>},
+        UploadMyAvatarMutationVariables,
         TContext
       > => {
       return useMutation(getUploadMyAvatarMutationOptions(options));
@@ -7353,7 +7503,7 @@ export const getDeleteMyAccountUrl = () => {
  */
 export const deleteMyAccount = async (deleteAccountRequest: DeleteAccountRequest, options?: Parameters<typeof customFetch>[1]): Promise<DeleteAccountResponse> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -7372,11 +7522,13 @@ return customFetch<DeleteAccountResponse>(getDeleteMyAccountUrl(),
 
 
 
-export const getDeleteMyAccountMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteMyAccount>>, TError,{data: BodyType<DeleteAccountRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof deleteMyAccount>>, TError,{data: BodyType<DeleteAccountRequest>}, TContext> => {
+export const getDeleteMyAccountMutationKey = () => ['deleteMyAccount'] as const;
 
-const mutationKey = ['deleteMyAccount'];
+export const getDeleteMyAccountMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteMyAccount>>, TError,DeleteMyAccountMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteMyAccount>>, TError,DeleteMyAccountMutationVariables, TContext> => {
+
+const mutationKey = getDeleteMyAccountMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -7386,7 +7538,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteMyAccount>>, {data: BodyType<DeleteAccountRequest>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteMyAccount>>, DeleteMyAccountMutationVariables> = (props) => {
           const {data} = props ?? {};
 
           return  deleteMyAccount(data,requestOptions)
@@ -7402,16 +7554,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type DeleteMyAccountMutationResult = NonNullable<Awaited<ReturnType<typeof deleteMyAccount>>>
     export type DeleteMyAccountMutationBody = BodyType<DeleteAccountRequest>
     export type DeleteMyAccountMutationError = ErrorType<void>
+    export type DeleteMyAccountMutationVariables = {data: BodyType<DeleteAccountRequest>}
 
     /**
  * @summary Delete current user account
  */
 export const useDeleteMyAccount = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteMyAccount>>, TError,{data: BodyType<DeleteAccountRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteMyAccount>>, TError,DeleteMyAccountMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof deleteMyAccount>>,
         TError,
-        {data: BodyType<DeleteAccountRequest>},
+        DeleteMyAccountMutationVariables,
         TContext
       > => {
       return useMutation(getDeleteMyAccountMutationOptions(options));
@@ -7515,7 +7668,7 @@ export const getCreateTemplateUrl = () => {
  */
 export const createTemplate = async (documentTemplateInput: DocumentTemplateInput, options?: Parameters<typeof customFetch>[1]): Promise<DocumentTemplate> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -7534,11 +7687,13 @@ return customFetch<DocumentTemplate>(getCreateTemplateUrl(),
 
 
 
-export const getCreateTemplateMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createTemplate>>, TError,{data: BodyType<DocumentTemplateInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof createTemplate>>, TError,{data: BodyType<DocumentTemplateInput>}, TContext> => {
+export const getCreateTemplateMutationKey = () => ['createTemplate'] as const;
 
-const mutationKey = ['createTemplate'];
+export const getCreateTemplateMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createTemplate>>, TError,CreateTemplateMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createTemplate>>, TError,CreateTemplateMutationVariables, TContext> => {
+
+const mutationKey = getCreateTemplateMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -7548,7 +7703,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createTemplate>>, {data: BodyType<DocumentTemplateInput>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createTemplate>>, CreateTemplateMutationVariables> = (props) => {
           const {data} = props ?? {};
 
           return  createTemplate(data,requestOptions)
@@ -7564,16 +7719,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type CreateTemplateMutationResult = NonNullable<Awaited<ReturnType<typeof createTemplate>>>
     export type CreateTemplateMutationBody = BodyType<DocumentTemplateInput>
     export type CreateTemplateMutationError = ErrorType<void>
+    export type CreateTemplateMutationVariables = {data: BodyType<DocumentTemplateInput>}
 
     /**
  * @summary Create a new document template
  */
 export const useCreateTemplate = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createTemplate>>, TError,{data: BodyType<DocumentTemplateInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createTemplate>>, TError,CreateTemplateMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof createTemplate>>,
         TError,
-        {data: BodyType<DocumentTemplateInput>},
+        CreateTemplateMutationVariables,
         TContext
       > => {
       return useMutation(getCreateTemplateMutationOptions(options));
@@ -7748,7 +7904,7 @@ export const getUpdateTemplateUrl = (templateId: number,) => {
 export const updateTemplate = async (templateId: number,
     documentTemplateUpdate: DocumentTemplateUpdate, options?: Parameters<typeof customFetch>[1]): Promise<DocumentTemplate> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -7767,11 +7923,13 @@ return customFetch<DocumentTemplate>(getUpdateTemplateUrl(templateId),
 
 
 
-export const getUpdateTemplateMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateTemplate>>, TError,{templateId: number;data: BodyType<DocumentTemplateUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof updateTemplate>>, TError,{templateId: number;data: BodyType<DocumentTemplateUpdate>}, TContext> => {
+export const getUpdateTemplateMutationKey = () => ['updateTemplate'] as const;
 
-const mutationKey = ['updateTemplate'];
+export const getUpdateTemplateMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateTemplate>>, TError,UpdateTemplateMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateTemplate>>, TError,UpdateTemplateMutationVariables, TContext> => {
+
+const mutationKey = getUpdateTemplateMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -7781,7 +7939,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateTemplate>>, {templateId: number;data: BodyType<DocumentTemplateUpdate>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateTemplate>>, UpdateTemplateMutationVariables> = (props) => {
           const {templateId,data} = props ?? {};
 
           return  updateTemplate(templateId,data,requestOptions)
@@ -7797,16 +7955,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type UpdateTemplateMutationResult = NonNullable<Awaited<ReturnType<typeof updateTemplate>>>
     export type UpdateTemplateMutationBody = BodyType<DocumentTemplateUpdate>
     export type UpdateTemplateMutationError = ErrorType<void>
+    export type UpdateTemplateMutationVariables = {templateId: number;data: BodyType<DocumentTemplateUpdate>}
 
     /**
  * @summary Update a template
  */
 export const useUpdateTemplate = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateTemplate>>, TError,{templateId: number;data: BodyType<DocumentTemplateUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateTemplate>>, TError,UpdateTemplateMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof updateTemplate>>,
         TError,
-        {templateId: number;data: BodyType<DocumentTemplateUpdate>},
+        UpdateTemplateMutationVariables,
         TContext
       > => {
       return useMutation(getUpdateTemplateMutationOptions(options));
@@ -7839,11 +7998,13 @@ export const deleteTemplate = async (templateId: number, options?: Parameters<ty
 
 
 
-export const getDeleteTemplateMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteTemplate>>, TError,{templateId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof deleteTemplate>>, TError,{templateId: number}, TContext> => {
+export const getDeleteTemplateMutationKey = () => ['deleteTemplate'] as const;
 
-const mutationKey = ['deleteTemplate'];
+export const getDeleteTemplateMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteTemplate>>, TError,DeleteTemplateMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteTemplate>>, TError,DeleteTemplateMutationVariables, TContext> => {
+
+const mutationKey = getDeleteTemplateMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -7853,7 +8014,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteTemplate>>, {templateId: number}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteTemplate>>, DeleteTemplateMutationVariables> = (props) => {
           const {templateId} = props ?? {};
 
           return  deleteTemplate(templateId,requestOptions)
@@ -7869,16 +8030,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type DeleteTemplateMutationResult = NonNullable<Awaited<ReturnType<typeof deleteTemplate>>>
 
     export type DeleteTemplateMutationError = ErrorType<void>
+    export type DeleteTemplateMutationVariables = {templateId: number}
 
     /**
  * @summary Delete a template
  */
 export const useDeleteTemplate = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteTemplate>>, TError,{templateId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteTemplate>>, TError,DeleteTemplateMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof deleteTemplate>>,
         TError,
-        {templateId: number},
+        DeleteTemplateMutationVariables,
         TContext
       > => {
       return useMutation(getDeleteTemplateMutationOptions(options));
@@ -7976,7 +8138,7 @@ export const getCreateAccountReferenceUrl = () => {
  */
 export const createAccountReference = async (accountReferenceInput: AccountReferenceInput, options?: Parameters<typeof customFetch>[1]): Promise<AccountReference> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -7995,11 +8157,13 @@ return customFetch<AccountReference>(getCreateAccountReferenceUrl(),
 
 
 
-export const getCreateAccountReferenceMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAccountReference>>, TError,{data: BodyType<AccountReferenceInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof createAccountReference>>, TError,{data: BodyType<AccountReferenceInput>}, TContext> => {
+export const getCreateAccountReferenceMutationKey = () => ['createAccountReference'] as const;
 
-const mutationKey = ['createAccountReference'];
+export const getCreateAccountReferenceMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAccountReference>>, TError,CreateAccountReferenceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createAccountReference>>, TError,CreateAccountReferenceMutationVariables, TContext> => {
+
+const mutationKey = getCreateAccountReferenceMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -8009,7 +8173,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createAccountReference>>, {data: BodyType<AccountReferenceInput>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createAccountReference>>, CreateAccountReferenceMutationVariables> = (props) => {
           const {data} = props ?? {};
 
           return  createAccountReference(data,requestOptions)
@@ -8025,16 +8189,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type CreateAccountReferenceMutationResult = NonNullable<Awaited<ReturnType<typeof createAccountReference>>>
     export type CreateAccountReferenceMutationBody = BodyType<AccountReferenceInput>
     export type CreateAccountReferenceMutationError = ErrorType<void>
+    export type CreateAccountReferenceMutationVariables = {data: BodyType<AccountReferenceInput>}
 
     /**
  * @summary Add reference to personal pool
  */
 export const useCreateAccountReference = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAccountReference>>, TError,{data: BodyType<AccountReferenceInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAccountReference>>, TError,CreateAccountReferenceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof createAccountReference>>,
         TError,
-        {data: BodyType<AccountReferenceInput>},
+        CreateAccountReferenceMutationVariables,
         TContext
       > => {
       return useMutation(getCreateAccountReferenceMutationOptions(options));
@@ -8054,7 +8219,7 @@ export const getImportAccountReferencesUrl = () => {
  */
 export const importAccountReferences = async (importAccountReferencesRequest: ImportAccountReferencesRequest, options?: Parameters<typeof customFetch>[1]): Promise<ImportAccountReferencesResponse> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -8073,11 +8238,13 @@ return customFetch<ImportAccountReferencesResponse>(getImportAccountReferencesUr
 
 
 
-export const getImportAccountReferencesMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof importAccountReferences>>, TError,{data: BodyType<ImportAccountReferencesRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof importAccountReferences>>, TError,{data: BodyType<ImportAccountReferencesRequest>}, TContext> => {
+export const getImportAccountReferencesMutationKey = () => ['importAccountReferences'] as const;
 
-const mutationKey = ['importAccountReferences'];
+export const getImportAccountReferencesMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof importAccountReferences>>, TError,ImportAccountReferencesMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof importAccountReferences>>, TError,ImportAccountReferencesMutationVariables, TContext> => {
+
+const mutationKey = getImportAccountReferencesMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -8087,7 +8254,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof importAccountReferences>>, {data: BodyType<ImportAccountReferencesRequest>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof importAccountReferences>>, ImportAccountReferencesMutationVariables> = (props) => {
           const {data} = props ?? {};
 
           return  importAccountReferences(data,requestOptions)
@@ -8103,16 +8270,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type ImportAccountReferencesMutationResult = NonNullable<Awaited<ReturnType<typeof importAccountReferences>>>
     export type ImportAccountReferencesMutationBody = BodyType<ImportAccountReferencesRequest>
     export type ImportAccountReferencesMutationError = ErrorType<void>
+    export type ImportAccountReferencesMutationVariables = {data: BodyType<ImportAccountReferencesRequest>}
 
     /**
  * @summary Bulk import references from DOIs
  */
 export const useImportAccountReferences = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof importAccountReferences>>, TError,{data: BodyType<ImportAccountReferencesRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof importAccountReferences>>, TError,ImportAccountReferencesMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof importAccountReferences>>,
         TError,
-        {data: BodyType<ImportAccountReferencesRequest>},
+        ImportAccountReferencesMutationVariables,
         TContext
       > => {
       return useMutation(getImportAccountReferencesMutationOptions(options));
@@ -8132,7 +8300,7 @@ export const getUpdateAccountReferenceUrl = (id: number,) => {
 export const updateAccountReference = async (id: number,
     accountReferenceInput: AccountReferenceInput, options?: Parameters<typeof customFetch>[1]): Promise<AccountReference> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -8151,11 +8319,13 @@ return customFetch<AccountReference>(getUpdateAccountReferenceUrl(id),
 
 
 
-export const getUpdateAccountReferenceMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAccountReference>>, TError,{id: number;data: BodyType<AccountReferenceInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof updateAccountReference>>, TError,{id: number;data: BodyType<AccountReferenceInput>}, TContext> => {
+export const getUpdateAccountReferenceMutationKey = () => ['updateAccountReference'] as const;
 
-const mutationKey = ['updateAccountReference'];
+export const getUpdateAccountReferenceMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAccountReference>>, TError,UpdateAccountReferenceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateAccountReference>>, TError,UpdateAccountReferenceMutationVariables, TContext> => {
+
+const mutationKey = getUpdateAccountReferenceMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -8165,7 +8335,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateAccountReference>>, {id: number;data: BodyType<AccountReferenceInput>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateAccountReference>>, UpdateAccountReferenceMutationVariables> = (props) => {
           const {id,data} = props ?? {};
 
           return  updateAccountReference(id,data,requestOptions)
@@ -8181,16 +8351,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type UpdateAccountReferenceMutationResult = NonNullable<Awaited<ReturnType<typeof updateAccountReference>>>
     export type UpdateAccountReferenceMutationBody = BodyType<AccountReferenceInput>
     export type UpdateAccountReferenceMutationError = ErrorType<void>
+    export type UpdateAccountReferenceMutationVariables = {id: number;data: BodyType<AccountReferenceInput>}
 
     /**
  * @summary Update an account reference
  */
 export const useUpdateAccountReference = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAccountReference>>, TError,{id: number;data: BodyType<AccountReferenceInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAccountReference>>, TError,UpdateAccountReferenceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof updateAccountReference>>,
         TError,
-        {id: number;data: BodyType<AccountReferenceInput>},
+        UpdateAccountReferenceMutationVariables,
         TContext
       > => {
       return useMutation(getUpdateAccountReferenceMutationOptions(options));
@@ -8222,11 +8393,13 @@ export const deleteAccountReference = async (id: number, options?: Parameters<ty
 
 
 
-export const getDeleteAccountReferenceMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAccountReference>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof deleteAccountReference>>, TError,{id: number}, TContext> => {
+export const getDeleteAccountReferenceMutationKey = () => ['deleteAccountReference'] as const;
 
-const mutationKey = ['deleteAccountReference'];
+export const getDeleteAccountReferenceMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAccountReference>>, TError,DeleteAccountReferenceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteAccountReference>>, TError,DeleteAccountReferenceMutationVariables, TContext> => {
+
+const mutationKey = getDeleteAccountReferenceMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -8236,7 +8409,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteAccountReference>>, {id: number}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteAccountReference>>, DeleteAccountReferenceMutationVariables> = (props) => {
           const {id} = props ?? {};
 
           return  deleteAccountReference(id,requestOptions)
@@ -8252,16 +8425,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type DeleteAccountReferenceMutationResult = NonNullable<Awaited<ReturnType<typeof deleteAccountReference>>>
 
     export type DeleteAccountReferenceMutationError = ErrorType<void>
+    export type DeleteAccountReferenceMutationVariables = {id: number}
 
     /**
  * @summary Delete an account reference
  */
 export const useDeleteAccountReference = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAccountReference>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAccountReference>>, TError,DeleteAccountReferenceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof deleteAccountReference>>,
         TError,
-        {id: number},
+        DeleteAccountReferenceMutationVariables,
         TContext
       > => {
       return useMutation(getDeleteAccountReferenceMutationOptions(options));
@@ -8282,7 +8456,7 @@ export const getAssignAccountReferenceUrl = (id: number,) => {
 export const assignAccountReference = async (id: number,
     assignAccountReferenceBody: AssignAccountReferenceBody, options?: Parameters<typeof customFetch>[1]): Promise<Reference> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -8301,11 +8475,13 @@ return customFetch<Reference>(getAssignAccountReferenceUrl(id),
 
 
 
-export const getAssignAccountReferenceMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof assignAccountReference>>, TError,{id: number;data: BodyType<AssignAccountReferenceBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof assignAccountReference>>, TError,{id: number;data: BodyType<AssignAccountReferenceBody>}, TContext> => {
+export const getAssignAccountReferenceMutationKey = () => ['assignAccountReference'] as const;
 
-const mutationKey = ['assignAccountReference'];
+export const getAssignAccountReferenceMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof assignAccountReference>>, TError,AssignAccountReferenceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof assignAccountReference>>, TError,AssignAccountReferenceMutationVariables, TContext> => {
+
+const mutationKey = getAssignAccountReferenceMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -8315,7 +8491,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof assignAccountReference>>, {id: number;data: BodyType<AssignAccountReferenceBody>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof assignAccountReference>>, AssignAccountReferenceMutationVariables> = (props) => {
           const {id,data} = props ?? {};
 
           return  assignAccountReference(id,data,requestOptions)
@@ -8331,16 +8507,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type AssignAccountReferenceMutationResult = NonNullable<Awaited<ReturnType<typeof assignAccountReference>>>
     export type AssignAccountReferenceMutationBody = BodyType<AssignAccountReferenceBody>
     export type AssignAccountReferenceMutationError = ErrorType<void>
+    export type AssignAccountReferenceMutationVariables = {id: number;data: BodyType<AssignAccountReferenceBody>}
 
     /**
  * @summary Assign account reference to a project
  */
 export const useAssignAccountReference = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof assignAccountReference>>, TError,{id: number;data: BodyType<AssignAccountReferenceBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof assignAccountReference>>, TError,AssignAccountReferenceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof assignAccountReference>>,
         TError,
-        {id: number;data: BodyType<AssignAccountReferenceBody>},
+        AssignAccountReferenceMutationVariables,
         TContext
       > => {
       return useMutation(getAssignAccountReferenceMutationOptions(options));
@@ -8438,7 +8615,7 @@ export const getCreateLearningActivityUrl = () => {
  */
 export const createLearningActivity = async (createLearningActivityRequest: CreateLearningActivityRequest, options?: Parameters<typeof customFetch>[1]): Promise<LearningActivity> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -8457,11 +8634,13 @@ return customFetch<LearningActivity>(getCreateLearningActivityUrl(),
 
 
 
-export const getCreateLearningActivityMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createLearningActivity>>, TError,{data: BodyType<CreateLearningActivityRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof createLearningActivity>>, TError,{data: BodyType<CreateLearningActivityRequest>}, TContext> => {
+export const getCreateLearningActivityMutationKey = () => ['createLearningActivity'] as const;
 
-const mutationKey = ['createLearningActivity'];
+export const getCreateLearningActivityMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createLearningActivity>>, TError,CreateLearningActivityMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createLearningActivity>>, TError,CreateLearningActivityMutationVariables, TContext> => {
+
+const mutationKey = getCreateLearningActivityMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -8471,7 +8650,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createLearningActivity>>, {data: BodyType<CreateLearningActivityRequest>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createLearningActivity>>, CreateLearningActivityMutationVariables> = (props) => {
           const {data} = props ?? {};
 
           return  createLearningActivity(data,requestOptions)
@@ -8487,16 +8666,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type CreateLearningActivityMutationResult = NonNullable<Awaited<ReturnType<typeof createLearningActivity>>>
     export type CreateLearningActivityMutationBody = BodyType<CreateLearningActivityRequest>
     export type CreateLearningActivityMutationError = ErrorType<void>
+    export type CreateLearningActivityMutationVariables = {data: BodyType<CreateLearningActivityRequest>}
 
     /**
  * @summary Log a learning activity
  */
 export const useCreateLearningActivity = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createLearningActivity>>, TError,{data: BodyType<CreateLearningActivityRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createLearningActivity>>, TError,CreateLearningActivityMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof createLearningActivity>>,
         TError,
-        {data: BodyType<CreateLearningActivityRequest>},
+        CreateLearningActivityMutationVariables,
         TContext
       > => {
       return useMutation(getCreateLearningActivityMutationOptions(options));
@@ -9008,7 +9188,7 @@ export const getOverrideUserTierUrl = (userId: string,) => {
 export const overrideUserTier = async (userId: string,
     overrideUserTierBody: OverrideUserTierBody, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -9027,11 +9207,13 @@ return customFetch<void>(getOverrideUserTierUrl(userId),
 
 
 
-export const getOverrideUserTierMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof overrideUserTier>>, TError,{userId: string;data: BodyType<OverrideUserTierBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof overrideUserTier>>, TError,{userId: string;data: BodyType<OverrideUserTierBody>}, TContext> => {
+export const getOverrideUserTierMutationKey = () => ['overrideUserTier'] as const;
 
-const mutationKey = ['overrideUserTier'];
+export const getOverrideUserTierMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof overrideUserTier>>, TError,OverrideUserTierMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof overrideUserTier>>, TError,OverrideUserTierMutationVariables, TContext> => {
+
+const mutationKey = getOverrideUserTierMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -9041,7 +9223,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof overrideUserTier>>, {userId: string;data: BodyType<OverrideUserTierBody>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof overrideUserTier>>, OverrideUserTierMutationVariables> = (props) => {
           const {userId,data} = props ?? {};
 
           return  overrideUserTier(userId,data,requestOptions)
@@ -9057,16 +9239,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type OverrideUserTierMutationResult = NonNullable<Awaited<ReturnType<typeof overrideUserTier>>>
     export type OverrideUserTierMutationBody = BodyType<OverrideUserTierBody>
     export type OverrideUserTierMutationError = ErrorType<void>
+    export type OverrideUserTierMutationVariables = {userId: string;data: BodyType<OverrideUserTierBody>}
 
     /**
  * @summary Override user tier (admin only)
  */
 export const useOverrideUserTier = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof overrideUserTier>>, TError,{userId: string;data: BodyType<OverrideUserTierBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof overrideUserTier>>, TError,OverrideUserTierMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof overrideUserTier>>,
         TError,
-        {userId: string;data: BodyType<OverrideUserTierBody>},
+        OverrideUserTierMutationVariables,
         TContext
       > => {
       return useMutation(getOverrideUserTierMutationOptions(options));
@@ -9086,7 +9269,7 @@ export const getSuspendUserUrl = (userId: string,) => {
 export const suspendUser = async (userId: string,
     suspendUserBody: SuspendUserBody, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
 
-    const getHeaders = (h?: HeadersInit | Headers): Record<string, string> => {
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Array.isArray(h)) return Object.fromEntries(h);
@@ -9105,11 +9288,13 @@ return customFetch<void>(getSuspendUserUrl(userId),
 
 
 
-export const getSuspendUserMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof suspendUser>>, TError,{userId: string;data: BodyType<SuspendUserBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof suspendUser>>, TError,{userId: string;data: BodyType<SuspendUserBody>}, TContext> => {
+export const getSuspendUserMutationKey = () => ['suspendUser'] as const;
 
-const mutationKey = ['suspendUser'];
+export const getSuspendUserMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof suspendUser>>, TError,SuspendUserMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof suspendUser>>, TError,SuspendUserMutationVariables, TContext> => {
+
+const mutationKey = getSuspendUserMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -9119,7 +9304,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof suspendUser>>, {userId: string;data: BodyType<SuspendUserBody>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof suspendUser>>, SuspendUserMutationVariables> = (props) => {
           const {userId,data} = props ?? {};
 
           return  suspendUser(userId,data,requestOptions)
@@ -9135,16 +9320,17 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type SuspendUserMutationResult = NonNullable<Awaited<ReturnType<typeof suspendUser>>>
     export type SuspendUserMutationBody = BodyType<SuspendUserBody>
     export type SuspendUserMutationError = ErrorType<void>
+    export type SuspendUserMutationVariables = {userId: string;data: BodyType<SuspendUserBody>}
 
     /**
  * @summary Suspend or unsuspend user (admin only)
  */
 export const useSuspendUser = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof suspendUser>>, TError,{userId: string;data: BodyType<SuspendUserBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof suspendUser>>, TError,SuspendUserMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof suspendUser>>,
         TError,
-        {userId: string;data: BodyType<SuspendUserBody>},
+        SuspendUserMutationVariables,
         TContext
       > => {
       return useMutation(getSuspendUserMutationOptions(options));
