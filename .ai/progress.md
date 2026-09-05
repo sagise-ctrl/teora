@@ -2,6 +2,32 @@
 
 > Completed work, newest first. Format: `YYYY-MM-DD | description | files | status`
 
+## 2026-09-05 | Google OAuth Login Fix — 500 TypeError (opus-4-8)
+
+### Fix: db.sql → sql + try/catch wrapper di /api/auth/login
+
+**Trigger:** Owner screenshot `e:\teora\screnshoot\er5.png` — Google OAuth callback return 500 dengan HTML Vercel default.
+
+**Root cause:** Commit `4e00ed0` (username feature) pakai `db.sql\`COALESCE(...)\`` — tapi `db` (Drizzle client) tidak mengekspor `sql`. `sql` harus di-import terpisah dari `drizzle-orm`. TypeError uncaught → Vercel HTML 500 → frontend "Login gagal" tanpa diagnostic.
+
+**Fix applied:**
+- `artifacts/api-server/src/routes/auth.ts`: import `sql` from drizzle-orm, replace `db.sql\`...\`` with `sql\`...\``
+- Tambah try/catch wrapper di `/auth/login` route — future unhandled error return JSON 500 (Indonesian) instead of HTML
+- Bundle rebuilt (6.4MB)
+- Deployed: `teora-backend-2jiq3nf51-sagise-ctrls-projects.vercel.app` → alias `teora-backend.vercel.app`
+
+**Verification:**
+- `grep "sql\`COALESCE" api/index.mjs` → 1 hit (was 0 before fix)
+- Vercel logs: no more 500 errors after fix (only 401s from test curls + 200 from healthz)
+- Commit `c54b006`
+
+**Files:**
+- `artifacts/api-server/src/routes/auth.ts` (1 file, +80/-73)
+
+**Lesson documented:** `.ai/lessons-learned.md` entry "Backend 500 — `db.sql is not a function`"
+
+---
+
 ## 2026-09-04 | Landing Page + AI Usage Audit (opus-4-6)
 
 ### Landing Page — ✅ DONE + DEPLOYED

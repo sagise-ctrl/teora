@@ -418,6 +418,125 @@ Pending fixes tracked in memory `deploy-error-playbook-20260904.md`.
 
 ---
 
+## [Backend 500 — `db.sql is not a function` di /api/auth/login (Google OAuth flow)]
+
+**Tanggal:** 2026-09-05
+**Severity:** P1 Production (login 100% broken untuk semua Google OAuth user)
+**Kelas masalah:** Backend auth — Drizzle ORM API misuse + unhandled exception returns HTML
+
+### Gejala
+
+- Screenshot dari owner: setelah Google OAuth callback, `POST /api/auth/login` return 500 dengan HTML body Vercel default (`<pre>Internal Server Error</pre>`)
+- Frontend `customFetch` tidak bisa parse HTML → tampil pesan generic "Login gagal" tanpa diagnostic
+- `/api/healthz` masih 200, `/api/auth/me` masih return 401 normal → hanya endpoint `/auth/login` yang affected
+- Vercel runtime logs: `TypeError: db.sql is not a function at file:///var/task/api/index.mjs:203503:23`
+
+### Root cause
+
+**Bug A — `db.sql` API salah**
+
+Commit `4e00ed0` (username feature, 2026-09-04) menambahkan username backfill di `/api/auth/login`:
+```typescript
+.onConflictDoUpdate({
+  target: usersTable.id,
+  set: {
+    email: supabaseUser.email ?? "",
+    username: db.sql`COALESCE(${usersTable.username}, ${deriveUsername()})`,
+  },
+})
+```
+
+**`db` (Drizzle client) TIDAK mengekspor `sql`.** `sql` harus di-import terpisah dari `drizzle-orm`:
+```typescript
+import { sql, eq } from "drizzle-orm";
+// ...
+username: sql`COALESCE(${usersTable.username}, ${deriveUsername()})`,
+```
+
+Codebase punya 6 file lain yang import `sql` dengan benar (`admin.ts`, `ai-usage.ts`, `documents.ts`, `learning-activities.ts`, `projects.ts`, `usage.ts`). Auth.ts adalah outlier yang luput dari pola.
+
+**Bug B — Unhandled exception returns HTML, bukan JSON**
+
+Route handler `/auth/login` tidak punya try/catch wrapper. Saat `db.sql` throw TypeError:
+- Express default error handler catches
+- Vercel adapter renders HTML error page (`<!DOCTYPE html><pre>Internal Server Error</pre>`)
+- Frontend `customFetch` mencoba `response.json()` → gagal → tampil "Login gagal" tanpa info
+
+Owner tidak bisa debug dari frontend side karena HTML tidak informative. Root cause baru ketahuan setelah baca Vercel runtime logs.
+
+### Kalau error berulang — apakah root cause sebelumnya sebenarnya belum teratasi?
+
+**Kelas masalah BARU**, bukan berulang:
+- 2026-08-28: 401 "No refresh token" (cross-origin cookie) → fixed body fallback
+- 2026-09-01: 401 spam "Unauthorized" (mount order + JWT verify + trust proxy) → fixed
+- **2026-09-05: 500 TypeError db.sql** (Drizzle API misuse + missing try/catch) → fixed
+
+Tapi ada pola umum: **setiap fix auth-related butuh cek Vercel runtime logs untuk konfirmasi root cause**, bukan tebak dari response frontend. Frontend selalu menampilkan generic message — backend Vercel logs adalah satu-satunya source of truth untuk diagnosa.
+
+### Opsi yang dipertimbangkan
+
+1. **Patch `auth.ts` saja — fix `db.sql` → `sql`** (minimum viable)
+2. **Fix `db.sql` + tambah try/catch wrapper** (chosen — defense in depth)
+3. **Buat global Express error handler middleware** (overkill untuk 1 endpoint)
+
+### Kenapa pilih pendekatan ini
+
+**Opsi 2 (fix + try/catch):**
+- **Fix root cause** (`db.sql` → `sql`) langsung jalan untuk use case sekarang
+- **Try/catch wrapper** sebagai defense in depth: jika error lain muncul di route ini (misal: username conflict, DB connection drop), return JSON 500 dengan pesan Indonesia, BUKAN HTML Vercel
+- Future bug lebih cepat di-diagnosa dari frontend karena error message lebih jelas
+- Scope kecil: 1 file, ~150 baris reformat, no architectural change
+
+Opsi 1 minimum — tapi lulus defense-in-depth test. Owner udah frustrasi screenshot "Login gagal" tanpa info → future error harus visible.
+
+Opsi 3 terlalu besar — global error handler affect semua routes, butuh audit setiap response. Bisa di-deferred sampai pattern error lain muncul.
+
+### Yang harus dicek di masa depan supaya tidak terulang
+
+**Sebelum pakai Drizzle SQL template:**
+
+- [ ] **SELALU import `sql` dari `drizzle-orm`**, BUKAN dari `db`
+- [ ] `db` (Drizzle client) hanya punya method query (`select`, `insert`, `update`, `delete`, `transaction`) — TIDAK `sql`
+- [ ] Reference: 6 file lain di codebase yang import `sql` benar — copy-paste pattern dari sana
+- [ ] Pre-commit check: `grep "db\.sql" src/routes/` — harusnya 0 hits
+
+**Sebelum commit route handler baru tanpa try/catch:**
+
+- [ ] Route yang touch DB, AI provider, atau external API WAJIB punya try/catch wrapper
+- [ ] Pattern minimal:
+  ```typescript
+  router.post("/...", async (req, res) => {
+    try {
+      // ... handler logic
+    } catch (err) {
+      console.error("[endpoint] unhandled", err);
+      if (!res.headersSent) res.status(500).json({ error: "Pesan Indonesia" });
+    }
+  });
+  ```
+- [ ] Frontend `customFetch` expect JSON 4xx/5xx — HTML response bikin "Login gagal" tanpa diagnostic
+
+**Saat debug frontend "Login gagal" / error generic tanpa specific reason:**
+
+- [ ] **Baca Vercel runtime logs DULU**, jangan tebak dari response
+- [ ] Pattern: `vercel logs <deployment-url> --no-color | grep "error"`
+- [ ] Vercel MCP `get_runtime_logs` return 403 untuk project ini — pakai CLI fallback
+- [ ] Frontend menampilkan "Login gagal" karena HTML unparseable → fix backend, BUKAN frontend
+
+**Sebelum deploy backend yang modify Drizzle SQL:**
+
+- [ ] Bundle verification: `grep "sql\`" api/index.mjs` — confirm SQL fragment compiled correctly
+- [ ] Vercel logs check 5 menit post-deploy untuk unhandled errors
+- [ ] Test endpoint dengan valid token (bukan cuma invalid → 401, tapi valid → 200 path)
+
+**Cross-reference:**
+
+- Related: DECISION 006 (per-route middleware + JWT verify pattern)
+- Related: `.ai/decisions.md` entry auth flow improvements
+- Memory: `deployment-environment-limits` — stop blind loops, cek logs langsung
+
+---
+
 
 
 ## Cara Pakai File Ini

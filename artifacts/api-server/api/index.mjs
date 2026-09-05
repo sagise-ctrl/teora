@@ -194484,7 +194484,7 @@ var health_default = router;
 
 // src/routes/auth.ts
 var import_express2 = __toESM(require_express2(), 1);
-import { eq } from "drizzle-orm";
+import { eq, sql as sql3 } from "drizzle-orm";
 
 // ../../node_modules/.pnpm/@supabase+supabase-js@2.112.4/node_modules/@supabase/supabase-js/dist/index.mjs
 var dist_exports = {};
@@ -203481,56 +203481,63 @@ router2.get("/auth/me", authMiddleware, async (req, res) => {
   res.json(toUserJson(user));
 });
 router2.post("/auth/login", async (req, res) => {
-  const { access_token, refresh_token } = req.body;
-  if (!access_token) {
-    res.status(400).json({ error: "access_token is required" });
-    return;
-  }
-  const userResponse = await supabaseAdmin?.auth.getUser(access_token);
-  if (!userResponse || userResponse.error || !userResponse.data?.user) {
-    res.status(401).json({ error: "Invalid token" });
-    return;
-  }
-  const supabaseUser = userResponse.data.user;
-  const deriveUsername = () => {
-    const raw = supabaseUser.user_metadata?.displayName || supabaseUser.email?.split("@")[0] || "user";
-    return raw.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase().replace(/^[0-9_]+/, "").substring(0, 20) || "user";
-  };
-  const [localUser] = await db.insert(usersTable2).values({ id: supabaseUser.id, email: supabaseUser.email ?? "", username: deriveUsername() }).onConflictDoUpdate({
-    target: usersTable2.id,
-    set: {
-      email: supabaseUser.email ?? "",
-      username: db.sql`COALESCE(${usersTable2.username}, ${deriveUsername()})`
+  try {
+    const { access_token, refresh_token } = req.body;
+    if (!access_token) {
+      res.status(400).json({ error: "access_token is required" });
+      return;
     }
-  }).returning();
-  if (!localUser.username) {
-    let candidate = deriveUsername();
-    for (let i2 = 0; i2 < 10; i2++) {
-      const suffix = i2 === 0 ? "" : String(i2 + 1);
-      const [existing] = await db.select({ id: usersTable2.id }).from(usersTable2).where(eq(usersTable2.username, candidate + suffix));
-      if (!existing) {
-        await db.update(usersTable2).set({ username: candidate + suffix }).where(eq(usersTable2.id, supabaseUser.id));
-        break;
+    const userResponse = await supabaseAdmin?.auth.getUser(access_token);
+    if (!userResponse || userResponse.error || !userResponse.data?.user) {
+      res.status(401).json({ error: "Invalid token" });
+      return;
+    }
+    const supabaseUser = userResponse.data.user;
+    const deriveUsername = () => {
+      const raw = supabaseUser.user_metadata?.displayName || supabaseUser.email?.split("@")[0] || "user";
+      return raw.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase().replace(/^[0-9_]+/, "").substring(0, 20) || "user";
+    };
+    const [localUser] = await db.insert(usersTable2).values({ id: supabaseUser.id, email: supabaseUser.email ?? "", username: deriveUsername() }).onConflictDoUpdate({
+      target: usersTable2.id,
+      set: {
+        email: supabaseUser.email ?? "",
+        username: sql3`COALESCE(${usersTable2.username}, ${deriveUsername()})`
+      }
+    }).returning();
+    if (!localUser.username) {
+      let candidate = deriveUsername();
+      for (let i2 = 0; i2 < 10; i2++) {
+        const suffix = i2 === 0 ? "" : String(i2 + 1);
+        const [existing] = await db.select({ id: usersTable2.id }).from(usersTable2).where(eq(usersTable2.username, candidate + suffix));
+        if (!existing) {
+          await db.update(usersTable2).set({ username: candidate + suffix }).where(eq(usersTable2.id, supabaseUser.id));
+          break;
+        }
       }
     }
-  }
-  res.cookie("sb_access_token", access_token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 36e5,
-    path: "/"
-  });
-  if (refresh_token) {
-    res.cookie("sb_refresh_token", refresh_token, {
+    res.cookie("sb_access_token", access_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 6048e5,
+      maxAge: 36e5,
       path: "/"
     });
+    if (refresh_token) {
+      res.cookie("sb_refresh_token", refresh_token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 6048e5,
+        path: "/"
+      });
+    }
+    res.json(toUserJson(localUser));
+  } catch (err) {
+    console.error("[auth/login] unhandled error", err);
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Login gagal. Silakan coba lagi." });
+    }
   }
-  res.json(toUserJson(localUser));
 });
 router2.post("/auth/register", async (req, res) => {
   const { email, password, username, displayName, referralCode } = req.body;
@@ -203782,7 +203789,7 @@ var shared_default = router3;
 
 // src/routes/projects.ts
 var import_express4 = __toESM(require_express2(), 1);
-import { eq as eq6, desc as desc2, sql as sql3, and as and4, isNull as isNull2 } from "drizzle-orm";
+import { eq as eq6, desc as desc2, sql as sql4, and as and4, isNull as isNull2 } from "drizzle-orm";
 
 // src/lib/activity.ts
 async function logActivity(projectId, eventType, description) {
@@ -250363,13 +250370,13 @@ router4.get("/projects", async (req, res) => {
   }
   if (query.data.search) {
     conditions.push(
-      sql3`lower(${projectsTable.title}) like lower(${`%${query.data.search}%`})`
+      sql4`lower(${projectsTable.title}) like lower(${`%${query.data.search}%`})`
     );
   }
   if (query.data.type) {
     conditions.push(eq6(projectsTable.taskType, query.data.type));
   }
-  const results = await db.select().from(projectsTable).where(sql3.join(conditions.map((c, i2) => i2 === 0 ? c : sql3` and ${c}`)));
+  const results = await db.select().from(projectsTable).where(sql4.join(conditions.map((c, i2) => i2 === 0 ? c : sql4` and ${c}`)));
   res.json(
     results.map((p) => ({
       ...p,
@@ -250395,7 +250402,7 @@ router4.get("/projects/stats", async (req, res) => {
     byType[typeKey] = (byType[typeKey] ?? 0) + 1;
   }
   const projectIds = all.map((p) => p.id);
-  const recent = projectIds.length > 0 ? await db.select().from(activitiesTable).where(sql3`${activitiesTable.projectId} in (${sql3.join(projectIds.map((id) => sql3`${id}`), sql3`, `)})`).orderBy(desc2(activitiesTable.createdAt)).limit(5) : [];
+  const recent = projectIds.length > 0 ? await db.select().from(activitiesTable).where(sql4`${activitiesTable.projectId} in (${sql4.join(projectIds.map((id) => sql4`${id}`), sql4`, `)})`).orderBy(desc2(activitiesTable.createdAt)).limit(5) : [];
   res.json({ total, byStatus, byType, recentActivity: recent });
 });
 router4.get("/projects/:projectId", async (req, res) => {
@@ -251340,7 +251347,7 @@ var messages_default = router5;
 
 // src/routes/documents.ts
 var import_express6 = __toESM(require_express2(), 1);
-import { eq as eq8, desc as desc4, and as and6, isNull as isNull4, sql as sql4, count } from "drizzle-orm";
+import { eq as eq8, desc as desc4, and as and6, isNull as isNull4, sql as sql5, count } from "drizzle-orm";
 
 // src/lib/citation-rendering.ts
 var NUMBERED_FORMATS = /* @__PURE__ */ new Set([
@@ -251890,7 +251897,7 @@ router6.post("/projects/:projectId/documents", async (req, res) => {
   const projectId = params.data.projectId;
   let orderIndex = body.data.orderIndex;
   if (orderIndex === void 0) {
-    const [{ maxIdx }] = await db.select({ maxIdx: sql4`COALESCE(MAX(${documentsTable.orderIndex}), -1)` }).from(documentsTable).where(eq8(documentsTable.projectId, projectId));
+    const [{ maxIdx }] = await db.select({ maxIdx: sql5`COALESCE(MAX(${documentsTable.orderIndex}), -1)` }).from(documentsTable).where(eq8(documentsTable.projectId, projectId));
     orderIndex = (maxIdx ?? -1) + 1;
   }
   const [doc] = await db.insert(documentsTable).values({
@@ -252024,7 +252031,7 @@ router6.patch("/projects/:projectId/documents/:documentId", async (req, res) => 
       await db.update(documentsTable).set({ isActive: false, updatedAt: /* @__PURE__ */ new Date() }).where(
         and6(
           eq8(documentsTable.projectId, params.data.projectId),
-          sql4`${documentsTable.id} != ${params.data.documentId}`
+          sql5`${documentsTable.id} != ${params.data.documentId}`
         )
       );
     }
@@ -253765,7 +253772,7 @@ var exports_default = router12;
 
 // src/routes/ai-usage.ts
 var import_express13 = __toESM(require_express2(), 1);
-import { eq as eq15, and as and9, gte, lte, sql as sql5 } from "drizzle-orm";
+import { eq as eq15, and as and9, gte, lte, sql as sql6 } from "drizzle-orm";
 var router13 = (0, import_express13.Router)();
 function getUserId2(req) {
   if (!req.user?.id) throw new Error("User not authenticated");
@@ -253789,8 +253796,8 @@ router13.get("/ai-usage", async (req, res) => {
     conditions.push(lte(aiUsageLogTable.createdAt, endDate));
   }
   const whereClause = conditions.length === 1 ? conditions[0] : and9(...conditions);
-  const [totalResult] = await db.select({ count: sql5`count(*)` }).from(aiUsageLogTable).where(whereClause);
-  const records = await db.select().from(aiUsageLogTable).where(whereClause).orderBy(sql5`created_at desc`).limit(limit).offset(offset);
+  const [totalResult] = await db.select({ count: sql6`count(*)` }).from(aiUsageLogTable).where(whereClause);
+  const records = await db.select().from(aiUsageLogTable).where(whereClause).orderBy(sql6`created_at desc`).limit(limit).offset(offset);
   res.json({
     data: records.map((r2) => ({
       ...r2,
@@ -255123,7 +255130,7 @@ var learning_activities_default = router22;
 
 // src/routes/usage.ts
 var import_express23 = __toESM(require_express2(), 1);
-import { eq as eq25, and as and14, gte as gte2, sql as sql7, desc as desc17 } from "drizzle-orm";
+import { eq as eq25, and as and14, gte as gte2, sql as sql8, desc as desc17 } from "drizzle-orm";
 import { z as z6 } from "zod/v4";
 var router23 = (0, import_express23.Router)();
 router23.use(authMiddleware);
@@ -255273,11 +255280,11 @@ router23.get("/admin/usage", async (req, res) => {
   const perUserRaw = await db.select({
     userId: aiUsageLogTable.userId,
     email: usersTable2.email,
-    totalRequests: sql7`count(*)`,
-    totalInputTokens: sql7`sum(${aiUsageLogTable.inputTokens})`,
-    totalOutputTokens: sql7`sum(${aiUsageLogTable.outputTokens})`,
-    totalCostUsd: sql7`sum(${aiUsageLogTable.estimatedCostUsd})`
-  }).from(aiUsageLogTable).leftJoin(usersTable2, eq25(aiUsageLogTable.userId, usersTable2.id)).where(whereClause).groupBy(aiUsageLogTable.userId, usersTable2.email).orderBy(desc17(sql7`sum(${aiUsageLogTable.estimatedCostUsd})`));
+    totalRequests: sql8`count(*)`,
+    totalInputTokens: sql8`sum(${aiUsageLogTable.inputTokens})`,
+    totalOutputTokens: sql8`sum(${aiUsageLogTable.outputTokens})`,
+    totalCostUsd: sql8`sum(${aiUsageLogTable.estimatedCostUsd})`
+  }).from(aiUsageLogTable).leftJoin(usersTable2, eq25(aiUsageLogTable.userId, usersTable2.id)).where(whereClause).groupBy(aiUsageLogTable.userId, usersTable2.email).orderBy(desc17(sql8`sum(${aiUsageLogTable.estimatedCostUsd})`));
   const perUser = perUserRaw.map((r2) => ({
     userId: r2.userId,
     email: r2.email ?? "unknown",
@@ -255288,10 +255295,10 @@ router23.get("/admin/usage", async (req, res) => {
   }));
   const perProviderRaw = await db.select({
     provider: aiUsageLogTable.provider,
-    totalRequests: sql7`count(*)`,
-    totalInputTokens: sql7`sum(${aiUsageLogTable.inputTokens})`,
-    totalOutputTokens: sql7`sum(${aiUsageLogTable.outputTokens})`,
-    totalCostUsd: sql7`sum(${aiUsageLogTable.estimatedCostUsd})`
+    totalRequests: sql8`count(*)`,
+    totalInputTokens: sql8`sum(${aiUsageLogTable.inputTokens})`,
+    totalOutputTokens: sql8`sum(${aiUsageLogTable.outputTokens})`,
+    totalCostUsd: sql8`sum(${aiUsageLogTable.estimatedCostUsd})`
   }).from(aiUsageLogTable).where(whereClause).groupBy(aiUsageLogTable.provider);
   const perProvider = perProviderRaw.map((r2) => ({
     provider: r2.provider,
@@ -255302,12 +255309,12 @@ router23.get("/admin/usage", async (req, res) => {
   }));
   const topUsersBySpend = [...perUser].sort((a, b) => b.totalCostUsd - a.totalCostUsd).slice(0, 10).map((r2) => ({ userId: r2.userId, email: r2.email, totalCostUsd: r2.totalCostUsd }));
   const dailyTotalsRaw = await db.select({
-    date: sql7`date(${aiUsageLogTable.createdAt})`,
-    totalRequests: sql7`count(*)`,
-    totalInputTokens: sql7`sum(${aiUsageLogTable.inputTokens})`,
-    totalOutputTokens: sql7`sum(${aiUsageLogTable.outputTokens})`,
-    totalCostUsd: sql7`sum(${aiUsageLogTable.estimatedCostUsd})`
-  }).from(aiUsageLogTable).where(whereClause).groupBy(sql7`date(${aiUsageLogTable.createdAt})`).orderBy(desc17(sql7`date(${aiUsageLogTable.createdAt})`));
+    date: sql8`date(${aiUsageLogTable.createdAt})`,
+    totalRequests: sql8`count(*)`,
+    totalInputTokens: sql8`sum(${aiUsageLogTable.inputTokens})`,
+    totalOutputTokens: sql8`sum(${aiUsageLogTable.outputTokens})`,
+    totalCostUsd: sql8`sum(${aiUsageLogTable.estimatedCostUsd})`
+  }).from(aiUsageLogTable).where(whereClause).groupBy(sql8`date(${aiUsageLogTable.createdAt})`).orderBy(desc17(sql8`date(${aiUsageLogTable.createdAt})`));
   const dailyTotals = dailyTotalsRaw.map((r2) => ({
     date: String(r2.date),
     totalRequests: Number(r2.totalRequests),
@@ -255316,10 +255323,10 @@ router23.get("/admin/usage", async (req, res) => {
     totalCostUsd: Math.round(Number(r2.totalCostUsd) * 1e6) / 1e6
   }));
   const [grandTotals] = await db.select({
-    totalRequests: sql7`count(*)`,
-    totalInputTokens: sql7`sum(${aiUsageLogTable.inputTokens})`,
-    totalOutputTokens: sql7`sum(${aiUsageLogTable.outputTokens})`,
-    totalCostUsd: sql7`sum(${aiUsageLogTable.estimatedCostUsd})`
+    totalRequests: sql8`count(*)`,
+    totalInputTokens: sql8`sum(${aiUsageLogTable.inputTokens})`,
+    totalOutputTokens: sql8`sum(${aiUsageLogTable.outputTokens})`,
+    totalCostUsd: sql8`sum(${aiUsageLogTable.estimatedCostUsd})`
   }).from(aiUsageLogTable).where(whereClause);
   res.json({
     period,
@@ -255593,7 +255600,7 @@ function requireOwner2(req, res, next) {
 }
 
 // src/routes/admin.ts
-import { sql as sql8, eq as eq28, count as count2, or as or2, and as and15, gte as gte3 } from "drizzle-orm";
+import { sql as sql9, eq as eq28, count as count2, or as or2, and as and15, gte as gte3 } from "drizzle-orm";
 var router26 = (0, import_express26.Router)();
 router26.get("/me", authMiddleware, (req, res) => {
   const OWNER_EMAIL2 = process.env.OWNER_EMAIL ?? "";
@@ -255607,8 +255614,8 @@ router26.get("/users", authMiddleware, requireOwner2, async (req, res) => {
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
     const offset = (page - 1) * limit;
     const searchCondition = search ? or2(
-      sql8`LOWER(${usersTable2.email}) LIKE ${"%" + search.toLowerCase() + "%"}`,
-      sql8`LOWER(COALESCE(${usersTable2.displayName}, '')) LIKE ${"%" + search.toLowerCase() + "%"}`
+      sql9`LOWER(${usersTable2.email}) LIKE ${"%" + search.toLowerCase() + "%"}`,
+      sql9`LOWER(COALESCE(${usersTable2.displayName}, '')) LIKE ${"%" + search.toLowerCase() + "%"}`
     ) : void 0;
     const [users, totalResult] = await Promise.all([
       db.select({
@@ -255625,13 +255632,13 @@ router26.get("/users", authMiddleware, requireOwner2, async (req, res) => {
     const projectCounts = userIds.length ? await db.select({
       userId: projectsTable.userId,
       count: count2()
-    }).from(projectsTable).where(sql8`${projectsTable.userId} IN (${sql8.join(userIds.map((id) => sql8`${id}`), sql8`, `)})`).groupBy(projectsTable.userId) : [];
+    }).from(projectsTable).where(sql9`${projectsTable.userId} IN (${sql9.join(userIds.map((id) => sql9`${id}`), sql9`, `)})`).groupBy(projectsTable.userId) : [];
     const projectCountMap = new Map(projectCounts.map((p) => [p.userId, p.count]));
     const usageStats = userIds.length ? await db.select({
       userId: aiUsageLogTable.userId,
       totalRequests: count2(),
-      totalCostUsd: sql8`SUM(${aiUsageLogTable.estimatedCostUsd})`
-    }).from(aiUsageLogTable).where(sql8`${aiUsageLogTable.userId} IN (${sql8.join(userIds.map((id) => sql8`${id}`), sql8`, `)})`).groupBy(aiUsageLogTable.userId) : [];
+      totalCostUsd: sql9`SUM(${aiUsageLogTable.estimatedCostUsd})`
+    }).from(aiUsageLogTable).where(sql9`${aiUsageLogTable.userId} IN (${sql9.join(userIds.map((id) => sql9`${id}`), sql9`, `)})`).groupBy(aiUsageLogTable.userId) : [];
     const usageMap = new Map(usageStats.map((u) => [u.userId, u]));
     const enriched = users.map((u) => ({
       ...u,
@@ -255675,28 +255682,28 @@ router26.get("/stats", authMiddleware, requireOwner2, async (req, res) => {
       db.select({ count: count2() }).from(projectsTable),
       db.select({
         totalRequests: count2(),
-        totalCostUsd: sql8`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`,
-        totalInputTokens: sql8`COALESCE(SUM(${aiUsageLogTable.inputTokens}), 0)`,
-        totalOutputTokens: sql8`COALESCE(SUM(${aiUsageLogTable.outputTokens}), 0)`
+        totalCostUsd: sql9`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`,
+        totalInputTokens: sql9`COALESCE(SUM(${aiUsageLogTable.inputTokens}), 0)`,
+        totalOutputTokens: sql9`COALESCE(SUM(${aiUsageLogTable.outputTokens}), 0)`
       }).from(aiUsageLogTable).where(gte3(aiUsageLogTable.createdAt, startDate)),
       db.select({
-        totalTopup: sql8`COALESCE(SUM(CASE WHEN ${tokenTransactionsTable.type} = 'topup' THEN ${tokenTransactionsTable.amountCents} ELSE 0 END), 0)`,
-        totalRefund: sql8`COALESCE(SUM(CASE WHEN ${tokenTransactionsTable.type} = 'refund' THEN ${tokenTransactionsTable.amountCents} ELSE 0 END), 0)`,
+        totalTopup: sql9`COALESCE(SUM(CASE WHEN ${tokenTransactionsTable.type} = 'topup' THEN ${tokenTransactionsTable.amountCents} ELSE 0 END), 0)`,
+        totalRefund: sql9`COALESCE(SUM(CASE WHEN ${tokenTransactionsTable.type} = 'refund' THEN ${tokenTransactionsTable.amountCents} ELSE 0 END), 0)`,
         transactionCount: count2()
       }).from(tokenTransactionsTable).where(gte3(tokenTransactionsTable.createdAt, startDate)),
       db.select({
         userId: aiUsageLogTable.userId,
-        totalCostUsd: sql8`SUM(${aiUsageLogTable.estimatedCostUsd})`,
+        totalCostUsd: sql9`SUM(${aiUsageLogTable.estimatedCostUsd})`,
         totalRequests: count2()
-      }).from(aiUsageLogTable).where(gte3(aiUsageLogTable.createdAt, startDate)).groupBy(aiUsageLogTable.userId).orderBy(sql8`SUM(${aiUsageLogTable.estimatedCostUsd}) DESC`).limit(10)
+      }).from(aiUsageLogTable).where(gte3(aiUsageLogTable.createdAt, startDate)).groupBy(aiUsageLogTable.userId).orderBy(sql9`SUM(${aiUsageLogTable.estimatedCostUsd}) DESC`).limit(10)
     ]);
     const OWNER_EMAIL2 = process.env.OWNER_EMAIL ?? "";
-    const ownerUser = await db.select({ id: usersTable2.id }).from(usersTable2).where(sql8`LOWER(${usersTable2.email}) = ${OWNER_EMAIL2.toLowerCase()}`).limit(1);
+    const ownerUser = await db.select({ id: usersTable2.id }).from(usersTable2).where(sql9`LOWER(${usersTable2.email}) = ${OWNER_EMAIL2.toLowerCase()}`).limit(1);
     let ownerUsage = { totalRequests: 0, totalCostUsd: 0 };
     if (ownerUser[0]) {
       const [ownerStats] = await db.select({
         totalRequests: count2(),
-        totalCostUsd: sql8`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`
+        totalCostUsd: sql9`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`
       }).from(aiUsageLogTable).where(
         and15(
           eq28(aiUsageLogTable.userId, ownerUser[0].id),
@@ -255758,24 +255765,24 @@ router26.get("/usage-breakdown", authMiddleware, requireOwner2, async (req, res)
     const byProvider = await db.select({
       provider: aiUsageLogTable.provider,
       totalRequests: count2(),
-      totalCostUsd: sql8`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`,
-      totalInputTokens: sql8`COALESCE(SUM(${aiUsageLogTable.inputTokens}), 0)`,
-      totalOutputTokens: sql8`COALESCE(SUM(${aiUsageLogTable.outputTokens}), 0)`
+      totalCostUsd: sql9`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`,
+      totalInputTokens: sql9`COALESCE(SUM(${aiUsageLogTable.inputTokens}), 0)`,
+      totalOutputTokens: sql9`COALESCE(SUM(${aiUsageLogTable.outputTokens}), 0)`
     }).from(aiUsageLogTable).where(gte3(aiUsageLogTable.createdAt, startDate)).groupBy(aiUsageLogTable.provider);
     const byModel = await db.select({
       model: aiUsageLogTable.model,
       provider: aiUsageLogTable.provider,
       totalRequests: count2(),
-      totalCostUsd: sql8`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`,
-      totalInputTokens: sql8`COALESCE(SUM(${aiUsageLogTable.inputTokens}), 0)`,
-      totalOutputTokens: sql8`COALESCE(SUM(${aiUsageLogTable.outputTokens}), 0)`
-    }).from(aiUsageLogTable).where(gte3(aiUsageLogTable.createdAt, startDate)).groupBy(aiUsageLogTable.model, aiUsageLogTable.provider).orderBy(sql8`SUM(${aiUsageLogTable.estimatedCostUsd}) DESC`);
+      totalCostUsd: sql9`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`,
+      totalInputTokens: sql9`COALESCE(SUM(${aiUsageLogTable.inputTokens}), 0)`,
+      totalOutputTokens: sql9`COALESCE(SUM(${aiUsageLogTable.outputTokens}), 0)`
+    }).from(aiUsageLogTable).where(gte3(aiUsageLogTable.createdAt, startDate)).groupBy(aiUsageLogTable.model, aiUsageLogTable.provider).orderBy(sql9`SUM(${aiUsageLogTable.estimatedCostUsd}) DESC`);
     const byRequestType = await db.select({
       requestType: aiUsageLogTable.requestType,
       totalRequests: count2(),
-      totalCostUsd: sql8`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`,
-      totalInputTokens: sql8`COALESCE(SUM(${aiUsageLogTable.inputTokens}), 0)`,
-      totalOutputTokens: sql8`COALESCE(SUM(${aiUsageLogTable.outputTokens}), 0)`
+      totalCostUsd: sql9`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`,
+      totalInputTokens: sql9`COALESCE(SUM(${aiUsageLogTable.inputTokens}), 0)`,
+      totalOutputTokens: sql9`COALESCE(SUM(${aiUsageLogTable.outputTokens}), 0)`
     }).from(aiUsageLogTable).where(gte3(aiUsageLogTable.createdAt, startDate)).groupBy(aiUsageLogTable.requestType);
     res.json({
       period,
@@ -255811,7 +255818,7 @@ router26.get("/audit-log", authMiddleware, requireOwner2, async (req, res) => {
     const action = req.query.action;
     const actionCondition = action ? eq28(adminAuditLogTable.action, action) : void 0;
     const [logs, totalResult] = await Promise.all([
-      db.select().from(adminAuditLogTable).where(actionCondition).orderBy(sql8`${adminAuditLogTable.createdAt} DESC`).limit(limit).offset(offset),
+      db.select().from(adminAuditLogTable).where(actionCondition).orderBy(sql9`${adminAuditLogTable.createdAt} DESC`).limit(limit).offset(offset),
       db.select({ count: count2() }).from(adminAuditLogTable).where(actionCondition)
     ]);
     res.json({

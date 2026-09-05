@@ -9,6 +9,64 @@
 
 ---
 
+## 🎯 ACTIVE 2026-09-05 — Google OAuth Login Fix
+
+**Status:** ✅ DONE — Deployed
+**Model:** claude-opus-4-8
+**Branch:** `feat/daftar-task`
+**Commit:** `c54b006`
+
+### What
+
+Owner screenshot `e:\teora\screnshoot\er5.png` menunjukkan Google OAuth callback return 500 dengan HTML Vercel default. Frontend menampilkan "Login gagal" tanpa diagnostic.
+
+### Root cause
+
+Commit `4e00ed0` (username feature, 2026-09-04) pakai `db.sql\`COALESCE(...)\`` di `/api/auth/login` — tapi `db` (Drizzle client) TIDAK mengekspor `sql`. `sql` harus di-import dari `drizzle-orm`:
+```typescript
+// Wrong (4e00ed0)
+import { eq } from "drizzle-orm";
+username: db.sql`COALESCE(...)`  // TypeError
+
+// Right (c54b006)
+import { eq, sql } from "drizzle-orm";
+username: sql`COALESCE(...)`
+```
+
+TypeError uncaught → Vercel returns HTML 500 → frontend unparseable → generic error.
+
+### Fix
+
+| Layer | Change |
+|-------|--------|
+| `artifacts/api-server/src/routes/auth.ts` | Import `sql` from drizzle-orm, replace `db.sql` with `sql` |
+| Same file | Tambah try/catch wrapper — future unhandled returns JSON 500 (Indonesian) not HTML |
+| Bundle | Rebuilt (6.4MB), deployed |
+
+### Deploy
+
+- **Backend:** `teora-backend-2jiq3nf51-sagise-ctrls-projects.vercel.app` → alias `teora-backend.vercel.app`
+- **Verified:** Vercel logs show no 500 errors post-fix. `GET /api/healthz` 200 OK. `POST /api/auth/login` invalid token → 401 (route handler valid).
+
+### Lessons cross-checked
+
+- `.ai/lessons-learned.md` scanned: 4 auth-related entries (cross-origin cookie, mount order + JWT, rate limit, **new: db.sql API misuse**)
+- 3 prior entries cover 401/429 — this is a new class (500 unhandled)
+- Root cause identified via Vercel runtime logs (per memory `vercel-mcp-blind-spot` — MCP returns 403, used CLI fallback)
+
+### Next
+
+Owner manual test: click Google sign-in, verify login flow completes to dashboard.
+
+### Handoff 2026-09-05 07:10 — model opus-4-8 → next
+
+- **Active task:** Google OAuth login fix deployed
+- **Last 3 actions:** (1) Diagnose via Vercel logs → TypeError db.sql, (2) Fix source + add try/catch, (3) Rebuild + redeploy + verify
+- **Next 3 actions:** (1) Owner manual Google OAuth login test, (2) If still broken → check `auth-callback.tsx` token format match, (3) If works → continue other open topics from `.ai/current-task.md` section PENDING
+- **Open questions:** None for this fix. Other open topics (non-owner admin dashboard access, OCR/practice upload, token UI) still waiting for owner.
+
+---
+
 ## 🎯 ACTIVE 2026-09-04 — Username + DisplayName Identity
 
 **Status:** ✅ DONE — All done, deployed
