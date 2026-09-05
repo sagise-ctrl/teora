@@ -9,7 +9,76 @@
 
 ---
 
-## 🎯 ACTIVE 2026-09-05 — Full Feature Audit + Fixes (Non-Payment/AI Provider)
+## 🎯 ACTIVE 2026-09-05 — Phase 1: Context Gathering Audit (MASTER DIRECTIVE)
+
+**Status:** ✅ DONE — Audit documented
+**Model:** claude-opus-4-6
+**Branch:** `feat/daftar-task`
+
+### What
+
+Owner MASTER DIRECTIVE: 18-section comprehensive project audit. Phase 1 = Context Gathering ONLY (no implementation).
+
+### Output
+
+**Primary report:** `.ai/audit/initial-project-audit-20260905.md` (18 sections, ~700 lines)
+
+Sections covered:
+1. Executive Summary
+2. Product Assessment (vision, positioning, users, value flow)
+3. Current System (architecture, stack, DB, AI, infra)
+4. Documentation vs Reality (15 mismatches identified)
+5. Feature Audit (F1-F7 taxonomy vs implementation, ~35 working, ~15 broken/partial)
+6. UX Audit (language, nav, error handling, accessibility)
+7. AI Audit (architecture, 14 features, 6 quality issues)
+8. Security & Privacy (auth, RLS, input validation, data privacy)
+9. Engineering (code quality, DB quality, API quality, testing)
+10. Performance (frontend, backend, DB, network)
+11. Cost (operational costs, AI costs, revenue = $0)
+12. Risk Register (product, technical, security, business)
+13. MVP Definition (working features, blockers, post-MVP)
+14. Roadmap (4 phases: Survival → Payment → Polish → Growth)
+15. KPI (user, technical, business metrics)
+16. Explicitly Not Building (features deferred, technical deferred)
+17. Decision Log (18 decisions tracked, 7 pending owner input)
+18. Implementation Plan (immediate → short → medium → pre-launch)
+
+### Key Findings Summary
+
+| Category | Finding |
+|----------|---------|
+| **CRITICAL** | AI API not configured (env vars missing) — no AI works |
+| **CRITICAL** | Payment gateway not integrated — $0 revenue |
+| **CRITICAL** | 5 citation endpoints in OpenAPI but no backend routes |
+| **HIGH** | PDF export broken |
+| **HIGH** | DOCX export not implemented |
+| **HIGH** | `reference_citations` RLS enabled but no policies |
+| **MEDIUM** | Share token uses Math.random() (INSECURE — fixed 2026-09-05, verify deployed) |
+| **MEDIUM** | Stale generated API (lib/api-zod not regenerated) |
+| **MEDIUM** | No migration history (drizzle-kit push only) |
+| **MEDIUM** | Rate limit returns 429 but no user-facing message |
+| **MEDIUM** | Learning activities uses text column instead of JSONB |
+| **MEDIUM** | Owner whitelist hardcoded in source |
+| **MEDIUM** | No uptime monitoring, error tracking, or analytics |
+| **MEDIUM** | AI has no timeout/retry — hangs indefinitely |
+| **MEDIUM** | AI provider has no fallback — single point of failure |
+
+### Post-Audit Task List
+
+Phase 2 akan di-trigger setelah owner memberikan arah pada:
+1. Payment gateway (Stripe vs Midtrans)
+2. AI provider (Groq vs OpenAI vs Anthropic)
+3. 10 open questions menunggu owner
+
+### Lessons Cross-Checked
+
+- `.ai/lessons-learned.md` scanned: 5 entries (routing order, OpenAPI integer, MSW, pnpm, drizzle push)
+- `.ai/decisions.md` scanned: 18 decisions
+- All prior audit findings (audit.md, 2026-09-04) verified: compile error + Math.random() fixed, reference_citations schema added to index.ts
+
+---
+
+## HISTORICAL 2026-09-05 — Full Feature Audit + Fixes (Non-Payment/AI Provider)
 
 **Status:** ✅ DONE — Committed `ae99552`, pushed, frontend deployed, backend deploying
 **Model:** claude-opus-4-8
