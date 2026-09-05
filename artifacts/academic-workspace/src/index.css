@@ -25,6 +25,12 @@
   --color-primary-foreground: hsl(var(--primary-foreground));
   --color-primary-border: var(--primary-border);
 
+  /* Brand colors (defined in :root / .dark) */
+  --color-brand: hsl(var(--brand-h) var(--brand-s) var(--brand-l));
+  --color-brand-foreground: hsl(var(--brand-fg-h) var(--brand-fg-s) var(--brand-fg-l));
+  --color-brand-purple: hsl(var(--purple-h) var(--purple-s) var(--purple-l));
+  --color-brand-purple-foreground: hsl(var(--purple-fg-h) var(--purple-fg-s) var(--purple-fg-l));
+
   --color-secondary: hsl(var(--secondary));
   --color-secondary-foreground: hsl(var(--secondary-foreground));
   --color-secondary-border: var(--secondary-border);
@@ -64,6 +70,12 @@
 
 /* LIGHT MODE */
 :root {
+  /* Brand HSL components */
+  --brand-h: 217; --brand-s: 92%; --brand-l: 58%; /* #2D79FF */
+  --brand-fg-h: 0; --brand-fg-s: 0%; --brand-fg-l: 100%;
+  --purple-h: 255; --purple-s: 58%; --purple-l: 60%; /* #8E54E9 */
+  --purple-fg-h: 0; --purple-fg-s: 0%; --purple-fg-l: 100%;
+
   --button-outline: rgba(15, 23, 42, 0.1);
   --badge-outline: rgba(15, 23, 42, 0.05);
 
@@ -216,6 +228,12 @@
   --chart-3: 180 40% 50%;
   --chart-4: 40 40% 60%;
   --chart-5: 220 20% 65%;
+
+  /* Brand HSL components for dark mode */
+  --brand-h: 217; --brand-s: 92%; --brand-l: 65%;
+  --brand-fg-h: 0; --brand-fg-s: 0%; --brand-fg-l: 100%;
+  --purple-h: 255; --purple-s: 58%; --purple-l: 70%;
+  --purple-fg-h: 0; --purple-fg-s: 0%; --purple-fg-l: 100%;
 }
 
 @layer base {

@@ -20,6 +20,7 @@ import AIPricing from "@/pages/ai-pricing";
 import Topup from "@/pages/topup";
 import Terms from "@/pages/terms";
 import Privacy from "@/pages/privacy";
+import Help from "@/pages/help";
 import Monitoring from "@/pages/monitoring";
 import Admin from "@/pages/admin";
 import LandingAdmin from "@/pages/landing-admin";
@@ -132,6 +133,7 @@ function AppRouter() {
       </Route>
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />
+      <Route path="/bantuan" component={Help} />
       <Route path="/status" component={Monitoring} />
       <Route path="/landing-admin">
         <ProtectedRoute>

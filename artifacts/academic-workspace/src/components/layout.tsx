@@ -233,6 +233,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <NavSubItem href="/usage" label="Penggunaan" />
               <NavSubItem href="/topup" label="Topup Saldo" />
               <NavSubItem href="/ai-pricing" label="Teora Pricing" />
+              <NavSubItem href="/bantuan" label="Pusat Bantuan" />
             </NavGroup>
           </nav>
         </div>

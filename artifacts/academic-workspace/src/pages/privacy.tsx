@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 
 export default function PrivacyPolicy() {
   const { user } = useAuth();
-  const effectiveDate = "1 September 2025";
+  const effectiveDate = "1 September 2026";
 
   return (
     <div className="min-h-screen bg-background">
@@ -100,7 +100,7 @@ export default function PrivacyPolicy() {
               <li><strong>Menarik persetujuan</strong>: Menarik persetujuan pemrosesan data</li>
               <li><strong>Keberatan</strong>: Menolak pemrosesan tertentu</li>
             </ul>
-            <p>Untuk行使 hak ini, silakan hubungi kami di <strong>privacy@teora.id</strong>.</p>
+            <p>Untuk menggunakan hak ini, silakan hubungi kami di <strong>privacy@teora.id</strong>.</p>
 
             <h2 className="text-lg font-semibold mt-8">7. Keamanan Data</h2>
             <p>
@@ -142,7 +142,7 @@ export default function PrivacyPolicy() {
         <div className="flex items-center justify-center gap-6 mt-8 text-xs text-muted-foreground">
           <Link href="/terms" className="hover:text-foreground transition-colors">Ketentuan Layanan</Link>
           <Link href="/login" className="hover:text-foreground transition-colors">Login</Link>
-          <span>© 2025 PT Teora Teknologi Indonesia</span>
+          <span>&copy; 2026 PT Teora Teknologi Indonesia</span>
         </div>
       </div>
     </div>

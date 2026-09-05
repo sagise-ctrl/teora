@@ -11,6 +11,7 @@ import {
   documentsTable,
   referencesTable,
   shareTokensTable,
+  usersTable,
 } from "@workspace/db";
 import {
   CreateProjectBody,

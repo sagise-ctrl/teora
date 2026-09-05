@@ -193320,17 +193320,20 @@ var GetMyUsageStatsResponse = zod.object({
   "totalInputTokens": zod.number(),
   "totalOutputTokens": zod.number(),
   "totalCostUsd": zod.number(),
+  "totalCostCents": zod.number().optional().describe("Total saldo terpakai dalam IDR cents. Ini angka yang dilihat user."),
   "byRequestType": zod.record(zod.string(), zod.object({
     "requests": zod.number().optional(),
     "inputTokens": zod.number().optional(),
     "outputTokens": zod.number().optional(),
-    "costUsd": zod.number().optional()
+    "costUsd": zod.number().optional(),
+    "costCents": zod.number().optional()
   })),
   "byProject": zod.record(zod.string(), zod.object({
     "requests": zod.number().optional(),
     "inputTokens": zod.number().optional(),
     "outputTokens": zod.number().optional(),
-    "costUsd": zod.number().optional()
+    "costUsd": zod.number().optional(),
+    "costCents": zod.number().optional()
   })),
   "period": zod.enum(["7d", "30d", "all"])
 });
@@ -193343,11 +193346,13 @@ var GetMyProjectUsageStatsResponse = zod.object({
   "totalInputTokens": zod.number(),
   "totalOutputTokens": zod.number(),
   "totalCostUsd": zod.number(),
+  "totalCostCents": zod.number().optional().describe("Total saldo terpakai dalam IDR cents (project scope)."),
   "byRequestType": zod.record(zod.string(), zod.object({
     "requests": zod.number().optional(),
     "inputTokens": zod.number().optional(),
     "outputTokens": zod.number().optional(),
-    "costUsd": zod.number().optional()
+    "costUsd": zod.number().optional(),
+    "costCents": zod.number().optional()
   }))
 });
 var getAdminUsageStatsQueryPeriodDefault = `all`;
@@ -202488,7 +202493,7 @@ __export(schema_exports, {
   tokenTransactionsTable: () => tokenTransactionsTable,
   transactionTypes: () => transactionTypes,
   userBalancesTable: () => userBalancesTable,
-  usersTable: () => usersTable2,
+  usersTable: () => usersTable,
   writingStyleProfilesTable: () => writingStyleProfilesTable
 });
 
@@ -202746,7 +202751,7 @@ var insertExportSchema = createInsertSchema12(exportsTable).omit({
 // ../../lib/db/src/schema/users.ts
 import { pgTable as pgTable13, text as text13, timestamp as timestamp13, boolean as boolean6 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema13 } from "drizzle-zod";
-var usersTable2 = pgTable13("users", {
+var usersTable = pgTable13("users", {
   // Supabase auth user ID (UUID from Supabase)
   id: text13("id").primaryKey(),
   email: text13("email").notNull(),
@@ -202762,7 +202767,7 @@ var usersTable2 = pgTable13("users", {
   createdAt: timestamp13("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp13("updated_at", { withTimezone: true }).notNull().defaultNow()
 });
-var insertUserSchema = createInsertSchema13(usersTable2).omit({
+var insertUserSchema = createInsertSchema13(usersTable).omit({
   createdAt: true,
   updatedAt: true
 });
@@ -202781,9 +202786,9 @@ var referralsTable = pgTable14(
   {
     id: serial13("id").primaryKey(),
     // Who invited
-    referrerId: text14("referrer_id").notNull().references(() => usersTable2.id, { onDelete: "set null" }),
+    referrerId: text14("referrer_id").notNull().references(() => usersTable.id, { onDelete: "set null" }),
     // Who was invited (exactly one referrer per user)
-    referredId: text14("referred_id").notNull().unique().references(() => usersTable2.id, { onDelete: "set null" }),
+    referredId: text14("referred_id").notNull().unique().references(() => usersTable.id, { onDelete: "set null" }),
     // Email at time of registration (denormalized for audit trail)
     referredEmail: text14("referred_email").notNull(),
     // Referral code used at time of registration
@@ -202836,7 +202841,7 @@ var referralEventsTable = pgTable15(
     // Which referral this event belongs to
     referralId: integer13("referral_id").notNull().references(() => referralsTable.id, { onDelete: "cascade" }),
     // Who or what triggered this event
-    actorId: text15("actor_id").references(() => usersTable2.id, {
+    actorId: text15("actor_id").references(() => usersTable.id, {
       onDelete: "set null"
     }),
     actorType: text15("actor_type").notNull(),
@@ -202938,7 +202943,7 @@ var aiUsageLogTable = pgTable17(
   "ai_usage_log",
   {
     id: serial15("id").primaryKey(),
-    userId: text17("user_id").notNull().references(() => usersTable2.id, { onDelete: "cascade" }),
+    userId: text17("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
     projectId: integer15("project_id").references(() => projectsTable.id, {
       onDelete: "set null"
     }),
@@ -203002,7 +203007,7 @@ var userBalancesTable = pgTable18(
   "user_balances",
   {
     id: text18("id").primaryKey().default(sql`gen_random_uuid()`),
-    userId: text18("user_id").notNull().unique().references(() => usersTable2.id, { onDelete: "cascade" }),
+    userId: text18("user_id").notNull().unique().references(() => usersTable.id, { onDelete: "cascade" }),
     // Balance in IDR cents. e.g. 50000 = Rp 500
     balanceCents: integer16("balance_cents").notNull().default(0),
     // Default tier preference for this user
@@ -203041,7 +203046,7 @@ var tokenTransactionsTable = pgTable19(
   "token_transactions",
   {
     id: text19("id").primaryKey().default(sql2`gen_random_uuid()`),
-    userId: text19("user_id").notNull().references(() => usersTable2.id, { onDelete: "cascade" }),
+    userId: text19("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
     type: text19("type").notNull(),
     // Amount in IDR cents. Positive = credit (incoming), Negative = debit (outgoing)
     amountCents: integer17("amount_cents").notNull(),
@@ -203485,7 +203490,7 @@ router2.get("/auth/me", authMiddleware, async (req, res) => {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const [user] = await db.select().from(usersTable2).where(eq(usersTable2.id, req.user.id));
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.user.id));
   if (!user) {
     res.status(404).json({ error: "User not found" });
     return;
@@ -203509,20 +203514,20 @@ router2.post("/auth/login", async (req, res) => {
       const raw = supabaseUser.user_metadata?.displayName || supabaseUser.email?.split("@")[0] || "user";
       return raw.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase().replace(/^[0-9_]+/, "").substring(0, 20) || "user";
     };
-    const [localUser] = await db.insert(usersTable2).values({ id: supabaseUser.id, email: supabaseUser.email ?? "", username: deriveUsername() }).onConflictDoUpdate({
-      target: usersTable2.id,
+    const [localUser] = await db.insert(usersTable).values({ id: supabaseUser.id, email: supabaseUser.email ?? "", username: deriveUsername() }).onConflictDoUpdate({
+      target: usersTable.id,
       set: {
         email: supabaseUser.email ?? "",
-        username: sql3`COALESCE(${usersTable2.username}, ${deriveUsername()})`
+        username: sql3`COALESCE(${usersTable.username}, ${deriveUsername()})`
       }
     }).returning();
     if (!localUser.username) {
       let candidate = deriveUsername();
       for (let i2 = 0; i2 < 10; i2++) {
         const suffix = i2 === 0 ? "" : String(i2 + 1);
-        const [existing] = await db.select({ id: usersTable2.id }).from(usersTable2).where(eq(usersTable2.username, candidate + suffix));
+        const [existing] = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.username, candidate + suffix));
         if (!existing) {
-          await db.update(usersTable2).set({ username: candidate + suffix }).where(eq(usersTable2.id, supabaseUser.id));
+          await db.update(usersTable).set({ username: candidate + suffix }).where(eq(usersTable.id, supabaseUser.id));
           break;
         }
       }
@@ -203576,7 +203581,7 @@ router2.post("/auth/register", async (req, res) => {
   }
   const normalizedEmail = email.trim().toLowerCase();
   const normalizedUsername = username.trim().toLowerCase();
-  const [existingUsername] = await db.select({ id: usersTable2.id }).from(usersTable2).where(eq(usersTable2.username, normalizedUsername));
+  const [existingUsername] = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.username, normalizedUsername));
   if (existingUsername) {
     res.status(400).json({ error: "This username is already taken. Please choose another." });
     return;
@@ -203584,7 +203589,7 @@ router2.post("/auth/register", async (req, res) => {
   let referrerUser = null;
   if (referralCode && referralCode.trim() !== "") {
     const code = referralCode.trim().toUpperCase();
-    const [found] = await db.select().from(usersTable2).where(eq(usersTable2.referralCode, code));
+    const [found] = await db.select().from(usersTable).where(eq(usersTable.referralCode, code));
     if (found) {
       referrerUser = found;
     }
@@ -203617,7 +203622,7 @@ router2.post("/auth/register", async (req, res) => {
   let attempts = 0;
   while (codeCollision && attempts < 10) {
     const candidate = generateReferralCode();
-    const [existing] = await db.select({ id: usersTable2.id }).from(usersTable2).where(eq(usersTable2.referralCode, candidate));
+    const [existing] = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.referralCode, candidate));
     if (!existing) {
       newUserReferralCode = candidate;
       codeCollision = false;
@@ -203628,7 +203633,7 @@ router2.post("/auth/register", async (req, res) => {
     res.status(500).json({ error: "Failed to generate referral code" });
     return;
   }
-  const [localUser] = await db.insert(usersTable2).values({
+  const [localUser] = await db.insert(usersTable).values({
     id: newUserId,
     email: normalizedEmail,
     username: normalizedUsername,
@@ -203735,7 +203740,7 @@ router2.get("/auth/check-username", async (req, res) => {
     res.json({ available: false, username });
     return;
   }
-  const [existing] = await db.select({ id: usersTable2.id }).from(usersTable2).where(eq(usersTable2.username, username));
+  const [existing] = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.username, username));
   res.json({ available: !existing, username });
 });
 var auth_default = router2;
@@ -255154,11 +255159,15 @@ function buildPeriodCondition(period) {
   cutoff.setDate(cutoff.getDate() - days);
   return gte2(aiUsageLogTable.createdAt, cutoff);
 }
+function emptyBreakdown() {
+  return { requests: 0, inputTokens: 0, outputTokens: 0, costUsd: 0, costCents: 0 };
+}
 function aggregateRecords(records, groupByProject = false) {
   let totalRequests = 0;
   let totalInputTokens = 0;
   let totalOutputTokens = 0;
   let totalCostUsd = 0;
+  let totalCostCents = 0;
   const byRequestType = {};
   const byProject = {};
   for (const r2 of records) {
@@ -255166,22 +255175,26 @@ function aggregateRecords(records, groupByProject = false) {
     totalInputTokens += r2.inputTokens;
     totalOutputTokens += r2.outputTokens;
     const cost = Number(r2.estimatedCostUsd);
+    const cents = Number(r2.costCents) || 0;
     totalCostUsd += cost;
+    totalCostCents += cents;
     if (!byRequestType[r2.requestType]) {
-      byRequestType[r2.requestType] = { requests: 0, inputTokens: 0, outputTokens: 0, costUsd: 0 };
+      byRequestType[r2.requestType] = emptyBreakdown();
     }
     byRequestType[r2.requestType].requests += 1;
     byRequestType[r2.requestType].inputTokens += r2.inputTokens;
     byRequestType[r2.requestType].outputTokens += r2.outputTokens;
     byRequestType[r2.requestType].costUsd += cost;
+    byRequestType[r2.requestType].costCents += cents;
     if (groupByProject && r2.projectId !== null) {
       if (!byProject[r2.projectId]) {
-        byProject[r2.projectId] = { requests: 0, inputTokens: 0, outputTokens: 0, costUsd: 0 };
+        byProject[r2.projectId] = emptyBreakdown();
       }
       byProject[r2.projectId].requests += 1;
       byProject[r2.projectId].inputTokens += r2.inputTokens;
       byProject[r2.projectId].outputTokens += r2.outputTokens;
       byProject[r2.projectId].costUsd += cost;
+      byProject[r2.projectId].costCents += cents;
     }
   }
   return {
@@ -255189,6 +255202,7 @@ function aggregateRecords(records, groupByProject = false) {
     totalInputTokens,
     totalOutputTokens,
     totalCostUsd: Math.round(totalCostUsd * 1e6) / 1e6,
+    totalCostCents,
     byRequestType,
     byProject
   };
@@ -255212,7 +255226,8 @@ router23.get("/users/me/usage", async (req, res) => {
     projectId: aiUsageLogTable.projectId,
     inputTokens: aiUsageLogTable.inputTokens,
     outputTokens: aiUsageLogTable.outputTokens,
-    estimatedCostUsd: aiUsageLogTable.estimatedCostUsd
+    estimatedCostUsd: aiUsageLogTable.estimatedCostUsd,
+    costCents: aiUsageLogTable.costCents
   }).from(aiUsageLogTable).where(and14(...conditions));
   const aggregated = aggregateRecords(records, true);
   res.json({
@@ -255234,7 +255249,8 @@ router23.get("/users/me/usage/projects/:projectId", async (req, res) => {
     requestType: aiUsageLogTable.requestType,
     inputTokens: aiUsageLogTable.inputTokens,
     outputTokens: aiUsageLogTable.outputTokens,
-    estimatedCostUsd: aiUsageLogTable.estimatedCostUsd
+    estimatedCostUsd: aiUsageLogTable.estimatedCostUsd,
+    costCents: aiUsageLogTable.costCents
   }).from(aiUsageLogTable).where(
     and14(
       eq25(aiUsageLogTable.userId, req.user.id),
@@ -255246,19 +255262,23 @@ router23.get("/users/me/usage/projects/:projectId", async (req, res) => {
   let totalInputTokens = 0;
   let totalOutputTokens = 0;
   let totalCostUsd = 0;
+  let totalCostCents = 0;
   for (const r2 of records) {
     totalRequests += 1;
     totalInputTokens += r2.inputTokens;
     totalOutputTokens += r2.outputTokens;
     const cost = Number(r2.estimatedCostUsd);
+    const cents = Number(r2.costCents) || 0;
     totalCostUsd += cost;
+    totalCostCents += cents;
     if (!byRequestType[r2.requestType]) {
-      byRequestType[r2.requestType] = { requests: 0, inputTokens: 0, outputTokens: 0, costUsd: 0 };
+      byRequestType[r2.requestType] = emptyBreakdown();
     }
     byRequestType[r2.requestType].requests += 1;
     byRequestType[r2.requestType].inputTokens += r2.inputTokens;
     byRequestType[r2.requestType].outputTokens += r2.outputTokens;
     byRequestType[r2.requestType].costUsd += cost;
+    byRequestType[r2.requestType].costCents += cents;
   }
   res.json({
     projectId,
@@ -255266,6 +255286,7 @@ router23.get("/users/me/usage/projects/:projectId", async (req, res) => {
     totalInputTokens,
     totalOutputTokens,
     totalCostUsd: Math.round(totalCostUsd * 1e6) / 1e6,
+    totalCostCents,
     byRequestType
   });
 });
@@ -255274,7 +255295,7 @@ router23.get("/admin/usage", async (req, res) => {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const [userRecord] = await db.select({ isOwner: usersTable2.isOwner }).from(usersTable2).where(eq25(usersTable2.id, req.user.id)).limit(1);
+  const [userRecord] = await db.select({ isOwner: usersTable.isOwner }).from(usersTable).where(eq25(usersTable.id, req.user.id)).limit(1);
   if (!userRecord?.isOwner) {
     res.status(403).json({ error: "Admin access required" });
     return;
@@ -255291,12 +255312,12 @@ router23.get("/admin/usage", async (req, res) => {
   const whereClause = conditions.length > 0 ? and14(...conditions) : void 0;
   const perUserRaw = await db.select({
     userId: aiUsageLogTable.userId,
-    email: usersTable2.email,
+    email: usersTable.email,
     totalRequests: sql8`count(*)`,
     totalInputTokens: sql8`sum(${aiUsageLogTable.inputTokens})`,
     totalOutputTokens: sql8`sum(${aiUsageLogTable.outputTokens})`,
     totalCostUsd: sql8`sum(${aiUsageLogTable.estimatedCostUsd})`
-  }).from(aiUsageLogTable).leftJoin(usersTable2, eq25(aiUsageLogTable.userId, usersTable2.id)).where(whereClause).groupBy(aiUsageLogTable.userId, usersTable2.email).orderBy(desc17(sql8`sum(${aiUsageLogTable.estimatedCostUsd})`));
+  }).from(aiUsageLogTable).leftJoin(usersTable, eq25(aiUsageLogTable.userId, usersTable.id)).where(whereClause).groupBy(aiUsageLogTable.userId, usersTable.email).orderBy(desc17(sql8`sum(${aiUsageLogTable.estimatedCostUsd})`));
   const perUser = perUserRaw.map((r2) => ({
     userId: r2.userId,
     email: r2.email ?? "unknown",
@@ -255546,7 +255567,7 @@ async function requireOwner(req, res, next) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const [user] = await db.select({ isOwner: usersTable2.isOwner }).from(usersTable2).where(eq27(usersTable2.id, req.user.id)).limit(1);
+  const [user] = await db.select({ isOwner: usersTable.isOwner }).from(usersTable).where(eq27(usersTable.id, req.user.id)).limit(1);
   if (!user?.isOwner) {
     res.status(403).json({ error: "Owner access required" });
     return;
@@ -255626,19 +255647,19 @@ router26.get("/users", authMiddleware, requireOwner2, async (req, res) => {
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
     const offset = (page - 1) * limit;
     const searchCondition = search ? or2(
-      sql9`LOWER(${usersTable2.email}) LIKE ${"%" + search.toLowerCase() + "%"}`,
-      sql9`LOWER(COALESCE(${usersTable2.displayName}, '')) LIKE ${"%" + search.toLowerCase() + "%"}`
+      sql9`LOWER(${usersTable.email}) LIKE ${"%" + search.toLowerCase() + "%"}`,
+      sql9`LOWER(COALESCE(${usersTable.displayName}, '')) LIKE ${"%" + search.toLowerCase() + "%"}`
     ) : void 0;
     const [users, totalResult] = await Promise.all([
       db.select({
-        id: usersTable2.id,
-        email: usersTable2.email,
-        displayName: usersTable2.displayName,
-        avatarUrl: usersTable2.avatarUrl,
-        referralCode: usersTable2.referralCode,
-        createdAt: usersTable2.createdAt
-      }).from(usersTable2).where(searchCondition).orderBy(usersTable2.createdAt).limit(limit).offset(offset),
-      db.select({ count: count2() }).from(usersTable2).where(searchCondition)
+        id: usersTable.id,
+        email: usersTable.email,
+        displayName: usersTable.displayName,
+        avatarUrl: usersTable.avatarUrl,
+        referralCode: usersTable.referralCode,
+        createdAt: usersTable.createdAt
+      }).from(usersTable).where(searchCondition).orderBy(usersTable.createdAt).limit(limit).offset(offset),
+      db.select({ count: count2() }).from(usersTable).where(searchCondition)
     ]);
     const userIds = users.map((u) => u.id);
     const projectCounts = userIds.length ? await db.select({
@@ -255690,7 +255711,7 @@ router26.get("/stats", authMiddleware, requireOwner2, async (req, res) => {
         break;
     }
     const [userCount, projectCount, aiUsageStats, revenueStats, recentUsage] = await Promise.all([
-      db.select({ count: count2() }).from(usersTable2),
+      db.select({ count: count2() }).from(usersTable),
       db.select({ count: count2() }).from(projectsTable),
       db.select({
         totalRequests: count2(),
@@ -255710,7 +255731,7 @@ router26.get("/stats", authMiddleware, requireOwner2, async (req, res) => {
       }).from(aiUsageLogTable).where(gte3(aiUsageLogTable.createdAt, startDate)).groupBy(aiUsageLogTable.userId).orderBy(sql9`SUM(${aiUsageLogTable.estimatedCostUsd}) DESC`).limit(10)
     ]);
     const OWNER_EMAIL2 = process.env.OWNER_EMAIL ?? "";
-    const ownerUser = await db.select({ id: usersTable2.id }).from(usersTable2).where(sql9`LOWER(${usersTable2.email}) = ${OWNER_EMAIL2.toLowerCase()}`).limit(1);
+    const ownerUser = await db.select({ id: usersTable.id }).from(usersTable).where(sql9`LOWER(${usersTable.email}) = ${OWNER_EMAIL2.toLowerCase()}`).limit(1);
     let ownerUsage = { totalRequests: 0, totalCostUsd: 0 };
     if (ownerUser[0]) {
       const [ownerStats] = await db.select({

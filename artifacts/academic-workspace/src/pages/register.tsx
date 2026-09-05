@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { TeoraLogo } from "@/components/brand/teora-logo";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import {
   Form,
@@ -25,15 +26,18 @@ const formSchema = z
   .object({
     username: z
       .string()
-      .min(1, "Username is required")
-      .regex(USERNAME_REGEX, "3-30 characters, letters, numbers, and underscores only"),
+      .min(1, "Username wajib diisi")
+      .regex(USERNAME_REGEX, "3-30 karakter, huruf, angka, dan underscore saja"),
     displayName: z.string().optional(),
-    email: z.string().email("Invalid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
+    email: z.string().email("Email tidak valid"),
+    password: z.string().min(6, "Password minimal 6 karakter"),
     confirmPassword: z.string(),
+    agreeToS: z.boolean().refine((val) => val === true, {
+      message: "Anda harus menyetujui Syarat Layanan dan Kebijakan Privasi",
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
+    message: "Password tidak cocok",
     path: ["confirmPassword"],
   });
 
@@ -62,6 +66,7 @@ export default function Register() {
       email: "",
       password: "",
       confirmPassword: "",
+      agreeToS: false,
     },
   });
 
@@ -221,7 +226,7 @@ export default function Register() {
             {referralCode && (
               <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2 text-sm text-emerald-700">
                 <Users className="w-4 h-4 shrink-0" />
-                <span>You were invited by a friend</span>
+                <span>Anda diundang oleh teman</span>
               </div>
             )}
 
@@ -351,6 +356,36 @@ export default function Register() {
                   )}
                 />
 
+                <FormField
+                  control={form.control}
+                  name="agreeToS"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md p-2">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          className="mt-0.5"
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel className="text-sm font-normal cursor-pointer">
+                          Saya menyetujui{" "}
+                          <Link href="/terms" className="text-primary hover:underline">
+                            Syarat Layanan
+                          </Link>{" "}
+                          dan{" "}
+                          <Link href="/privacy" className="text-primary hover:underline">
+                            Kebijakan Privasi
+                          </Link>{" "}
+                          Teora
+                        </FormLabel>
+                        <FormMessage />
+                      </div>
+                    </FormItem>
+                  )}
+                />
+
                 <Button
                   type="submit"
                   variant="gradient"
@@ -360,10 +395,10 @@ export default function Register() {
                   {form.formState.isSubmitting ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Creating account...
+                      Membuat akun...
                     </>
                   ) : (
-                    "Create account"
+                    "Buat akun"
                   )}
                 </Button>
               </form>
@@ -384,11 +419,11 @@ export default function Register() {
       {/* Footer */}
       <footer className="py-4 text-center text-xs text-muted-foreground border-t border-border">
         <div className="flex items-center justify-center gap-4">
-          <span>© 2024 Teora: Empowering Academic Excellence</span>
-          <span>·</span>
-          <a href="#" className="hover:text-foreground transition-colors">Help Center</a>
-          <span>·</span>
-          <a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a>
+          <span>&copy; 2026 Teora</span>
+          <span>&middot;</span>
+          <Link href="/bantuan" className="hover:text-foreground transition-colors">Pusat Bantuan</Link>
+          <span>&middot;</span>
+          <Link href="/privacy" className="hover:text-foreground transition-colors">Kebijakan Privasi</Link>
         </div>
       </footer>
     </div>

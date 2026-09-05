@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 
 export default function TermsOfService() {
   const { user } = useAuth();
-  const effectiveDate = "1 September 2025";
+  const effectiveDate = "1 September 2026";
 
   return (
     <div className="min-h-screen bg-background">
@@ -119,7 +119,7 @@ export default function TermsOfService() {
         <div className="flex items-center justify-center gap-6 mt-8 text-xs text-muted-foreground">
           <Link href="/privacy" className="hover:text-foreground transition-colors">Kebijakan Privasi</Link>
           <Link href="/login" className="hover:text-foreground transition-colors">Login</Link>
-          <span>© 2025 PT Teora Teknologi Indonesia</span>
+          <span>&copy; 2026 PT Teora Teknologi Indonesia</span>
         </div>
       </div>
     </div>

@@ -55,7 +55,7 @@ export default function Landing() {
       <header className="border-b border-border">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-[#2D79FF]" />
+            <Sparkles className="w-5 h-5 text-primary" />
             <span className="text-lg font-serif font-bold tracking-tight">Teora</span>
           </div>
           <div className="flex items-center gap-3">
@@ -123,8 +123,8 @@ export default function Landing() {
                   <motion.div key={f.title} variants={itemVariants}>
                     <Card className="h-full hover:shadow-md transition-shadow cursor-default">
                       <CardContent className="p-5 space-y-3">
-                        <div className="w-10 h-10 rounded-lg bg-[#2D79FF]/10 flex items-center justify-center">
-                          <Icon className="w-5 h-5 text-[#2D79FF]" />
+                        <div className="w-10 h-10 rounded-lg bg-brand/10 flex items-center justify-center">
+                          <Icon className="w-5 h-5 text-brand" />
                         </div>
                         <div>
                           <h3 className="font-semibold text-sm">{f.title}</h3>
