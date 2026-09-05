@@ -9,7 +9,70 @@
 
 ---
 
-## 🎯 ACTIVE 2026-09-05 — Google OAuth Login Fix
+## 🎯 ACTIVE 2026-09-05 — Topic #4: Token Limit, Sisa Token, AI Usage per User
+
+**Status:** ✅ DONE — Committed `d357662`, pushed, frontend CI/CD running
+**Model:** claude-opus-4-6
+**Branch:** `feat/daftar-task`
+**Commit:** `d357662`
+
+### What
+
+Owner Topic #4: halaman "Penggunaan Token" + banner saldo rendah di semua protected pages.
+
+### Root cause findings (defects fixed)
+
+1. **Dead route** — sidebar links to `/usage` but App.tsx never registered the route → 404 on click
+2. **Wrong cost semantics** — page displayed `estimatedCostUsd` (AI provider USD cost) instead of `costCents` (IDR deducted from user balance). "$0.000002" to Indonesian students was both wrong and leaked provider pricing.
+3. **Broken DailyBarChart** — component rendered with NO props (`<DailyBarChart />`) because `dailyTotals` only exists on admin endpoint, not user endpoint.
+4. **Back link bug** — `<Link href="/">` went to public landing page instead of dashboard.
+5. **English UI text** — rest of app is Indonesian but usage page was English.
+
+### Changes applied
+
+| Layer | File | Change |
+|-------|------|--------|
+| Backend | `src/routes/usage.ts` | Aggregate `costCents`/`totalCostCents` in both user endpoints |
+| OpenAPI | `openapi.yaml` | Add `costCents` to breakdown objects, `totalCostCents` to both stats schemas |
+| Codegen | `api-zod` + `api-client-react` | Regenerated |
+| Frontend | `pages/usage.tsx` | Rewrite: IDR (costCents), translate to Indonesian, remove DailyBarChart, fix back link |
+| Frontend | `App.tsx` | Register `/usage` route with ProtectedRoute + Layout |
+| Frontend | `components/layout.tsx` | Add "Penggunaan" under Akun nav, sidebar orange warning at Rp 20.000 |
+| Frontend | `components/low-balance-banner.tsx` | New: dismissible banner at < Rp 10.000, per-user per-day via localStorage |
+| Frontend | `lib/balance-thresholds.ts` | New: SALDO_BANNER_CENTS + BANNER_STORAGE_PREFIX constants |
+
+### Deploy
+
+- **Frontend:** Push `d357662` → CI/CD pipeline auto-builds + deploys to Vercel
+- **Backend:** Manual Vercel dashboard deploy needed (MCP blind spot — only sees academic-workspace project)
+  - Project: `teora-backend` (prj_5c9YZBllez1NgwZazyStYt8wTJ5d)
+  - Deploy: `npm run build` then `vercel deploy --prod --yes` from `artifacts/api-server/`
+  - Or: Vercel dashboard → select `teora-backend` → Deployments → Deploy from `feat/daftar-task`
+- **Frontend bundle check:** Verify `dist/assets/index-*.js` contains "/usage", "Penggunaan", "Biaya per Fitur", "Topup sekarang"
+- **Backend check:** `GET /api/users/me/usage` returns `totalCostCents` + `costCents` in breakdown objects
+
+### Non-3eda73f note
+
+Commit `3eda73f` ("fix(api): move aiLimiter after authMiddleware + expand coverage to 7 AI route groups") — committed but deploy status not documented. Owner confirmed working 2026-09-05. This commit is included in the current branch.
+
+### Next
+
+1. Wait CI/CD frontend deploy complete
+2. Owner manual deploy backend via Vercel dashboard
+3. Verify /usage route works (no 404)
+4. Verify cost shown in IDR, not USD
+5. Owner test: click sidebar "Penggunaan" under Akun → /usage page loads
+
+### Handoff 2026-09-05 ---
+
+- **Task:** Topic #4 selesai, committed + pushed
+- **Last 3 actions:** (1) Edit openapi.yaml + codegen, (2) Rewrite usage.tsx + create LowBalanceBanner, (3) Register route + commit + push
+- **Next 3 actions:** (1) Monitor CI/CD frontend deploy, (2) Owner deploys backend manually, (3) Verify /usage works in production
+- **Open questions:** Backend deploy needs owner action via Vercel dashboard
+
+---
+
+## HISTORICAL 2026-09-05 — Google OAuth Login Fix
 
 **Status:** ✅ DONE — Deployed
 **Model:** claude-opus-4-8
