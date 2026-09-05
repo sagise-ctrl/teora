@@ -192422,6 +192422,18 @@ async function authMiddleware(req, res, next) {
   }
 }
 
+// src/lib/ai-limiter.ts
+var aiLimiter = lib_default({
+  windowMs: 60 * 1e3,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => {
+    return req.user?.id ?? req.ip ?? "unknown";
+  },
+  message: { error: "Terlalu banyak permintaan AI. Silakan tunggu sebentar." }
+});
+
 // src/routes/health.ts
 var import_express = __toESM(require_express2(), 1);
 
@@ -255881,6 +255893,13 @@ router27.use(auth_default);
 router27.use(shared_default);
 router27.use(ai_tiers_default);
 router27.use(authMiddleware);
+router27.use("/projects/:projectId/messages", aiLimiter);
+router27.use("/projects/:projectId/quizzes", aiLimiter);
+router27.use("/projects/:projectId/references", aiLimiter);
+router27.use("/projects/:projectId/analyze", aiLimiter);
+router27.use("/projects/:projectId/outline", aiLimiter);
+router27.use("/projects/:projectId/documents/generate", aiLimiter);
+router27.use("/users/me/writing-style/analyze", aiLimiter);
 router27.use(projects_default);
 router27.use(messages_default);
 router27.use(documents_default);
@@ -255995,20 +256014,9 @@ var authLimiter = lib_default({
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => req.path === "/healthz",
-  message: { error: "Too many attempts. Please try again after a minute." }
-});
-var aiLimiter = lib_default({
-  windowMs: 60 * 1e3,
-  max: 30,
-  standardHeaders: true,
-  legacyHeaders: false,
-  keyGenerator: (req) => req.user?.id ?? req.ip ?? "unknown",
-  message: { error: "Too many AI requests. Please wait a moment." }
+  message: { error: "Terlalu banyak percobaan. Silakan coba lagi setelah satu menit." }
 });
 app.use("/api/auth", authLimiter);
-app.use("/api/projects/:projectId/messages", aiLimiter);
-app.use("/api/projects/:projectId/references/regenerate", aiLimiter);
-app.use("/api/projects/:projectId/analyze", aiLimiter);
 app.use("/api", routes_default);
 var app_default = app;
 

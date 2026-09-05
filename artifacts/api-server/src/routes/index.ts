@@ -1,5 +1,6 @@
 import { Router, type IRouter } from "express";
 import { authMiddleware } from "../middlewares/auth.js";
+import { aiLimiter } from "../lib/ai-limiter.js";
 import healthRouter from "./health.js";
 import authRouter from "./auth.js";
 import sharedRouter from "./shared.js";
@@ -37,6 +38,20 @@ router.use(sharedRouter);
 // Public — price list
 router.use(aiTiersRouter);
 router.use(authMiddleware);
+
+// AI rate limiter — mounted AFTER authMiddleware so req.user.id is populated.
+// keyGenerator uses req.user.id for per-user quota (not per-IP).
+// These paths cover all AI-generating endpoints (chat, quiz, rubric,
+// references, analyze, outline, documents/generate, writing-style).
+// See .ai/ai-api-audit-report-20260905.md for full analysis.
+router.use("/projects/:projectId/messages", aiLimiter);
+router.use("/projects/:projectId/quizzes", aiLimiter);
+router.use("/projects/:projectId/references", aiLimiter);
+router.use("/projects/:projectId/analyze", aiLimiter);
+router.use("/projects/:projectId/outline", aiLimiter);
+router.use("/projects/:projectId/documents/generate", aiLimiter);
+router.use("/users/me/writing-style/analyze", aiLimiter);
+
 router.use(projectsRouter);
 router.use(messagesRouter);
 router.use(documentsRouter);
