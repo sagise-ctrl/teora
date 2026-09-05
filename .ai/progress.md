@@ -2,7 +2,35 @@
 
 > Completed work, newest first. Format: `YYYY-MM-DD | description | files | status`
 
-## 2026-09-05 | Google OAuth Login Fix — 500 TypeError (opus-4-8)
+## 2026-09-05 | Full Feature Audit + Fixes — Non-Payment/AI Provider (opus-4-8)
+
+### Fixes: Compile error, ToS consent, help page, design tokens, legal polish
+
+**Branch:** `feat/daftar-task` → deployed to production
+
+**Fixes applied:**
+| # | Issue | File | Fix |
+|---|-------|------|-----|
+| P1 | Compile error (usersTable missing) | `api-server/src/routes/projects.ts` | Add to destructured import |
+| P1 | ToS consent missing | `pages/register.tsx` | Add agreeToS Zod schema + Checkbox UI |
+| P1 | No support/help channel | `pages/help.tsx` (NEW) | Full FAQ page (7 items, Indonesian) |
+| P2 | Legal dates 2025 → 2026 | `pages/terms.tsx`, `pages/privacy.tsx` | Update effectiveDate + copyright |
+| P2 | Garbled text in privacy policy | `pages/privacy.tsx` | Fix `行使` → `menggunakan` |
+| P3 | Hardcoded brand colors | `pages/landing.tsx` | Replace `bg-[#2D79FF]/10` → `bg-brand/10` |
+| P3 | CSS brand token system | `index.css` | Add HSL component vars for `--color-brand` |
+| P3 | Footer links wrong | `pages/register.tsx` | `href="#"` → `/privacy`, Help Center → Pusat Bantuan` |
+| P3 | Help link missing from sidebar | `components/layout.tsx` | Add NavSubItem for /bantuan |
+
+**Deploy:**
+- Frontend: ✅ GitHub Actions → `academic-workspace-sagise-ctrls-projects.vercel.app`
+- Backend: ✅ GitHub Actions → `teora-backend.vercel.app`
+- Commit: `ae99552` + `2c0c86b`
+
+**Owner remaining (ONLY 2):**
+1. Payment Gateway (Midtrans/Stripe)
+2. AI API Provider (Groq/OpenAI)
+
+## 2026-09-05 | Google OAuth Login Fix
 
 ### Fix: db.sql → sql + try/catch wrapper di /api/auth/login
 
