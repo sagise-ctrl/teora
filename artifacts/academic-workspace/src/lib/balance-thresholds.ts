@@ -1,9 +1,9 @@
 /**
- * Threshold saldo rendah untuk UI warning.
+ * Threshold saldo rendah untuk visual indicator di sidebar.
  * Single source of truth — owner-approved 2026-09-05.
  *
  * - SALDO_WARNING_CENTS: Saldo di bawah threshold ini → sidebar jadi oranye + AlertCircle
- * - SALDO_BANNER_CENTS: Saldo di bawah threshold ini → banner muncul di semua protected pages
+ *   (visual cue saja; banner eksplisit sudah dihapus per owner 2026-09-08)
  *
  * Backend BLOCK sudah di 0 cents (return 402 + insufficient-balance-dialog).
  *
@@ -11,10 +11,3 @@
  * (Asumsi Rp 1.000 ≈ 1.000 token, free tier cost = 0).
  */
 export const SALDO_WARNING_CENTS = 20000; // Rp 20.000
-export const SALDO_BANNER_CENTS = 10000;  // Rp 10.000
-
-/**
- * localStorage key untuk dismiss banner. Format: low_banner_dismissed_{userId}_{YYYYMMDD}.
- * Banner auto-show lagi besok kalau saldo masih di bawah threshold.
- */
-export const BANNER_STORAGE_PREFIX = "low_banner_dismissed_";

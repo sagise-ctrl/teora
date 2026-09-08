@@ -380,6 +380,7 @@ Tanpa cost logging real:
 | 2026-09-08 | Initial document — diskusi round 1, rekonsiliasi spec ↔ pricing aktual | AI Engineering |
 | 2026-09-08 | Iterasi 2-4: tambah Starter Rp8rb, 3 model types (Lama/Campuran/Baru), volume scaling | AI Engineering |
 | 2026-09-08 | Iterasi 5: tambah Ultra tier + 2 subscription periods (15/30 hari). Final design terverifikasi di section 10. | AI Engineering |
+| 2026-09-08 | Iterasi 5b: Section 11.4 (banner saldo dihapus) + Section 12 (saldo IDR + autofallback + hold) + Section 13 (ToS checkbox spec) | AI Engineering |
 
 ---
 
@@ -543,3 +544,124 @@ Untuk saat ini, owner bisa:
 - ✅ Verifikasi logika kalimat (cara kerja quota, FAQ)
 - ✅ Identifikasi adjustment wording sebelum public launch
 - ❌ Belum bisa subscribe / bayar (coming soon)
+
+### 11.4 Banner Saldo Rendah — Dihapus (Owner 2026-09-08)
+
+Per owner: "sekarang di fronted ada peringatan saldo rendah/kosong, itu dihapus saja".
+
+| Item | Status | Catatan |
+|------|--------|---------|
+| `<LowBalanceBanner>` component | 🗑️ DELETED | `src/components/low-balance-banner.tsx` dihapus |
+| `SALDO_BANNER_CENTS` constant | 🗑️ DELETED | Banner threshold sudah tidak relevan |
+| `SALDO_WARNING_CENTS` constant | ✅ KEPT | Sidebar masih pakai untuk visual cue (icon oranye) |
+| Sidebar orange visual cue | ✅ KEPT | Visual feedback saldo rendah — bukan warning eksplisit |
+| `BANNER_STORAGE_PREFIX` localStorage | 🗑️ DELETED | Tidak ada banner yang perlu di-dismiss lagi |
+
+**Alasan owner:** User tidak perlu di-nag. Display saldo di sidebar cukup sebagai info. Kalau saldo 0, backend block via 402 + insufficient-balance-dialog (sudah ada).
+
+---
+
+## 12. Mekanisme Saldo IDR + Hybrid Autofallback (Owner 2026-09-08)
+
+### 12.1 Konsep Dasar: Saldo = IDR, Bukan Token
+
+**Topup disimpan sebagai nominal Rupiah (`balance_idr`)** — bukan jumlah token fixed. Alasan:
+- User bisa pakai model berbeda (Lama/Campuran/Baru) → harga per-token beda
+- Rate konversi real-time: biaya = `token_used × rate_per_token(model_type)`
+- Topup nominal lebih fleksibel (bukan kelipatan paket token)
+- Refund/expire/cancel lebih natural kalau IDR
+
+```
+Tampilan UI:
+  Saldo: Rp 125.000                  (bukan "1.250 token")
+  Pemakaian hari ini: -Rp 3.200
+```
+
+### 12.2 Aturan Saldo (Final)
+
+| Aturan | Keputusan | Status |
+|--------|-----------|--------|
+| Minimum topup | **Rp 10.000** | ✅ |
+| Expiry saldo (no activity) | **12 bulan → HOLD** (kontak CS untuk reaktivasi) | ✅ |
+| Pencairan/withdraw saldo | **Bisa dicairkan** → detail di session referral (fee mechanism) | ⏳ TBD |
+| Mix subscription + topup | **Boleh berbeda transaksi** (bukan 1 transaksi) | ✅ |
+| Autofallback ON by default | **ON, bisa di-toggle di settings** | ✅ |
+| Banner peringatan saldo rendah | 🗑️ **Dihapus** (owner 2026-09-08) | ✅ |
+| Backend block saat saldo 0 | **Ya** (return 402 + dialog) | ✅ |
+
+### 12.3 Hybrid Autofallback — Mekanisme
+
+```
+User request AI → Backend cek:
+
+1. Subscription quota (5h + 7d) masih ada?
+   → YA: pakai subscription, saldo TIDAK dipotong
+   → TIDAK: step 2
+
+2. Autofallback ON & saldo IDR cukup?
+   → YA: pakai saldo, potong IDR = token_used × rate(model)
+   → TIDAK: step 3
+
+3. Return 402 Payment Required + insufficient-balance-dialog
+   → User disuruh topup dulu
+```
+
+**Default autofallback = ON**, bisa di-toggle di Settings → Billing.
+
+### 12.4 Hold Policy (12 bulan no activity)
+
+- Cron job harian: cek `last_active_at` user
+- Jika `now() - last_active_at > 365 hari` → set `saldo_status = 'held'`
+- Saat `saldo_status = 'held'`:
+  - Autofallback dinonaktifkan otomatis (gak ada transaction)
+  - Display saldo: "Saldo ditahan — hubungi CS untuk aktivasi"
+  - User harus kontak CS (email/WhatsApp) + verifikasi identitas → reaktivasi
+- TIDAK auto-delete akun. Hanya saldo yang hold.
+
+### 12.5 Withdraw / Pencairan Saldo
+
+**Fitur ini akan didiskusikan terpisah** di sesi referral (owner note 2026-09-08). Yang sudah pasti:
+- Saldo **bisa dicairkan** ke rekening user
+- Mekanisme withdraw terkait dengan **fee referral** (cross-feature)
+- Hold: perlu define minimum withdraw (Rp 50rb?), fee structure, payment rail
+
+Untuk saat ini: **catat di DB schema** bahwa `balance_idr` adalah `withdrawable` (placeholder field), tapi fitur withdraw **belum di-expose di UI**.
+
+### 12.6 Tabel Keputusan — Saldo IDR
+
+| # | Item | Keputusan Owner |
+|---|------|-----------------|
+| a | Min topup | Rp 10.000 |
+| b | 12-month inactivity → hold + kontak CS | ✅ |
+| c | Withdraw saldo | ✅ (detail di sesi referral) |
+| d | Autofallback default | ON |
+| e | Banner saldo rendah | Dihapus |
+
+---
+
+## 13. ToS Checkbox Wajib Sebelum Pembayaran Subscription (Owner 2026-09-08)
+
+Per owner: "nanti kita bikin polis untuk syarat dan ketentuan harus di cek list ketika mau pembayaran langganan".
+
+**Front-end payment flow (saat user klik "Pilih Paket"):**
+
+```
+[Summary card]
+Tier: Premium
+Periode: 30 hari
+Harga: Rp 165.000
+Auto-renew: Ya (default ON, bisa di-toggle)
+
+[ToS Checkbox — WAJIB dicentang]
+☑ Saya memahami bahwa:
+  ☐ Langganan TIDAK BISA di-pause
+  ☐ Tidak ada refund setelah pembayaran berhasil
+  ☐ Kuota yang tidak digunakan sampai akhir periode akan hangus
+  ☐ Saya menyetujui Syarat & Ketentuan Teora
+
+[Tombol "Bayar Sekarang"] → disabled sampai SEMUA checkbox dicentang
+```
+
+**Backend validation:** sebelum create subscription record, server verify client mengirim `tos_accepted: true` + timestamp. Store di `subscriptions.tos_accepted_at`.
+
+**Belum diimplementasi.** Akan dipasang saat payment integration (Midtrans/Stripe) di-setup.

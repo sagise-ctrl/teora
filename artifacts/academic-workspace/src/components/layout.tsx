@@ -18,13 +18,11 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
-import { useGetMyBalance } from "@/lib/api-client-react";
-import { Badge } from "@/components/ui/badge";
+import { useGetMyBalance } from "@/lib/api-client-react";import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TeoraLogo } from "@/components/brand/teora-logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { SALDO_WARNING_CENTS, SALDO_BANNER_CENTS } from "@/lib/balance-thresholds";
-import { LowBalanceBanner } from "@/components/low-balance-banner";
+import { SALDO_WARNING_CENTS } from "@/lib/balance-thresholds";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 
 interface NavItemProps {
@@ -338,8 +336,6 @@ function SidebarHeader({ onNavigate }: SidebarNavProps) {
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const { data: balanceData } = useGetMyBalance();
-  const balanceCents = balanceData?.balanceCents ?? 0;
 
   return (
     <div className="flex min-h-[100dvh] w-full bg-background text-foreground">
@@ -396,7 +392,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
         <div className="flex-1 overflow-auto p-4 md:p-8">
           <div className="mx-auto max-w-6xl">
-            <LowBalanceBanner balanceCents={balanceCents} />
             {children}
           </div>
         </div>
