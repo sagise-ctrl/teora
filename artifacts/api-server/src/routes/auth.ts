@@ -29,13 +29,22 @@ function validateUsername(username: string): string | null {
 }
 
 function toUserJson(user: typeof usersTable.$inferSelect) {
+  // Compute isOwner dynamically from OWNER_EMAIL env var (single source of truth,
+  // per DECISION 014). Do NOT read from user.isOwner DB column — that field
+  // defaults to false and is never auto-updated, which would cause the owner
+  // to be misclassified as a regular user in /auth/me responses (and thus
+  // bypass the auto-redirect to /landing-admin). Backend middleware
+  // (middlewares/owner.ts) already uses the same env-var check.
+  const OWNER_EMAIL = process.env.OWNER_EMAIL ?? "";
+  const isOwner = user.email?.toLowerCase() === OWNER_EMAIL.toLowerCase();
+
   return {
     id: user.id,
     email: user.email,
     username: user.username,
     displayName: user.displayName,
     avatarUrl: user.avatarUrl,
-    isOwner: user.isOwner,
+    isOwner,
     referralCode: user.referralCode,
     createdAt: user.createdAt,
   };
