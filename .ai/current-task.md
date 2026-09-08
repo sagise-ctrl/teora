@@ -9,17 +9,128 @@
 
 ---
 
-## ACTIVE 2026-09-05 — Initial Project Audit COMPLETE
+## ACTIVE 2026-09-08 — Subscription Backend + Frontend Complete (opus-4-6)
 
-**Status:** ✅ COMPLETE — Master audit report at `.ai/master-audit-20260905.md`
+**Status:** ✅ COMPLETE — Backend deployed + committed + pushed
 **Model:** claude-opus-4-6
+**Branch:** `feat/daftar-task` — committed `58b3082` (pushed)
+
+### Summary (Session Resume dari opus-4-8)
+
+Laptop mati saat setup backend subscription. Session ini dilanjutkan:
+
+| # | Task | Status |
+|---|------|--------|
+| 1 | Fix TypeScript errors (boolean not imported) | ✅ Fixed in subscriptions.ts, usage_windows.ts |
+| 2 | Typecheck + build | ✅ Pass (6.4MB bundle) |
+| 3 | Verify DB tables (subscription_packages, subscriptions, usage_windows) | ✅ All exist + RLS added |
+| 4 | Seed correct pricing (owner-approved: Starter Rp29k, Standar Rp59k, dst.) | ✅ Applied via Supabase MCP |
+| 5 | Add RLS policies (auth.uid()::text = user_id pattern) | ✅ 7 policies created |
+| 6 | Deploy backend | ✅ `teora-backend.vercel.app` |
+| 7 | Verify /api/packages endpoint | ✅ Returns 30 SKUs with correct prices |
+| 8 | Commit + push | ✅ `58b3082` |
+
+### Production URLs
+
+- `/subscribe` → https://academic-workspace-eta.vercel.app/subscribe
+- `/usage` → https://academic-workspace-eta.vercel.app/usage
+- `/api/packages` → https://teora-backend.vercel.app/api/packages (200, all 30 SKUs)
+- `/api/healthz` → https://teora-backend.vercel.app/api/healthz (200)
+
+### What's Done
+
+**Backend subscription system:**
+- `GET /api/packages` — 30 SKUs with owner-approved pricing ✅
+- `GET /api/users/me/subscription` — active sub + usage windows
+- `POST /api/users/me/subscription` — payment stub (402)
+- `PUT /api/autofallback` — toggle autofallback
+- `src/lib/subscription.ts` — rolling window quota logic (anchored T0, 5h/7d)
+- DB: 3 tables + 7 RLS policies + correct pricing seeded
+
+**Frontend cleanup:**
+- `/ai-pricing` → DELETED
+- `/langganan` → `/subscribe` (renamed)
+- LowBalanceBanner → DELETED (no nag UX per owner)
+- `/usage` → redesigned (subscription-centric)
+
+### Remaining (Deferred)
+
+1. **Payment gateway** — Midtrans or Stripe integration (waiting owner decision)
+2. **Withdrawal/pencairan saldo** — 🗑️ Tidak ada fitur withdraw (owner 2026-09-08)
+3. **OpenAPI codegen** — subscription endpoints not yet in openapi.yaml (routes exist but no spec)
+4. **Frontend /subscribe page** — still uses hardcoded TIER data, should fetch from /api/packages
+5. **Quota enforcement in AI routes** — checkQuotaAndAccumulate() not yet wired into actual AI endpoints (chat, quiz, etc.)
+
+### Next
+
+1. Wire /api/packages into frontend `/subscribe` page (fetch from API, not hardcoded)
+2. Add subscription endpoints to OpenAPI spec + run codegen
+3. Wire checkQuotaAndAccumulate() into AI routes (chat, quiz, rubric, references, etc.)
+4. ToS checkbox UI (per owner spec from 2026-09-08)
+
+### What (Owner Instructions 2026-09-08)
+
+1. Hapus `/ai-pricing` (old Teora Pricing menu) — DONE
+2. Rename `/langganan` → `/subscribe` — DONE
+3. Redesain `/usage` page (subscription-centric):
+   - Top: active package name + expiry date
+   - Middle: 5h column + 7d column (sisa terpakai + percentage + reset time)
+   - Below: actual saldo + daily usage
+   - Bottom: daily history expandable — DONE
+
+### Production URLs
+
+- `/subscribe` → https://academic-workspace-eta.vercel.app/subscribe
+- `/usage` → https://academic-workspace-eta.vercel.app/usage
+- `/dashboard` → https://academic-workspace-eta.vercel.app/dashboard
+
+### Files Changed
+
+| File | Change |
+|------|--------|
+| `src/pages/ai-pricing.tsx` | DELETED |
+| `src/App.tsx` | Removed AIPricing; renamed `/langganan` → `/subscribe` |
+| `src/components/layout.tsx` | Removed "Teora Pricing" nav; renamed label; removed `AlertCircle` |
+| `src/pages/topup.tsx` | Fixed 2× `/ai-pricing` → `/subscribe` links |
+| `src/pages/usage.tsx` | COMPLETELY REDESIGNED (subscription-focused, mock data) |
+| `src/pages/low-balance-banner.tsx` | DELETED (prev session) |
+| `src/lib/balance-thresholds.ts` | DELETED (prev session) |
+
+### Deploy Pattern (Memorized)
+
+```bash
+cd artifacts/academic-workspace
+# Temporarily set vercel.json to skip install (proxy issue):
+# "installCommand": "echo skip", "buildCommand": "echo skip"
+npx vercel build --prod
+npx vercel deploy --prod --yes --prebuilt
+# Restore vercel.json after
+```
+
+### Next
+
+- Owner review on live URL → feedback
+- Commit changes to `feat/daftar-task`
+- Withdraw saldo mechanism — 🗑️ Tidak ada (owner 2026-09-08)
+- Backend subscription logic (deferred)
+
+---
+
+## HISTORICAL 2026-09-08 — Initial Pricing Page Display (opus-4-8)
+
+**Status:** ✅ COMPLETE
 **Branch:** `feat/daftar-task`
+**URL:** https://academic-workspace-eta.vercel.app/langganan
 
-### What
+Owner: tampilkan pricing display untuk verifikasi. Backend deferred.
 
-Owner MASTER DIRECTIVE: Comprehensive 39-section audit. 4-agent parallel audit completed + synthesized.
+**Anchored Rolling Window:** 5h cap = 1/10 × 7d cap, window anchored to first-use timestamp. 15-day = 2×7d windows, 30-day = 4×7d windows.
 
-### Audit Sources (4 Raw Reports)
+**30 SKU matrix:** 5 tiers × 3 model modes × 2 periods. Pricing: Starter Rp29rb/Rp49rb, Standar Rp59rb/Rp99rb, Premium Rp99rb/Rp165rb, Pro Rp149rb/Rp249rb, Ultra Rp229rb/Rp389rb.
+
+---
+
+## HISTORICAL 2026-09-05 — Initial Project Audit COMPLETE
 
 | File | Focus | Size |
 |------|--------|------|
@@ -732,7 +843,7 @@ Owner-defined mechanics (per message 2026-09-08):
 | Topup disimpan sebagai **IDR** (bukan token) | ✅ |
 | Minimum topup | Rp 10.000 |
 | Saldo expire (no activity) | 12 bulan → **HOLD** + kontak CS untuk reaktivasi |
-| Withdraw/pencairan saldo | Bisa dicairkan → detail mekanisme **didiskusikan di sesi referral** |
+| Withdraw/pencairan saldo | 🗑️ **Tidak ada** (owner 2026-09-08) |
 | Mix subscription + topup | Boleh berbeda transaksi |
 | Autofallback | **ON by default** (bisa di-toggle di Settings) |
 | Banner saldo rendah | 🗑️ **Dihapus** per owner — "no nag" UX |
@@ -775,7 +886,7 @@ Bundle does NOT contain: `LowBalanceBanner`, `Saldo hampir habis`.
 
 1. **Owner verifies** display + wording on production URL
 2. **Owner reviews** Sections 12 + 13 of pricing doc (saldo mechanism + ToS spec)
-3. **Open question** — withdraw saldo mechanism (diskusi di sesi referral)
+3. ~~Withdraw saldo mechanism~~ — 🗑️ Tidak ada (owner 2026-09-08)
 4. **Open question** — sidebar oranye saldo rendah — keep atau hapus? (saya keep untuk sekarang sebagai visual cue)
 5. Backend subscription logic — DEFER per owner
 6. Payment integration (Midtrans/Stripe) — DEFER

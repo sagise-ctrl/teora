@@ -583,7 +583,7 @@ Tampilan UI:
 |--------|-----------|--------|
 | Minimum topup | **Rp 10.000** | ✅ |
 | Expiry saldo (no activity) | **12 bulan → HOLD** (kontak CS untuk reaktivasi) | ✅ |
-| Pencairan/withdraw saldo | **Bisa dicairkan** → detail di session referral (fee mechanism) | ⏳ TBD |
+| Pencairan/withdraw saldo | 🗑️ **Tidak ada fitur withdraw** (owner 2026-09-08) | ✅ |
 | Mix subscription + topup | **Boleh berbeda transaksi** (bukan 1 transaksi) | ✅ |
 | Autofallback ON by default | **ON, bisa di-toggle di settings** | ✅ |
 | Banner peringatan saldo rendah | 🗑️ **Dihapus** (owner 2026-09-08) | ✅ |
@@ -620,12 +620,7 @@ User request AI → Backend cek:
 
 ### 12.5 Withdraw / Pencairan Saldo
 
-**Fitur ini akan didiskusikan terpisah** di sesi referral (owner note 2026-09-08). Yang sudah pasti:
-- Saldo **bisa dicairkan** ke rekening user
-- Mekanisme withdraw terkait dengan **fee referral** (cross-feature)
-- Hold: perlu define minimum withdraw (Rp 50rb?), fee structure, payment rail
-
-Untuk saat ini: **catat di DB schema** bahwa `balance_idr` adalah `withdrawable` (placeholder field), tapi fitur withdraw **belum di-expose di UI**.
+**Tidak ada fitur withdraw** (owner 2026-09-08). Saldo hanya bisa digunakan untuk autofallback AI usage. Tidak bisa dicairkan ke rekening.
 
 ### 12.6 Tabel Keputusan — Saldo IDR
 
@@ -633,7 +628,7 @@ Untuk saat ini: **catat di DB schema** bahwa `balance_idr` adalah `withdrawable`
 |---|------|-----------------|
 | a | Min topup | Rp 10.000 |
 | b | 12-month inactivity → hold + kontak CS | ✅ |
-| c | Withdraw saldo | ✅ (detail di sesi referral) |
+| c | Withdraw saldo | 🗑️ Tidak ada |
 | d | Autofallback default | ON |
 | e | Banner saldo rendah | Dihapus |
 
