@@ -2,6 +2,45 @@
 
 > Completed work, newest first. Format: `YYYY-MM-DD | description | files | status`
 
+## 2026-09-08 | Pricing Strategy `/langganan` Page — Frontend Display for Owner Verification (opus-4-8)
+
+**Branch:** `feat/daftar-task` → DEPLOYED to production (no commit yet — owner verifying display first)
+
+**Owner goal:** Tampilkan display pricing di web live supaya owner bisa cek tampilan & logika kalimat. Backend logic disetup nanti setelah display disetujui.
+
+**Anchored Rolling Window logic** (owner-defined 2026-09-08):
+- 5h cap = 1/10 × 7d cap, 7d cap = subscription_days/7 × base
+- Window di-anchor ke first-use timestamp, reset setelah window elapse (bukan calendar)
+- 15 hari subscription = max 2× base 7d cap, 30 hari = max 4× base 7d cap
+
+**30 SKU matrix:** 5 tiers × 3 model modes × 2 periods
+
+| Tier | 15-day | 30-day | Notes |
+|------|--------|--------|-------|
+| Starter | Rp29rb | Rp49rb | Coba-coba |
+| Standar | Rp59rb | Rp99rb | "Paling Populer" |
+| Premium | Rp99rb | Rp165rb | "Pilihan Terbaik" |
+| Pro | Rp149rb | Rp249rb | Riset intensif |
+| Ultra | Rp229rb | Rp389rb | Tim/organisasi |
+
+**Files changed:**
+
+| File | Status |
+|------|--------|
+| `docs/ai-team/finance/pricing-strategy-2026-anthropic.md` | ✅ Sections 10 (Final Design) + 11 (Frontend Display) added |
+| `artifacts/academic-workspace/src/pages/langganan.tsx` | ✅ NEW ~600 lines (TIERS data + QuotaBox + TierCard + LanggananPage) |
+| `artifacts/academic-workspace/src/App.tsx` | ✅ Added `/langganan` protected route |
+| `artifacts/academic-workspace/src/components/layout.tsx` | ✅ Added `NavSubItem` "Paket Berlangganan" in Akun group |
+
+**Production URL:** https://academic-workspace-eta.vercel.app/langganan
+
+**Bundle verification:**
+- `/langganan` → 200, 1413 bytes (HTML shell)
+- `/assets/index-DL_Sc6QJ.js` → 200, 1.5MB (contains all langganan strings)
+- `/api/v1/ai-pricing/tiers` → 401 (proxied to backend)
+
+**Pending:** Owner review on display + wording. Backend logic setup (5h/7d enforcement) deferred.
+
 ## 2026-09-05 | Initial Project Audit — 4-Agent Parallel Audit + Master Synthesis (opus-4-6)
 
 **Branch:** `feat/daftar-task` → committed + pushed `389e9de`

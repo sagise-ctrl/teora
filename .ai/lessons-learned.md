@@ -539,6 +539,58 @@ Opsi 3 terlalu besar — global error handler affect semua routes, butuh audit s
 
 
 
+## `--prebuilt` Vercel deploy breaks SPA fallback for this Vite project
+- Gejala: `vercel deploy --prod --prebuilt` upload sukses (status READY), tapi `/langganan` (atau any SPA non-static route) return 404 atau 200/0 bytes. Halaman `/` return HTML correct, tapi deep routes return 404.
+- Root cause: When `--prebuilt` is used, Vercel uses the `.vercel/output/config.json` that the developer provides. Untuk SPA fallback (`/(.*)` → `/static/index.html`), Vercel perlu tahu pattern filesystem + miss handler yang benar. Format minimal:
+  ```json
+  {"version":3,"routes":[{"src":"/(.*)","dest":"/static/$1"},{"src":"/","dest":"/static/index.html"}]}
+  ```
+  terlihat OK secara syntax tapi Vercel tidak fall-through ke route berikutnya saat file `/static/$1` tidak ada — langsung return 404. Format handle-based (`{ "handle": "filesystem" }, { "src": "/(.*)", "dest": "/static/$1", "check": true }, { "handle": "miss" }, { "src": "/(.*)", "dest": "/static/index.html" }`) lebih reliable, tapi pernah di-reject Vercel CLI dengan `Unexpected error. Please try again later. ()` tanpa indikasi masalah config. Format-only config tanpa handle bisa-bisa sukses upload tapi SPA broken.
+- Kalau error berulang: ini BUKAN error yang sama dengan `vercel-deploy-without-prebuilt-drizzle-zod-fix-20260904` (yang membahas pnpm install error di remote). Ini kelas baru: `--prebuilt` config.json SPA fallback tidak reliable.
+- Opsi yang dipertimbangkan:
+  1. Fix config.json SPA fallback ke format handle-based → DEPLOY ERROR (`Unexpected error`)
+  2. Fix config.json ke format minimal `/(.*)` → /static/index.html → STILL 404 untuk SPA routes
+  3. **Gunakan `vercel deploy --prod --yes` TANPA `--prebuilt`** — Vercel run build + install di remote, automatically configure SPA routing correctly. **CHOSEN**
+- Kenapa pilih opsi 3:
+  - Workaround langsung, no config debugging required
+  - Vercel npm install (dari `vercel.json` installCommand = `npm install --legacy-peer-deps`) sukses — masalah pnpm registry lokal sebelumnya ternyata HANYA muncul kalau cache pnpm stale (coba clear dengan `npm install --legacy-peer-deps` di local sebelum deploy)
+  - SPA routing otomatis benar (Vite built-in pattern)
+  - Downside: ~1m extra build time di remote (acceptable)
+- Yang harus dicek di masa depan supaya tidak terulang:
+  - **Untuk Vite SPA projects, SELALU pakai `vercel deploy --prod --yes` TANPA `--prebuilt`**. `--prebuilt` cocok untuk static-only deploy atau custom framework adapter, BUKAN Vite SPA.
+  - Kalau `--prebuilt` wajib (mis. CI offline build), config.json HARUS pakai `handle: "filesystem"` + `handle: "miss"` pattern — BUKAN simple `/(.*)` routes. Test dengan curl ke deep route segera setelah deploy.
+  - Clear pnpm cache sebelum deploy: `npm run build` lokal dulu, pastikan `dist/` fresh, lalu `rm -rf .vercel/output` sebelum generate ulang (kalau pakai --prebuilt).
+  - Verifikasi post-deploy: `curl -o /dev/null -w "%{size_download}\n" https://URL/deep-route` — harus return size > 1000 (HTML shell). Kalau 0 atau 404, SPA broken.
+
+**Cross-reference:**
+- Memory: `vercel-deploy-without-prebuilt-drizzle-zod-fix-20260904` (pnpm install issue, kelas berbeda)
+- Memory: `vercel-prebuilt-deploy-with-inline-env-20260904` (prebuilt pattern untuk env vars)
+
+---
+
+## Pricing Strategy — Anchored Rolling Window (Owner-defined 2026-09-08)
+- Gejala: Awalnya definisi limit token 5 jam/7 hari ambigu — dimulainya kapan? Resetnya kapan?
+- Root cause: Owner memakai model "anchored rolling window" — window timer di-ANCHOR ke first-use timestamp (bukan calendar). Reset terjadi setelah window durasi terlewati, BUKAN per calendar day.
+- Logika final (owner-confirmed):
+  - **5h cap** = 1/10 × 7d cap (overlap proteksi: kalau 5h cap < 7d/10, user bisa reach limit dalam 5 jam)
+  - **7d cap** = subscription_days/7 × base 7d cap (15 hari = 2× base, 30 hari = 4× base)
+  - **Cara hitung limit subscription**: subscription_days/7 × 7d cap. Contoh: 15 hari subscription + 7d base=100k → max subscription = 200k token (= 2× base)
+  - **Window calculation**: DIMULAI dari first token use timestamp. Setelah 5 jam (atau 7 hari) dari waktu itu, window reset → limit penuh lagi.
+  - **Reset**: window ELAPSED, full limit restored. BUKAN calendar-based reset.
+- Opsi yang dipertimbangkan:
+  1. Calendar-based reset (JAM 00:00, HARI KE-1) → DITOLAK owner
+  2. **Anchored rolling window** → APPROVED
+- Yang harus dicek di masa depan:
+  - Backend logic pakai `now() - firstUseTimestamp` sebagai window_age, bukan `now()` vs calendar date
+  - Subscription hard cap = `subscriptionDays / 7 * baseCap_7d` (bukan `subscriptionDays * dailyCap`)
+  - Limit 5 jam reset HANYA setelah 5 jam dari window anchor (bukan per 5 jam calendar)
+
+**Cross-reference:**
+- Doc: `docs/ai-team/finance/pricing-strategy-2026-anthropic.md` Section 10 (Final Design)
+- Page: `/langganan` (deployed for owner verification)
+
+---
+
 ## Cara Pakai File Ini
 
 **Setiap model baru di awal sesi:**

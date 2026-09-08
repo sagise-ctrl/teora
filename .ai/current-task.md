@@ -700,6 +700,73 @@ Backend Pustaka Saya **SUDAH FULL IMPLEMENTED** (`artifacts/api-server/src/route
 
 ---
 
+## ACTIVE 2026-09-08 — Pricing Strategy `/langganan` Page (Anchored Rolling Window + 30 SKU)
+
+**Status:** ✅ DEPLOYED TO PRODUCTION for owner verification
+**Production URL:** https://academic-workspace-eta.vercel.app/langganan
+**Model:** claude-opus-4-8
+**Branch:** `feat/daftar-task`
+
+### Owner Goal
+
+Owner wants to verify the pricing display and wording on the live web before locking in backend logic. Frontend display-only first, backend logic setup later.
+
+### Pricing Strategy (Anchored Rolling Window)
+
+Owner-defined mechanics (per message 2026-09-08):
+- **5h cap** = 1/10 × 7d cap (e.g., 7d=100k → 5h=10k)
+- **7d cap** = subscription_days/7 × 7d base (15d = 2× base, 30d = 4× base)
+- **Anchor**: rolling window starts from FIRST token use (not calendar date)
+- **Reset**: limit returns to FULL after window elapses from anchor time
+- **Hard ceiling**: subscription cannot exceed subscription_days/7 × 7d cap (e.g., 15d max = 2× 7d, 30d max = 4× 7d)
+
+### 30 SKU Matrix
+
+5 tiers × 3 model types × 2 periods = 30 SKUs
+
+| Tier | 15-day | 30-day | Best For |
+|------|--------|--------|----------|
+| Starter | Rp29rb | Rp49rb | Coba-coba |
+| Standar (Paling Populer) | Rp59rb | Rp99rb | Mahasiswa rutin |
+| Premium (Pilihan Terbaik) | Rp99rb | Rp165rb | Power user |
+| Pro | Rp149rb | Rp249rb | Riset intensif |
+| Ultra | Rp229rb | Rp389rb | Tim/organisasi |
+
+3 model modes: **Lama** (Haiku 4.5 only), **Campuran** (Haiku + Sonnet mix), **Baru** (Sonnet 5 primary).
+
+### Files Changed
+
+| File | Status | Notes |
+|------|--------|-------|
+| `docs/ai-team/finance/pricing-strategy-2026-anthropic.md` | ✅ UPDATED | Sections 10 (Final Design) + 11 (Frontend Display) added |
+| `artifacts/academic-workspace/src/pages/langganan.tsx` | ✅ NEW | ~600 lines: TIER data + QuotaBox + TierCard + LanggananPage |
+| `artifacts/academic-workspace/src/App.tsx` | ✅ UPDATED | Added `/langganan` protected route |
+| `artifacts/academic-workspace/src/components/layout.tsx` | ✅ UPDATED | Added `NavSubItem` "Paket Berlangganan" in Akun group |
+
+### Deployment Notes (2026-09-08)
+
+**Issue:** `--prebuilt` mode broke SPA routing because config.json SPA fallback is non-trivial.
+**Fix:** Use plain `vercel deploy --prod --yes` (no `--prebuilt`). Vercel runs npm install (from vercel.json) + vite build at remote, then automatically configures SPA routing correctly.
+
+### Verification
+
+| Endpoint | Status | Size |
+|----------|--------|------|
+| `/langganan` | 200 | 1413 bytes |
+| `/` | 200 | 1413 bytes |
+| `/assets/index-*.js` | 200 | 1.5MB |
+| `/api/v1/ai-pricing/tiers` | 401 (proxied) | OK |
+
+Bundle contains strings: `Paket Berlangganan`, `Pilihan Terbaik`, `Hemat 15%`, `Cara kerja kuota`, `/langganan`, `langganan`.
+
+### Pending Next Steps (per owner instruction)
+
+1. Owner verifies display + wording on production URL
+2. Owner reports back any changes needed to copy/numbers
+3. After approval: setup backend subscription logic (tier selection, quota enforcement, 5h/7d windows)
+
+---
+
 ## COMPLETED 2026-09-03 — Practice (Learning Activity System)
 
 **Status:** ✅ DONE — Branch pushed, awaiting PR merge

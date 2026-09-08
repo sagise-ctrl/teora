@@ -174,7 +174,8 @@ function SidebarNav({ onNavigate }: SidebarNavProps) {
     location === "/topup" ||
     location === "/ai-pricing" ||
     location === "/profile" ||
-    location === "/usage";
+    location === "/usage" ||
+    location === "/langganan";
 
   return (
     <div className="flex-1 p-3 space-y-1 overflow-y-auto">
@@ -196,6 +197,7 @@ function SidebarNav({ onNavigate }: SidebarNavProps) {
 
         <NavGroup icon={CreditCard} label="Akun" active={isAkunActive}>
           <NavSubItem href="/akun" label="Profil & Pengaturan" onNavigate={onNavigate} />
+          <NavSubItem href="/langganan" label="Paket Berlangganan" onNavigate={onNavigate} />
           <NavSubItem href="/usage" label="Penggunaan" onNavigate={onNavigate} />
           <NavSubItem href="/topup" label="Topup Saldo" onNavigate={onNavigate} />
           <NavSubItem href="/ai-pricing" label="Teora Pricing" onNavigate={onNavigate} />

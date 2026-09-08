@@ -39,6 +39,7 @@ import Usage from "@/pages/usage";
 import Practice from "@/pages/practice";
 import SharedProject from "@/pages/shared";
 import Landing from "@/pages/landing";
+import Langganan from "@/pages/langganan";
 import Layout from "@/components/layout";
 
 const queryClient = new QueryClient();
@@ -188,6 +189,13 @@ function AppRouter() {
         <ProtectedRoute>
           <Layout>
             <AnimatedPage><Akun /></AnimatedPage>
+          </Layout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/langganan">
+        <ProtectedRoute>
+          <Layout>
+            <AnimatedPage><Langganan /></AnimatedPage>
           </Layout>
         </ProtectedRoute>
       </Route>
