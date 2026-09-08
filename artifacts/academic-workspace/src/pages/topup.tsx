@@ -103,7 +103,7 @@ export default function TopupPage() {
     <div className="space-y-8 max-w-4xl mx-auto">
       {/* Page Header */}
       <div className="flex items-center gap-4">
-        <Link href="/ai-pricing">
+        <Link href="/subscribe">
           <Button variant="ghost" size="icon" className="rounded-full">
             <ArrowLeft className="w-4 h-4" />
           </Button>
@@ -246,7 +246,7 @@ export default function TopupPage() {
 
       {/* Back Links */}
       <div className="text-center flex items-center justify-center gap-4">
-        <Link href="/ai-pricing">
+        <Link href="/subscribe">
           <Button variant="ghost" className="text-muted-foreground">
             ← Lihat Teora Pricing
           </Button>

@@ -20,7 +20,10 @@ import quizzesRouter from "./quizzes.js";
 import rubricsRouter from "./rubrics.js";
 import writingStyleRouter from "./writing-style.js";
 import aiTiersRouter from "./ai-tiers.js";
+import packagesRouter from "./packages.js";
 import balanceRouter from "./balance.js";
+import autofallbackRouter from "./autofallback.js";
+import subscriptionsRouter from "./subscriptions.js";
 import profileRouter from "./profile.js";
 import accountReferencesRouter from "./account-references.js";
 import learningActivitiesRouter from "./learning-activities.js";
@@ -33,10 +36,10 @@ const router: IRouter = Router();
 
 router.use(healthRouter);
 router.use(authRouter);
-// Public endpoint — no auth required for shared project access
 router.use(sharedRouter);
-// Public — price list
+// Public routes (no auth required)
 router.use(aiTiersRouter);
+router.use(packagesRouter);
 router.use(authMiddleware);
 
 // AI rate limiter — mounted AFTER authMiddleware so req.user.id is populated.
@@ -70,6 +73,8 @@ router.use(quizzesRouter);
 router.use(rubricsRouter);
 router.use(writingStyleRouter);
 router.use(balanceRouter);
+router.use(autofallbackRouter);
+router.use(subscriptionsRouter);
 router.use(usageRouter);
 router.use(documentTemplatesRouter);
 router.use(adminAiTiersRouter);

@@ -209,18 +209,18 @@ var require_common = __commonJS({
           if (typeof args[0] !== "string") {
             args.unshift("%O");
           }
-          let index8 = 0;
+          let index11 = 0;
           args[0] = args[0].replace(/%([a-zA-Z%])/g, (match, format) => {
             if (match === "%%") {
               return "%";
             }
-            index8++;
+            index11++;
             const formatter2 = createDebug.formatters[format];
             if (typeof formatter2 === "function") {
-              const val = args[index8];
+              const val = args[index11];
               match = formatter2.call(self2, val);
-              args.splice(index8, 1);
-              index8--;
+              args.splice(index11, 1);
+              index11--;
             }
             return match;
           });
@@ -455,15 +455,15 @@ var require_browser = __commonJS({
       }
       const c = "color: " + this.color;
       args.splice(1, 0, c, "color: inherit");
-      let index8 = 0;
+      let index11 = 0;
       let lastC = 0;
       args[0].replace(/%[a-zA-Z%]/g, (match) => {
         if (match === "%%") {
           return;
         }
-        index8++;
+        index11++;
         if (match === "%c") {
-          lastC = index8;
+          lastC = index11;
         }
       });
       args.splice(lastC, 0, c);
@@ -977,8 +977,8 @@ var require_depd = __commonJS({
       return typeName && callSite.getMethodName() ? typeName + "." + funcName : funcName;
     }
     function formatPlain(msg, caller, stack) {
-      var timestamp30 = (/* @__PURE__ */ new Date()).toUTCString();
-      var formatted = timestamp30 + " " + this._namespace + " deprecated " + msg;
+      var timestamp33 = (/* @__PURE__ */ new Date()).toUTCString();
+      var formatted = timestamp33 + " " + this._namespace + " deprecated " + msg;
       if (this._traced) {
         for (var i2 = 0; i2 < stack.length; i2++) {
           formatted += "\n    at " + stack[i2].toString();
@@ -5800,15 +5800,15 @@ var require_dist = __commonJS({
     function parse2(header, options) {
       const stopChar = options?.comma === true ? COMMA : 65536;
       const len = header.length;
-      let index8 = skipOWS(header, options?.start ?? 0, len);
-      const valueStart = index8;
-      index8 = skipValue(header, index8, len, stopChar);
-      const valueEnd = trailingOWS(header, valueStart, index8);
+      let index11 = skipOWS(header, options?.start ?? 0, len);
+      const valueStart = index11;
+      index11 = skipValue(header, index11, len, stopChar);
+      const valueEnd = trailingOWS(header, valueStart, index11);
       const type = header.slice(valueStart, valueEnd).toLowerCase();
       if (options?.parameters === false) {
-        return { type, index: index8, parameters: new NullObject() };
+        return { type, index: index11, parameters: new NullObject() };
       }
-      return parseParameters(header, type, index8, len, stopChar);
+      return parseParameters(header, type, index11, len, stopChar);
     }
     var SP = 32;
     var HTAB = 9;
@@ -5817,72 +5817,72 @@ var require_dist = __commonJS({
     var DQUOTE = 34;
     var BSLASH = 92;
     var COMMA = 44;
-    function parseParameters(header, type, index8, len, stopChar) {
+    function parseParameters(header, type, index11, len, stopChar) {
       const parameters2 = new NullObject();
-      parameter: while (index8 < len) {
-        if (header.charCodeAt(index8) === stopChar)
+      parameter: while (index11 < len) {
+        if (header.charCodeAt(index11) === stopChar)
           break;
-        index8 = skipOWS(header, index8 + 1, len);
-        const keyStart = index8;
-        while (index8 < len) {
-          const code = header.charCodeAt(index8);
+        index11 = skipOWS(header, index11 + 1, len);
+        const keyStart = index11;
+        while (index11 < len) {
+          const code = header.charCodeAt(index11);
           if (code === stopChar)
             break parameter;
           if (code === SEMI)
             continue parameter;
           if (code === EQ) {
-            const keyEnd = trailingOWS(header, keyStart, index8);
+            const keyEnd = trailingOWS(header, keyStart, index11);
             const key = header.slice(keyStart, keyEnd).toLowerCase();
-            index8 = skipOWS(header, index8 + 1, len);
-            if (index8 < len && header.charCodeAt(index8) === DQUOTE) {
-              index8++;
+            index11 = skipOWS(header, index11 + 1, len);
+            if (index11 < len && header.charCodeAt(index11) === DQUOTE) {
+              index11++;
               let value = "";
-              while (index8 < len) {
-                const code2 = header.charCodeAt(index8++);
+              while (index11 < len) {
+                const code2 = header.charCodeAt(index11++);
                 if (code2 === DQUOTE) {
-                  index8 = skipValue(header, index8, len, stopChar);
+                  index11 = skipValue(header, index11, len, stopChar);
                   if (parameters2[key] === void 0)
                     parameters2[key] = value;
                   break;
                 }
-                if (code2 === BSLASH && index8 < len) {
-                  value += header[index8++];
+                if (code2 === BSLASH && index11 < len) {
+                  value += header[index11++];
                   continue;
                 }
                 value += String.fromCharCode(code2);
               }
               continue parameter;
             }
-            const valueStart = index8;
-            index8 = skipValue(header, index8, len, stopChar);
+            const valueStart = index11;
+            index11 = skipValue(header, index11, len, stopChar);
             if (parameters2[key] === void 0) {
-              const valueEnd = trailingOWS(header, valueStart, index8);
+              const valueEnd = trailingOWS(header, valueStart, index11);
               parameters2[key] = header.slice(valueStart, valueEnd);
             }
             continue parameter;
           }
-          index8++;
+          index11++;
         }
       }
-      return { type, index: index8, parameters: parameters2 };
+      return { type, index: index11, parameters: parameters2 };
     }
-    function skipValue(str, index8, len, stopChar) {
-      while (index8 < len) {
-        const code = str.charCodeAt(index8);
+    function skipValue(str, index11, len, stopChar) {
+      while (index11 < len) {
+        const code = str.charCodeAt(index11);
         if (code === SEMI || code === stopChar)
           break;
-        index8++;
+        index11++;
       }
-      return index8;
+      return index11;
     }
-    function skipOWS(header, index8, len) {
-      while (index8 < len) {
-        const char = header.charCodeAt(index8);
+    function skipOWS(header, index11, len) {
+      while (index11 < len) {
+        const char = header.charCodeAt(index11);
         if (char !== SP && char !== HTAB)
           break;
-        index8++;
+        index11++;
       }
-      return index8;
+      return index11;
     }
     function trailingOWS(header, start, end) {
       while (end > start) {
@@ -15457,10 +15457,10 @@ var require_media_typer = __commonJS({
       var type = match[1];
       var subtype = match[2];
       var suffix;
-      var index8 = subtype.lastIndexOf("+");
-      if (index8 !== -1) {
-        suffix = subtype.substr(index8 + 1);
-        subtype = subtype.substr(0, index8);
+      var index11 = subtype.lastIndexOf("+");
+      if (index11 !== -1) {
+        suffix = subtype.substr(index11 + 1);
+        subtype = subtype.substr(0, index11);
       }
       return new MediaType(type, subtype, suffix);
     }
@@ -15836,10 +15836,10 @@ var require_json = __commonJS({
       };
     }
     function createStrictSyntaxError(str, char) {
-      const index8 = str.indexOf(char);
+      const index11 = str.indexOf(char);
       let partial = "";
-      if (index8 !== -1) {
-        partial = str.substring(0, index8) + JSON_SYNTAX_CHAR.repeat(str.length - index8);
+      if (index11 !== -1) {
+        partial = str.substring(0, index11) + JSON_SYNTAX_CHAR.repeat(str.length - index11);
       }
       try {
         JSON.parse(partial);
@@ -15847,7 +15847,7 @@ var require_json = __commonJS({
       } catch (e2) {
         return normalizeJsonSyntaxError(e2, {
           message: e2.message.replace(JSON_SYNTAX_REGEXP, function(placeholder) {
-            return str.substring(index8, index8 + placeholder.length);
+            return str.substring(index11, index11 + placeholder.length);
           }),
           stack: e2.stack
         });
@@ -15901,8 +15901,8 @@ var require_text = __commonJS({
     var debug = require_src()("body-parser:text");
     var read = require_read();
     var { normalizeOptions, passthrough } = require_utils();
-    module.exports = text30;
-    function text30(options) {
+    module.exports = text33;
+    function text33(options) {
       const normalizedOptions = normalizeOptions(options, "text/plain");
       return function textParser(req, res, next) {
         read(req, res, next, passthrough, debug, normalizedOptions);
@@ -18319,18 +18319,18 @@ var require_parse = __commonJS({
           obj = options.plainObjects ? { __proto__: null } : {};
           var cleanRoot = root.charAt(0) === "[" && root.charAt(root.length - 1) === "]" ? root.slice(1, -1) : root;
           var decodedRoot = options.decodeDotInKeys ? cleanRoot.replace(/%2E/g, ".") : cleanRoot;
-          var index8 = parseInt(decodedRoot, 10);
-          var isValidArrayIndex = !isNaN(index8) && root !== decodedRoot && String(index8) === decodedRoot && index8 >= 0 && options.parseArrays;
+          var index11 = parseInt(decodedRoot, 10);
+          var isValidArrayIndex = !isNaN(index11) && root !== decodedRoot && String(index11) === decodedRoot && index11 >= 0 && options.parseArrays;
           if (!options.parseArrays && decodedRoot === "") {
             obj = { 0: leaf };
-          } else if (isValidArrayIndex && index8 < options.arrayLimit) {
+          } else if (isValidArrayIndex && index11 < options.arrayLimit) {
             obj = [];
-            obj[index8] = leaf;
+            obj[index11] = leaf;
           } else if (isValidArrayIndex && options.throwOnLimitExceeded) {
             throw new RangeError("Array limit exceeded. Only " + options.arrayLimit + " element" + (options.arrayLimit === 1 ? "" : "s") + " allowed in an array.");
           } else if (isValidArrayIndex) {
-            obj[index8] = leaf;
-            utils.markOverflow(obj, index8);
+            obj[index11] = leaf;
+            utils.markOverflow(obj, index11);
           } else if (decodedRoot !== "__proto__") {
             obj[decodedRoot] = leaf;
           }
@@ -18572,12 +18572,12 @@ var require_urlencoded = __commonJS({
     }
     function parameterCount(body, limit) {
       let count3 = 0;
-      let index8 = -1;
+      let index11 = -1;
       do {
         count3++;
         if (count3 > limit) return void 0;
-        index8 = body.indexOf("&", index8 + 1);
-      } while (index8 !== -1);
+        index11 = body.indexOf("&", index11 + 1);
+      } while (index11 !== -1);
       return count3;
     }
   }
@@ -18650,10 +18650,10 @@ var require_escape_html = __commonJS({
       }
       var escape2;
       var html = "";
-      var index8 = 0;
+      var index11 = 0;
       var lastIndex = 0;
-      for (index8 = match.index; index8 < str.length; index8++) {
-        switch (str.charCodeAt(index8)) {
+      for (index11 = match.index; index11 < str.length; index11++) {
+        switch (str.charCodeAt(index11)) {
           case 34:
             escape2 = "&quot;";
             break;
@@ -18672,13 +18672,13 @@ var require_escape_html = __commonJS({
           default:
             continue;
         }
-        if (lastIndex !== index8) {
-          html += str.substring(lastIndex, index8);
+        if (lastIndex !== index11) {
+          html += str.substring(lastIndex, index11);
         }
-        lastIndex = index8 + 1;
+        lastIndex = index11 + 1;
         html += escape2;
       }
-      return lastIndex !== index8 ? html + str.substring(lastIndex, index8) : html;
+      return lastIndex !== index11 ? html + str.substring(lastIndex, index11) : html;
     }
   }
 });
@@ -19031,22 +19031,22 @@ var require_content_type = __commonJS({
       if (typeof header !== "string") {
         throw new TypeError("argument string is required to be a string");
       }
-      var index8 = header.indexOf(";");
-      var type = index8 !== -1 ? header.slice(0, index8).trim() : header.trim();
+      var index11 = header.indexOf(";");
+      var type = index11 !== -1 ? header.slice(0, index11).trim() : header.trim();
       if (!TYPE_REGEXP.test(type)) {
         throw new TypeError("invalid media type");
       }
       var obj = new ContentType(type.toLowerCase());
-      if (index8 !== -1) {
+      if (index11 !== -1) {
         var key;
         var match;
         var value;
-        PARAM_REGEXP.lastIndex = index8;
+        PARAM_REGEXP.lastIndex = index11;
         while (match = PARAM_REGEXP.exec(header)) {
-          if (match.index !== index8) {
+          if (match.index !== index11) {
             throw new TypeError("invalid parameter format");
           }
-          index8 += match[0].length;
+          index11 += match[0].length;
           key = match[1].toLowerCase();
           value = match[2];
           if (value.charCodeAt(0) === 34) {
@@ -19057,7 +19057,7 @@ var require_content_type = __commonJS({
           }
           obj.parameters[key] = value;
         }
-        if (index8 !== header.length) {
+        if (index11 !== header.length) {
           throw new TypeError("invalid parameter format");
         }
       }
@@ -19986,25 +19986,25 @@ var require_utils3 = __commonJS({
     function acceptParams(str) {
       var length = str.length;
       var colonIndex = str.indexOf(";");
-      var index8 = colonIndex === -1 ? length : colonIndex;
-      var ret = { value: str.slice(0, index8).trim(), quality: 1, params: {} };
-      while (index8 < length) {
-        var splitIndex = str.indexOf("=", index8);
+      var index11 = colonIndex === -1 ? length : colonIndex;
+      var ret = { value: str.slice(0, index11).trim(), quality: 1, params: {} };
+      while (index11 < length) {
+        var splitIndex = str.indexOf("=", index11);
         if (splitIndex === -1) break;
-        var colonIndex = str.indexOf(";", index8);
+        var colonIndex = str.indexOf(";", index11);
         var endIndex = colonIndex === -1 ? length : colonIndex;
         if (splitIndex > endIndex) {
-          index8 = str.lastIndexOf(";", splitIndex - 1) + 1;
+          index11 = str.lastIndexOf(";", splitIndex - 1) + 1;
           continue;
         }
-        var key = str.slice(index8, splitIndex).trim();
+        var key = str.slice(index11, splitIndex).trim();
         var value = str.slice(splitIndex + 1, endIndex).trim();
         if (key === "q") {
           ret.quality = parseFloat(value);
         } else {
           ret.params[key] = value;
         }
-        index8 = endIndex + 1;
+        index11 = endIndex + 1;
       }
       return ret;
     }
@@ -20205,11 +20205,11 @@ var require_dist2 = __commonJS({
     exports.TokenData = TokenData;
     var PathError = class extends TypeError {
       constructor(message2, originalPath) {
-        let text30 = message2;
+        let text33 = message2;
         if (originalPath)
-          text30 += `: ${originalPath}`;
-        text30 += `; visit https://git.new/pathToRegexpError for info`;
-        super(text30);
+          text33 += `: ${originalPath}`;
+        text33 += `; visit https://git.new/pathToRegexpError for info`;
+        super(text33);
         this.originalPath = originalPath;
       }
     };
@@ -20217,7 +20217,7 @@ var require_dist2 = __commonJS({
     function parse2(str, options = {}) {
       const { encodePath = NOOP_VALUE } = options;
       const chars = [...str];
-      let index8 = 0;
+      let index11 = 0;
       function consumeUntil(end) {
         const output = [];
         let path3 = "";
@@ -20230,44 +20230,44 @@ var require_dist2 = __commonJS({
           });
           path3 = "";
         }
-        while (index8 < chars.length) {
-          const value = chars[index8++];
+        while (index11 < chars.length) {
+          const value = chars[index11++];
           if (value === end) {
             writePath();
             return output;
           }
           if (value === "\\") {
-            if (index8 === chars.length) {
-              throw new PathError(`Unexpected end after \\ at index ${index8}`, str);
+            if (index11 === chars.length) {
+              throw new PathError(`Unexpected end after \\ at index ${index11}`, str);
             }
-            path3 += chars[index8++];
+            path3 += chars[index11++];
             continue;
           }
           if (value === ":" || value === "*") {
             const type = value === ":" ? "param" : "wildcard";
             let name = "";
-            if (ID_START.test(chars[index8])) {
+            if (ID_START.test(chars[index11])) {
               do {
-                name += chars[index8++];
-              } while (ID_CONTINUE.test(chars[index8]));
-            } else if (chars[index8] === '"') {
-              let quoteStart = index8;
-              while (index8 < chars.length) {
-                if (chars[++index8] === '"') {
-                  index8++;
+                name += chars[index11++];
+              } while (ID_CONTINUE.test(chars[index11]));
+            } else if (chars[index11] === '"') {
+              let quoteStart = index11;
+              while (index11 < chars.length) {
+                if (chars[++index11] === '"') {
+                  index11++;
                   quoteStart = 0;
                   break;
                 }
-                if (chars[index8] === "\\")
-                  index8++;
-                name += chars[index8];
+                if (chars[index11] === "\\")
+                  index11++;
+                name += chars[index11];
               }
               if (quoteStart) {
                 throw new PathError(`Unterminated quote at index ${quoteStart}`, str);
               }
             }
             if (!name) {
-              throw new PathError(`Missing parameter name at index ${index8}`, str);
+              throw new PathError(`Missing parameter name at index ${index11}`, str);
             }
             writePath();
             output.push({ type, name });
@@ -20282,12 +20282,12 @@ var require_dist2 = __commonJS({
             continue;
           }
           if (value === "}" || value === "(" || value === ")" || value === "[" || value === "]" || value === "+" || value === "?" || value === "!") {
-            throw new PathError(`Unexpected ${value} at index ${index8 - 1}`, str);
+            throw new PathError(`Unexpected ${value} at index ${index11 - 1}`, str);
           }
           path3 += value;
         }
         if (end) {
-          throw new PathError(`Unexpected end at index ${index8}, expected ${end}`, str);
+          throw new PathError(`Unexpected end at index ${index11}, expected ${end}`, str);
         }
         writePath();
         return output;
@@ -20421,12 +20421,12 @@ var require_dist2 = __commonJS({
       pattern2 += end ? "$" : "(?=" + escape2(delimiter) + "|$)";
       return { regexp: new RegExp(pattern2, sensitive ? "" : "i"), keys };
     }
-    function flatten(tokens, index8, result, callback) {
-      while (index8 < tokens.length) {
-        const token = tokens[index8++];
+    function flatten(tokens, index11, result, callback) {
+      while (index11 < tokens.length) {
+        const token = tokens[index11++];
         if (token.type === "group") {
           const len = result.length;
-          flatten(token.tokens, 0, result, (seq) => flatten(tokens, index8, seq, callback));
+          flatten(token.tokens, 0, result, (seq) => flatten(tokens, index11, seq, callback));
           result.length = len;
           continue;
         }
@@ -20440,10 +20440,10 @@ var require_dist2 = __commonJS({
       let wildcardBacktrack = "";
       let prevCaptureType = 0;
       let hasSegmentCapture = 0;
-      let index8 = 0;
-      function hasInSegment(index9, type) {
-        while (index9 < tokens.length) {
-          const token = tokens[index9++];
+      let index11 = 0;
+      function hasInSegment(index12, type) {
+        while (index12 < tokens.length) {
+          const token = tokens[index12++];
           if (token.type === type)
             return true;
           if (token.type === "text") {
@@ -20453,18 +20453,18 @@ var require_dist2 = __commonJS({
         }
         return false;
       }
-      function peekText(index9) {
+      function peekText(index12) {
         let result2 = "";
-        while (index9 < tokens.length) {
-          const token = tokens[index9++];
+        while (index12 < tokens.length) {
+          const token = tokens[index12++];
           if (token.type !== "text")
             break;
           result2 += token.value;
         }
         return result2;
       }
-      while (index8 < tokens.length) {
-        const token = tokens[index8++];
+      while (index11 < tokens.length) {
+        const token = tokens[index11++];
         if (token.type === "text") {
           result += escape2(token.value);
           backtrack += token.value;
@@ -20479,7 +20479,7 @@ var require_dist2 = __commonJS({
             throw new PathError(`Missing text before "${token.name}" ${token.type}`, originalPath);
           }
           if (token.type === "param") {
-            result += hasSegmentCapture & 2 ? `(${negate(delimiter, backtrack)}+)` : hasInSegment(index8, "wildcard") ? `(${negate(delimiter, peekText(index8))}+)` : hasSegmentCapture & 1 ? `(${negate(delimiter, backtrack)}+|${escape2(backtrack)})` : `(${negate(delimiter, "")}+)`;
+            result += hasSegmentCapture & 2 ? `(${negate(delimiter, backtrack)}+)` : hasInSegment(index11, "wildcard") ? `(${negate(delimiter, peekText(index11))}+)` : hasSegmentCapture & 1 ? `(${negate(delimiter, backtrack)}+|${escape2(backtrack)})` : `(${negate(delimiter, "")}+)`;
             hasSegmentCapture |= prevCaptureType = 1;
           } else {
             result += hasSegmentCapture & 2 ? `(${negate(backtrack, "")}+)` : wildcardBacktrack ? `(${negate(wildcardBacktrack, "")}+|${negate(delimiter, "")}+)` : `([^]+)`;
@@ -20505,10 +20505,10 @@ var require_dist2 = __commonJS({
         return `(?:(?!${escape2(a)})[^${escape2(b)}])`;
       return `[^${escape2(a + b)}]`;
     }
-    function stringifyTokens(tokens, index8) {
+    function stringifyTokens(tokens, index11) {
       let value = "";
-      while (index8 < tokens.length) {
-        const token = tokens[index8++];
+      while (index11 < tokens.length) {
+        const token = tokens[index11++];
         if (token.type === "text") {
           value += escapeText(token.value);
           continue;
@@ -20518,11 +20518,11 @@ var require_dist2 = __commonJS({
           continue;
         }
         if (token.type === "param") {
-          value += ":" + stringifyName(token.name, tokens[index8]);
+          value += ":" + stringifyName(token.name, tokens[index11]);
           continue;
         }
         if (token.type === "wildcard") {
-          value += "*" + stringifyName(token.name, tokens[index8]);
+          value += "*" + stringifyName(token.name, tokens[index11]);
           continue;
         }
         throw new TypeError(`Unknown token type: ${token.type}`);
@@ -20827,27 +20827,27 @@ var require_router = __commonJS({
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var methods = METHODS.map((method) => method.toLowerCase());
-    module.exports = Router29;
+    module.exports = Router32;
     module.exports.Route = Route;
-    function Router29(options) {
-      if (!(this instanceof Router29)) {
-        return new Router29(options);
+    function Router32(options) {
+      if (!(this instanceof Router32)) {
+        return new Router32(options);
       }
       const opts = options || {};
-      function router29(req, res, next) {
-        router29.handle(req, res, next);
+      function router32(req, res, next) {
+        router32.handle(req, res, next);
       }
-      Object.setPrototypeOf(router29, this);
-      router29.caseSensitive = opts.caseSensitive;
-      router29.mergeParams = opts.mergeParams;
-      router29.params = {};
-      router29.strict = opts.strict;
-      router29.stack = [];
-      return router29;
+      Object.setPrototypeOf(router32, this);
+      router32.caseSensitive = opts.caseSensitive;
+      router32.mergeParams = opts.mergeParams;
+      router32.params = {};
+      router32.strict = opts.strict;
+      router32.stack = [];
+      return router32;
     }
-    Router29.prototype = function() {
+    Router32.prototype = function() {
     };
-    Router29.prototype.param = function param(name, fn) {
+    Router32.prototype.param = function param(name, fn) {
       if (!name) {
         throw new TypeError("argument name is required");
       }
@@ -20867,7 +20867,7 @@ var require_router = __commonJS({
       params.push(fn);
       return this;
     };
-    Router29.prototype.handle = function handle(req, res, callback) {
+    Router32.prototype.handle = function handle(req, res, callback) {
       if (!callback) {
         throw new TypeError("argument callback is required");
       }
@@ -20994,7 +20994,7 @@ var require_router = __commonJS({
         }
       }
     };
-    Router29.prototype.use = function use(handler) {
+    Router32.prototype.use = function use(handler) {
       let offset = 0;
       let path3 = "/";
       if (typeof handler !== "function") {
@@ -21027,7 +21027,7 @@ var require_router = __commonJS({
       }
       return this;
     };
-    Router29.prototype.route = function route(path3) {
+    Router32.prototype.route = function route(path3) {
       const route2 = new Route(path3);
       const layer = new Layer(path3, {
         sensitive: this.caseSensitive,
@@ -21042,7 +21042,7 @@ var require_router = __commonJS({
       return route2;
     };
     methods.concat("all").forEach(function(method) {
-      Router29.prototype[method] = function(path3) {
+      Router32.prototype[method] = function(path3) {
         const route = this.route(path3);
         route[method].apply(route, slice.call(arguments, 1));
         return this;
@@ -21225,13 +21225,13 @@ var require_application = __commonJS({
     var compileTrust = require_utils3().compileTrust;
     var resolve = __require("node:path").resolve;
     var once = require_once();
-    var Router29 = require_router();
+    var Router32 = require_router();
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var app2 = exports = module.exports = {};
     var trustProxyDefaultSymbol = "@@symbol:trust_proxy_default";
     app2.init = function init() {
-      var router29 = null;
+      var router32 = null;
       this.cache = /* @__PURE__ */ Object.create(null);
       this.engines = /* @__PURE__ */ Object.create(null);
       this.settings = /* @__PURE__ */ Object.create(null);
@@ -21240,13 +21240,13 @@ var require_application = __commonJS({
         configurable: true,
         enumerable: true,
         get: function getrouter() {
-          if (router29 === null) {
-            router29 = new Router29({
+          if (router32 === null) {
+            router32 = new Router32({
               caseSensitive: this.enabled("case sensitive routing"),
               strict: this.enabled("strict routing")
             });
           }
-          return router29;
+          return router32;
         }
       });
     };
@@ -21317,15 +21317,15 @@ var require_application = __commonJS({
       if (fns.length === 0) {
         throw new TypeError("app.use() requires a middleware function");
       }
-      var router29 = this.router;
+      var router32 = this.router;
       fns.forEach(function(fn2) {
         if (!fn2 || !fn2.handle || !fn2.set) {
-          return router29.use(path3, fn2);
+          return router32.use(path3, fn2);
         }
         debug(".use app under %s", path3);
         fn2.mountpath = path3;
         fn2.parent = this;
-        router29.use(path3, function mounted_app(req, res, next) {
+        router32.use(path3, function mounted_app(req, res, next) {
           var orig = req.app;
           fn2.handle(req, res, function(err) {
             Object.setPrototypeOf(req, orig.request);
@@ -21480,18 +21480,18 @@ var require_accept = __commonJS({
     module.exports = parseAccept;
     function parseAccept(header) {
       var values = [];
-      var index8 = 0;
-      while (index8 < header.length) {
-        var start = skipOptionalWhitespace(header, index8);
+      var index11 = 0;
+      while (index11 < header.length) {
+        var start = skipOptionalWhitespace(header, index11);
         var parsed = contentType.parse(header, { comma: true, start });
         parsed.type = header.slice(start, start + parsed.type.length);
         values.push(parsed);
-        index8 = parsed.index + 1;
+        index11 = parsed.index + 1;
       }
       return values;
     }
-    function skipOptionalWhitespace(header, index8) {
-      var cursor = index8;
+    function skipOptionalWhitespace(header, index11) {
+      var cursor = index11;
       while (header.charCodeAt(cursor) === 32 || header.charCodeAt(cursor) === 9) {
         cursor++;
       }
@@ -21524,17 +21524,17 @@ var require_charset = __commonJS({
         i: i2
       };
     }
-    function getCharsetPriority(charset, accepted, index8) {
+    function getCharsetPriority(charset, accepted, index11) {
       var priority = { o: -1, q: 0, s: 0 };
       for (var i2 = 0; i2 < accepted.length; i2++) {
-        var spec = specify(charset, accepted[i2], index8);
+        var spec = specify(charset, accepted[i2], index11);
         if (spec && (priority.s - spec.s || priority.q - spec.q || priority.o - spec.o) < 0) {
           priority = spec;
         }
       }
       return priority;
     }
-    function specify(charset, spec, index8) {
+    function specify(charset, spec, index11) {
       var s2 = 0;
       if (spec.charset.toLowerCase() === charset.toLowerCase()) {
         s2 |= 1;
@@ -21542,7 +21542,7 @@ var require_charset = __commonJS({
         return null;
       }
       return {
-        i: index8,
+        i: index11,
         o: spec.i,
         q: spec.q,
         s: s2
@@ -21553,8 +21553,8 @@ var require_charset = __commonJS({
       if (!provided) {
         return accepts.filter(isQuality).sort(compareSpecs).map(getFullCharset);
       }
-      var priorities = provided.map(function getPriority(type, index8) {
-        return getCharsetPriority(type, accepts, index8);
+      var priorities = provided.map(function getPriority(type, index11) {
+        return getCharsetPriority(type, accepts, index11);
       });
       return priorities.filter(isQuality).sort(compareSpecs).map(function getCharset(priority) {
         return provided[priorities.indexOf(priority)];
@@ -21609,17 +21609,17 @@ var require_encoding = __commonJS({
         i: i2
       };
     }
-    function getEncodingPriority(encoding, accepted, index8) {
+    function getEncodingPriority(encoding, accepted, index11) {
       var priority = { encoding, o: -1, q: 0, s: 0 };
       for (var i2 = 0; i2 < accepted.length; i2++) {
-        var spec = specify(encoding, accepted[i2], index8);
+        var spec = specify(encoding, accepted[i2], index11);
         if (spec && (priority.s - spec.s || priority.q - spec.q || priority.o - spec.o) < 0) {
           priority = spec;
         }
       }
       return priority;
     }
-    function specify(encoding, spec, index8) {
+    function specify(encoding, spec, index11) {
       var s2 = 0;
       if (spec.encoding.toLowerCase() === encoding.toLowerCase()) {
         s2 |= 1;
@@ -21628,7 +21628,7 @@ var require_encoding = __commonJS({
       }
       return {
         encoding,
-        i: index8,
+        i: index11,
         o: spec.i,
         q: spec.q,
         s: s2
@@ -21653,8 +21653,8 @@ var require_encoding = __commonJS({
       if (!provided) {
         return accepts.filter(isQuality).sort(comparator).map(getFullEncoding);
       }
-      var priorities = provided.map(function getPriority(type, index8) {
-        return getEncodingPriority(type, accepts, index8);
+      var priorities = provided.map(function getPriority(type, index11) {
+        return getEncodingPriority(type, accepts, index11);
       });
       return priorities.filter(isQuality).sort(comparator).map(function getEncoding(priority) {
         return provided[priorities.indexOf(priority)];
@@ -21702,17 +21702,17 @@ var require_language = __commonJS({
         full: parsed.type
       };
     }
-    function getLanguagePriority(language, accepted, index8) {
+    function getLanguagePriority(language, accepted, index11) {
       var priority = { o: -1, q: 0, s: 0 };
       for (var i2 = 0; i2 < accepted.length; i2++) {
-        var spec = specify(language, accepted[i2], index8);
+        var spec = specify(language, accepted[i2], index11);
         if (spec && (priority.s - spec.s || priority.q - spec.q || priority.o - spec.o) < 0) {
           priority = spec;
         }
       }
       return priority;
     }
-    function specify(language, spec, index8) {
+    function specify(language, spec, index11) {
       var p = formatLanguage(contentType.parse(language), 0);
       if (!p) return null;
       var s2 = 0;
@@ -21726,7 +21726,7 @@ var require_language = __commonJS({
         return null;
       }
       return {
-        i: index8,
+        i: index11,
         o: spec.i,
         q: spec.q,
         s: s2
@@ -21737,8 +21737,8 @@ var require_language = __commonJS({
       if (!provided) {
         return accepts.filter(isQuality).sort(compareSpecs).map(getFullLanguage);
       }
-      var priorities = provided.map(function getPriority(type, index8) {
-        return getLanguagePriority(type, accepts, index8);
+      var priorities = provided.map(function getPriority(type, index11) {
+        return getLanguagePriority(type, accepts, index11);
       });
       return priorities.filter(isQuality).sort(compareSpecs).map(function getLanguage(priority) {
         return provided[priorities.indexOf(priority)];
@@ -21786,17 +21786,17 @@ var require_mediaType = __commonJS({
         i: i2
       };
     }
-    function getMediaTypePriority(type, accepted, index8) {
+    function getMediaTypePriority(type, accepted, index11) {
       var priority = { o: -1, q: 0, s: 0 };
       for (var i2 = 0; i2 < accepted.length; i2++) {
-        var spec = specify(type, accepted[i2], index8);
+        var spec = specify(type, accepted[i2], index11);
         if (spec && (priority.s - spec.s || priority.q - spec.q || priority.o - spec.o) < 0) {
           priority = spec;
         }
       }
       return priority;
     }
-    function specify(type, spec, index8) {
+    function specify(type, spec, index11) {
       var p = formatMediaType(contentType.parse(type), 0);
       var s2 = 0;
       if (!p) {
@@ -21823,7 +21823,7 @@ var require_mediaType = __commonJS({
         }
       }
       return {
-        i: index8,
+        i: index11,
         o: spec.i,
         q: spec.q,
         s: s2
@@ -21834,8 +21834,8 @@ var require_mediaType = __commonJS({
       if (!provided) {
         return accepts.filter(isQuality).sort(compareSpecs).map(getFullType);
       }
-      var priorities = provided.map(function getPriority(type, index8) {
-        return getMediaTypePriority(type, accepts, index8);
+      var priorities = provided.map(function getPriority(type, index11) {
+        return getMediaTypePriority(type, accepts, index11);
       });
       return priorities.filter(isQuality).sort(compareSpecs).map(function getType(priority) {
         return provided[priorities.indexOf(priority)];
@@ -22033,8 +22033,8 @@ var require_fresh = __commonJS({
       return true;
     }
     function parseHttpDate(date2) {
-      var timestamp30 = date2 && Date.parse(date2);
-      return typeof timestamp30 === "number" ? timestamp30 : NaN;
+      var timestamp33 = date2 && Date.parse(date2);
+      return typeof timestamp33 === "number" ? timestamp33 : NaN;
     }
     function parseTokenList(str) {
       var end = 0;
@@ -22071,13 +22071,13 @@ var require_range_parser = __commonJS({
       if (typeof str !== "string") {
         throw new TypeError("argument str must be a string");
       }
-      var index8 = str.indexOf("=");
-      if (index8 === -1) {
+      var index11 = str.indexOf("=");
+      if (index11 === -1) {
         return -2;
       }
-      var arr = str.slice(index8 + 1).split(",");
+      var arr = str.slice(index11 + 1).split(",");
       var ranges = [];
-      ranges.type = str.slice(0, index8);
+      ranges.type = str.slice(0, index11);
       for (var i2 = 0; i2 < arr.length; i2++) {
         var indexOf = arr[i2].indexOf("-");
         if (indexOf === -1) {
@@ -22133,11 +22133,11 @@ var require_range_parser = __commonJS({
       combined.type = ranges.type;
       return combined;
     }
-    function mapWithIndex(range, index8) {
+    function mapWithIndex(range, index11) {
       return {
         start: range.start,
         end: range.end,
-        index: index8
+        index: index11
       };
     }
     function mapWithoutIndex(range) {
@@ -22230,8 +22230,8 @@ var require_request = __commonJS({
         return proto;
       }
       var header = this.get("X-Forwarded-Proto") || proto;
-      var index8 = header.indexOf(",");
-      return index8 !== -1 ? header.substring(0, index8).trim() : header.trim();
+      var index11 = header.indexOf(",");
+      return index11 !== -1 ? header.substring(0, index11).trim() : header.trim();
     });
     defineGetter(req, "secure", function secure() {
       return this.protocol === "https";
@@ -22270,8 +22270,8 @@ var require_request = __commonJS({
       var host = this.host;
       if (!host) return;
       var offset = host[0] === "[" ? host.indexOf("]") + 1 : 0;
-      var index8 = host.indexOf(":", offset);
-      return index8 !== -1 ? host.substring(0, index8) : host;
+      var index11 = host.indexOf(":", offset);
+      return index11 !== -1 ? host.substring(0, index11) : host;
     });
     defineGetter(req, "fresh", function() {
       var method = this.method;
@@ -22411,18 +22411,18 @@ var require_content_disposition = __commonJS({
       if (!match) {
         throw new TypeError("invalid type format");
       }
-      var index8 = match[0].length;
+      var index11 = match[0].length;
       var type = match[1].toLowerCase();
       var key;
       var names = [];
       var params = {};
       var value;
-      index8 = PARAM_REGEXP.lastIndex = match[0].slice(-1) === ";" ? index8 - 1 : index8;
+      index11 = PARAM_REGEXP.lastIndex = match[0].slice(-1) === ";" ? index11 - 1 : index11;
       while (match = PARAM_REGEXP.exec(string2)) {
-        if (match.index !== index8) {
+        if (match.index !== index11) {
           throw new TypeError("invalid parameter format");
         }
-        index8 += match[0].length;
+        index11 += match[0].length;
         key = match[1].toLowerCase();
         value = match[2];
         if (names.indexOf(key) !== -1) {
@@ -22443,7 +22443,7 @@ var require_content_disposition = __commonJS({
         }
         params[key] = value;
       }
-      if (index8 !== -1 && index8 !== string2.length) {
+      if (index11 !== -1 && index11 !== string2.length) {
         throw new TypeError("invalid parameter format");
       }
       return new ContentDisposition(type, params);
@@ -22550,20 +22550,20 @@ var require_cookie = __commonJS({
       var len = str.length;
       if (len < 2) return obj;
       var dec = opt && opt.decode || decode2;
-      var index8 = 0;
+      var index11 = 0;
       var eqIdx = 0;
       var endIdx = 0;
       do {
-        eqIdx = str.indexOf("=", index8);
+        eqIdx = str.indexOf("=", index11);
         if (eqIdx === -1) break;
-        endIdx = str.indexOf(";", index8);
+        endIdx = str.indexOf(";", index11);
         if (endIdx === -1) {
           endIdx = len;
         } else if (eqIdx > endIdx) {
-          index8 = str.lastIndexOf(";", eqIdx - 1) + 1;
+          index11 = str.lastIndexOf(";", eqIdx - 1) + 1;
           continue;
         }
-        var keyStartIdx = startIndex(str, index8, eqIdx);
+        var keyStartIdx = startIndex(str, index11, eqIdx);
         var keyEndIdx = endIndex(str, eqIdx, keyStartIdx);
         var key = str.slice(keyStartIdx, keyEndIdx);
         if (!__hasOwnProperty.call(obj, key)) {
@@ -22576,21 +22576,21 @@ var require_cookie = __commonJS({
           var val = str.slice(valStartIdx, valEndIdx);
           obj[key] = tryDecode(val, dec);
         }
-        index8 = endIdx + 1;
-      } while (index8 < len);
+        index11 = endIdx + 1;
+      } while (index11 < len);
       return obj;
     }
-    function startIndex(str, index8, max) {
+    function startIndex(str, index11, max) {
       do {
-        var code = str.charCodeAt(index8);
-        if (code !== 32 && code !== 9) return index8;
-      } while (++index8 < max);
+        var code = str.charCodeAt(index11);
+        if (code !== 32 && code !== 9) return index11;
+      } while (++index11 < max);
       return max;
     }
-    function endIndex(str, index8, min) {
-      while (index8 > min) {
-        var code = str.charCodeAt(--index8);
-        if (code !== 32 && code !== 9) return index8 + 1;
+    function endIndex(str, index11, min) {
+      while (index11 > min) {
+        var code = str.charCodeAt(--index11);
+        if (code !== 32 && code !== 9) return index11 + 1;
       }
       return min;
     }
@@ -23139,8 +23139,8 @@ var require_send = __commonJS({
       return list;
     }
     function parseHttpDate(date2) {
-      var timestamp30 = date2 && Date.parse(date2);
-      return typeof timestamp30 === "number" ? timestamp30 : NaN;
+      var timestamp33 = date2 && Date.parse(date2);
+      return typeof timestamp33 === "number" ? timestamp33 : NaN;
     }
     function parseTokenList(str) {
       var end = 0;
@@ -23834,7 +23834,7 @@ var require_express = __commonJS({
     var EventEmitter2 = __require("node:events").EventEmitter;
     var mixin2 = require_merge_descriptors();
     var proto = require_application();
-    var Router29 = require_router();
+    var Router32 = require_router();
     var req = require_request();
     var res = require_response();
     exports = module.exports = createApplication;
@@ -23856,8 +23856,8 @@ var require_express = __commonJS({
     exports.application = proto;
     exports.request = req;
     exports.response = res;
-    exports.Route = Router29.Route;
-    exports.Router = Router29;
+    exports.Route = Router32.Route;
+    exports.Router = Router32;
     exports.json = bodyParser.json;
     exports.raw = bodyParser.raw;
     exports.static = require_serve_static();
@@ -25082,8 +25082,8 @@ var require_redaction = __commonJS({
         if (o[ns] === null) {
           return o;
         }
-        const { index: index8 } = next;
-        const nextPath = `${str.substr(index8, str.length - 1)}`;
+        const { index: index11 } = next;
+        const nextPath = `${str.substr(index11, str.length - 1)}`;
         o[ns] = o[ns] || [];
         if (ns !== wildcardFirstSym && o[ns].length === 0) {
           o[ns].push(...o[wildcardFirstSym] || []);
@@ -25189,8 +25189,8 @@ var require_quick_format_unescaped = __commonJS({
         if (len === 1) return f3;
         var objects = new Array(len);
         objects[0] = ss(f3);
-        for (var index8 = 1; index8 < len; index8++) {
-          objects[index8] = ss(args[index8]);
+        for (var index11 = 1; index11 < len; index11++) {
+          objects[index11] = ss(args[index11]);
         }
         return objects.join(" ");
       }
@@ -25961,8 +25961,8 @@ var require_on_exit_leak_free = __commonJS({
     }
     function clear(ref) {
       for (const event of ["exit", "beforeExit"]) {
-        const index8 = refs[event].indexOf(ref);
-        refs[event].splice(index8, index8 + 1);
+        const index11 = refs[event].indexOf(ref);
+        refs[event].splice(index11, index11 + 1);
         uninstall(event);
       }
     }
@@ -26072,9 +26072,9 @@ var require_wait = __commonJS({
   "../../node_modules/.pnpm/thread-stream@3.1.0/node_modules/thread-stream/lib/wait.js"(exports, module) {
     "use strict";
     var MAX_TIMEOUT = 1e3;
-    function wait(state, index8, expected, timeout, done) {
+    function wait(state, index11, expected, timeout, done) {
       const max = Date.now() + timeout;
-      let current = Atomics.load(state, index8);
+      let current = Atomics.load(state, index11);
       if (current === expected) {
         done(null, "ok");
         return;
@@ -26086,7 +26086,7 @@ var require_wait = __commonJS({
         } else {
           setTimeout(() => {
             prior = current;
-            current = Atomics.load(state, index8);
+            current = Atomics.load(state, index11);
             if (current === prior) {
               check(backoff >= MAX_TIMEOUT ? MAX_TIMEOUT : backoff * 2);
             } else {
@@ -26098,9 +26098,9 @@ var require_wait = __commonJS({
       };
       check(1);
     }
-    function waitDiff(state, index8, expected, timeout, done) {
+    function waitDiff(state, index11, expected, timeout, done) {
       const max = Date.now() + timeout;
-      let current = Atomics.load(state, index8);
+      let current = Atomics.load(state, index11);
       if (current !== expected) {
         done(null, "ok");
         return;
@@ -26110,7 +26110,7 @@ var require_wait = __commonJS({
           done(null, "timed-out");
         } else {
           setTimeout(() => {
-            current = Atomics.load(state, index8);
+            current = Atomics.load(state, index11);
             if (current !== expected) {
               done(null, "ok");
             } else {
@@ -28194,9 +28194,9 @@ var require_multistream = __commonJS({
       }
       function remove2(id) {
         const { streams } = this;
-        const index8 = streams.findIndex((s2) => s2.id === id);
-        if (index8 >= 0) {
-          streams.splice(index8, 1);
+        const index11 = streams.findIndex((s2) => s2.id === id);
+        if (index11 >= 0) {
+          streams.splice(index11, 1);
           streams.sort(compareByLevel);
           this.minLevel = streams.length > 0 ? streams[0].level : -1;
         }
@@ -28342,7 +28342,7 @@ var require_pino = __commonJS({
         redact,
         crlf,
         serializers: serializers2,
-        timestamp: timestamp30,
+        timestamp: timestamp33,
         messageKey,
         errorKey,
         nestedKey,
@@ -28392,7 +28392,7 @@ var require_pino = __commonJS({
           chindings = coreChindings(Object.assign({}, base, { name }));
         }
       }
-      const time2 = timestamp30 instanceof Function ? timestamp30 : timestamp30 ? epochTime : nullTime;
+      const time2 = timestamp33 instanceof Function ? timestamp33 : timestamp33 ? epochTime : nullTime;
       const timeSliceIndex = time2().indexOf(":") + 1;
       if (useOnlyCustomLevels && !customLevels) throw Error("customLevels is required if useOnlyCustomLevels is set true");
       if (mixin2 && typeof mixin2 !== "function") throw Error(`Unknown mixin type "${typeof mixin2}" - expected "function"`);
@@ -33287,9 +33287,9 @@ var require_RealtimeClient = __commonJS({
         getItem(key) {
           return store.has(key) ? store.get(key) : null;
         },
-        key(index8) {
+        key(index11) {
           var _a;
-          return (_a = Array.from(store.keys())[index8]) !== null && _a !== void 0 ? _a : null;
+          return (_a = Array.from(store.keys())[index11]) !== null && _a !== void 0 ? _a : null;
         },
         removeItem(key) {
           store.delete(key);
@@ -34599,19 +34599,19 @@ var require_helpers = __commonJS({
     exports.pkceVerifierSlotKey = pkceVerifierSlotKey;
     var pkceFlowIndexKey = (storageKey) => `${storageKey}-flows-code-verifier`;
     async function getPKCEFlowIndex(storage, storageKey) {
-      const index8 = await (0, exports.getItemAsync)(storage, pkceFlowIndexKey(storageKey));
-      return Array.isArray(index8) ? index8.filter((id) => validatePKCEFlowId(id) !== null) : [];
+      const index11 = await (0, exports.getItemAsync)(storage, pkceFlowIndexKey(storageKey));
+      return Array.isArray(index11) ? index11.filter((id) => validatePKCEFlowId(id) !== null) : [];
     }
     async function storePKCEVerifier(storage, storageKey, flowId, verifier, onEvictFlow) {
       await (0, exports.setItemAsync)(storage, (0, exports.pkceVerifierSlotKey)(storageKey, flowId), verifier);
-      const index8 = (await getPKCEFlowIndex(storage, storageKey)).filter((id) => id !== flowId);
-      index8.push(flowId);
-      while (index8.length > constants_1.PKCE_MAX_CONCURRENT_FLOWS) {
-        const evicted = index8.shift();
+      const index11 = (await getPKCEFlowIndex(storage, storageKey)).filter((id) => id !== flowId);
+      index11.push(flowId);
+      while (index11.length > constants_1.PKCE_MAX_CONCURRENT_FLOWS) {
+        const evicted = index11.shift();
         await (0, exports.removeItemAsync)(storage, (0, exports.pkceVerifierSlotKey)(storageKey, evicted));
         onEvictFlow === null || onEvictFlow === void 0 ? void 0 : onEvictFlow(evicted);
       }
-      await (0, exports.setItemAsync)(storage, pkceFlowIndexKey(storageKey), index8);
+      await (0, exports.setItemAsync)(storage, pkceFlowIndexKey(storageKey), index11);
       await (0, exports.setItemAsync)(storage, `${storageKey}-code-verifier`, verifier);
     }
     async function retrievePKCEVerifier(storage, storageKey, flowId) {
@@ -34631,9 +34631,9 @@ var require_helpers = __commonJS({
       const slotKey = (0, exports.pkceVerifierSlotKey)(storageKey, flowId);
       const slotValue = await (0, exports.getItemAsync)(storage, slotKey);
       await (0, exports.removeItemAsync)(storage, slotKey);
-      const index8 = await getPKCEFlowIndex(storage, storageKey);
-      const remaining = index8.filter((id) => id !== flowId);
-      if (remaining.length !== index8.length) {
+      const index11 = await getPKCEFlowIndex(storage, storageKey);
+      const remaining = index11.filter((id) => id !== flowId);
+      if (remaining.length !== index11.length) {
         if (remaining.length > 0) {
           await (0, exports.setItemAsync)(storage, pkceFlowIndexKey(storageKey), remaining);
         } else {
@@ -34645,8 +34645,8 @@ var require_helpers = __commonJS({
       }
     }
     async function removeAllPKCEVerifiers(storage, storageKey) {
-      const index8 = await getPKCEFlowIndex(storage, storageKey);
-      for (const flowId of index8) {
+      const index11 = await getPKCEFlowIndex(storage, storageKey);
+      for (const flowId of index11) {
         await (0, exports.removeItemAsync)(storage, (0, exports.pkceVerifierSlotKey)(storageKey, flowId));
       }
       await (0, exports.removeItemAsync)(storage, pkceFlowIndexKey(storageKey));
@@ -42841,23 +42841,23 @@ var require_unicode_trie = __commonJS({
         }
       }
       get(codePoint) {
-        let index8;
+        let index11;
         if (codePoint < 0 || codePoint > 1114111) {
           return this.errorValue;
         }
         if (codePoint < 55296 || codePoint > 56319 && codePoint <= 65535) {
-          index8 = (this.data[codePoint >> SHIFT_2] << INDEX_SHIFT) + (codePoint & DATA_MASK);
-          return this.data[index8];
+          index11 = (this.data[codePoint >> SHIFT_2] << INDEX_SHIFT) + (codePoint & DATA_MASK);
+          return this.data[index11];
         }
         if (codePoint <= 65535) {
-          index8 = (this.data[LSCP_INDEX_2_OFFSET + (codePoint - 55296 >> SHIFT_2)] << INDEX_SHIFT) + (codePoint & DATA_MASK);
-          return this.data[index8];
+          index11 = (this.data[LSCP_INDEX_2_OFFSET + (codePoint - 55296 >> SHIFT_2)] << INDEX_SHIFT) + (codePoint & DATA_MASK);
+          return this.data[index11];
         }
         if (codePoint < this.highStart) {
-          index8 = this.data[INDEX_1_OFFSET - OMITTED_BMP_INDEX_1_LENGTH + (codePoint >> SHIFT_1)];
-          index8 = this.data[index8 + (codePoint >> SHIFT_2 & INDEX_2_MASK)];
-          index8 = (index8 << INDEX_SHIFT) + (codePoint & DATA_MASK);
-          return this.data[index8];
+          index11 = this.data[INDEX_1_OFFSET - OMITTED_BMP_INDEX_1_LENGTH + (codePoint >> SHIFT_1)];
+          index11 = this.data[index11 + (codePoint >> SHIFT_2 & INDEX_2_MASK)];
+          index11 = (index11 << INDEX_SHIFT) + (codePoint & DATA_MASK);
+          return this.data[index11];
         }
         return this.data[this.data.length - DATA_GRANULARITY];
       }
@@ -43028,9 +43028,9 @@ var require_clone = __commonJS({
             }
           }
           if (circular) {
-            var index8 = allParents.indexOf(parent2);
-            if (index8 != -1) {
-              return allChildren[index8];
+            var index11 = allParents.indexOf(parent2);
+            if (index11 != -1) {
+              return allChildren[index11];
             }
             allParents.push(parent2);
             allChildren.push(child);
@@ -168554,19 +168554,19 @@ var require_decode = __commonJS({
       }
       return out;
     }
-    function ReadSymbol(table2, index8, br) {
-      var start_index = index8;
+    function ReadSymbol(table2, index11, br) {
+      var start_index = index11;
       var nbits;
       br.fillBitWindow();
-      index8 += br.val_ >>> br.bit_pos_ & HUFFMAN_TABLE_MASK;
-      nbits = table2[index8].bits - HUFFMAN_TABLE_BITS;
+      index11 += br.val_ >>> br.bit_pos_ & HUFFMAN_TABLE_MASK;
+      nbits = table2[index11].bits - HUFFMAN_TABLE_BITS;
       if (nbits > 0) {
         br.bit_pos_ += HUFFMAN_TABLE_BITS;
-        index8 += table2[index8].value;
-        index8 += br.val_ >>> br.bit_pos_ & (1 << nbits) - 1;
+        index11 += table2[index11].value;
+        index11 += br.val_ >>> br.bit_pos_ & (1 << nbits) - 1;
       }
-      br.bit_pos_ += table2[index8].bits;
-      return table2[index8].value;
+      br.bit_pos_ += table2[index11].bits;
+      return table2[index11].value;
     }
     function ReadHuffmanCodeLengths(code_length_code_lengths, num_symbols, code_lengths, br) {
       var symbol = 0;
@@ -168723,27 +168723,27 @@ var require_decode = __commonJS({
       }
       return table_size;
     }
-    function ReadBlockLength(table2, index8, br) {
+    function ReadBlockLength(table2, index11, br) {
       var code;
       var nbits;
-      code = ReadSymbol(table2, index8, br);
+      code = ReadSymbol(table2, index11, br);
       nbits = Prefix.kBlockLengthPrefixCode[code].nbits;
       return Prefix.kBlockLengthPrefixCode[code].offset + br.readBits(nbits);
     }
-    function TranslateShortCodes(code, ringbuffer, index8) {
+    function TranslateShortCodes(code, ringbuffer, index11) {
       var val;
       if (code < NUM_DISTANCE_SHORT_CODES) {
-        index8 += kDistanceShortCodeIndexOffset[code];
-        index8 &= 3;
-        val = ringbuffer[index8] + kDistanceShortCodeValueOffset[code];
+        index11 += kDistanceShortCodeIndexOffset[code];
+        index11 &= 3;
+        val = ringbuffer[index11] + kDistanceShortCodeValueOffset[code];
       } else {
         val = code - NUM_DISTANCE_SHORT_CODES + 1;
       }
       return val;
     }
-    function MoveToFront(v, index8) {
-      var value = v[index8];
-      var i2 = index8;
+    function MoveToFront(v, index11) {
+      var value = v[index11];
+      var i2 = index11;
       for (; i2; --i2) v[i2] = v[i2 - 1];
       v[0] = value;
     }
@@ -168754,9 +168754,9 @@ var require_decode = __commonJS({
         mtf[i2] = i2;
       }
       for (i2 = 0; i2 < v_len; ++i2) {
-        var index8 = v[i2];
-        v[i2] = mtf[index8];
-        if (index8) MoveToFront(mtf, index8);
+        var index11 = v[i2];
+        v[i2] = mtf[index11];
+        if (index11) MoveToFront(mtf, index11);
       }
     }
     function HuffmanTreeGroup(alphabet_size, num_htrees) {
@@ -168824,13 +168824,13 @@ var require_decode = __commonJS({
     }
     function DecodeBlockType(max_block_type, trees, tree_type, block_types, ringbuffers, indexes, br) {
       var ringbuffer = tree_type * 2;
-      var index8 = tree_type;
+      var index11 = tree_type;
       var type_code = ReadSymbol(trees, tree_type * HUFFMAN_MAX_TABLE_SIZE, br);
       var block_type;
       if (type_code === 0) {
-        block_type = ringbuffers[ringbuffer + (indexes[index8] & 1)];
+        block_type = ringbuffers[ringbuffer + (indexes[index11] & 1)];
       } else if (type_code === 1) {
-        block_type = ringbuffers[ringbuffer + (indexes[index8] - 1 & 1)] + 1;
+        block_type = ringbuffers[ringbuffer + (indexes[index11] - 1 & 1)] + 1;
       } else {
         block_type = type_code - 2;
       }
@@ -168838,8 +168838,8 @@ var require_decode = __commonJS({
         block_type -= max_block_type;
       }
       block_types[tree_type] = block_type;
-      ringbuffers[ringbuffer + (indexes[index8] & 1)] = block_type;
-      ++indexes[index8];
+      ringbuffers[ringbuffer + (indexes[index11] & 1)] = block_type;
+      ++indexes[index11];
     }
     function CopyUncompressedBlockToOutput(output, len, pos, ringbuffer, ringbuffer_mask, br) {
       var rb_size = ringbuffer_mask + 1;
@@ -170886,9 +170886,9 @@ var require_stream_readable = __commonJS({
         }
         return this;
       }
-      var index8 = indexOf(state.pipes, dest);
-      if (index8 === -1) return this;
-      state.pipes.splice(index8, 1);
+      var index11 = indexOf(state.pipes, dest);
+      if (index11 === -1) return this;
+      state.pipes.splice(index11, 1);
       state.pipesCount -= 1;
       if (state.pipesCount === 1) state.pipes = state.pipes[0];
       dest.emit("unpipe", this, unpipeInfo);
@@ -172157,9 +172157,9 @@ var require_utils5 = __commonJS({
     exports.resolve = function(path3) {
       var parts = path3.split("/");
       var result = [];
-      for (var index8 = 0; index8 < parts.length; index8++) {
-        var part = parts[index8];
-        if (part === "." || part === "" && index8 !== 0 && index8 !== parts.length - 1) {
+      for (var index11 = 0; index11 < parts.length; index11++) {
+        var part = parts[index11];
+        if (part === "." || part === "" && index11 !== 0 && index11 !== parts.length - 1) {
           continue;
         } else if (part === "..") {
           result.pop();
@@ -172763,7 +172763,7 @@ var require_StreamHelper = __commonJS({
       }
     }
     function concat3(type, dataArray) {
-      var i2, index8 = 0, res = null, totalLength = 0;
+      var i2, index11 = 0, res = null, totalLength = 0;
       for (i2 = 0; i2 < dataArray.length; i2++) {
         totalLength += dataArray[i2].length;
       }
@@ -172775,8 +172775,8 @@ var require_StreamHelper = __commonJS({
         case "uint8array":
           res = new Uint8Array(totalLength);
           for (i2 = 0; i2 < dataArray.length; i2++) {
-            res.set(dataArray[i2], index8);
-            index8 += dataArray[i2].length;
+            res.set(dataArray[i2], index11);
+            index11 += dataArray[i2].length;
           }
           return res;
         case "nodebuffer":
@@ -178776,8 +178776,8 @@ var require_zipEntries = __commonJS({
         this.centralDirSize = this.reader.readInt(8);
         this.centralDirOffset = this.reader.readInt(8);
         this.zip64ExtensibleData = {};
-        var extraDataSize = this.zip64EndOfCentralSize - 44, index8 = 0, extraFieldId, extraFieldLength, extraFieldValue;
-        while (index8 < extraDataSize) {
+        var extraDataSize = this.zip64EndOfCentralSize - 44, index11 = 0, extraFieldId, extraFieldLength, extraFieldValue;
+        while (index11 < extraDataSize) {
           extraFieldId = this.reader.readInt(2);
           extraFieldLength = this.reader.readInt(4);
           extraFieldValue = this.reader.readData(extraFieldLength);
@@ -179197,11 +179197,11 @@ var require_graph = __commonJS({
     exports.removeGraph = removeGraph;
     function applyGraph(entry, graph) {
       if (entry._graph) {
-        const index8 = graph.findIndex(({
+        const index11 = graph.findIndex(({
           type
         }) => type === "@else/list+object");
-        if (index8 !== -1) {
-          graph.splice(index8 + 1, 0, ...entry._graph.slice(0, -1));
+        if (index11 !== -1) {
+          graph.splice(index11 + 1, 0, ...entry._graph.slice(0, -1));
         }
       }
       entry._graph = graph;
@@ -179338,9 +179338,9 @@ var require_type3 = __commonJS({
       delete types3[type2];
       const typeLists = [...Object.keys(dataTypes).map((key) => dataTypes[key]), ...Object.keys(types3).map((type3) => types3[type3].extensions).filter((list) => list.length > 0)];
       typeLists.forEach((typeList) => {
-        const index8 = typeList.indexOf(type2);
-        if (index8 > -1) {
-          typeList.splice(index8, 1);
+        const index11 = typeList.indexOf(type2);
+        if (index11 > -1) {
+          typeList.splice(index11, 1);
         }
       });
     }
@@ -180160,38 +180160,38 @@ var require_register = __commonJS({
     function add2(format, parsers) {
       const formatParser = new _parser.FormatParser(format, parsers);
       formatParser.validate();
-      const index8 = formats[format] || (formats[format] = {});
+      const index11 = formats[format] || (formats[format] = {});
       if (formatParser.typeParser) {
         (0, _type.addTypeParser)(format, formatParser.typeParser);
-        index8.type = true;
+        index11.type = true;
       }
       if (formatParser.dataParser) {
         (0, _data.addDataParser)(format, formatParser.dataParser);
-        index8.data = true;
+        index11.data = true;
       }
       if (formatParser.asyncDataParser) {
         (0, _data.addDataParser)(format, formatParser.asyncDataParser);
-        index8.asyncData = true;
+        index11.asyncData = true;
       }
       if (parsers.outputs) {
-        index8.outputs = parsers.outputs;
+        index11.outputs = parsers.outputs;
       }
     }
     function get2(format) {
       return formats[format];
     }
     function remove2(format) {
-      const index8 = formats[format];
-      if (!index8) {
+      const index11 = formats[format];
+      if (!index11) {
         return;
       }
-      if (index8.type) {
+      if (index11.type) {
         (0, _type.removeTypeParser)(format);
       }
-      if (index8.data) {
+      if (index11.data) {
         (0, _data.removeDataParser)(format);
       }
-      if (index8.asyncData) {
+      if (index11.asyncData) {
         (0, _data.removeDataParser)(format, true);
       }
       delete formats[format];
@@ -186303,7 +186303,7 @@ var init_multipart_parser = __esm({
         let i2 = 0;
         const length_ = data.length;
         let previousIndex = this.index;
-        let { lookbehind, boundary, boundaryChars, index: index8, state, flags } = this;
+        let { lookbehind, boundary, boundaryChars, index: index11, state, flags } = this;
         const boundaryLength = this.boundary.length;
         const boundaryEnd = boundaryLength - 1;
         const bufferLength = data.length;
@@ -186337,20 +186337,20 @@ var init_multipart_parser = __esm({
           c = data[i2];
           switch (state) {
             case S.START_BOUNDARY:
-              if (index8 === boundary.length - 2) {
+              if (index11 === boundary.length - 2) {
                 if (c === HYPHEN2) {
                   flags |= F.LAST_BOUNDARY;
                 } else if (c !== CR) {
                   return;
                 }
-                index8++;
+                index11++;
                 break;
-              } else if (index8 - 1 === boundary.length - 2) {
+              } else if (index11 - 1 === boundary.length - 2) {
                 if (flags & F.LAST_BOUNDARY && c === HYPHEN2) {
                   state = S.END;
                   flags = 0;
                 } else if (!(flags & F.LAST_BOUNDARY) && c === LF) {
-                  index8 = 0;
+                  index11 = 0;
                   callback("onPartBegin");
                   state = S.HEADER_FIELD_START;
                 } else {
@@ -186358,17 +186358,17 @@ var init_multipart_parser = __esm({
                 }
                 break;
               }
-              if (c !== boundary[index8 + 2]) {
-                index8 = -2;
+              if (c !== boundary[index11 + 2]) {
+                index11 = -2;
               }
-              if (c === boundary[index8 + 2]) {
-                index8++;
+              if (c === boundary[index11 + 2]) {
+                index11++;
               }
               break;
             case S.HEADER_FIELD_START:
               state = S.HEADER_FIELD;
               mark("onHeaderField");
-              index8 = 0;
+              index11 = 0;
             // falls through
             case S.HEADER_FIELD:
               if (c === CR) {
@@ -186376,12 +186376,12 @@ var init_multipart_parser = __esm({
                 state = S.HEADERS_ALMOST_DONE;
                 break;
               }
-              index8++;
+              index11++;
               if (c === HYPHEN2) {
                 break;
               }
               if (c === COLON) {
-                if (index8 === 1) {
+                if (index11 === 1) {
                   return;
                 }
                 dataCallback("onHeaderField", true);
@@ -186425,8 +186425,8 @@ var init_multipart_parser = __esm({
               mark("onPartData");
             // falls through
             case S.PART_DATA:
-              previousIndex = index8;
-              if (index8 === 0) {
+              previousIndex = index11;
+              if (index11 === 0) {
                 i2 += boundaryEnd;
                 while (i2 < bufferLength && !(data[i2] in boundaryChars)) {
                   i2 += boundaryLength;
@@ -186434,27 +186434,27 @@ var init_multipart_parser = __esm({
                 i2 -= boundaryEnd;
                 c = data[i2];
               }
-              if (index8 < boundary.length) {
-                if (boundary[index8] === c) {
-                  if (index8 === 0) {
+              if (index11 < boundary.length) {
+                if (boundary[index11] === c) {
+                  if (index11 === 0) {
                     dataCallback("onPartData", true);
                   }
-                  index8++;
+                  index11++;
                 } else {
-                  index8 = 0;
+                  index11 = 0;
                 }
-              } else if (index8 === boundary.length) {
-                index8++;
+              } else if (index11 === boundary.length) {
+                index11++;
                 if (c === CR) {
                   flags |= F.PART_BOUNDARY;
                 } else if (c === HYPHEN2) {
                   flags |= F.LAST_BOUNDARY;
                 } else {
-                  index8 = 0;
+                  index11 = 0;
                 }
-              } else if (index8 - 1 === boundary.length) {
+              } else if (index11 - 1 === boundary.length) {
                 if (flags & F.PART_BOUNDARY) {
-                  index8 = 0;
+                  index11 = 0;
                   if (c === LF) {
                     flags &= ~F.PART_BOUNDARY;
                     callback("onPartEnd");
@@ -186468,14 +186468,14 @@ var init_multipart_parser = __esm({
                     state = S.END;
                     flags = 0;
                   } else {
-                    index8 = 0;
+                    index11 = 0;
                   }
                 } else {
-                  index8 = 0;
+                  index11 = 0;
                 }
               }
-              if (index8 > 0) {
-                lookbehind[index8 - 1] = c;
+              if (index11 > 0) {
+                lookbehind[index11 - 1] = c;
               } else if (previousIndex > 0) {
                 const _lookbehind = new Uint8Array(lookbehind.buffer, lookbehind.byteOffset, lookbehind.byteLength);
                 callback("onPartData", 0, previousIndex, _lookbehind);
@@ -186493,7 +186493,7 @@ var init_multipart_parser = __esm({
         dataCallback("onHeaderField");
         dataCallback("onHeaderValue");
         dataCallback("onPartData");
-        this.index = index8;
+        this.index = index11;
         this.state = state;
         this.flags = flags;
       }
@@ -186655,8 +186655,8 @@ var init_body = __esm({
        * @return  Promise
        */
       async json() {
-        const text30 = await this.text();
-        return JSON.parse(text30);
+        const text33 = await this.text();
+        return JSON.parse(text33);
       }
       /**
        * Decode response as text
@@ -186771,9 +186771,9 @@ import { types as types2 } from "node:util";
 import http from "node:http";
 function fromRawHeaders(headers = []) {
   return new Headers2(
-    headers.reduce((result, value, index8, array2) => {
-      if (index8 % 2 === 0) {
-        result.push(array2.slice(index8, index8 + 2));
+    headers.reduce((result, value, index11, array2) => {
+      if (index11 % 2 === 0) {
+        result.push(array2.slice(index11, index11 + 2));
       }
       return result;
     }, []).filter(([name, value]) => {
@@ -187996,7 +187996,7 @@ var require_stack = __commonJS({
       }
       matchesSequence(sequence) {
         const part = this.stack.slice(this.index, this.index + sequence.length).join("");
-        return typeof sequence === "string" ? part === sequence : sequence.every((pattern2, index8) => _TokenStack.getMatchCallback(pattern2)(part[index8]));
+        return typeof sequence === "string" ? part === sequence : sequence.every((pattern2, index11) => _TokenStack.getMatchCallback(pattern2)(part[index11]));
       }
       consumeToken(pattern2 = /^[\s\S]$/, {
         inverse = false,
@@ -188255,8 +188255,8 @@ var require_translator = __commonJS({
               });
             }
           }
-          outputProp.forEach((prop, index8) => {
-            const value = outputData[index8];
+          outputProp.forEach((prop, index11) => {
+            const value = outputData[index11];
             if (value !== void 0) {
               output[prop] = value;
             }
@@ -189318,8 +189318,8 @@ var require_json3 = __commonJS({
         return f3;
       })(e2, t2);
     }
-    function appendCommas(string2, index8, array2) {
-      return string2 + (index8 < array2.length - 1 ? "," : "");
+    function appendCommas(string2, index11, array2) {
+      return string2 + (index11 < array2.length - 1 ? "," : "");
     }
     function getJsonObject(src, dict) {
       const isArray = Array.isArray(src);
@@ -190617,7 +190617,7 @@ var require_input5 = __commonJS({
 });
 
 // src/app.ts
-var import_express29 = __toESM(require_express2(), 1);
+var import_express32 = __toESM(require_express2(), 1);
 var import_cors = __toESM(require_lib3(), 1);
 var import_pino_http = __toESM(require_logger(), 1);
 
@@ -191392,7 +191392,7 @@ var rateLimit = (passedOptions) => {
 var lib_default = rateLimit;
 
 // src/routes/index.ts
-var import_express27 = __toESM(require_express2(), 1);
+var import_express30 = __toESM(require_express2(), 1);
 
 // ../../node_modules/.pnpm/jose@6.2.10/node_modules/jose/dist/webapi/lib/buffer_utils.js
 var encoder = new TextEncoder();
@@ -192184,7 +192184,7 @@ async function jwtVerify(jwt, key, options) {
 function isUsableJWK(jwk, entry, alg, kid) {
   const { kty, key_ops, ext, kid: jwkKid, alg: jwkAlg, use, crv } = snapshotJwk(jwk);
   const keyOps = Array.isArray(key_ops) ? [...key_ops] : key_ops;
-  return (ext === void 0 || typeof ext === "boolean") && (keyOps === void 0 || Array.isArray(keyOps) && keyOps.every((operation, index8) => typeof operation === "string" && keyOps.indexOf(operation) === index8) && keyOps.includes("verify")) && entry.kty.includes(kty) && (kid === void 0 || typeof kid === "string" && kid === jwkKid) && (jwkAlg === void 0 ? kty !== "AKP" : alg === jwkAlg) && (use === void 0 || use === "sig") && (!entry.crv || crv === entry.crv);
+  return (ext === void 0 || typeof ext === "boolean") && (keyOps === void 0 || Array.isArray(keyOps) && keyOps.every((operation, index11) => typeof operation === "string" && keyOps.indexOf(operation) === index11) && keyOps.includes("verify")) && entry.kty.includes(kty) && (kid === void 0 || typeof kid === "string" && kid === jwkKid) && (jwkAlg === void 0 ? kty !== "AKP" : alg === jwkAlg) && (use === void 0 || use === "sig") && (!entry.crv || crv === entry.crv);
 }
 async function importWithAlgCache(cache2, jwk, entry) {
   const cached2 = cache2.get(jwk) || cache2.set(jwk, {}).get(jwk);
@@ -192271,8 +192271,8 @@ async function fetchJwks(url2, headers, signal, fetchImpl = fetch) {
   }
 }
 var jwksCache = Symbol();
-function isFreshFor(timestamp30, duration) {
-  return Number.isFinite(timestamp30) && Date.now() < timestamp30 + duration;
+function isFreshFor(timestamp33, duration) {
+  return Number.isFinite(timestamp33) && Date.now() < timestamp33 + duration;
 }
 function validateDuration(value, fallback, option) {
   if (Number.isNaN(value)) {
@@ -194501,7 +194501,7 @@ var health_default = router;
 
 // src/routes/auth.ts
 var import_express2 = __toESM(require_express2(), 1);
-import { eq, sql as sql3 } from "drizzle-orm";
+import { eq, sql as sql5 } from "drizzle-orm";
 
 // ../../node_modules/.pnpm/@supabase+supabase-js@2.112.4/node_modules/@supabase/supabase-js/dist/index.mjs
 var dist_exports = {};
@@ -198388,9 +198388,9 @@ function createFetchClient(options) {
         },
         body: body ? JSON.stringify(body) : void 0
       });
-      const text30 = await res.text();
+      const text33 = await res.text();
       const isJson = (res.headers.get("content-type") || "").includes("application/json");
-      const data = isJson && text30 ? JSON.parse(text30) : text30;
+      const data = isJson && text33 ? JSON.parse(text33) : text33;
       if (!res.ok) {
         const errBody = isJson ? data : void 0;
         const errorDetail = errBody?.error;
@@ -202472,6 +202472,7 @@ __export(schema_exports, {
   jobsTable: () => jobsTable,
   learningActivitiesTable: () => learningActivitiesTable,
   messagesTable: () => messagesTable,
+  packagesTable: () => packagesTable,
   projectMembersRoles: () => projectMembersRoles,
   projectMembersTable: () => projectMembersTable,
   projectMetadataTable: () => projectMetadataTable,
@@ -202488,12 +202489,17 @@ __export(schema_exports, {
   requestTypes: () => requestTypes,
   rubricCriterionSchema: () => rubricCriterionSchema,
   rubricsTable: () => rubricsTable,
+  saldoStatuses: () => saldoStatuses,
   shareTokensTable: () => shareTokensTable,
   styleCharacteristicsSchema: () => styleCharacteristicsSchema,
+  subscriptionStatuses: () => subscriptionStatuses,
+  subscriptionsTable: () => subscriptionsTable,
   tokenTransactionsTable: () => tokenTransactionsTable,
   transactionTypes: () => transactionTypes,
+  usageWindowsTable: () => usageWindowsTable,
   userBalancesTable: () => userBalancesTable,
   usersTable: () => usersTable,
+  windowTypes: () => windowTypes,
   writingStyleProfilesTable: () => writingStyleProfilesTable
 });
 
@@ -202998,11 +203004,13 @@ import {
   pgTable as pgTable18,
   text as text18,
   integer as integer16,
+  boolean as boolean8,
   timestamp as timestamp18,
   index as index5
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { createInsertSchema as createInsertSchema18 } from "drizzle-zod";
+var saldoStatuses = ["active", "held", "closed"];
 var userBalancesTable = pgTable18(
   "user_balances",
   {
@@ -203010,13 +203018,22 @@ var userBalancesTable = pgTable18(
     userId: text18("user_id").notNull().unique().references(() => usersTable.id, { onDelete: "cascade" }),
     // Balance in IDR cents. e.g. 50000 = Rp 500
     balanceCents: integer16("balance_cents").notNull().default(0),
+    // Saldo status: active (normal), held (12mo inactivity), closed
+    saldoStatus: text18("saldo_status").notNull().default("active").$type(),
+    // Hybrid autofallback: automatically use saldo when subscription quota is exhausted
+    autofallbackEnabled: boolean8("autofallback_enabled").notNull().default(true),
+    // When the user last had any AI activity
+    lastActiveAt: timestamp18("last_active_at", { withTimezone: true }),
+    // When the saldo was put on hold (12-month inactivity)
+    heldAt: timestamp18("held_at", { withTimezone: true }),
     // Default tier preference for this user
     preferredTierId: text18("preferred_tier_id").references(() => aiTiersTable.id, { onDelete: "set null" }),
     createdAt: timestamp18("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp18("updated_at", { withTimezone: true }).notNull().defaultNow()
   },
   (table2) => [
-    index5("idx_user_balances_user").on(table2.userId)
+    index5("idx_user_balances_user").on(table2.userId),
+    index5("idx_user_balances_status").on(table2.saldoStatus)
   ]
 );
 var insertUserBalanceSchema = createInsertSchema18(userBalancesTable).omit({
@@ -203027,45 +203044,161 @@ var insertUserBalanceSchema = createInsertSchema18(userBalancesTable).omit({
 
 // ../../lib/db/src/schema/token_transactions.ts
 import {
+  pgTable as pgTable21,
+  text as text21,
+  integer as integer19,
+  timestamp as timestamp21,
+  index as index8
+} from "drizzle-orm/pg-core";
+import { sql as sql3 } from "drizzle-orm";
+import { createInsertSchema as createInsertSchema19 } from "drizzle-zod";
+
+// ../../lib/db/src/schema/subscriptions.ts
+import {
+  pgTable as pgTable20,
+  text as text20,
+  integer as integer18,
+  varchar as varchar2,
+  timestamp as timestamp20,
+  boolean as boolean10,
+  index as index7
+} from "drizzle-orm/pg-core";
+import { sql as sql2 } from "drizzle-orm";
+
+// ../../lib/db/src/schema/subscription_packages.ts
+import {
   pgTable as pgTable19,
   text as text19,
+  varchar,
   integer as integer17,
+  boolean as boolean9,
   timestamp as timestamp19,
   index as index6
 } from "drizzle-orm/pg-core";
-import { sql as sql2 } from "drizzle-orm";
-import { createInsertSchema as createInsertSchema19 } from "drizzle-zod";
+var packagesTable = pgTable19(
+  "subscription_packages",
+  {
+    id: text19("id").primaryKey(),
+    // e.g. "starter-lama-15d"
+    tier: varchar("tier", { length: 20 }).notNull(),
+    // starter|standar|premium|pro|ultra
+    tierName: text19("tier_name").notNull(),
+    // "Starter", "Standar", dst
+    tierDisplayOrder: integer17("tier_display_order").notNull().default(0),
+    modelType: varchar("model_type", { length: 20 }).notNull(),
+    // lama|campuran|baru
+    modelTypeName: text19("model_type_name").notNull(),
+    // "Lama (Haiku)", "Campuran", "Baru (Sonnet)"
+    periodDays: integer17("period_days").notNull(),
+    // 15 | 30
+    periodName: text19("period_name").notNull(),
+    // "15 Hari", "30 Hari"
+    // Quota caps per window (in tokens), per model
+    // Haiku quotas (in tokens)
+    quota7dHaikuTokens: integer17("quota_7d_haiku_tokens").notNull(),
+    quota5hHaikuTokens: integer17("quota_5h_haiku_tokens").notNull(),
+    // Sonnet quotas (in tokens)
+    quota7dSonnetTokens: integer17("quota_7d_sonnet_tokens").notNull(),
+    quota5hSonnetTokens: integer17("quota_5h_sonnet_tokens").notNull(),
+    // Price in IDR cents
+    priceCents: integer17("price_cents").notNull(),
+    // Feature flags
+    isHighlighted: boolean9("is_highlighted").notNull().default(false),
+    // "Pilihan Terbaik"
+    isDefault: boolean9("is_default").notNull().default(false),
+    // default pick
+    isActive: boolean9("is_active").notNull().default(true),
+    createdAt: timestamp19("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp19("updated_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table2) => [
+    index6("idx_packages_tier").on(table2.tier, table2.tierDisplayOrder),
+    index6("idx_packages_active").on(table2.isActive),
+    index6("idx_packages_tier_model_period").on(
+      table2.tier,
+      table2.modelType,
+      table2.periodDays
+    )
+  ]
+);
+
+// ../../lib/db/src/schema/subscriptions.ts
+var subscriptionStatuses = [
+  "active",
+  "expired",
+  "cancelled",
+  "queued"
+];
+var subscriptionsTable = pgTable20(
+  "subscriptions",
+  {
+    id: text20("id").primaryKey().default(sql2`gen_random_uuid()`),
+    userId: text20("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
+    packageId: text20("package_id").notNull().references(() => packagesTable.id),
+    status: varchar2("status", { length: 20 }).notNull().default("active").$type(),
+    // Subscription period
+    startsAt: timestamp20("starts_at", { withTimezone: true }).notNull().defaultNow(),
+    expiresAt: timestamp20("expires_at", { withTimezone: true }).notNull(),
+    // Price paid (IDR cents) — for record keeping
+    pricePaidCents: integer18("price_paid_cents").notNull(),
+    // Payment reference (filled when payment gateway is wired)
+    paymentId: text20("payment_id"),
+    // Queue: when this subscription is queued to start
+    queuedForStartAt: timestamp20("queued_for_start_at", { withTimezone: true }),
+    // Auto-renew toggle
+    autoRenew: boolean10("auto_renew").notNull().default(false),
+    // Cancelled at
+    cancelledAt: timestamp20("cancelled_at", { withTimezone: true }),
+    // Anchor timestamp: when the user first used the subscription.
+    // Used for anchored rolling window calculation.
+    usageAnchorAt: timestamp20("usage_anchor_at", { withTimezone: true }),
+    createdAt: timestamp20("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp20("updated_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table2) => [
+    index7("idx_subs_user").on(table2.userId),
+    index7("idx_subs_user_status").on(table2.userId, table2.status),
+    index7("idx_subs_expires").on(table2.expiresAt),
+    index7("idx_subs_queued").on(table2.queuedForStartAt)
+  ]
+);
+
+// ../../lib/db/src/schema/token_transactions.ts
 var transactionTypes = [
   "topup",
   "ai_usage",
   "refund",
   "bonus",
-  "adjustment"
+  "adjustment",
+  "subscription_payment"
 ];
-var tokenTransactionsTable = pgTable19(
+var tokenTransactionsTable = pgTable21(
   "token_transactions",
   {
-    id: text19("id").primaryKey().default(sql2`gen_random_uuid()`),
-    userId: text19("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
-    type: text19("type").notNull(),
+    id: text21("id").primaryKey().default(sql3`gen_random_uuid()`),
+    userId: text21("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
+    type: text21("type").notNull(),
     // Amount in IDR cents. Positive = credit (incoming), Negative = debit (outgoing)
-    amountCents: integer17("amount_cents").notNull(),
+    amountCents: integer19("amount_cents").notNull(),
     // Balance snapshot after this transaction
-    balanceAfterCents: integer17("balance_after_cents").notNull(),
+    balanceAfterCents: integer19("balance_after_cents").notNull(),
     // For AI usage: reference to ai_usage_log
-    aiUsageLogId: integer17("ai_usage_log_id"),
-    // For topup: Stripe payment reference
-    stripePaymentIntentId: text19("stripe_payment_intent_id"),
+    aiUsageLogId: integer19("ai_usage_log_id"),
+    // For subscription payment: reference to subscription
+    subscriptionId: text21("subscription_id").references(() => subscriptionsTable.id, { onDelete: "set null" }),
+    // For topup: Stripe/Midtrans payment reference
+    paymentId: text21("payment_id"),
     // For topup: amount paid in cents (may differ from amountCents due to bonus)
-    paidAmountCents: integer17("paid_amount_cents"),
+    paidAmountCents: integer19("paid_amount_cents"),
     // Human-readable description
-    description: text19("description").notNull(),
-    createdAt: timestamp19("created_at", { withTimezone: true }).notNull().defaultNow()
+    description: text21("description").notNull(),
+    createdAt: timestamp21("created_at", { withTimezone: true }).notNull().defaultNow()
   },
   (table2) => [
-    index6("idx_token_trans_user_created").on(table2.userId, table2.createdAt),
-    index6("idx_token_trans_type").on(table2.type),
-    index6("idx_token_trans_stripe").on(table2.stripePaymentIntentId)
+    index8("idx_token_trans_user_created").on(table2.userId, table2.createdAt),
+    index8("idx_token_trans_type").on(table2.type),
+    index8("idx_token_trans_stripe").on(table2.paymentId),
+    index8("idx_token_trans_subscription").on(table2.subscriptionId)
   ]
 );
 var insertTokenTransactionSchema = createInsertSchema19(tokenTransactionsTable).omit({
@@ -203073,20 +203206,74 @@ var insertTokenTransactionSchema = createInsertSchema19(tokenTransactionsTable).
   createdAt: true
 });
 
+// ../../lib/db/src/schema/usage_windows.ts
+import {
+  pgTable as pgTable22,
+  text as text22,
+  integer as integer20,
+  varchar as varchar3,
+  timestamp as timestamp22,
+  boolean as boolean11,
+  index as index9
+} from "drizzle-orm/pg-core";
+import { sql as sql4 } from "drizzle-orm";
+var windowTypes = ["5h", "7d"];
+var usageWindowsTable = pgTable22(
+  "usage_windows",
+  {
+    id: text22("id").primaryKey().default(sql4`gen_random_uuid()`),
+    subscriptionId: text22("subscription_id").notNull().references(() => subscriptionsTable.id, { onDelete: "cascade" }),
+    userId: text22("user_id").notNull(),
+    // Model type: lama | campuran | baru
+    modelType: varchar3("model_type", { length: 20 }).notNull(),
+    // Window type: 5h | 7d
+    windowType: varchar3("window_type", { length: 5 }).notNull().$type(),
+    // Which window number this is (1-indexed)
+    // e.g., for a 30-day subscription: windows 1-4 for 7d
+    windowNumber: integer20("window_number").notNull(),
+    // Window boundary
+    windowStartAt: timestamp22("window_start_at", { withTimezone: true }).notNull(),
+    windowEndAt: timestamp22("window_end_at", { withTimezone: true }).notNull(),
+    // Usage accumulated (in tokens)
+    haikuTokensUsed: integer20("haiku_tokens_used").notNull().default(0),
+    sonnetTokensUsed: integer20("sonnet_tokens_used").notNull().default(0),
+    // Cost accumulated (in IDR cents) — computed from tokens × rate
+    costCents: integer20("cost_cents").notNull().default(0),
+    // Is this window exhausted (cannot be used further)?
+    isExhausted: boolean11("is_exhausted").notNull().default(false),
+    // Did user exceed the window cap?
+    isOverLimit: boolean11("is_over_limit").notNull().default(false),
+    createdAt: timestamp22("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp22("updated_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table2) => [
+    index9("idx_usage_win_sub_model_type").on(
+      table2.subscriptionId,
+      table2.modelType,
+      table2.windowType
+    ),
+    index9("idx_usage_win_user").on(table2.userId, table2.windowEndAt),
+    index9("idx_usage_win_active").on(
+      table2.isExhausted,
+      table2.windowEndAt
+    )
+  ]
+);
+
 // ../../lib/db/src/schema/share_tokens.ts
-import { pgTable as pgTable20, text as text20, serial as serial16, integer as integer18, timestamp as timestamp20 } from "drizzle-orm/pg-core";
+import { pgTable as pgTable23, text as text23, serial as serial16, integer as integer21, timestamp as timestamp23 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema20 } from "drizzle-zod";
-var shareTokensTable = pgTable20("share_tokens", {
+var shareTokensTable = pgTable23("share_tokens", {
   id: serial16("id").primaryKey(),
-  projectId: integer18("project_id").notNull().references(() => projectsTable.id, { onDelete: "cascade" }),
-  token: text20("token").notNull().unique(),
+  projectId: integer21("project_id").notNull().references(() => projectsTable.id, { onDelete: "cascade" }),
+  token: text23("token").notNull().unique(),
   /** view = read-only, comment = view + annotations, edit = view + modify */
-  accessMode: text20("access_mode").notNull().default("view"),
+  accessMode: text23("access_mode").notNull().default("view"),
   /** Optional label to help owner remember what the link is for */
-  label: text20("label"),
+  label: text23("label"),
   /** Null = never expires */
-  expiresAt: timestamp20("expires_at", { withTimezone: true }),
-  createdAt: timestamp20("created_at", { withTimezone: true }).notNull().defaultNow()
+  expiresAt: timestamp23("expires_at", { withTimezone: true }),
+  createdAt: timestamp23("created_at", { withTimezone: true }).notNull().defaultNow()
 });
 var insertShareTokenSchema = createInsertSchema20(shareTokensTable).omit({
   id: true,
@@ -203094,41 +203281,41 @@ var insertShareTokenSchema = createInsertSchema20(shareTokensTable).omit({
 });
 
 // ../../lib/db/src/schema/comments.ts
-import { pgTable as pgTable21, text as text21, serial as serial17, integer as integer19, timestamp as timestamp21, boolean as boolean8 } from "drizzle-orm/pg-core";
+import { pgTable as pgTable24, text as text24, serial as serial17, integer as integer22, timestamp as timestamp24, boolean as boolean12 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema21 } from "drizzle-zod";
-var commentsTable = pgTable21("comments", {
+var commentsTable = pgTable24("comments", {
   id: serial17("id").primaryKey(),
-  projectId: integer19("project_id").notNull(),
-  documentId: integer19("document_id").notNull(),
-  userId: text21("user_id").notNull(),
+  projectId: integer22("project_id").notNull(),
+  documentId: integer22("document_id").notNull(),
+  userId: text24("user_id").notNull(),
   /** Display name of commenter (denormalized for query convenience) */
-  userName: text21("user_name").notNull(),
+  userName: text24("user_name").notNull(),
   /** The comment text */
-  content: text21("content").notNull(),
+  content: text24("content").notNull(),
   /**
    * Text selection this comment refers to.
    * Stores the selected text so we can re-attach comments
    * if content changes.
    */
-  quoteText: text21("quote_text"),
+  quoteText: text24("quote_text"),
   /**
    * Start offset of selection in the document content.
    * Null for comments not anchored to specific text.
    */
-  offsetStart: integer19("offset_start"),
+  offsetStart: integer22("offset_start"),
   /**
    * End offset of selection.
    * Null for comments not anchored to specific text.
    */
-  offsetEnd: integer19("offset_end"),
+  offsetEnd: integer22("offset_end"),
   /** Parent comment ID for threaded replies */
-  parentId: integer19("parent_id"),
+  parentId: integer22("parent_id"),
   /** Whether the comment has been resolved/dismissed */
-  resolved: boolean8("resolved").notNull().default(false),
-  resolvedBy: text21("resolved_by"),
-  resolvedAt: timestamp21("resolved_at", { withTimezone: true }),
-  createdAt: timestamp21("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp21("updated_at", { withTimezone: true }).notNull().defaultNow()
+  resolved: boolean12("resolved").notNull().default(false),
+  resolvedBy: text24("resolved_by"),
+  resolvedAt: timestamp24("resolved_at", { withTimezone: true }),
+  createdAt: timestamp24("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp24("updated_at", { withTimezone: true }).notNull().defaultNow()
 });
 var insertCommentSchema = createInsertSchema21(commentsTable).omit({
   id: true,
@@ -203138,22 +203325,22 @@ var insertCommentSchema = createInsertSchema21(commentsTable).omit({
 
 // ../../lib/db/src/schema/project_members.ts
 import {
-  pgTable as pgTable22,
-  text as text22,
+  pgTable as pgTable25,
+  text as text25,
   serial as serial18,
-  integer as integer20,
-  timestamp as timestamp22,
+  integer as integer23,
+  timestamp as timestamp25,
   uniqueIndex
 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema22 } from "drizzle-zod";
 var projectMembersRoles = ["owner", "collaborator", "viewer"];
-var projectMembersTable = pgTable22("project_members", {
+var projectMembersTable = pgTable25("project_members", {
   id: serial18("id").primaryKey(),
-  projectId: integer20("project_id").notNull(),
-  userId: text22("user_id").notNull(),
-  role: text22("role", { enum: projectMembersRoles }).notNull().default("collaborator"),
-  createdAt: timestamp22("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp22("updated_at", { withTimezone: true }).notNull().defaultNow()
+  projectId: integer23("project_id").notNull(),
+  userId: text25("user_id").notNull(),
+  role: text25("role", { enum: projectMembersRoles }).notNull().default("collaborator"),
+  createdAt: timestamp25("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp25("updated_at", { withTimezone: true }).notNull().defaultNow()
 }, (table2) => ({
   projectUserIdx: uniqueIndex("project_members_project_user_idx").on(
     table2.projectId,
@@ -203166,11 +203353,11 @@ var insertProjectMemberSchema = createInsertSchema22(
 
 // ../../lib/db/src/schema/quizzes.ts
 import {
-  pgTable as pgTable23,
-  text as text23,
+  pgTable as pgTable26,
+  text as text26,
   serial as serial19,
-  integer as integer21,
-  timestamp as timestamp23,
+  integer as integer24,
+  timestamp as timestamp26,
   jsonb as jsonb3
 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema23 } from "drizzle-zod";
@@ -203187,18 +203374,18 @@ var questionSchema = z2.object({
   ).optional(),
   points: z2.number().int().positive().default(1)
 });
-var quizzesTable = pgTable23("quizzes", {
+var quizzesTable = pgTable26("quizzes", {
   id: serial19("id").primaryKey(),
-  projectId: integer21("project_id").notNull(),
-  title: text23("title").notNull(),
-  description: text23("description"),
+  projectId: integer24("project_id").notNull(),
+  title: text26("title").notNull(),
+  description: text26("description"),
   /** Array of question definitions */
   questions: jsonb3("questions").$type().notNull(),
   /** Extra metadata (difficulty, topic, estimatedTime, etc.) */
   metadata: jsonb3("metadata").$type(),
-  createdBy: text23("created_by").notNull(),
-  createdAt: timestamp23("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp23("updated_at", { withTimezone: true }).notNull().defaultNow()
+  createdBy: text26("created_by").notNull(),
+  createdAt: timestamp26("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp26("updated_at", { withTimezone: true }).notNull().defaultNow()
 });
 var insertQuizSchema = createInsertSchema23(quizzesTable).omit({
   id: true,
@@ -203208,11 +203395,11 @@ var insertQuizSchema = createInsertSchema23(quizzesTable).omit({
 
 // ../../lib/db/src/schema/quiz_submissions.ts
 import {
-  pgTable as pgTable24,
-  text as text24,
+  pgTable as pgTable27,
+  text as text27,
   serial as serial20,
-  integer as integer22,
-  timestamp as timestamp24,
+  integer as integer25,
+  timestamp as timestamp27,
   jsonb as jsonb4
 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema24 } from "drizzle-zod";
@@ -203221,21 +203408,21 @@ var quizResponseSchema = z3.object({
   questionId: z3.string(),
   answer: z3.string()
 });
-var quizSubmissionsTable = pgTable24("quiz_submissions", {
+var quizSubmissionsTable = pgTable27("quiz_submissions", {
   id: serial20("id").primaryKey(),
-  quizId: integer22("quiz_id").notNull(),
-  studentId: text24("student_id").notNull(),
+  quizId: integer25("quiz_id").notNull(),
+  studentId: text27("student_id").notNull(),
   /** Array of student responses {questionId, answer} */
   responses: jsonb4("responses").$type().notNull(),
   /** Total score (null = not yet graded) */
-  score: integer22("score"),
+  score: integer25("score"),
   /** Max possible score for this quiz */
-  maxScore: integer22("max_score"),
+  maxScore: integer25("max_score"),
   /** Individual question scores {questionId, score, maxScore} */
   gradingDetails: jsonb4("grading_details").$type(),
-  gradedAt: timestamp24("graded_at", { withTimezone: true }),
-  submittedAt: timestamp24("submitted_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp24("updated_at", { withTimezone: true }).notNull().defaultNow()
+  gradedAt: timestamp27("graded_at", { withTimezone: true }),
+  submittedAt: timestamp27("submitted_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp27("updated_at", { withTimezone: true }).notNull().defaultNow()
 });
 var insertQuizSubmissionSchema = createInsertSchema24(
   quizSubmissionsTable
@@ -203250,11 +203437,11 @@ var insertQuizSubmissionSchema = createInsertSchema24(
 
 // ../../lib/db/src/schema/rubrics.ts
 import {
-  pgTable as pgTable25,
-  text as text25,
+  pgTable as pgTable28,
+  text as text28,
   serial as serial21,
-  integer as integer23,
-  timestamp as timestamp25,
+  integer as integer26,
+  timestamp as timestamp28,
   jsonb as jsonb5
 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema25 } from "drizzle-zod";
@@ -203269,16 +203456,16 @@ var rubricCriterionSchema = z4.object({
   /** Min keyword matches required (0-1 = percentage) */
   keywordThreshold: z4.number().min(0).max(1).optional()
 });
-var rubricsTable = pgTable25("rubrics", {
+var rubricsTable = pgTable28("rubrics", {
   id: serial21("id").primaryKey(),
-  quizId: integer23("quiz_id").notNull(),
+  quizId: integer26("quiz_id").notNull(),
   /** Array of per-question grading criteria */
   criteria: jsonb5("criteria").$type().notNull(),
   /** Manual grading notes for essay questions */
-  manualNotes: text25("manual_notes"),
-  createdBy: text25("created_by").notNull(),
-  createdAt: timestamp25("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp25("updated_at", { withTimezone: true }).notNull().defaultNow()
+  manualNotes: text28("manual_notes"),
+  createdBy: text28("created_by").notNull(),
+  createdAt: timestamp28("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp28("updated_at", { withTimezone: true }).notNull().defaultNow()
 });
 var insertRubricSchema = createInsertSchema25(rubricsTable).omit({
   id: true,
@@ -203288,11 +203475,11 @@ var insertRubricSchema = createInsertSchema25(rubricsTable).omit({
 
 // ../../lib/db/src/schema/writing_style_profiles.ts
 import {
-  pgTable as pgTable26,
-  text as text26,
+  pgTable as pgTable29,
+  text as text29,
   serial as serial22,
-  integer as integer24,
-  timestamp as timestamp26,
+  integer as integer27,
+  timestamp as timestamp29,
   jsonb as jsonb6
 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema26 } from "drizzle-zod";
@@ -203308,16 +203495,16 @@ var styleCharacteristicsSchema = z5.object({
   commonPhrases: z5.array(z5.string()),
   structuralPatterns: z5.array(z5.string())
 });
-var writingStyleProfilesTable = pgTable26("writing_style_profiles", {
+var writingStyleProfilesTable = pgTable29("writing_style_profiles", {
   id: serial22("id").primaryKey(),
-  userId: text26("user_id").notNull(),
-  projectId: integer24("project_id"),
+  userId: text29("user_id").notNull(),
+  projectId: integer27("project_id"),
   /** AI-extracted style characteristics */
   styleCharacteristics: jsonb6("style_characteristics").$type().notNull(),
   /** Number of documents analyzed to build this profile */
-  sampleSize: integer24("sample_size").notNull().default(1),
-  analyzedAt: timestamp26("analyzed_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp26("updated_at", { withTimezone: true }).notNull().defaultNow()
+  sampleSize: integer27("sample_size").notNull().default(1),
+  analyzedAt: timestamp29("analyzed_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp29("updated_at", { withTimezone: true }).notNull().defaultNow()
 });
 var insertWritingStyleProfileSchema = createInsertSchema26(
   writingStyleProfilesTable
@@ -203328,21 +203515,21 @@ var insertWritingStyleProfileSchema = createInsertSchema26(
 });
 
 // ../../lib/db/src/schema/document-templates.ts
-import { pgTable as pgTable27, text as text27, serial as serial23, integer as integer25, boolean as boolean9, timestamp as timestamp27 } from "drizzle-orm/pg-core";
+import { pgTable as pgTable30, text as text30, serial as serial23, integer as integer28, boolean as boolean13, timestamp as timestamp30 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema27 } from "drizzle-zod";
-var documentTemplatesTable = pgTable27("document_templates", {
+var documentTemplatesTable = pgTable30("document_templates", {
   id: serial23("id").primaryKey(),
-  userId: text27("user_id"),
-  name: text27("name").notNull(),
-  category: text27("category").notNull().default("custom"),
-  outline: text27("outline").notNull(),
-  citationFormat: text27("citation_format"),
-  minRefCount: integer25("min_ref_count").notNull().default(5),
-  description: text27("description"),
-  tags: text27("tags"),
-  isPublic: boolean9("is_public").notNull().default(false),
-  createdAt: timestamp27("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp27("updated_at", { withTimezone: true }).notNull().defaultNow()
+  userId: text30("user_id"),
+  name: text30("name").notNull(),
+  category: text30("category").notNull().default("custom"),
+  outline: text30("outline").notNull(),
+  citationFormat: text30("citation_format"),
+  minRefCount: integer28("min_ref_count").notNull().default(5),
+  description: text30("description"),
+  tags: text30("tags"),
+  isPublic: boolean13("is_public").notNull().default(false),
+  createdAt: timestamp30("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp30("updated_at", { withTimezone: true }).notNull().defaultNow()
 });
 var insertDocumentTemplateSchema = createInsertSchema27(documentTemplatesTable).omit({
   id: true,
@@ -203352,37 +203539,37 @@ var insertDocumentTemplateSchema = createInsertSchema27(documentTemplatesTable).
 
 // ../../lib/db/src/schema/admin-audit-log.ts
 import {
-  pgTable as pgTable28,
+  pgTable as pgTable31,
   serial as serial24,
-  text as text28,
-  timestamp as timestamp28,
-  index as index7,
+  text as text31,
+  timestamp as timestamp31,
+  index as index10,
   jsonb as jsonb7
 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema28 } from "drizzle-zod";
-var adminAuditLogTable = pgTable28(
+var adminAuditLogTable = pgTable31(
   "admin_audit_log",
   {
     id: serial24("id").primaryKey(),
     // Admin user who performed the action (owner email)
-    adminEmail: text28("admin_email").notNull(),
+    adminEmail: text31("admin_email").notNull(),
     // Action type
-    action: text28("action").notNull(),
+    action: text31("action").notNull(),
     // Target resource
-    targetType: text28("target_type").notNull(),
+    targetType: text31("target_type").notNull(),
     // user, tier, pricing, system
-    targetId: text28("target_id"),
+    targetId: text31("target_id"),
     // user_id, tier_id, etc.
     // Details as JSON
     details: jsonb7("details"),
     // IP address of admin
-    ipAddress: text28("ip_address"),
-    createdAt: timestamp28("created_at", { withTimezone: true }).notNull().defaultNow()
+    ipAddress: text31("ip_address"),
+    createdAt: timestamp31("created_at", { withTimezone: true }).notNull().defaultNow()
   },
   (table2) => [
-    index7("idx_admin_audit_admin_created").on(table2.adminEmail, table2.createdAt),
-    index7("idx_admin_audit_action").on(table2.action),
-    index7("idx_admin_audit_target").on(table2.targetType, table2.targetId)
+    index10("idx_admin_audit_admin_created").on(table2.adminEmail, table2.createdAt),
+    index10("idx_admin_audit_action").on(table2.action),
+    index10("idx_admin_audit_target").on(table2.targetType, table2.targetId)
   ]
 );
 var adminActionTypes = [
@@ -203399,24 +203586,24 @@ var insertAdminAuditLogSchema = createInsertSchema28(adminAuditLogTable).omit({
 });
 
 // ../../lib/db/src/schema/learning-activities.ts
-import { pgTable as pgTable29, text as text29, serial as serial25, timestamp as timestamp29, integer as integer26, uniqueIndex as uniqueIndex2 } from "drizzle-orm/pg-core";
+import { pgTable as pgTable32, text as text32, serial as serial25, timestamp as timestamp32, integer as integer29, uniqueIndex as uniqueIndex2 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema29 } from "drizzle-zod";
-var learningActivitiesTable = pgTable29(
+var learningActivitiesTable = pgTable32(
   "learning_activities",
   {
     id: serial25("id").primaryKey(),
-    userId: text29("user_id").notNull(),
+    userId: text32("user_id").notNull(),
     /** JSONB array of topic strings, e.g. ["Perubahan Iklim", "Food Security"] */
-    topics: text29("topics").notNull(),
+    topics: text32("topics").notNull(),
     // stored as JSON string
-    subject: text29("subject"),
+    subject: text32("subject"),
     /** Link to the source project in Task Mentor */
-    sourceProjectId: integer26("source_project_id"),
+    sourceProjectId: integer29("source_project_id"),
     /** Where the topics were extracted from */
-    extractedFrom: text29("extracted_from").notNull().default("instruction"),
+    extractedFrom: text32("extracted_from").notNull().default("instruction"),
     // 'instruction' | 'reference' | 'chat'
-    createdAt: timestamp29("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp29("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => /* @__PURE__ */ new Date())
+    createdAt: timestamp32("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp32("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => /* @__PURE__ */ new Date())
   },
   (table2) => ({
     userIdIdx: uniqueIndex2("learning_activities_user_id_idx").on(table2.userId, table2.sourceProjectId)
@@ -203463,13 +203650,15 @@ function validateUsername(username) {
   return null;
 }
 function toUserJson(user) {
+  const OWNER_EMAIL2 = process.env.OWNER_EMAIL ?? "";
+  const isOwner = user.email?.toLowerCase() === OWNER_EMAIL2.toLowerCase();
   return {
     id: user.id,
     email: user.email,
     username: user.username,
     displayName: user.displayName,
     avatarUrl: user.avatarUrl,
-    isOwner: user.isOwner,
+    isOwner,
     referralCode: user.referralCode,
     createdAt: user.createdAt
   };
@@ -203514,11 +203703,27 @@ router2.post("/auth/login", async (req, res) => {
       const raw = supabaseUser.user_metadata?.displayName || supabaseUser.email?.split("@")[0] || "user";
       return raw.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase().replace(/^[0-9_]+/, "").substring(0, 20) || "user";
     };
-    const [localUser] = await db.insert(usersTable).values({ id: supabaseUser.id, email: supabaseUser.email ?? "", username: deriveUsername() }).onConflictDoUpdate({
+    const deriveDisplayName = () => {
+      const meta = supabaseUser.user_metadata ?? {};
+      const fromFullName = typeof meta.full_name === "string" ? meta.full_name.trim() : "";
+      const fromName = typeof meta.name === "string" ? meta.name.trim() : "";
+      const fromDisplayName = typeof meta.displayName === "string" ? meta.displayName.trim() : "";
+      const candidate = fromFullName || fromName || fromDisplayName || "";
+      if (!candidate) return null;
+      return candidate.length > 100 ? candidate.substring(0, 100) : candidate;
+    };
+    const oauthDisplayName = deriveDisplayName();
+    const [localUser] = await db.insert(usersTable).values({
+      id: supabaseUser.id,
+      email: supabaseUser.email ?? "",
+      username: deriveUsername(),
+      ...oauthDisplayName ? { displayName: oauthDisplayName } : {}
+    }).onConflictDoUpdate({
       target: usersTable.id,
       set: {
         email: supabaseUser.email ?? "",
-        username: sql3`COALESCE(${usersTable.username}, ${deriveUsername()})`
+        username: sql5`COALESCE(${usersTable.username}, ${deriveUsername()})`
+        // Note: do NOT update displayName on conflict — preserve user edits.
       }
     }).returning();
     if (!localUser.username) {
@@ -203806,7 +204011,7 @@ var shared_default = router3;
 
 // src/routes/projects.ts
 var import_express4 = __toESM(require_express2(), 1);
-import { eq as eq6, desc as desc2, sql as sql4, and as and4, isNull as isNull2 } from "drizzle-orm";
+import { eq as eq6, desc as desc2, sql as sql6, and as and4, isNull as isNull2 } from "drizzle-orm";
 
 // src/lib/activity.ts
 async function logActivity(projectId, eventType, description) {
@@ -204813,8 +205018,8 @@ var require_events = /* @__PURE__ */ __commonJSMin(((exports, module) => {
     for (var i2 = 0; i2 < n; ++i2) copy[i2] = arr[i2];
     return copy;
   }
-  function spliceOne(list, index8) {
-    for (; index8 + 1 < list.length; index8++) list[index8] = list[index8 + 1];
+  function spliceOne(list, index11) {
+    for (; index11 + 1 < list.length; index11++) list[index11] = list[index11 + 1];
     list.pop();
   }
   function unwrapListeners(arr) {
@@ -207689,7 +207894,7 @@ var require_util = /* @__PURE__ */ __commonJSMin(((exports) => {
     "Nov",
     "Dec"
   ];
-  function timestamp30() {
+  function timestamp33() {
     var d = /* @__PURE__ */ new Date();
     var time = [
       pad2(d.getHours()),
@@ -207703,7 +207908,7 @@ var require_util = /* @__PURE__ */ __commonJSMin(((exports) => {
     ].join(" ");
   }
   exports.log = function() {
-    console.log("%s - %s", timestamp30(), exports.format.apply(exports, arguments));
+    console.log("%s - %s", timestamp33(), exports.format.apply(exports, arguments));
   };
   exports.inherits = require_inherits_browser2();
   exports._extend = function(origin, add2) {
@@ -209689,9 +209894,9 @@ var require__stream_readable = /* @__PURE__ */ __commonJSMin(((exports, module) 
       for (var i2 = 0; i2 < len; i2++) dests[i2].emit("unpipe", this, { hasUnpiped: false });
       return this;
     }
-    var index8 = indexOf(state.pipes, dest);
-    if (index8 === -1) return this;
-    state.pipes.splice(index8, 1);
+    var index11 = indexOf(state.pipes, dest);
+    if (index11 === -1) return this;
+    state.pipes.splice(index11, 1);
     state.pipesCount -= 1;
     if (state.pipesCount === 1) state.pipes = state.pipes[0];
     dest.emit("unpipe", this, unpipeInfo);
@@ -210668,10 +210873,10 @@ var require_sax = /* @__PURE__ */ __commonJSMin(((exports) => {
       if (parser.textNode) emit(parser, "ontext", parser.textNode);
       parser.textNode = "";
     }
-    function textopts(opt, text30) {
-      if (opt.trim) text30 = text30.trim();
-      if (opt.normalize) text30 = text30.replace(/\s+/g, " ");
-      return text30;
+    function textopts(opt, text33) {
+      if (opt.trim) text33 = text33.trim();
+      if (opt.normalize) text33 = text33.replace(/\s+/g, " ");
+      return text33;
     }
     function error(parser, er) {
       closeText(parser);
@@ -211289,12 +211494,12 @@ var require_sax = /* @__PURE__ */ __commonJSMin(((exports) => {
         var codeUnits = [];
         var highSurrogate;
         var lowSurrogate;
-        var index8 = -1;
+        var index11 = -1;
         var length = arguments.length;
         if (!length) return "";
         var result = "";
-        while (++index8 < length) {
-          var codePoint = Number(arguments[index8]);
+        while (++index11 < length) {
+          var codePoint = Number(arguments[index11]);
           if (!isFinite(codePoint) || codePoint < 0 || codePoint > 1114111 || floor(codePoint) !== codePoint) throw RangeError("Invalid code point: " + codePoint);
           if (codePoint <= 65535) codeUnits.push(codePoint);
           else {
@@ -211303,7 +211508,7 @@ var require_sax = /* @__PURE__ */ __commonJSMin(((exports) => {
             lowSurrogate = codePoint % 1024 + 56320;
             codeUnits.push(highSurrogate, lowSurrogate);
           }
-          if (index8 + 1 === length || codeUnits.length > MAX_SIZE) {
+          if (index11 + 1 === length || codeUnits.length > MAX_SIZE) {
             result += stringFromCharCode.apply(null, codeUnits);
             codeUnits.length = 0;
           }
@@ -211523,13 +211728,13 @@ var require_xml2js = /* @__PURE__ */ __commonJSMin(((exports, module) => {
     element[options.parentKey] = currentElement;
     currentElement = element;
   }
-  function onText(text30) {
+  function onText(text33) {
     if (options.ignoreText) return;
-    if (!text30.trim() && !options.captureSpacesBetweenElements) return;
-    if (options.trim) text30 = text30.trim();
-    if (options.nativeType) text30 = nativeType(text30);
-    if (options.sanitize) text30 = text30.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    addField("text", text30);
+    if (!text33.trim() && !options.captureSpacesBetweenElements) return;
+    if (options.trim) text33 = text33.trim();
+    if (options.nativeType) text33 = nativeType(text33);
+    if (options.sanitize) text33 = text33.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    addField("text", text33);
   }
   function onComment(comment) {
     if (options.ignoreComment) return;
@@ -211697,12 +211902,12 @@ var require_js2xml = /* @__PURE__ */ __commonJSMin(((exports, module) => {
   function writeDoctype(doctype, options) {
     return options.ignoreDoctype ? "" : "<!DOCTYPE " + ("doctypeFn" in options ? options.doctypeFn(doctype, currentElementName, currentElement) : doctype) + ">";
   }
-  function writeText(text30, options) {
+  function writeText(text33, options) {
     if (options.ignoreText) return "";
-    text30 = "" + text30;
-    text30 = text30.replace(/&amp;/g, "&");
-    text30 = text30.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    return "textFn" in options ? options.textFn(text30, currentElementName, currentElement) : text30;
+    text33 = "" + text33;
+    text33 = text33.replace(/&amp;/g, "&");
+    text33 = text33.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    return "textFn" in options ? options.textFn(text33, currentElementName, currentElement) : text33;
   }
   function hasContent(element, options) {
     var i2;
@@ -212964,22 +213169,22 @@ var require_common$1 = /* @__PURE__ */ __commonJSMin(((exports) => {
 }));
 var require_common2 = /* @__PURE__ */ __commonJSMin(((exports) => {
   var rotr32 = require_utils4().rotr32;
-  function ft_1(s2, x2, y, z9) {
-    if (s2 === 0) return ch32(x2, y, z9);
-    if (s2 === 1 || s2 === 3) return p322(x2, y, z9);
-    if (s2 === 2) return maj32(x2, y, z9);
+  function ft_1(s2, x2, y, z11) {
+    if (s2 === 0) return ch32(x2, y, z11);
+    if (s2 === 1 || s2 === 3) return p322(x2, y, z11);
+    if (s2 === 2) return maj32(x2, y, z11);
   }
   exports.ft_1 = ft_1;
-  function ch32(x2, y, z9) {
-    return x2 & y ^ ~x2 & z9;
+  function ch32(x2, y, z11) {
+    return x2 & y ^ ~x2 & z11;
   }
   exports.ch32 = ch32;
-  function maj32(x2, y, z9) {
-    return x2 & y ^ x2 & z9 ^ y & z9;
+  function maj32(x2, y, z11) {
+    return x2 & y ^ x2 & z11 ^ y & z11;
   }
   exports.maj32 = maj32;
-  function p322(x2, y, z9) {
-    return x2 ^ y ^ z9;
+  function p322(x2, y, z11) {
+    return x2 ^ y ^ z11;
   }
   exports.p32 = p322;
   function s0_256(x2) {
@@ -213714,12 +213919,12 @@ var require_ripemd = /* @__PURE__ */ __commonJSMin(((exports) => {
     if (enc === "hex") return utils.toHex32(this.h, "little");
     else return utils.split32(this.h, "little");
   };
-  function f3(j, x2, y, z9) {
-    if (j <= 15) return x2 ^ y ^ z9;
-    else if (j <= 31) return x2 & y | ~x2 & z9;
-    else if (j <= 47) return (x2 | ~y) ^ z9;
-    else if (j <= 63) return x2 & z9 | y & ~z9;
-    else return x2 ^ (y | ~z9);
+  function f3(j, x2, y, z11) {
+    if (j <= 15) return x2 ^ y ^ z11;
+    else if (j <= 31) return x2 & y | ~x2 & z11;
+    else if (j <= 47) return (x2 | ~y) ^ z11;
+    else if (j <= 63) return x2 & z11 | y & ~z11;
+    else return x2 ^ (y | ~z11);
   }
   function K2(j) {
     if (j <= 15) return 0;
@@ -214665,7 +214870,7 @@ var createFont = ({ name, altName, panose1, charset, family, notTrueType, pitch,
     ...embedBoldItalic ? [createFontRelationship(embedBoldItalic, "w:embedBoldItalic")] : []
   ]
 });
-var createRegularFont = ({ name, index: index8, fontKey, characterSet }) => createFont({
+var createRegularFont = ({ name, index: index11, fontKey, characterSet }) => createFont({
   name,
   sig: {
     usb0: "E0002AFF",
@@ -214680,7 +214885,7 @@ var createRegularFont = ({ name, index: index8, fontKey, characterSet }) => crea
   pitch: "variable",
   embedRegular: {
     fontKey,
-    id: `rId${index8}`
+    id: `rId${index11}`
   }
 });
 var createFontTable = (fonts) => new BuilderElement({
@@ -214945,10 +215150,10 @@ var Paragraph = class extends FileChild {
   }
   prepForXml(context) {
     for (const element of this.root) if (element instanceof ExternalHyperlink) {
-      const index8 = this.root.indexOf(element);
+      const index11 = this.root.indexOf(element);
       const concreteHyperlink = new ConcreteHyperlink(element.options.children, uniqueId());
       context.viewWrapper.Relationships.addRelationship(concreteHyperlink.linkId, "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink", element.options.link, TargetModeType.EXTERNAL);
-      this.root[index8] = concreteHyperlink;
+      this.root[index11] = concreteHyperlink;
     }
     return super.prepForXml(context);
   }
@@ -215086,16 +215291,16 @@ var ContentTypes = class extends XmlComponent {
   *
   * @param index - Footer index number (e.g., 1 for footer1.xml)
   */
-  addFooter(index8) {
-    this.root.push(createOverride("application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml", `/word/footer${index8}.xml`));
+  addFooter(index11) {
+    this.root.push(createOverride("application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml", `/word/footer${index11}.xml`));
   }
   /**
   * Registers a header part in the content types.
   *
   * @param index - Header index number (e.g., 1 for header1.xml)
   */
-  addHeader(index8) {
-    this.root.push(createOverride("application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml", `/word/header${index8}.xml`));
+  addHeader(index11) {
+    this.root.push(createOverride("application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml", `/word/header${index11}.xml`));
   }
 };
 var DocumentAttributeNamespaces = {
@@ -216364,7 +216569,7 @@ var LevelBase = class extends XmlComponent {
   * @param options - Level configuration options
   * @throws Error if level is greater than 9 (Word limitation)
   */
-  constructor({ level, format, text: text30, alignment = AlignmentType.START, start = 1, style, suffix, isLegalNumberingStyle }) {
+  constructor({ level, format, text: text33, alignment = AlignmentType.START, start = 1, style, suffix, isLegalNumberingStyle }) {
     super("w:lvl");
     _defineProperty4(this, "paragraphProperties", void 0);
     _defineProperty4(this, "runProperties", void 0);
@@ -216372,7 +216577,7 @@ var LevelBase = class extends XmlComponent {
     if (format) this.root.push(new NumberFormat$1(format));
     if (suffix) this.root.push(new Suffix(suffix));
     if (isLegalNumberingStyle) this.root.push(new IsLegalNumberingStyle());
-    if (text30) this.root.push(new LevelText(text30));
+    if (text33) this.root.push(new LevelText(text33));
     this.root.push(new LevelJc(alignment));
     if (style === null || style === void 0 ? void 0 : style.style) this.root.push(createParagraphStyle(style.style));
     this.paragraphProperties = new ParagraphProperties(style && style.paragraph);
@@ -217589,17 +217794,17 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
           t3 && !r3 || (x2.crc32 = e3.crc32, x2.compressedSize = e3.compressedSize, x2.uncompressedSize = e3.uncompressedSize);
           var S2 = 0;
           t3 && (S2 |= 8), l || !_ && !g || (S2 |= 2048);
-          var z9 = 0, C = 0;
-          w && (z9 |= 16), "UNIX" === i3 ? (C = 798, z9 |= (function(e4, t4) {
+          var z11 = 0, C = 0;
+          w && (z11 |= 16), "UNIX" === i3 ? (C = 798, z11 |= (function(e4, t4) {
             var r4 = e4;
             return e4 || (r4 = t4 ? 16893 : 33204), (65535 & r4) << 16;
-          })(h2.unixPermissions, w)) : (C = 20, z9 |= (function(e4) {
+          })(h2.unixPermissions, w)) : (C = 20, z11 |= (function(e4) {
             return 63 & (e4 || 0);
           })(h2.dosPermissions)), a = k.getUTCHours(), a <<= 6, a |= k.getUTCMinutes(), a <<= 5, a |= k.getUTCSeconds() / 2, o = k.getUTCFullYear() - 1980, o <<= 4, o |= k.getUTCMonth() + 1, o <<= 5, o |= k.getUTCDate(), _ && (v = A2(1, 1) + A2(B(f3), 4) + c, b += "up" + A2(v.length, 2) + v), g && (y = A2(1, 1) + A2(B(p), 4) + m2, b += "uc" + A2(y.length, 2) + y);
           var E = "";
           return E += "\n\0", E += A2(S2, 2), E += u.magic, E += A2(a, 2), E += A2(o, 2), E += A2(x2.crc32, 4), E += A2(x2.compressedSize, 4), E += A2(x2.uncompressedSize, 4), E += A2(f3.length, 2), E += A2(b.length, 2), {
             fileRecord: R.LOCAL_FILE_HEADER + E + f3 + b,
-            dirRecord: R.CENTRAL_FILE_HEADER + A2(C, 2) + E + A2(p.length, 2) + "\0\0\0\0" + A2(z9, 4) + A2(n2, 4) + f3 + b + p
+            dirRecord: R.CENTRAL_FILE_HEADER + A2(C, 2) + E + A2(p.length, 2) + "\0\0\0\0" + A2(z11, 4) + A2(n2, 4) + f3 + b + p
           };
         }
         var I = e2("../utils"), i2 = e2("../stream/GenericWorker"), O = e2("../utf8"), B = e2("../crc32"), R = e2("../signature");
@@ -219287,7 +219492,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
       }, {}],
       46: [function(e2, t2, r2) {
         "use strict";
-        var h2, c = e2("../utils/common"), u = e2("./trees"), d = e2("./adler32"), p = e2("./crc32"), n = e2("./messages"), l = 0, f3 = 4, m2 = 0, _ = -2, g = -1, b = 4, i2 = 2, v = 8, y = 9, s2 = 286, a = 30, o = 19, w = 2 * s2 + 1, k = 15, x2 = 3, S2 = 258, z9 = S2 + x2 + 1, C = 42, E = 113, A2 = 1, I = 2, O = 3, B = 4;
+        var h2, c = e2("../utils/common"), u = e2("./trees"), d = e2("./adler32"), p = e2("./crc32"), n = e2("./messages"), l = 0, f3 = 4, m2 = 0, _ = -2, g = -1, b = 4, i2 = 2, v = 8, y = 9, s2 = 286, a = 30, o = 19, w = 2 * s2 + 1, k = 15, x2 = 3, S2 = 258, z11 = S2 + x2 + 1, C = 42, E = 113, A2 = 1, I = 2, O = 3, B = 4;
         function R(e3, t3) {
           return e3.msg = n[t3], t3;
         }
@@ -219311,7 +219516,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
           e3.pending_buf[e3.pending++] = t3 >>> 8 & 255, e3.pending_buf[e3.pending++] = 255 & t3;
         }
         function L(e3, t3) {
-          var r3, n2, i3 = e3.max_chain_length, s3 = e3.strstart, a2 = e3.prev_length, o2 = e3.nice_match, h3 = e3.strstart > e3.w_size - z9 ? e3.strstart - (e3.w_size - z9) : 0, u2 = e3.window, l2 = e3.w_mask, f4 = e3.prev, c2 = e3.strstart + S2, d2 = u2[s3 + a2 - 1], p2 = u2[s3 + a2];
+          var r3, n2, i3 = e3.max_chain_length, s3 = e3.strstart, a2 = e3.prev_length, o2 = e3.nice_match, h3 = e3.strstart > e3.w_size - z11 ? e3.strstart - (e3.w_size - z11) : 0, u2 = e3.window, l2 = e3.w_mask, f4 = e3.prev, c2 = e3.strstart + S2, d2 = u2[s3 + a2 - 1], p2 = u2[s3 + a2];
           e3.prev_length >= e3.good_match && (i3 >>= 2), o2 > e3.lookahead && (o2 = e3.lookahead);
           do
             if (u2[(r3 = t3) + a2] === p2 && u2[r3 + a2 - 1] === d2 && u2[r3] === u2[s3] && u2[++r3] === u2[s3 + 1]) {
@@ -219330,22 +219535,22 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
         function j(e3) {
           var t3, r3, n2, i3, s3, a2, o2, h3, u2, l2, f4 = e3.w_size;
           do {
-            if (i3 = e3.window_size - e3.lookahead - e3.strstart, e3.strstart >= f4 + (f4 - z9)) {
+            if (i3 = e3.window_size - e3.lookahead - e3.strstart, e3.strstart >= f4 + (f4 - z11)) {
               for (c.arraySet(e3.window, e3.window, f4, f4, 0), e3.match_start -= f4, e3.strstart -= f4, e3.block_start -= f4, t3 = r3 = e3.hash_size; n2 = e3.head[--t3], e3.head[t3] = f4 <= n2 ? n2 - f4 : 0, --r3; ) ;
               for (t3 = r3 = f4; n2 = e3.prev[--t3], e3.prev[t3] = f4 <= n2 ? n2 - f4 : 0, --r3; ) ;
               i3 += f4;
             }
             if (0 === e3.strm.avail_in) break;
             if (a2 = e3.strm, o2 = e3.window, h3 = e3.strstart + e3.lookahead, u2 = i3, l2 = void 0, l2 = a2.avail_in, u2 < l2 && (l2 = u2), r3 = 0 === l2 ? 0 : (a2.avail_in -= l2, c.arraySet(o2, a2.input, a2.next_in, l2, h3), 1 === a2.state.wrap ? a2.adler = d(a2.adler, o2, l2, h3) : 2 === a2.state.wrap && (a2.adler = p(a2.adler, o2, l2, h3)), a2.next_in += l2, a2.total_in += l2, l2), e3.lookahead += r3, e3.lookahead + e3.insert >= x2) for (s3 = e3.strstart - e3.insert, e3.ins_h = e3.window[s3], e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[s3 + 1]) & e3.hash_mask; e3.insert && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[s3 + x2 - 1]) & e3.hash_mask, e3.prev[s3 & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = s3, s3++, e3.insert--, !(e3.lookahead + e3.insert < x2)); ) ;
-          } while (e3.lookahead < z9 && 0 !== e3.strm.avail_in);
+          } while (e3.lookahead < z11 && 0 !== e3.strm.avail_in);
         }
         function Z2(e3, t3) {
           for (var r3, n2; ; ) {
-            if (e3.lookahead < z9) {
-              if (j(e3), e3.lookahead < z9 && t3 === l) return A2;
+            if (e3.lookahead < z11) {
+              if (j(e3), e3.lookahead < z11 && t3 === l) return A2;
               if (0 === e3.lookahead) break;
             }
-            if (r3 = 0, e3.lookahead >= x2 && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart), 0 !== r3 && e3.strstart - r3 <= e3.w_size - z9 && (e3.match_length = L(e3, r3)), e3.match_length >= x2) if (n2 = u._tr_tally(e3, e3.strstart - e3.match_start, e3.match_length - x2), e3.lookahead -= e3.match_length, e3.match_length <= e3.max_lazy_match && e3.lookahead >= x2) {
+            if (r3 = 0, e3.lookahead >= x2 && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart), 0 !== r3 && e3.strstart - r3 <= e3.w_size - z11 && (e3.match_length = L(e3, r3)), e3.match_length >= x2) if (n2 = u._tr_tally(e3, e3.strstart - e3.match_start, e3.match_length - x2), e3.lookahead -= e3.match_length, e3.match_length <= e3.max_lazy_match && e3.lookahead >= x2) {
               for (e3.match_length--; e3.strstart++, e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart, 0 != --e3.match_length; ) ;
               e3.strstart++;
             } else e3.strstart += e3.match_length, e3.match_length = 0, e3.ins_h = e3.window[e3.strstart], e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + 1]) & e3.hash_mask;
@@ -219356,11 +219561,11 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
         }
         function W(e3, t3) {
           for (var r3, n2, i3; ; ) {
-            if (e3.lookahead < z9) {
-              if (j(e3), e3.lookahead < z9 && t3 === l) return A2;
+            if (e3.lookahead < z11) {
+              if (j(e3), e3.lookahead < z11 && t3 === l) return A2;
               if (0 === e3.lookahead) break;
             }
-            if (r3 = 0, e3.lookahead >= x2 && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart), e3.prev_length = e3.match_length, e3.prev_match = e3.match_start, e3.match_length = x2 - 1, 0 !== r3 && e3.prev_length < e3.max_lazy_match && e3.strstart - r3 <= e3.w_size - z9 && (e3.match_length = L(e3, r3), e3.match_length <= 5 && (1 === e3.strategy || e3.match_length === x2 && 4096 < e3.strstart - e3.match_start) && (e3.match_length = x2 - 1)), e3.prev_length >= x2 && e3.match_length <= e3.prev_length) {
+            if (r3 = 0, e3.lookahead >= x2 && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart), e3.prev_length = e3.match_length, e3.prev_match = e3.match_start, e3.match_length = x2 - 1, 0 !== r3 && e3.prev_length < e3.max_lazy_match && e3.strstart - r3 <= e3.w_size - z11 && (e3.match_length = L(e3, r3), e3.match_length <= 5 && (1 === e3.strategy || e3.match_length === x2 && 4096 < e3.strstart - e3.match_start) && (e3.match_length = x2 - 1)), e3.prev_length >= x2 && e3.match_length <= e3.prev_length) {
               for (i3 = e3.strstart + e3.lookahead - x2, n2 = u._tr_tally(e3, e3.strstart - 1 - e3.prev_match, e3.prev_length - x2), e3.lookahead -= e3.prev_length - 1, e3.prev_length -= 2; ++e3.strstart <= i3 && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart), 0 != --e3.prev_length; ) ;
               if (e3.match_available = 0, e3.match_length = x2 - 1, e3.strstart++, n2 && (N(e3, false), 0 === e3.strm.avail_out)) return A2;
             } else if (e3.match_available) {
@@ -219404,7 +219609,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
               e3.strstart += e3.lookahead, e3.lookahead = 0;
               var n2 = e3.block_start + r3;
               if ((0 === e3.strstart || e3.strstart >= n2) && (e3.lookahead = e3.strstart - n2, e3.strstart = n2, N(e3, false), 0 === e3.strm.avail_out)) return A2;
-              if (e3.strstart - e3.block_start >= e3.w_size - z9 && (N(e3, false), 0 === e3.strm.avail_out)) return A2;
+              if (e3.strstart - e3.block_start >= e3.w_size - z11 && (N(e3, false), 0 === e3.strm.avail_out)) return A2;
             }
             return e3.insert = 0, t3 === f3 ? (N(e3, true), 0 === e3.strm.avail_out ? O : B) : (e3.strstart > e3.block_start && (N(e3, false), e3.strm.avail_out), A2);
           }),
@@ -219520,10 +219725,10 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
       48: [function(e2, t2, r2) {
         "use strict";
         t2.exports = function(e3, t3) {
-          var r3 = e3.state, n = e3.next_in, i2, s2, a, o, h2, u, l, f3, c, d, p, m2, _, g, b, v, y, w, k, x2, S2, z9 = e3.input, C;
+          var r3 = e3.state, n = e3.next_in, i2, s2, a, o, h2, u, l, f3, c, d, p, m2, _, g, b, v, y, w, k, x2, S2, z11 = e3.input, C;
           i2 = n + (e3.avail_in - 5), s2 = e3.next_out, C = e3.output, a = s2 - (t3 - e3.avail_out), o = s2 + (e3.avail_out - 257), h2 = r3.dmax, u = r3.wsize, l = r3.whave, f3 = r3.wnext, c = r3.window, d = r3.hold, p = r3.bits, m2 = r3.lencode, _ = r3.distcode, g = (1 << r3.lenbits) - 1, b = (1 << r3.distbits) - 1;
           e: do {
-            p < 15 && (d += z9[n++] << p, p += 8, d += z9[n++] << p, p += 8), v = m2[d & g];
+            p < 15 && (d += z11[n++] << p, p += 8, d += z11[n++] << p, p += 8), v = m2[d & g];
             t: for (; ; ) {
               if (d >>>= y = v >>> 24, p -= y, 0 === (y = v >>> 16 & 255)) C[s2++] = 65535 & v;
               else {
@@ -219539,7 +219744,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
                   e3.msg = "invalid literal/length code", r3.mode = 30;
                   break e;
                 }
-                w = 65535 & v, (y &= 15) && (p < y && (d += z9[n++] << p, p += 8), w += d & (1 << y) - 1, d >>>= y, p -= y), p < 15 && (d += z9[n++] << p, p += 8, d += z9[n++] << p, p += 8), v = _[d & b];
+                w = 65535 & v, (y &= 15) && (p < y && (d += z11[n++] << p, p += 8), w += d & (1 << y) - 1, d >>>= y, p -= y), p < 15 && (d += z11[n++] << p, p += 8, d += z11[n++] << p, p += 8), v = _[d & b];
                 r: for (; ; ) {
                   if (d >>>= y = v >>> 24, p -= y, !(16 & (y = v >>> 16 & 255))) {
                     if (0 == (64 & y)) {
@@ -219549,7 +219754,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
                     e3.msg = "invalid distance code", r3.mode = 30;
                     break e;
                   }
-                  if (k = 65535 & v, p < (y &= 15) && (d += z9[n++] << p, (p += 8) < y && (d += z9[n++] << p, p += 8)), h2 < (k += d & (1 << y) - 1)) {
+                  if (k = 65535 & v, p < (y &= 15) && (d += z11[n++] << p, (p += 8) < y && (d += z11[n++] << p, p += 8)), h2 < (k += d & (1 << y) - 1)) {
                     e3.msg = "invalid distance too far back", r3.mode = 30;
                     break e;
                   }
@@ -219635,7 +219840,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
         r2.inflateReset = o, r2.inflateReset2 = h2, r2.inflateResetKeep = a, r2.inflateInit = function(e3) {
           return u(e3, 15);
         }, r2.inflateInit2 = u, r2.inflate = function(e3, t3) {
-          var r3, n2, i3, s3, a2, o2, h3, u2, l2, f4, c2, d, p, m2, _, g, b, v, y, w, k, x2, S2, z9, C = 0, E = new I.Buf8(4), A2 = [
+          var r3, n2, i3, s3, a2, o2, h3, u2, l2, f4, c2, d, p, m2, _, g, b, v, y, w, k, x2, S2, z11, C = 0, E = new I.Buf8(4), A2 = [
             16,
             17,
             18,
@@ -219842,7 +220047,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
                 if (b < 16) u2 >>>= _, l2 -= _, r3.lens[r3.have++] = b;
                 else {
                   if (16 === b) {
-                    for (z9 = _ + 2; l2 < z9; ) {
+                    for (z11 = _ + 2; l2 < z11; ) {
                       if (0 === o2) break e;
                       o2--, u2 += n2[s3++] << l2, l2 += 8;
                     }
@@ -219852,13 +220057,13 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
                     }
                     k = r3.lens[r3.have - 1], d = 3 + (3 & u2), u2 >>>= 2, l2 -= 2;
                   } else if (17 === b) {
-                    for (z9 = _ + 3; l2 < z9; ) {
+                    for (z11 = _ + 3; l2 < z11; ) {
                       if (0 === o2) break e;
                       o2--, u2 += n2[s3++] << l2, l2 += 8;
                     }
                     l2 -= _, k = 0, d = 3 + (7 & (u2 >>>= _)), u2 >>>= 3, l2 -= 3;
                   } else {
-                    for (z9 = _ + 7; l2 < z9; ) {
+                    for (z11 = _ + 7; l2 < z11; ) {
                       if (0 === o2) break e;
                       o2--, u2 += n2[s3++] << l2, l2 += 8;
                     }
@@ -219918,7 +220123,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
               r3.extra = 15 & g, r3.mode = 22;
             case 22:
               if (r3.extra) {
-                for (z9 = r3.extra; l2 < z9; ) {
+                for (z11 = r3.extra; l2 < z11; ) {
                   if (0 === o2) break e;
                   o2--, u2 += n2[s3++] << l2, l2 += 8;
                 }
@@ -219944,7 +220149,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
               r3.offset = b, r3.extra = 15 & g, r3.mode = 24;
             case 24:
               if (r3.extra) {
-                for (z9 = r3.extra; l2 < z9; ) {
+                for (z11 = r3.extra; l2 < z11; ) {
                   if (0 === o2) break e;
                   o2--, u2 += n2[s3++] << l2, l2 += 8;
                 }
@@ -220162,14 +220367,14 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
           64
         ];
         t2.exports = function(e3, t3, r3, n, i2, s2, a, o) {
-          var h2, u, l, f3, c, d, p, m2, _, g = o.bits, b = 0, v = 0, y = 0, w = 0, k = 0, x2 = 0, S2 = 0, z9 = 0, C = 0, E = 0, A2 = null, I = 0, O = new D.Buf16(16), B = new D.Buf16(16), R = null, T = 0;
+          var h2, u, l, f3, c, d, p, m2, _, g = o.bits, b = 0, v = 0, y = 0, w = 0, k = 0, x2 = 0, S2 = 0, z11 = 0, C = 0, E = 0, A2 = null, I = 0, O = new D.Buf16(16), B = new D.Buf16(16), R = null, T = 0;
           for (b = 0; b <= 15; b++) O[b] = 0;
           for (v = 0; v < n; v++) O[t3[r3 + v]]++;
           for (k = g, w = 15; 1 <= w && 0 === O[w]; w--) ;
           if (w < k && (k = w), 0 === w) return i2[s2++] = 20971520, i2[s2++] = 20971520, o.bits = 1, 0;
           for (y = 1; y < w && 0 === O[y]; y++) ;
-          for (k < y && (k = y), b = z9 = 1; b <= 15; b++) if (z9 <<= 1, (z9 -= O[b]) < 0) return -1;
-          if (0 < z9 && (0 === e3 || 1 !== w)) return -1;
+          for (k < y && (k = y), b = z11 = 1; b <= 15; b++) if (z11 <<= 1, (z11 -= O[b]) < 0) return -1;
+          if (0 < z11 && (0 === e3 || 1 !== w)) return -1;
           for (B[1] = 0, b = 1; b < 15; b++) B[b + 1] = B[b] + O[b];
           for (v = 0; v < n; v++) 0 !== t3[r3 + v] && (a[B[t3[r3 + v]]++] = v);
           if (d = 0 === e3 ? (A2 = R = a, 19) : 1 === e3 ? (A2 = F2, I -= 257, R = N, T -= 257, 256) : (A2 = U, R = P, -1), b = y, c = s2, S2 = v = E = 0, l = -1, f3 = (C = 1 << (x2 = k)) - 1, 1 === e3 && 852 < C || 2 === e3 && 592 < C) return 1;
@@ -220181,7 +220386,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
               b = t3[r3 + a[v]];
             }
             if (k < b && (E & f3) !== l) {
-              for (0 === S2 && (S2 = k), c += y, z9 = 1 << (x2 = b - S2); x2 + S2 < w && !((z9 -= O[x2 + S2]) <= 0); ) x2++, z9 <<= 1;
+              for (0 === S2 && (S2 = k), c += y, z11 = 1 << (x2 = b - S2); x2 + S2 < w && !((z11 -= O[x2 + S2]) <= 0); ) x2++, z11 <<= 1;
               if (C += 1 << x2, 1 === e3 && 852 < C || 2 === e3 && 592 < C) return 1;
               i2[l = E & f3] = k << 24 | x2 << 16 | c - s2 | 0;
             }
@@ -220310,8 +220515,8 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
           14,
           1,
           15
-        ], z9 = new Array(2 * (l + 2));
-        n(z9);
+        ], z11 = new Array(2 * (l + 2));
+        n(z11);
         var C = new Array(2 * f3);
         n(C);
         var E = new Array(512);
@@ -220419,12 +220624,12 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
             for (A2[r3 - 1] = n2, n2 = i3 = 0; n2 < 16; n2++) for (T[n2] = i3, e4 = 0; e4 < 1 << k[n2]; e4++) E[i3++] = n2;
             for (i3 >>= 7; n2 < f3; n2++) for (T[n2] = i3 << 7, e4 = 0; e4 < 1 << k[n2] - 7; e4++) E[256 + i3++] = n2;
             for (t3 = 0; t3 <= g; t3++) s3[t3] = 0;
-            for (e4 = 0; e4 <= 143; ) z9[2 * e4 + 1] = 8, e4++, s3[8]++;
-            for (; e4 <= 255; ) z9[2 * e4 + 1] = 9, e4++, s3[9]++;
-            for (; e4 <= 279; ) z9[2 * e4 + 1] = 7, e4++, s3[7]++;
-            for (; e4 <= 287; ) z9[2 * e4 + 1] = 8, e4++, s3[8]++;
-            for (Z2(z9, l + 1, s3), e4 = 0; e4 < f3; e4++) C[2 * e4 + 1] = 5, C[2 * e4] = j(e4, 5);
-            O = new D(z9, w, u + 1, l, g), B = new D(C, k, 0, f3, g), R = new D(new Array(0), x2, 0, c, p);
+            for (e4 = 0; e4 <= 143; ) z11[2 * e4 + 1] = 8, e4++, s3[8]++;
+            for (; e4 <= 255; ) z11[2 * e4 + 1] = 9, e4++, s3[9]++;
+            for (; e4 <= 279; ) z11[2 * e4 + 1] = 7, e4++, s3[7]++;
+            for (; e4 <= 287; ) z11[2 * e4 + 1] = 8, e4++, s3[8]++;
+            for (Z2(z11, l + 1, s3), e4 = 0; e4 < f3; e4++) C[2 * e4 + 1] = 5, C[2 * e4] = j(e4, 5);
+            O = new D(z11, w, u + 1, l, g), B = new D(C, k, 0, f3, g), R = new D(new Array(0), x2, 0, c, p);
           })(), q = true), e3.l_desc = new F2(e3.dyn_ltree, O), e3.d_desc = new F2(e3.dyn_dtree, B), e3.bl_desc = new F2(e3.bl_tree, R), e3.bi_buf = 0, e3.bi_valid = 0, W(e3);
         }, r2._tr_stored_block = J, r2._tr_flush_block = function(e3, t3, r3, n2) {
           var i3, s3, a2 = 0;
@@ -220438,7 +220643,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
             var t4;
             for (X(e4, e4.dyn_ltree, e4.l_desc.max_code), X(e4, e4.dyn_dtree, e4.d_desc.max_code), Y(e4, e4.bl_desc), t4 = c - 1; 3 <= t4 && 0 === e4.bl_tree[2 * S2[t4] + 1]; t4--) ;
             return e4.opt_len += 3 * (t4 + 1) + 5 + 5 + 4, t4;
-          })(e3), i3 = e3.opt_len + 3 + 7 >>> 3, (s3 = e3.static_len + 3 + 7 >>> 3) <= i3 && (i3 = s3)) : i3 = s3 = r3 + 5, r3 + 4 <= i3 && -1 !== t3 ? J(e3, t3, r3, n2) : 4 === e3.strategy || s3 === i3 ? (P(e3, 2 + (n2 ? 1 : 0), 3), K2(e3, z9, C)) : (P(e3, 4 + (n2 ? 1 : 0), 3), (function(e4, t4, r4, n3) {
+          })(e3), i3 = e3.opt_len + 3 + 7 >>> 3, (s3 = e3.static_len + 3 + 7 >>> 3) <= i3 && (i3 = s3)) : i3 = s3 = r3 + 5, r3 + 4 <= i3 && -1 !== t3 ? J(e3, t3, r3, n2) : 4 === e3.strategy || s3 === i3 ? (P(e3, 2 + (n2 ? 1 : 0), 3), K2(e3, z11, C)) : (P(e3, 4 + (n2 ? 1 : 0), 3), (function(e4, t4, r4, n3) {
             var i4;
             for (P(e4, t4 - 257, 5), P(e4, r4 - 1, 5), P(e4, n3 - 4, 4), i4 = 0; i4 < n3; i4++) P(e4, e4.bl_tree[2 * S2[i4] + 1], 3);
             V(e4, e4.dyn_ltree, t4 - 1), V(e4, e4.dyn_dtree, r4 - 1);
@@ -220446,7 +220651,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
         }, r2._tr_tally = function(e3, t3, r3) {
           return e3.pending_buf[e3.d_buf + 2 * e3.last_lit] = t3 >>> 8 & 255, e3.pending_buf[e3.d_buf + 2 * e3.last_lit + 1] = 255 & t3, e3.pending_buf[e3.l_buf + e3.last_lit] = 255 & r3, e3.last_lit++, 0 === t3 ? e3.dyn_ltree[2 * r3]++ : (e3.matches++, t3--, e3.dyn_ltree[2 * (A2[r3] + u + 1)]++, e3.dyn_dtree[2 * N(t3)]++), e3.last_lit === e3.lit_bufsize - 1;
         }, r2._tr_align = function(e3) {
-          P(e3, 2, 3), L(e3, m2, z9), (function(e4) {
+          P(e3, 2, 3), L(e3, m2, z11), (function(e4) {
             16 === e4.bi_valid ? (U(e4, e4.bi_buf), e4.bi_buf = 0, e4.bi_valid = 0) : 8 <= e4.bi_valid && (e4.pending_buf[e4.pending++] = 255 & e4.bi_buf, e4.bi_buf >>= 8, e4.bi_valid -= 8);
           })(e3);
         };
@@ -220975,7 +221180,7 @@ var Compiler = class {
         }),
         path: "_rels/.rels"
       },
-      HeaderRelationships: file.Headers.map((headerWrapper, index8) => {
+      HeaderRelationships: file.Headers.map((headerWrapper, index11) => {
         const xmlData = (0, import_xml.default)(this.formatter.format(headerWrapper.View, {
           viewWrapper: headerWrapper,
           file,
@@ -220996,10 +221201,10 @@ var Compiler = class {
             indent: prettify,
             declaration: { encoding: "UTF-8" }
           }),
-          path: `word/_rels/header${index8 + 1}.xml.rels`
+          path: `word/_rels/header${index11 + 1}.xml.rels`
         };
       }),
-      FooterRelationships: file.Footers.map((footerWrapper, index8) => {
+      FooterRelationships: file.Footers.map((footerWrapper, index11) => {
         const xmlData = (0, import_xml.default)(this.formatter.format(footerWrapper.View, {
           viewWrapper: footerWrapper,
           file,
@@ -221020,10 +221225,10 @@ var Compiler = class {
             indent: prettify,
             declaration: { encoding: "UTF-8" }
           }),
-          path: `word/_rels/footer${index8 + 1}.xml.rels`
+          path: `word/_rels/footer${index11 + 1}.xml.rels`
         };
       }),
-      Headers: file.Headers.map((headerWrapper, index8) => {
+      Headers: file.Headers.map((headerWrapper, index11) => {
         const tempXmlData = (0, import_xml.default)(this.formatter.format(headerWrapper.View, {
           viewWrapper: headerWrapper,
           file,
@@ -221036,10 +221241,10 @@ var Compiler = class {
         const xmlData = this.imageReplacer.replace(tempXmlData, mediaDatas, 0);
         return {
           data: this.numberingReplacer.replace(xmlData, file.Numbering.ConcreteNumbering),
-          path: `word/header${index8 + 1}.xml`
+          path: `word/header${index11 + 1}.xml`
         };
       }),
-      Footers: file.Footers.map((footerWrapper, index8) => {
+      Footers: file.Footers.map((footerWrapper, index11) => {
         const tempXmlData = (0, import_xml.default)(this.formatter.format(footerWrapper.View, {
           viewWrapper: footerWrapper,
           file,
@@ -221052,7 +221257,7 @@ var Compiler = class {
         const xmlData = this.imageReplacer.replace(tempXmlData, mediaDatas, 0);
         return {
           data: this.numberingReplacer.replace(xmlData, file.Numbering.ConcreteNumbering),
-          path: `word/footer${index8 + 1}.xml`
+          path: `word/footer${index11 + 1}.xml`
         };
       }),
       ContentTypes: {
@@ -221348,8 +221553,8 @@ var Packer = class Packer2 {
       type: "nodebuffer",
       mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       compression: "DEFLATE"
-    }).then((z9) => {
-      stream2.emit("data", z9);
+    }).then((z11) => {
+      stream2.emit("data", z11);
       stream2.emit("end");
     });
     return stream2;
@@ -221363,9 +221568,9 @@ var toJson = (xmlData) => {
     captureSpacesBetweenElements: true
   });
 };
-var createTextElementContents = (text30) => {
+var createTextElementContents = (text33) => {
   var _textJson$elements$0$;
-  return (_textJson$elements$0$ = toJson((0, import_xml.default)(formatter$1.format(new Text({ text: text30 })))).elements[0].elements) !== null && _textJson$elements$0$ !== void 0 ? _textJson$elements$0$ : [];
+  return (_textJson$elements$0$ = toJson((0, import_xml.default)(formatter$1.format(new Text({ text: text33 })))).elements[0].elements) !== null && _textJson$elements$0$ !== void 0 ? _textJson$elements$0$ : [];
 };
 var patchSpaceAttribute = (element) => _objectSpread24(_objectSpread24({}, element), {}, { attributes: { "xml:space": "preserve" } });
 var getFirstLevelElements = (relationships, id) => {
@@ -221424,10 +221629,10 @@ var findRunElementIndexWithToken = (paragraphElement, token) => {
     if (element.type === "element" && element.name === "w:r") {
       var _element$elements;
       const textElement = ((_element$elements = element.elements) !== null && _element$elements !== void 0 ? _element$elements : []).filter((e2) => e2.type === "element" && e2.name === "w:t");
-      for (const text30 of textElement) {
+      for (const text33 of textElement) {
         var _text$elements, _text$elements$0$text;
-        if (!((_text$elements = text30.elements) === null || _text$elements === void 0 ? void 0 : _text$elements[0])) continue;
-        if ((_text$elements$0$text = text30.elements[0].text) === null || _text$elements$0$text === void 0 ? void 0 : _text$elements$0$text.includes(token)) return i2;
+        if (!((_text$elements = text33.elements) === null || _text$elements === void 0 ? void 0 : _text$elements[0])) continue;
+        if ((_text$elements$0$text = text33.elements[0].text) === null || _text$elements$0$text === void 0 ? void 0 : _text$elements$0$text.includes(token)) return i2;
       }
     }
   }
@@ -221463,34 +221668,34 @@ var replaceTokenInParagraphElement = ({ paragraphElement, renderedParagraph, ori
   const startIndex = renderedParagraph.text.indexOf(originalText);
   const endIndex = startIndex + originalText.length - 1;
   let replaceMode = ReplaceMode.START;
-  for (const run of renderedParagraph.runs) for (const { text: text30, index: index8, start, end } of run.parts) switch (replaceMode) {
+  for (const run of renderedParagraph.runs) for (const { text: text33, index: index11, start, end } of run.parts) switch (replaceMode) {
     case ReplaceMode.START:
       if (startIndex >= start && startIndex <= end) {
         const offsetStartIndex = startIndex - start;
         const offsetEndIndex = Math.min(endIndex, end) - start;
         const partToReplace = run.text.substring(offsetStartIndex, offsetEndIndex + 1);
         if (partToReplace === "") continue;
-        const firstPart = text30.replace(partToReplace, replacementText);
-        patchTextElement(paragraphElement.elements[run.index].elements[index8], firstPart);
+        const firstPart = text33.replace(partToReplace, replacementText);
+        patchTextElement(paragraphElement.elements[run.index].elements[index11], firstPart);
         replaceMode = ReplaceMode.MIDDLE;
         continue;
       }
       break;
     case ReplaceMode.MIDDLE:
       if (endIndex <= end) {
-        const lastPart = text30.substring(endIndex - start + 1);
-        patchTextElement(paragraphElement.elements[run.index].elements[index8], lastPart);
-        const currentElement = paragraphElement.elements[run.index].elements[index8];
-        paragraphElement.elements[run.index].elements[index8] = patchSpaceAttribute(currentElement);
+        const lastPart = text33.substring(endIndex - start + 1);
+        patchTextElement(paragraphElement.elements[run.index].elements[index11], lastPart);
+        const currentElement = paragraphElement.elements[run.index].elements[index11];
+        paragraphElement.elements[run.index].elements[index11] = patchSpaceAttribute(currentElement);
         replaceMode = ReplaceMode.END;
-      } else patchTextElement(paragraphElement.elements[run.index].elements[index8], "");
+      } else patchTextElement(paragraphElement.elements[run.index].elements[index11], "");
       break;
     default:
   }
   return paragraphElement;
 };
-var patchTextElement = (element, text30) => {
-  element.elements = createTextElementContents(text30);
+var patchTextElement = (element, text33) => {
+  element.elements = createTextElementContents(text33);
   return element;
 };
 var renderParagraphNode = (node) => {
@@ -221517,7 +221722,7 @@ var renderParagraphNode = (node) => {
     pathToParagraph: buildNodePath(node)
   };
 };
-var renderRunNode = (node, index8, currentRunStringIndex) => {
+var renderRunNode = (node, index11, currentRunStringIndex) => {
   if (!node.elements) return {
     text: "",
     parts: [],
@@ -221542,7 +221747,7 @@ var renderRunNode = (node, index8, currentRunStringIndex) => {
   return {
     text: parts.reduce((acc, curr) => acc + curr.text, ""),
     parts,
-    index: index8,
+    index: index11,
     start: currentRunStringIndex,
     end: currentTextStringIndex
   };
@@ -221571,7 +221776,7 @@ var traverse = (node) => {
   }
   return renderedParagraphs;
 };
-var findLocationOfText = (node, text30) => traverse(node).filter((p) => p.text.includes(text30));
+var findLocationOfText = (node, text33) => traverse(node).filter((p) => p.text.includes(text33));
 var formatter = new Formatter();
 var SPLIT_TOKEN = "\u0275";
 var replacer = ({ json, patch, patchText, context, keepOriginalStyles = true }) => {
@@ -221598,8 +221803,8 @@ var replacer = ({ json, patch, patchText, context, keepOriginalStyles = true }) 
           originalText: patchText,
           replacementText: SPLIT_TOKEN
         });
-        const index8 = findRunElementIndexWithToken(paragraphElement, SPLIT_TOKEN);
-        const runElementToBeReplaced = paragraphElement.elements[index8];
+        const index11 = findRunElementIndexWithToken(paragraphElement, SPLIT_TOKEN);
+        const runElementToBeReplaced = paragraphElement.elements[index11];
         const { left, right } = splitRunElement(runElementToBeReplaced, SPLIT_TOKEN);
         let newRunElements = textJson;
         let patchedRightElement = right;
@@ -221611,7 +221816,7 @@ var replacer = ({ json, patch, patchText, context, keepOriginalStyles = true }) 
           });
           patchedRightElement = _objectSpread24(_objectSpread24({}, right), {}, { elements: [...runElementNonTextualElements, ...right.elements] });
         }
-        paragraphElement.elements.splice(index8, 1, left, ...newRunElements, patchedRightElement);
+        paragraphElement.elements.splice(index11, 1, left, ...newRunElements, patchedRightElement);
         break;
       }
     }
@@ -221624,8 +221829,8 @@ var replacer = ({ json, patch, patchText, context, keepOriginalStyles = true }) 
 var goToElementFromPath = (json, path3) => {
   let element = json;
   for (let i2 = 1; i2 < path3.length; i2++) {
-    const index8 = path3[i2];
-    element = element.elements[index8];
+    const index11 = path3[i2];
+    element = element.elements[index11];
   }
   return element;
 };
@@ -221742,12 +221947,12 @@ var patchDocument = (function() {
       const relationshipKey = `word/_rels/${key.split("/").pop()}.rels`;
       const relationshipsJson = (_map$get = map.get(relationshipKey)) !== null && _map$get !== void 0 ? _map$get : createRelationshipFile();
       map.set(relationshipKey, relationshipsJson);
-      const index8 = getNextRelationshipIndex(relationshipsJson);
-      const newJson = imageReplacer.replace(JSON.stringify(map.get(key)), mediaDatas, index8);
+      const index11 = getNextRelationshipIndex(relationshipsJson);
+      const newJson = imageReplacer.replace(JSON.stringify(map.get(key)), mediaDatas, index11);
       map.set(key, JSON.parse(newJson));
       for (let i2 = 0; i2 < mediaDatas.length; i2++) {
         const { fileName } = mediaDatas[i2];
-        appendRelationship(relationshipsJson, index8 + i2, "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image", `media/${fileName}`);
+        appendRelationship(relationshipsJson, index11 + i2, "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image", `media/${fileName}`);
       }
     }
     for (const { key, hyperlink } of hyperlinkRelationshipAdditions) {
@@ -221814,10 +222019,10 @@ var patchDetector = (function() {
     return _ref.apply(this, arguments);
   };
 })();
-var findPatchKeys = (text30) => {
+var findPatchKeys = (text33) => {
   var _text$match;
   const pattern2 = /* @__PURE__ */ new RegExp("(?<=\\{\\{).+?(?=\\}\\})", "gs");
-  return (_text$match = text30.match(pattern2)) !== null && _text$match !== void 0 ? _text$match : [];
+  return (_text$match = text33.match(pattern2)) !== null && _text$match !== void 0 ? _text$match : [];
 };
 
 // src/lib/docx-export.ts
@@ -221878,7 +222083,7 @@ function parseOutlineToHeadings(outline) {
   }
   return headings;
 }
-function makeHeading(text30, level) {
+function makeHeading(text33, level) {
   const headingLevel = [
     HeadingLevel.HEADING_1,
     HeadingLevel.HEADING_2,
@@ -221888,18 +222093,18 @@ function makeHeading(text30, level) {
     HeadingLevel.HEADING_6
   ][Math.min(level - 1, 5)];
   return new Paragraph({
-    text: text30,
+    text: text33,
     heading: headingLevel,
     spacing: { before: 240, after: 120 }
   });
 }
-function makeParagraph(text30) {
+function makeParagraph(text33) {
   return new Paragraph({
-    children: [new TextRun({ text: text30, size: 24 })],
+    children: [new TextRun({ text: text33, size: 24 })],
     spacing: { before: 0, after: 120 }
   });
 }
-function makeReferenceItem(ref, index8) {
+function makeReferenceItem(ref, index11) {
   return new Paragraph({
     children: [
       new TextRun({ text: formatReferenceAPA(ref), size: 22 })
@@ -221987,11 +222192,11 @@ async function generateDocx(projectTitle, documents, references, options) {
         if (block.match(/^[-*]\s+/m)) {
           const items = block.split(/\n/).filter((l) => l.match(/^[-*]\s+/));
           for (const item of items) {
-            const text30 = item.replace(/^[-*]\s+/, "").trim();
+            const text33 = item.replace(/^[-*]\s+/, "").trim();
             sections.push(
               new Paragraph({
                 children: [
-                  new TextRun({ text: `\u2022 ${text30}`, size: 24 })
+                  new TextRun({ text: `\u2022 ${text33}`, size: 24 })
                 ],
                 indent: { left: convertInchesToTwip(0.25) },
                 spacing: { before: 60, after: 60 }
@@ -222887,17 +223092,17 @@ var LazyArrayValue = class {
     this.base = this.stream.pos;
     this.items = [];
   }
-  get(index8) {
-    if (index8 < 0 || index8 >= this.length) {
+  get(index11) {
+    if (index11 < 0 || index11 >= this.length) {
       return void 0;
     }
-    if (this.items[index8] == null) {
+    if (this.items[index11] == null) {
       const { pos } = this.stream;
-      this.stream.pos = this.base + this.type.size(null, this.ctx) * index8;
-      this.items[index8] = this.type.decode(this.stream, this.ctx);
+      this.stream.pos = this.base + this.type.size(null, this.ctx) * index11;
+      this.items[index11] = this.type.decode(this.stream, this.ctx);
       this.stream.pos = pos;
     }
-    return this.items[index8];
+    return this.items[index11];
   }
   toArray() {
     const result = [];
@@ -226710,8 +226915,8 @@ var $b84fd3dd9d8eddb2$var$PredefinedOp = class {
     return this.type.size(value, ctx);
   }
   encode(stream2, value, ctx) {
-    let index8 = this.predefinedOps.indexOf(value);
-    if (index8 !== -1) return index8;
+    let index11 = this.predefinedOps.indexOf(value);
+    if (index11 !== -1) return index11;
     return this.type.encode(stream2, value, ctx);
   }
   constructor(predefinedOps, type) {
@@ -228214,14 +228419,14 @@ var $3793b781918cfced$export$2e2bcd8739ae039 = new Struct({
   segment: new ArrayT($3793b781918cfced$var$Segment, "axisCount")
 });
 var $6cb7dd5f47d82580$var$UnboundedArrayAccessor = class {
-  getItem(index8) {
-    if (this._items[index8] == null) {
+  getItem(index11) {
+    if (this._items[index11] == null) {
       let pos = this.stream.pos;
-      this.stream.pos = this.base + this.type.size(null, this.parent) * index8;
-      this._items[index8] = this.type.decode(this.stream, this.parent);
+      this.stream.pos = this.base + this.type.size(null, this.parent) * index11;
+      this._items[index11] = this.type.decode(this.stream, this.parent);
       this.stream.pos = pos;
     }
-    return this._items[index8];
+    return this._items[index11];
   }
   inspect() {
     return `[UnboundedArray ${this.type.constructor.name}]`;
@@ -228701,9 +228906,9 @@ function $12727730ddfc8bfe$export$2e0ae67339d5f1ac(arr, cmp) {
   }
   return -1;
 }
-function $12727730ddfc8bfe$export$d02631cccf789723(index8, end) {
+function $12727730ddfc8bfe$export$d02631cccf789723(index11, end) {
   let range = [];
-  while (index8 < end) range.push(index8++);
+  while (index11 < end) range.push(index11++);
   return range;
 }
 var $12727730ddfc8bfe$export$3d28c1996ced1f14 = new TextDecoder("ascii");
@@ -228758,8 +228963,8 @@ var $f08dd41ef10b694c$export$2e2bcd8739ae039 = class {
             let gid;
             if (rangeOffset === 0) gid = codepoint + cmap.idDelta.get(mid);
             else {
-              let index8 = rangeOffset / 2 + (codepoint - cmap.startCode.get(mid)) - (cmap.segCount - mid);
-              gid = cmap.glyphIndexArray.get(index8) || 0;
+              let index11 = rangeOffset / 2 + (codepoint - cmap.startCode.get(mid)) - (cmap.segCount - mid);
+              gid = cmap.glyphIndexArray.get(index11) || 0;
               if (gid !== 0) gid += cmap.idDelta.get(mid);
             }
             return gid & 65535;
@@ -228857,8 +229062,8 @@ var $f08dd41ef10b694c$export$2e2bcd8739ae039 = class {
             let g = 0;
             if (rangeOffset === 0) g = c + delta;
             else {
-              let index8 = rangeOffset / 2 + (c - start) - (cmap.segCount - i2);
-              g = cmap.glyphIndexArray.get(index8) || 0;
+              let index11 = rangeOffset / 2 + (c - start) - (cmap.segCount - i2);
+              g = cmap.glyphIndexArray.get(index11) || 0;
               if (g !== 0) g += delta;
             }
             if (g === gid) res.push(c);
@@ -228978,8 +229183,8 @@ var $0bba3a9db57637f3$export$2e2bcd8739ae039 = class {
           if (left >= s2.leftTable.firstGlyph && left < s2.leftTable.firstGlyph + s2.leftTable.nGlyphs) leftOffset = s2.leftTable.offsets[left - s2.leftTable.firstGlyph];
           else leftOffset = s2.array.off;
           if (right >= s2.rightTable.firstGlyph && right < s2.rightTable.firstGlyph + s2.rightTable.nGlyphs) rightOffset = s2.rightTable.offsets[right - s2.rightTable.firstGlyph];
-          let index8 = (leftOffset + rightOffset - s2.array.off) / 2;
-          val = s2.array.values.get(index8);
+          let index11 = (leftOffset + rightOffset - s2.array.off) / 2;
+          val = s2.array.values.get(index11);
           break;
         case 3:
           if (left >= s2.glyphCount || right >= s2.glyphCount) return 0;
@@ -229001,12 +229206,12 @@ var $0a4bdfeb6dfd6f5e$export$2e2bcd8739ae039 = class {
   positionGlyphs(glyphs, positions) {
     let clusterStart = 0;
     let clusterEnd = 0;
-    for (let index8 = 0; index8 < glyphs.length; index8++) {
-      let glyph = glyphs[index8];
-      if (glyph.isMark) clusterEnd = index8;
+    for (let index11 = 0; index11 < glyphs.length; index11++) {
+      let glyph = glyphs[index11];
+      if (glyph.isMark) clusterEnd = index11;
       else {
         if (clusterStart !== clusterEnd) this.positionCluster(glyphs, positions, clusterStart, clusterEnd);
-        clusterStart = clusterEnd = index8;
+        clusterStart = clusterEnd = index11;
       }
     }
     if (clusterStart !== clusterEnd) this.positionCluster(glyphs, positions, clusterStart, clusterEnd);
@@ -229020,10 +229225,10 @@ var $0a4bdfeb6dfd6f5e$export$2e2bcd8739ae039 = class {
     let xOffset = -positions[clusterStart].xAdvance;
     let yOffset = 0;
     let yGap = this.font.unitsPerEm / 16;
-    for (let index8 = clusterStart + 1; index8 <= clusterEnd; index8++) {
-      let mark = glyphs[index8];
+    for (let index11 = clusterStart + 1; index11 <= clusterEnd; index11++) {
+      let mark = glyphs[index11];
       let markBox = mark.cbox;
-      let position = positions[index8];
+      let position = positions[index11];
       let combiningClass = this.getCombiningClass(mark.codePoints[0]);
       if (combiningClass !== "Not_Reordered") {
         position.xOffset = position.yOffset = 0;
@@ -229454,9 +229659,9 @@ var $be07b3e97a42687a$export$2e2bcd8739ae039 = class {
     let bbox = new (0, $f34600ab9d7f70d8$export$2e2bcd8739ae039)();
     let x2 = 0;
     let y = 0;
-    for (let index8 = 0; index8 < this.glyphs.length; index8++) {
-      let glyph = this.glyphs[index8];
-      let p = this.positions[index8];
+    for (let index11 = 0; index11 < this.glyphs.length; index11++) {
+      let glyph = this.glyphs[index11];
+      let p = this.positions[index11];
       let b = glyph.bbox;
       bbox.addPoint(b.minX + x2 + p.xOffset, b.minY + y + p.yOffset);
       bbox.addPoint(b.maxX + x2 + p.xOffset, b.maxY + y + p.yOffset);
@@ -230030,7 +230235,7 @@ var $ff5ce077dae0f144$export$2e2bcd8739ae039 = class {
       case 4:
         for (let segment of this.table.segments) if (this.table.version === 2 && segment.value === classValue) res.push(...(0, $12727730ddfc8bfe$export$d02631cccf789723)(segment.firstGlyph, segment.lastGlyph + 1));
         else {
-          for (let index8 = 0; index8 < segment.values.length; index8++) if (segment.values[index8] === classValue) res.push(segment.firstGlyph + index8);
+          for (let index11 = 0; index11 < segment.values.length; index11++) if (segment.values[index11] === classValue) res.push(segment.firstGlyph + index11);
         }
         break;
       case 6:
@@ -230059,15 +230264,15 @@ var $50c7aac9316f2948$var$DONT_ADVANCE = 16384;
 var $50c7aac9316f2948$export$2e2bcd8739ae039 = class {
   process(glyphs, reverse, processEntry) {
     let currentState = $50c7aac9316f2948$var$START_OF_TEXT_STATE;
-    let index8 = reverse ? glyphs.length - 1 : 0;
+    let index11 = reverse ? glyphs.length - 1 : 0;
     let dir = reverse ? -1 : 1;
-    while (dir === 1 && index8 <= glyphs.length || dir === -1 && index8 >= -1) {
+    while (dir === 1 && index11 <= glyphs.length || dir === -1 && index11 >= -1) {
       let glyph = null;
       let classCode = $50c7aac9316f2948$var$OUT_OF_BOUNDS_CLASS;
       let shouldAdvance = true;
-      if (index8 === glyphs.length || index8 === -1) classCode = $50c7aac9316f2948$var$END_OF_TEXT_CLASS;
+      if (index11 === glyphs.length || index11 === -1) classCode = $50c7aac9316f2948$var$END_OF_TEXT_CLASS;
       else {
-        glyph = glyphs[index8];
+        glyph = glyphs[index11];
         if (glyph.id === 65535) classCode = $50c7aac9316f2948$var$DELETED_GLYPH_CLASS;
         else {
           classCode = this.lookupTable.lookup(glyph.id);
@@ -230078,11 +230283,11 @@ var $50c7aac9316f2948$export$2e2bcd8739ae039 = class {
       let entryIndex = row[classCode];
       let entry = this.stateTable.entryTable.getItem(entryIndex);
       if (classCode !== $50c7aac9316f2948$var$END_OF_TEXT_CLASS && classCode !== $50c7aac9316f2948$var$DELETED_GLYPH_CLASS) {
-        processEntry(glyph, entry, index8);
+        processEntry(glyph, entry, index11);
         shouldAdvance = !(entry.flags & $50c7aac9316f2948$var$DONT_ADVANCE);
       }
       currentState = entry.newState;
-      if (shouldAdvance) index8 += dir;
+      if (shouldAdvance) index11 += dir;
     }
     return glyphs;
   }
@@ -230144,10 +230349,10 @@ var $55f71433a605c87d$export$2e2bcd8739ae039 = class {
       }
       for (let subtable of chain.subtables) if (subtable.subFeatureFlags & flags) this.processSubtable(subtable, glyphs);
     }
-    let index8 = glyphs.length - 1;
-    while (index8 >= 0) {
-      if (glyphs[index8].id === 65535) glyphs.splice(index8, 1);
-      index8--;
+    let index11 = glyphs.length - 1;
+    while (index11 >= 0) {
+      if (glyphs[index11].id === 65535) glyphs.splice(index11, 1);
+      index11--;
     }
     return glyphs;
   }
@@ -230187,12 +230392,12 @@ var $55f71433a605c87d$export$2e2bcd8739ae039 = class {
         throw new Error(`Invalid morx subtable type: ${this.subtable.type}`);
     }
   }
-  processIndicRearragement(glyph, entry, index8) {
-    if (entry.flags & $55f71433a605c87d$var$MARK_FIRST) this.firstGlyph = index8;
-    if (entry.flags & $55f71433a605c87d$var$MARK_LAST) this.lastGlyph = index8;
+  processIndicRearragement(glyph, entry, index11) {
+    if (entry.flags & $55f71433a605c87d$var$MARK_FIRST) this.firstGlyph = index11;
+    if (entry.flags & $55f71433a605c87d$var$MARK_LAST) this.lastGlyph = index11;
     $55f71433a605c87d$var$reorderGlyphs(this.glyphs, entry.flags & $55f71433a605c87d$var$VERB, this.firstGlyph, this.lastGlyph);
   }
-  processContextualSubstitution(glyph, entry, index8) {
+  processContextualSubstitution(glyph, entry, index11) {
     let subsitutions = this.subtable.table.substitutionTable.items;
     if (entry.markIndex !== 65535) {
       let lookup = subsitutions.getItem(entry.markIndex);
@@ -230204,14 +230409,14 @@ var $55f71433a605c87d$export$2e2bcd8739ae039 = class {
     if (entry.currentIndex !== 65535) {
       let lookup = subsitutions.getItem(entry.currentIndex);
       let lookupTable = new (0, $ff5ce077dae0f144$export$2e2bcd8739ae039)(lookup);
-      glyph = this.glyphs[index8];
+      glyph = this.glyphs[index11];
       var gid = lookupTable.lookup(glyph.id);
-      if (gid) this.glyphs[index8] = this.font.getGlyph(gid, glyph.codePoints);
+      if (gid) this.glyphs[index11] = this.font.getGlyph(gid, glyph.codePoints);
     }
-    if (entry.flags & $55f71433a605c87d$var$SET_MARK) this.markedGlyph = index8;
+    if (entry.flags & $55f71433a605c87d$var$SET_MARK) this.markedGlyph = index11;
   }
-  processLigature(glyph, entry, index8) {
-    if (entry.flags & $55f71433a605c87d$var$SET_COMPONENT) this.ligatureStack.push(index8);
+  processLigature(glyph, entry, index11) {
+    if (entry.flags & $55f71433a605c87d$var$SET_COMPONENT) this.ligatureStack.push(index11);
     if (entry.flags & $55f71433a605c87d$var$PERFORM_ACTION) {
       let actions = this.subtable.table.ligatureActions;
       let components = this.subtable.table.components;
@@ -230242,13 +230447,13 @@ var $55f71433a605c87d$export$2e2bcd8739ae039 = class {
       this.ligatureStack.push(...ligatureGlyphs);
     }
   }
-  processNoncontextualSubstitutions(subtable, glyphs, index8) {
+  processNoncontextualSubstitutions(subtable, glyphs, index11) {
     let lookupTable = new (0, $ff5ce077dae0f144$export$2e2bcd8739ae039)(subtable.table.lookupTable);
-    for (index8 = 0; index8 < glyphs.length; index8++) {
-      let glyph = glyphs[index8];
+    for (index11 = 0; index11 < glyphs.length; index11++) {
+      let glyph = glyphs[index11];
       if (glyph.id !== 65535) {
         let gid = lookupTable.lookup(glyph.id);
-        if (gid) glyphs[index8] = this.font.getGlyph(gid, glyph.codePoints);
+        if (gid) glyphs[index11] = this.font.getGlyph(gid, glyph.codePoints);
       }
     }
   }
@@ -230261,8 +230466,8 @@ var $55f71433a605c87d$export$2e2bcd8739ae039 = class {
     if (!isBefore) glyphIndex++;
     this.glyphs.splice(glyphIndex, 0, ...insertions);
   }
-  processGlyphInsertion(glyph, entry, index8) {
-    if (entry.flags & $55f71433a605c87d$var$SET_MARK) this.markedIndex = index8;
+  processGlyphInsertion(glyph, entry, index11) {
+    if (entry.flags & $55f71433a605c87d$var$SET_MARK) this.markedIndex = index11;
     if (entry.markedInsertIndex !== 65535) {
       let count3 = (entry.flags & $55f71433a605c87d$var$MARKED_INSERT_COUNT) >>> 5;
       let isBefore = !!(entry.flags & $55f71433a605c87d$var$MARKED_INSERT_BEFORE);
@@ -230271,7 +230476,7 @@ var $55f71433a605c87d$export$2e2bcd8739ae039 = class {
     if (entry.currentInsertIndex !== 65535) {
       let count3 = (entry.flags & $55f71433a605c87d$var$CURRENT_INSERT_COUNT) >>> 5;
       let isBefore = !!(entry.flags & $55f71433a605c87d$var$CURRENT_INSERT_BEFORE);
-      this._insertGlyphs(index8, entry.currentInsertIndex, count3, isBefore);
+      this._insertGlyphs(index11, entry.currentInsertIndex, count3, isBefore);
     }
   }
   getSupportedFeatures() {
@@ -230501,11 +230706,11 @@ var $ba6dd74203be8728$export$2e2bcd8739ae039 = class {
     for (let glyphs of glyphStrings) this._addStrings(glyphs, 0, result, "");
     return result;
   }
-  _addStrings(glyphs, index8, strings, string2) {
-    let codePoints = this.font._cmapProcessor.codePointsForGlyph(glyphs[index8]);
+  _addStrings(glyphs, index11, strings, string2) {
+    let codePoints = this.font._cmapProcessor.codePointsForGlyph(glyphs[index11]);
     for (let codePoint of codePoints) {
       let s2 = string2 + String.fromCodePoint(codePoint);
-      if (index8 < glyphs.length - 1) this._addStrings(glyphs, index8 + 1, strings, s2);
+      if (index11 < glyphs.length - 1) this._addStrings(glyphs, index11 + 1, strings, s2);
       else strings.add(s2);
     }
   }
@@ -230964,10 +231169,10 @@ var $764eb544bbe1ccf0$export$2e2bcd8739ae039 = class extends (0, $649970d87335b3
       actions[i2] = curAction;
       prev = i2;
     }
-    for (let index8 = 0; index8 < glyphs.length; index8++) {
+    for (let index11 = 0; index11 < glyphs.length; index11++) {
       let feature;
-      var glyph = glyphs[index8];
-      if (feature = actions[index8]) glyph.features[feature] = true;
+      var glyph = glyphs[index11];
+      if (feature = actions[index11]) glyph.features[feature] = true;
     }
   }
 };
@@ -230979,11 +231184,11 @@ function $764eb544bbe1ccf0$var$getShapingClass(codePoint) {
   return $764eb544bbe1ccf0$var$ShapingClasses.Non_Joining;
 }
 var $85d408632270248b$export$2e2bcd8739ae039 = class {
-  reset(options = {}, index8 = 0) {
+  reset(options = {}, index11 = 0) {
     this.options = options;
     this.flags = options.flags || {};
     this.markAttachmentType = options.markAttachmentType || 0;
-    this.index = index8;
+    this.index = index11;
   }
   get cur() {
     return this.glyphs[this.index] || null;
@@ -231221,21 +231426,21 @@ var $a83b9c36aaa94fd3$export$2e2bcd8739ae039 = class {
     return this.match(sequenceIndex, sequence, (classID, glyph) => classID === this.getClassID(glyph.id, classDef));
   }
   applyContext(table2) {
-    let index8, set;
+    let index11, set;
     switch (table2.version) {
       case 1:
-        index8 = this.coverageIndex(table2.coverage);
-        if (index8 === -1) return false;
-        set = table2.ruleSets[index8];
+        index11 = this.coverageIndex(table2.coverage);
+        if (index11 === -1) return false;
+        set = table2.ruleSets[index11];
         for (let rule of set) {
           if (this.sequenceMatches(1, rule.input)) return this.applyLookupList(rule.lookupRecords);
         }
         break;
       case 2:
         if (this.coverageIndex(table2.coverage) === -1) return false;
-        index8 = this.getClassID(this.glyphIterator.cur.id, table2.classDef);
-        if (index8 === -1) return false;
-        set = table2.classSet[index8];
+        index11 = this.getClassID(this.glyphIterator.cur.id, table2.classDef);
+        if (index11 === -1) return false;
+        set = table2.classSet[index11];
         for (let rule of set) {
           if (this.classSequenceMatches(1, rule.classes, table2.classDef)) return this.applyLookupList(rule.lookupRecords);
         }
@@ -231247,20 +231452,20 @@ var $a83b9c36aaa94fd3$export$2e2bcd8739ae039 = class {
     return false;
   }
   applyChainingContext(table2) {
-    let index8;
+    let index11;
     switch (table2.version) {
       case 1:
-        index8 = this.coverageIndex(table2.coverage);
-        if (index8 === -1) return false;
-        let set = table2.chainRuleSets[index8];
+        index11 = this.coverageIndex(table2.coverage);
+        if (index11 === -1) return false;
+        let set = table2.chainRuleSets[index11];
         for (let rule of set) {
           if (this.sequenceMatches(-rule.backtrack.length, rule.backtrack) && this.sequenceMatches(1, rule.input) && this.sequenceMatches(1 + rule.input.length, rule.lookahead)) return this.applyLookupList(rule.lookupRecords);
         }
         break;
       case 2:
         if (this.coverageIndex(table2.coverage) === -1) return false;
-        index8 = this.getClassID(this.glyphIterator.cur.id, table2.inputClassDef);
-        let rules = table2.chainClassSet[index8];
+        index11 = this.getClassID(this.glyphIterator.cur.id, table2.inputClassDef);
+        let rules = table2.chainClassSet[index11];
         if (!rules) return false;
         for (let rule of rules) {
           if (this.classSequenceMatches(-rule.backtrack.length, rule.backtrack, table2.backtrackClassDef) && this.classSequenceMatches(1, rule.input, table2.inputClassDef) && this.classSequenceMatches(1 + rule.input.length, rule.lookahead, table2.lookaheadClassDef)) return this.applyLookupList(rule.lookupRecords);
@@ -232448,23 +232653,23 @@ var $0a876c45f1f7c41c$export$2e2bcd8739ae039 = class extends (0, $a83b9c36aaa94f
   applyLookup(lookupType, table2) {
     switch (lookupType) {
       case 1: {
-        let index8 = this.coverageIndex(table2.coverage);
-        if (index8 === -1) return false;
+        let index11 = this.coverageIndex(table2.coverage);
+        if (index11 === -1) return false;
         let glyph = this.glyphIterator.cur;
         switch (table2.version) {
           case 1:
             glyph.id = glyph.id + table2.deltaGlyphID & 65535;
             break;
           case 2:
-            glyph.id = table2.substitute.get(index8);
+            glyph.id = table2.substitute.get(index11);
             break;
         }
         return true;
       }
       case 2: {
-        let index8 = this.coverageIndex(table2.coverage);
-        if (index8 !== -1) {
-          let sequence = table2.sequences.get(index8);
+        let index11 = this.coverageIndex(table2.coverage);
+        if (index11 !== -1) {
+          let sequence = table2.sequences.get(index11);
           if (sequence.length === 0) {
             this.glyphs.splice(this.glyphIterator.index, 1);
             return true;
@@ -232488,23 +232693,23 @@ var $0a876c45f1f7c41c$export$2e2bcd8739ae039 = class extends (0, $a83b9c36aaa94f
         return false;
       }
       case 3: {
-        let index8 = this.coverageIndex(table2.coverage);
-        if (index8 !== -1) {
+        let index11 = this.coverageIndex(table2.coverage);
+        if (index11 !== -1) {
           let USER_INDEX = 0;
-          this.glyphIterator.cur.id = table2.alternateSet.get(index8)[USER_INDEX];
+          this.glyphIterator.cur.id = table2.alternateSet.get(index11)[USER_INDEX];
           return true;
         }
         return false;
       }
       case 4: {
-        let index8 = this.coverageIndex(table2.coverage);
-        if (index8 === -1) return false;
-        for (let ligature of table2.ligatureSets.get(index8)) {
+        let index11 = this.coverageIndex(table2.coverage);
+        if (index11 === -1) return false;
+        for (let ligature of table2.ligatureSets.get(index11)) {
           let matched = this.sequenceMatchIndices(1, ligature.components);
           if (!matched) continue;
           let curGlyph = this.glyphIterator.cur;
           let characters2 = curGlyph.codePoints.slice();
-          for (let index9 of matched) characters2.push(...this.glyphs[index9].codePoints);
+          for (let index12 of matched) characters2.push(...this.glyphs[index12].codePoints);
           let ligatureGlyph = new (0, $10e7b257e1a9a756$export$2e2bcd8739ae039)(this.font, ligature.glyph, characters2, curGlyph.features);
           ligatureGlyph.shaperInfo = curGlyph.shaperInfo;
           ligatureGlyph.isLigated = true;
@@ -232571,14 +232776,14 @@ var $c96c93587d49c14d$export$2e2bcd8739ae039 = class extends (0, $a83b9c36aaa94f
   applyLookup(lookupType, table2) {
     switch (lookupType) {
       case 1: {
-        let index8 = this.coverageIndex(table2.coverage);
-        if (index8 === -1) return false;
+        let index11 = this.coverageIndex(table2.coverage);
+        if (index11 === -1) return false;
         switch (table2.version) {
           case 1:
             this.applyPositionValue(0, table2.value);
             break;
           case 2:
-            this.applyPositionValue(0, table2.values.get(index8));
+            this.applyPositionValue(0, table2.values.get(index11));
             break;
         }
         return true;
@@ -232586,11 +232791,11 @@ var $c96c93587d49c14d$export$2e2bcd8739ae039 = class extends (0, $a83b9c36aaa94f
       case 2: {
         let nextGlyph = this.glyphIterator.peek();
         if (!nextGlyph) return false;
-        let index8 = this.coverageIndex(table2.coverage);
-        if (index8 === -1) return false;
+        let index11 = this.coverageIndex(table2.coverage);
+        if (index11 === -1) return false;
         switch (table2.version) {
           case 1:
-            let set = table2.pairSets.get(index8);
+            let set = table2.pairSets.get(index11);
             for (let pair2 of set) if (pair2.secondGlyph === nextGlyph.id) {
               this.applyPositionValue(0, pair2.value1);
               this.applyPositionValue(1, pair2.value2);
@@ -233856,7 +234061,7 @@ var $62cc5109c6101893$export$2e2bcd8739ae039 = class extends (0, $f92906be28e617
       while (stream2.pos < end) {
         let op = stream2.readUInt8();
         if (op < 32) {
-          let index8, subr, phase;
+          let index11, subr, phase;
           let c1x, c1y, c2x, c2y, c3x, c3y;
           let c4x, c4y, c5x, c5y, c6x, c6y;
           let pts;
@@ -233901,10 +234106,10 @@ var $62cc5109c6101893$export$2e2bcd8739ae039 = class extends (0, $f92906be28e617
               }
               break;
             case 10:
-              index8 = stack.pop() + subrsBias;
-              subr = subrs[index8];
+              index11 = stack.pop() + subrsBias;
+              subr = subrs[index11];
               if (subr) {
-                usedSubrs[index8] = true;
+                usedSubrs[index11] = true;
                 let p = stream2.pos;
                 let e2 = end;
                 stream2.pos = subr.offset;
@@ -234017,10 +234222,10 @@ var $62cc5109c6101893$export$2e2bcd8739ae039 = class extends (0, $f92906be28e617
               stack.push(stream2.readInt16BE());
               break;
             case 29:
-              index8 = stack.pop() + gsubrsBias;
-              subr = gsubrs[index8];
+              index11 = stack.pop() + gsubrsBias;
+              subr = gsubrs[index11];
               if (subr) {
-                usedGsubrs[index8] = true;
+                usedGsubrs[index11] = true;
                 let p = stream2.pos;
                 let e2 = end;
                 stream2.pos = subr.offset;
@@ -235653,7 +235858,7 @@ var $21ee218f84ac7f32$export$2e2bcd8739ae039 = class extends (0, $4c1709dee528ea
     this.stream.pos = this.directory.tables.glyf.offset;
     let table2 = $21ee218f84ac7f32$var$GlyfTable.decode(this.stream);
     let glyphs = [];
-    for (let index8 = 0; index8 < table2.numGlyphs; index8++) {
+    for (let index11 = 0; index11 < table2.numGlyphs; index11++) {
       let glyph = {};
       let nContours = table2.nContours.readInt16BE();
       glyph.numberOfContours = nContours;
@@ -237287,12 +237492,12 @@ var PNG = class _PNG {
           }
           break;
         case "tEXt":
-          var text30 = this.read(chunkSize);
-          var index8 = text30.indexOf(0);
-          var key = String.fromCharCode.apply(String, text30.slice(0, index8));
+          var text33 = this.read(chunkSize);
+          var index11 = text33.indexOf(0);
+          var key = String.fromCharCode.apply(String, text33.slice(0, index11));
           this.text[key] = String.fromCharCode.apply(
             String,
-            text30.slice(index8 + 1)
+            text33.slice(index11 + 1)
           );
           break;
         case "IEND":
@@ -238356,12 +238561,12 @@ var shiftsL160 = idxL.map((idx, i2) => idx.map((j) => shifts160[i2][j]));
 var shiftsR160 = idxR.map((idx, i2) => idx.map((j) => shifts160[i2][j]));
 var Kl160 = Uint32Array.from([0, 1518500249, 1859775393, 2400959708, 2840853838]);
 var Kr160 = Uint32Array.from([1352829926, 1548603684, 1836072691, 2053994217, 0]);
-function ripemd_f(group, x2, y, z9) {
-  if (group === 0) return x2 ^ y ^ z9;
-  if (group === 1) return x2 & y | ~x2 & z9;
-  if (group === 2) return (x2 | ~y) ^ z9;
-  if (group === 3) return x2 & z9 | y & ~z9;
-  return x2 ^ (y | ~z9);
+function ripemd_f(group, x2, y, z11) {
+  if (group === 0) return x2 ^ y ^ z11;
+  if (group === 1) return x2 & y | ~x2 & z11;
+  if (group === 2) return (x2 | ~y) ^ z11;
+  if (group === 3) return x2 & z11 | y & ~z11;
+  return x2 ^ (y | ~z11);
 }
 var BUF_160 = new Uint32Array(16);
 var RIPEMD160 = class extends HashMD {
@@ -239247,18 +239452,18 @@ function getEncryptedPermissionsR5(permissions, encryptionKey, generateRandomWor
 function processPasswordR2R3R4(password = "") {
   const out = new Uint8Array(32);
   const length = password.length;
-  let index8 = 0;
-  while (index8 < length && index8 < 32) {
-    const code = password.charCodeAt(index8);
+  let index11 = 0;
+  while (index11 < length && index11 < 32) {
+    const code = password.charCodeAt(index11);
     if (code > 255) {
       throw new Error("Password contains one or more invalid characters.");
     }
-    out[index8] = code;
-    index8++;
+    out[index11] = code;
+    index11++;
   }
-  while (index8 < 32) {
-    out[index8] = PASSWORD_PADDING[index8 - length];
-    index8++;
+  while (index11 < 32) {
+    out[index11] = PASSWORD_PADDING[index11 - length];
+    index11++;
   }
   return out;
 }
@@ -240691,12 +240896,12 @@ var AFMFont = class {
     this.capHeight = data.capHeight;
     this.lineGap = this.bbox[3] - this.bbox[1] - (this.ascender - this.descender);
     const glyphNames = data.glyphNames.split(" ");
-    this.glyphWidths = Object.fromEntries(glyphNames.map((name, index8) => [name, data.glyphWidths[index8]]));
+    this.glyphWidths = Object.fromEntries(glyphNames.map((name, index11) => [name, data.glyphWidths[index11]]));
     this.kernPairs = {};
-    for (let index8 = 0; index8 < data.kernPairs.length; index8 += 2) {
-      const amount = data.kernPairs[index8];
+    for (let index11 = 0; index11 < data.kernPairs.length; index11 += 2) {
+      const amount = data.kernPairs[index11];
       let pairId = 0;
-      for (const delta of data.kernPairs[index8 + 1]) {
+      for (const delta of data.kernPairs[index11 + 1]) {
         pairId += delta;
         const left = Math.floor(pairId / glyphNames.length);
         const right = pairId % glyphNames.length;
@@ -240704,10 +240909,10 @@ var AFMFont = class {
       }
     }
   }
-  encodeText(text30) {
+  encodeText(text33) {
     const res = [];
-    for (let i2 = 0, len = text30.length; i2 < len; i2++) {
-      let char = text30.charCodeAt(i2);
+    for (let i2 = 0, len = text33.length; i2 < len; i2++) {
+      let char = text33.charCodeAt(i2);
       char = WIN_ANSI_MAP[char] || char;
       res.push(char.toString(16));
     }
@@ -240732,9 +240937,9 @@ var AFMFont = class {
   }
   advancesForGlyphs(glyphs) {
     const advances = [];
-    for (let index8 = 0; index8 < glyphs.length; index8++) {
-      const left = glyphs[index8];
-      const right = glyphs[index8 + 1];
+    for (let index11 = 0; index11 < glyphs.length; index11++) {
+      const left = glyphs[index11];
+      const right = glyphs[index11 + 1];
       advances.push(this.widthOfGlyph(left) + this.getKernPair(left, right));
     }
     return advances;
@@ -240792,9 +240997,9 @@ var StandardFont = class extends PDFFont {
     };
     return this.dictionary.end();
   }
-  encode(text30) {
-    const encoded = this.font.encodeText(text30);
-    const glyphs = this.font.glyphsForString(`${text30}`);
+  encode(text33) {
+    const encoded = this.font.encodeText(text33);
+    const glyphs = this.font.glyphsForString(`${text33}`);
     const advances = this.font.advancesForGlyphs(glyphs);
     const positions = [];
     for (let i2 = 0; i2 < glyphs.length; i2++) {
@@ -240844,8 +241049,8 @@ var EmbeddedFont = class extends PDFFont {
       this.layoutCache = /* @__PURE__ */ Object.create(null);
     }
   }
-  layoutRun(text30, features) {
-    const run = this.font.layout(text30, features);
+  layoutRun(text33, features) {
+    const run = this.font.layout(text33, features);
     for (let i2 = 0; i2 < run.positions.length; i2++) {
       const position = run.positions[i2];
       for (let key in position) {
@@ -240855,39 +241060,39 @@ var EmbeddedFont = class extends PDFFont {
     }
     return run;
   }
-  layoutCached(text30) {
+  layoutCached(text33) {
     if (!this.layoutCache) {
-      return this.layoutRun(text30);
+      return this.layoutRun(text33);
     }
     let cached2;
-    if (cached2 = this.layoutCache[text30]) {
+    if (cached2 = this.layoutCache[text33]) {
       return cached2;
     }
-    const run = this.layoutRun(text30);
-    this.layoutCache[text30] = run;
+    const run = this.layoutRun(text33);
+    this.layoutCache[text33] = run;
     return run;
   }
-  layout(text30, features, onlyWidth) {
+  layout(text33, features, onlyWidth) {
     if (features) {
-      return this.layoutRun(text30, features);
+      return this.layoutRun(text33, features);
     }
     let glyphs = onlyWidth ? null : [];
     let positions = onlyWidth ? null : [];
     let advanceWidth = 0;
     let last2 = 0;
-    let index8 = 0;
-    while (index8 <= text30.length) {
+    let index11 = 0;
+    while (index11 <= text33.length) {
       var needle;
-      if (index8 === text30.length && last2 < index8 || (needle = text30.charAt(index8), [" ", "	"].includes(needle))) {
-        const run = this.layoutCached(text30.slice(last2, ++index8));
+      if (index11 === text33.length && last2 < index11 || (needle = text33.charAt(index11), [" ", "	"].includes(needle))) {
+        const run = this.layoutCached(text33.slice(last2, ++index11));
         if (!onlyWidth) {
           glyphs = glyphs.concat(run.glyphs);
           positions = positions.concat(run.positions);
         }
         advanceWidth += run.advanceWidth;
-        last2 = index8;
+        last2 = index11;
       } else {
-        index8++;
+        index11++;
       }
     }
     return {
@@ -240896,11 +241101,11 @@ var EmbeddedFont = class extends PDFFont {
       advanceWidth
     };
   }
-  encode(text30, features) {
+  encode(text33, features) {
     const {
       glyphs,
       positions
-    } = this.layout(text30, features);
+    } = this.layout(text33, features);
     const res = [];
     for (let i2 = 0; i2 < glyphs.length; i2++) {
       const glyph = glyphs[i2];
@@ -241265,8 +241470,8 @@ var EventEmitter = class {
   off(event, listener) {
     const listeners = this._listeners[event];
     if (listeners) {
-      const index8 = listeners.indexOf(listener);
-      if (index8 !== -1) listeners.splice(index8, 1);
+      const index11 = listeners.indexOf(listener);
+      if (index11 !== -1) listeners.splice(index11, 1);
     }
     return this;
   }
@@ -241358,14 +241563,14 @@ var LineWrapper = class extends EventEmitter {
     }
     return w + this.wordWidth(HYPHEN) <= this.spaceLeft;
   }
-  eachWord(text30, fn) {
+  eachWord(text33, fn) {
     let bk;
-    const breaker = new $557adaaeb0c7885f$exports(text30);
+    const breaker = new $557adaaeb0c7885f$exports(text33);
     let last2 = null;
     const wordWidths = /* @__PURE__ */ Object.create(null);
     while (bk = breaker.nextBreak()) {
       var shouldContinue;
-      let word = text30.slice((last2 != null ? last2.position : void 0) || 0, bk.position);
+      let word = text33.slice((last2 != null ? last2.position : void 0) || 0, bk.position);
       let w = wordWidths[word] != null ? wordWidths[word] : wordWidths[word] = this.wordWidth(word);
       if (w > this.lineWidth + this.continuedX) {
         let lbk = last2;
@@ -241413,7 +241618,7 @@ var LineWrapper = class extends EventEmitter {
       last2 = bk;
     }
   }
-  wrap(text30, options) {
+  wrap(text33, options) {
     const {
       document: document2
     } = this;
@@ -241448,7 +241653,7 @@ var LineWrapper = class extends EventEmitter {
       return lc++;
     };
     this.emit("sectionStart", options, this);
-    this.eachWord(text30, (word, w, bk, last2) => {
+    this.eachWord(text33, (word, w, bk, last2) => {
       if (last2 == null || last2.required) {
         this.emit("firstLine", options, this);
         this.spaceLeft = this.lineWidth;
@@ -241566,8 +241771,8 @@ function formatListLabel(n, listType) {
   }
   var letter = String.fromCharCode((n - 1) % 26 + 65);
   var times = Math.floor((n - 1) / 26 + 1);
-  var text30 = Array(times + 1).join(letter);
-  return `${text30}.`;
+  var text33 = Array(times + 1).join(letter);
+  return `${text33}.`;
 }
 var TextMixin = {
   initText() {
@@ -241594,11 +241799,11 @@ var TextMixin = {
     this.y -= this.currentLineHeight(true) * lines + this._lineGap;
     return this;
   },
-  _text(text30, x2, y, options, lineCallback) {
+  _text(text33, x2, y, options, lineCallback) {
     options = this._initOptions(x2, y, options);
-    text30 = text30 == null ? "" : `${text30}`;
+    text33 = text33 == null ? "" : `${text33}`;
     if (options.wordSpacing) {
-      text30 = text30.replace(/\s{2,}/g, " ");
+      text33 = text33.replace(/\s{2,}/g, " ");
     }
     const addStructure = () => {
       if (options.structParent) {
@@ -241620,9 +241825,9 @@ var TextMixin = {
       }
       this._wrapper = options.continued ? wrapper : null;
       this._textOptions = options.continued ? options : null;
-      wrapper.wrap(text30, options);
+      wrapper.wrap(text33, options);
     } else {
-      for (let line of text30.split("\n")) {
+      for (let line of text33.split("\n")) {
         addStructure();
         lineCallback(line, options);
       }
@@ -241630,8 +241835,8 @@ var TextMixin = {
     if (options.rotation !== 0) this.restore();
     return this;
   },
-  text(text30, x2, y, options) {
-    return this._text(text30, x2, y, options, this._line);
+  text(text33, x2, y, options) {
+    return this._text(text33, x2, y, options, this._line);
   },
   widthOfString(string2, options = {}) {
     const horizontalScaling = options.horizontalScaling || 100;
@@ -241652,19 +241857,19 @@ var TextMixin = {
     }
     if (options.width) {
       let wrapper = new LineWrapper(this, options);
-      wrapper.on("line", (text30, options2) => {
+      wrapper.on("line", (text33, options2) => {
         this.y += lineHeight;
-        text30 = text30.replace(/\n/g, "");
-        if (text30.length) {
+        text33 = text33.replace(/\n/g, "");
+        if (text33.length) {
           let wordSpacing = options2.wordSpacing ?? 0;
           const characterSpacing = options2.characterSpacing ?? 0;
           if (options2.width && options2.align === "justify") {
-            const words = text30.trim().split(/\s+/);
-            const textWidth = this.widthOfString(text30.replace(/\s+/g, ""), options2);
+            const words = text33.trim().split(/\s+/);
+            const textWidth = this.widthOfString(text33.replace(/\s+/g, ""), options2);
             const spaceWidth = this.widthOfString(" ") + characterSpacing;
             wordSpacing = Math.max(0, (options2.lineWidth - textWidth) / Math.max(1, words.length - 1) - spaceWidth);
           }
-          contentWidth = Math.max(contentWidth, options2.textWidth + wordSpacing * (options2.wordCount - 1) + characterSpacing * (text30.length - 1));
+          contentWidth = Math.max(contentWidth, options2.textWidth + wordSpacing * (options2.wordCount - 1) + characterSpacing * (text33.length - 1));
         }
       });
       wrapper.wrap(string2, options);
@@ -241729,7 +241934,7 @@ var TextMixin = {
       height: yMax - yMin
     };
   },
-  heightOfString(text30, options) {
+  heightOfString(text33, options) {
     const {
       x: x2,
       y
@@ -241737,7 +241942,7 @@ var TextMixin = {
     options = this._initOptions(options);
     options.height = Infinity;
     const lineGap = options.lineGap || this._lineGap || 0;
-    this._text(text30, this.x, this.y, options, () => {
+    this._text(text33, this.x, this.y, options, () => {
       this.y += this.currentLineHeight(true) + lineGap;
     });
     const height = this.y - y;
@@ -241811,8 +242016,8 @@ var TextMixin = {
             break;
           case "numbered":
           case "lettered":
-            var text30 = formatListLabel(numbers[i2 - 1], listType);
-            this._fragment(text30, this.x - indent, this.y, options);
+            var text33 = formatListLabel(numbers[i2 - 1], listType);
+            this._fragment(text33, this.x - indent, this.y, options);
             break;
         }
         if (item && labelType && bodyType) {
@@ -241877,19 +242082,19 @@ var TextMixin = {
     if (result.rotation < 0) result.rotation += 360;
     return result;
   },
-  _line(text30, options = {}, wrapper) {
-    this._fragment(text30, this.x, this.y, options);
+  _line(text33, options = {}, wrapper) {
+    this._fragment(text33, this.x, this.y, options);
     if (wrapper) {
       const lineGap = options.lineGap || this._lineGap || 0;
       this.y += this.currentLineHeight(true) + lineGap;
     } else {
-      this.x += this.widthOfString(text30, options);
+      this.x += this.widthOfString(text33, options);
     }
   },
-  _fragment(text30, x2, y, options) {
+  _fragment(text33, x2, y, options) {
     let dy, encoded, i2, positions, textWidth, words;
-    text30 = `${text30}`.replace(/\n/g, "");
-    if (text30.length === 0) {
+    text33 = `${text33}`.replace(/\n/g, "");
+    if (text33.length === 0) {
       return;
     }
     const align = options.align || "left";
@@ -241899,15 +242104,15 @@ var TextMixin = {
     if (options.width) {
       switch (align) {
         case "right":
-          textWidth = this.widthOfString(text30.replace(/\s+$/, ""), options);
+          textWidth = this.widthOfString(text33.replace(/\s+$/, ""), options);
           x2 += options.lineWidth - textWidth;
           break;
         case "center":
           x2 += options.lineWidth / 2 - options.textWidth / 2;
           break;
         case "justify":
-          words = text30.trim().split(/\s+/);
-          textWidth = this.widthOfString(text30.replace(/\s+/g, ""), options);
+          words = text33.trim().split(/\s+/);
+          textWidth = this.widthOfString(text33.replace(/\s+/g, ""), options);
           var spaceWidth = this.widthOfString(" ") + characterSpacing;
           wordSpacing = Math.max(0, (options.lineWidth - textWidth) / Math.max(1, words.length - 1) - spaceWidth);
           break;
@@ -241945,7 +242150,7 @@ var TextMixin = {
       }
       dy = dy / 1e3 * this._fontSize;
     }
-    const renderedWidth = options.textWidth + wordSpacing * (options.wordCount - 1) + characterSpacing * (text30.length - 1);
+    const renderedWidth = options.textWidth + wordSpacing * (options.wordCount - 1) + characterSpacing * (text33.length - 1);
     if (options.link != null) {
       const linkOptions = {};
       if (this._currentStructureElement && this._currentStructureElement.dictionary.data.S === "Link") {
@@ -242016,7 +242221,7 @@ var TextMixin = {
       this.addContent(`${horizontalScaling} Tz`);
     }
     if (wordSpacing) {
-      words = text30.trim().split(/\s+/);
+      words = text33.trim().split(/\s+/);
       wordSpacing += this.widthOfString(" ") + characterSpacing;
       wordSpacing *= 1e3 / this._fontSize;
       encoded = [];
@@ -242035,7 +242240,7 @@ var TextMixin = {
         positions[positions.length - 1] = space;
       }
     } else {
-      [encoded, positions] = this._font.encode(text30, options.features);
+      [encoded, positions] = this._font.encode(text33, options.features);
     }
     const scale = this._fontSize / 1e3;
     const commands = [];
@@ -242675,11 +242880,11 @@ var AnnotationsMixin = {
     };
     return this.annotate(x2, y, w, h2, annotationOptions);
   },
-  textAnnotation(x2, y, w, h2, text30, options) {
+  textAnnotation(x2, y, w, h2, text33, options) {
     const annotationOptions = {
       ...options,
       Subtype: "FreeText",
-      Contents: new String(text30),
+      Contents: new String(text33),
       DA: new String()
     };
     return this.annotate(x2, y, w, h2, annotationOptions);
@@ -242903,12 +243108,12 @@ var PDFStructureElement = class _PDFStructureElement {
     if (this._attached) {
       return;
     }
-    this._children.forEach((child, index8) => {
+    this._children.forEach((child, index11) => {
       if (child instanceof _PDFStructureElement) {
         child.setAttached();
       }
       if (typeof child === "function") {
-        this._children[index8] = this._contentForClosure(child);
+        this._children[index11] = this._contentForClosure(child);
       }
     });
     this._attached = true;
@@ -243745,8 +243950,8 @@ function normalizeAlignment(align) {
 function normalizeTable() {
   const doc = this.document;
   const opts = this.opts;
-  let index8 = doc._tableIndex++;
-  this._id = new String(opts.id ?? `table-${index8}`);
+  let index11 = doc._tableIndex++;
+  this._id = new String(opts.id ?? `table-${index11}`);
   this._position = {
     x: doc.sizeToPoint(opts.position?.x, doc.x),
     y: doc.sizeToPoint(opts.position?.y, doc.y)
@@ -243783,9 +243988,9 @@ function normalizeTable() {
   if (!rowStyle) rowStyle = () => ({});
   this._rowStyle = normalizedRowStyle.bind(this, defaultRowStyle, rowStyle);
 }
-function normalizeText(text30) {
-  if (text30 != null) text30 = `${text30}`;
-  return text30;
+function normalizeText(text33) {
+  if (text33 != null) text33 = `${text33}`;
+  return text33;
 }
 function normalizeCell(cell, rowIndex, colIndex) {
   const colStyle = this._colStyle(colIndex);
@@ -244688,7 +244893,7 @@ function parseOutline(outlineText) {
     return { level: 3, text: trimmed };
   });
 }
-function formatReferenceAPA2(ref, index8) {
+function formatReferenceAPA2(ref, index11) {
   const parts = [];
   if (ref.authors) parts.push(ref.authors);
   if (ref.year) parts.push(`(${ref.year})`);
@@ -244703,7 +244908,7 @@ function formatReferenceAPA2(ref, index8) {
   }
   if (ref.doi) parts.push(`https://doi.org/${ref.doi}`);
   else if (ref.url) parts.push(ref.url);
-  return `${index8 + 1}. ${parts.join(" ")}`;
+  return `${index11 + 1}. ${parts.join(" ")}`;
 }
 async function generatePDF(data) {
   return new Promise((resolve, reject) => {
@@ -246678,11 +246883,11 @@ function addTableDefinition(target, tableRows, options, slideLayout, presLayout,
   }
   return newAutoPagedSlides;
 }
-function addTextDefinition(target, text30, opts, isPlaceholder) {
+function addTextDefinition(target, text33, opts, isPlaceholder) {
   const newObject = {
     _type: isPlaceholder ? SLIDE_OBJECT_TYPES.placeholder : SLIDE_OBJECT_TYPES.text,
     shape: (opts === null || opts === void 0 ? void 0 : opts.shape) || SHAPE_TYPE.RECTANGLE,
-    text: !text30 || text30.length === 0 ? [{ text: "", options: null }] : text30,
+    text: !text33 || text33.length === 0 ? [{ text: "", options: null }] : text33,
     options: opts || {}
   };
   function cleanOpts(itemOpts) {
@@ -246812,49 +247017,49 @@ function addBackgroundDefinition(props, target) {
     target._bkgdImgRid = intRels;
   }
 }
-function createHyperlinkRels(target, text30, options) {
+function createHyperlinkRels(target, text33, options) {
   let textObjs = [];
-  if (typeof text30 === "string" || typeof text30 === "number")
+  if (typeof text33 === "string" || typeof text33 === "number")
     return;
-  else if (Array.isArray(text30))
-    textObjs = text30;
-  else if (typeof text30 === "object")
-    textObjs = [text30];
-  textObjs.forEach((text31, idx) => {
+  else if (Array.isArray(text33))
+    textObjs = text33;
+  else if (typeof text33 === "object")
+    textObjs = [text33];
+  textObjs.forEach((text34, idx) => {
     if (options && options[idx] && options[idx].hyperlink)
-      text31.options = Object.assign(Object.assign({}, text31.options), options[idx]);
-    if (Array.isArray(text31)) {
+      text34.options = Object.assign(Object.assign({}, text34.options), options[idx]);
+    if (Array.isArray(text34)) {
       const cellOpts = [];
-      text31.forEach((tablecell) => {
+      text34.forEach((tablecell) => {
         if (tablecell.options && !tablecell.text.options) {
           cellOpts.push(tablecell.options);
         }
       });
-      createHyperlinkRels(target, text31, cellOpts);
-    } else if (Array.isArray(text31.text)) {
-      createHyperlinkRels(target, text31.text, options && options[idx] ? [options[idx]] : void 0);
-    } else if (text31 && typeof text31 === "object" && text31.options && text31.options.hyperlink && !text31.options.hyperlink._rId) {
-      if (typeof text31.options.hyperlink !== "object") {
+      createHyperlinkRels(target, text34, cellOpts);
+    } else if (Array.isArray(text34.text)) {
+      createHyperlinkRels(target, text34.text, options && options[idx] ? [options[idx]] : void 0);
+    } else if (text34 && typeof text34 === "object" && text34.options && text34.options.hyperlink && !text34.options.hyperlink._rId) {
+      if (typeof text34.options.hyperlink !== "object") {
         console.log("ERROR: text `hyperlink` option should be an object. Ex: `hyperlink: {url:'https://github.com'}` ");
-      } else if (!text31.options.hyperlink.url && !text31.options.hyperlink.slide) {
+      } else if (!text34.options.hyperlink.url && !text34.options.hyperlink.slide) {
         console.log("ERROR: 'hyperlink requires either: `url` or `slide`'");
       } else {
         const relId = getNewRelId(target);
         target._rels.push({
           type: SLIDE_OBJECT_TYPES.hyperlink,
-          data: text31.options.hyperlink.slide ? "slide" : "dummy",
+          data: text34.options.hyperlink.slide ? "slide" : "dummy",
           rId: relId,
-          Target: encodeXmlEntities(text31.options.hyperlink.url) || text31.options.hyperlink.slide.toString()
+          Target: encodeXmlEntities(text34.options.hyperlink.url) || text34.options.hyperlink.slide.toString()
         });
-        text31.options.hyperlink._rId = relId;
+        text34.options.hyperlink._rId = relId;
       }
-    } else if (text31 && typeof text31 === "object" && text31.options && text31.options.hyperlink && text31.options.hyperlink._rId) {
-      if (target._rels.filter((rel) => rel.rId === text31.options.hyperlink._rId).length === 0) {
+    } else if (text34 && typeof text34 === "object" && text34.options && text34.options.hyperlink && text34.options.hyperlink._rId) {
+      if (target._rels.filter((rel) => rel.rId === text34.options.hyperlink._rId).length === 0) {
         target._rels.push({
           type: SLIDE_OBJECT_TYPES.hyperlink,
-          data: text31.options.hyperlink.slide ? "slide" : "dummy",
-          rId: text31.options.hyperlink._rId,
-          Target: encodeXmlEntities(text31.options.hyperlink.url) || text31.options.hyperlink.slide.toString()
+          data: text34.options.hyperlink.slide ? "slide" : "dummy",
+          rId: text34.options.hyperlink._rId,
+          Target: encodeXmlEntities(text34.options.hyperlink.url) || text34.options.hyperlink.slide.toString()
         });
       }
     }
@@ -246990,8 +247195,8 @@ var Slide = class {
    * @param {TextPropsOptions} options - text options
    * @return {Slide} this Slide
    */
-  addText(text30, options) {
-    const textParam = typeof text30 === "string" || typeof text30 === "number" ? [{ text: text30, options }] : text30;
+  addText(text33, options) {
+    const textParam = typeof text33 === "string" || typeof text33 === "number" ? [{ text: text33, options }] : text33;
     addTextDefinition(this, textParam, options, false);
     return this;
   }
@@ -247460,10 +247665,10 @@ function makeChartType(chartType, data, opts, valAxisId, catAxisId, isMultiTypeC
           strXml += "</c:marker>";
         }
         if ((chartType === CHART_TYPE.BAR || chartType === CHART_TYPE.BAR3D) && data.length === 1 && (opts.chartColors && opts.chartColors !== BARCHART_COLORS && opts.chartColors.length > 1 || ((_a = opts.invertedColors) === null || _a === void 0 ? void 0 : _a.length))) {
-          obj.values.forEach((value, index8) => {
+          obj.values.forEach((value, index11) => {
             const arrColors = value < 0 ? opts.invertedColors || opts.chartColors || BARCHART_COLORS : opts.chartColors || [];
             strXml += "  <c:dPt>";
-            strXml += `    <c:idx val="${index8}"/>`;
+            strXml += `    <c:idx val="${index11}"/>`;
             strXml += '      <c:invertIfNegative val="0"/>';
             strXml += '    <c:bubble3D val="0"/>';
             strXml += "    <c:spPr>";
@@ -247471,12 +247676,12 @@ function makeChartType(chartType, data, opts, valAxisId, catAxisId, isMultiTypeC
               strXml += "<a:ln><a:noFill/></a:ln>";
             } else if (chartType === CHART_TYPE.BAR) {
               strXml += "<a:solidFill>";
-              strXml += '  <a:srgbClr val="' + arrColors[index8 % arrColors.length] + '"/>';
+              strXml += '  <a:srgbClr val="' + arrColors[index11 % arrColors.length] + '"/>';
               strXml += "</a:solidFill>";
             } else {
               strXml += "<a:ln>";
               strXml += "  <a:solidFill>";
-              strXml += '   <a:srgbClr val="' + arrColors[index8 % arrColors.length] + '"/>';
+              strXml += '   <a:srgbClr val="' + arrColors[index11 % arrColors.length] + '"/>';
               strXml += "  </a:solidFill>";
               strXml += "</a:ln>";
             }
@@ -247731,10 +247936,10 @@ function makeChartType(chartType, data, opts, valAxisId, catAxisId, isMultiTypeC
           }
         }
         if (data.length === 1 && opts.chartColors !== BARCHART_COLORS) {
-          obj.values.forEach((value, index8) => {
+          obj.values.forEach((value, index11) => {
             const arrColors = value < 0 ? opts.invertedColors || opts.chartColors || BARCHART_COLORS : opts.chartColors || [];
             strXml += "  <c:dPt>";
-            strXml += `    <c:idx val="${index8}"/>`;
+            strXml += `    <c:idx val="${index11}"/>`;
             strXml += '      <c:invertIfNegative val="0"/>';
             strXml += '    <c:bubble3D val="0"/>';
             strXml += "    <c:spPr>";
@@ -247742,7 +247947,7 @@ function makeChartType(chartType, data, opts, valAxisId, catAxisId, isMultiTypeC
               strXml += "<a:ln><a:noFill/></a:ln>";
             } else {
               strXml += "<a:solidFill>";
-              strXml += ' <a:srgbClr val="' + arrColors[index8 % arrColors.length] + '"/>';
+              strXml += ' <a:srgbClr val="' + arrColors[index11 % arrColors.length] + '"/>';
               strXml += "</a:solidFill>";
             }
             strXml += createShadowElement(opts.shadow, DEF_SHAPE_SHADOW);
@@ -250387,13 +250592,13 @@ router4.get("/projects", async (req, res) => {
   }
   if (query.data.search) {
     conditions.push(
-      sql4`lower(${projectsTable.title}) like lower(${`%${query.data.search}%`})`
+      sql6`lower(${projectsTable.title}) like lower(${`%${query.data.search}%`})`
     );
   }
   if (query.data.type) {
     conditions.push(eq6(projectsTable.taskType, query.data.type));
   }
-  const results = await db.select().from(projectsTable).where(sql4.join(conditions.map((c, i2) => i2 === 0 ? c : sql4` and ${c}`)));
+  const results = await db.select().from(projectsTable).where(sql6.join(conditions.map((c, i2) => i2 === 0 ? c : sql6` and ${c}`)));
   res.json(
     results.map((p) => ({
       ...p,
@@ -250419,7 +250624,7 @@ router4.get("/projects/stats", async (req, res) => {
     byType[typeKey] = (byType[typeKey] ?? 0) + 1;
   }
   const projectIds = all.map((p) => p.id);
-  const recent = projectIds.length > 0 ? await db.select().from(activitiesTable).where(sql4`${activitiesTable.projectId} in (${sql4.join(projectIds.map((id) => sql4`${id}`), sql4`, `)})`).orderBy(desc2(activitiesTable.createdAt)).limit(5) : [];
+  const recent = projectIds.length > 0 ? await db.select().from(activitiesTable).where(sql6`${activitiesTable.projectId} in (${sql6.join(projectIds.map((id) => sql6`${id}`), sql6`, `)})`).orderBy(desc2(activitiesTable.createdAt)).limit(5) : [];
   res.json({ total, byStatus, byType, recentActivity: recent });
 });
 router4.get("/projects/:projectId", async (req, res) => {
@@ -251364,7 +251569,7 @@ var messages_default = router5;
 
 // src/routes/documents.ts
 var import_express6 = __toESM(require_express2(), 1);
-import { eq as eq8, desc as desc4, and as and6, isNull as isNull4, sql as sql5, count } from "drizzle-orm";
+import { eq as eq8, desc as desc4, and as and6, isNull as isNull4, sql as sql7, count } from "drizzle-orm";
 
 // src/lib/citation-rendering.ts
 var NUMBERED_FORMATS = /* @__PURE__ */ new Set([
@@ -251372,8 +251577,8 @@ var NUMBERED_FORMATS = /* @__PURE__ */ new Set([
   "Vancouver",
   "Chicago"
 ]);
-function escapeHtml(text30) {
-  return text30.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+function escapeHtml(text33) {
+  return text33.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 function splitParagraphs(content) {
   return content.split(/\n\s*\n/).map((p) => p.trim()).filter((p) => p.length > 0);
@@ -251421,8 +251626,8 @@ function renderMarkerHtml(citation, marker, format) {
   const tooltipEscaped = escapeHtml(tooltip).replace(/\n/g, "&#10;");
   return `<sup class="cite-marker" data-citation-id="${citation.id}" title="${tooltipEscaped}">${escapeHtml(marker)}</sup>`;
 }
-function renderMarkdownLight(text30) {
-  const lines = text30.split("\n");
+function renderMarkdownLight(text33) {
+  const lines = text33.split("\n");
   const blocks = [];
   let currentList = [];
   let paragraphBuffer = [];
@@ -251471,26 +251676,26 @@ function renderParagraph(paragraphText, paragraphIndex, citationsForParagraph, f
     (a, b) => b.offsetInParagraph - a.offsetInParagraph
   );
   const maxOffset = paragraphText.length;
-  const text30 = paragraphText;
+  const text33 = paragraphText;
   const segments = [];
-  let cursor = text30.length;
+  let cursor = text33.length;
   for (const c of sorted) {
     const safeOffset = Math.min(Math.max(c.offsetInParagraph, 0), maxOffset);
     const marker = getMarkerForCitation(c, format, sequentialNumbers);
     const markerHtml = renderMarkerHtml(c, marker, format);
-    const afterText = escapeHtml(text30.slice(safeOffset, cursor));
+    const afterText = escapeHtml(text33.slice(safeOffset, cursor));
     segments.push(afterText, markerHtml);
     cursor = safeOffset;
   }
-  segments.push(escapeHtml(text30.slice(0, cursor)));
+  segments.push(escapeHtml(text33.slice(0, cursor)));
   const htmlWithCitations = segments.reverse().join("");
-  const isStructured = /^(#{1,6}\s|[-*]\s)/m.test(text30);
+  const isStructured = /^(#{1,6}\s|[-*]\s)/m.test(text33);
   if (isStructured) {
     logger2.debug(
       { paragraphIndex },
       "Paragraph has markdown structure \u2014 using simplified render"
     );
-    const mdHtml = renderMarkdownLight(text30);
+    const mdHtml = renderMarkdownLight(text33);
     const markers = sorted.map((c) => {
       const marker = getMarkerForCitation(c, format, sequentialNumbers);
       return renderMarkerHtml(c, marker, format);
@@ -251503,15 +251708,15 @@ function renderDocument(params) {
   const { content, citations, format, formatBibliographyFn } = params;
   const paragraphs = splitParagraphs(content);
   const sequentialNumbers = computeSequentialNumbers(citations);
-  const rendered = paragraphs.map((text30, index8) => {
+  const rendered = paragraphs.map((text33, index11) => {
     const citationsForParagraph = citations.filter(
-      (c) => c.paragraphIndex === index8
+      (c) => c.paragraphIndex === index11
     );
     return {
-      index: index8,
+      index: index11,
       html: renderParagraph(
-        text30,
-        index8,
+        text33,
+        index11,
         citationsForParagraph,
         format,
         sequentialNumbers
@@ -251914,7 +252119,7 @@ router6.post("/projects/:projectId/documents", async (req, res) => {
   const projectId = params.data.projectId;
   let orderIndex = body.data.orderIndex;
   if (orderIndex === void 0) {
-    const [{ maxIdx }] = await db.select({ maxIdx: sql5`COALESCE(MAX(${documentsTable.orderIndex}), -1)` }).from(documentsTable).where(eq8(documentsTable.projectId, projectId));
+    const [{ maxIdx }] = await db.select({ maxIdx: sql7`COALESCE(MAX(${documentsTable.orderIndex}), -1)` }).from(documentsTable).where(eq8(documentsTable.projectId, projectId));
     orderIndex = (maxIdx ?? -1) + 1;
   }
   const [doc] = await db.insert(documentsTable).values({
@@ -252048,7 +252253,7 @@ router6.patch("/projects/:projectId/documents/:documentId", async (req, res) => 
       await db.update(documentsTable).set({ isActive: false, updatedAt: /* @__PURE__ */ new Date() }).where(
         and6(
           eq8(documentsTable.projectId, params.data.projectId),
-          sql5`${documentsTable.id} != ${params.data.documentId}`
+          sql7`${documentsTable.id} != ${params.data.documentId}`
         )
       );
     }
@@ -253595,10 +253800,10 @@ function markdownToParagraphs(markdown) {
       continue;
     }
     if (line.startsWith("- ") || line.startsWith("* ")) {
-      const text30 = line.substring(2).replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1");
+      const text33 = line.substring(2).replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1");
       paragraphs.push(
         new Paragraph({
-          text: text30,
+          text: text33,
           bullet: { level: 0 },
           spacing: { before: 60, after: 60 }
         })
@@ -253606,10 +253811,10 @@ function markdownToParagraphs(markdown) {
       continue;
     }
     if (/^\d+\.\s/.test(line)) {
-      const text30 = line.replace(/^\d+\.\s/, "").replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1");
+      const text33 = line.replace(/^\d+\.\s/, "").replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1");
       paragraphs.push(
         new Paragraph({
-          text: text30,
+          text: text33,
           spacing: { before: 60, after: 60 }
         })
       );
@@ -253625,14 +253830,14 @@ function markdownToParagraphs(markdown) {
   }
   return paragraphs;
 }
-function parseInlineRuns(text30) {
+function parseInlineRuns(text33) {
   const runs = [];
   const regex = /\*\*(.+?)\*\*|\*(.+?)\*|__(.+?)__|_(.+?)_/g;
   let lastIndex = 0;
   let match;
-  while ((match = regex.exec(text30)) !== null) {
+  while ((match = regex.exec(text33)) !== null) {
     if (match.index > lastIndex) {
-      runs.push(new TextRun({ text: text30.substring(lastIndex, match.index) }));
+      runs.push(new TextRun({ text: text33.substring(lastIndex, match.index) }));
     }
     if (match[1]) {
       runs.push(new TextRun({ text: match[1], bold: true }));
@@ -253645,11 +253850,11 @@ function parseInlineRuns(text30) {
     }
     lastIndex = regex.lastIndex;
   }
-  if (lastIndex < text30.length) {
-    runs.push(new TextRun({ text: text30.substring(lastIndex) }));
+  if (lastIndex < text33.length) {
+    runs.push(new TextRun({ text: text33.substring(lastIndex) }));
   }
   if (runs.length === 0) {
-    runs.push(new TextRun({ text: text30 }));
+    runs.push(new TextRun({ text: text33 }));
   }
   return runs;
 }
@@ -253708,8 +253913,8 @@ router12.post("/projects/:projectId/exports", async (req, res) => {
     return;
   }
   await fs4.mkdir(EXPORT_DIR, { recursive: true });
-  const timestamp30 = Date.now();
-  const filename = `export-${params.data.projectId}-v${doc.versionNumber}-${timestamp30}`;
+  const timestamp33 = Date.now();
+  const filename = `export-${params.data.projectId}-v${doc.versionNumber}-${timestamp33}`;
   const content = doc.content ?? "";
   if (parsed.data.format === "docx") {
     const paragraphs = markdownToParagraphs(content);
@@ -253789,7 +253994,7 @@ var exports_default = router12;
 
 // src/routes/ai-usage.ts
 var import_express13 = __toESM(require_express2(), 1);
-import { eq as eq15, and as and9, gte, lte, sql as sql6 } from "drizzle-orm";
+import { eq as eq15, and as and9, gte, lte, sql as sql8 } from "drizzle-orm";
 var router13 = (0, import_express13.Router)();
 function getUserId2(req) {
   if (!req.user?.id) throw new Error("User not authenticated");
@@ -253813,8 +254018,8 @@ router13.get("/ai-usage", async (req, res) => {
     conditions.push(lte(aiUsageLogTable.createdAt, endDate));
   }
   const whereClause = conditions.length === 1 ? conditions[0] : and9(...conditions);
-  const [totalResult] = await db.select({ count: sql6`count(*)` }).from(aiUsageLogTable).where(whereClause);
-  const records = await db.select().from(aiUsageLogTable).where(whereClause).orderBy(sql6`created_at desc`).limit(limit).offset(offset);
+  const [totalResult] = await db.select({ count: sql8`count(*)` }).from(aiUsageLogTable).where(whereClause);
+  const records = await db.select().from(aiUsageLogTable).where(whereClause).orderBy(sql8`created_at desc`).limit(limit).offset(offset);
   res.json({
     data: records.map((r2) => ({
       ...r2,
@@ -254653,11 +254858,52 @@ router19.get("/ai-tiers", async (_req, res) => {
 });
 var ai_tiers_default = router19;
 
-// src/routes/balance.ts
+// src/routes/packages.ts
 var import_express20 = __toESM(require_express2(), 1);
-import { eq as eq22 } from "drizzle-orm";
+import { eq as eq22, asc as asc2 } from "drizzle-orm";
 var router20 = (0, import_express20.Router)();
-router20.get("/users/me/balance", async (req, res) => {
+router20.get("/packages", async (_req, res) => {
+  const rows = await db.select().from(packagesTable).where(eq22(packagesTable.isActive, true)).orderBy(
+    asc2(packagesTable.tierDisplayOrder),
+    asc2(packagesTable.modelType),
+    asc2(packagesTable.periodDays)
+  );
+  const packages = rows.map((pkg) => ({
+    id: pkg.id,
+    tier: pkg.tier,
+    tierName: pkg.tierName,
+    tierDisplayOrder: pkg.tierDisplayOrder,
+    modelType: pkg.modelType,
+    modelTypeName: pkg.modelTypeName,
+    periodDays: pkg.periodDays,
+    periodName: pkg.periodName,
+    quota7dHaikuTokens: pkg.quota7dHaikuTokens,
+    quota5hHaikuTokens: pkg.quota5hHaikuTokens,
+    quota7dSonnetTokens: pkg.quota7dSonnetTokens,
+    quota5hSonnetTokens: pkg.quota5hSonnetTokens,
+    priceCents: pkg.priceCents,
+    priceDisplay: pkg.priceCents.toLocaleString("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      maximumFractionDigits: 0
+    }),
+    isHighlighted: pkg.isHighlighted,
+    isDefault: pkg.isDefault
+  }));
+  const tiers = [...new Set(packages.map((p) => p.tier))];
+  const modelTypes = [...new Set(packages.map((p) => p.modelType))];
+  const periods = [...new Set(packages.map((p) => p.periodDays))].sort(
+    (a, b) => a - b
+  );
+  res.json({ packages, tiers, modelTypes, periods });
+});
+var packages_default = router20;
+
+// src/routes/balance.ts
+var import_express21 = __toESM(require_express2(), 1);
+import { eq as eq23 } from "drizzle-orm";
+var router21 = (0, import_express21.Router)();
+router21.get("/users/me/balance", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -254692,7 +254938,7 @@ router20.get("/users/me/balance", async (req, res) => {
     }))
   });
 });
-router20.put("/users/me/ai-tier-preference", async (req, res) => {
+router21.put("/users/me/ai-tier-preference", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -254703,12 +254949,12 @@ router20.put("/users/me/ai-tier-preference", async (req, res) => {
     res.status(400).json({ error: "tierId diperlukan" });
     return;
   }
-  const [balance] = await db.select().from(userBalancesTable).where(eq22(userBalancesTable.userId, userId));
+  const [balance] = await db.select().from(userBalancesTable).where(eq23(userBalancesTable.userId, userId));
   if (balance) {
     await db.update(userBalancesTable).set({
       preferredTierId: tierId,
       updatedAt: /* @__PURE__ */ new Date()
-    }).where(eq22(userBalancesTable.userId, userId));
+    }).where(eq23(userBalancesTable.userId, userId));
   } else {
     await db.insert(userBalancesTable).values({
       userId,
@@ -254718,18 +254964,187 @@ router20.put("/users/me/ai-tier-preference", async (req, res) => {
   }
   res.json({ preferredTierId: tierId });
 });
-var balance_default = router20;
+var balance_default = router21;
 
-// src/routes/account-references.ts
-var import_express21 = __toESM(require_express2(), 1);
-import { eq as eq23, desc as desc15, and as and12 } from "drizzle-orm";
-var router21 = (0, import_express21.Router)();
-router21.get("/account/references", async (req, res) => {
+// src/routes/autofallback.ts
+var import_express22 = __toESM(require_express2(), 1);
+import { z as z6 } from "zod/v4";
+import { eq as eq24 } from "drizzle-orm";
+var router22 = (0, import_express22.Router)();
+router22.put("/autofallback", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const refs = await db.select().from(accountReferencesTable).where(eq23(accountReferencesTable.userId, req.user.id)).orderBy(desc15(accountReferencesTable.createdAt));
+  const schema = z6.object({
+    enabled: z6.boolean()
+  });
+  const parsed = schema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "enabled (boolean) diperlukan" });
+    return;
+  }
+  const { enabled } = parsed.data;
+  const userId = req.user.id;
+  const [balance] = await db.select().from(userBalancesTable).where(eq24(userBalancesTable.userId, userId)).limit(1);
+  if (!balance) {
+    await db.insert(userBalancesTable).values({
+      userId,
+      balanceCents: 0,
+      autofallbackEnabled: enabled
+    });
+    res.json({ autofallbackEnabled: enabled });
+    return;
+  }
+  await db.update(userBalancesTable).set({
+    autofallbackEnabled: enabled,
+    updatedAt: /* @__PURE__ */ new Date()
+  }).where(eq24(userBalancesTable.userId, userId));
+  res.json({ autofallbackEnabled: enabled });
+});
+var autofallback_default = router22;
+
+// src/routes/subscriptions.ts
+var import_express23 = __toESM(require_express2(), 1);
+import { z as z7 } from "zod/v4";
+import { eq as eq25, and as and12, lte as lte2, gte as gte2 } from "drizzle-orm";
+var router23 = (0, import_express23.Router)();
+var createSubscriptionSchema = z7.object({
+  packageId: z7.string().min(1),
+  autoRenew: z7.boolean().default(false)
+});
+function formatPackage(pkg) {
+  return {
+    id: pkg.id,
+    tier: pkg.tier,
+    tierName: pkg.tierName,
+    tierDisplayOrder: pkg.tierDisplayOrder,
+    modelType: pkg.modelType,
+    modelTypeName: pkg.modelTypeName,
+    periodDays: pkg.periodDays,
+    periodName: pkg.periodName,
+    quota7dHaikuTokens: pkg.quota7dHaikuTokens,
+    quota5hHaikuTokens: pkg.quota5hHaikuTokens,
+    quota7dSonnetTokens: pkg.quota7dSonnetTokens,
+    quota5hSonnetTokens: pkg.quota5hSonnetTokens,
+    priceCents: pkg.priceCents,
+    priceDisplay: pkg.priceCents.toLocaleString("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      maximumFractionDigits: 0
+    }),
+    isHighlighted: pkg.isHighlighted,
+    isDefault: pkg.isDefault
+  };
+}
+router23.get("/users/me/subscription", async (req, res) => {
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const userId = req.user.id;
+  const now = /* @__PURE__ */ new Date();
+  const [sub] = await db.select().from(subscriptionsTable).where(
+    and12(
+      eq25(subscriptionsTable.userId, userId),
+      eq25(subscriptionsTable.status, "active"),
+      lte2(subscriptionsTable.startsAt, now),
+      gte2(subscriptionsTable.expiresAt, now)
+    )
+  ).limit(1);
+  if (!sub) {
+    res.json({ subscription: null, usageWindows: [], maxWindows: 0 });
+    return;
+  }
+  const [pkg] = await db.select().from(packagesTable).where(eq25(packagesTable.id, sub.packageId)).limit(1);
+  const windows = await db.select().from(usageWindowsTable).where(eq25(usageWindowsTable.subscriptionId, sub.id));
+  const maxWindows = pkg ? Math.floor(pkg.periodDays / 7) : 0;
+  const formattedWindows = windows.map((w) => {
+    const is5h = w.windowType === "5h";
+    const quotaHaiku = is5h ? pkg?.quota5hHaikuTokens ?? 0 : pkg?.quota7dHaikuTokens ?? 0;
+    const quotaSonnet = is5h ? pkg?.quota5hSonnetTokens ?? 0 : pkg?.quota7dSonnetTokens ?? 0;
+    const pctHaiku = quotaHaiku > 0 ? Math.round(w.haikuTokensUsed / quotaHaiku * 100) : 0;
+    const pctSonnet = quotaSonnet > 0 ? Math.round(w.sonnetTokensUsed / quotaSonnet * 100) : 0;
+    const isActive = new Date(w.windowStartAt) <= now && new Date(w.windowEndAt) >= now;
+    return {
+      id: w.id,
+      modelType: w.modelType,
+      windowType: w.windowType,
+      windowNumber: w.windowNumber,
+      windowStartAt: w.windowStartAt,
+      windowEndAt: w.windowEndAt,
+      haikuTokensUsed: w.haikuTokensUsed,
+      sonnetTokensUsed: w.sonnetTokensUsed,
+      quotaHaikuTokens: quotaHaiku,
+      quotaSonnetTokens: quotaSonnet,
+      pctHaiku: Math.min(pctHaiku, 100),
+      pctSonnet: Math.min(pctSonnet, 100),
+      isExhausted: w.isExhausted,
+      isActive
+    };
+  });
+  res.json({
+    subscription: {
+      id: sub.id,
+      package: pkg ? formatPackage(pkg) : null,
+      status: sub.status,
+      startsAt: sub.startsAt,
+      expiresAt: sub.expiresAt,
+      autoRenew: sub.autoRenew,
+      usageAnchorAt: sub.usageAnchorAt
+    },
+    usageWindows: formattedWindows,
+    maxWindows
+  });
+});
+router23.post("/users/me/subscription", async (req, res) => {
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const userId = req.user.id;
+  const parsed = createSubscriptionSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "Invalid request body", details: parsed.error.format() });
+    return;
+  }
+  const { packageId, autoRenew } = parsed.data;
+  const [pkg] = await db.select().from(packagesTable).where(and12(eq25(packagesTable.id, packageId), eq25(packagesTable.isActive, true))).limit(1);
+  if (!pkg) {
+    res.status(400).json({ error: "Invalid or inactive packageId" });
+    return;
+  }
+  const now = /* @__PURE__ */ new Date();
+  const [existing] = await db.select({ id: subscriptionsTable.id }).from(subscriptionsTable).where(
+    and12(
+      eq25(subscriptionsTable.userId, userId),
+      eq25(subscriptionsTable.status, "active"),
+      lte2(subscriptionsTable.startsAt, now),
+      gte2(subscriptionsTable.expiresAt, now)
+    )
+  ).limit(1);
+  if (existing) {
+    res.status(409).json({
+      error: "Active subscription already exists. Only one active subscription per user is allowed."
+    });
+    return;
+  }
+  res.status(402).json({
+    error: "Payment gateway not configured yet. Please contact support to subscribe."
+  });
+});
+var subscriptions_default = router23;
+
+// src/routes/account-references.ts
+var import_express24 = __toESM(require_express2(), 1);
+import { eq as eq26, desc as desc15, and as and13 } from "drizzle-orm";
+var router24 = (0, import_express24.Router)();
+router24.get("/account/references", async (req, res) => {
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const refs = await db.select().from(accountReferencesTable).where(eq26(accountReferencesTable.userId, req.user.id)).orderBy(desc15(accountReferencesTable.createdAt));
   res.json(
     refs.map((r2) => ({
       ...r2,
@@ -254743,7 +255158,7 @@ router21.get("/account/references", async (req, res) => {
     }))
   );
 });
-router21.post("/account/references", async (req, res) => {
+router24.post("/account/references", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -254755,9 +255170,9 @@ router21.post("/account/references", async (req, res) => {
   }
   if (doi && typeof doi === "string") {
     const existing = await db.select({ id: accountReferencesTable.id }).from(accountReferencesTable).where(
-      and12(
-        eq23(accountReferencesTable.userId, req.user.id),
-        eq23(accountReferencesTable.doi, doi)
+      and13(
+        eq26(accountReferencesTable.userId, req.user.id),
+        eq26(accountReferencesTable.doi, doi)
       )
     ).limit(1);
     if (existing.length > 0) {
@@ -254789,7 +255204,7 @@ router21.post("/account/references", async (req, res) => {
     url: ref.url ?? null
   });
 });
-router21.put("/account/references/:id", async (req, res) => {
+router24.put("/account/references/:id", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -254800,9 +255215,9 @@ router21.put("/account/references/:id", async (req, res) => {
     return;
   }
   const [existing] = await db.select().from(accountReferencesTable).where(
-    and12(
-      eq23(accountReferencesTable.id, id),
-      eq23(accountReferencesTable.userId, req.user.id)
+    and13(
+      eq26(accountReferencesTable.id, id),
+      eq26(accountReferencesTable.userId, req.user.id)
     )
   ).limit(1);
   if (!existing) {
@@ -254812,9 +255227,9 @@ router21.put("/account/references/:id", async (req, res) => {
   const { title, authors, year, journal, volume, issue, doi, url: url2, isSuggested, source } = req.body;
   if (doi && doi !== existing.doi) {
     const duplicate = await db.select({ id: accountReferencesTable.id }).from(accountReferencesTable).where(
-      and12(
-        eq23(accountReferencesTable.userId, req.user.id),
-        eq23(accountReferencesTable.doi, doi)
+      and13(
+        eq26(accountReferencesTable.userId, req.user.id),
+        eq26(accountReferencesTable.doi, doi)
       )
     ).limit(1);
     if (duplicate.length > 0) {
@@ -254834,9 +255249,9 @@ router21.put("/account/references/:id", async (req, res) => {
   if (isSuggested !== void 0) updates.isSuggested = isSuggested;
   if (source !== void 0) updates.source = source;
   const [updated] = await db.update(accountReferencesTable).set(updates).where(
-    and12(
-      eq23(accountReferencesTable.id, id),
-      eq23(accountReferencesTable.userId, req.user.id)
+    and13(
+      eq26(accountReferencesTable.id, id),
+      eq26(accountReferencesTable.userId, req.user.id)
     )
   ).returning();
   res.json({
@@ -254850,7 +255265,7 @@ router21.put("/account/references/:id", async (req, res) => {
     url: updated.url ?? null
   });
 });
-router21.delete("/account/references/:id", async (req, res) => {
+router24.delete("/account/references/:id", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -254861,9 +255276,9 @@ router21.delete("/account/references/:id", async (req, res) => {
     return;
   }
   const [deleted] = await db.delete(accountReferencesTable).where(
-    and12(
-      eq23(accountReferencesTable.id, id),
-      eq23(accountReferencesTable.userId, req.user.id)
+    and13(
+      eq26(accountReferencesTable.id, id),
+      eq26(accountReferencesTable.userId, req.user.id)
     )
   ).returning();
   if (!deleted) {
@@ -254872,7 +255287,7 @@ router21.delete("/account/references/:id", async (req, res) => {
   }
   res.sendStatus(204);
 });
-router21.post("/account/references/:id/assign", async (req, res) => {
+router24.post("/account/references/:id/assign", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -254888,9 +255303,9 @@ router21.post("/account/references/:id/assign", async (req, res) => {
     return;
   }
   const [accountRef] = await db.select().from(accountReferencesTable).where(
-    and12(
-      eq23(accountReferencesTable.id, accountRefId),
-      eq23(accountReferencesTable.userId, req.user.id)
+    and13(
+      eq26(accountReferencesTable.id, accountRefId),
+      eq26(accountReferencesTable.userId, req.user.id)
     )
   ).limit(1);
   if (!accountRef) {
@@ -254899,9 +255314,9 @@ router21.post("/account/references/:id/assign", async (req, res) => {
   }
   if (accountRef.doi) {
     const existingInProject = await db.select({ id: referencesTable.id }).from(referencesTable).where(
-      and12(
-        eq23(referencesTable.projectId, projectId),
-        eq23(referencesTable.doi, accountRef.doi)
+      and13(
+        eq26(referencesTable.projectId, projectId),
+        eq26(referencesTable.doi, accountRef.doi)
       )
     ).limit(1);
     if (existingInProject.length > 0) {
@@ -254933,7 +255348,7 @@ router21.post("/account/references/:id/assign", async (req, res) => {
     url: projectRef.url ?? null
   });
 });
-router21.post("/account/references/import", async (req, res) => {
+router24.post("/account/references/import", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -254947,7 +255362,7 @@ router21.post("/account/references/import", async (req, res) => {
     res.status(400).json({ error: "Maximum 50 DOIs per import" });
     return;
   }
-  const existing = await db.select({ doi: accountReferencesTable.doi }).from(accountReferencesTable).where(eq23(accountReferencesTable.userId, req.user.id));
+  const existing = await db.select({ doi: accountReferencesTable.doi }).from(accountReferencesTable).where(eq26(accountReferencesTable.userId, req.user.id));
   const existingDois = new Set(
     existing.map((r2) => r2.doi).filter((d) => d !== null)
   );
@@ -255012,21 +255427,21 @@ router21.post("/account/references/import", async (req, res) => {
     }
   });
 });
-var account_references_default = router21;
+var account_references_default = router24;
 
 // src/routes/learning-activities.ts
-var import_express22 = __toESM(require_express2(), 1);
-import { eq as eq24, desc as desc16, and as and13 } from "drizzle-orm";
-var router22 = (0, import_express22.Router)();
-router22.get("/learning-activities", async (req, res) => {
+var import_express25 = __toESM(require_express2(), 1);
+import { eq as eq27, desc as desc16, and as and14 } from "drizzle-orm";
+var router25 = (0, import_express25.Router)();
+router25.get("/learning-activities", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const activities = await db.select().from(learningActivitiesTable).where(eq24(learningActivitiesTable.userId, req.user.id)).orderBy(desc16(learningActivitiesTable.createdAt));
+  const activities = await db.select().from(learningActivitiesTable).where(eq27(learningActivitiesTable.userId, req.user.id)).orderBy(desc16(learningActivitiesTable.createdAt));
   res.json(activities);
 });
-router22.post("/learning-activities", async (req, res) => {
+router25.post("/learning-activities", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -255038,9 +255453,9 @@ router22.post("/learning-activities", async (req, res) => {
   }
   if (body.sourceProjectId) {
     const existing = await db.select().from(learningActivitiesTable).where(
-      and13(
-        eq24(learningActivitiesTable.userId, req.user.id),
-        eq24(learningActivitiesTable.sourceProjectId, body.sourceProjectId)
+      and14(
+        eq27(learningActivitiesTable.userId, req.user.id),
+        eq27(learningActivitiesTable.sourceProjectId, body.sourceProjectId)
       )
     ).limit(1);
     if (existing.length > 0) {
@@ -255049,7 +255464,7 @@ router22.post("/learning-activities", async (req, res) => {
         subject: body.subject || null,
         extractedFrom: body.extractedFrom || "instruction",
         updatedAt: /* @__PURE__ */ new Date()
-      }).where(eq24(learningActivitiesTable.id, existing[0].id)).returning();
+      }).where(eq27(learningActivitiesTable.id, existing[0].id)).returning();
       res.status(200).json(updated[0]);
       return;
     }
@@ -255063,12 +255478,12 @@ router22.post("/learning-activities", async (req, res) => {
   }).returning();
   res.status(201).json(inserted[0]);
 });
-router22.get("/learning-activities/recommendations", async (req, res) => {
+router25.get("/learning-activities/recommendations", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const activities = await db.select().from(learningActivitiesTable).where(eq24(learningActivitiesTable.userId, req.user.id)).orderBy(desc16(learningActivitiesTable.createdAt));
+  const activities = await db.select().from(learningActivitiesTable).where(eq27(learningActivitiesTable.userId, req.user.id)).orderBy(desc16(learningActivitiesTable.createdAt));
   if (activities.length === 0) {
     res.json([]);
     return;
@@ -255115,7 +255530,7 @@ router22.get("/learning-activities/recommendations", async (req, res) => {
       });
     }
   }
-  const recentProjects = await db.select({ id: projectsTable.id, title: projectsTable.title }).from(projectsTable).where(eq24(projectsTable.userId, req.user.id)).orderBy(desc16(projectsTable.createdAt)).limit(5);
+  const recentProjects = await db.select({ id: projectsTable.id, title: projectsTable.title }).from(projectsTable).where(eq27(projectsTable.userId, req.user.id)).orderBy(desc16(projectsTable.createdAt)).limit(5);
   const existingProjectIds = new Set(
     activities.map((a) => a.sourceProjectId).filter(Boolean)
   );
@@ -255143,21 +255558,21 @@ router22.get("/learning-activities/recommendations", async (req, res) => {
   });
   res.json(deduplicated.slice(0, 3));
 });
-var learning_activities_default = router22;
+var learning_activities_default = router25;
 
 // src/routes/usage.ts
-var import_express23 = __toESM(require_express2(), 1);
-import { eq as eq25, and as and14, gte as gte2, sql as sql8, desc as desc17 } from "drizzle-orm";
-import { z as z6 } from "zod/v4";
-var router23 = (0, import_express23.Router)();
-router23.use(authMiddleware);
-var periodSchema = z6.enum(["7d", "30d", "all"]).default("all");
+var import_express26 = __toESM(require_express2(), 1);
+import { eq as eq28, and as and15, gte as gte3, sql as sql10, desc as desc17 } from "drizzle-orm";
+import { z as z8 } from "zod/v4";
+var router26 = (0, import_express26.Router)();
+router26.use(authMiddleware);
+var periodSchema = z8.enum(["7d", "30d", "all"]).default("all");
 function buildPeriodCondition(period) {
   if (period === "all") return void 0;
   const days = period === "7d" ? 7 : 30;
   const cutoff = /* @__PURE__ */ new Date();
   cutoff.setDate(cutoff.getDate() - days);
-  return gte2(aiUsageLogTable.createdAt, cutoff);
+  return gte3(aiUsageLogTable.createdAt, cutoff);
 }
 function emptyBreakdown() {
   return { requests: 0, inputTokens: 0, outputTokens: 0, costUsd: 0, costCents: 0 };
@@ -255207,7 +255622,7 @@ function aggregateRecords(records, groupByProject = false) {
     byProject
   };
 }
-router23.get("/users/me/usage", async (req, res) => {
+router26.get("/users/me/usage", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -255218,7 +255633,7 @@ router23.get("/users/me/usage", async (req, res) => {
     return;
   }
   const period = parsed.data;
-  const conditions = [eq25(aiUsageLogTable.userId, req.user.id)];
+  const conditions = [eq28(aiUsageLogTable.userId, req.user.id)];
   const periodCond = buildPeriodCondition(period);
   if (periodCond) conditions.push(periodCond);
   const records = await db.select({
@@ -255228,14 +255643,14 @@ router23.get("/users/me/usage", async (req, res) => {
     outputTokens: aiUsageLogTable.outputTokens,
     estimatedCostUsd: aiUsageLogTable.estimatedCostUsd,
     costCents: aiUsageLogTable.costCents
-  }).from(aiUsageLogTable).where(and14(...conditions));
+  }).from(aiUsageLogTable).where(and15(...conditions));
   const aggregated = aggregateRecords(records, true);
   res.json({
     ...aggregated,
     period
   });
 });
-router23.get("/users/me/usage/projects/:projectId", async (req, res) => {
+router26.get("/users/me/usage/projects/:projectId", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -255252,9 +255667,9 @@ router23.get("/users/me/usage/projects/:projectId", async (req, res) => {
     estimatedCostUsd: aiUsageLogTable.estimatedCostUsd,
     costCents: aiUsageLogTable.costCents
   }).from(aiUsageLogTable).where(
-    and14(
-      eq25(aiUsageLogTable.userId, req.user.id),
-      eq25(aiUsageLogTable.projectId, projectId)
+    and15(
+      eq28(aiUsageLogTable.userId, req.user.id),
+      eq28(aiUsageLogTable.projectId, projectId)
     )
   );
   const byRequestType = {};
@@ -255290,12 +255705,12 @@ router23.get("/users/me/usage/projects/:projectId", async (req, res) => {
     byRequestType
   });
 });
-router23.get("/admin/usage", async (req, res) => {
+router26.get("/admin/usage", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const [userRecord] = await db.select({ isOwner: usersTable.isOwner }).from(usersTable).where(eq25(usersTable.id, req.user.id)).limit(1);
+  const [userRecord] = await db.select({ isOwner: usersTable.isOwner }).from(usersTable).where(eq28(usersTable.id, req.user.id)).limit(1);
   if (!userRecord?.isOwner) {
     res.status(403).json({ error: "Admin access required" });
     return;
@@ -255309,15 +255724,15 @@ router23.get("/admin/usage", async (req, res) => {
   const conditions = [];
   const periodCond = buildPeriodCondition(period);
   if (periodCond) conditions.push(periodCond);
-  const whereClause = conditions.length > 0 ? and14(...conditions) : void 0;
+  const whereClause = conditions.length > 0 ? and15(...conditions) : void 0;
   const perUserRaw = await db.select({
     userId: aiUsageLogTable.userId,
     email: usersTable.email,
-    totalRequests: sql8`count(*)`,
-    totalInputTokens: sql8`sum(${aiUsageLogTable.inputTokens})`,
-    totalOutputTokens: sql8`sum(${aiUsageLogTable.outputTokens})`,
-    totalCostUsd: sql8`sum(${aiUsageLogTable.estimatedCostUsd})`
-  }).from(aiUsageLogTable).leftJoin(usersTable, eq25(aiUsageLogTable.userId, usersTable.id)).where(whereClause).groupBy(aiUsageLogTable.userId, usersTable.email).orderBy(desc17(sql8`sum(${aiUsageLogTable.estimatedCostUsd})`));
+    totalRequests: sql10`count(*)`,
+    totalInputTokens: sql10`sum(${aiUsageLogTable.inputTokens})`,
+    totalOutputTokens: sql10`sum(${aiUsageLogTable.outputTokens})`,
+    totalCostUsd: sql10`sum(${aiUsageLogTable.estimatedCostUsd})`
+  }).from(aiUsageLogTable).leftJoin(usersTable, eq28(aiUsageLogTable.userId, usersTable.id)).where(whereClause).groupBy(aiUsageLogTable.userId, usersTable.email).orderBy(desc17(sql10`sum(${aiUsageLogTable.estimatedCostUsd})`));
   const perUser = perUserRaw.map((r2) => ({
     userId: r2.userId,
     email: r2.email ?? "unknown",
@@ -255328,10 +255743,10 @@ router23.get("/admin/usage", async (req, res) => {
   }));
   const perProviderRaw = await db.select({
     provider: aiUsageLogTable.provider,
-    totalRequests: sql8`count(*)`,
-    totalInputTokens: sql8`sum(${aiUsageLogTable.inputTokens})`,
-    totalOutputTokens: sql8`sum(${aiUsageLogTable.outputTokens})`,
-    totalCostUsd: sql8`sum(${aiUsageLogTable.estimatedCostUsd})`
+    totalRequests: sql10`count(*)`,
+    totalInputTokens: sql10`sum(${aiUsageLogTable.inputTokens})`,
+    totalOutputTokens: sql10`sum(${aiUsageLogTable.outputTokens})`,
+    totalCostUsd: sql10`sum(${aiUsageLogTable.estimatedCostUsd})`
   }).from(aiUsageLogTable).where(whereClause).groupBy(aiUsageLogTable.provider);
   const perProvider = perProviderRaw.map((r2) => ({
     provider: r2.provider,
@@ -255342,12 +255757,12 @@ router23.get("/admin/usage", async (req, res) => {
   }));
   const topUsersBySpend = [...perUser].sort((a, b) => b.totalCostUsd - a.totalCostUsd).slice(0, 10).map((r2) => ({ userId: r2.userId, email: r2.email, totalCostUsd: r2.totalCostUsd }));
   const dailyTotalsRaw = await db.select({
-    date: sql8`date(${aiUsageLogTable.createdAt})`,
-    totalRequests: sql8`count(*)`,
-    totalInputTokens: sql8`sum(${aiUsageLogTable.inputTokens})`,
-    totalOutputTokens: sql8`sum(${aiUsageLogTable.outputTokens})`,
-    totalCostUsd: sql8`sum(${aiUsageLogTable.estimatedCostUsd})`
-  }).from(aiUsageLogTable).where(whereClause).groupBy(sql8`date(${aiUsageLogTable.createdAt})`).orderBy(desc17(sql8`date(${aiUsageLogTable.createdAt})`));
+    date: sql10`date(${aiUsageLogTable.createdAt})`,
+    totalRequests: sql10`count(*)`,
+    totalInputTokens: sql10`sum(${aiUsageLogTable.inputTokens})`,
+    totalOutputTokens: sql10`sum(${aiUsageLogTable.outputTokens})`,
+    totalCostUsd: sql10`sum(${aiUsageLogTable.estimatedCostUsd})`
+  }).from(aiUsageLogTable).where(whereClause).groupBy(sql10`date(${aiUsageLogTable.createdAt})`).orderBy(desc17(sql10`date(${aiUsageLogTable.createdAt})`));
   const dailyTotals = dailyTotalsRaw.map((r2) => ({
     date: String(r2.date),
     totalRequests: Number(r2.totalRequests),
@@ -255356,10 +255771,10 @@ router23.get("/admin/usage", async (req, res) => {
     totalCostUsd: Math.round(Number(r2.totalCostUsd) * 1e6) / 1e6
   }));
   const [grandTotals] = await db.select({
-    totalRequests: sql8`count(*)`,
-    totalInputTokens: sql8`sum(${aiUsageLogTable.inputTokens})`,
-    totalOutputTokens: sql8`sum(${aiUsageLogTable.outputTokens})`,
-    totalCostUsd: sql8`sum(${aiUsageLogTable.estimatedCostUsd})`
+    totalRequests: sql10`count(*)`,
+    totalInputTokens: sql10`sum(${aiUsageLogTable.inputTokens})`,
+    totalOutputTokens: sql10`sum(${aiUsageLogTable.outputTokens})`,
+    totalCostUsd: sql10`sum(${aiUsageLogTable.estimatedCostUsd})`
   }).from(aiUsageLogTable).where(whereClause);
   res.json({
     period,
@@ -255373,22 +255788,22 @@ router23.get("/admin/usage", async (req, res) => {
     dailyTotals
   });
 });
-var usage_default = router23;
+var usage_default = router26;
 
 // src/routes/document-templates.ts
-var import_express24 = __toESM(require_express2(), 1);
-import { eq as eq26, or, isNull as isNull6, desc as desc18 } from "drizzle-orm";
-import { z as z7 } from "zod/v4";
-var router24 = (0, import_express24.Router)();
-var createTemplateSchema = z7.object({
-  name: z7.string().min(1).max(120),
-  category: z7.string().min(1).max(60).default("custom"),
-  outline: z7.string().min(1),
-  citationFormat: z7.string().max(40).optional(),
-  minRefCount: z7.number().int().min(0).max(100).default(5),
-  description: z7.string().max(500).optional(),
-  tags: z7.string().max(255).optional(),
-  isPublic: z7.boolean().default(false)
+var import_express27 = __toESM(require_express2(), 1);
+import { eq as eq29, or, isNull as isNull6, desc as desc18 } from "drizzle-orm";
+import { z as z9 } from "zod/v4";
+var router27 = (0, import_express27.Router)();
+var createTemplateSchema = z9.object({
+  name: z9.string().min(1).max(120),
+  category: z9.string().min(1).max(60).default("custom"),
+  outline: z9.string().min(1),
+  citationFormat: z9.string().max(40).optional(),
+  minRefCount: z9.number().int().min(0).max(100).default(5),
+  description: z9.string().max(500).optional(),
+  tags: z9.string().max(255).optional(),
+  isPublic: z9.boolean().default(false)
 });
 var updateTemplateSchema = createTemplateSchema.partial();
 function toTemplateJson(t2) {
@@ -255407,20 +255822,20 @@ function toTemplateJson(t2) {
     updatedAt: t2.updatedAt
   };
 }
-router24.get("/templates", async (req, res) => {
+router27.get("/templates", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
   const templates = await db.select().from(documentTemplatesTable).where(
     or(
-      eq26(documentTemplatesTable.userId, req.user.id),
+      eq29(documentTemplatesTable.userId, req.user.id),
       isNull6(documentTemplatesTable.userId)
     )
   ).orderBy(desc18(documentTemplatesTable.createdAt));
   res.json(templates.map(toTemplateJson));
 });
-router24.get("/templates/categories", async (req, res) => {
+router27.get("/templates/categories", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -255439,7 +255854,7 @@ router24.get("/templates/categories", async (req, res) => {
     ]
   });
 });
-router24.get("/templates/:templateId", async (req, res) => {
+router27.get("/templates/:templateId", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -255449,7 +255864,7 @@ router24.get("/templates/:templateId", async (req, res) => {
     res.status(400).json({ error: "Invalid template ID" });
     return;
   }
-  const [template] = await db.select().from(documentTemplatesTable).where(eq26(documentTemplatesTable.id, templateId)).limit(1);
+  const [template] = await db.select().from(documentTemplatesTable).where(eq29(documentTemplatesTable.id, templateId)).limit(1);
   if (!template) {
     res.status(404).json({ error: "Template not found" });
     return;
@@ -255463,7 +255878,7 @@ router24.get("/templates/:templateId", async (req, res) => {
   }
   res.json(toTemplateJson(template));
 });
-router24.post("/templates", async (req, res) => {
+router27.post("/templates", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -255487,7 +255902,7 @@ router24.post("/templates", async (req, res) => {
   }).returning();
   res.status(201).json(toTemplateJson(template));
 });
-router24.put("/templates/:templateId", async (req, res) => {
+router27.put("/templates/:templateId", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -255502,7 +255917,7 @@ router24.put("/templates/:templateId", async (req, res) => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
-  const [existing] = await db.select().from(documentTemplatesTable).where(eq26(documentTemplatesTable.id, templateId)).limit(1);
+  const [existing] = await db.select().from(documentTemplatesTable).where(eq29(documentTemplatesTable.id, templateId)).limit(1);
   if (!existing) {
     res.status(404).json({ error: "Template not found" });
     return;
@@ -255526,10 +255941,10 @@ router24.put("/templates/:templateId", async (req, res) => {
   if (data.tags !== void 0) updates.tags = data.tags;
   if (data.isPublic !== void 0) updates.isPublic = data.isPublic;
   updates.updatedAt = /* @__PURE__ */ new Date();
-  const [updated] = await db.update(documentTemplatesTable).set(updates).where(eq26(documentTemplatesTable.id, templateId)).returning();
+  const [updated] = await db.update(documentTemplatesTable).set(updates).where(eq29(documentTemplatesTable.id, templateId)).returning();
   res.json(toTemplateJson(updated));
 });
-router24.delete("/templates/:templateId", async (req, res) => {
+router27.delete("/templates/:templateId", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -255539,7 +255954,7 @@ router24.delete("/templates/:templateId", async (req, res) => {
     res.status(400).json({ error: "Invalid template ID" });
     return;
   }
-  const [existing] = await db.select().from(documentTemplatesTable).where(eq26(documentTemplatesTable.id, templateId)).limit(1);
+  const [existing] = await db.select().from(documentTemplatesTable).where(eq29(documentTemplatesTable.id, templateId)).limit(1);
   if (!existing) {
     res.status(404).json({ error: "Template not found" });
     return;
@@ -255552,46 +255967,46 @@ router24.delete("/templates/:templateId", async (req, res) => {
     res.status(403).json({ error: "Access denied" });
     return;
   }
-  await db.delete(documentTemplatesTable).where(eq26(documentTemplatesTable.id, templateId));
+  await db.delete(documentTemplatesTable).where(eq29(documentTemplatesTable.id, templateId));
   res.sendStatus(204);
 });
-var document_templates_default = router24;
+var document_templates_default = router27;
 
 // src/routes/admin-ai-tiers.ts
-var import_express25 = __toESM(require_express2(), 1);
-import { eq as eq27 } from "drizzle-orm";
-import { z as z8 } from "zod/v4";
-var router25 = (0, import_express25.Router)();
+var import_express28 = __toESM(require_express2(), 1);
+import { eq as eq30 } from "drizzle-orm";
+import { z as z10 } from "zod/v4";
+var router28 = (0, import_express28.Router)();
 async function requireOwner(req, res, next) {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const [user] = await db.select({ isOwner: usersTable.isOwner }).from(usersTable).where(eq27(usersTable.id, req.user.id)).limit(1);
+  const [user] = await db.select({ isOwner: usersTable.isOwner }).from(usersTable).where(eq30(usersTable.id, req.user.id)).limit(1);
   if (!user?.isOwner) {
     res.status(403).json({ error: "Owner access required" });
     return;
   }
   next();
 }
-var updateTierSchema = z8.object({
-  name: z8.string().min(1).max(50).optional(),
-  pricePer1MInputCents: z8.number().int().min(0).optional(),
-  pricePer1MOutputCents: z8.number().int().min(0).optional(),
-  providerCostPer1MInputCents: z8.number().int().min(0).optional(),
-  providerCostPer1MOutputCents: z8.number().int().min(0).optional(),
-  rateLimitRpm: z8.number().int().min(1).max(1e4).nullable().optional(),
-  rateLimitTpd: z8.number().int().min(1).max(1e8).nullable().optional(),
-  isFree: z8.boolean().optional(),
-  isActive: z8.boolean().optional(),
-  description: z8.string().max(500).optional(),
-  usageTips: z8.string().max(500).nullable().optional()
+var updateTierSchema = z10.object({
+  name: z10.string().min(1).max(50).optional(),
+  pricePer1MInputCents: z10.number().int().min(0).optional(),
+  pricePer1MOutputCents: z10.number().int().min(0).optional(),
+  providerCostPer1MInputCents: z10.number().int().min(0).optional(),
+  providerCostPer1MOutputCents: z10.number().int().min(0).optional(),
+  rateLimitRpm: z10.number().int().min(1).max(1e4).nullable().optional(),
+  rateLimitTpd: z10.number().int().min(1).max(1e8).nullable().optional(),
+  isFree: z10.boolean().optional(),
+  isActive: z10.boolean().optional(),
+  description: z10.string().max(500).optional(),
+  usageTips: z10.string().max(500).nullable().optional()
 });
-router25.get("/admin/ai-tiers", requireOwner, async (_req, res) => {
+router28.get("/admin/ai-tiers", requireOwner, async (_req, res) => {
   const tiers = await db.select().from(aiTiersTable).orderBy(aiTiersTable.displayOrder);
   res.json({ tiers });
 });
-router25.put("/admin/ai-tiers/:id", requireOwner, async (req, res) => {
+router28.put("/admin/ai-tiers/:id", requireOwner, async (req, res) => {
   const parsed = updateTierSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -255599,7 +256014,7 @@ router25.put("/admin/ai-tiers/:id", requireOwner, async (req, res) => {
   }
   const tierId = req.params.id;
   const update = parsed.data;
-  const [existing] = await db.select().from(aiTiersTable).where(eq27(aiTiersTable.id, tierId)).limit(1);
+  const [existing] = await db.select().from(aiTiersTable).where(eq30(aiTiersTable.id, tierId)).limit(1);
   if (!existing) {
     res.status(404).json({ error: `Tier '${tierId}' tidak ditemukan` });
     return;
@@ -255610,13 +256025,13 @@ router25.put("/admin/ai-tiers/:id", requireOwner, async (req, res) => {
       updatePayload[key] = value;
     }
   }
-  const [updated] = await db.update(aiTiersTable).set(updatePayload).where(eq27(aiTiersTable.id, tierId)).returning();
+  const [updated] = await db.update(aiTiersTable).set(updatePayload).where(eq30(aiTiersTable.id, tierId)).returning();
   res.json({ tier: updated });
 });
-var admin_ai_tiers_default = router25;
+var admin_ai_tiers_default = router28;
 
 // src/routes/admin.ts
-var import_express26 = __toESM(require_express2(), 1);
+var import_express29 = __toESM(require_express2(), 1);
 
 // src/middlewares/owner.ts
 var OWNER_EMAIL = process.env.OWNER_EMAIL ?? "";
@@ -255633,22 +256048,22 @@ function requireOwner2(req, res, next) {
 }
 
 // src/routes/admin.ts
-import { sql as sql9, eq as eq28, count as count2, or as or2, and as and15, gte as gte3 } from "drizzle-orm";
-var router26 = (0, import_express26.Router)();
-router26.get("/me", authMiddleware, (req, res) => {
+import { sql as sql11, eq as eq31, count as count2, or as or2, and as and16, gte as gte4 } from "drizzle-orm";
+var router29 = (0, import_express29.Router)();
+router29.get("/me", authMiddleware, (req, res) => {
   const OWNER_EMAIL2 = process.env.OWNER_EMAIL ?? "";
   const isOwner = req.user?.email?.toLowerCase() === OWNER_EMAIL2.toLowerCase();
   res.json({ isOwner, email: req.user?.email });
 });
-router26.get("/users", authMiddleware, requireOwner2, async (req, res) => {
+router29.get("/users", authMiddleware, requireOwner2, async (req, res) => {
   try {
     const search = req.query.search;
     const page = Math.max(1, parseInt(req.query.page) || 1);
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
     const offset = (page - 1) * limit;
     const searchCondition = search ? or2(
-      sql9`LOWER(${usersTable.email}) LIKE ${"%" + search.toLowerCase() + "%"}`,
-      sql9`LOWER(COALESCE(${usersTable.displayName}, '')) LIKE ${"%" + search.toLowerCase() + "%"}`
+      sql11`LOWER(${usersTable.email}) LIKE ${"%" + search.toLowerCase() + "%"}`,
+      sql11`LOWER(COALESCE(${usersTable.displayName}, '')) LIKE ${"%" + search.toLowerCase() + "%"}`
     ) : void 0;
     const [users, totalResult] = await Promise.all([
       db.select({
@@ -255665,13 +256080,13 @@ router26.get("/users", authMiddleware, requireOwner2, async (req, res) => {
     const projectCounts = userIds.length ? await db.select({
       userId: projectsTable.userId,
       count: count2()
-    }).from(projectsTable).where(sql9`${projectsTable.userId} IN (${sql9.join(userIds.map((id) => sql9`${id}`), sql9`, `)})`).groupBy(projectsTable.userId) : [];
+    }).from(projectsTable).where(sql11`${projectsTable.userId} IN (${sql11.join(userIds.map((id) => sql11`${id}`), sql11`, `)})`).groupBy(projectsTable.userId) : [];
     const projectCountMap = new Map(projectCounts.map((p) => [p.userId, p.count]));
     const usageStats = userIds.length ? await db.select({
       userId: aiUsageLogTable.userId,
       totalRequests: count2(),
-      totalCostUsd: sql9`SUM(${aiUsageLogTable.estimatedCostUsd})`
-    }).from(aiUsageLogTable).where(sql9`${aiUsageLogTable.userId} IN (${sql9.join(userIds.map((id) => sql9`${id}`), sql9`, `)})`).groupBy(aiUsageLogTable.userId) : [];
+      totalCostUsd: sql11`SUM(${aiUsageLogTable.estimatedCostUsd})`
+    }).from(aiUsageLogTable).where(sql11`${aiUsageLogTable.userId} IN (${sql11.join(userIds.map((id) => sql11`${id}`), sql11`, `)})`).groupBy(aiUsageLogTable.userId) : [];
     const usageMap = new Map(usageStats.map((u) => [u.userId, u]));
     const enriched = users.map((u) => ({
       ...u,
@@ -255693,7 +256108,7 @@ router26.get("/users", authMiddleware, requireOwner2, async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-router26.get("/stats", authMiddleware, requireOwner2, async (req, res) => {
+router29.get("/stats", authMiddleware, requireOwner2, async (req, res) => {
   try {
     const period = req.query.period || "month";
     const now = /* @__PURE__ */ new Date();
@@ -255715,32 +256130,32 @@ router26.get("/stats", authMiddleware, requireOwner2, async (req, res) => {
       db.select({ count: count2() }).from(projectsTable),
       db.select({
         totalRequests: count2(),
-        totalCostUsd: sql9`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`,
-        totalInputTokens: sql9`COALESCE(SUM(${aiUsageLogTable.inputTokens}), 0)`,
-        totalOutputTokens: sql9`COALESCE(SUM(${aiUsageLogTable.outputTokens}), 0)`
-      }).from(aiUsageLogTable).where(gte3(aiUsageLogTable.createdAt, startDate)),
+        totalCostUsd: sql11`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`,
+        totalInputTokens: sql11`COALESCE(SUM(${aiUsageLogTable.inputTokens}), 0)`,
+        totalOutputTokens: sql11`COALESCE(SUM(${aiUsageLogTable.outputTokens}), 0)`
+      }).from(aiUsageLogTable).where(gte4(aiUsageLogTable.createdAt, startDate)),
       db.select({
-        totalTopup: sql9`COALESCE(SUM(CASE WHEN ${tokenTransactionsTable.type} = 'topup' THEN ${tokenTransactionsTable.amountCents} ELSE 0 END), 0)`,
-        totalRefund: sql9`COALESCE(SUM(CASE WHEN ${tokenTransactionsTable.type} = 'refund' THEN ${tokenTransactionsTable.amountCents} ELSE 0 END), 0)`,
+        totalTopup: sql11`COALESCE(SUM(CASE WHEN ${tokenTransactionsTable.type} = 'topup' THEN ${tokenTransactionsTable.amountCents} ELSE 0 END), 0)`,
+        totalRefund: sql11`COALESCE(SUM(CASE WHEN ${tokenTransactionsTable.type} = 'refund' THEN ${tokenTransactionsTable.amountCents} ELSE 0 END), 0)`,
         transactionCount: count2()
-      }).from(tokenTransactionsTable).where(gte3(tokenTransactionsTable.createdAt, startDate)),
+      }).from(tokenTransactionsTable).where(gte4(tokenTransactionsTable.createdAt, startDate)),
       db.select({
         userId: aiUsageLogTable.userId,
-        totalCostUsd: sql9`SUM(${aiUsageLogTable.estimatedCostUsd})`,
+        totalCostUsd: sql11`SUM(${aiUsageLogTable.estimatedCostUsd})`,
         totalRequests: count2()
-      }).from(aiUsageLogTable).where(gte3(aiUsageLogTable.createdAt, startDate)).groupBy(aiUsageLogTable.userId).orderBy(sql9`SUM(${aiUsageLogTable.estimatedCostUsd}) DESC`).limit(10)
+      }).from(aiUsageLogTable).where(gte4(aiUsageLogTable.createdAt, startDate)).groupBy(aiUsageLogTable.userId).orderBy(sql11`SUM(${aiUsageLogTable.estimatedCostUsd}) DESC`).limit(10)
     ]);
     const OWNER_EMAIL2 = process.env.OWNER_EMAIL ?? "";
-    const ownerUser = await db.select({ id: usersTable.id }).from(usersTable).where(sql9`LOWER(${usersTable.email}) = ${OWNER_EMAIL2.toLowerCase()}`).limit(1);
+    const ownerUser = await db.select({ id: usersTable.id }).from(usersTable).where(sql11`LOWER(${usersTable.email}) = ${OWNER_EMAIL2.toLowerCase()}`).limit(1);
     let ownerUsage = { totalRequests: 0, totalCostUsd: 0 };
     if (ownerUser[0]) {
       const [ownerStats] = await db.select({
         totalRequests: count2(),
-        totalCostUsd: sql9`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`
+        totalCostUsd: sql11`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`
       }).from(aiUsageLogTable).where(
-        and15(
-          eq28(aiUsageLogTable.userId, ownerUser[0].id),
-          gte3(aiUsageLogTable.createdAt, startDate)
+        and16(
+          eq31(aiUsageLogTable.userId, ownerUser[0].id),
+          gte4(aiUsageLogTable.createdAt, startDate)
         )
       );
       ownerUsage = {
@@ -255778,7 +256193,7 @@ router26.get("/stats", authMiddleware, requireOwner2, async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-router26.get("/usage-breakdown", authMiddleware, requireOwner2, async (req, res) => {
+router29.get("/usage-breakdown", authMiddleware, requireOwner2, async (req, res) => {
   try {
     const period = req.query.period || "month";
     const now = /* @__PURE__ */ new Date();
@@ -255798,25 +256213,25 @@ router26.get("/usage-breakdown", authMiddleware, requireOwner2, async (req, res)
     const byProvider = await db.select({
       provider: aiUsageLogTable.provider,
       totalRequests: count2(),
-      totalCostUsd: sql9`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`,
-      totalInputTokens: sql9`COALESCE(SUM(${aiUsageLogTable.inputTokens}), 0)`,
-      totalOutputTokens: sql9`COALESCE(SUM(${aiUsageLogTable.outputTokens}), 0)`
-    }).from(aiUsageLogTable).where(gte3(aiUsageLogTable.createdAt, startDate)).groupBy(aiUsageLogTable.provider);
+      totalCostUsd: sql11`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`,
+      totalInputTokens: sql11`COALESCE(SUM(${aiUsageLogTable.inputTokens}), 0)`,
+      totalOutputTokens: sql11`COALESCE(SUM(${aiUsageLogTable.outputTokens}), 0)`
+    }).from(aiUsageLogTable).where(gte4(aiUsageLogTable.createdAt, startDate)).groupBy(aiUsageLogTable.provider);
     const byModel = await db.select({
       model: aiUsageLogTable.model,
       provider: aiUsageLogTable.provider,
       totalRequests: count2(),
-      totalCostUsd: sql9`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`,
-      totalInputTokens: sql9`COALESCE(SUM(${aiUsageLogTable.inputTokens}), 0)`,
-      totalOutputTokens: sql9`COALESCE(SUM(${aiUsageLogTable.outputTokens}), 0)`
-    }).from(aiUsageLogTable).where(gte3(aiUsageLogTable.createdAt, startDate)).groupBy(aiUsageLogTable.model, aiUsageLogTable.provider).orderBy(sql9`SUM(${aiUsageLogTable.estimatedCostUsd}) DESC`);
+      totalCostUsd: sql11`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`,
+      totalInputTokens: sql11`COALESCE(SUM(${aiUsageLogTable.inputTokens}), 0)`,
+      totalOutputTokens: sql11`COALESCE(SUM(${aiUsageLogTable.outputTokens}), 0)`
+    }).from(aiUsageLogTable).where(gte4(aiUsageLogTable.createdAt, startDate)).groupBy(aiUsageLogTable.model, aiUsageLogTable.provider).orderBy(sql11`SUM(${aiUsageLogTable.estimatedCostUsd}) DESC`);
     const byRequestType = await db.select({
       requestType: aiUsageLogTable.requestType,
       totalRequests: count2(),
-      totalCostUsd: sql9`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`,
-      totalInputTokens: sql9`COALESCE(SUM(${aiUsageLogTable.inputTokens}), 0)`,
-      totalOutputTokens: sql9`COALESCE(SUM(${aiUsageLogTable.outputTokens}), 0)`
-    }).from(aiUsageLogTable).where(gte3(aiUsageLogTable.createdAt, startDate)).groupBy(aiUsageLogTable.requestType);
+      totalCostUsd: sql11`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`,
+      totalInputTokens: sql11`COALESCE(SUM(${aiUsageLogTable.inputTokens}), 0)`,
+      totalOutputTokens: sql11`COALESCE(SUM(${aiUsageLogTable.outputTokens}), 0)`
+    }).from(aiUsageLogTable).where(gte4(aiUsageLogTable.createdAt, startDate)).groupBy(aiUsageLogTable.requestType);
     res.json({
       period,
       byProvider: byProvider.map((r2) => ({
@@ -255843,15 +256258,15 @@ router26.get("/usage-breakdown", authMiddleware, requireOwner2, async (req, res)
     res.status(500).json({ error: "Internal server error" });
   }
 });
-router26.get("/audit-log", authMiddleware, requireOwner2, async (req, res) => {
+router29.get("/audit-log", authMiddleware, requireOwner2, async (req, res) => {
   try {
     const page = Math.max(1, parseInt(req.query.page) || 1);
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 50));
     const offset = (page - 1) * limit;
     const action = req.query.action;
-    const actionCondition = action ? eq28(adminAuditLogTable.action, action) : void 0;
+    const actionCondition = action ? eq31(adminAuditLogTable.action, action) : void 0;
     const [logs, totalResult] = await Promise.all([
-      db.select().from(adminAuditLogTable).where(actionCondition).orderBy(sql9`${adminAuditLogTable.createdAt} DESC`).limit(limit).offset(offset),
+      db.select().from(adminAuditLogTable).where(actionCondition).orderBy(sql11`${adminAuditLogTable.createdAt} DESC`).limit(limit).offset(offset),
       db.select({ count: count2() }).from(adminAuditLogTable).where(actionCondition)
     ]);
     res.json({
@@ -255868,11 +256283,11 @@ router26.get("/audit-log", authMiddleware, requireOwner2, async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-router26.post("/users/:userId/tier", authMiddleware, requireOwner2, async (req, res) => {
+router29.post("/users/:userId/tier", authMiddleware, requireOwner2, async (req, res) => {
   try {
     const { userId } = req.params;
     const { tierId } = req.body;
-    await db.update(userBalancesTable).set({ preferredTierId: tierId ?? null, updatedAt: /* @__PURE__ */ new Date() }).where(eq28(userBalancesTable.userId, userId));
+    await db.update(userBalancesTable).set({ preferredTierId: tierId ?? null, updatedAt: /* @__PURE__ */ new Date() }).where(eq31(userBalancesTable.userId, userId));
     await db.insert(adminAuditLogTable).values({
       adminEmail: req.user.email,
       action: "tier_override",
@@ -255887,7 +256302,7 @@ router26.post("/users/:userId/tier", authMiddleware, requireOwner2, async (req, 
     res.status(500).json({ error: "Internal server error" });
   }
 });
-router26.post("/users/:userId/suspend", authMiddleware, requireOwner2, async (req, res) => {
+router29.post("/users/:userId/suspend", authMiddleware, requireOwner2, async (req, res) => {
   try {
     const { userId } = req.params;
     const { suspend } = req.body;
@@ -255905,52 +256320,55 @@ router26.post("/users/:userId/suspend", authMiddleware, requireOwner2, async (re
     res.status(500).json({ error: "Internal server error" });
   }
 });
-var admin_default = router26;
+var admin_default = router29;
 
 // src/routes/index.ts
-var router27 = (0, import_express27.Router)();
-router27.use(health_default);
-router27.use(auth_default);
-router27.use(shared_default);
-router27.use(ai_tiers_default);
-router27.use(authMiddleware);
-router27.use("/projects/:projectId/messages", aiLimiter);
-router27.use("/projects/:projectId/quizzes", aiLimiter);
-router27.use("/projects/:projectId/references", aiLimiter);
-router27.use("/projects/:projectId/analyze", aiLimiter);
-router27.use("/projects/:projectId/outline", aiLimiter);
-router27.use("/projects/:projectId/documents/generate", aiLimiter);
-router27.use("/users/me/writing-style/analyze", aiLimiter);
-router27.use(projects_default);
-router27.use(messages_default);
-router27.use(documents_default);
-router27.use(references_default);
-router27.use(account_references_default);
-router27.use(learning_activities_default);
-router27.use(attachments_default);
-router27.use(activities_default);
-router27.use(jobs_default);
-router27.use(metadata_default);
-router27.use(exports_default);
-router27.use(ai_usage_default);
-router27.use(comments_default);
-router27.use(project_members_default);
-router27.use(quizzes_default);
-router27.use(rubrics_default);
-router27.use(writing_style_default);
-router27.use(balance_default);
-router27.use(usage_default);
-router27.use(document_templates_default);
-router27.use(admin_ai_tiers_default);
-router27.use(admin_default);
-var routes_default = router27;
+var router30 = (0, import_express30.Router)();
+router30.use(health_default);
+router30.use(auth_default);
+router30.use(shared_default);
+router30.use(ai_tiers_default);
+router30.use(packages_default);
+router30.use(authMiddleware);
+router30.use("/projects/:projectId/messages", aiLimiter);
+router30.use("/projects/:projectId/quizzes", aiLimiter);
+router30.use("/projects/:projectId/references", aiLimiter);
+router30.use("/projects/:projectId/analyze", aiLimiter);
+router30.use("/projects/:projectId/outline", aiLimiter);
+router30.use("/projects/:projectId/documents/generate", aiLimiter);
+router30.use("/users/me/writing-style/analyze", aiLimiter);
+router30.use(projects_default);
+router30.use(messages_default);
+router30.use(documents_default);
+router30.use(references_default);
+router30.use(account_references_default);
+router30.use(learning_activities_default);
+router30.use(attachments_default);
+router30.use(activities_default);
+router30.use(jobs_default);
+router30.use(metadata_default);
+router30.use(exports_default);
+router30.use(ai_usage_default);
+router30.use(comments_default);
+router30.use(project_members_default);
+router30.use(quizzes_default);
+router30.use(rubrics_default);
+router30.use(writing_style_default);
+router30.use(balance_default);
+router30.use(autofallback_default);
+router30.use(subscriptions_default);
+router30.use(usage_default);
+router30.use(document_templates_default);
+router30.use(admin_ai_tiers_default);
+router30.use(admin_default);
+var routes_default = router30;
 
 // src/routes/webhooks.ts
-var import_express28 = __toESM(require_express2(), 1);
-import { eq as eq29 } from "drizzle-orm";
-var router28 = (0, import_express28.Router)();
+var import_express31 = __toESM(require_express2(), 1);
+import { eq as eq32 } from "drizzle-orm";
+var router31 = (0, import_express31.Router)();
 var WEBHOOK_SECRET = process.env.WEBHOOK_SECRET ?? "";
-router28.post("/webhooks/email-verified", async (req, res) => {
+router31.post("/webhooks/email-verified", async (req, res) => {
   if (WEBHOOK_SECRET && req.headers["x-webhook-secret"] !== WEBHOOK_SECRET) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -255966,7 +256384,7 @@ router28.post("/webhooks/email-verified", async (req, res) => {
     res.sendStatus(200);
     return;
   }
-  const [referral] = await db.select().from(referralsTable).where(eq29(referralsTable.referredId, userId));
+  const [referral] = await db.select().from(referralsTable).where(eq32(referralsTable.referredId, userId));
   if (!referral) {
     res.sendStatus(200);
     return;
@@ -255975,7 +256393,7 @@ router28.post("/webhooks/email-verified", async (req, res) => {
     res.sendStatus(200);
     return;
   }
-  await db.update(referralsTable).set({ status: "verified", updatedAt: /* @__PURE__ */ new Date() }).where(eq29(referralsTable.id, referral.id));
+  await db.update(referralsTable).set({ status: "verified", updatedAt: /* @__PURE__ */ new Date() }).where(eq32(referralsTable.id, referral.id));
   await db.insert(referralEventsTable).values({
     referralId: referral.id,
     actorId: null,
@@ -255987,10 +256405,10 @@ router28.post("/webhooks/email-verified", async (req, res) => {
   });
   res.sendStatus(200);
 });
-var webhooks_default = router28;
+var webhooks_default = router31;
 
 // src/app.ts
-var app = (0, import_express29.default)();
+var app = (0, import_express32.default)();
 app.set("trust proxy", 1);
 app.get("/test", (_req, res) => {
   res.json({ ok: true, ts: Date.now() });
@@ -256026,8 +256444,8 @@ app.use(
     credentials: true
   })
 );
-app.use(import_express29.default.json());
-app.use(import_express29.default.urlencoded({ extended: true }));
+app.use(import_express32.default.json());
+app.use(import_express32.default.urlencoded({ extended: true }));
 app.use("/webhooks", webhooks_default);
 var authLimiter = lib_default({
   windowMs: 60 * 1e3,

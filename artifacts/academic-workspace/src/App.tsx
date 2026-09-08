@@ -16,7 +16,6 @@ import Confirm from "@/pages/confirm";
 import AuthCallback from "@/pages/auth-callback";
 import FinOps from "@/pages/finops";
 import Referral from "@/pages/referral";
-import AIPricing from "@/pages/ai-pricing";
 import Topup from "@/pages/topup";
 import Terms from "@/pages/terms";
 import Privacy from "@/pages/privacy";
@@ -118,13 +117,6 @@ function AppRouter() {
           </Layout>
         </ProtectedRoute>
       </Route>
-      <Route path="/ai-pricing">
-        <ProtectedRoute>
-          <Layout>
-            <AnimatedPage><AIPricing /></AnimatedPage>
-          </Layout>
-        </ProtectedRoute>
-      </Route>
       <Route path="/topup">
         <ProtectedRoute>
           <Layout>
@@ -192,7 +184,7 @@ function AppRouter() {
           </Layout>
         </ProtectedRoute>
       </Route>
-      <Route path="/langganan">
+      <Route path="/subscribe">
         <ProtectedRoute>
           <Layout>
             <AnimatedPage><Langganan /></AnimatedPage>
