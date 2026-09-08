@@ -700,12 +700,13 @@ Backend Pustaka Saya **SUDAH FULL IMPLEMENTED** (`artifacts/api-server/src/route
 
 ---
 
-## ACTIVE 2026-09-08 — Pricing Strategy `/langganan` Page (Anchored Rolling Window + 30 SKU)
+## ACTIVE 2026-09-08 — Pricing Strategy `/langganan` Page (Anchored Rolling Window + 30 SKU + Saldo IDR Hybrid)
 
-**Status:** ✅ DEPLOYED TO PRODUCTION for owner verification
+**Status:** 🟡 IN PROGRESS — Frontend display deployed + Saldo mechanism spec complete, awaiting owner review & next priorities
 **Production URL:** https://academic-workspace-eta.vercel.app/langganan
 **Model:** claude-opus-4-8
 **Branch:** `feat/daftar-task`
+**Commits:** `f502c4b` (initial frontend), `00b8174` (banner removal + saldo docs)
 
 ### Owner Goal
 
@@ -722,48 +723,63 @@ Owner-defined mechanics (per message 2026-09-08):
 
 ### 30 SKU Matrix
 
-5 tiers × 3 model types × 2 periods = 30 SKUs
+5 tiers × 3 model types × 2 periods = 30 SKUs (see Section 10 of pricing-strategy doc)
 
-| Tier | 15-day | 30-day | Best For |
-|------|--------|--------|----------|
-| Starter | Rp29rb | Rp49rb | Coba-coba |
-| Standar (Paling Populer) | Rp59rb | Rp99rb | Mahasiswa rutin |
-| Premium (Pilihan Terbaik) | Rp99rb | Rp165rb | Power user |
-| Pro | Rp149rb | Rp249rb | Riset intensif |
-| Ultra | Rp229rb | Rp389rb | Tim/organisasi |
+### Hybrid Mode: Subscription + Topup Saldo (Owner-confirmed 2026-09-08)
 
-3 model modes: **Lama** (Haiku 4.5 only), **Campuran** (Haiku + Sonnet mix), **Baru** (Sonnet 5 primary).
+| Aturan | Keputusan |
+|--------|-----------|
+| Topup disimpan sebagai **IDR** (bukan token) | ✅ |
+| Minimum topup | Rp 10.000 |
+| Saldo expire (no activity) | 12 bulan → **HOLD** + kontak CS untuk reaktivasi |
+| Withdraw/pencairan saldo | Bisa dicairkan → detail mekanisme **didiskusikan di sesi referral** |
+| Mix subscription + topup | Boleh berbeda transaksi |
+| Autofallback | **ON by default** (bisa di-toggle di Settings) |
+| Banner saldo rendah | 🗑️ **Dihapus** per owner — "no nag" UX |
+
+### ToS Checkbox Spec (Owner 2026-09-08)
+
+Sebelum payment subscription, user WAJIB centang checkbox ToS:
+- ☑ Langganan TIDAK BISA di-pause
+- ☑ Tidak ada refund setelah pembayaran berhasil
+- ☑ Kuota tidak digunakan akan hangus
+- ☑ Saya menyetujui Syarat & Ketentuan Teora
+
+Tombol "Bayar" disabled sampai SEMUA checkbox dicentang.
 
 ### Files Changed
 
 | File | Status | Notes |
 |------|--------|-------|
-| `docs/ai-team/finance/pricing-strategy-2026-anthropic.md` | ✅ UPDATED | Sections 10 (Final Design) + 11 (Frontend Display) added |
+| `docs/ai-team/finance/pricing-strategy-2026-anthropic.md` | ✅ UPDATED | Sections 10, 11, 12 (Saldo IDR), 13 (ToS) added |
 | `artifacts/academic-workspace/src/pages/langganan.tsx` | ✅ NEW | ~600 lines: TIER data + QuotaBox + TierCard + LanggananPage |
 | `artifacts/academic-workspace/src/App.tsx` | ✅ UPDATED | Added `/langganan` protected route |
-| `artifacts/academic-workspace/src/components/layout.tsx` | ✅ UPDATED | Added `NavSubItem` "Paket Berlangganan" in Akun group |
-
-### Deployment Notes (2026-09-08)
-
-**Issue:** `--prebuilt` mode broke SPA routing because config.json SPA fallback is non-trivial.
-**Fix:** Use plain `vercel deploy --prod --yes` (no `--prebuilt`). Vercel runs npm install (from vercel.json) + vite build at remote, then automatically configures SPA routing correctly.
+| `artifacts/academic-workspace/src/components/layout.tsx` | ✅ UPDATED | Added `NavSubItem` "Paket Berlangganan"; **removed LowBalanceBanner** |
+| `artifacts/academic-workspace/src/components/low-balance-banner.tsx` | 🗑️ DELETED | Banner eksplisit tidak lagi dipakai |
+| `artifacts/academic-workspace/src/lib/balance-thresholds.ts` | ✅ UPDATED | Removed SALDO_BANNER_CENTS, kept SALDO_WARNING_CENTS |
 
 ### Verification
 
 | Endpoint | Status | Size |
 |----------|--------|------|
-| `/langganan` | 200 | 1413 bytes |
+| `/langganan` | 200 | 1413 bytes (HTML shell) |
 | `/` | 200 | 1413 bytes |
-| `/assets/index-*.js` | 200 | 1.5MB |
-| `/api/v1/ai-pricing/tiers` | 401 (proxied) | OK |
+| `/assets/index-*.js` | 200 | 1.5MB (contains all langganan + saldo strings, NO LowBalanceBanner) |
+| `/api/v1/ai-pricing/tiers` | 401 (proxied to backend) | OK |
 
-Bundle contains strings: `Paket Berlangganan`, `Pilihan Terbaik`, `Hemat 15%`, `Cara kerja kuota`, `/langganan`, `langganan`.
+Bundle contains: `Paket Berlangganan`, `Pilihan Terbaik`, `Hemat 15%`, `Cara kerja kuota`, `/langganan`, `langganan`, `Saldo`, `Saldo Anda`.
 
-### Pending Next Steps (per owner instruction)
+Bundle does NOT contain: `LowBalanceBanner`, `Saldo hampir habis`.
 
-1. Owner verifies display + wording on production URL
-2. Owner reports back any changes needed to copy/numbers
-3. After approval: setup backend subscription logic (tier selection, quota enforcement, 5h/7d windows)
+### Pending Next Steps
+
+1. **Owner verifies** display + wording on production URL
+2. **Owner reviews** Sections 12 + 13 of pricing doc (saldo mechanism + ToS spec)
+3. **Open question** — withdraw saldo mechanism (diskusi di sesi referral)
+4. **Open question** — sidebar oranye saldo rendah — keep atau hapus? (saya keep untuk sekarang sebagai visual cue)
+5. Backend subscription logic — DEFER per owner
+6. Payment integration (Midtrans/Stripe) — DEFER
+7. ToS checkbox UI implementation — saat payment flow di-setup
 
 ---
 

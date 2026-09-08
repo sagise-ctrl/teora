@@ -22,7 +22,6 @@ import { useGetMyBalance } from "@/lib/api-client-react";import { Badge } from "
 import { Skeleton } from "@/components/ui/skeleton";
 import { TeoraLogo } from "@/components/brand/teora-logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { SALDO_WARNING_CENTS } from "@/lib/balance-thresholds";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 
 interface NavItemProps {
@@ -210,34 +209,21 @@ function SidebarFooter({ onNavigate }: SidebarNavProps) {
   const { user, logout } = useAuth();
   const { data: balanceData, isLoading: balanceLoading } = useGetMyBalance();
 
-  const balanceCents = balanceData?.balanceCents ?? 0;
-  const isLowBalance = balanceCents < SALDO_WARNING_CENTS;
-
   return (
     <div className="p-3 border-t border-border space-y-3">
       {/* Balance Display */}
       <Link href="/topup" onClick={onNavigate}>
         <div
           className={cn(
-            "relative rounded-lg p-3 space-y-2 transition-colors cursor-pointer border",
-            isLowBalance
-              ? "bg-orange-500/10 border-orange-500/40 hover:bg-orange-500/15"
-              : "bg-sidebar-accent/50 border-transparent hover:bg-sidebar-accent"
+            "relative rounded-lg p-3 space-y-2 transition-colors cursor-pointer border bg-sidebar-accent/50 border-transparent hover:bg-sidebar-accent"
           )}
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              {isLowBalance ? (
-                <AlertCircle className="w-4 h-4 text-orange-500" />
-              ) : (
-                <Coins className="w-4 h-4 text-[#2D79FF]" />
-              )}
+              <Coins className="w-4 h-4 text-[#2D79FF]" />
               <span className="text-xs font-medium text-sidebar-foreground">
-                {isLowBalance ? "Saldo rendah" : "Saldo"}
+                Saldo
               </span>
-              {isLowBalance && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-orange-500" />
-              )}
             </div>
             {balanceLoading ? (
               <Skeleton className="h-3 w-16" />
@@ -248,7 +234,7 @@ function SidebarFooter({ onNavigate }: SidebarNavProps) {
             )}
           </div>
           <p className="text-[10px] text-sidebar-foreground/60">
-            {isLowBalance ? "Topup sekarang untuk lanjut pakai Teora" : "Klik untuk topup saldo"}
+            Klik untuk topup saldo
           </p>
         </div>
       </Link>

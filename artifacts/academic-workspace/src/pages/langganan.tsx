@@ -31,7 +31,6 @@ import {
   AlertCircle,
   Coins,
   Timer,
-  TrendingUp,
 } from "lucide-react";
 import { Link } from "wouter";
 
@@ -84,12 +83,7 @@ const TIERS: TierConfig[] = [
         sonnet: { per5h: 3.5, per7d: 35, max15: 70, max30: 140 },
       },
     },
-    features: [
-      "Grammar & formatting check",
-      "Lookup definisi cepat",
-      "Parafrase kalimat pendek",
-      "Akses Haiku 4.5 + Sonnet 5",
-    ],
+    features: [],
   },
   {
     id: "standar",
@@ -113,12 +107,7 @@ const TIERS: TierConfig[] = [
         sonnet: { per5h: 7.4, per7d: 74, max15: 148, max30: 296 },
       },
     },
-    features: [
-      "Analisis paper singkat (≤10 halaman)",
-      "Auto-citation APA/MLA/Chicago",
-      "Parafrase & rangkum",
-      "Akses penuh Haiku 4.5 + Sonnet 5",
-    ],
+    features: [],
   },
   {
     id: "premium",
@@ -142,12 +131,7 @@ const TIERS: TierConfig[] = [
         sonnet: { per5h: 13.2, per7d: 132, max15: 264, max30: 528 },
       },
     },
-    features: [
-      "Analisis paper panjang (skripsi, jurnal)",
-      "Sintesis riset multi-sumber",
-      "Original writing assistance",
-      "Auto-literature review draft",
-    ],
+    features: [],
   },
   {
     id: "pro",
@@ -170,12 +154,7 @@ const TIERS: TierConfig[] = [
         sonnet: { per5h: 22.2, per7d: 222, max15: 444, max30: 888 },
       },
     },
-    features: [
-      "Analisis paper unlimited feel",
-      "Bantuan metodologi penelitian",
-      "Priority response (no antrian)",
-      "Akses API untuk integrasi",
-    ],
+    features: [],
   },
   {
     id: "ultra",
@@ -198,12 +177,7 @@ const TIERS: TierConfig[] = [
         sonnet: { per5h: 37, per7d: 370, max15: 740, max30: 1480 },
       },
     },
-    features: [
-      "Volume tinggi (1.5M token Haiku)",
-      "Multi-user seat (1 akun + 2 anggota tim)",
-      "Dedicated support channel",
-      "Custom prompt library",
-    ],
+    features: [],
   },
 ];
 
@@ -297,17 +271,6 @@ function QuotaBox({
         </div>
       )}
 
-      <div className="flex items-start gap-2 pt-1.5 border-t border-border/50">
-        <TrendingUp className="w-3.5 h-3.5 text-orange-500 mt-0.5 flex-shrink-0" />
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold">Maks {periodLabel}</p>
-          <p className="text-xs text-muted-foreground">
-            {h && `${formatQuota(h[maxKey])} Haiku`}
-            {h && s && " + "}
-            {s && `${formatQuota(s[maxKey])} Sonnet`}
-          </p>
-        </div>
-      </div>
     </div>
   );
 }
@@ -377,28 +340,28 @@ function TierCard({
               / {period} hari
             </span>
           </div>
-          <p className="text-[10px] text-muted-foreground mt-0.5">
-            ≈ {IDR(Math.round(perDay))}/hari · {IDR(Math.round(price * 0.7))} top-up mingguan tersedia
-          </p>
+          <p className="text-[10px] text-muted-foreground mt-0.5" />
         </div>
 
         {/* Quota box */}
         <QuotaBox quota={tier.quota[model]} period={period} />
 
         {/* Features */}
-        <div>
-          <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold mb-2">
-            Termasuk
-          </p>
-          <ul className="space-y-1.5">
-            {tier.features.map((f, i) => (
-              <li key={i} className="flex items-start gap-2 text-xs">
-                <Check className="w-3.5 h-3.5 text-green-600 mt-0.5 flex-shrink-0" />
-                <span>{f}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        {tier.features.length > 0 && (
+          <div>
+            <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold mb-2">
+              Termasuk
+            </p>
+            <ul className="space-y-1.5">
+              {tier.features.map((f, i) => (
+                <li key={i} className="flex items-start gap-2 text-xs">
+                  <Check className="w-3.5 h-3.5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <span>{f}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* CTA */}
         <Button
@@ -494,37 +457,7 @@ export default function LanggananPage() {
       </div>
 
       {/* Per-token economics */}
-      <Card className="border-border/50 bg-muted/30">
-        <CardContent className="p-5">
-          <div className="flex items-start gap-3">
-            <Coins className="w-5 h-5 text-[#2D79FF] mt-0.5 flex-shrink-0" />
-            <div className="space-y-2 flex-1">
-              <h3 className="font-semibold text-sm">
-                Berapa biaya per token?
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                <div className="bg-background rounded-md p-3">
-                  <p className="font-medium mb-1">15 hari</p>
-                  <p className="text-muted-foreground">
-                    Rp 50/1K Haiku · Rp 101/1K Sonnet (pada penggunaan maks)
-                  </p>
-                </div>
-                <div className="bg-background rounded-md p-3">
-                  <p className="font-medium mb-1">
-                    30 hari{" "}
-                    <Badge className="bg-green-100 text-green-700 border-0 text-[9px] ml-1">
-                      Lebih hemat
-                    </Badge>
-                  </p>
-                  <p className="text-muted-foreground">
-                    Rp 42/1K Haiku · Rp 86/1K Sonnet (15% lebih murah per token)
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* REMOVED per owner 2026-09-08 — features/benefits not confirmed, don't want to set expectations */}
 
       {/* How Quota Works - Explanation */}
       <Card className="border-border/50">
@@ -535,14 +468,14 @@ export default function LanggananPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 text-sm">
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">
                 <Timer className="w-4 h-4 text-blue-500" />
                 <p className="font-semibold">Batas 5 jam</p>
               </div>
               <p className="text-xs text-muted-foreground">
-                Anti-burst: 10% dari batas 7 hari. Cegah marathon pakai 1 sesi.
+                10% dari batas 7 hari. Cegah marathon pakai 1 sesi.
                 Reset penuh setelah 5 jam dari penggunaan pertama.
               </p>
             </div>
@@ -552,19 +485,8 @@ export default function LanggananPage() {
                 <p className="font-semibold">Batas 7 hari</p>
               </div>
               <p className="text-xs text-muted-foreground">
-                Kuota utama per window 7 hari. Di-anchor dari waktu pertama
+                Kuota utama per window. Di-anchor dari waktu pertama
                 pakai. Reset penuh 7 hari setelah anchor.
-              </p>
-            </div>
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-orange-500" />
-                <p className="font-semibold">Maks langganan</p>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Batas total: <strong>2×</strong> untuk 15 hari,{" "}
-                <strong>4×</strong> untuk 30 hari. Setelah tercapai, auto-stop
-                sampai periode berakhir.
               </p>
             </div>
           </div>
@@ -592,48 +514,39 @@ export default function LanggananPage() {
               </AccordionTrigger>
               <AccordionContent className="text-xs text-muted-foreground">
                 Dimulai dari waktu pertama kali Anda menggunakan token dalam
-                periode langganan. Misalnya, jika Anda mulai pakai pada hari
-                Senin jam 09:00, maka:
-                <ul className="list-disc list-inside mt-2 space-y-1">
-                  <li>Batas 5 jam reset penuh setiap hari Senin-Jumat pk 09:00, 14:00, 19:00, dst</li>
-                  <li>Batas 7 hari reset penuh pada Senin pk 09:00 minggu depan</li>
-                </ul>
+                periode langganan. Batas 5 jam reset setelah 5 jam berlalu.
+                Batas 7 hari reset setelah 7 hari berlalu dari waktu pertama pakai.
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="item-2">
               <AccordionTrigger className="text-sm">
-                Berapa kali saya bisa pakai kuota 7 hari dalam 15 hari?
+                Berapa kali saya bisa pakai kuota 7 hari dalam langganan?
               </AccordionTrigger>
               <AccordionContent className="text-xs text-muted-foreground">
-                Pada langganan 15 hari, Anda mendapat total <strong>maksimum 2 window 7 hari</strong>.
-                Jadi kuota 7 hari Anda (misal 150K Haiku untuk Standar) bisa
-                terpakai maksimal 2 kali = 300K Haiku total dalam 15 hari. Setelah
-                window ke-2 berakhir, langganan juga berakhir.
+                Pada langganan 15 hari, Anda mendapat <strong>2 window 7 hari</strong>.
+                Pada langganan 30 hari, Anda mendapat <strong>4 window 7 hari</strong>.
+                Setelah window ke-2 (atau ke-4) berakhir, langganan juga berakhir.
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="item-3">
               <AccordionTrigger className="text-sm">
-                Apa beda 15 hari vs 30 hari selain harga?
+                Apa beda langganan 15 hari vs 30 hari?
               </AccordionTrigger>
               <AccordionContent className="text-xs text-muted-foreground">
                 <ul className="list-disc list-inside space-y-1">
                   <li>
-                    <strong>Total kuota</strong>: 30 hari dapat 2× lipat (4 windows
+                    <strong>Total kuota</strong>: 30 hari dapat 2× lipat lebih banyak (4 windows
                     vs 2 windows).
                   </li>
                   <li>
-                    <strong>Harga per token</strong>: 30 hari 15% lebih murah per
-                    token (Rp 42/1K Haiku vs Rp 50/1K).
-                  </li>
-                  <li>
-                    <strong>Harga per hari</strong>: 30 hari Rp 850/hari vs 15
-                    hari Rp 1.000/hari.
+                    <strong>Harga per token</strong>: 30 hari 15% lebih hemat per
+                    token.
                   </li>
                   <li>
                     <strong>Periode</strong>: 30 hari lebih cocok untuk project
-                    panjang (skripsi, paper jurnal). 15 hari untuk try-out.
+                    panjang (skripsi, paper jurnal). 15 hari untuk coba-coba.
                   </li>
                 </ul>
               </AccordionContent>
@@ -641,50 +554,13 @@ export default function LanggananPage() {
 
             <AccordionItem value="item-4">
               <AccordionTrigger className="text-sm">
-                Bisa upgrade paket di tengah periode?
-              </AccordionTrigger>
-              <AccordionContent className="text-xs text-muted-foreground">
-                Bisa. Upgrade dari Starter ke Standar/Premium/Pro/Ultra di tengah
-                periode akan dihitung pro-rated (hanya bayar selisih untuk sisa
-                hari). <strong>Downgrade</strong> tidak bisa di tengah periode —
-                berlaku saat perpanjangan berikutnya.
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-5">
-              <AccordionTrigger className="text-sm">
-                Apa beda model Lama, Campuran, dan Baru?
-              </AccordionTrigger>
-              <AccordionContent className="text-xs text-muted-foreground">
-                <ul className="space-y-2">
-                  <li>
-                    <strong>Lama</strong>: Haiku 4.5 saja. Cepat, murah, ideal
-                    untuk grammar check, formatting, lookup. Output ringkas.
-                  </li>
-                  <li>
-                    <strong>Campuran</strong>: Sistem auto-route. Tugas ringan
-                    pakai Haiku, tugas kompleks (paper analysis, sintesis)
-                    pakai Sonnet 5. <strong>Best value</strong> untuk kebanyakan
-                    user.
-                  </li>
-                  <li>
-                    <strong>Baru</strong>: Sonnet 5 saja. Paling kuat untuk
-                    paper panjang, original writing, analisis kompleks. Lebih
-                    boros token per request.
-                  </li>
-                </ul>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-6">
-              <AccordionTrigger className="text-sm">
                 Bagaimana cara berlangganan?
               </AccordionTrigger>
               <AccordionContent className="text-xs text-muted-foreground">
                 Sistem pembayaran sedang dalam tahap integrasi (Midtrans/Stripe).
                 Untuk aktivasi awal, hubungi admin untuk aktivasi manual. Setelah
                 payment gateway aktif, Anda bisa berlangganan langsung dari
-                halaman ini dengan pilih paket & bayar via QRIS / virtual account.
+                halaman ini dengan pilih paket &amp; bayar via QRIS / virtual account.
               </AccordionContent>
             </AccordionItem>
           </Accordion>
