@@ -726,6 +726,50 @@ DECISION 013 — Practice menu: quiz/recommendation system that auto-extracts to
 
 ---
 
+## Handoff 2026-09-08 — Dashboard Review + DisplayName Fix
+
+**Status:** 🟡 IN PROGRESS — Owner decisions captured, Google OAuth displayName fix deployed (pending backend deploy), Mobile Sidebar pending
+
+**Model:** claude-opus-4-8 (current)
+**Branch:** `feat/daftar-task`
+
+### Owner Decisions (this session)
+
+| # | Decision | Status |
+|---|----------|--------|
+| 1 | Toggle Pelajar/Pengajar | ⏸️ DEFER |
+| 2 | Assessment khusus Pengajar | ✅ CONFIRM |
+| 3 | Google OAuth displayName auto-fill | ✅ FIXED in `auth.ts` (pending deploy) |
+| 4 | Mobile Sidebar fix | 🟡 PENDING implementation |
+| 5 | Owner Routing explanation | ✅ Explained with security audit |
+| 6 | Onboarding | ⏸️ SKIP post-launch |
+
+### Changes Shipped (this session)
+
+| File | Change | Commit |
+|------|--------|--------|
+| `artifacts/api-server/src/routes/auth.ts` | `deriveDisplayName()` extracts from `user_metadata.full_name` (Google) → `displayName` field. INSERT only on first login; COALESCE on conflict (preserve user edits). | ⏳ PENDING COMMIT |
+
+### Security Audit Findings (Owner Routing)
+
+| Layer | Status | Detail |
+|-------|--------|--------|
+| Backend `requireOwner` middleware | ✅ AMAN | `req.user.email === OWNER_EMAIL` exact match |
+| Backend `/admin/*` endpoints | ✅ AMAN | All protected by `requireOwner` |
+| JWT signature (ES256 JWKS) | ✅ AMAN | Attacker cannot modify email in token |
+| `OWNER_EMAIL` env var exposure | ✅ AMAN | Backend-only; no `VITE_OWNER_*` in frontend |
+| Frontend `/admin/*` route guards | ⚠️ UX-only | `ProtectedRoute` (auth only), no `RequireOwner` wrapper — non-owners see error page, backend still rejects with 403 |
+
+### Pending Next Steps
+
+1. Commit displayName fix + push (after owner approval)
+2. Implement Mobile Sidebar P0 fix (1 day)
+3. Owner auto-redirect (5 min, pending confirmation)
+4. Dashboard cleanup (30 min, optional)
+5. Delete 7 orphan files (`_upload.js`, `_mcp_params.json`, `NUL`, `openapi.yaml.bak`, `screnshoot/`, `hello.ts`)
+
+---
+
 ## COMPLETED 2026-09-01 — SPA Routing Fix
 
 **Status:** ✅ SELESAI — Deploy berhasil, semua route 200 OK

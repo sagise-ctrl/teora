@@ -118,14 +118,36 @@ router.post("/auth/login", async (req, res): Promise<void> => {
       );
     };
 
+    // Extract displayName from OAuth provider metadata (Google: user_metadata.full_name).
+    // Falls back to user_metadata.displayName for OAuth providers that use that key.
+    // Only set on first login (INSERT); never overwrite via onConflictDoUpdate so users
+    // who later edit their profile keep their custom displayName.
+    const deriveDisplayName = (): string | null => {
+      const meta = (supabaseUser.user_metadata ?? {}) as Record<string, unknown>;
+      const fromFullName = typeof meta.full_name === "string" ? meta.full_name.trim() : "";
+      const fromName = typeof meta.name === "string" ? meta.name.trim() : "";
+      const fromDisplayName = typeof meta.displayName === "string" ? meta.displayName.trim() : "";
+      const candidate = fromFullName || fromName || fromDisplayName || "";
+      if (!candidate) return null;
+      return candidate.length > 100 ? candidate.substring(0, 100) : candidate;
+    };
+
+    const oauthDisplayName = deriveDisplayName();
+
     const [localUser] = await db
       .insert(usersTable)
-      .values({ id: supabaseUser.id, email: supabaseUser.email ?? "", username: deriveUsername() })
+      .values({
+        id: supabaseUser.id,
+        email: supabaseUser.email ?? "",
+        username: deriveUsername(),
+        ...(oauthDisplayName ? { displayName: oauthDisplayName } : {}),
+      })
       .onConflictDoUpdate({
         target: usersTable.id,
         set: {
           email: supabaseUser.email ?? "",
           username: sql`COALESCE(${usersTable.username}, ${deriveUsername()})`,
+          // Note: do NOT update displayName on conflict — preserve user edits.
         },
       })
       .returning();

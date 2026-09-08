@@ -10,6 +10,9 @@
 | Payment provider | P1 | Decide on Stripe vs Xendit vs Midtrans | Revenue blocker |
 | **Referral reward** | P1 | Fix referral reward — kita pernah diskusi tapi belum fix detail reward-nya | Perlu owner decision — discuss soon |
 | **Maintenance model discussion** | P2 | Owner perlu pastikan AI team berjalan sesuai keinginan sebelum go-live | Discuss SETELAH semua fitur clear/selesai |
+| **AUDIT 2026-09-05 — Positioning** | P0 | Pilih positioning option A/B/C/D dari `docs/ai-team/business-growth/positioning.md` | Krisis untuk landing page + go-to-market |
+| **AUDIT 2026-09-05 — UU PDP Compliance** | P1 | Consent banner, data retention policy, right to deletion | Legal risk |
+| **AUDIT 2026-09-05 — Free tier limits** | P1 | Definisi free tier: max projects, max tokens/day, max references | Token economy |
 
 ## Feature Taxonomy Decisions (from feature-taxonomy.md)
 
@@ -44,6 +47,7 @@ Sudah di-set via Vercel CLI:
 - `SUPABASE_SERVICE_ROLE_KEY` ✅
 - `ALLOWED_ORIGINS` ✅ (added 2026-08-26)
 - `AI_API_KEY` ❌ MISSING — perlu owner add
+- `OWNER_EMAIL` ❓ NOT IN LIST — **needs verification 2026-09-08**. If unset, `requireOwner` middleware returns 403 for everyone (including owner). Default value per DECISION 014 = `sagiseainun@gmail.com`. Verify at https://vercel.com/dashboard → teora-backend → Settings → Environment Variables.
 
 ## Pending Cleanup Tasks (awaiting owner go-ahead)
 
@@ -90,6 +94,34 @@ Sudah di-set via Vercel CLI:
 | 1 | **Revoke all tokens that ever appeared in chat history** | (a) Vercel token `[REDACTED]` → revoke at https://vercel.com/account/tokens. (b) GitHub PAT `[REDACTED]` → revoke at https://github.com/settings/tokens. (c) Olagon Gateway token `[REDACTED]` in `~/.claude/settings.json` → rotate at Olagon dashboard. | After web launches / goes live |
 | 2 | **Re-integrate new tokens between GitHub ↔ Vercel ↔ Supabase ↔ Olagon** | Generate fresh tokens on each platform, re-add to (a) GitHub repo secrets (FRONTEND_VITE_SUPABASE_*, VERCEL_TOKEN), (b) Vercel project env vars (DATABASE_*, SUPABASE_*, AI_API_KEY, ALLOWED_ORIGINS, etc.), (c) `~/.claude/settings.json` (ANTHROPIC_AUTH_TOKEN), (d) Claude Code settings.local.json permissions if needed. Verify production still 200 OK after rotation. | After #1 above |
 | 3 | **Build autonomous AI maintenance agent layer** (4 components: monitoring + alert pipeline + AI agent + auto-deploy) | See scope below | Post-launch, P1 priority |
+
+## Audit Findings (2026-09-05) — NEW
+
+Full report: `E:\teora\audit-product-ux-ai.md` (18 sections)
+
+### AI Team Action Items ( dari audit)
+
+| # | Item | Priority | Notes |
+|---|------|----------|-------|
+| 1 | Mobile drawer navigation | P0 | Tidak ada sidebar di mobile — gap kritis |
+| 2 | Wire Midtrans backend | P0 | /topup UI ada, endpoint tidak ada |
+| 3 | Rate limit user-facing message | P1 | User tidak tahu saat kena limit |
+| 4 | AI citation grounding | P1 | Fictitious reference risk tinggi |
+| 5 | Spend cap + usage alerts | P2 | Tidak ada max spend per user |
+| 6 | Analytics integration | P3 | PostHog/GA tidak ada |
+| 7 | Onboarding flow | P2 | User baru tidak tahu harus mulai dari mana |
+| 8 | Delete 7 orphan files | P3 | _upload.js, _mcp_params.json, NUL, dll. |
+
+### Orphan Files to Delete
+
+| File | Action |
+|------|--------|
+| `_upload.js` | DELETE |
+| `_mcp_params.json` (2.3MB) | DELETE |
+| `NUL` | DELETE |
+| `lib/api-spec/openapi.yaml.bak` | DELETE |
+| `screnshoot/` (24 PNGs, ~5MB) | DELETE |
+| `scripts/src/hello.ts` | DELETE |
 
 ### Task #3 Scope — Autonomous AI Maintenance Layer
 

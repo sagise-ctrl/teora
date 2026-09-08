@@ -23,11 +23,21 @@ export interface AuthUser {
 interface AuthContextValue {
   user: AuthUser | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<AuthUser>;
   register: (email: string, password: string, username: string, displayName?: string, referralCode?: string) => Promise<void>;
   signInWithOAuth: (provider: "google") => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
+}
+
+/**
+ * Where to send a freshly-authenticated user after login.
+ * Owners get a 2-choice landing (Admin vs User Test); everyone else goes straight to dashboard.
+ * See DECISION 014 in `.ai/decisions.md`.
+ */
+export function getPostLoginPath(user: Pick<AuthUser, "isOwner"> | null | undefined): string {
+  if (user?.isOwner) return "/landing-admin";
+  return "/dashboard";
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -84,14 +94,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refresh().finally(() => setIsLoading(false));
   }, [refresh, fetchMe]);
 
-  const login = useCallback(async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string): Promise<AuthUser> => {
     if (import.meta.env.VITE_MOCK === "true") {
       await customFetch("/api/auth/login", {
         method: "POST",
         body: JSON.stringify({ email, password }),
       });
-      await fetchMe();
-      return;
+      const me = await fetchMe();
+      // fetchMe updates `user` state but doesn't return it — re-fetch for the caller.
+      const fresh = await customFetch<AuthUser>("/api/auth/me");
+      setUser(fresh);
+      return fresh;
     }
 
     const { supabase } = await import("../lib/supabase");
@@ -119,6 +132,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthTokenGetter(() => Promise.resolve(session.access_token));
 
     await fetchMe();
+
+    // Return the freshly-set user so the caller can branch on isOwner for redirect.
+    const fresh = await customFetch<AuthUser>("/api/auth/me");
+    setUser(fresh);
+    return fresh;
   }, [fetchMe]);
 
   const register = useCallback(async (

@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Loader2, Eye, EyeOff } from "lucide-react";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth, getPostLoginPath } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { TeoraLogo } from "@/components/brand/teora-logo";
 import { Button } from "@/components/ui/button";
@@ -41,9 +41,9 @@ export default function Login() {
   async function onSubmit(data: FormValues) {
     setGlobalError(null);
     try {
-      await login(data.email, data.password);
+      const me = await login(data.email, data.password);
       toast({ title: "Welcome back!", description: "You are now logged in." });
-      setLocation("/dashboard");
+      setLocation(getPostLoginPath(me));
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Login failed";
       setGlobalError(msg);
