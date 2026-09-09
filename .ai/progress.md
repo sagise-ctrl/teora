@@ -2,6 +2,129 @@
 
 > Completed work, newest first. Format: `YYYY-MM-DD | description | files | status`
 
+## 2026-09-09 | Referral Program — Deploy to Production (opus-4-6)
+
+**Branch:** `feat/daftar-task` → commit `ee4178d` (committed, NOT pushed to origin)
+
+**Owner decisions (finalized 2026-09-08/09):**
+- Referee cashback: Rp 5.000 flat (one-time, from owner subsidy)
+- Referrer reward: 3% × payment, capped at 5 tx per referee
+- Reward balance: non-withdrawable (for AI services only)
+
+**Deploy summary:**
+
+| Service | Deploy ID | URL | Status |
+|---------|-----------|-----|--------|
+| Backend | `dpl_EwGjBFKydaTcDqz55Mde1vn6hfFv` | teora-backend.vercel.app | ✅ READY |
+| Frontend | `dpl_CTPG1JiK2afXW2gkqbimGsBebxmS` | academic-workspace-eta.vercel.app | ✅ READY |
+
+**Files (23 files, +4397/-1143):**
+- `artifacts/api-server/src/lib/referral-rewards.ts` — gateway-agnostic reward service
+- `artifacts/api-server/src/routes/referral-webhook.ts` — HMAC-SHA256 webhook handler
+- `artifacts/api-server/src/routes/referral.ts` — GET /api/users/me/referral-info
+- `artifacts/api-server/src/routes/index.ts` — webhook mounted before authMiddleware
+- `lib/db/src/schema/referrals.ts` — reward tracking columns
+- `lib/db/src/schema/user_balances.ts` — rewardBalanceCents column
+- `lib/api-spec/openapi.yaml` — `useGetMyReferralInfo`, `paymentSuccessWebhook`
+- `artifacts/academic-workspace/src/pages/referral.tsx` — rewritten with real API data
+- `docs/ai-team/finance/referral-program-discussion.md` — all owner decisions
+
+**Verified post-deploy:**
+- `/api/healthz` → `{"status":"ok"}` ✅
+- `/referral` → 200 ✅
+- Bundle: `referredCount`, `rewardBalanceCents`, `Rp 5.000`, `Ajak Teman`, `Dapat Reward` ✅
+- HTML title: `Teora: AI Academic Workspace untuk Mahasiswa dan Pengajar` ✅
+- DB schema: `referrals` (13 cols) + `user_balances.reward_balance_cents` ✅
+
+**Pending owner actions:**
+1. ~~Deploy to production~~ ✅ DONE
+2. Set `REFERRAL_WEBHOOK_SECRET` in Vercel dashboard (placeholder ok)
+3. Push `feat/daftar-task` to origin (`git push origin feat/daftar-task`)
+4. Pick payment gateway (Midtrans/Xendit/Stripe/Duitku) → build adapter
+
+**Plug-in architecture:** `POST /api/webhooks/payment-success` is gateway-agnostic. When gateway chosen: add adapter that maps gateway payload → `PaymentSuccessEvent`, then calls `processReferralPayment()`. Reward logic unchanged.
+
+---
+
+## 2026-09-09 | DECISION 017: Positioning Final — Dual Segment (Mahasiswa + Pengajar) (opus-4-8)
+
+**Branch:** `feat/daftar-task`
+
+**Owner requirement:** Tagline + paragraf positioning eksplisit 2 segmen (mahasiswa + pengajar). 4 opsi existing (A/B/C/D di `positioning.md`) tidak ada yang menyebut pengajar → pilih Option E baru (owner's words verbatim).
+
+**Implemented:**
+- Tagline: "Asisten AI yang menemani proses belajar dan mengajar: dari memahami materi sampai menyiapkan penilaian." (em dash `—` replaced dengan `:` sesuai memory `frontend-no-em-dash-preference`)
+- Paragraf positioning full (dual segment) — diaplikasikan di hero landing sebagai 2 motion.p terpisah
+- HTML statis `<title>` + meta description + OG/twitter tags pakai positioning baru
+- `positioning.md` ditambahkan Option E (FINAL 2026-09-09)
+
+**Files changed:**
+- `artifacts/academic-workspace/src/pages/landing.tsx` — hero h1, sub-paragraf (2 motion.p), subline "Untuk mahasiswa dan pengajar di Indonesia"
+- `artifacts/academic-workspace/index.html` — title/meta/OG/twitter
+- `docs/ai-team/business-growth/positioning.md` — Option E ditambahkan sebagai FINAL
+- `.ai/decisions.md` — DECISION 017 ditambahkan
+- `.ai/blockers.md` — AUDIT Positioning row dihapus
+
+**Out of scope (deferred):**
+- Pricing hint di landing (owner eksplisit tunda sampai dokumentasi pricing dibaca)
+
+**Status:** Landing copy + meta tags applied. Build + deploy pending.
+
+## 2026-09-09 | Subscription+Saldo Gate in All AI Routes (opus-4-8)
+
+**Branch:** `feat/daftar-task` | Commit: `9be5383`
+
+**Owner requirement:** Subscription users should NOT get saldo deducted (they already paid upfront). Auto-fallback to saldo only when subscription quota exhausted + autofallback enabled + saldo sufficient.
+
+**Implementation:**
+- Added `checkAIAccess()` (dry-run) and `consumeQuotaForAIRequest()` (with side effects) in `lib/subscription.ts`
+- Replaced legacy `checkCreditBalance` + `deductCredit` in 6 routes: messages, projects, quizzes, references, rubrics, writing-style
+- Routes now call new helpers which check: subscription active → use it (no saldo touch); else if autofallback+saldo → use saldo; else deny
+
+**Files changed:**
+- `artifacts/api-server/src/lib/subscription.ts` (+177)
+- `artifacts/api-server/src/routes/messages.ts`, projects.ts, quizzes.ts, references.ts, rubrics.ts, writing-style.ts (replaced credit calls)
+- `artifacts/api-server/api/index.mjs` (rebuilt 6.7MB)
+
+**Status:** Typecheck PASS, build SUCCESS. Ready for deploy.
+
+## 2026-09-09 | Opsi B Decision + Schema Migration markup_multiplier (opus-4-8)
+
+**Branch:** `feat/daftar-task`
+
+**Keputusan owner:**
+- ✅ Opsi B: pisahkan in/out di backend (silently) untuk safety margin
+- ✅ Markup topup: 40% dari cost real
+
+**Dampak per metode:**
+- Langganan: margin worst case 8.9-32.1% (visibility only — buffer harga jual)
+- Topup: margin 27.9% flat (full protection — tagih = cost × 1.40)
+
+**Schema migration applied:**
+- `lib/db/src/schema/ai_tiers.ts`: tambah `markupMultiplier` field (numeric(5,3) NOT NULL DEFAULT 1.400)
+- SQL: `ALTER TABLE public.ai_tiers ADD COLUMN markup_multiplier NUMERIC(5,3) NOT NULL DEFAULT 1.400`
+- SQL: check constraint `chk_markup_multiplier_range` (1.000-9.999)
+- ✅ Applied ke Supabase production
+- ✅ 4 existing rows backfilled dengan 1.400
+- ✅ Typecheck pass (tsc --build --force)
+
+**Dokumentasi updated:**
+- `docs/ai-team/finance/pricing-strategy-2026-anthropic.md`:
+  - Section 14 (Keputusan Opsi B)
+  - Section 15 (Simulasi fee minimum 30 SKU + 20 skenario topup)
+  - Section 16 (Open decisions — 3 resolved, 2 pending)
+  - Section 14.4.1 (Schema migration applied)
+
+**File scratch:**
+- `_calc_fees_opsi_b.js` — script simulasi fee minimum (271 lines)
+
+**Pending cleanup:**
+- Existing `ai_tiers` rows masih pakai model lama (Llama 3.1, Claude 3.5 Sonnet, GPT-4o) — perlu di-update ke Haiku 4.5 + Sonnet 5 saat pivot ke Anthropic primary (separate inisiatif)
+- Schema change belum di-commit
+- Pricing doc belum di-commit
+
+---
+
 ## 2026-09-09 | Fee Calculation Scenarios (opus-4-6)
 
 **Branch:** `feat/daftar-task`

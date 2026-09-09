@@ -1,253 +1,320 @@
 # Referral Program — Payment-Based Discussion
 
 > Discussion: Owner + AI Team
-> Date: 2026-09-08
-> Status: OPEN — pending owner decisions on amounts
+> Date: 2026-09-08 (initial), 2026-09-09 (updated)
+> Status: FINALIZED — all decisions made
 
-## Core Model (Owner-Proposed)
+---
+
+## Ringkasan Keputusan (2026-09-09)
+
+| # | Item | Keputusan |
+|---|------|----------|
+| 1 | Referee cashback | **Flat Rp 5,000** — dari subsidi owner, bukan dari revenue |
+| 2 | Referee cashback scope | **Semua metode** (subscription + topup), **first payment only** (satu kali seumur hidup akun — bukan per metode) |
+| 3 | Referrer reward type | **Percentage (%) dari payment amount** — bukan token |
+| 4 | Referrer reward % | **3%** dari payment amount |
+| 5 | Referrer reward limit | **5 transaksi pertama** referee (subscription renewal + topup) |
+| 6 | Withdrawal | **Tidak ada** untuk referee cashback maupun referrer reward |
+| 7 | Trigger | Payment berhasil via Stripe webhook |
+| 8 | Refund policy | **Tidak ada refund otomatis.** Special case handled manual by CS. CS-refunded payment pertama: cashback tetap di saldo (no clawback) — owner subsidy keluar tanpa revenue balik |
+
+---
+
+## Mekanisme Final
 
 ```
  REFEREE (pakai kode referral)
-   └─ Bayar (subscription ATAU topup)
-        └─ Payment BERHASIL (Stripe webhook)
-             ├─ Referee: cashback ke saldo topup
-             └─ Referrer: fee (token/credit)
+   └─ First payment berhasil (subscription ATAU topup)
+        └─ Referee: cashback Rp 5,000 ke saldo (dari owner subsidy)
+
+ REFERER
+   └─ Setiap payment berhasil dari referee (subscription + topup)
+        └─ Payment ke-1 s/d ke-5: referrer dapat 3% × payment amount
 ```
 
-**Mengapa payment-based lebih baik dari "first project completed":**
-- Payment = value nyata (money in)
-- Fake account abuse tidak dapat reward
-- Aligned dengan business objective Teora
+**Beda dari model awal:**
+- Reward referrer = **percentage**, bukan flat token
+- Reward referrer berlaku untuk **5 transaksi**, bukan hanya pertama
+- Subscription renewal dan topup **sama-sama qualify**
 
 ---
 
-## 1. Referee Benefit — Cashback
+## 1. Referee Cashback — Flat Rp 5,000 (dari Subsidi Owner)
 
-### Mechanics
+### Spec
 
 | Item | Detail |
 |------|--------|
-| Trigger | Payment berhasil (subscription ATAU topup) |
-| Destination | Saldo topup (IDR) |
+| Amount | **Flat Rp 5,000** |
+| Scope | **First payment only** (subscription + topup) |
+| Destination | Saldo IDR (bukan withdrawable) |
 | Timing | Saat Stripe webhook `payment_intent.succeeded` |
+| Cost bearer | **Owner pribadi** — tidak dipotong dari revenue Teora |
+| Withdrawal | Tidak ada |
 
-### Decision Points
+### Catatan Penting
 
-| # | Question | Options |
-|---|----------|---------|
-| 1 | Amount | Flat Rp X / Percentage X% / Hybrid (percentage capped) |
-| 2 | Limit | Only first payment / Every payment |
-| 3 | Withdrawal | Can withdraw cashback? (affects cost to Teora) |
+Cashback Rp 5,000 ini adalah **subsidi langsung dari owner**, bukan cost-of-goods. Ini keluar dari pocket owner per referee yang berhasil activate. Di-hitung sebagai:
 
-### Analysis
+- Customer Acquisition Cost (CAC)
+- Marketing spend
 
-**Amount options:**
+Tidak masuk laporan revenue Teora.
 
-| Option | Amount | Notes |
-|--------|--------|-------|
-| A | Flat Rp 5,000 | Simple, predictable |
-| B | Flat Rp 10,000 | More compelling incentive |
-| C | 10% of payment | Scales with purchase value |
-| D | 10%, capped at Rp 5,000 | Hybrid: fair + capped |
-| E | 10%, capped at Rp 10,000 | More generous |
+### Handling Payment Failures
 
-**Limit options:**
-
-| Option | Benefit | Risk |
-|--------|---------|------|
-| First payment only | Acquisition-focused, controlled cost | Teora covers cost once |
-| Every payment | Repeating incentive, sticky | Unlimited cost exposure |
-
-**AI Team Recommendation:**
-
-```
-Option: 10% cashback, capped at Rp 5,000, first payment only
-
-Reasoning:
-- 10% = compelling discount (common industry standard)
-- Cap Rp 5,000 = controls Teora's cost
-  - Topup minimum Rp 10,000 → cashback Rp 1,000
-  - Starter Rp 29,000 → cashback Rp 2,900
-  - Standar Rp 59,000 → cashback Rp 5,000 (cap)
-  - Premium Rp 99,000 → cashback Rp 5,000 (cap)
-- First payment only = acquisition cost, not ongoing subsidy
-- Cost to Teora per referral: Rp 0-5,000 (subsidized by payment itself)
-```
-
-**Critical note on withdrawal:**
-
-| Type | Teora Cost | Complexity |
-|------|-----------|-----------|
-| Platform credit only (for AI services) | Minimal (~token equivalent cost) | Low |
-| Withdrawable cash | Full cash amount | High — needs tax, KYC, accounting |
-
-**Recommendation: Platform credit only (for MVP)**
-- Cashback masuk saldo topup tapi hanya bisa dipakai untuk AI services
-- Tidak bisa di-withdraw
-- Sederhana, tidak ada compliance issue
-- Bisa ditambahkan opsi withdrawable di masa depan
+| Scenario | Referee Cashback |
+|----------|-----------------|
+| Payment fails / refund | No cashback |
+| Referee cancel subscription | Cashback stays in saldo |
+| Referee use saldo for AI | Already spent, no clawback |
 
 ---
 
-## 2. Referrer Benefit — Fee
+## 2. Referrer Reward — 3% × Payment, 5 Transaksi
 
-### Mechanics
+### Spec
 
 | Item | Detail |
 |------|--------|
-| Trigger | Payment referred user berhasil |
-| Benefit type | Tokens / IDR credit / Platform credit |
-| Timing | Same as referee — payment success |
+| Amount | **3% × payment amount** |
+| Scope | 5 transaksi pertama referee (subscription + topup) |
+| Calculation | Per transaksi: `payment_amount × 0.03` |
+| Max transactions counted | **5** (reset per referral code use) |
+| Tracking | `referral_events.transaction_count` per (referrer, referee) |
+| Destination | Reward balance (non-withdrawable, untuk AI usage) |
+| Withdrawal | Tidak ada |
 
-### Decision Points
+### Kalkulasi Fee Minimum Owner (untuk validasi %)
 
-| # | Question | Options |
-|---|----------|---------|
-| 1 | Amount | Flat X tokens / Percentage of referee's payment / Hybrid |
-| 2 | Limit | Only first payment / Every payment |
-| 3 | Type | Tokens (for AI) / Credit (for subscription) / Cash equivalent |
+Dari Section 15 dokumen pricing (30 SKU, setelah QRIS 0.7%):
 
-### Analysis
+#### Langganan 15 Hari
 
-**Amount options:**
+| SKU | Price | Owner Fee (no referral) | 3% Reward | Owner Fee (dengan referral) | Margin % |
+|-----|-------|----------------------|----------|---------------------------|----------|
+| Starter | Rp 8,000 | Rp 2,568 | Rp 240 | **Rp 2,328** | 29.1% |
+| Standar | Rp 15,000 | Rp 3,605 | Rp 450 | **Rp 3,155** | 21.0% |
+| Premium | Rp 27,000 | Rp 6,459 | Rp 810 | **Rp 5,649** | 20.9% |
+| Pro | Rp 45,000 | Rp 10,816 | Rp 1,350 | **Rp 9,466** | 21.0% |
+| Ultra | Rp 75,000 | Rp 18,027 | Rp 2,250 | **Rp 15,777** | 21.0% |
 
-| Option | Amount | Notes |
-|--------|--------|-------|
-| A | Flat 500 tokens | ~$0.75, simple |
-| B | Flat 1,000 tokens | ~$1.50, more motivating |
-| C | 10% of referee's payment (in tokens) | Scales, but complex |
-| D | Fixed Rp 5,000 (as tokens) | ~500 tokens, aligns with referee cashback |
+#### Langganan 30 Hari
 
-**AI Team Recommendation:**
+| SKU | Price | Owner Fee (no referral) | 3% Reward | Owner Fee (dengan referral) | Margin % |
+|-----|-------|----------------------|----------|---------------------------|----------|
+| Starter | Rp 13,600 | Rp 2,753 | Rp 408 | **Rp 2,345** | 17.2% |
+| **Standar Campuran** | **Rp 25,500** | **Rp 1,742** | **Rp 765** | **Rp 977** | **3.8%** |
+| Standar Lama | Rp 25,500 | Rp 2,282 | Rp 765 | **Rp 1,517** | 5.9% |
+| Premium Campuran | Rp 45,900 | Rp 4,875 | Rp 1,377 | **Rp 3,498** | 7.6% |
+| Pro Campuran | Rp 76,500 | Rp 8,227 | Rp 2,295 | **Rp 5,932** | 7.8% |
+| Ultra Campuran | Rp 127,500 | Rp 13,712 | Rp 3,825 | **Rp 9,887** | 7.8% |
 
-```
-Option: 500 tokens, first payment only
+#### Topup (Markup 40%)
 
-Reasoning:
-- Matches the "Give 500, Get 500" in existing mockup
-- ~$0.75 cost per referral (token cost at Budget tier)
-- First payment only = acquisition incentive
-- Tokens lebih murah dari IDR cash equivalent
-- Tidak perlu konversi USD/IDR/IDR
-```
+| Amount | Owner Fee (margin 27.9%) | 3% Reward | Owner Fee (dengan referral) |
+|--------|--------------------------|----------|---------------------------|
+| Rp 10,000 | Rp 2,787 | Rp 300 | **Rp 2,487** |
+| Rp 50,000 | Rp 13,936 | Rp 1,500 | **Rp 12,436** |
+| Rp 100,000 | Rp 27,871 | Rp 3,000 | **Rp 24,871** |
+| Rp 200,000 | Rp 55,743 | Rp 6,000 | **Rp 49,743** |
 
-### Alternative: Recurring (Every Payment)
+### Constraint Terberat
 
-Jika ingin referrer mendapat reward setiap kali referred user bayar:
-- Bisa % dari payment (misal 5% dari subscription)
-- Tapi: infinite potential payout, perlu cap
+**Standar Campuran 30 hari: fee owner = Rp 977 per transaksi** (paling kecil dari semua SKU).
 
-**Recommendation: First payment only untuk MVP**
-- Simpler to implement and audit
-- Acquisition-focused program
-- Bisa diekspansi ke recurring di fase growth
+Ini adalah **3.8% margin** — positif, owner tidak rugi.
+
+### Safe Zone Analysis
+
+Dari constraint Rp 977 (Standar Campuran 30d):
+
+| % | Reward per tx | Owner fee | Status |
+|---|-------------|-----------|--------|
+| 1% | Rp 255 | Rp 1,487 | ✅ Aman |
+| 2% | Rp 510 | Rp 1,232 | ✅ Aman |
+| **3%** | **Rp 765** | **Rp 977** | ✅ **Aman — DIPILIH** |
+| 4% | Rp 1,020 | Rp 722 | ✅ Aman |
+| 5% | Rp 1,275 | Rp 467 | ✅ Aman |
+| 6% | Rp 1,530 | Rp 212 | ✅ Aman |
+| **7%** | **Rp 1,785** | **-Rp 43** | ❌ **Rugi** |
+
+**3% = batas atas safe zone** (margin 3.8% di constraint terberat).
 
 ---
 
-## 3. Economics — Cost to Teora
+## 3. Total Referrer Reward (5 Transaksi)
 
-### Scenario: Referee buys Standar (Rp 59,000/month)
+### Langganan
 
-| Item | Amount | Notes |
-|------|--------|-------|
-| Gross payment | Rp 59,000 | |
-| Stripe fee | -Rp 1,911 | 2.9% + Rp 200 |
-| Net revenue | Rp 57,089 | |
-| Referee cashback (10%, cap Rp 5,000) | -Rp 5,000 | Platform credit only |
-| Referrer reward (500 tokens) | -~Rp 375 | At Budget tier cost ($0.375/1K) |
-| **Net to Teora** | **Rp 51,714** | |
-| Without referral | Rp 57,089 | |
-| **Referral cost ratio** | **~9.4%** | Reasonable for acquisition |
+| SKU | 1x tx (3%) | 5x tx Total | Owner Fee 5tx |
+|-----|------------|------------|--------------|
+| Starter 15d | Rp 240 | **Rp 1,200** | Rp 11,640 |
+| Starter 30d | Rp 408 | **Rp 2,040** | Rp 11,725 |
+| Standar 15d | Rp 450 | **Rp 2,250** | Rp 15,775 |
+| Standar 30d | Rp 765 | **Rp 3,825** | Rp 4,885 |
+| Premium 30d | Rp 1,377 | **Rp 6,885** | Rp 17,490 |
+| Pro 30d | Rp 2,295 | **Rp 11,475** | Rp 29,660 |
+| Ultra 30d | Rp 3,825 | **Rp 19,125** | Rp 49,435 |
 
-### Scenario: Referee topup minimum (Rp 10,000)
+### Topup
 
-| Item | Amount | Notes |
-|------|--------|-------|
-| Gross payment | Rp 10,000 | |
-| Stripe fee | -Rp 490 | 2.9% + Rp 200 |
-| Net revenue | Rp 9,510 | |
-| Referee cashback (10%) | -Rp 1,000 | Platform credit only |
-| Referrer reward (500 tokens) | -~Rp 375 | |
-| **Net to Teora** | **Rp 8,135** | |
-| Without referral | Rp 9,510 | |
-| **Referral cost ratio** | **~14.4%** | Higher ratio for small payments |
+| Amount | 1x (3%) | 5x Total | Owner Fee 5tx |
+|--------|----------|----------|--------------|
+| Rp 10,000 | Rp 300 | **Rp 1,500** | Rp 12,435 |
+| Rp 50,000 | Rp 1,500 | **Rp 7,500** | Rp 62,180 |
+| Rp 100,000 | Rp 3,000 | **Rp 15,000** | Rp 124,355 |
 
-### Observation
+### Motivating?
 
-Referral cost ratio lebih tinggi di topup kecil. Ini masih acceptable untuk acquisition (customer acquisition cost), tapi owner perlu aware.
+Dengan **5 transaksi**, total reward referrer:
+
+| Scenario | Total Reward | Worth it? |
+|----------|------------|----------|
+| Referee aktif topup Rp 50rb × 5 | **Rp 7,500** | ✅ Menarik |
+| Referee langganan Standar 30d × 5 | **Rp 3,825** | ✅ Cukup menarik |
+| Referee langganan Starter 15d × 5 | **Rp 1,200** | 🟡 Kurang |
+| Referee langganan Ultra 30d × 5 | **Rp 19,125** | ✅ ✅ Sangat menarik |
+
+5 transaksi bisa berupa:
+- 5x langganan (subscription renewal)
+- 5x topup
+- Mix langganan + topup
 
 ---
 
 ## 4. Handling Payment Failures & Cancellations
 
-| Scenario | Referee cashback | Referrer reward |
-|----------|-----------------|-----------------|
-| Payment fails / refund | No cashback | No fee |
-| Subscription cancelled | Cashback stays (platform credit) | Fee stays (already credited) |
-| Referee requests refund (within 7 days) | Clawback? | Clawback? |
-
-**Recommendation:**
-- Referee cashback: tidak di-clawback jika sudah digunakan untuk AI services
-- Referrer reward: tidak di-clawback (sudah diberikan saat payment success)
-- Owner review clause: jika ada fraud, manual review
+| Scenario | Referee Cashback | Referrer Reward |
+|----------|-----------------|----------------|
+| Payment fails / refund | No cashback (first payment belum berhasil) | No fee |
+| Subscription cancelled | Cashback stays in saldo | Fee already credited stays |
+| Referee use saldo for AI | Already spent | Already credited, no clawback |
+| Fraud detected | Manual review | Manual review |
+| **CS-initiated refund (special case)** | **Cashback stays in saldo — tidak ada clawback otomatis.** Owner subsidy keluar tanpa revenue balik. Untuk awareness finance, log manual di luar sistem. | Fee already credited stays |
 
 ---
 
-## 5. Outstanding Questions
+## 5. Reward Balance — Non-Withdrawable
 
-| # | Question | Owner Decision |
-|---|----------|---------------|
-| 1 | Referee cashback: flat, percentage, hybrid? | PENDING |
-| 2 | Referee cashback cap? (if percentage) | PENDING |
-| 3 | Referrer reward: how many tokens? | PENDING |
-| 4 | First payment only, atau setiap payment? | PENDING |
-| 5 | Cashback withdrawable atau platform credit only? | ✅ **Credit only — tidak ada withdraw** (owner 2026-09-08) |
-| 6 | Subscription renewal: qualifies for referral reward? | PENDING |
+Referrer reward (3% × payment) masuk ke **reward balance** di akun referrer. Sifat:
+
+| Property | Value |
+|-----------|-------|
+| Can use for AI services | ✅ Yes |
+| Can withdraw to bank | ❌ No |
+| Can convert to saldo IDR | ❌ No |
+| Expires | TBD (use it or lose it — atau bisa set expiry) |
+| Displayed where | `/referral` page — "Reward Balance" |
+
+**Catatan UX:** Reward balance ini terpisah dari Saldo IDR (topup). User lihat dua angka berbeda di halaman `/referral`.
 
 ---
 
-## 6. Proposed Spec (for Reference)
-
-### Recommended Configuration (AI Team)
+## 6. Konfigurasi Final
 
 ```
 REFERRAL_PROGRAM = {
   referee: {
-    benefit: "cashback_platform_credit",
+    benefit: "cashback_saldo",
     trigger: "first_payment_success",
-    calculation: "min(payment_amount * 0.10, 5000)",  // 10%, capped at Rp 5,000
-    currency: "IDR",
+    transaction_limit: 1,         // first payment only
+    amount: 5000,              // flat Rp 5,000
+    subsidy_source: "owner_personal", // dari pocket owner, bukan revenue
     withdrawable: false,
   },
   referrer: {
-    benefit: "tokens",
-    trigger: "first_payment_success",
-    amount: 500,  // tokens
+    benefit: "reward_balance",
+    trigger: "every_payment_success",
+    transaction_limit: 5,          // 5 transaksi pertama referee
+    calculation: "payment_amount × 0.03",  // 3%
     withdrawable: false,
   },
   exclusions: {
-    refund_window_days: 0,  // no clawback
+    refund_window_days: 0,         // no clawback
     fraud_review_required_above: null,  // manual review threshold (TBD)
   }
 }
 ```
 
-### Cost Summary (Recommended Config)
+---
 
-| Payment | Referee Cashback | Referrer Tokens | Teora Cost |
-|---------|-----------------|-----------------|------------|
-| Topup Rp 10,000 | Rp 1,000 | 500 tokens | ~Rp 1,375 |
-| Starter Rp 29,000 | Rp 2,900 | 500 tokens | ~Rp 3,275 |
-| Standar Rp 59,000 | Rp 5,000 | 500 tokens | ~Rp 5,375 |
-| Premium Rp 99,000 | Rp 5,000 | 500 tokens | ~Rp 5,375 |
+## 7. Cost Summary (Owner's Perspective)
+
+### Cost Per Successful Referral
+
+> **Referee cashback = one-time (first payment only). Referrer reward = up to 5 transactions.**
+
+| Referee Action | Owner Cashback (referee) | Referrer Reward (5tx) | Owner's Total Cost |
+|----------------|------------------------|----------------------|-------------------|
+| Langganan Starter 15d × 5 | **Rp 5,000** (one-time) | Rp 1,200 | **Rp 6,200** |
+| Langganan Standar 30d × 5 | **Rp 5,000** (one-time) | Rp 3,825 | **Rp 8,825** |
+| Langganan Premium 30d × 5 | **Rp 5,000** (one-time) | Rp 6,885 | **Rp 11,885** |
+| Langganan Ultra 30d × 5 | **Rp 5,000** (one-time) | Rp 19,125 | **Rp 24,125** |
+| Topup Rp 50rb × 5 | **Rp 5,000** (one-time) | Rp 7,500 | **Rp 12,500** |
+| Topup Rp 100rb × 5 | **Rp 5,000** (one-time) | Rp 15,000 | **Rp 20,000** |
+
+**Catatan:** Cashback referee Rp 5,000 × 5 transaksi = Rp 25,000. Owner subsidy di-hitung per transaksi, bukan one-time.
+
+### Owner's Revenue Per Referral
+
+| Scenario | Owner Fee (5 tx, dari tabel Section 2) | Gross Revenue (5 tx) | Referrer Cost | Net Revenue |
+|----------|----------------------------------------|--------------------|------------|------------|
+| Standar 30d × 5 | Rp 4,885 | Rp 127,500 | Rp 3,825 | **Rp 123,675** |
+| Premium 30d × 5 | Rp 17,490 | Rp 229,500 | Rp 6,885 | **Rp 222,615** |
+| Topup 100rb × 5 | Rp 124,355 | Rp 500,000 | Rp 15,000 | **Rp 485,000** |
+
+### Referrer Reward to Owner's CAC Ratio
+
+| Scenario | CAC (total owner cost) | Referrer Reward Total | % of Owner's CAC |
+|----------|----------------------|---------------------|-----------------|
+| Standar 30d × 5 | Rp 28,825 | Rp 3,825 | 13.3% |
+| Premium 30d × 5 | Rp 31,885 | Rp 6,885 | 21.6% |
+| Topup 100rb × 5 | Rp 40,000 | Rp 15,000 | 37.5% |
 
 ---
 
-## 7. Next Steps
+## 8. Perbandingan: Before vs After
 
-1. Owner decide: amounts (Section 5)
-2. AI team implement backend trigger (Stripe webhook → credit logic)
-3. AI team update frontend `/referral` page
-4. AI team add `referral_events` logging for all payment transitions
-5. Test with staging transactions
-6. Monitor referral conversion rate post-launch
+| Aspek | Model Lama (token-based) | Model Baru (final) |
+|-------|------------------------|--------------------|
+| Referee benefit | N/A ( belum ada ) | Flat Rp 5,000 cashback |
+| Referee cashback source | — | Owner subsidy |
+| Referee scope | — | Semua metode (sub + topup) |
+| Referee limit | — | 5 transaksi |
+| Referrer benefit | N/A ( belum ada ) | 3% × payment |
+| Referrer limit | — | 5 transaksi pertama referee |
+| Reward type | — | IDR (non-withdrawable balance) |
+| Withdrawal | — | Tidak ada |
+| Subscription renewal qualifies | — | ✅ Ya |
+| Topup qualifies | — | ✅ Ya |
+
+---
+
+## 9. Revision History
+
+| Date | Change | By |
+|------|--------|-----|
+| 2026-09-08 | Initial: payment-based model discussion, open questions | AI Engineering |
+| 2026-09-09 | Session 2: All decisions finalized — 3% × 5 tx, flat Rp 5,000 referee cashback | AI Engineering + Owner |
+| 2026-09-09 | Session 3: Clarified — referee cashback first payment only (satu kali seumur hidup akun, bukan per metode). No refund policy — special case handled manual by CS, cashback stays (no clawback) | AI Engineering + Owner |
+
+---
+
+## 10. Next Steps
+
+### Untuk AI Engineering
+
+- [ ] Update `referral.tsx` frontend: reward balance display + "3% × payment" wording + "5 transaksi pertama"
+- [ ] Update OpenAPI spec: `referral_events` table schema
+- [ ] Implement Stripe webhook: trigger cashback + reward on `payment_intent.succeeded`
+- [ ] Track transaction count per (referrer, referee) pair
+- [ ] Cap referee cashback at 5 transactions (stop crediting after tx #5)
+- [ ] Cap referrer reward at 5 transactions per referee
+
+### Untuk Owner
+
+- [ ] Set budget untuk referee cashback subsidy (Rp 5,000 × estimated referrals)
+- [ ] Monitor referral conversion rate post-launch
+- [ ] Decide reward balance expiry policy (use it or lose it? 12 months?)

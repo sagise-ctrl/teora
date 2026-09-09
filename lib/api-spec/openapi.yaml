@@ -2859,6 +2859,61 @@ paths:
               schema:
                 $ref: "#/components/schemas/PackagesResponse"
 
+  /users/me/referral-info:
+    get:
+      operationId: getMyReferralInfo
+      summary: Get current user's referral program status
+      description: |
+        Returns the authenticated user's referral code (to share), number of
+        referees invited, total reward earned, current reward balance, and
+        whether the user has claimed their referee cashback.
+      tags: [subscriptions]
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Referral program status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserReferralInfo"
+        "401":
+          description: Unauthorized
+        "404":
+          description: User not found
+
+  # ── Webhooks (no auth — signature-verified) ─────────────────────────────
+  /webhooks/payment-success:
+    post:
+      operationId: paymentSuccessWebhook
+      summary: Payment gateway webhook — referral reward trigger (gateway-agnostic)
+      description: |
+        Endpoint that payment gateway webhooks call on successful payment.
+        Triggers referral rewards: referee cashback (Rp 5,000, first payment only)
+        + referrer reward (3% × payment amount, capped at 5 transactions).
+        Idempotent via `paymentEventId`.
+        Header: `x-webhook-signature: sha256=<hex>` (HMAC-SHA256 of body using
+        `REFERRAL_WEBHOOK_SECRET`).
+      tags: [subscriptions]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentWebhookPayload"
+      responses:
+        "200":
+          description: Webhook processed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentWebhookResponse"
+        "400":
+          description: Invalid payload
+        "401":
+          description: Invalid signature
+
   /users/me/subscription:
     get:
       operationId: getMySubscription
@@ -2920,6 +2975,154 @@ paths:
 
 components:
   schemas:
+    UserReferralInfo:
+      type: object
+      required:
+        - referralCode
+        - referredCount
+        - refereesWithFirstPayment
+        - totalRewardEarnedCents
+        - rewardBalanceCents
+        - refereeCashbackClaimed
+        - refereeCashbackAmountCents
+        - referrerRewardPercent
+        - referrerRewardTxCap
+      properties:
+        referralCode:
+          type: ["string", "null"]
+          description: User's unique referral code to share
+        email:
+          type: ["string", "null"]
+        displayName:
+          type: ["string", "null"]
+        referredCount:
+          type: number
+          description: Total users who signed up with this user's referral code
+        refereesWithFirstPayment:
+          type: number
+          description: Referees who completed their first payment (qualify for referrer reward)
+        totalRewardEarnedCents:
+          type: number
+          description: Lifetime reward earned (IDR cents), non-withdrawable
+        rewardBalanceCents:
+          type: number
+          description: Current reward balance (IDR cents), usable for AI services
+        refereeCashbackClaimed:
+          type: boolean
+          description: Whether THIS user claimed their referee cashback of IDR 5000
+        refereeCashbackAmountCents:
+          type: number
+          description: "Program constant: 500000 equals IDR 5000"
+        referrerRewardPercent:
+          type: number
+          description: "Program constant: 0.03 means 3 percent"
+        referrerRewardTxCap:
+          type: number
+          description: "Program constant: 5 transactions per referrer and referee pair"
+
+    Subscription:
+      type: object
+      description: Stub — full schema to be added when backend subscription stabilizes
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        packageId:
+          type: string
+        status:
+          type: string
+        startsAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+
+    SubscriptionResponse:
+      type: object
+      description: Stub — full schema pending
+      properties:
+        subscription:
+          $ref: "#/components/schemas/Subscription"
+
+    CreateSubscriptionRequest:
+      type: object
+      description: Stub — full schema pending
+      properties:
+        packageId:
+          type: string
+
+    PackagesResponse:
+      type: object
+      description: Stub — full schema pending
+      properties:
+        packages:
+          type: array
+          items:
+            type: object
+
+    PaymentWebhookPayload:
+      type: object
+      required:
+        - paymentEventId
+        - userId
+        - paidAmountCents
+        - method
+        - paidAt
+      properties:
+        paymentEventId:
+          type: string
+          description: Unique payment event ID from gateway (used for idempotency)
+        userId:
+          type: string
+          description: Supabase user ID of the payer
+        paidAmountCents:
+          type: number
+          description: Amount paid in IDR cents (gross, before any deductions)
+        method:
+          type: string
+          enum: [subscription, topup]
+        paidAt:
+          type: string
+          format: date-time
+        metadata:
+          type: object
+          additionalProperties: true
+
+    PaymentWebhookResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        refereeCashback:
+          type: object
+          properties:
+            credited:
+              type: boolean
+            reason:
+              type: string
+              enum: [credited, already_claimed, no_referrer, no_user]
+            amountCents:
+              type: number
+        referrerReward:
+          type: object
+          properties:
+            credited:
+              type: boolean
+            reason:
+              type: string
+              enum:
+                - credited
+                - cap_reached
+                - no_referrer
+                - amount_too_small
+                - duplicate_event
+            amountCents:
+              type: number
+            txCount:
+              type: number
+
     # ── Admin ─────────────────────────────────────────────────────────────────
     AdminStatus:
       type: object

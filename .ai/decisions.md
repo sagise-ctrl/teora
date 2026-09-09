@@ -1038,7 +1038,80 @@ Owner clarified: PPT presentasi = fitur yang pelajar butuhkan di Task Mentor. Sp
 
 ---
 
-## [2026-09-04] DECISION 015: Deploy Robustness Strategy — Fix + Document
+## [2026-09-09] DECISION 017: Positioning Final — Dual Segment (Mahasiswa + Pengajar)
+
+**Status:** ✅ APPROVED by owner 2026-09-09
+**Author:** AI Engineering + Owner
+**Trigger:** Owner directive: positioning harus eksplisit 2 segmen (mahasiswa + pengajar) dengan kalimat sendiri. 4 opsi existing (A/B/C/D) tidak ada yang eksplisit menyebut pengajar → pilih Option E baru.
+
+### Decision Summary
+
+**Tagline final:**
+> "Asisten AI yang menemani proses belajar dan mengajar: dari memahami materi sampai menyiapkan penilaian."
+
+**Paragraf positioning (full):**
+> "Teora adalah asisten akademik berbasis AI yang menemani proses belajar dan mengajar. Untuk mahasiswa, Teora membantu memahami materi dan menyusun tugas hingga karya ilmiah lewat bimbingan bertahap, sambil mencatat riwayat belajar supaya bantuannya makin memahami kebutuhanmu. Untuk pengajar, Teora membantu menyiapkan soal, rubrik penilaian, dan materi ajar lebih cepat: supaya waktu bisa lebih banyak dipakai untuk hal yang memang butuh sentuhan pengajar sendiri."
+
+### Pilihan Opsi
+
+| Opsi | Fokus | Pelajar | Pengajar | Dipilih? |
+|------|-------|---------|----------|----------|
+| A | Skripsi Indonesia | ✅ | ❌ | ❌ |
+| B | Writing tutor | ✅ | ❌ | ❌ |
+| C | Perjalanan panjang | ✅ | ❌ | ❌ |
+| D | Citation intelligence | ✅ | ❌ | ❌ |
+| **E** | **Belajar + Mengajar** | **✅** | **✅** | **✅ FINAL** |
+
+### Kenapa Option E (bukan A/B/C/D)
+
+1. **Dual segment eksplisit** — tidak ada opsi existing yang menyebut pengajar. Ini pembeda unik.
+2. **Tier 3 hook** — dosen = pintu masuk institusi (Tier 3). Positioning sekarang menyiapkan jalan ke sana tanpa harus repositioning nanti.
+3. **Emotional hook untuk pengajar** — "waktu bisa lebih banyak dipakai untuk hal yang memang butuh sentuhan pengajar sendiri" = USP yang tidak ada di tool lain (semua kompetitor fokus pelajar).
+4. **Process-focused** — pegang elemen Opsi B (menemani proses, bukan hasil akhir) yang paling sustainable — less prone to "AI cheating" criticism.
+5. **Owner expertise** — Owner non-programmer, pernah jadi pengajar/dosen. Kalimat positioning datang dari owner sendiri, yang menunjukkan dia paham konteks pengajar.
+
+### Implementation Surface
+
+| File | Perubahan |
+|------|-----------|
+| `docs/ai-team/business-growth/positioning.md` | Tambah Option E + tandai final |
+| `artifacts/academic-workspace/src/pages/landing.tsx` | Hero h1 + sub-paragraf pakai positioning baru (2 motion.p untuk dual segment) |
+| `artifacts/academic-workspace/index.html` | `<title>` + meta description + OG tags pakai positioning baru. Em dash `—` dihapus (sesuai memory `frontend-no-em-dash-preference`) |
+| `.ai/blockers.md` | Hapus row "AUDIT Positioning" |
+| `.ai/progress.md` | Milestone entry |
+
+### Yang Penting untuk Di-Verify
+
+- [ ] Landing page copy tidak ada em dash (sesuai preference owner)
+- [ ] Tagline + paragraf tetap konsisten antara hero (React) dan meta tags (HTML statis) — per memory `frontend-audit-check-bundle-and-html-statically`
+- [ ] Bahasa Indonesia utuh, tidak ada English campur
+- [ ] Bundle hasil `vite build` mengandung semua string baru (verifikasi via curl ke production URL post-deploy)
+
+### Out of Scope (deferred)
+
+- **Pricing hint di landing** — owner eksplisit tunda sampai dokumentasi pricing dibaca. Cross-reference: memory `pricing-strategy-2026-anthropic-discussion`
+- **Iklan/iklan emosional** — perlu diskusi terpisah untuk copy iklan (Instagram/Google Ads/Email marketing) berdasarkan positioning ini
+- **Institusi tier UI** — Tier 3 belum ada menu, positioning siapkan jalan tapi tidak implementasi sekarang
+- **Logo/visual refresh** — positioning tidak trigger redesign visual, hanya copy
+
+### Trade-offs
+
+| Trade-off | Acceptable? |
+|-----------|-------------|
+| Tagline lebih panjang dari tagline tunggal | ✅ — dipecah jadi 2 baris di hero (h1 + sub) |
+| Butuh bukti UX untuk kredibel ("menemani proses") | 🟡 — saat ini sudah ada (riwayat belajar, version history, learning activities) tapi belum di-promosikan |
+| Pengajar belum fully served | 🟡 — Assessment ada, tapi belum ada dedicated workflow untuk dosen (misal: assignment creation). Tier 3 nanti |
+
+### References
+
+- `.ai/lessons-learned.md` entry `frontend-no-em-dash-preference`
+- `.ai/lessons-learned.md` entry `frontend-audit-check-bundle-and-html-statically`
+- Memory `pricing-strategy-2026-anthropic-discussion` (pricing hint deferred)
+- `docs/ai-team/business-growth/positioning.md` (Option E final)
+- `audit-product-ux-ai.md` Section 1 (positioning gaps)
+- `.ai/blockers.md` row "AUDIT Positioning" (removed post-decision)
+
+---
 
 **Status:** ACTIVE
 **Author:** AI Engineering (autonomous, per CLAUDE.md Autonomy Policy — technical config decision)

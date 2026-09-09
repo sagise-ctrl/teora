@@ -9,6 +9,73 @@
 
 ---
 
+## HANDOVER 2026-09-09 18:25 — opus-4-6 → opus-4-X
+
+**Referral Program:** DEPLOYED ✅ `7faf379` — committed, NOT pushed.
+- Backend `dpl_EwGjBFKydaTcDqz55Mde1vn6hfFv` → teora-backend.vercel.app ✅ READY
+- Frontend `dpl_CTPG1JiK2afXW2gkqbimGsBebxmS` → academic-workspace-eta.vercel.app ✅ READY
+- `/referral` page live with real API data ✅
+- Bundle verified: referral strings in production ✅
+
+**Pending:**
+1. Owner: set `REFERRAL_WEBHOOK_SECRET` in Vercel dashboard (placeholder ok, webhook secure default = reject)
+2. Owner: push `feat/daftar-task` → origin (`git push origin feat/daftar-task`)
+3. Owner: pick payment gateway (Midtrans/Xendit/Stripe/Duitku) → build adapter
+4. Pricing fee discussion: blended rate safety for topup (2-8% margin, risky if output-heavy)
+
+**Next task:** Payment gateway integration (adapters ready, just need gateway pick).
+
+---
+
+## ACTIVE 2026-09-09 — Pricing Decision Opsi B + Schema Migration (opus-4-8)
+
+**Status:** ✅ COMPLETE — migration applied, typecheck pass
+**Model:** claude-opus-4-8
+**Branch:** `feat/daftar-task`
+
+### Keputusan Owner
+
+1. **Opsi B (pisah in/out di backend)** — APPROVED
+   - Backend sudah support (`artifacts/api-server/src/lib/ai.ts:156-171` `estimateCost` pakai `pricePer1MInputCents/OutputCents`)
+   - User-facing tetap blended ("X token"), backend tagih real cost + markup
+
+2. **Markup topup 40%** — APPROVED
+   - `tagih_per_1K = cost_real_per_1K × 1.40`
+   - Margin neto = 27.9% (konstan untuk semua skenario)
+
+### Dampak per Metode
+
+| Metode | Opsi B Impact | Margin Worst Case |
+|--------|---------------|-------------------|
+| Langganan | Visibility only (FinOps dari `ai_usage_log`) | 8.9-32.1% (dilindungi buffer harga jual) |
+| Topup | Full protection (tagih = cost × 1.40) | 27.9% flat |
+
+### Schema Migration Applied
+
+**Migration:** `add_markup_multiplier_to_ai_tiers`
+
+```sql
+ALTER TABLE public.ai_tiers
+ADD COLUMN markup_multiplier NUMERIC(5, 3) NOT NULL DEFAULT 1.400;
+
+ALTER TABLE public.ai_tiers
+ADD CONSTRAINT chk_markup_multiplier_range
+CHECK (markup_multiplier >= 1.000 AND markup_multiplier <= 9.999);
+```
+
+**Files changed:**
+- `lib/db/src/schema/ai_tiers.ts` — tambah `markupMultiplier` field
+- `docs/ai-team/finance/pricing-strategy-2026-anthropic.md` — section 14 + 15 + 16 (Opsi B decision, simulasi fee minimum, open decisions)
+
+**Status:**
+- ✅ Migration applied ke Supabase
+- ✅ 4 existing rows backfilled dengan 1.400
+- ✅ Typecheck pass
+- ⏸️ Schema diff needs commit
+- ⏸️ Existing rows masih pakai model lama (Llama/Claude 3.5 Sonnet/GPT-4o) — perlu di-update ke Haiku 4.5 + Sonnet 5 saat spec final (separate inisiatif)
+
+---
+
 ## ACTIVE 2026-09-09 — Fee Calculation Discussion (opus-4-6)
 
 **Status:** ⏸️ PAUSED — owner mau diskusi lanjut dengan opus-4-8

@@ -79,17 +79,29 @@ export default function Landing() {
               transition={{ duration: 0.5 }}
             >
               <h1 className="text-4xl md:text-5xl font-serif font-bold tracking-tight leading-tight">
-                Asisten Akademik untuk<br />Belajar, Memahami, Menguasai
+                Asisten AI yang menemani proses<br />belajar dan mengajar
               </h1>
             </motion.div>
             <motion.p
-              className="text-lg text-muted-foreground max-w-xl mx-auto"
+              className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.15 }}
             >
-              Teora membantu Anda memahami tugas akademik dari awal sampai akhir —
-              bukan hasil jadi, tapi pemahaman yang Anda kuasai sendiri.
+              Teora adalah asisten akademik berbasis AI yang menemani proses belajar dan mengajar.
+              Untuk mahasiswa, Teora membantu memahami materi dan menyusun tugas hingga karya ilmiah
+              lewat bimbingan bertahap, sambil mencatat riwayat belajar supaya bantuannya makin memahami
+              kebutuhanmu.
+            </motion.p>
+            <motion.p
+              className="text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              Untuk pengajar, Teora membantu menyiapkan soal, rubrik penilaian, dan materi ajar lebih
+              cepat: supaya waktu bisa lebih banyak dipakai untuk hal yang memang butuh sentuhan
+              pengajar sendiri.
             </motion.p>
             <motion.div
               className="flex items-center justify-center gap-3 pt-2"
@@ -104,6 +116,14 @@ export default function Landing() {
                 <Button variant="outline" size="lg">Masuk</Button>
               </Link>
             </motion.div>
+            <motion.p
+              className="text-xs text-muted-foreground/70 pt-2"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              Untuk mahasiswa dan pengajar di Indonesia
+            </motion.p>
           </div>
         </section>
 

@@ -2941,3 +2941,110 @@ export const SuspendUserBody = zod.object({
 })
 
 export const SuspendUserResponse = zod.unknown()
+
+
+/**
+ * @summary List subscription packages
+ */
+export const GetPackagesResponse = zod.object({
+  "packages": zod.array(zod.looseObject({
+
+})).optional()
+}).describe('Stub — full schema pending')
+
+
+/**
+ * Returns the authenticated user's referral code (to share), number of
+ * referees invited, total reward earned, current reward balance, and
+ * whether the user has claimed their referee cashback.
+ * @summary Get current user's referral program status
+ */
+export const GetMyReferralInfoResponse = zod.object({
+  "referralCode": zod.string().nullable().describe('User\'s unique referral code to share'),
+  "email": zod.string().nullish(),
+  "displayName": zod.string().nullish(),
+  "referredCount": zod.number().describe('Total users who signed up with this user\'s referral code'),
+  "refereesWithFirstPayment": zod.number().describe('Referees who completed their first payment (qualify for referrer reward)'),
+  "totalRewardEarnedCents": zod.number().describe('Lifetime reward earned (IDR cents), non-withdrawable'),
+  "rewardBalanceCents": zod.number().describe('Current reward balance (IDR cents), usable for AI services'),
+  "refereeCashbackClaimed": zod.boolean().describe('Whether THIS user claimed their referee cashback of IDR 5000'),
+  "refereeCashbackAmountCents": zod.number().describe('Program constant: 500000 equals IDR 5000'),
+  "referrerRewardPercent": zod.number().describe('Program constant: 0.03 means 3 percent'),
+  "referrerRewardTxCap": zod.number().describe('Program constant: 5 transactions per referrer and referee pair')
+})
+
+
+/**
+ * Endpoint that payment gateway webhooks call on successful payment.
+ * Triggers referral rewards: referee cashback (Rp 5,000, first payment only)
+ * + referrer reward (3% × payment amount, capped at 5 transactions).
+ * Idempotent via `paymentEventId`.
+ * Header: `x-webhook-signature: sha256=<hex>` (HMAC-SHA256 of body using
+ * `REFERRAL_WEBHOOK_SECRET`).
+ * @summary Payment gateway webhook — referral reward trigger (gateway-agnostic)
+ */
+export const PaymentSuccessWebhookBody = zod.object({
+  "paymentEventId": zod.string().describe('Unique payment event ID from gateway (used for idempotency)'),
+  "userId": zod.string().describe('Supabase user ID of the payer'),
+  "paidAmountCents": zod.number().describe('Amount paid in IDR cents (gross, before any deductions)'),
+  "method": zod.enum(['subscription', 'topup']),
+  "paidAt": zod.coerce.date(),
+  "metadata": zod.record(zod.string(), zod.unknown()).optional()
+})
+
+export const PaymentSuccessWebhookResponse = zod.object({
+  "ok": zod.boolean().optional(),
+  "refereeCashback": zod.object({
+  "credited": zod.boolean().optional(),
+  "reason": zod.enum(['credited', 'already_claimed', 'no_referrer', 'no_user']).optional(),
+  "amountCents": zod.number().optional()
+}).optional(),
+  "referrerReward": zod.object({
+  "credited": zod.boolean().optional(),
+  "reason": zod.enum(['credited', 'cap_reached', 'no_referrer', 'amount_too_small', 'duplicate_event']).optional(),
+  "amountCents": zod.number().optional(),
+  "txCount": zod.number().optional()
+}).optional()
+})
+
+
+/**
+ * @summary Get current subscription and usage
+ */
+export const GetMySubscriptionResponse = zod.object({
+  "subscription": zod.object({
+  "id": zod.string().optional(),
+  "userId": zod.string().optional(),
+  "packageId": zod.string().optional(),
+  "status": zod.string().optional(),
+  "startsAt": zod.coerce.date().optional(),
+  "expiresAt": zod.coerce.date().optional()
+}).optional().describe('Stub — full schema to be added when backend subscription stabilizes')
+}).describe('Stub — full schema pending')
+
+
+/**
+ * @summary Create a new subscription
+ */
+export const CreateSubscriptionBody = zod.object({
+  "packageId": zod.string().optional()
+}).describe('Stub — full schema pending')
+
+export const CreateSubscriptionResponse = zod.object({
+  "id": zod.string().optional(),
+  "userId": zod.string().optional(),
+  "packageId": zod.string().optional(),
+  "status": zod.string().optional(),
+  "startsAt": zod.coerce.date().optional(),
+  "expiresAt": zod.coerce.date().optional()
+}).describe('Stub — full schema to be added when backend subscription stabilizes')
+
+
+/**
+ * @summary Toggle hybrid autofallback setting
+ */
+export const ToggleAutofallbackBody = zod.object({
+  "enabled": zod.boolean()
+})
+
+export const ToggleAutofallbackResponse = zod.unknown()

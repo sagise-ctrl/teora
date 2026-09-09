@@ -10,7 +10,6 @@
 | Payment provider | P1 | Decide on Stripe vs Xendit vs Midtrans | Revenue blocker |
 | **Referral reward** | P1 | Fix referral reward — kita pernah diskusi tapi belum fix detail reward-nya | Perlu owner decision — discuss soon |
 | **Maintenance model discussion** | P2 | Owner perlu pastikan AI team berjalan sesuai keinginan sebelum go-live | Discuss SETELAH semua fitur clear/selesai |
-| **AUDIT 2026-09-05 — Positioning** | P0 | Pilih positioning option A/B/C/D dari `docs/ai-team/business-growth/positioning.md` | Krisis untuk landing page + go-to-market |
 | **AUDIT 2026-09-05 — UU PDP Compliance** | P1 | Consent banner, data retention policy, right to deletion | Legal risk |
 | **AUDIT 2026-09-05 — Free tier limits** | P1 | Definisi free tier: max projects, max tokens/day, max references | Token economy |
 

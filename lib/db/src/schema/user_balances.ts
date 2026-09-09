@@ -19,6 +19,14 @@ export type SaldoStatus = (typeof saldoStatuses)[number];
  * User credit balance for AI token purchases.
  * Balance is stored in IDR cents.
  * No negative balance allowed.
+ *
+ * Two balance columns:
+ * - balanceCents: regular saldo IDR (from topup, refund, bonus). Withdrawable in concept.
+ * - rewardBalanceCents: reward balance (non-withdrawable, from referral program).
+ *   - Can use for AI services
+ *   - Cannot withdraw to bank
+ *   - Cannot convert to saldo IDR
+ *   - Source: 3% of referee's payments, capped at 5 transactions per (referrer, referee) pair
  */
 export const userBalancesTable = pgTable(
   "user_balances",
@@ -30,8 +38,11 @@ export const userBalancesTable = pgTable(
       .unique()
       .references(() => usersTable.id, { onDelete: "cascade" }),
 
-    // Balance in IDR cents. e.g. 50000 = Rp 500
+    // Saldo IDR cents (from topup, refund, bonus). Withdrawable in concept.
     balanceCents: integer("balance_cents").notNull().default(0),
+
+    // Reward balance cents (non-withdrawable). Earned by being a referrer.
+    rewardBalanceCents: integer("reward_balance_cents").notNull().default(0),
 
     // Saldo status: active (normal), held (12mo inactivity), closed
     saldoStatus: text("saldo_status")

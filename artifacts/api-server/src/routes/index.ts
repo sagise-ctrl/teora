@@ -31,6 +31,8 @@ import usageRouter from "./usage.js";
 import documentTemplatesRouter from "./document-templates.js";
 import adminAiTiersRouter from "./admin-ai-tiers.js";
 import adminRouter from "./admin.js";
+import referralRouter from "./referral.js";
+import referralWebhookRouter from "./referral-webhook.js";
 
 const router: IRouter = Router();
 
@@ -40,6 +42,9 @@ router.use(sharedRouter);
 // Public routes (no auth required)
 router.use(aiTiersRouter);
 router.use(packagesRouter);
+// Webhook handler — no auth (signature-verified instead). MUST be registered
+// BEFORE router.use(authMiddleware) per DECISION 006.
+router.use(referralWebhookRouter);
 router.use(authMiddleware);
 
 // AI rate limiter — mounted AFTER authMiddleware so req.user.id is populated.
@@ -79,5 +84,6 @@ router.use(usageRouter);
 router.use(documentTemplatesRouter);
 router.use(adminAiTiersRouter);
 router.use(adminRouter);
+router.use(referralRouter);
 
 export default router;

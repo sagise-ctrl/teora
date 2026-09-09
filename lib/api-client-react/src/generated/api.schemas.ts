@@ -5,6 +5,131 @@
  * AI Academic Workspace API
  * OpenAPI spec version: 0.1.0
  */
+export interface UserReferralInfo {
+  /**
+     * User's unique referral code to share
+     * @nullable
+     */
+  referralCode: string | null;
+  /** @nullable */
+  email?: string | null;
+  /** @nullable */
+  displayName?: string | null;
+  /** Total users who signed up with this user's referral code */
+  referredCount: number;
+  /** Referees who completed their first payment (qualify for referrer reward) */
+  refereesWithFirstPayment: number;
+  /** Lifetime reward earned (IDR cents), non-withdrawable */
+  totalRewardEarnedCents: number;
+  /** Current reward balance (IDR cents), usable for AI services */
+  rewardBalanceCents: number;
+  /** Whether THIS user claimed their referee cashback of IDR 5000 */
+  refereeCashbackClaimed: boolean;
+  /** Program constant: 500000 equals IDR 5000 */
+  refereeCashbackAmountCents: number;
+  /** Program constant: 0.03 means 3 percent */
+  referrerRewardPercent: number;
+  /** Program constant: 5 transactions per referrer and referee pair */
+  referrerRewardTxCap: number;
+}
+
+/**
+ * Stub — full schema to be added when backend subscription stabilizes
+ */
+export interface Subscription {
+  id?: string;
+  userId?: string;
+  packageId?: string;
+  status?: string;
+  startsAt?: string;
+  expiresAt?: string;
+}
+
+/**
+ * Stub — full schema pending
+ */
+export interface SubscriptionResponse {
+  subscription?: Subscription;
+}
+
+/**
+ * Stub — full schema pending
+ */
+export interface CreateSubscriptionRequest {
+  packageId?: string;
+}
+
+export type PackagesResponsePackagesItem = { [key: string]: unknown };
+
+/**
+ * Stub — full schema pending
+ */
+export interface PackagesResponse {
+  packages?: PackagesResponsePackagesItem[];
+}
+
+export type PaymentWebhookPayloadMethod = typeof PaymentWebhookPayloadMethod[keyof typeof PaymentWebhookPayloadMethod];
+
+
+export const PaymentWebhookPayloadMethod = {
+  subscription: 'subscription',
+  topup: 'topup',
+} as const;
+
+export type PaymentWebhookPayloadMetadata = { [key: string]: unknown };
+
+export interface PaymentWebhookPayload {
+  /** Unique payment event ID from gateway (used for idempotency) */
+  paymentEventId: string;
+  /** Supabase user ID of the payer */
+  userId: string;
+  /** Amount paid in IDR cents (gross, before any deductions) */
+  paidAmountCents: number;
+  method: PaymentWebhookPayloadMethod;
+  paidAt: string;
+  metadata?: PaymentWebhookPayloadMetadata;
+}
+
+export type PaymentWebhookResponseRefereeCashbackReason = typeof PaymentWebhookResponseRefereeCashbackReason[keyof typeof PaymentWebhookResponseRefereeCashbackReason];
+
+
+export const PaymentWebhookResponseRefereeCashbackReason = {
+  credited: 'credited',
+  already_claimed: 'already_claimed',
+  no_referrer: 'no_referrer',
+  no_user: 'no_user',
+} as const;
+
+export type PaymentWebhookResponseRefereeCashback = {
+  credited?: boolean;
+  reason?: PaymentWebhookResponseRefereeCashbackReason;
+  amountCents?: number;
+};
+
+export type PaymentWebhookResponseReferrerRewardReason = typeof PaymentWebhookResponseReferrerRewardReason[keyof typeof PaymentWebhookResponseReferrerRewardReason];
+
+
+export const PaymentWebhookResponseReferrerRewardReason = {
+  credited: 'credited',
+  cap_reached: 'cap_reached',
+  no_referrer: 'no_referrer',
+  amount_too_small: 'amount_too_small',
+  duplicate_event: 'duplicate_event',
+} as const;
+
+export type PaymentWebhookResponseReferrerReward = {
+  credited?: boolean;
+  reason?: PaymentWebhookResponseReferrerRewardReason;
+  amountCents?: number;
+  txCount?: number;
+};
+
+export interface PaymentWebhookResponse {
+  ok?: boolean;
+  refereeCashback?: PaymentWebhookResponseRefereeCashback;
+  referrerReward?: PaymentWebhookResponseReferrerReward;
+}
+
 export interface AdminStatus {
   isOwner: boolean;
   email: string;
@@ -2258,5 +2383,9 @@ export type OverrideUserTierBody = {
 
 export type SuspendUserBody = {
   suspend: boolean;
+};
+
+export type ToggleAutofallbackBody = {
+  enabled: boolean;
 };
 

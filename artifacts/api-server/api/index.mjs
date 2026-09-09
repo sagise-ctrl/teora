@@ -20827,27 +20827,27 @@ var require_router = __commonJS({
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var methods = METHODS.map((method) => method.toLowerCase());
-    module.exports = Router32;
+    module.exports = Router34;
     module.exports.Route = Route;
-    function Router32(options) {
-      if (!(this instanceof Router32)) {
-        return new Router32(options);
+    function Router34(options) {
+      if (!(this instanceof Router34)) {
+        return new Router34(options);
       }
       const opts = options || {};
-      function router32(req, res, next) {
-        router32.handle(req, res, next);
+      function router34(req, res, next) {
+        router34.handle(req, res, next);
       }
-      Object.setPrototypeOf(router32, this);
-      router32.caseSensitive = opts.caseSensitive;
-      router32.mergeParams = opts.mergeParams;
-      router32.params = {};
-      router32.strict = opts.strict;
-      router32.stack = [];
-      return router32;
+      Object.setPrototypeOf(router34, this);
+      router34.caseSensitive = opts.caseSensitive;
+      router34.mergeParams = opts.mergeParams;
+      router34.params = {};
+      router34.strict = opts.strict;
+      router34.stack = [];
+      return router34;
     }
-    Router32.prototype = function() {
+    Router34.prototype = function() {
     };
-    Router32.prototype.param = function param(name, fn) {
+    Router34.prototype.param = function param(name, fn) {
       if (!name) {
         throw new TypeError("argument name is required");
       }
@@ -20867,7 +20867,7 @@ var require_router = __commonJS({
       params.push(fn);
       return this;
     };
-    Router32.prototype.handle = function handle(req, res, callback) {
+    Router34.prototype.handle = function handle(req, res, callback) {
       if (!callback) {
         throw new TypeError("argument callback is required");
       }
@@ -20994,7 +20994,7 @@ var require_router = __commonJS({
         }
       }
     };
-    Router32.prototype.use = function use(handler) {
+    Router34.prototype.use = function use(handler) {
       let offset = 0;
       let path3 = "/";
       if (typeof handler !== "function") {
@@ -21027,7 +21027,7 @@ var require_router = __commonJS({
       }
       return this;
     };
-    Router32.prototype.route = function route(path3) {
+    Router34.prototype.route = function route(path3) {
       const route2 = new Route(path3);
       const layer = new Layer(path3, {
         sensitive: this.caseSensitive,
@@ -21042,7 +21042,7 @@ var require_router = __commonJS({
       return route2;
     };
     methods.concat("all").forEach(function(method) {
-      Router32.prototype[method] = function(path3) {
+      Router34.prototype[method] = function(path3) {
         const route = this.route(path3);
         route[method].apply(route, slice.call(arguments, 1));
         return this;
@@ -21225,13 +21225,13 @@ var require_application = __commonJS({
     var compileTrust = require_utils3().compileTrust;
     var resolve = __require("node:path").resolve;
     var once = require_once();
-    var Router32 = require_router();
+    var Router34 = require_router();
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var app2 = exports = module.exports = {};
     var trustProxyDefaultSymbol = "@@symbol:trust_proxy_default";
     app2.init = function init() {
-      var router32 = null;
+      var router34 = null;
       this.cache = /* @__PURE__ */ Object.create(null);
       this.engines = /* @__PURE__ */ Object.create(null);
       this.settings = /* @__PURE__ */ Object.create(null);
@@ -21240,13 +21240,13 @@ var require_application = __commonJS({
         configurable: true,
         enumerable: true,
         get: function getrouter() {
-          if (router32 === null) {
-            router32 = new Router32({
+          if (router34 === null) {
+            router34 = new Router34({
               caseSensitive: this.enabled("case sensitive routing"),
               strict: this.enabled("strict routing")
             });
           }
-          return router32;
+          return router34;
         }
       });
     };
@@ -21317,15 +21317,15 @@ var require_application = __commonJS({
       if (fns.length === 0) {
         throw new TypeError("app.use() requires a middleware function");
       }
-      var router32 = this.router;
+      var router34 = this.router;
       fns.forEach(function(fn2) {
         if (!fn2 || !fn2.handle || !fn2.set) {
-          return router32.use(path3, fn2);
+          return router34.use(path3, fn2);
         }
         debug(".use app under %s", path3);
         fn2.mountpath = path3;
         fn2.parent = this;
-        router32.use(path3, function mounted_app(req, res, next) {
+        router34.use(path3, function mounted_app(req, res, next) {
           var orig = req.app;
           fn2.handle(req, res, function(err) {
             Object.setPrototypeOf(req, orig.request);
@@ -23834,7 +23834,7 @@ var require_express = __commonJS({
     var EventEmitter2 = __require("node:events").EventEmitter;
     var mixin2 = require_merge_descriptors();
     var proto = require_application();
-    var Router32 = require_router();
+    var Router34 = require_router();
     var req = require_request();
     var res = require_response();
     exports = module.exports = createApplication;
@@ -23856,8 +23856,8 @@ var require_express = __commonJS({
     exports.application = proto;
     exports.request = req;
     exports.response = res;
-    exports.Route = Router32.Route;
-    exports.Router = Router32;
+    exports.Route = Router34.Route;
+    exports.Router = Router34;
     exports.json = bodyParser.json;
     exports.raw = bodyParser.raw;
     exports.static = require_serve_static();
@@ -190617,7 +190617,7 @@ var require_input5 = __commonJS({
 });
 
 // src/app.ts
-var import_express32 = __toESM(require_express2(), 1);
+var import_express34 = __toESM(require_express2(), 1);
 var import_cors = __toESM(require_lib3(), 1);
 var import_pino_http = __toESM(require_logger(), 1);
 
@@ -191392,7 +191392,7 @@ var rateLimit = (passedOptions) => {
 var lib_default = rateLimit;
 
 // src/routes/index.ts
-var import_express30 = __toESM(require_express2(), 1);
+var import_express32 = __toESM(require_express2(), 1);
 
 // ../../node_modules/.pnpm/jose@6.2.10/node_modules/jose/dist/webapi/lib/buffer_utils.js
 var encoder = new TextEncoder();
@@ -194490,6 +194490,69 @@ var SuspendUserBody = zod.object({
   "suspend": zod.boolean()
 });
 var SuspendUserResponse = zod.unknown();
+var GetPackagesResponse = zod.object({
+  "packages": zod.array(zod.looseObject({})).optional()
+}).describe("Stub \u2014 full schema pending");
+var GetMyReferralInfoResponse = zod.object({
+  "referralCode": zod.string().nullable().describe("User's unique referral code to share"),
+  "email": zod.string().nullish(),
+  "displayName": zod.string().nullish(),
+  "referredCount": zod.number().describe("Total users who signed up with this user's referral code"),
+  "refereesWithFirstPayment": zod.number().describe("Referees who completed their first payment (qualify for referrer reward)"),
+  "totalRewardEarnedCents": zod.number().describe("Lifetime reward earned (IDR cents), non-withdrawable"),
+  "rewardBalanceCents": zod.number().describe("Current reward balance (IDR cents), usable for AI services"),
+  "refereeCashbackClaimed": zod.boolean().describe("Whether THIS user claimed their referee cashback of IDR 5000"),
+  "refereeCashbackAmountCents": zod.number().describe("Program constant: 500000 equals IDR 5000"),
+  "referrerRewardPercent": zod.number().describe("Program constant: 0.03 means 3 percent"),
+  "referrerRewardTxCap": zod.number().describe("Program constant: 5 transactions per referrer and referee pair")
+});
+var PaymentSuccessWebhookBody = zod.object({
+  "paymentEventId": zod.string().describe("Unique payment event ID from gateway (used for idempotency)"),
+  "userId": zod.string().describe("Supabase user ID of the payer"),
+  "paidAmountCents": zod.number().describe("Amount paid in IDR cents (gross, before any deductions)"),
+  "method": zod.enum(["subscription", "topup"]),
+  "paidAt": zod.coerce.date(),
+  "metadata": zod.record(zod.string(), zod.unknown()).optional()
+});
+var PaymentSuccessWebhookResponse = zod.object({
+  "ok": zod.boolean().optional(),
+  "refereeCashback": zod.object({
+    "credited": zod.boolean().optional(),
+    "reason": zod.enum(["credited", "already_claimed", "no_referrer", "no_user"]).optional(),
+    "amountCents": zod.number().optional()
+  }).optional(),
+  "referrerReward": zod.object({
+    "credited": zod.boolean().optional(),
+    "reason": zod.enum(["credited", "cap_reached", "no_referrer", "amount_too_small", "duplicate_event"]).optional(),
+    "amountCents": zod.number().optional(),
+    "txCount": zod.number().optional()
+  }).optional()
+});
+var GetMySubscriptionResponse = zod.object({
+  "subscription": zod.object({
+    "id": zod.string().optional(),
+    "userId": zod.string().optional(),
+    "packageId": zod.string().optional(),
+    "status": zod.string().optional(),
+    "startsAt": zod.coerce.date().optional(),
+    "expiresAt": zod.coerce.date().optional()
+  }).optional().describe("Stub \u2014 full schema to be added when backend subscription stabilizes")
+}).describe("Stub \u2014 full schema pending");
+var CreateSubscriptionBody = zod.object({
+  "packageId": zod.string().optional()
+}).describe("Stub \u2014 full schema pending");
+var CreateSubscriptionResponse = zod.object({
+  "id": zod.string().optional(),
+  "userId": zod.string().optional(),
+  "packageId": zod.string().optional(),
+  "status": zod.string().optional(),
+  "startsAt": zod.coerce.date().optional(),
+  "expiresAt": zod.coerce.date().optional()
+}).describe("Stub \u2014 full schema to be added when backend subscription stabilizes");
+var ToggleAutofallbackBody = zod.object({
+  "enabled": zod.boolean()
+});
+var ToggleAutofallbackResponse = zod.unknown();
 
 // src/routes/health.ts
 var router = (0, import_express.Router)();
@@ -202784,6 +202847,8 @@ import {
   serial as serial13,
   text as text14,
   timestamp as timestamp14,
+  boolean as boolean7,
+  integer as integer13,
   index
 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema14 } from "drizzle-zod";
@@ -202806,6 +202871,17 @@ var referralsTable = pgTable14(
     // qualified = email confirmed + first payment (future)
     // rewarded  = commission/reward paid out (future)
     // rejected  = abuse detected
+    // ----- Reward program tracking (finalized 2026-09-09) -----
+    // First successful payment timestamp (any method: subscription or topup)
+    firstPaymentAt: timestamp14("first_payment_at", { withTimezone: true }),
+    // First-payment payment event ID (for idempotency)
+    firstPaymentEventId: text14("first_payment_event_id"),
+    // Referee cashback Rp 5,000 — claimed exactly once per user lifetime
+    refereeCashbackClaimed: boolean7("referee_cashback_claimed").notNull().default(false),
+    // Count of paid transactions used for referrer reward (capped at 5)
+    referrerRewardTxCount: integer13("referrer_reward_tx_count").notNull().default(0),
+    // Total referrer reward paid (denormalized for fast display)
+    referrerRewardPaidCents: integer13("referrer_reward_paid_cents").notNull().default(0),
     createdAt: timestamp14("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp14("updated_at", { withTimezone: true }).notNull().defaultNow()
   },
@@ -202813,7 +202889,8 @@ var referralsTable = pgTable14(
     index("idx_referrals_referrer").on(table2.referrerId),
     index("idx_referrals_referred").on(table2.referredId),
     index("idx_referrals_code").on(table2.referralCode),
-    index("idx_referrals_status").on(table2.status)
+    index("idx_referrals_status").on(table2.status),
+    index("idx_referrals_first_payment").on(table2.firstPaymentAt)
   ]
 );
 var referralStatuses = [
@@ -202826,7 +202903,12 @@ var referralStatuses = [
 var insertReferralSchema = createInsertSchema14(referralsTable).omit({
   id: true,
   createdAt: true,
-  updatedAt: true
+  updatedAt: true,
+  firstPaymentAt: true,
+  firstPaymentEventId: true,
+  refereeCashbackClaimed: true,
+  referrerRewardTxCount: true,
+  referrerRewardPaidCents: true
 });
 
 // ../../lib/db/src/schema/referral_events.ts
@@ -202837,7 +202919,7 @@ import {
   timestamp as timestamp15,
   jsonb,
   index as index2,
-  integer as integer13
+  integer as integer14
 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema15 } from "drizzle-zod";
 var referralEventsTable = pgTable15(
@@ -202845,7 +202927,7 @@ var referralEventsTable = pgTable15(
   {
     id: serial14("id").primaryKey(),
     // Which referral this event belongs to
-    referralId: integer13("referral_id").notNull().references(() => referralsTable.id, { onDelete: "cascade" }),
+    referralId: integer14("referral_id").notNull().references(() => referralsTable.id, { onDelete: "cascade" }),
     // Who or what triggered this event
     actorId: text15("actor_id").references(() => usersTable.id, {
       onDelete: "set null"
@@ -202882,7 +202964,7 @@ import {
   pgTable as pgTable17,
   serial as serial15,
   text as text17,
-  integer as integer15,
+  integer as integer16,
   real,
   timestamp as timestamp17,
   index as index4,
@@ -202895,8 +202977,8 @@ import { z } from "zod/v4";
 import {
   pgTable as pgTable16,
   text as text16,
-  boolean as boolean7,
-  integer as integer14,
+  boolean as boolean8,
+  integer as integer15,
   numeric,
   timestamp as timestamp16,
   index as index3
@@ -202919,21 +203001,21 @@ var aiTiersTable = pgTable16(
     // ENV var name for API key
     // Prices are stored in IDR cents per 1M tokens
     // e.g. 500 = Rp 5 per 1M tokens
-    pricePer1MInputCents: integer14("price_per_1m_input_cents").notNull().default(0),
-    pricePer1MOutputCents: integer14("price_per_1m_output_cents").notNull().default(0),
+    pricePer1MInputCents: integer15("price_per_1m_input_cents").notNull().default(0),
+    pricePer1MOutputCents: integer15("price_per_1m_output_cents").notNull().default(0),
     // Provider cost in USD cents per 1M tokens (for margin calculation)
-    providerCostPer1MInputCents: integer14("provider_cost_per_1m_input_cents").notNull().default(0),
-    providerCostPer1MOutputCents: integer14("provider_cost_per_1m_output_cents").notNull().default(0),
+    providerCostPer1MInputCents: integer15("provider_cost_per_1m_input_cents").notNull().default(0),
+    providerCostPer1MOutputCents: integer15("provider_cost_per_1m_output_cents").notNull().default(0),
     // Markup multiplier for topup charges (Opsi B — Owner 2026-09-09)
     // 1.40 = 40% markup above cost. Applied ONLY to topup, NOT subscription.
     // numeric(5,3) allows values 0.001 to 9.999 with 3 decimal precision.
     markupMultiplier: numeric("markup_multiplier", { precision: 5, scale: 3 }).notNull().default("1.400"),
     // Rate limits
-    rateLimitRpm: integer14("rate_limit_rpm"),
-    rateLimitTpd: integer14("rate_limit_tpd"),
-    isFree: boolean7("is_free").notNull().default(false),
-    isActive: boolean7("is_active").notNull().default(true),
-    displayOrder: integer14("display_order").notNull().default(0),
+    rateLimitRpm: integer15("rate_limit_rpm"),
+    rateLimitTpd: integer15("rate_limit_tpd"),
+    isFree: boolean8("is_free").notNull().default(false),
+    isActive: boolean8("is_active").notNull().default(true),
+    displayOrder: integer15("display_order").notNull().default(0),
     description: text16("description").notNull().default(""),
     usageTips: text16("usage_tips"),
     // Tips shown to users
@@ -202955,17 +203037,17 @@ var aiUsageLogTable = pgTable17(
   {
     id: serial15("id").primaryKey(),
     userId: text17("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
-    projectId: integer15("project_id").references(() => projectsTable.id, {
+    projectId: integer16("project_id").references(() => projectsTable.id, {
       onDelete: "set null"
     }),
     tierId: text17("tier_id").references(() => aiTiersTable.id, { onDelete: "set null" }),
     model: text17("model").notNull(),
     provider: text17("provider").notNull(),
-    inputTokens: integer15("input_tokens").notNull().default(0),
-    outputTokens: integer15("output_tokens").notNull().default(0),
+    inputTokens: integer16("input_tokens").notNull().default(0),
+    outputTokens: integer16("output_tokens").notNull().default(0),
     estimatedCostUsd: real("estimated_cost_usd").notNull().default(0),
     // Cost charged to user in IDR cents
-    costCents: integer15("cost_cents").notNull().default(0),
+    costCents: integer16("cost_cents").notNull().default(0),
     requestType: text17("request_type").notNull(),
     metadata: jsonb2("metadata"),
     createdAt: timestamp17("created_at", { withTimezone: true }).notNull().defaultNow()
@@ -203008,8 +203090,8 @@ var aiUsageStatsSchema = z.object({
 import {
   pgTable as pgTable18,
   text as text18,
-  integer as integer16,
-  boolean as boolean8,
+  integer as integer17,
+  boolean as boolean9,
   timestamp as timestamp18,
   index as index5
 } from "drizzle-orm/pg-core";
@@ -203021,12 +203103,14 @@ var userBalancesTable = pgTable18(
   {
     id: text18("id").primaryKey().default(sql`gen_random_uuid()`),
     userId: text18("user_id").notNull().unique().references(() => usersTable.id, { onDelete: "cascade" }),
-    // Balance in IDR cents. e.g. 50000 = Rp 500
-    balanceCents: integer16("balance_cents").notNull().default(0),
+    // Saldo IDR cents (from topup, refund, bonus). Withdrawable in concept.
+    balanceCents: integer17("balance_cents").notNull().default(0),
+    // Reward balance cents (non-withdrawable). Earned by being a referrer.
+    rewardBalanceCents: integer17("reward_balance_cents").notNull().default(0),
     // Saldo status: active (normal), held (12mo inactivity), closed
     saldoStatus: text18("saldo_status").notNull().default("active").$type(),
     // Hybrid autofallback: automatically use saldo when subscription quota is exhausted
-    autofallbackEnabled: boolean8("autofallback_enabled").notNull().default(true),
+    autofallbackEnabled: boolean9("autofallback_enabled").notNull().default(true),
     // When the user last had any AI activity
     lastActiveAt: timestamp18("last_active_at", { withTimezone: true }),
     // When the saldo was put on hold (12-month inactivity)
@@ -203051,7 +203135,7 @@ var insertUserBalanceSchema = createInsertSchema18(userBalancesTable).omit({
 import {
   pgTable as pgTable21,
   text as text21,
-  integer as integer19,
+  integer as integer20,
   timestamp as timestamp21,
   index as index8
 } from "drizzle-orm/pg-core";
@@ -203062,10 +203146,10 @@ import { createInsertSchema as createInsertSchema19 } from "drizzle-zod";
 import {
   pgTable as pgTable20,
   text as text20,
-  integer as integer18,
+  integer as integer19,
   varchar as varchar2,
   timestamp as timestamp20,
-  boolean as boolean10,
+  boolean as boolean11,
   index as index7
 } from "drizzle-orm/pg-core";
 import { sql as sql2 } from "drizzle-orm";
@@ -203075,8 +203159,8 @@ import {
   pgTable as pgTable19,
   text as text19,
   varchar,
-  integer as integer17,
-  boolean as boolean9,
+  integer as integer18,
+  boolean as boolean10,
   timestamp as timestamp19,
   index as index6
 } from "drizzle-orm/pg-core";
@@ -203089,30 +203173,30 @@ var packagesTable = pgTable19(
     // starter|standar|premium|pro|ultra
     tierName: text19("tier_name").notNull(),
     // "Starter", "Standar", dst
-    tierDisplayOrder: integer17("tier_display_order").notNull().default(0),
+    tierDisplayOrder: integer18("tier_display_order").notNull().default(0),
     modelType: varchar("model_type", { length: 20 }).notNull(),
     // lama|campuran|baru
     modelTypeName: text19("model_type_name").notNull(),
     // "Lama (Haiku)", "Campuran", "Baru (Sonnet)"
-    periodDays: integer17("period_days").notNull(),
+    periodDays: integer18("period_days").notNull(),
     // 15 | 30
     periodName: text19("period_name").notNull(),
     // "15 Hari", "30 Hari"
     // Quota caps per window (in tokens), per model
     // Haiku quotas (in tokens)
-    quota7dHaikuTokens: integer17("quota_7d_haiku_tokens").notNull(),
-    quota5hHaikuTokens: integer17("quota_5h_haiku_tokens").notNull(),
+    quota7dHaikuTokens: integer18("quota_7d_haiku_tokens").notNull(),
+    quota5hHaikuTokens: integer18("quota_5h_haiku_tokens").notNull(),
     // Sonnet quotas (in tokens)
-    quota7dSonnetTokens: integer17("quota_7d_sonnet_tokens").notNull(),
-    quota5hSonnetTokens: integer17("quota_5h_sonnet_tokens").notNull(),
+    quota7dSonnetTokens: integer18("quota_7d_sonnet_tokens").notNull(),
+    quota5hSonnetTokens: integer18("quota_5h_sonnet_tokens").notNull(),
     // Price in IDR cents
-    priceCents: integer17("price_cents").notNull(),
+    priceCents: integer18("price_cents").notNull(),
     // Feature flags
-    isHighlighted: boolean9("is_highlighted").notNull().default(false),
+    isHighlighted: boolean10("is_highlighted").notNull().default(false),
     // "Pilihan Terbaik"
-    isDefault: boolean9("is_default").notNull().default(false),
+    isDefault: boolean10("is_default").notNull().default(false),
     // default pick
-    isActive: boolean9("is_active").notNull().default(true),
+    isActive: boolean10("is_active").notNull().default(true),
     createdAt: timestamp19("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp19("updated_at", { withTimezone: true }).notNull().defaultNow()
   },
@@ -203145,13 +203229,13 @@ var subscriptionsTable = pgTable20(
     startsAt: timestamp20("starts_at", { withTimezone: true }).notNull().defaultNow(),
     expiresAt: timestamp20("expires_at", { withTimezone: true }).notNull(),
     // Price paid (IDR cents) — for record keeping
-    pricePaidCents: integer18("price_paid_cents").notNull(),
+    pricePaidCents: integer19("price_paid_cents").notNull(),
     // Payment reference (filled when payment gateway is wired)
     paymentId: text20("payment_id"),
     // Queue: when this subscription is queued to start
     queuedForStartAt: timestamp20("queued_for_start_at", { withTimezone: true }),
     // Auto-renew toggle
-    autoRenew: boolean10("auto_renew").notNull().default(false),
+    autoRenew: boolean11("auto_renew").notNull().default(false),
     // Cancelled at
     cancelledAt: timestamp20("cancelled_at", { withTimezone: true }),
     // Anchor timestamp: when the user first used the subscription.
@@ -203184,17 +203268,17 @@ var tokenTransactionsTable = pgTable21(
     userId: text21("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
     type: text21("type").notNull(),
     // Amount in IDR cents. Positive = credit (incoming), Negative = debit (outgoing)
-    amountCents: integer19("amount_cents").notNull(),
+    amountCents: integer20("amount_cents").notNull(),
     // Balance snapshot after this transaction
-    balanceAfterCents: integer19("balance_after_cents").notNull(),
+    balanceAfterCents: integer20("balance_after_cents").notNull(),
     // For AI usage: reference to ai_usage_log
-    aiUsageLogId: integer19("ai_usage_log_id"),
+    aiUsageLogId: integer20("ai_usage_log_id"),
     // For subscription payment: reference to subscription
     subscriptionId: text21("subscription_id").references(() => subscriptionsTable.id, { onDelete: "set null" }),
     // For topup: Stripe/Midtrans payment reference
     paymentId: text21("payment_id"),
     // For topup: amount paid in cents (may differ from amountCents due to bonus)
-    paidAmountCents: integer19("paid_amount_cents"),
+    paidAmountCents: integer20("paid_amount_cents"),
     // Human-readable description
     description: text21("description").notNull(),
     createdAt: timestamp21("created_at", { withTimezone: true }).notNull().defaultNow()
@@ -203215,10 +203299,10 @@ var insertTokenTransactionSchema = createInsertSchema19(tokenTransactionsTable).
 import {
   pgTable as pgTable22,
   text as text22,
-  integer as integer20,
+  integer as integer21,
   varchar as varchar3,
   timestamp as timestamp22,
-  boolean as boolean11,
+  boolean as boolean12,
   index as index9
 } from "drizzle-orm/pg-core";
 import { sql as sql4 } from "drizzle-orm";
@@ -203235,19 +203319,19 @@ var usageWindowsTable = pgTable22(
     windowType: varchar3("window_type", { length: 5 }).notNull().$type(),
     // Which window number this is (1-indexed)
     // e.g., for a 30-day subscription: windows 1-4 for 7d
-    windowNumber: integer20("window_number").notNull(),
+    windowNumber: integer21("window_number").notNull(),
     // Window boundary
     windowStartAt: timestamp22("window_start_at", { withTimezone: true }).notNull(),
     windowEndAt: timestamp22("window_end_at", { withTimezone: true }).notNull(),
     // Usage accumulated (in tokens)
-    haikuTokensUsed: integer20("haiku_tokens_used").notNull().default(0),
-    sonnetTokensUsed: integer20("sonnet_tokens_used").notNull().default(0),
+    haikuTokensUsed: integer21("haiku_tokens_used").notNull().default(0),
+    sonnetTokensUsed: integer21("sonnet_tokens_used").notNull().default(0),
     // Cost accumulated (in IDR cents) — computed from tokens × rate
-    costCents: integer20("cost_cents").notNull().default(0),
+    costCents: integer21("cost_cents").notNull().default(0),
     // Is this window exhausted (cannot be used further)?
-    isExhausted: boolean11("is_exhausted").notNull().default(false),
+    isExhausted: boolean12("is_exhausted").notNull().default(false),
     // Did user exceed the window cap?
-    isOverLimit: boolean11("is_over_limit").notNull().default(false),
+    isOverLimit: boolean12("is_over_limit").notNull().default(false),
     createdAt: timestamp22("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp22("updated_at", { withTimezone: true }).notNull().defaultNow()
   },
@@ -203266,11 +203350,11 @@ var usageWindowsTable = pgTable22(
 );
 
 // ../../lib/db/src/schema/share_tokens.ts
-import { pgTable as pgTable23, text as text23, serial as serial16, integer as integer21, timestamp as timestamp23 } from "drizzle-orm/pg-core";
+import { pgTable as pgTable23, text as text23, serial as serial16, integer as integer22, timestamp as timestamp23 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema20 } from "drizzle-zod";
 var shareTokensTable = pgTable23("share_tokens", {
   id: serial16("id").primaryKey(),
-  projectId: integer21("project_id").notNull().references(() => projectsTable.id, { onDelete: "cascade" }),
+  projectId: integer22("project_id").notNull().references(() => projectsTable.id, { onDelete: "cascade" }),
   token: text23("token").notNull().unique(),
   /** view = read-only, comment = view + annotations, edit = view + modify */
   accessMode: text23("access_mode").notNull().default("view"),
@@ -203286,12 +203370,12 @@ var insertShareTokenSchema = createInsertSchema20(shareTokensTable).omit({
 });
 
 // ../../lib/db/src/schema/comments.ts
-import { pgTable as pgTable24, text as text24, serial as serial17, integer as integer22, timestamp as timestamp24, boolean as boolean12 } from "drizzle-orm/pg-core";
+import { pgTable as pgTable24, text as text24, serial as serial17, integer as integer23, timestamp as timestamp24, boolean as boolean13 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema21 } from "drizzle-zod";
 var commentsTable = pgTable24("comments", {
   id: serial17("id").primaryKey(),
-  projectId: integer22("project_id").notNull(),
-  documentId: integer22("document_id").notNull(),
+  projectId: integer23("project_id").notNull(),
+  documentId: integer23("document_id").notNull(),
   userId: text24("user_id").notNull(),
   /** Display name of commenter (denormalized for query convenience) */
   userName: text24("user_name").notNull(),
@@ -203307,16 +203391,16 @@ var commentsTable = pgTable24("comments", {
    * Start offset of selection in the document content.
    * Null for comments not anchored to specific text.
    */
-  offsetStart: integer22("offset_start"),
+  offsetStart: integer23("offset_start"),
   /**
    * End offset of selection.
    * Null for comments not anchored to specific text.
    */
-  offsetEnd: integer22("offset_end"),
+  offsetEnd: integer23("offset_end"),
   /** Parent comment ID for threaded replies */
-  parentId: integer22("parent_id"),
+  parentId: integer23("parent_id"),
   /** Whether the comment has been resolved/dismissed */
-  resolved: boolean12("resolved").notNull().default(false),
+  resolved: boolean13("resolved").notNull().default(false),
   resolvedBy: text24("resolved_by"),
   resolvedAt: timestamp24("resolved_at", { withTimezone: true }),
   createdAt: timestamp24("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -203333,7 +203417,7 @@ import {
   pgTable as pgTable25,
   text as text25,
   serial as serial18,
-  integer as integer23,
+  integer as integer24,
   timestamp as timestamp25,
   uniqueIndex
 } from "drizzle-orm/pg-core";
@@ -203341,7 +203425,7 @@ import { createInsertSchema as createInsertSchema22 } from "drizzle-zod";
 var projectMembersRoles = ["owner", "collaborator", "viewer"];
 var projectMembersTable = pgTable25("project_members", {
   id: serial18("id").primaryKey(),
-  projectId: integer23("project_id").notNull(),
+  projectId: integer24("project_id").notNull(),
   userId: text25("user_id").notNull(),
   role: text25("role", { enum: projectMembersRoles }).notNull().default("collaborator"),
   createdAt: timestamp25("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -203361,7 +203445,7 @@ import {
   pgTable as pgTable26,
   text as text26,
   serial as serial19,
-  integer as integer24,
+  integer as integer25,
   timestamp as timestamp26,
   jsonb as jsonb3
 } from "drizzle-orm/pg-core";
@@ -203381,7 +203465,7 @@ var questionSchema = z2.object({
 });
 var quizzesTable = pgTable26("quizzes", {
   id: serial19("id").primaryKey(),
-  projectId: integer24("project_id").notNull(),
+  projectId: integer25("project_id").notNull(),
   title: text26("title").notNull(),
   description: text26("description"),
   /** Array of question definitions */
@@ -203403,7 +203487,7 @@ import {
   pgTable as pgTable27,
   text as text27,
   serial as serial20,
-  integer as integer25,
+  integer as integer26,
   timestamp as timestamp27,
   jsonb as jsonb4
 } from "drizzle-orm/pg-core";
@@ -203415,14 +203499,14 @@ var quizResponseSchema = z3.object({
 });
 var quizSubmissionsTable = pgTable27("quiz_submissions", {
   id: serial20("id").primaryKey(),
-  quizId: integer25("quiz_id").notNull(),
+  quizId: integer26("quiz_id").notNull(),
   studentId: text27("student_id").notNull(),
   /** Array of student responses {questionId, answer} */
   responses: jsonb4("responses").$type().notNull(),
   /** Total score (null = not yet graded) */
-  score: integer25("score"),
+  score: integer26("score"),
   /** Max possible score for this quiz */
-  maxScore: integer25("max_score"),
+  maxScore: integer26("max_score"),
   /** Individual question scores {questionId, score, maxScore} */
   gradingDetails: jsonb4("grading_details").$type(),
   gradedAt: timestamp27("graded_at", { withTimezone: true }),
@@ -203445,7 +203529,7 @@ import {
   pgTable as pgTable28,
   text as text28,
   serial as serial21,
-  integer as integer26,
+  integer as integer27,
   timestamp as timestamp28,
   jsonb as jsonb5
 } from "drizzle-orm/pg-core";
@@ -203463,7 +203547,7 @@ var rubricCriterionSchema = z4.object({
 });
 var rubricsTable = pgTable28("rubrics", {
   id: serial21("id").primaryKey(),
-  quizId: integer26("quiz_id").notNull(),
+  quizId: integer27("quiz_id").notNull(),
   /** Array of per-question grading criteria */
   criteria: jsonb5("criteria").$type().notNull(),
   /** Manual grading notes for essay questions */
@@ -203483,7 +203567,7 @@ import {
   pgTable as pgTable29,
   text as text29,
   serial as serial22,
-  integer as integer27,
+  integer as integer28,
   timestamp as timestamp29,
   jsonb as jsonb6
 } from "drizzle-orm/pg-core";
@@ -203503,11 +203587,11 @@ var styleCharacteristicsSchema = z5.object({
 var writingStyleProfilesTable = pgTable29("writing_style_profiles", {
   id: serial22("id").primaryKey(),
   userId: text29("user_id").notNull(),
-  projectId: integer27("project_id"),
+  projectId: integer28("project_id"),
   /** AI-extracted style characteristics */
   styleCharacteristics: jsonb6("style_characteristics").$type().notNull(),
   /** Number of documents analyzed to build this profile */
-  sampleSize: integer27("sample_size").notNull().default(1),
+  sampleSize: integer28("sample_size").notNull().default(1),
   analyzedAt: timestamp29("analyzed_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp29("updated_at", { withTimezone: true }).notNull().defaultNow()
 });
@@ -203520,7 +203604,7 @@ var insertWritingStyleProfileSchema = createInsertSchema26(
 });
 
 // ../../lib/db/src/schema/document-templates.ts
-import { pgTable as pgTable30, text as text30, serial as serial23, integer as integer28, boolean as boolean13, timestamp as timestamp30 } from "drizzle-orm/pg-core";
+import { pgTable as pgTable30, text as text30, serial as serial23, integer as integer29, boolean as boolean14, timestamp as timestamp30 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema27 } from "drizzle-zod";
 var documentTemplatesTable = pgTable30("document_templates", {
   id: serial23("id").primaryKey(),
@@ -203529,10 +203613,10 @@ var documentTemplatesTable = pgTable30("document_templates", {
   category: text30("category").notNull().default("custom"),
   outline: text30("outline").notNull(),
   citationFormat: text30("citation_format"),
-  minRefCount: integer28("min_ref_count").notNull().default(5),
+  minRefCount: integer29("min_ref_count").notNull().default(5),
   description: text30("description"),
   tags: text30("tags"),
-  isPublic: boolean13("is_public").notNull().default(false),
+  isPublic: boolean14("is_public").notNull().default(false),
   createdAt: timestamp30("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp30("updated_at", { withTimezone: true }).notNull().defaultNow()
 });
@@ -203591,7 +203675,7 @@ var insertAdminAuditLogSchema = createInsertSchema28(adminAuditLogTable).omit({
 });
 
 // ../../lib/db/src/schema/learning-activities.ts
-import { pgTable as pgTable32, text as text32, serial as serial25, timestamp as timestamp32, integer as integer29, uniqueIndex as uniqueIndex2 } from "drizzle-orm/pg-core";
+import { pgTable as pgTable32, text as text32, serial as serial25, timestamp as timestamp32, integer as integer30, uniqueIndex as uniqueIndex2 } from "drizzle-orm/pg-core";
 import { createInsertSchema as createInsertSchema29 } from "drizzle-zod";
 var learningActivitiesTable = pgTable32(
   "learning_activities",
@@ -203603,7 +203687,7 @@ var learningActivitiesTable = pgTable32(
     // stored as JSON string
     subject: text32("subject"),
     /** Link to the source project in Task Mentor */
-    sourceProjectId: integer29("source_project_id"),
+    sourceProjectId: integer30("source_project_id"),
     /** Where the topics were extracted from */
     extractedFrom: text32("extracted_from").notNull().default("instruction"),
     // 'instruction' | 'reference' | 'chat'
@@ -213470,22 +213554,22 @@ var require_common$1 = /* @__PURE__ */ __commonJSMin(((exports) => {
 }));
 var require_common2 = /* @__PURE__ */ __commonJSMin(((exports) => {
   var rotr32 = require_utils4().rotr32;
-  function ft_1(s2, x2, y, z11) {
-    if (s2 === 0) return ch32(x2, y, z11);
-    if (s2 === 1 || s2 === 3) return p322(x2, y, z11);
-    if (s2 === 2) return maj32(x2, y, z11);
+  function ft_1(s2, x2, y, z12) {
+    if (s2 === 0) return ch32(x2, y, z12);
+    if (s2 === 1 || s2 === 3) return p322(x2, y, z12);
+    if (s2 === 2) return maj32(x2, y, z12);
   }
   exports.ft_1 = ft_1;
-  function ch32(x2, y, z11) {
-    return x2 & y ^ ~x2 & z11;
+  function ch32(x2, y, z12) {
+    return x2 & y ^ ~x2 & z12;
   }
   exports.ch32 = ch32;
-  function maj32(x2, y, z11) {
-    return x2 & y ^ x2 & z11 ^ y & z11;
+  function maj32(x2, y, z12) {
+    return x2 & y ^ x2 & z12 ^ y & z12;
   }
   exports.maj32 = maj32;
-  function p322(x2, y, z11) {
-    return x2 ^ y ^ z11;
+  function p322(x2, y, z12) {
+    return x2 ^ y ^ z12;
   }
   exports.p32 = p322;
   function s0_256(x2) {
@@ -214220,12 +214304,12 @@ var require_ripemd = /* @__PURE__ */ __commonJSMin(((exports) => {
     if (enc === "hex") return utils.toHex32(this.h, "little");
     else return utils.split32(this.h, "little");
   };
-  function f3(j, x2, y, z11) {
-    if (j <= 15) return x2 ^ y ^ z11;
-    else if (j <= 31) return x2 & y | ~x2 & z11;
-    else if (j <= 47) return (x2 | ~y) ^ z11;
-    else if (j <= 63) return x2 & z11 | y & ~z11;
-    else return x2 ^ (y | ~z11);
+  function f3(j, x2, y, z12) {
+    if (j <= 15) return x2 ^ y ^ z12;
+    else if (j <= 31) return x2 & y | ~x2 & z12;
+    else if (j <= 47) return (x2 | ~y) ^ z12;
+    else if (j <= 63) return x2 & z12 | y & ~z12;
+    else return x2 ^ (y | ~z12);
   }
   function K2(j) {
     if (j <= 15) return 0;
@@ -218095,17 +218179,17 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
           t3 && !r3 || (x2.crc32 = e3.crc32, x2.compressedSize = e3.compressedSize, x2.uncompressedSize = e3.uncompressedSize);
           var S2 = 0;
           t3 && (S2 |= 8), l || !_ && !g || (S2 |= 2048);
-          var z11 = 0, C = 0;
-          w && (z11 |= 16), "UNIX" === i3 ? (C = 798, z11 |= (function(e4, t4) {
+          var z12 = 0, C = 0;
+          w && (z12 |= 16), "UNIX" === i3 ? (C = 798, z12 |= (function(e4, t4) {
             var r4 = e4;
             return e4 || (r4 = t4 ? 16893 : 33204), (65535 & r4) << 16;
-          })(h2.unixPermissions, w)) : (C = 20, z11 |= (function(e4) {
+          })(h2.unixPermissions, w)) : (C = 20, z12 |= (function(e4) {
             return 63 & (e4 || 0);
           })(h2.dosPermissions)), a = k.getUTCHours(), a <<= 6, a |= k.getUTCMinutes(), a <<= 5, a |= k.getUTCSeconds() / 2, o = k.getUTCFullYear() - 1980, o <<= 4, o |= k.getUTCMonth() + 1, o <<= 5, o |= k.getUTCDate(), _ && (v = A2(1, 1) + A2(B(f3), 4) + c, b += "up" + A2(v.length, 2) + v), g && (y = A2(1, 1) + A2(B(p), 4) + m2, b += "uc" + A2(y.length, 2) + y);
           var E = "";
           return E += "\n\0", E += A2(S2, 2), E += u.magic, E += A2(a, 2), E += A2(o, 2), E += A2(x2.crc32, 4), E += A2(x2.compressedSize, 4), E += A2(x2.uncompressedSize, 4), E += A2(f3.length, 2), E += A2(b.length, 2), {
             fileRecord: R.LOCAL_FILE_HEADER + E + f3 + b,
-            dirRecord: R.CENTRAL_FILE_HEADER + A2(C, 2) + E + A2(p.length, 2) + "\0\0\0\0" + A2(z11, 4) + A2(n2, 4) + f3 + b + p
+            dirRecord: R.CENTRAL_FILE_HEADER + A2(C, 2) + E + A2(p.length, 2) + "\0\0\0\0" + A2(z12, 4) + A2(n2, 4) + f3 + b + p
           };
         }
         var I = e2("../utils"), i2 = e2("../stream/GenericWorker"), O = e2("../utf8"), B = e2("../crc32"), R = e2("../signature");
@@ -219793,7 +219877,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
       }, {}],
       46: [function(e2, t2, r2) {
         "use strict";
-        var h2, c = e2("../utils/common"), u = e2("./trees"), d = e2("./adler32"), p = e2("./crc32"), n = e2("./messages"), l = 0, f3 = 4, m2 = 0, _ = -2, g = -1, b = 4, i2 = 2, v = 8, y = 9, s2 = 286, a = 30, o = 19, w = 2 * s2 + 1, k = 15, x2 = 3, S2 = 258, z11 = S2 + x2 + 1, C = 42, E = 113, A2 = 1, I = 2, O = 3, B = 4;
+        var h2, c = e2("../utils/common"), u = e2("./trees"), d = e2("./adler32"), p = e2("./crc32"), n = e2("./messages"), l = 0, f3 = 4, m2 = 0, _ = -2, g = -1, b = 4, i2 = 2, v = 8, y = 9, s2 = 286, a = 30, o = 19, w = 2 * s2 + 1, k = 15, x2 = 3, S2 = 258, z12 = S2 + x2 + 1, C = 42, E = 113, A2 = 1, I = 2, O = 3, B = 4;
         function R(e3, t3) {
           return e3.msg = n[t3], t3;
         }
@@ -219817,7 +219901,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
           e3.pending_buf[e3.pending++] = t3 >>> 8 & 255, e3.pending_buf[e3.pending++] = 255 & t3;
         }
         function L(e3, t3) {
-          var r3, n2, i3 = e3.max_chain_length, s3 = e3.strstart, a2 = e3.prev_length, o2 = e3.nice_match, h3 = e3.strstart > e3.w_size - z11 ? e3.strstart - (e3.w_size - z11) : 0, u2 = e3.window, l2 = e3.w_mask, f4 = e3.prev, c2 = e3.strstart + S2, d2 = u2[s3 + a2 - 1], p2 = u2[s3 + a2];
+          var r3, n2, i3 = e3.max_chain_length, s3 = e3.strstart, a2 = e3.prev_length, o2 = e3.nice_match, h3 = e3.strstart > e3.w_size - z12 ? e3.strstart - (e3.w_size - z12) : 0, u2 = e3.window, l2 = e3.w_mask, f4 = e3.prev, c2 = e3.strstart + S2, d2 = u2[s3 + a2 - 1], p2 = u2[s3 + a2];
           e3.prev_length >= e3.good_match && (i3 >>= 2), o2 > e3.lookahead && (o2 = e3.lookahead);
           do
             if (u2[(r3 = t3) + a2] === p2 && u2[r3 + a2 - 1] === d2 && u2[r3] === u2[s3] && u2[++r3] === u2[s3 + 1]) {
@@ -219836,22 +219920,22 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
         function j(e3) {
           var t3, r3, n2, i3, s3, a2, o2, h3, u2, l2, f4 = e3.w_size;
           do {
-            if (i3 = e3.window_size - e3.lookahead - e3.strstart, e3.strstart >= f4 + (f4 - z11)) {
+            if (i3 = e3.window_size - e3.lookahead - e3.strstart, e3.strstart >= f4 + (f4 - z12)) {
               for (c.arraySet(e3.window, e3.window, f4, f4, 0), e3.match_start -= f4, e3.strstart -= f4, e3.block_start -= f4, t3 = r3 = e3.hash_size; n2 = e3.head[--t3], e3.head[t3] = f4 <= n2 ? n2 - f4 : 0, --r3; ) ;
               for (t3 = r3 = f4; n2 = e3.prev[--t3], e3.prev[t3] = f4 <= n2 ? n2 - f4 : 0, --r3; ) ;
               i3 += f4;
             }
             if (0 === e3.strm.avail_in) break;
             if (a2 = e3.strm, o2 = e3.window, h3 = e3.strstart + e3.lookahead, u2 = i3, l2 = void 0, l2 = a2.avail_in, u2 < l2 && (l2 = u2), r3 = 0 === l2 ? 0 : (a2.avail_in -= l2, c.arraySet(o2, a2.input, a2.next_in, l2, h3), 1 === a2.state.wrap ? a2.adler = d(a2.adler, o2, l2, h3) : 2 === a2.state.wrap && (a2.adler = p(a2.adler, o2, l2, h3)), a2.next_in += l2, a2.total_in += l2, l2), e3.lookahead += r3, e3.lookahead + e3.insert >= x2) for (s3 = e3.strstart - e3.insert, e3.ins_h = e3.window[s3], e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[s3 + 1]) & e3.hash_mask; e3.insert && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[s3 + x2 - 1]) & e3.hash_mask, e3.prev[s3 & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = s3, s3++, e3.insert--, !(e3.lookahead + e3.insert < x2)); ) ;
-          } while (e3.lookahead < z11 && 0 !== e3.strm.avail_in);
+          } while (e3.lookahead < z12 && 0 !== e3.strm.avail_in);
         }
         function Z2(e3, t3) {
           for (var r3, n2; ; ) {
-            if (e3.lookahead < z11) {
-              if (j(e3), e3.lookahead < z11 && t3 === l) return A2;
+            if (e3.lookahead < z12) {
+              if (j(e3), e3.lookahead < z12 && t3 === l) return A2;
               if (0 === e3.lookahead) break;
             }
-            if (r3 = 0, e3.lookahead >= x2 && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart), 0 !== r3 && e3.strstart - r3 <= e3.w_size - z11 && (e3.match_length = L(e3, r3)), e3.match_length >= x2) if (n2 = u._tr_tally(e3, e3.strstart - e3.match_start, e3.match_length - x2), e3.lookahead -= e3.match_length, e3.match_length <= e3.max_lazy_match && e3.lookahead >= x2) {
+            if (r3 = 0, e3.lookahead >= x2 && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart), 0 !== r3 && e3.strstart - r3 <= e3.w_size - z12 && (e3.match_length = L(e3, r3)), e3.match_length >= x2) if (n2 = u._tr_tally(e3, e3.strstart - e3.match_start, e3.match_length - x2), e3.lookahead -= e3.match_length, e3.match_length <= e3.max_lazy_match && e3.lookahead >= x2) {
               for (e3.match_length--; e3.strstart++, e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart, 0 != --e3.match_length; ) ;
               e3.strstart++;
             } else e3.strstart += e3.match_length, e3.match_length = 0, e3.ins_h = e3.window[e3.strstart], e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + 1]) & e3.hash_mask;
@@ -219862,11 +219946,11 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
         }
         function W(e3, t3) {
           for (var r3, n2, i3; ; ) {
-            if (e3.lookahead < z11) {
-              if (j(e3), e3.lookahead < z11 && t3 === l) return A2;
+            if (e3.lookahead < z12) {
+              if (j(e3), e3.lookahead < z12 && t3 === l) return A2;
               if (0 === e3.lookahead) break;
             }
-            if (r3 = 0, e3.lookahead >= x2 && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart), e3.prev_length = e3.match_length, e3.prev_match = e3.match_start, e3.match_length = x2 - 1, 0 !== r3 && e3.prev_length < e3.max_lazy_match && e3.strstart - r3 <= e3.w_size - z11 && (e3.match_length = L(e3, r3), e3.match_length <= 5 && (1 === e3.strategy || e3.match_length === x2 && 4096 < e3.strstart - e3.match_start) && (e3.match_length = x2 - 1)), e3.prev_length >= x2 && e3.match_length <= e3.prev_length) {
+            if (r3 = 0, e3.lookahead >= x2 && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart), e3.prev_length = e3.match_length, e3.prev_match = e3.match_start, e3.match_length = x2 - 1, 0 !== r3 && e3.prev_length < e3.max_lazy_match && e3.strstart - r3 <= e3.w_size - z12 && (e3.match_length = L(e3, r3), e3.match_length <= 5 && (1 === e3.strategy || e3.match_length === x2 && 4096 < e3.strstart - e3.match_start) && (e3.match_length = x2 - 1)), e3.prev_length >= x2 && e3.match_length <= e3.prev_length) {
               for (i3 = e3.strstart + e3.lookahead - x2, n2 = u._tr_tally(e3, e3.strstart - 1 - e3.prev_match, e3.prev_length - x2), e3.lookahead -= e3.prev_length - 1, e3.prev_length -= 2; ++e3.strstart <= i3 && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart), 0 != --e3.prev_length; ) ;
               if (e3.match_available = 0, e3.match_length = x2 - 1, e3.strstart++, n2 && (N(e3, false), 0 === e3.strm.avail_out)) return A2;
             } else if (e3.match_available) {
@@ -219910,7 +219994,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
               e3.strstart += e3.lookahead, e3.lookahead = 0;
               var n2 = e3.block_start + r3;
               if ((0 === e3.strstart || e3.strstart >= n2) && (e3.lookahead = e3.strstart - n2, e3.strstart = n2, N(e3, false), 0 === e3.strm.avail_out)) return A2;
-              if (e3.strstart - e3.block_start >= e3.w_size - z11 && (N(e3, false), 0 === e3.strm.avail_out)) return A2;
+              if (e3.strstart - e3.block_start >= e3.w_size - z12 && (N(e3, false), 0 === e3.strm.avail_out)) return A2;
             }
             return e3.insert = 0, t3 === f3 ? (N(e3, true), 0 === e3.strm.avail_out ? O : B) : (e3.strstart > e3.block_start && (N(e3, false), e3.strm.avail_out), A2);
           }),
@@ -220026,10 +220110,10 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
       48: [function(e2, t2, r2) {
         "use strict";
         t2.exports = function(e3, t3) {
-          var r3 = e3.state, n = e3.next_in, i2, s2, a, o, h2, u, l, f3, c, d, p, m2, _, g, b, v, y, w, k, x2, S2, z11 = e3.input, C;
+          var r3 = e3.state, n = e3.next_in, i2, s2, a, o, h2, u, l, f3, c, d, p, m2, _, g, b, v, y, w, k, x2, S2, z12 = e3.input, C;
           i2 = n + (e3.avail_in - 5), s2 = e3.next_out, C = e3.output, a = s2 - (t3 - e3.avail_out), o = s2 + (e3.avail_out - 257), h2 = r3.dmax, u = r3.wsize, l = r3.whave, f3 = r3.wnext, c = r3.window, d = r3.hold, p = r3.bits, m2 = r3.lencode, _ = r3.distcode, g = (1 << r3.lenbits) - 1, b = (1 << r3.distbits) - 1;
           e: do {
-            p < 15 && (d += z11[n++] << p, p += 8, d += z11[n++] << p, p += 8), v = m2[d & g];
+            p < 15 && (d += z12[n++] << p, p += 8, d += z12[n++] << p, p += 8), v = m2[d & g];
             t: for (; ; ) {
               if (d >>>= y = v >>> 24, p -= y, 0 === (y = v >>> 16 & 255)) C[s2++] = 65535 & v;
               else {
@@ -220045,7 +220129,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
                   e3.msg = "invalid literal/length code", r3.mode = 30;
                   break e;
                 }
-                w = 65535 & v, (y &= 15) && (p < y && (d += z11[n++] << p, p += 8), w += d & (1 << y) - 1, d >>>= y, p -= y), p < 15 && (d += z11[n++] << p, p += 8, d += z11[n++] << p, p += 8), v = _[d & b];
+                w = 65535 & v, (y &= 15) && (p < y && (d += z12[n++] << p, p += 8), w += d & (1 << y) - 1, d >>>= y, p -= y), p < 15 && (d += z12[n++] << p, p += 8, d += z12[n++] << p, p += 8), v = _[d & b];
                 r: for (; ; ) {
                   if (d >>>= y = v >>> 24, p -= y, !(16 & (y = v >>> 16 & 255))) {
                     if (0 == (64 & y)) {
@@ -220055,7 +220139,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
                     e3.msg = "invalid distance code", r3.mode = 30;
                     break e;
                   }
-                  if (k = 65535 & v, p < (y &= 15) && (d += z11[n++] << p, (p += 8) < y && (d += z11[n++] << p, p += 8)), h2 < (k += d & (1 << y) - 1)) {
+                  if (k = 65535 & v, p < (y &= 15) && (d += z12[n++] << p, (p += 8) < y && (d += z12[n++] << p, p += 8)), h2 < (k += d & (1 << y) - 1)) {
                     e3.msg = "invalid distance too far back", r3.mode = 30;
                     break e;
                   }
@@ -220141,7 +220225,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
         r2.inflateReset = o, r2.inflateReset2 = h2, r2.inflateResetKeep = a, r2.inflateInit = function(e3) {
           return u(e3, 15);
         }, r2.inflateInit2 = u, r2.inflate = function(e3, t3) {
-          var r3, n2, i3, s3, a2, o2, h3, u2, l2, f4, c2, d, p, m2, _, g, b, v, y, w, k, x2, S2, z11, C = 0, E = new I.Buf8(4), A2 = [
+          var r3, n2, i3, s3, a2, o2, h3, u2, l2, f4, c2, d, p, m2, _, g, b, v, y, w, k, x2, S2, z12, C = 0, E = new I.Buf8(4), A2 = [
             16,
             17,
             18,
@@ -220348,7 +220432,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
                 if (b < 16) u2 >>>= _, l2 -= _, r3.lens[r3.have++] = b;
                 else {
                   if (16 === b) {
-                    for (z11 = _ + 2; l2 < z11; ) {
+                    for (z12 = _ + 2; l2 < z12; ) {
                       if (0 === o2) break e;
                       o2--, u2 += n2[s3++] << l2, l2 += 8;
                     }
@@ -220358,13 +220442,13 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
                     }
                     k = r3.lens[r3.have - 1], d = 3 + (3 & u2), u2 >>>= 2, l2 -= 2;
                   } else if (17 === b) {
-                    for (z11 = _ + 3; l2 < z11; ) {
+                    for (z12 = _ + 3; l2 < z12; ) {
                       if (0 === o2) break e;
                       o2--, u2 += n2[s3++] << l2, l2 += 8;
                     }
                     l2 -= _, k = 0, d = 3 + (7 & (u2 >>>= _)), u2 >>>= 3, l2 -= 3;
                   } else {
-                    for (z11 = _ + 7; l2 < z11; ) {
+                    for (z12 = _ + 7; l2 < z12; ) {
                       if (0 === o2) break e;
                       o2--, u2 += n2[s3++] << l2, l2 += 8;
                     }
@@ -220424,7 +220508,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
               r3.extra = 15 & g, r3.mode = 22;
             case 22:
               if (r3.extra) {
-                for (z11 = r3.extra; l2 < z11; ) {
+                for (z12 = r3.extra; l2 < z12; ) {
                   if (0 === o2) break e;
                   o2--, u2 += n2[s3++] << l2, l2 += 8;
                 }
@@ -220450,7 +220534,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
               r3.offset = b, r3.extra = 15 & g, r3.mode = 24;
             case 24:
               if (r3.extra) {
-                for (z11 = r3.extra; l2 < z11; ) {
+                for (z12 = r3.extra; l2 < z12; ) {
                   if (0 === o2) break e;
                   o2--, u2 += n2[s3++] << l2, l2 += 8;
                 }
@@ -220668,14 +220752,14 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
           64
         ];
         t2.exports = function(e3, t3, r3, n, i2, s2, a, o) {
-          var h2, u, l, f3, c, d, p, m2, _, g = o.bits, b = 0, v = 0, y = 0, w = 0, k = 0, x2 = 0, S2 = 0, z11 = 0, C = 0, E = 0, A2 = null, I = 0, O = new D.Buf16(16), B = new D.Buf16(16), R = null, T = 0;
+          var h2, u, l, f3, c, d, p, m2, _, g = o.bits, b = 0, v = 0, y = 0, w = 0, k = 0, x2 = 0, S2 = 0, z12 = 0, C = 0, E = 0, A2 = null, I = 0, O = new D.Buf16(16), B = new D.Buf16(16), R = null, T = 0;
           for (b = 0; b <= 15; b++) O[b] = 0;
           for (v = 0; v < n; v++) O[t3[r3 + v]]++;
           for (k = g, w = 15; 1 <= w && 0 === O[w]; w--) ;
           if (w < k && (k = w), 0 === w) return i2[s2++] = 20971520, i2[s2++] = 20971520, o.bits = 1, 0;
           for (y = 1; y < w && 0 === O[y]; y++) ;
-          for (k < y && (k = y), b = z11 = 1; b <= 15; b++) if (z11 <<= 1, (z11 -= O[b]) < 0) return -1;
-          if (0 < z11 && (0 === e3 || 1 !== w)) return -1;
+          for (k < y && (k = y), b = z12 = 1; b <= 15; b++) if (z12 <<= 1, (z12 -= O[b]) < 0) return -1;
+          if (0 < z12 && (0 === e3 || 1 !== w)) return -1;
           for (B[1] = 0, b = 1; b < 15; b++) B[b + 1] = B[b] + O[b];
           for (v = 0; v < n; v++) 0 !== t3[r3 + v] && (a[B[t3[r3 + v]]++] = v);
           if (d = 0 === e3 ? (A2 = R = a, 19) : 1 === e3 ? (A2 = F2, I -= 257, R = N, T -= 257, 256) : (A2 = U, R = P, -1), b = y, c = s2, S2 = v = E = 0, l = -1, f3 = (C = 1 << (x2 = k)) - 1, 1 === e3 && 852 < C || 2 === e3 && 592 < C) return 1;
@@ -220687,7 +220771,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
               b = t3[r3 + a[v]];
             }
             if (k < b && (E & f3) !== l) {
-              for (0 === S2 && (S2 = k), c += y, z11 = 1 << (x2 = b - S2); x2 + S2 < w && !((z11 -= O[x2 + S2]) <= 0); ) x2++, z11 <<= 1;
+              for (0 === S2 && (S2 = k), c += y, z12 = 1 << (x2 = b - S2); x2 + S2 < w && !((z12 -= O[x2 + S2]) <= 0); ) x2++, z12 <<= 1;
               if (C += 1 << x2, 1 === e3 && 852 < C || 2 === e3 && 592 < C) return 1;
               i2[l = E & f3] = k << 24 | x2 << 16 | c - s2 | 0;
             }
@@ -220816,8 +220900,8 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
           14,
           1,
           15
-        ], z11 = new Array(2 * (l + 2));
-        n(z11);
+        ], z12 = new Array(2 * (l + 2));
+        n(z12);
         var C = new Array(2 * f3);
         n(C);
         var E = new Array(512);
@@ -220925,12 +221009,12 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
             for (A2[r3 - 1] = n2, n2 = i3 = 0; n2 < 16; n2++) for (T[n2] = i3, e4 = 0; e4 < 1 << k[n2]; e4++) E[i3++] = n2;
             for (i3 >>= 7; n2 < f3; n2++) for (T[n2] = i3 << 7, e4 = 0; e4 < 1 << k[n2] - 7; e4++) E[256 + i3++] = n2;
             for (t3 = 0; t3 <= g; t3++) s3[t3] = 0;
-            for (e4 = 0; e4 <= 143; ) z11[2 * e4 + 1] = 8, e4++, s3[8]++;
-            for (; e4 <= 255; ) z11[2 * e4 + 1] = 9, e4++, s3[9]++;
-            for (; e4 <= 279; ) z11[2 * e4 + 1] = 7, e4++, s3[7]++;
-            for (; e4 <= 287; ) z11[2 * e4 + 1] = 8, e4++, s3[8]++;
-            for (Z2(z11, l + 1, s3), e4 = 0; e4 < f3; e4++) C[2 * e4 + 1] = 5, C[2 * e4] = j(e4, 5);
-            O = new D(z11, w, u + 1, l, g), B = new D(C, k, 0, f3, g), R = new D(new Array(0), x2, 0, c, p);
+            for (e4 = 0; e4 <= 143; ) z12[2 * e4 + 1] = 8, e4++, s3[8]++;
+            for (; e4 <= 255; ) z12[2 * e4 + 1] = 9, e4++, s3[9]++;
+            for (; e4 <= 279; ) z12[2 * e4 + 1] = 7, e4++, s3[7]++;
+            for (; e4 <= 287; ) z12[2 * e4 + 1] = 8, e4++, s3[8]++;
+            for (Z2(z12, l + 1, s3), e4 = 0; e4 < f3; e4++) C[2 * e4 + 1] = 5, C[2 * e4] = j(e4, 5);
+            O = new D(z12, w, u + 1, l, g), B = new D(C, k, 0, f3, g), R = new D(new Array(0), x2, 0, c, p);
           })(), q = true), e3.l_desc = new F2(e3.dyn_ltree, O), e3.d_desc = new F2(e3.dyn_dtree, B), e3.bl_desc = new F2(e3.bl_tree, R), e3.bi_buf = 0, e3.bi_valid = 0, W(e3);
         }, r2._tr_stored_block = J, r2._tr_flush_block = function(e3, t3, r3, n2) {
           var i3, s3, a2 = 0;
@@ -220944,7 +221028,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
             var t4;
             for (X(e4, e4.dyn_ltree, e4.l_desc.max_code), X(e4, e4.dyn_dtree, e4.d_desc.max_code), Y(e4, e4.bl_desc), t4 = c - 1; 3 <= t4 && 0 === e4.bl_tree[2 * S2[t4] + 1]; t4--) ;
             return e4.opt_len += 3 * (t4 + 1) + 5 + 5 + 4, t4;
-          })(e3), i3 = e3.opt_len + 3 + 7 >>> 3, (s3 = e3.static_len + 3 + 7 >>> 3) <= i3 && (i3 = s3)) : i3 = s3 = r3 + 5, r3 + 4 <= i3 && -1 !== t3 ? J(e3, t3, r3, n2) : 4 === e3.strategy || s3 === i3 ? (P(e3, 2 + (n2 ? 1 : 0), 3), K2(e3, z11, C)) : (P(e3, 4 + (n2 ? 1 : 0), 3), (function(e4, t4, r4, n3) {
+          })(e3), i3 = e3.opt_len + 3 + 7 >>> 3, (s3 = e3.static_len + 3 + 7 >>> 3) <= i3 && (i3 = s3)) : i3 = s3 = r3 + 5, r3 + 4 <= i3 && -1 !== t3 ? J(e3, t3, r3, n2) : 4 === e3.strategy || s3 === i3 ? (P(e3, 2 + (n2 ? 1 : 0), 3), K2(e3, z12, C)) : (P(e3, 4 + (n2 ? 1 : 0), 3), (function(e4, t4, r4, n3) {
             var i4;
             for (P(e4, t4 - 257, 5), P(e4, r4 - 1, 5), P(e4, n3 - 4, 4), i4 = 0; i4 < n3; i4++) P(e4, e4.bl_tree[2 * S2[i4] + 1], 3);
             V(e4, e4.dyn_ltree, t4 - 1), V(e4, e4.dyn_dtree, r4 - 1);
@@ -220952,7 +221036,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
         }, r2._tr_tally = function(e3, t3, r3) {
           return e3.pending_buf[e3.d_buf + 2 * e3.last_lit] = t3 >>> 8 & 255, e3.pending_buf[e3.d_buf + 2 * e3.last_lit + 1] = 255 & t3, e3.pending_buf[e3.l_buf + e3.last_lit] = 255 & r3, e3.last_lit++, 0 === t3 ? e3.dyn_ltree[2 * r3]++ : (e3.matches++, t3--, e3.dyn_ltree[2 * (A2[r3] + u + 1)]++, e3.dyn_dtree[2 * N(t3)]++), e3.last_lit === e3.lit_bufsize - 1;
         }, r2._tr_align = function(e3) {
-          P(e3, 2, 3), L(e3, m2, z11), (function(e4) {
+          P(e3, 2, 3), L(e3, m2, z12), (function(e4) {
             16 === e4.bi_valid ? (U(e4, e4.bi_buf), e4.bi_buf = 0, e4.bi_valid = 0) : 8 <= e4.bi_valid && (e4.pending_buf[e4.pending++] = 255 & e4.bi_buf, e4.bi_buf >>= 8, e4.bi_valid -= 8);
           })(e3);
         };
@@ -221854,8 +221938,8 @@ var Packer = class Packer2 {
       type: "nodebuffer",
       mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       compression: "DEFLATE"
-    }).then((z11) => {
-      stream2.emit("data", z11);
+    }).then((z12) => {
+      stream2.emit("data", z12);
       stream2.emit("end");
     });
     return stream2;
@@ -238862,12 +238946,12 @@ var shiftsL160 = idxL.map((idx, i2) => idx.map((j) => shifts160[i2][j]));
 var shiftsR160 = idxR.map((idx, i2) => idx.map((j) => shifts160[i2][j]));
 var Kl160 = Uint32Array.from([0, 1518500249, 1859775393, 2400959708, 2840853838]);
 var Kr160 = Uint32Array.from([1352829926, 1548603684, 1836072691, 2053994217, 0]);
-function ripemd_f(group, x2, y, z11) {
-  if (group === 0) return x2 ^ y ^ z11;
-  if (group === 1) return x2 & y | ~x2 & z11;
-  if (group === 2) return (x2 | ~y) ^ z11;
-  if (group === 3) return x2 & z11 | y & ~z11;
-  return x2 ^ (y | ~z11);
+function ripemd_f(group, x2, y, z12) {
+  if (group === 0) return x2 ^ y ^ z12;
+  if (group === 1) return x2 & y | ~x2 & z12;
+  if (group === 2) return (x2 | ~y) ^ z12;
+  if (group === 3) return x2 & z12 | y & ~z12;
+  return x2 ^ (y | ~z12);
 }
 var BUF_160 = new Uint32Array(16);
 var RIPEMD160 = class extends HashMD {
@@ -256789,54 +256873,424 @@ router29.post("/users/:userId/suspend", authMiddleware, requireOwner2, async (re
 });
 var admin_default = router29;
 
-// src/routes/index.ts
+// src/routes/referral.ts
+var import_express30 = __toESM(require_express2(), 1);
+import { eq as eq34 } from "drizzle-orm";
+
+// src/lib/referral-rewards.ts
+import { eq as eq33, and as and18, sql as sql12 } from "drizzle-orm";
+var REFEREE_CASHBACK_CENTS = 5e5;
+var REFERRER_REWARD_PERCENT = 0.03;
+var REFERRER_REWARD_TX_CAP = 5;
+async function processReferralPayment(event) {
+  const result = {
+    refereeCashback: {
+      credited: false,
+      reason: "no_user",
+      amountCents: 0
+    },
+    referrerReward: {
+      credited: false,
+      reason: "no_referrer",
+      amountCents: 0,
+      txCount: 0
+    }
+  };
+  const [referral] = await db.select().from(referralsTable).where(eq33(referralsTable.referredId, event.userId));
+  if (!referral) {
+    logger.info(
+      { userId: event.userId, paymentEventId: event.paymentEventId },
+      "[referral] no referral relationship for user \u2014 skip"
+    );
+    return result;
+  }
+  const cashbackResult = await creditRefereeCashback(referral, event);
+  result.refereeCashback = cashbackResult;
+  const rewardResult = await creditReferrerReward(referral, event);
+  result.referrerReward = rewardResult;
+  return result;
+}
+async function creditRefereeCashback(referral, event) {
+  if (referral.refereeCashbackClaimed) {
+    return { credited: false, reason: "already_claimed", amountCents: 0 };
+  }
+  const updated = await db.update(referralsTable).set({
+    refereeCashbackClaimed: true,
+    firstPaymentAt: event.paidAt,
+    firstPaymentEventId: event.paymentEventId,
+    status: referral.status === "verified" ? "qualified" : referral.status,
+    updatedAt: /* @__PURE__ */ new Date()
+  }).where(
+    and18(
+      eq33(referralsTable.id, referral.id),
+      eq33(referralsTable.refereeCashbackClaimed, false)
+    )
+  ).returning();
+  if (updated.length === 0) {
+    return { credited: false, reason: "already_claimed", amountCents: 0 };
+  }
+  await db.transaction(async (tx) => {
+    const [existing] = await tx.select().from(userBalancesTable).where(eq33(userBalancesTable.userId, event.userId));
+    const currentBalance = existing?.balanceCents ?? 0;
+    const newBalance = currentBalance + REFEREE_CASHBACK_CENTS;
+    if (existing) {
+      await tx.update(userBalancesTable).set({
+        balanceCents: newBalance,
+        lastActiveAt: /* @__PURE__ */ new Date(),
+        updatedAt: /* @__PURE__ */ new Date()
+      }).where(eq33(userBalancesTable.userId, event.userId));
+    } else {
+      await tx.insert(userBalancesTable).values({
+        userId: event.userId,
+        balanceCents: newBalance,
+        lastActiveAt: /* @__PURE__ */ new Date()
+      });
+    }
+    await tx.insert(tokenTransactionsTable).values({
+      userId: event.userId,
+      type: "bonus",
+      amountCents: REFEREE_CASHBACK_CENTS,
+      balanceAfterCents: newBalance,
+      paidAmountCents: REFEREE_CASHBACK_CENTS,
+      description: "Bonus referral: cashback pengguna baru (Rp 5.000)"
+    });
+  });
+  await db.insert(referralEventsTable).values({
+    referralId: referral.id,
+    actorId: null,
+    actorType: "system",
+    fromStatus: referral.status,
+    toStatus: referral.status === "verified" ? "qualified" : referral.status,
+    reason: "referee_cashback_credited",
+    metadata: {
+      paymentEventId: event.paymentEventId,
+      method: event.method,
+      paidAmountCents: event.paidAmountCents,
+      amountCents: REFEREE_CASHBACK_CENTS
+    }
+  });
+  logger.info(
+    {
+      referralId: referral.id,
+      userId: event.userId,
+      paymentEventId: event.paymentEventId,
+      amountCents: REFEREE_CASHBACK_CENTS
+    },
+    "[referral] referee cashback credited"
+  );
+  return {
+    credited: true,
+    reason: "credited",
+    amountCents: REFEREE_CASHBACK_CENTS
+  };
+}
+async function creditReferrerReward(referral, event) {
+  const existing = await db.select({ id: referralEventsTable.id }).from(referralEventsTable).where(
+    and18(
+      eq33(referralEventsTable.referralId, referral.id),
+      eq33(
+        sql12`${referralEventsTable.metadata}->>'paymentEventId'`,
+        event.paymentEventId
+      )
+    )
+  ).limit(1);
+  if (existing.length > 0) {
+    return {
+      credited: false,
+      reason: "duplicate_event",
+      amountCents: 0,
+      txCount: referral.referrerRewardTxCount
+    };
+  }
+  if (referral.referrerRewardTxCount >= REFERRER_REWARD_TX_CAP) {
+    logger.info(
+      {
+        referralId: referral.id,
+        txCount: referral.referrerRewardTxCount,
+        cap: REFERRER_REWARD_TX_CAP
+      },
+      "[referral] referrer reward cap reached \u2014 skip"
+    );
+    return {
+      credited: false,
+      reason: "cap_reached",
+      amountCents: 0,
+      txCount: referral.referrerRewardTxCount
+    };
+  }
+  const rewardCents = Math.floor(
+    event.paidAmountCents * REFERRER_REWARD_PERCENT
+  );
+  if (rewardCents <= 0) {
+    return {
+      credited: false,
+      reason: "amount_too_small",
+      amountCents: 0,
+      txCount: referral.referrerRewardTxCount
+    };
+  }
+  const newTxCount = referral.referrerRewardTxCount + 1;
+  await db.update(referralsTable).set({
+    referrerRewardTxCount: newTxCount,
+    referrerRewardPaidCents: referral.referrerRewardPaidCents + rewardCents,
+    status: referral.status === "pending" ? "verified" : referral.status,
+    updatedAt: /* @__PURE__ */ new Date()
+  }).where(eq33(referralsTable.id, referral.id));
+  await db.transaction(async (tx) => {
+    const [existing2] = await tx.select().from(userBalancesTable).where(eq33(userBalancesTable.userId, referral.referrerId));
+    const currentReward = existing2?.rewardBalanceCents ?? 0;
+    const newReward = currentReward + rewardCents;
+    if (existing2) {
+      await tx.update(userBalancesTable).set({
+        rewardBalanceCents: newReward,
+        updatedAt: /* @__PURE__ */ new Date()
+      }).where(eq33(userBalancesTable.userId, referral.referrerId));
+    } else {
+      await tx.insert(userBalancesTable).values({
+        userId: referral.referrerId,
+        balanceCents: 0,
+        rewardBalanceCents: newReward
+      });
+    }
+  });
+  await db.insert(referralEventsTable).values({
+    referralId: referral.id,
+    actorId: null,
+    actorType: "system",
+    fromStatus: referral.status,
+    toStatus: referral.status === "pending" ? "verified" : referral.status,
+    reason: "referrer_reward_credited",
+    metadata: {
+      paymentEventId: event.paymentEventId,
+      method: event.method,
+      paidAmountCents: event.paidAmountCents,
+      rewardCents,
+      txCount: newTxCount
+    }
+  });
+  logger.info(
+    {
+      referralId: referral.id,
+      referrerId: referral.referrerId,
+      paymentEventId: event.paymentEventId,
+      rewardCents,
+      txCount: newTxCount
+    },
+    "[referral] referrer reward credited"
+  );
+  return {
+    credited: true,
+    reason: "credited",
+    amountCents: rewardCents,
+    txCount: newTxCount
+  };
+}
+async function getReferralSummary(userId) {
+  const [balance] = await db.select({
+    rewardBalanceCents: userBalancesTable.rewardBalanceCents
+  }).from(userBalancesTable).where(eq33(userBalancesTable.userId, userId));
+  const referees = await db.select().from(referralsTable).where(eq33(referralsTable.referrerId, userId));
+  const referredCount = referees.length;
+  const refereesWithFirstPayment = referees.filter(
+    (r2) => r2.firstPaymentAt !== null
+  ).length;
+  const totalRewardEarnedCents = referees.reduce(
+    (sum, r2) => sum + r2.referrerRewardPaidCents,
+    0
+  );
+  const [userAsReferee] = await db.select({ refereeCashbackClaimed: referralsTable.refereeCashbackClaimed }).from(referralsTable).where(eq33(referralsTable.referredId, userId)).limit(1);
+  return {
+    referralCode: null,
+    // filled in by route handler from user record
+    referredCount,
+    refereesWithFirstPayment,
+    totalRewardEarnedCents,
+    rewardBalanceCents: balance?.rewardBalanceCents ?? 0,
+    refereeCashbackClaimed: userAsReferee?.refereeCashbackClaimed ?? false
+  };
+}
+
+// src/routes/referral.ts
 var router30 = (0, import_express30.Router)();
-router30.use(health_default);
-router30.use(auth_default);
-router30.use(shared_default);
-router30.use(ai_tiers_default);
-router30.use(packages_default);
-router30.use(authMiddleware);
-router30.use("/projects/:projectId/messages", aiLimiter);
-router30.use("/projects/:projectId/quizzes", aiLimiter);
-router30.use("/projects/:projectId/references", aiLimiter);
-router30.use("/projects/:projectId/analyze", aiLimiter);
-router30.use("/projects/:projectId/outline", aiLimiter);
-router30.use("/projects/:projectId/documents/generate", aiLimiter);
-router30.use("/users/me/writing-style/analyze", aiLimiter);
-router30.use(projects_default);
-router30.use(messages_default);
-router30.use(documents_default);
-router30.use(references_default);
-router30.use(account_references_default);
-router30.use(learning_activities_default);
-router30.use(attachments_default);
-router30.use(activities_default);
-router30.use(jobs_default);
-router30.use(metadata_default);
-router30.use(exports_default);
-router30.use(ai_usage_default);
-router30.use(comments_default);
-router30.use(project_members_default);
-router30.use(quizzes_default);
-router30.use(rubrics_default);
-router30.use(writing_style_default);
-router30.use(balance_default);
-router30.use(autofallback_default);
-router30.use(subscriptions_default);
-router30.use(usage_default);
-router30.use(document_templates_default);
-router30.use(admin_ai_tiers_default);
-router30.use(admin_default);
-var routes_default = router30;
+router30.get("/users/me/referral-info", async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+    const [user] = await db.select({
+      referralCode: usersTable.referralCode,
+      email: usersTable.email,
+      displayName: usersTable.displayName
+    }).from(usersTable).where(eq34(usersTable.id, userId));
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+    const summary = await getReferralSummary(userId);
+    summary.referralCode = user.referralCode;
+    res.status(200).json({
+      referralCode: user.referralCode,
+      email: user.email,
+      displayName: user.displayName,
+      referredCount: summary.referredCount,
+      refereesWithFirstPayment: summary.refereesWithFirstPayment,
+      totalRewardEarnedCents: summary.totalRewardEarnedCents,
+      rewardBalanceCents: summary.rewardBalanceCents,
+      refereeCashbackClaimed: summary.refereeCashbackClaimed,
+      // Program constants (frontend can show exact wording)
+      refereeCashbackAmountCents: 5e5,
+      // Rp 5,000
+      referrerRewardPercent: 0.03,
+      // 3%
+      referrerRewardTxCap: 5
+      // 5 transactions
+    });
+  } catch (err) {
+    console.error("[referral-info] unhandled", err);
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Gagal memuat informasi referral." });
+    }
+  }
+});
+var referral_default = router30;
+
+// src/routes/referral-webhook.ts
+var import_express31 = __toESM(require_express2(), 1);
+import { createHmac, timingSafeEqual } from "crypto";
+import { z as z11 } from "zod/v4";
+var router31 = (0, import_express31.Router)();
+var WEBHOOK_SECRET = process.env.REFERRAL_WEBHOOK_SECRET ?? "";
+function verifyWebhookSignature(req) {
+  if (!WEBHOOK_SECRET) {
+    logger.warn(
+      "[webhook] REFERRAL_WEBHOOK_SECRET not set \u2014 rejecting webhook"
+    );
+    return false;
+  }
+  const sigHeader = req.headers["x-webhook-signature"];
+  if (typeof sigHeader !== "string") return false;
+  const expected = sigHeader.startsWith("sha256=") ? sigHeader.slice(7) : sigHeader;
+  const rawBody = typeof req.rawBody === "string" ? req.rawBody : JSON.stringify(req.body);
+  const computed = createHmac("sha256", WEBHOOK_SECRET).update(rawBody).digest("hex");
+  try {
+    const a = Buffer.from(expected, "hex");
+    const b = Buffer.from(computed, "hex");
+    return a.length === b.length && timingSafeEqual(a, b);
+  } catch {
+    return false;
+  }
+}
+var WebhookPayloadSchema = z11.object({
+  paymentEventId: z11.string().min(1),
+  userId: z11.string().min(1),
+  paidAmountCents: z11.number().int().positive(),
+  method: z11.enum(["subscription", "topup"]),
+  paidAt: z11.string().datetime().transform((s2) => new Date(s2)),
+  metadata: z11.record(z11.string(), z11.unknown()).optional()
+});
+router31.post("/webhooks/payment-success", async (req, res) => {
+  if (!verifyWebhookSignature(req)) {
+    res.status(401).json({ error: "Invalid signature" });
+    return;
+  }
+  const parseResult = WebhookPayloadSchema.safeParse(req.body);
+  if (!parseResult.success) {
+    logger.warn(
+      { issues: parseResult.error.issues },
+      "[webhook] invalid payload"
+    );
+    res.status(400).json({ error: "Invalid payload" });
+    return;
+  }
+  const payload = parseResult.data;
+  const event = {
+    paymentEventId: payload.paymentEventId,
+    userId: payload.userId,
+    paidAmountCents: payload.paidAmountCents,
+    method: payload.method,
+    paidAt: payload.paidAt,
+    metadata: payload.metadata
+  };
+  try {
+    const result = await processReferralPayment(event);
+    logger.info(
+      {
+        paymentEventId: event.paymentEventId,
+        userId: event.userId,
+        refereeCashback: result.refereeCashback,
+        referrerReward: result.referrerReward
+      },
+      "[webhook] payment processed"
+    );
+    res.status(200).json({
+      ok: true,
+      refereeCashback: result.refereeCashback,
+      referrerReward: result.referrerReward
+    });
+  } catch (err) {
+    logger.error(
+      { err, paymentEventId: event.paymentEventId, userId: event.userId },
+      "[webhook] failed to process payment"
+    );
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Failed to process payment" });
+    }
+  }
+});
+var referral_webhook_default = router31;
+
+// src/routes/index.ts
+var router32 = (0, import_express32.Router)();
+router32.use(health_default);
+router32.use(auth_default);
+router32.use(shared_default);
+router32.use(ai_tiers_default);
+router32.use(packages_default);
+router32.use(referral_webhook_default);
+router32.use(authMiddleware);
+router32.use("/projects/:projectId/messages", aiLimiter);
+router32.use("/projects/:projectId/quizzes", aiLimiter);
+router32.use("/projects/:projectId/references", aiLimiter);
+router32.use("/projects/:projectId/analyze", aiLimiter);
+router32.use("/projects/:projectId/outline", aiLimiter);
+router32.use("/projects/:projectId/documents/generate", aiLimiter);
+router32.use("/users/me/writing-style/analyze", aiLimiter);
+router32.use(projects_default);
+router32.use(messages_default);
+router32.use(documents_default);
+router32.use(references_default);
+router32.use(account_references_default);
+router32.use(learning_activities_default);
+router32.use(attachments_default);
+router32.use(activities_default);
+router32.use(jobs_default);
+router32.use(metadata_default);
+router32.use(exports_default);
+router32.use(ai_usage_default);
+router32.use(comments_default);
+router32.use(project_members_default);
+router32.use(quizzes_default);
+router32.use(rubrics_default);
+router32.use(writing_style_default);
+router32.use(balance_default);
+router32.use(autofallback_default);
+router32.use(subscriptions_default);
+router32.use(usage_default);
+router32.use(document_templates_default);
+router32.use(admin_ai_tiers_default);
+router32.use(admin_default);
+router32.use(referral_default);
+var routes_default = router32;
 
 // src/routes/webhooks.ts
-var import_express31 = __toESM(require_express2(), 1);
-import { eq as eq33 } from "drizzle-orm";
-var router31 = (0, import_express31.Router)();
-var WEBHOOK_SECRET = process.env.WEBHOOK_SECRET ?? "";
-router31.post("/webhooks/email-verified", async (req, res) => {
-  if (WEBHOOK_SECRET && req.headers["x-webhook-secret"] !== WEBHOOK_SECRET) {
+var import_express33 = __toESM(require_express2(), 1);
+import { eq as eq35 } from "drizzle-orm";
+var router33 = (0, import_express33.Router)();
+var WEBHOOK_SECRET2 = process.env.WEBHOOK_SECRET ?? "";
+router33.post("/webhooks/email-verified", async (req, res) => {
+  if (WEBHOOK_SECRET2 && req.headers["x-webhook-secret"] !== WEBHOOK_SECRET2) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
@@ -256851,7 +257305,7 @@ router31.post("/webhooks/email-verified", async (req, res) => {
     res.sendStatus(200);
     return;
   }
-  const [referral] = await db.select().from(referralsTable).where(eq33(referralsTable.referredId, userId));
+  const [referral] = await db.select().from(referralsTable).where(eq35(referralsTable.referredId, userId));
   if (!referral) {
     res.sendStatus(200);
     return;
@@ -256860,7 +257314,7 @@ router31.post("/webhooks/email-verified", async (req, res) => {
     res.sendStatus(200);
     return;
   }
-  await db.update(referralsTable).set({ status: "verified", updatedAt: /* @__PURE__ */ new Date() }).where(eq33(referralsTable.id, referral.id));
+  await db.update(referralsTable).set({ status: "verified", updatedAt: /* @__PURE__ */ new Date() }).where(eq35(referralsTable.id, referral.id));
   await db.insert(referralEventsTable).values({
     referralId: referral.id,
     actorId: null,
@@ -256872,10 +257326,10 @@ router31.post("/webhooks/email-verified", async (req, res) => {
   });
   res.sendStatus(200);
 });
-var webhooks_default = router31;
+var webhooks_default = router33;
 
 // src/app.ts
-var app = (0, import_express32.default)();
+var app = (0, import_express34.default)();
 app.set("trust proxy", 1);
 app.get("/test", (_req, res) => {
   res.json({ ok: true, ts: Date.now() });
@@ -256911,8 +257365,8 @@ app.use(
     credentials: true
   })
 );
-app.use(import_express32.default.json());
-app.use(import_express32.default.urlencoded({ extended: true }));
+app.use(import_express34.default.json());
+app.use(import_express34.default.urlencoded({ extended: true }));
 app.use("/webhooks", webhooks_default);
 var authLimiter = lib_default({
   windowMs: 60 * 1e3,

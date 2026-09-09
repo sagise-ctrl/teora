@@ -98,7 +98,6 @@ export async function deductCredit(opts: {
         description: opts.description,
       })
       .returning();
-
     return { success: true, balanceAfterCents: newBalance, transactionId: transaction.id };
   } catch (err) {
     logger.error({ err, userId: opts.userId, costCents: opts.costCents }, "Failed to deduct credit");
@@ -148,7 +147,7 @@ export async function addCredit(opts: {
         type: "topup",
         amountCents: opts.amountCents,
         balanceAfterCents: newBalance,
-        stripePaymentIntentId: opts.stripePaymentIntentId,
+        paymentId: opts.stripePaymentIntentId,
         paidAmountCents: opts.paidAmountCents,
         description: opts.description,
       })

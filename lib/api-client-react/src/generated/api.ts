@@ -52,6 +52,7 @@ import type {
   CreateCitationRequest,
   CreateLearningActivityRequest,
   CreateShareLinkRequest,
+  CreateSubscriptionRequest,
   CrossRefSearchResponse,
   DeleteAccountRequest,
   DeleteAccountResponse,
@@ -98,6 +99,9 @@ import type {
   Message,
   MessageInput,
   OverrideUserTierBody,
+  PackagesResponse,
+  PaymentWebhookPayload,
+  PaymentWebhookResponse,
   PracticeRecommendation,
   Project,
   ProjectInput,
@@ -123,8 +127,11 @@ import type {
   ShareLink,
   SharedProject,
   SubmitQuizRequest,
+  Subscription,
+  SubscriptionResponse,
   SuspendUserBody,
   TierPreferenceResponse,
+  ToggleAutofallbackBody,
   ToggleReferenceSelectionBody,
   UpdateAITierRequest,
   UpdateAdminAITier200,
@@ -135,6 +142,7 @@ import type {
   UpdateRubricBody,
   UserBalance,
   UserProfile,
+  UserReferralInfo,
   WritingStyleProfile
 } from './api.schemas';
 
@@ -9334,5 +9342,485 @@ export const useSuspendUser = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getSuspendUserMutationOptions(options));
+    }
+
+export const getGetPackagesUrl = () => {
+
+
+
+
+  return `/api/packages`
+}
+
+/**
+ * @summary List subscription packages
+ */
+export const getPackages = async ( options?: Parameters<typeof customFetch>[1]): Promise<PackagesResponse> => {
+
+  return customFetch<PackagesResponse>(getGetPackagesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetPackagesQueryKey = () => {
+    return [
+    `/api/packages`
+    ] as const;
+    }
+
+
+export const getGetPackagesQueryOptions = <TData = Awaited<ReturnType<typeof getPackages>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPackages>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPackagesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPackages>>> = ({ signal }) => getPackages({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPackages>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetPackagesQueryResult = NonNullable<Awaited<ReturnType<typeof getPackages>>>
+export type GetPackagesQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List subscription packages
+ */
+
+export function useGetPackages<TData = Awaited<ReturnType<typeof getPackages>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPackages>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetPackagesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetMyReferralInfoUrl = () => {
+
+
+
+
+  return `/api/users/me/referral-info`
+}
+
+/**
+ * Returns the authenticated user's referral code (to share), number of
+ * referees invited, total reward earned, current reward balance, and
+ * whether the user has claimed their referee cashback.
+ * @summary Get current user's referral program status
+ */
+export const getMyReferralInfo = async ( options?: Parameters<typeof customFetch>[1]): Promise<UserReferralInfo> => {
+
+  return customFetch<UserReferralInfo>(getGetMyReferralInfoUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMyReferralInfoQueryKey = () => {
+    return [
+    `/api/users/me/referral-info`
+    ] as const;
+    }
+
+
+export const getGetMyReferralInfoQueryOptions = <TData = Awaited<ReturnType<typeof getMyReferralInfo>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyReferralInfo>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMyReferralInfoQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyReferralInfo>>> = ({ signal }) => getMyReferralInfo({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMyReferralInfo>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMyReferralInfoQueryResult = NonNullable<Awaited<ReturnType<typeof getMyReferralInfo>>>
+export type GetMyReferralInfoQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get current user's referral program status
+ */
+
+export function useGetMyReferralInfo<TData = Awaited<ReturnType<typeof getMyReferralInfo>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyReferralInfo>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMyReferralInfoQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getPaymentSuccessWebhookUrl = () => {
+
+
+
+
+  return `/api/webhooks/payment-success`
+}
+
+/**
+ * Endpoint that payment gateway webhooks call on successful payment.
+ * Triggers referral rewards: referee cashback (Rp 5,000, first payment only)
+ * + referrer reward (3% × payment amount, capped at 5 transactions).
+ * Idempotent via `paymentEventId`.
+ * Header: `x-webhook-signature: sha256=<hex>` (HMAC-SHA256 of body using
+ * `REFERRAL_WEBHOOK_SECRET`).
+ * @summary Payment gateway webhook — referral reward trigger (gateway-agnostic)
+ */
+export const paymentSuccessWebhook = async (paymentWebhookPayload: PaymentWebhookPayload, options?: Parameters<typeof customFetch>[1]): Promise<PaymentWebhookResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<PaymentWebhookResponse>(getPaymentSuccessWebhookUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(paymentWebhookPayload)
+  }
+);}
+
+
+
+
+
+export const getPaymentSuccessWebhookMutationKey = () => ['paymentSuccessWebhook'] as const;
+
+export const getPaymentSuccessWebhookMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof paymentSuccessWebhook>>, TError,PaymentSuccessWebhookMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof paymentSuccessWebhook>>, TError,PaymentSuccessWebhookMutationVariables, TContext> => {
+
+const mutationKey = getPaymentSuccessWebhookMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof paymentSuccessWebhook>>, PaymentSuccessWebhookMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  paymentSuccessWebhook(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PaymentSuccessWebhookMutationResult = NonNullable<Awaited<ReturnType<typeof paymentSuccessWebhook>>>
+    export type PaymentSuccessWebhookMutationBody = BodyType<PaymentWebhookPayload>
+    export type PaymentSuccessWebhookMutationError = ErrorType<void>
+    export type PaymentSuccessWebhookMutationVariables = {data: BodyType<PaymentWebhookPayload>}
+
+    /**
+ * @summary Payment gateway webhook — referral reward trigger (gateway-agnostic)
+ */
+export const usePaymentSuccessWebhook = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof paymentSuccessWebhook>>, TError,PaymentSuccessWebhookMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof paymentSuccessWebhook>>,
+        TError,
+        PaymentSuccessWebhookMutationVariables,
+        TContext
+      > => {
+      return useMutation(getPaymentSuccessWebhookMutationOptions(options));
+    }
+
+export const getGetMySubscriptionUrl = () => {
+
+
+
+
+  return `/api/users/me/subscription`
+}
+
+/**
+ * @summary Get current subscription and usage
+ */
+export const getMySubscription = async ( options?: Parameters<typeof customFetch>[1]): Promise<SubscriptionResponse> => {
+
+  return customFetch<SubscriptionResponse>(getGetMySubscriptionUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMySubscriptionQueryKey = () => {
+    return [
+    `/api/users/me/subscription`
+    ] as const;
+    }
+
+
+export const getGetMySubscriptionQueryOptions = <TData = Awaited<ReturnType<typeof getMySubscription>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMySubscription>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMySubscriptionQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMySubscription>>> = ({ signal }) => getMySubscription({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMySubscription>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMySubscriptionQueryResult = NonNullable<Awaited<ReturnType<typeof getMySubscription>>>
+export type GetMySubscriptionQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get current subscription and usage
+ */
+
+export function useGetMySubscription<TData = Awaited<ReturnType<typeof getMySubscription>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMySubscription>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMySubscriptionQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateSubscriptionUrl = () => {
+
+
+
+
+  return `/api/users/me/subscription`
+}
+
+/**
+ * @summary Create a new subscription
+ */
+export const createSubscription = async (createSubscriptionRequest: CreateSubscriptionRequest, options?: Parameters<typeof customFetch>[1]): Promise<Subscription> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<Subscription>(getCreateSubscriptionUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(createSubscriptionRequest)
+  }
+);}
+
+
+
+
+
+export const getCreateSubscriptionMutationKey = () => ['createSubscription'] as const;
+
+export const getCreateSubscriptionMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSubscription>>, TError,CreateSubscriptionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createSubscription>>, TError,CreateSubscriptionMutationVariables, TContext> => {
+
+const mutationKey = getCreateSubscriptionMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createSubscription>>, CreateSubscriptionMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createSubscription(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateSubscriptionMutationResult = NonNullable<Awaited<ReturnType<typeof createSubscription>>>
+    export type CreateSubscriptionMutationBody = BodyType<CreateSubscriptionRequest>
+    export type CreateSubscriptionMutationError = ErrorType<void>
+    export type CreateSubscriptionMutationVariables = {data: BodyType<CreateSubscriptionRequest>}
+
+    /**
+ * @summary Create a new subscription
+ */
+export const useCreateSubscription = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSubscription>>, TError,CreateSubscriptionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createSubscription>>,
+        TError,
+        CreateSubscriptionMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateSubscriptionMutationOptions(options));
+    }
+
+export const getToggleAutofallbackUrl = () => {
+
+
+
+
+  return `/api/users/me/autofallback`
+}
+
+/**
+ * @summary Toggle hybrid autofallback setting
+ */
+export const toggleAutofallback = async (toggleAutofallbackBody: ToggleAutofallbackBody, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<void>(getToggleAutofallbackUrl(),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(toggleAutofallbackBody)
+  }
+);}
+
+
+
+
+
+export const getToggleAutofallbackMutationKey = () => ['toggleAutofallback'] as const;
+
+export const getToggleAutofallbackMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof toggleAutofallback>>, TError,ToggleAutofallbackMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof toggleAutofallback>>, TError,ToggleAutofallbackMutationVariables, TContext> => {
+
+const mutationKey = getToggleAutofallbackMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof toggleAutofallback>>, ToggleAutofallbackMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  toggleAutofallback(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ToggleAutofallbackMutationResult = NonNullable<Awaited<ReturnType<typeof toggleAutofallback>>>
+    export type ToggleAutofallbackMutationBody = BodyType<ToggleAutofallbackBody>
+    export type ToggleAutofallbackMutationError = ErrorType<unknown>
+    export type ToggleAutofallbackMutationVariables = {data: BodyType<ToggleAutofallbackBody>}
+
+    /**
+ * @summary Toggle hybrid autofallback setting
+ */
+export const useToggleAutofallback = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof toggleAutofallback>>, TError,ToggleAutofallbackMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof toggleAutofallback>>,
+        TError,
+        ToggleAutofallbackMutationVariables,
+        TContext
+      > => {
+      return useMutation(getToggleAutofallbackMutationOptions(options));
     }
 
