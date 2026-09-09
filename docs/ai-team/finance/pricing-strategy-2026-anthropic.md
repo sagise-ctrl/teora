@@ -381,6 +381,7 @@ Tanpa cost logging real:
 | 2026-09-08 | Iterasi 2-4: tambah Starter Rp8rb, 3 model types (Lama/Campuran/Baru), volume scaling | AI Engineering |
 | 2026-09-08 | Iterasi 5: tambah Ultra tier + 2 subscription periods (15/30 hari). Final design terverifikasi di section 10. | AI Engineering |
 | 2026-09-08 | Iterasi 5b: Section 11.4 (banner saldo dihapus) + Section 12 (saldo IDR + autofallback + hold) + Section 13 (ToS checkbox spec) | AI Engineering |
+| 2026-09-09 | Iterasi 6: Section 14 (Keputusan Opsi B — pisahkan in/out di backend) + Section 15 (Simulasi fee minimum langganan + topup dengan markup 40%) | AI Engineering |
 
 ---
 
@@ -660,3 +661,236 @@ Auto-renew: Ya (default ON, bisa di-toggle)
 **Backend validation:** sebelum create subscription record, server verify client mengirim `tos_accepted: true` + timestamp. Store di `subscriptions.tos_accepted_at`.
 
 **Belum diimplementasi.** Akan dipasang saat payment integration (Midtrans/Stripe) di-setup.
+
+---
+
+## 14. Keputusan Opsi B: Pisahkan In/Out di Backend (Owner 2026-09-09)
+
+### 14.1 Latar Belakang
+
+Owner concern: kalau Teora hitung AI cost pakai **blended rate asumsi** (mis. 65:35 input:output), dan realita user lebih output-heavy (mis. 50:50), margin bisa terkikis. Untuk Sonnet 5 (output $10/MTok vs input $2/MTok = rasio 5x), perbedaan ini material.
+
+Tiga opsi yang dievaluasi:
+
+| Opsi | Cara kerja | Pro | Kontra |
+|------|-----------|-----|--------|
+| A: Blended saja di mana-mana | Asumsi 65:35 fixed | Simpel, predictable | Margin bisa negatif kalau user output-heavy |
+| B: Pisahkan in/out di backend (silent) | Tagih = `(real_input × rate_in) + (real_output × rate_out) × markup` | Margin absolut aman, UX tetap simpel | User Sonnet-output-heavy bayar lebih mahal |
+| C: Pisahkan in/out transparan ke user | UI tampilkan 2 angka | Margin + edukasi user | UX ribet, sales friction |
+
+**Keputusan owner: Opsi B.** Alasan:
+1. Backend sudah support (lihat `artifacts/api-server/src/lib/ai.ts:156-171` — `estimateCost` pakai `pricePer1MInputCents` + `pricePer1MOutputCents` terpisah)
+2. UX tetap simpel — user lihat "X token terpakai" saja
+3. Margin terkontrol positif tanpa asumsi rasio
+
+### 14.2 Dampak per Metode Pembayaran
+
+| Metode | Dampak Opsi B | Implementasi |
+|--------|---------------|---------------|
+| **Langganan (subscription)** | **Visibility only** — quota tetap rolling 5h/7d, harga jual tetap flat. Opsi B hanya untuk FinOps monitoring (`ai_usage_log.inputTokens/outputTokens/costCents`) supaya owner tahu margin riil per tier. **Margin wholesale tidak berubah** karena dilindungi buffer harga jual. | Track real cost di `ai_usage_log`, dashboard FinOps baca dari sana |
+| **Topup (saldo IDR)** | **Full protection** — tagihan user = real `costCents` dari backend (bukan blended asumsi). Markup 40% dari cost real. Margin absolut terkontrol. | `ai_usage_log.costCents` × 1.4 = tagih user, kurangi `balance_idr` |
+
+### 14.3 Markup Topup: 40% (Owner 2026-09-09)
+
+**Formula:**
+```
+cost_per_1K_real = (input_tokens × rate_input + output_tokens × rate_output) / 1000
+tagih_per_1K_user = cost_per_1K_real × 1.40
+margin_bruto = 0.40 × cost_real
+margin_neto = margin_bruto - (0.007 × tagih_user)  // QRIS fee
+```
+
+**Rate jual per 1K token (markup 40%):**
+
+| Model | Rasio | Cost Real / 1K | Tagih User / 1K | Margin per 1K |
+|-------|-------|----------------|-----------------|--------------|
+| Haiku 4.5 | 65:35 | Rp 38.4 | Rp 53.8 | Rp 15.4 |
+| Haiku 4.5 | 50:50 | Rp 48.0 | Rp 67.2 | Rp 19.2 |
+| Sonnet 5 | 65:35 | Rp 76.8 | Rp 107.5 | Rp 30.7 |
+| Sonnet 5 | 50:50 | Rp 96.0 | Rp 134.4 | Rp 38.4 |
+
+**Catatan penting:**
+- User Sonnet-output-heavy (50:50) **bayar lebih mahal per 1K** — bukan margin naik, transparansi cost
+- Tapi total token yang didapat dari saldo Rp X **tetap sama** karena tagihan proporsional dengan cost
+- Margin % Teora tetap stabil di ~27.9% (setelah QRIS) untuk semua skenario
+
+### 14.4 Konfigurasi Tier (untuk `ai_tiers` table)
+
+Tier sudah punya field `pricePer1MInputCents` + `pricePer1MOutputCents` (dari schema existing). Contoh nilai yang akan dipakai:
+
+```typescript
+// Tier: budget (Haiku) — topup markup 40%
+{
+  id: "budget",
+  pricePer1MInputCents: 16,    // Rp 16/1K input (1 USD × 16.000 / 1.000)
+  pricePer1MOutputCents: 80,   // Rp 80/1K output (5 USD × 16.000 / 1.000)
+  markupMultiplier: 1.40,      // applied for topup charges
+}
+
+// Tier: premium (Sonnet) — topup markup 40%
+{
+  id: "premium",
+  pricePer1MInputCents: 32,    // Rp 32/1K input (2 USD × 16.000 / 1.000)
+  pricePer1MOutputCents: 160,  // Rp 160/1K output (10 USD × 16.000 / 1.000)
+  markupMultiplier: 1.40,
+}
+```
+
+**Note:** `pricePer1M*` adalah cost Anthropic. Charge ke user = `pricePer1M* × markupMultiplier`. Subscription TIDAK pakai `markupMultiplier` — harga flat per tier.
+
+### 14.4.1 Schema Migration — `markup_multiplier` (Applied 2026-09-09)
+
+**Migration:** `add_markup_multiplier_to_ai_tiers`
+
+```sql
+ALTER TABLE public.ai_tiers
+ADD COLUMN markup_multiplier NUMERIC(5, 3) NOT NULL DEFAULT 1.400;
+
+ALTER TABLE public.ai_tiers
+ADD CONSTRAINT chk_markup_multiplier_range
+CHECK (markup_multiplier >= 1.000 AND markup_multiplier <= 9.999);
+```
+
+**Status:** ✅ Applied ke Supabase production. 4 existing rows (`free`, `standard`, `premium`, `ultra`) di-backfill dengan default 1.400.
+
+**Drizzle schema update:** `lib/db/src/schema/ai_tiers.ts` — field `markupMultiplier: numeric("markup_multiplier", { precision: 5, scale: 3 }).notNull().default("1.400")`.
+
+**Catatan untuk cleanup:** Existing rows masih pakai model lama (Llama 3.1, Claude 3.5 Sonnet, GPT-4o) — perlu di-update ke Haiku 4.5 + Sonnet 5 saat spec final. Belum dilakukan — beda inisiatif (pivot ke Anthropic sebagai primary provider).
+
+### 14.5 Validasi Margin — Worst Case Analysis
+
+**Pertanyaan owner:** "apakah fee saya aman di kedua metode?"
+
+**Jawaban:**
+
+| Metode | Worst Case Margin | Mekanisme Proteksi |
+|--------|-------------------|---------------------|
+| Langganan 15 hari | 22.5-32.1% | Buffer harga jual Rp 2.5K-16.9K per tier (worst case: user pakai semua quota di Sonnet Campuran) |
+| Langganan 30 hari | 8.9-20.2% | Buffer harga jual Rp 2.2K-13.7K per tier. Diskon 15% per token = insentif 30 hari, margin lebih tipis tapi positif |
+| Topup Haiku | ~27.9% | Tagih = cost × 1.4 - QRIS. Tidak tergantung rasio user |
+| Topup Sonnet | ~27.9% | Sama — margin % identik karena markup proporsional |
+
+**Risiko residual:**
+- Output-heavy user di Sonnet **bayar lebih mahal** → bisa complain. Mitigasi: UX jelaskan "saldo terisi sesuai pemakaian, Sonnet heavier cost = lebih banyak saldo terpakai"
+- FX USD/IDR berubah → margin % tetap sama (karena markup %); absolute margin naik/turun
+- Anthropic naik harga → `pricePer1M*` di tier table harus diupdate → margin % tetap sama
+
+---
+
+## 15. Simulasi Fee Minimum — 30 SKU + Topup Markup 40% (Owner 2026-09-09)
+
+### 15.1 Simulasi: Langganan (30 SKU)
+
+**Metodologi:** Fee minimum = harga jual − QRIS fee 0.7% − max AI cost blended (asumsi 65:35, worst case = user pakai SEMUA quota). Realita: margin aktual lebih tinggi karena user jarang max-out.
+
+#### Tabel 15 Hari
+
+| Tier | Model | Max Usage | Harga Jual | Net Revenue | AI Cost Max | Fee Teora | Margin |
+|------|-------|-----------|------------|-------------|-------------|-----------|--------|
+| Starter | Lama | 140K H | Rp 8.000 | Rp 7.944 | Rp 5.376 | Rp 2.568 | 32.1% |
+| Starter | Campuran | 70K H + 36K S | Rp 8.000 | Rp 7.944 | Rp 5.453 | Rp 2.491 | 31.1% |
+| Starter | Baru | 70K S | Rp 8.000 | Rp 7.944 | Rp 5.376 | Rp 2.568 | 32.1% |
+| Standar | Lama | 300K H | Rp 15.000 | Rp 14.895 | Rp 11.520 | Rp 3.375 | 22.5% |
+| Standar | Campuran | 150K H + 72K S | Rp 15.000 | Rp 14.895 | Rp 11.290 | Rp 3.605 | 24.0% |
+| Standar | Baru | 148K S | Rp 15.000 | Rp 14.895 | Rp 11.366 | Rp 3.529 | 23.5% |
+| Premium | Lama | 540K H | Rp 27.000 | Rp 26.811 | Rp 20.736 | Rp 6.075 | 22.5% |
+| Premium | Campuran | 270K H + 130K S | Rp 27.000 | Rp 26.811 | Rp 20.352 | Rp 6.459 | 23.9% |
+| Premium | Baru | 264K S | Rp 27.000 | Rp 26.811 | Rp 20.275 | Rp 6.536 | 24.2% |
+| Pro | Lama | 900K H | Rp 45.000 | Rp 44.685 | Rp 34.560 | Rp 10.125 | 22.5% |
+| Pro | Campuran | 450K H + 216K S | Rp 45.000 | Rp 44.685 | Rp 33.869 | Rp 10.816 | 24.0% |
+| Pro | Baru | 444K S | Rp 45.000 | Rp 44.685 | Rp 34.099 | Rp 10.586 | 23.5% |
+| Ultra | Lama | 1.500K H | Rp 75.000 | Rp 74.475 | Rp 57.600 | Rp 16.875 | 22.5% |
+| Ultra | Campuran | 750K H + 360K S | Rp 75.000 | Rp 74.475 | Rp 56.448 | Rp 18.027 | 24.0% |
+| Ultra | Baru | 740K S | Rp 75.000 | Rp 74.475 | Rp 56.832 | Rp 17.643 | 23.5% |
+
+#### Tabel 30 Hari (1,7x = diskon 15% per token)
+
+| Tier | Model | Max Usage | Harga Jual | Net Revenue | AI Cost Max | Fee Teora | Margin |
+|------|-------|-----------|------------|-------------|-------------|-----------|--------|
+| Starter | Lama | 280K H | Rp 13.600 | Rp 13.505 | Rp 10.752 | Rp 2.753 | 20.2% |
+| Starter | Campuran | 140K H + 72K S | Rp 13.600 | Rp 13.505 | Rp 10.906 | Rp 2.599 | 19.1% |
+| Starter | Baru | 140K S | Rp 13.600 | Rp 13.505 | Rp 10.752 | Rp 2.753 | 20.2% |
+| Standar | Lama | 600K H | Rp 25.500 | Rp 25.322 | Rp 23.040 | Rp 2.282 | 8.9% |
+| Standar | Campuran | 300K H + 144K S | Rp 25.500 | Rp 25.322 | Rp 22.579 | Rp 2.742 | 10.8% |
+| Standar | Baru | 296K S | Rp 25.500 | Rp 25.322 | Rp 22.733 | Rp 2.589 | 10.2% |
+| Premium | Lama | 1.080K H | Rp 45.900 | Rp 45.579 | Rp 41.472 | Rp 4.107 | 8.9% |
+| Premium | Campuran | 540K H + 260K S | Rp 45.900 | Rp 45.579 | Rp 40.704 | Rp 4.875 | 10.6% |
+| Premium | Baru | 528K S | Rp 45.900 | Rp 45.579 | Rp 40.550 | Rp 5.028 | 11.0% |
+| Pro | Lama | 1.800K H | Rp 76.500 | Rp 75.965 | Rp 69.120 | Rp 6.845 | 8.9% |
+| Pro | Campuran | 900K H + 432K S | Rp 76.500 | Rp 75.965 | Rp 67.738 | Rp 8.227 | 10.8% |
+| Pro | Baru | 888K S | Rp 76.500 | Rp 75.965 | Rp 68.198 | Rp 7.766 | 10.2% |
+| Ultra | Lama | 3.000K H | Rp 127.500 | Rp 126.608 | Rp 115.200 | Rp 11.408 | 8.9% |
+| Ultra | Campuran | 1.500K H + 720K S | Rp 127.500 | Rp 126.608 | Rp 112.896 | Rp 13.712 | 10.8% |
+| Ultra | Baru | 1.480K S | Rp 127.500 | Rp 126.608 | Rp 113.664 | Rp 12.944 | 10.2% |
+
+**Ringkasan langganan:**
+- 15 hari: margin 22.5-32.1% (worst case)
+- 30 hari: margin 8.9-20.2% (worst case)
+- Margin dilindungi buffer harga jual, **bukan** per-token margin
+
+### 15.2 Simulasi: Topup (Markup 40%)
+
+**Metodologi:** User topup Rp X → habiskan semua saldo. Tagih = `costCents × 1.40`. Margin neto = `0.40 × cost_real − (0.007 × topup)`.
+
+#### Skenario 5 Nominal Topup
+
+| Topup | Model | Rasio | Cost Real / 1K | Tagih User / 1K | Margin Neto | Margin % |
+|-------|-------|-------|----------------|-----------------|-------------|----------|
+| Rp 10.000 | Haiku | 65:35 | Rp 38 | Rp 54 | Rp 2.787 | 27.9% |
+| Rp 10.000 | Haiku | 50:50 | Rp 48 | Rp 67 | Rp 2.787 | 27.9% |
+| Rp 10.000 | Sonnet | 65:35 | Rp 77 | Rp 108 | Rp 2.787 | 27.9% |
+| Rp 10.000 | Sonnet | 50:50 | Rp 96 | Rp 134 | Rp 2.787 | 27.9% |
+| Rp 50.000 | Haiku | 65:35 | Rp 38 | Rp 54 | Rp 13.936 | 27.9% |
+| Rp 50.000 | Haiku | 50:50 | Rp 48 | Rp 67 | Rp 13.936 | 27.9% |
+| Rp 50.000 | Sonnet | 65:35 | Rp 77 | Rp 108 | Rp 13.936 | 27.9% |
+| Rp 50.000 | Sonnet | 50:50 | Rp 96 | Rp 134 | Rp 13.936 | 27.9% |
+| Rp 100.000 | Haiku | 65:35 | Rp 38 | Rp 54 | Rp 27.871 | 27.9% |
+| Rp 100.000 | Haiku | 50:50 | Rp 48 | Rp 67 | Rp 27.871 | 27.9% |
+| Rp 100.000 | Sonnet | 65:35 | Rp 77 | Rp 108 | Rp 27.871 | 27.9% |
+| Rp 100.000 | Sonnet | 50:50 | Rp 96 | Rp 134 | Rp 27.871 | 27.9% |
+| Rp 200.000 | Haiku | 65:35 | Rp 38 | Rp 54 | Rp 55.743 | 27.9% |
+| Rp 200.000 | Haiku | 50:50 | Rp 48 | Rp 67 | Rp 55.743 | 27.9% |
+| Rp 200.000 | Sonnet | 65:35 | Rp 77 | Rp 108 | Rp 55.743 | 27.9% |
+| Rp 200.000 | Sonnet | 50:50 | Rp 96 | Rp 134 | Rp 55.743 | 27.9% |
+| Rp 500.000 | Haiku | 65:35 | Rp 38 | Rp 54 | Rp 139.357 | 27.9% |
+| Rp 500.000 | Haiku | 50:50 | Rp 48 | Rp 67 | Rp 139.357 | 27.9% |
+| Rp 500.000 | Sonnet | 65:35 | Rp 77 | Rp 108 | Rp 139.357 | 27.9% |
+| Rp 500.000 | Sonnet | 50:50 | Rp 96 | Rp 134 | Rp 139.357 | 27.9% |
+
+**Insight:** Margin % identik (27.9%) di semua skenario — karena markup 40% × (1 − QRIS 0.7%) = 27.9% margin neto konstan.
+
+#### Simulasi Konkret: User Topup Rp 100.000 (Habiskan Semua)
+
+| Skenario | Cost Real ke Anthropic | Tagih User | Margin Bruto | Margin Neto |
+|----------|------------------------|------------|--------------|-------------|
+| Haiku rasio 65:35 (normal) | Rp 71.429 | Rp 100.000 | Rp 28.571 | Rp 27.871 (27.9%) |
+| Haiku rasio 50:50 (output-heavy) | Rp 71.429 | Rp 100.000 | Rp 28.571 | Rp 27.871 (27.9%) |
+| Sonnet rasio 65:35 (normal) | Rp 71.429 | Rp 100.000 | Rp 28.571 | Rp 27.871 (27.9%) |
+| Sonnet rasio 50:50 (output-heavy) | Rp 71.429 | Rp 100.000 | Rp 28.571 | Rp 27.871 (27.9%) |
+
+**Cara baca:** Walau user Sonnet-output-heavy (50:50) cost per 1K token lebih mahal (Rp 134 vs Rp 54 untuk Haiku 65:35), total token yang bisa dipakai dari Rp 100rb **lebih sedikit** (746K vs 1.860K token). Tapi margin absolut Teora tetap sama (Rp 27.871).
+
+### 15.3 Perbandingan Metode: Mana yang Lebih Menguntungkan?
+
+| Aspek | Langganan | Topup |
+|-------|-----------|-------|
+| Margin worst case | 8.9-32.1% | 27.9% flat |
+| Margin aktual (expected) | 40-60% (user jarang max-out) | 27.9% (tagih proporsional) |
+| Predictability margin | Rendah (tergantung quota usage) | Tinggi (margin % tetap) |
+| Risiko margin negatif | Tidak (selalu positif) | Tidak (markup fixed 40%) |
+| Cash flow Teora | Di muka (sebelum usage) | Bertahap (per request) |
+| Cocok untuk | User committed (mahasiswa aktif) | User eksperimental / pay-as-you-go |
+
+**Rekomendasi:** Keduanya aman. Kombinasi ideal: subscription untuk user aktif (margin aktual tinggi), topup sebagai fallback saat subscription habis (margin flat 27.9%).
+
+---
+
+## 16. Open Decisions (Updated 2026-09-09)
+
+| # | Question | Status |
+|---|----------|--------|
+| 1 | Opsi B (pisah in/out di backend) | ✅ **APPROVED 2026-09-09** — Section 14 |
+| 2 | Markup topup 40% | ✅ **APPROVED 2026-09-09** — Section 14.3 |
+| 3 | Field `markupMultiplier` di `ai_tiers` table | ⏸️ PENDING — perlu schema migration |
+| 4 | UX copy untuk transparansi Sonnet cost | ⏸️ PENDING — saat implementasi billing page |
+| 5 | Recalibrate blended asumsi 65:35 → 50:50 setelah launch | ⏸️ DEFERRED — pakai FinOps data real (4-6 minggu post-launch) |

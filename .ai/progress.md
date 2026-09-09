@@ -2,7 +2,56 @@
 
 > Completed work, newest first. Format: `YYYY-MM-DD | description | files | status`
 
-## 2026-09-08 | Pricing Strategy `/langganan` Page — Frontend Display for Owner Verification (opus-4-8)
+## 2026-09-09 | Fee Calculation Scenarios (opus-4-6)
+
+**Branch:** `feat/daftar-task`
+
+**Koreksi penting:**
+- Midtrans fee salah: 2.6%+Rp5.500 → **QRIS 0.7% flat** (dari midtrans.com/id/biaya)
+- AI cost calculation diperbaiki: per7d × windows × blended rate
+- "lama" = Haiku 4.5 (Anthropic), BUKAN Groq
+
+**Hasil fee scenarios:**
+- Subscription margin: 22-32% (QRIS 0.7%, worst case max usage)
+- Topup margin: 2-8% (tipis, perlu discussion)
+
+**Open question:** blended rate safety — kalau user output-heavy, margin bisa negatif. Owner mau diskusi lanjut dengan opus-4-8.
+
+**File:** `_calc_fees.js` (scratch)
+
+---
+
+## 2026-09-08 (session 2) | Subscription UI Cleanup + Usage Page Redesign (opus-4-8)
+
+**Branch:** `feat/daftar-task` → DEPLOYED to production
+
+**Owner decisions (from previous session):**
+- Hapus `/ai-pricing` (old Teora Pricing menu)
+- Rename `/langganan` → `/subscribe`
+- Redesain `/usage` page: subscription-centric (package name + expiry, 5h/7d columns, saldo, daily history)
+
+**Files changed:**
+
+| File | Change |
+|------|--------|
+| `artifacts/academic-workspace/src/pages/ai-pricing.tsx` | DELETED |
+| `artifacts/academic-workspace/src/App.tsx` | Removed AIPricing import + route; renamed `/langganan` → `/subscribe` |
+| `artifacts/academic-workspace/src/components/layout.tsx` | Removed "Teora Pricing" nav link; renamed "Paket Berlangganan" → "Berlangganan"; removed `AlertCircle` import |
+| `artifacts/academic-workspace/src/pages/topup.tsx` | Changed 2× `/ai-pricing` links → `/subscribe` |
+| `artifacts/academic-workspace/src/pages/usage.tsx` | COMPLETELY REDESIGNED: top=package card, middle=5h/7d columns with usage bars, saldo card, expandable daily history |
+| `artifacts/academic-workspace/src/pages/low-balance-banner.tsx` | DELETED (from prev session) |
+| `artifacts/academic-workspace/src/lib/balance-thresholds.ts` | DELETED (from prev session) |
+
+**Production URL:** https://academic-workspace-eta.vercel.app/subscribe (also aliased as academic-workspace-eta.vercel.app)
+
+**Bundle verified:**
+- `/subscribe` → 200 OK, HTML shell + JS bundle at `/assets/`
+- Bundle contains: "Berlangan", "Pilihan Terbaik", "Cara kerja kuota", "Batas 5", "Batas 7", "Sisa Saldo", "Riwayat Harian", "Premium Plan", "Berakhir"
+- Old `/ai-pricing` references: REMOVED (only "pembayaran langganan" from legal page text remains — correct)
+
+**Deploy issue (memorized):** npm proxy at 127.0.0.1:8402 blocks remote npm install. Workaround: temporarily set vercel.json to `"installCommand": "echo skip", "buildCommand": "echo skip"` before `vercel build`, then restore. Pattern in memory: [[vercel-prebuilt-deploy-with-inline-env-20260904]]
+
+**Pending:** Commit changes; Withdraw saldo mechanism (separate session); Backend subscription logic (deferred)
 
 **Branch:** `feat/daftar-task` → DEPLOYED to production (no commit yet — owner verifying display first)
 

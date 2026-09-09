@@ -9,6 +9,48 @@
 
 ---
 
+## ACTIVE 2026-09-09 — Fee Calculation Discussion (opus-4-6)
+
+**Status:** ⏸️ PAUSED — owner mau diskusi lanjut dengan opus-4-8
+**Model:** claude-opus-4-6
+**Branch:** `feat/daftar-task`
+
+### Ringkasan Diskusi
+
+Owner mau lihat skenario fee untuk subscription packages. Koreksi penting ditemukan:
+
+1. **Midtrans fee** yang saya pakai (2.6% + Rp 5.500) SALAH. Fee resmi dari midtrans.com:
+   - QRIS: **0.7% flat**
+   - VA: **Rp 4.000 flat**
+   - Credit Card: 2.9% + Rp 2.000
+   - Sumber: https://midtrans.com/id/biaya
+
+2. **AI cost calculation** — saya salah hitung (per window vs max total). Aturan quota:
+   - 15 hari = 2× window 7 hari
+   - 30 hari = 4× window 7 hari
+   - AI cost = per7d quota × jumlah windows × blended rate
+
+3. **Model cost** (dari pricing-strategy-2026-anthropic.md):
+   - lama = Haiku 4.5 (Anthropic), bukan Groq
+   - baru = Sonnet 5 (Anthropic)
+   - campuran = Haiku + Sonnet mix
+   - USD/IDR = Rp 16.000, rasio 65:35
+   - Haiku blended: Rp 38.4/1K | Sonnet blended: Rp 76.8/1K
+
+### OPEN QUESTION (untuk opus-4-8 lanjutkan)
+
+**Topup fee + blended rate safety:**
+- Subscription margin: 22-32% (QRIS 0.7%) ✅
+- Topup margin: 2-8% (sangat tipis karena blended rate)
+- **Risiko:** rasio input:output 65:35 — kalau user behavior output-heavy, margin bisa negatif
+- Owner mau diskusi: apakah blended rate sudah aman? Apakah tracking per-token in/out sudah cukup?
+
+### File Scratch
+
+- `_calc_fees.js` — script Node.js untuk kalkulasi fee scenarios
+
+---
+
 ## ACTIVE 2026-09-08 — Subscription Backend + Frontend Complete (opus-4-6)
 
 **Status:** ✅ COMPLETE — Backend deployed + committed + pushed

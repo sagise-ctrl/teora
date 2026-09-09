@@ -3,6 +3,7 @@ import {
   text,
   boolean,
   integer,
+  numeric,
   timestamp,
   index,
 } from "drizzle-orm/pg-core";
@@ -12,6 +13,12 @@ import { z } from "zod/v4";
 /**
  * Source of truth for AI tier configuration.
  * Owner sets provider prices here. System calculates user prices with margin.
+ *
+ * Opsi B (Owner 2026-09-09):
+ *   - `pricePer1M*` = harga jual ke user (subscription + topup, semua pakai field ini)
+ *   - `providerCostPer1M*` = biaya provider (untuk FinOps margin tracking)
+ *   - `markupMultiplier` = multiplier untuk topup charges (default 1.40 = markup 40%)
+ *     Subscription TIDAK pakai markupMultiplier — harga flat per tier.
  */
 export const aiTiersTable = pgTable(
   "ai_tiers",
@@ -33,6 +40,13 @@ export const aiTiersTable = pgTable(
     // Provider cost in USD cents per 1M tokens (for margin calculation)
     providerCostPer1MInputCents: integer("provider_cost_per_1m_input_cents").notNull().default(0),
     providerCostPer1MOutputCents: integer("provider_cost_per_1m_output_cents").notNull().default(0),
+
+    // Markup multiplier for topup charges (Opsi B — Owner 2026-09-09)
+    // 1.40 = 40% markup above cost. Applied ONLY to topup, NOT subscription.
+    // numeric(5,3) allows values 0.001 to 9.999 with 3 decimal precision.
+    markupMultiplier: numeric("markup_multiplier", { precision: 5, scale: 3 })
+      .notNull()
+      .default("1.400"),
 
     // Rate limits
     rateLimitRpm: integer("rate_limit_rpm"),
