@@ -34,11 +34,21 @@
 | `artifacts/academic-workspace/src/pages/profile.tsx` | Username editing dengan countdown badge + Save/Cancel |
 | `docs/ai-team/product/business-rules.md` | Tambah section Username Rules |
 
+### ⚠️ Post-Launch Checklist (owner perlu cek manual saat launching)
+
+> Owner: ini baru perlu perhatian saat production launch dengan user nyata. Saat ini belum ada user (kecuali owner untuk test), jadi aman di-skip dulu.
+
+- [ ] **DB column `username_changed_at`** — verify semua user sudah punya nilai (migration applied via Supabase MCP). User lama (OAuth login sebelum fitur ini) sudah di-backfill via COALESCE di login route. Owner test account: login via OAuth → cek apakah usernameChangedAt ter-set.
+- [ ] **Backend env vars** — pastikan `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `POSTGRES_*`, `REFERRAL_WEBHOOK_SECRET` ada di Vercel dashboard `teora-backend` project settings (env vars dari file lokal TIDAK otomatis ikut deployment).
+- [ ] **Test flow** — login owner → /akun → cek badge "Boleh ganti" atau countdown → coba ganti username → verify usernameChangedAt ter-update di DB.
+
 ### Verification
 - ✅ `pnpm run typecheck` — pass
 - ✅ `pnpm run build` — pass (dist/index.mjs 6.5mb)
-- ⏸️ DB migration `username_changed_at` applied via Supabase MCP
-- ⏸️ Commit + push pending
+- ✅ Frontend bundle verified (all username strings present)
+- ✅ Backend healthz: `{"status":"ok"}`
+- ✅ Commit + push: `2d0bbf5`
+- ⏸️ Post-launch manual checklist (lihat di atas)
 
 ### UX Summary
 - **Register:** User isi displayName → suggestion chip muncul → klik "Gunakan" untuk auto-fill username

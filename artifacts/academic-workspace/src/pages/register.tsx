@@ -216,11 +216,11 @@ export default function Register() {
         </div>
         <footer className="py-4 text-center text-xs text-muted-foreground border-t border-border">
           <div className="flex items-center justify-center gap-4">
-            <span>© 2024 Teora: Empowering Academic Excellence</span>
+            <span>© 2026 Teora</span>
             <span>·</span>
-            <a href="#" className="hover:text-foreground transition-colors">Help Center</a>
+            <Link href="/bantuan" className="hover:text-foreground transition-colors">Pusat Bantuan</Link>
             <span>·</span>
-            <a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a>
+            <Link href="/privacy" className="hover:text-foreground transition-colors">Kebijakan Privasi</Link>
           </div>
         </footer>
       </div>
@@ -240,7 +240,7 @@ export default function Register() {
               Start your journey
             </h1>
             <p className="text-muted-foreground mt-2">
-              Empowering Academic Excellence through Artificial Intelligence.
+              Asisten AI yang menemani proses belajar dan mengajar.
             </p>
           </div>
 

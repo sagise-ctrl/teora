@@ -78,7 +78,7 @@ export default function Login() {
               Welcome to Teora
             </h1>
             <p className="text-muted-foreground mt-2">
-              Empowering Academic Excellence through Artificial Intelligence.
+              Asisten AI yang menemani proses belajar dan mengajar.
             </p>
           </div>
 
@@ -212,13 +212,11 @@ export default function Login() {
       {/* Footer */}
       <footer className="py-4 text-center text-xs text-muted-foreground border-t border-border">
         <div className="flex items-center justify-center gap-4">
-          <span>© 2024 Teora: Empowering Academic Excellence</span>
+          <span>© 2026 Teora</span>
           <span>·</span>
-          <a href="#" className="hover:text-foreground transition-colors">Help Center</a>
+          <Link href="/bantuan" className="hover:text-foreground transition-colors">Pusat Bantuan</Link>
           <span>·</span>
-          <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link>
-          <span>·</span>
-          <Link href="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link>
+          <Link href="/privacy" className="hover:text-foreground transition-colors">Kebijakan Privasi</Link>
         </div>
       </footer>
     </div>
