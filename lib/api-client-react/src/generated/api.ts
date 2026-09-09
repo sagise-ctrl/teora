@@ -137,6 +137,7 @@ import type {
   UpdateAdminAITier200,
   UpdateCitationRequest,
   UpdateMemberRequest,
+  UpdateMyProfile429,
   UpdateMyWritingStyleBody,
   UpdateProfileRequest,
   UpdateRubricBody,
@@ -7344,7 +7345,7 @@ export const getUpdateMyProfileUrl = () => {
 }
 
 /**
- * Update display name and/or avatar URL.
+ * Update display name, avatar URL, and/or username. Username changes are rate-limited to once per 30 days (rolling window).
  * @summary Update current user's profile
  */
 export const updateMyProfile = async (updateProfileRequest: UpdateProfileRequest, options?: Parameters<typeof customFetch>[1]): Promise<UserProfile> => {
@@ -7370,7 +7371,7 @@ return customFetch<UserProfile>(getUpdateMyProfileUrl(),
 
 export const getUpdateMyProfileMutationKey = () => ['updateMyProfile'] as const;
 
-export const getUpdateMyProfileMutationOptions = <TError = ErrorType<void>,
+export const getUpdateMyProfileMutationOptions = <TError = ErrorType<void | UpdateMyProfile429>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMyProfile>>, TError,UpdateMyProfileMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof updateMyProfile>>, TError,UpdateMyProfileMutationVariables, TContext> => {
 
@@ -7399,13 +7400,13 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type UpdateMyProfileMutationResult = NonNullable<Awaited<ReturnType<typeof updateMyProfile>>>
     export type UpdateMyProfileMutationBody = BodyType<UpdateProfileRequest>
-    export type UpdateMyProfileMutationError = ErrorType<void>
+    export type UpdateMyProfileMutationError = ErrorType<void | UpdateMyProfile429>
     export type UpdateMyProfileMutationVariables = {data: BodyType<UpdateProfileRequest>}
 
     /**
  * @summary Update current user's profile
  */
-export const useUpdateMyProfile = <TError = ErrorType<void>,
+export const useUpdateMyProfile = <TError = ErrorType<void | UpdateMyProfile429>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMyProfile>>, TError,UpdateMyProfileMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof updateMyProfile>>,

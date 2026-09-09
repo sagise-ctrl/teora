@@ -9,6 +9,44 @@
 
 ---
 
+## ACTIVE 2026-09-09 — Username Enhancement: Auto-Suggest + Rate Limit 1×/30 Days
+
+**Status:** ✅ COMPLETE — all files implemented, typecheck + build pass
+**Model:** claude-opus-4-8
+**Branch:** `feat/daftar-task`
+
+### Keputusan Owner (FINALIZED 2026-09-09)
+- Auto-suggest dari `displayName` saja (register page)
+- Rate limit: rolling 30 hari (not calendar month)
+- OAuth backfill: dihitung sebagai perubahan pertama (user tunggu 30 hari)
+
+### Files Changed
+
+| File | Change |
+|------|--------|
+| Supabase DB | `ALTER TABLE users ADD COLUMN username_changed_at TIMESTAMPTZ` |
+| `lib/db/src/schema/users.ts` | Tambah `usernameChangedAt` field |
+| `artifacts/api-server/src/routes/auth.ts` | Set `usernameChangedAt: new Date()` on register + COALESCE on OAuth login + safety-net loop |
+| `artifacts/api-server/src/routes/profile.ts` | Rate limit check (30-day rolling) + set `usernameChangedAt` on update |
+| `lib/api-spec/openapi.yaml` | Tambah `usernameChangedAt` ke `AuthUser`, `UserProfile`; 429 response ke `PATCH /users/me/profile` |
+| `lib/api-spec/orval.config.ts` | Tambah target `frontend-api-client-react` untuk update artifacts/generated |
+| `artifacts/academic-workspace/src/pages/register.tsx` | Auto-suggest dari `displayName` dengan "Gunakan" button |
+| `artifacts/academic-workspace/src/pages/profile.tsx` | Username editing dengan countdown badge + Save/Cancel |
+| `docs/ai-team/product/business-rules.md` | Tambah section Username Rules |
+
+### Verification
+- ✅ `pnpm run typecheck` — pass
+- ✅ `pnpm run build` — pass (dist/index.mjs 6.5mb)
+- ⏸️ DB migration `username_changed_at` applied via Supabase MCP
+- ⏸️ Commit + push pending
+
+### UX Summary
+- **Register:** User isi displayName → suggestion chip muncul → klik "Gunakan" untuk auto-fill username
+- **Profile:** Badge hijau "Boleh ganti" jika bisa, badge amber "X hari lagi" jika rate-limited; countdown update setiap detik
+- **Profile edit:** Input field + availability check (500ms debounce) + Save/Cancel
+
+---
+
 ## HANDOVER 2026-09-09 18:25 — opus-4-6 → opus-4-X
 
 **Referral Program:** DEPLOYED ✅ `7faf379` — committed, NOT pushed.

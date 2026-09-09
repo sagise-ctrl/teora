@@ -18,6 +18,7 @@ export const GetCurrentUserResponse = zod.object({
   "avatarUrl": zod.string().nullish(),
   "isOwner": zod.boolean(),
   "referralCode": zod.string().nullish().describe('Unique referral code this user can share'),
+  "usernameChangedAt": zod.coerce.date().nullish().describe('When username was last changed (for 30-day rate limit)'),
   "createdAt": zod.coerce.date()
 })
 
@@ -38,6 +39,7 @@ export const LoginResponse = zod.object({
   "avatarUrl": zod.string().nullish(),
   "isOwner": zod.boolean(),
   "referralCode": zod.string().nullish().describe('Unique referral code this user can share'),
+  "usernameChangedAt": zod.coerce.date().nullish().describe('When username was last changed (for 30-day rate limit)'),
   "createdAt": zod.coerce.date()
 })
 
@@ -71,6 +73,7 @@ export const RegisterResponse = zod.object({
   "avatarUrl": zod.string().nullish(),
   "isOwner": zod.boolean(),
   "referralCode": zod.string().nullish().describe('Unique referral code this user can share'),
+  "usernameChangedAt": zod.coerce.date().nullish().describe('When username was last changed (for 30-day rate limit)'),
   "createdAt": zod.coerce.date()
 })
 
@@ -2342,12 +2345,13 @@ export const GetMyProfileResponse = zod.object({
   "avatarUrl": zod.string().nullable(),
   "isOwner": zod.boolean(),
   "referralCode": zod.string().nullish(),
+  "usernameChangedAt": zod.coerce.date().nullish().describe('When username was last changed (for 30-day rate limit)'),
   "createdAt": zod.coerce.date()
 })
 
 
 /**
- * Update display name and/or avatar URL.
+ * Update display name, avatar URL, and/or username. Username changes are rate-limited to once per 30 days (rolling window).
  * @summary Update current user's profile
  */
 export const updateMyProfileBodyDisplayNameMax = 100;
@@ -2373,6 +2377,7 @@ export const UpdateMyProfileResponse = zod.object({
   "avatarUrl": zod.string().nullable(),
   "isOwner": zod.boolean(),
   "referralCode": zod.string().nullish(),
+  "usernameChangedAt": zod.coerce.date().nullish().describe('When username was last changed (for 30-day rate limit)'),
   "createdAt": zod.coerce.date()
 })
 

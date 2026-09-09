@@ -268,6 +268,11 @@ export interface AuthUser {
      * @nullable
      */
   referralCode?: string | null;
+  /**
+     * When username was last changed (for 30-day rate limit)
+     * @nullable
+     */
+  usernameChangedAt?: string | null;
   createdAt: string;
 }
 
@@ -1876,6 +1881,11 @@ export interface UserProfile {
   isOwner: boolean;
   /** @nullable */
   referralCode?: string | null;
+  /**
+     * When username was last changed (for 30-day rate limit)
+     * @nullable
+     */
+  usernameChangedAt?: string | null;
   createdAt: string;
 }
 
@@ -2322,6 +2332,10 @@ export type GetAdminAITiers200 = {
 
 export type UpdateAdminAITier200 = {
   tier?: AITierAdmin;
+};
+
+export type UpdateMyProfile429 = {
+  error?: string;
 };
 
 export type ListTemplatesParams = {

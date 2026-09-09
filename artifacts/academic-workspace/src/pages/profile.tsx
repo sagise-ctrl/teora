@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -42,6 +42,11 @@ import {
   Save,
   Loader2,
   CoinsIcon,
+  AtSign,
+  Edit2,
+  Check,
+  X,
+  Clock,
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -54,6 +59,15 @@ export default function Profile() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
   const [uploading, setUploading] = useState(false);
+
+  // Username editing state
+  const [usernameEditing, setUsernameEditing] = useState(false);
+  const [usernameInput, setUsernameInput] = useState("");
+  const [usernameChecked, setUsernameChecked] = useState(false);
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [usernameChecking, setUsernameChecking] = useState(false);
+  const [usernameDaysLeft, setUsernameDaysLeft] = useState<number | null>(null);
+  const usernameCheckTimer = useRef<ReturnType<typeof setTimeout>>();
 
   const { data: profile, isLoading } = useGetMyProfile();
   const { data: usage } = useGetMyUsageStats({ period: "all" });
@@ -69,6 +83,27 @@ export default function Profile() {
     }
   }, [profile, nameLoaded]);
 
+  // Countdown: update days-left every second while rate-limited
+  useEffect(() => {
+    const updateCountdown = () => {
+      if (!profile?.usernameChangedAt) {
+        setUsernameDaysLeft(null);
+        return;
+      }
+      const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
+      const diff = Date.now() - new Date(profile.usernameChangedAt).getTime();
+      if (diff >= thirtyDaysMs) {
+        setUsernameDaysLeft(null);
+      } else {
+        const daysLeft = Math.ceil((thirtyDaysMs - diff) / (24 * 60 * 60 * 1000));
+        setUsernameDaysLeft(daysLeft);
+      }
+    };
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, [profile?.usernameChangedAt]);
+
   const handleSave = () => {
     updateProfile.mutate(
       { data: { displayName: displayName.trim() || undefined } },
@@ -78,6 +113,90 @@ export default function Profile() {
           queryClient.invalidateQueries({ queryKey: getGetMyProfileQueryKey() });
         },
         onError: (err) => toast({ title: String(err), variant: "destructive" }),
+      }
+    );
+  };
+
+  // Username editing helpers
+  const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,30}$/;
+
+  const deriveUsernameFromName = (name: string): string => {
+    if (!name || !profile?.displayName) return "";
+    return (
+      profile.displayName
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, "")
+        .replace(/\s+/g, "_")
+        .replace(/^[0-9_]+/, "")
+        .substring(0, 20) || ""
+    );
+  };
+
+  const checkUsernameAvailability = useCallback(
+    async (username: string) => {
+      setUsernameChecking(true);
+      setUsernameChecked(false);
+      try {
+        const res = await fetch(
+          `/api/auth/check-username?username=${encodeURIComponent(username)}`
+        );
+        const data = (await res.json()) as { available: boolean };
+        setUsernameAvailable(data.available);
+        setUsernameChecked(true);
+      } catch {
+        setUsernameAvailable(null);
+        setUsernameChecked(true);
+      } finally {
+        setUsernameChecking(false);
+      }
+    },
+    []
+  );
+
+  const handleUsernameInput = (value: string) => {
+    setUsernameInput(value);
+    setUsernameChecked(false);
+    setUsernameAvailable(null);
+    if (usernameCheckTimer.current) clearTimeout(usernameCheckTimer.current);
+    if (!USERNAME_REGEX.test(value)) return;
+    usernameCheckTimer.current = setTimeout(() => {
+      checkUsernameAvailability(value);
+    }, 500);
+  };
+
+  const handleUsernameEdit = () => {
+    setUsernameInput(profile?.username ?? "");
+    setUsernameChecked(true);
+    setUsernameAvailable(true);
+    setUsernameEditing(true);
+  };
+
+  const handleUsernameCancel = () => {
+    setUsernameEditing(false);
+    setUsernameInput("");
+    setUsernameChecked(false);
+    setUsernameAvailable(null);
+    if (usernameCheckTimer.current) clearTimeout(usernameCheckTimer.current);
+  };
+
+  const handleUsernameSave = () => {
+    if (!usernameInput.trim()) return;
+    updateProfile.mutate(
+      { data: { username: usernameInput.trim().toLowerCase() } },
+      {
+        onSuccess: (updated) => {
+          toast({ title: "Username berhasil diperbarui" });
+          queryClient.invalidateQueries({ queryKey: getGetMyProfileQueryKey() });
+          handleUsernameCancel();
+        },
+        onError: (err) => {
+          const raw = err instanceof Error ? err.message : String(err);
+          toast({
+            title: "Gagal mengubah username",
+            description: raw,
+            variant: "destructive",
+          });
+        },
       }
     );
   };
@@ -261,10 +380,83 @@ export default function Profile() {
                   <span className="font-medium">{profile?.email}</span>
                 </div>
                 {profile?.username && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <span className="w-4 text-center text-muted-foreground text-xs">@</span>
-                    <span className="text-muted-foreground">Username:</span>
-                    <span className="font-mono font-medium">@{profile?.username}</span>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm">
+                      <AtSign className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-muted-foreground">Username:</span>
+                      <span className="font-mono font-medium">@{profile?.username}</span>
+                      {usernameDaysLeft !== null ? (
+                        <Badge variant="outline" className="text-amber-600 border-amber-300">
+                          <Clock className="w-3 h-3 mr-1" />
+                          {usernameDaysLeft} hari lagi
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-emerald-600 border-emerald-300">
+                          <Check className="w-3 h-3 mr-1" />
+                          Boleh ganti
+                        </Badge>
+                      )}
+                    </div>
+
+                    {/* Username editing controls */}
+                    {usernameEditing ? (
+                      <div className="flex items-center gap-2 pl-6">
+                        <Input
+                          value={usernameInput}
+                          onChange={(e) => handleUsernameInput(e.target.value)}
+                          placeholder="username_baru"
+                          className="font-mono text-sm max-w-xs"
+                          maxLength={30}
+                        />
+                        <div className="flex items-center gap-1">
+                          {usernameChecking ? (
+                            <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                          ) : usernameChecked && usernameAvailable === true ? (
+                            <Check className="w-4 h-4 text-emerald-600" />
+                          ) : usernameChecked && usernameAvailable === false ? (
+                            <X className="w-4 h-4 text-destructive" />
+                          ) : null}
+                          <Button
+                            size="sm"
+                            onClick={handleUsernameSave}
+                            disabled={
+                              updateProfile.isPending ||
+                              usernameAvailable === false ||
+                              usernameAvailable === null ||
+                              !USERNAME_REGEX.test(usernameInput)
+                            }
+                          >
+                            {updateProfile.isPending ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Check className="w-4 h-4" />
+                            )}
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={handleUsernameCancel}>
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        {usernameChecked && usernameAvailable === false && (
+                          <p className="text-xs text-destructive">Username sudah dipakai</p>
+                        )}
+                        {usernameChecked && usernameAvailable === true && (
+                          <p className="text-xs text-emerald-600">Username tersedia</p>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="pl-6">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={handleUsernameEdit}
+                          disabled={usernameDaysLeft !== null}
+                          className="text-xs h-7 px-2"
+                        >
+                          <Edit2 className="w-3 h-3 mr-1" />
+                          Ganti Username
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 )}
                 {profile?.createdAt && (

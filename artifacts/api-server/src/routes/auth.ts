@@ -46,6 +46,7 @@ function toUserJson(user: typeof usersTable.$inferSelect) {
     avatarUrl: user.avatarUrl,
     isOwner,
     referralCode: user.referralCode,
+    usernameChangedAt: user.usernameChangedAt,
     createdAt: user.createdAt,
   };
 }
@@ -156,6 +157,7 @@ router.post("/auth/login", async (req, res): Promise<void> => {
         set: {
           email: supabaseUser.email ?? "",
           username: sql`COALESCE(${usersTable.username}, ${deriveUsername()})`,
+          usernameChangedAt: sql`COALESCE(${usersTable.usernameChangedAt}, NOW())`,
           // Note: do NOT update displayName on conflict — preserve user edits.
         },
       })
@@ -173,7 +175,7 @@ router.post("/auth/login", async (req, res): Promise<void> => {
         if (!existing) {
           await db
             .update(usersTable)
-            .set({ username: candidate + suffix })
+            .set({ username: candidate + suffix, usernameChangedAt: new Date() })
             .where(eq(usersTable.id, supabaseUser.id));
           break;
         }
@@ -335,6 +337,7 @@ router.post("/auth/register", async (req, res): Promise<void> => {
       username: normalizedUsername,
       displayName: displayName ?? null,
       referralCode: newUserReferralCode,
+      usernameChangedAt: new Date(), // set on registration
     })
     .returning();
 

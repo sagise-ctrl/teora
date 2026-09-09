@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useLocation, useSearchParams } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -51,6 +51,7 @@ export default function Register() {
   const [usernameChecked, setUsernameChecked] = useState(false);
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
   const [usernameChecking, setUsernameChecking] = useState(false);
+  const [suggestedUsername, setSuggestedUsername] = useState<string | null>(null);
   const { register: doRegister } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
@@ -107,6 +108,38 @@ export default function Register() {
       if (usernameCheckTimer.current) clearTimeout(usernameCheckTimer.current);
     };
   }, [watchedUsername]);
+
+  // Derive username suggestion from displayName
+  const watchedDisplayName = form.watch("displayName");
+
+  const suggestFromDisplayName = (name: string): string => {
+    if (!name || name.trim().length < 2) return "";
+    return (
+      name
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, "") // strip non-alphanumeric except space
+        .replace(/\s+/g, "_") // space → underscore
+        .replace(/^[0-9_]+/, "") // no leading digits/underscores
+        .substring(0, 20) || ""
+    );
+  };
+
+  // Update suggestion when displayName changes (debounced, only if username field is empty)
+  useEffect(() => {
+    const name = watchedDisplayName?.trim() ?? "";
+    if (name.length < 2) {
+      setSuggestedUsername(null);
+      return;
+    }
+    // Only suggest if username field is still empty
+    const currentUsername = form.getValues("username");
+    if (currentUsername && currentUsername.trim() !== "") {
+      setSuggestedUsername(null);
+      return;
+    }
+    const candidate = suggestFromDisplayName(name);
+    setSuggestedUsername(candidate || null);
+  }, [watchedDisplayName, form]);
 
   async function onSubmit(data: FormValues) {
     if (usernameAvailable === false) {
@@ -269,6 +302,26 @@ export default function Register() {
                           ) : null}
                         </div>
                       </div>
+                      {suggestedUsername && (
+                        <div className="flex items-center gap-2 mt-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              form.setValue("username", suggestedUsername, {
+                                shouldValidate: true,
+                              });
+                              setUsernameChecked(false);
+                              setUsernameAvailable(null);
+                              setSuggestedUsername(null);
+                            }}
+                            className="inline-flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors cursor-pointer"
+                          >
+                            <span>Suggestion: <span className="font-mono font-medium">@{suggestedUsername}</span></span>
+                            <span className="text-muted-foreground">—</span>
+                            <span className="underline">Gunakan</span>
+                          </button>
+                        </div>
+                      )}
                       {usernameChecked && usernameAvailable === false && (
                         <p className="text-xs text-destructive">Username already taken</p>
                       )}

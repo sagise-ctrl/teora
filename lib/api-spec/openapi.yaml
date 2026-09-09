@@ -2243,7 +2243,7 @@ paths:
       operationId: updateMyProfile
       tags: [profile]
       summary: Update current user's profile
-      description: Update display name and/or avatar URL.
+      description: Update display name, avatar URL, and/or username. Username changes are rate-limited to once per 30 days (rolling window).
       requestBody:
         required: true
         content:
@@ -2259,8 +2259,17 @@ paths:
                 $ref: "#/components/schemas/UserProfile"
         "401":
           description: Unauthorized
+        "429":
+          description: Username change rate limit exceeded (once per 30 days)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
         "400":
-          description: Invalid input
+          description: Invalid input (e.g., username already taken)
 
   /users/me/avatar:
     post:
@@ -3332,6 +3341,10 @@ components:
         referralCode:
           type: ["string", "null"]
           description: Unique referral code this user can share
+        usernameChangedAt:
+          type: ["string", "null"]
+          format: date-time
+          description: When username was last changed (for 30-day rate limit)
         createdAt:
           type: string
           format: date-time
@@ -5152,6 +5165,10 @@ components:
           type: boolean
         referralCode:
           type: ["string", "null"]
+        usernameChangedAt:
+          type: ["string", "null"]
+          format: date-time
+          description: When username was last changed (for 30-day rate limit)
         createdAt:
           type: string
           format: date-time

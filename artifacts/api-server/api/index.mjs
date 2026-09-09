@@ -192447,6 +192447,7 @@ var GetCurrentUserResponse = zod.object({
   "avatarUrl": zod.string().nullish(),
   "isOwner": zod.boolean(),
   "referralCode": zod.string().nullish().describe("Unique referral code this user can share"),
+  "usernameChangedAt": zod.coerce.date().nullish().describe("When username was last changed (for 30-day rate limit)"),
   "createdAt": zod.coerce.date()
 });
 var LoginBody = zod.object({
@@ -192461,6 +192462,7 @@ var LoginResponse = zod.object({
   "avatarUrl": zod.string().nullish(),
   "isOwner": zod.boolean(),
   "referralCode": zod.string().nullish().describe("Unique referral code this user can share"),
+  "usernameChangedAt": zod.coerce.date().nullish().describe("When username was last changed (for 30-day rate limit)"),
   "createdAt": zod.coerce.date()
 });
 var registerBodyEmailRegExp = new RegExp("^[^@]+@[^@]+\\.[^@]+$");
@@ -192483,6 +192485,7 @@ var RegisterResponse = zod.object({
   "avatarUrl": zod.string().nullish(),
   "isOwner": zod.boolean(),
   "referralCode": zod.string().nullish().describe("Unique referral code this user can share"),
+  "usernameChangedAt": zod.coerce.date().nullish().describe("When username was last changed (for 30-day rate limit)"),
   "createdAt": zod.coerce.date()
 });
 var LogoutResponse = zod.unknown();
@@ -194081,6 +194084,7 @@ var GetMyProfileResponse = zod.object({
   "avatarUrl": zod.string().nullable(),
   "isOwner": zod.boolean(),
   "referralCode": zod.string().nullish(),
+  "usernameChangedAt": zod.coerce.date().nullish().describe("When username was last changed (for 30-day rate limit)"),
   "createdAt": zod.coerce.date()
 });
 var updateMyProfileBodyDisplayNameMax = 100;
@@ -194100,6 +194104,7 @@ var UpdateMyProfileResponse = zod.object({
   "avatarUrl": zod.string().nullable(),
   "isOwner": zod.boolean(),
   "referralCode": zod.string().nullish(),
+  "usernameChangedAt": zod.coerce.date().nullish().describe("When username was last changed (for 30-day rate limit)"),
   "createdAt": zod.coerce.date()
 });
 var UploadMyAvatarBody = zod.object({
@@ -202833,6 +202838,8 @@ var usersTable = pgTable13("users", {
   avatarUrl: text13("avatar_url"),
   // Unique referral code this user can share
   referralCode: text13("referral_code").unique(),
+  // Timestamp when username was last changed (for 30-day rate limit)
+  usernameChangedAt: timestamp13("username_changed_at", { withTimezone: true }),
   createdAt: timestamp13("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp13("updated_at", { withTimezone: true }).notNull().defaultNow()
 });
@@ -203749,6 +203756,7 @@ function toUserJson(user) {
     avatarUrl: user.avatarUrl,
     isOwner,
     referralCode: user.referralCode,
+    usernameChangedAt: user.usernameChangedAt,
     createdAt: user.createdAt
   };
 }
@@ -203811,7 +203819,8 @@ router2.post("/auth/login", async (req, res) => {
       target: usersTable.id,
       set: {
         email: supabaseUser.email ?? "",
-        username: sql5`COALESCE(${usersTable.username}, ${deriveUsername()})`
+        username: sql5`COALESCE(${usersTable.username}, ${deriveUsername()})`,
+        usernameChangedAt: sql5`COALESCE(${usersTable.usernameChangedAt}, NOW())`
         // Note: do NOT update displayName on conflict — preserve user edits.
       }
     }).returning();
@@ -203821,7 +203830,7 @@ router2.post("/auth/login", async (req, res) => {
         const suffix = i2 === 0 ? "" : String(i2 + 1);
         const [existing] = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.username, candidate + suffix));
         if (!existing) {
-          await db.update(usersTable).set({ username: candidate + suffix }).where(eq(usersTable.id, supabaseUser.id));
+          await db.update(usersTable).set({ username: candidate + suffix, usernameChangedAt: /* @__PURE__ */ new Date() }).where(eq(usersTable.id, supabaseUser.id));
           break;
         }
       }
@@ -203932,7 +203941,9 @@ router2.post("/auth/register", async (req, res) => {
     email: normalizedEmail,
     username: normalizedUsername,
     displayName: displayName ?? null,
-    referralCode: newUserReferralCode
+    referralCode: newUserReferralCode,
+    usernameChangedAt: /* @__PURE__ */ new Date()
+    // set on registration
   }).returning();
   if (referrerUser) {
     const [existingReferral] = await db.select({ id: referralsTable.id }).from(referralsTable).where(eq(referralsTable.referredId, newUserId));
