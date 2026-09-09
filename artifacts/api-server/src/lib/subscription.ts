@@ -565,7 +565,182 @@ export async function resetAutofallback(
 }
 
 // ---------------------------------------------------------------------------
-// 6. expireOldWindows
+// 6.5 consumeQuotaForAIRequest — unified quota/saldo gate
+// ---------------------------------------------------------------------------
+
+export type AccessCheckResult =
+  | { allowed: true; method: "subscription" | "saldo" }
+  | {
+      allowed: false;
+      reason: "saldo_insufficient";
+      balanceCents: number;
+      requiredCents: number;
+    }
+  | { allowed: false; reason: "quota_exhausted"; subscriptionActive: boolean };
+
+/**
+ * Dry-run access check (no side effects).
+ * Used BEFORE AI call to verify user can use AI.
+ *
+ * Returns whether user has access via subscription OR (autofallback + saldo).
+ */
+export async function checkAIAccess(params: {
+  userId: string;
+  tierId: string;
+  estimatedCostCents: number;
+}): Promise<AccessCheckResult> {
+  const { userId, tierId, estimatedCostCents } = params;
+
+  // 1. Active subscription → always allowed (quota check happens on consume)
+  const { subscription } = await getUserActiveSubscription(userId);
+  if (subscription && subscription.status === "active" && new Date() < subscription.expiresAt) {
+    return { allowed: true, method: "subscription" };
+  }
+
+  // 2. No subscription — check autofallback + saldo
+  const [balance] = await db
+    .select()
+    .from(userBalancesTable)
+    .where(eq(userBalancesTable.userId, userId));
+
+  const balanceCents = balance?.balanceCents ?? 0;
+  const autofallbackEnabled = balance?.autofallbackEnabled ?? false;
+
+  if (autofallbackEnabled && balanceCents >= estimatedCostCents && estimatedCostCents > 0) {
+    return { allowed: true, method: "saldo" };
+  }
+
+  // 3. Deny
+  if (balanceCents < estimatedCostCents && estimatedCostCents > 0) {
+    return {
+      allowed: false,
+      reason: "saldo_insufficient",
+      balanceCents,
+      requiredCents: estimatedCostCents,
+    };
+  }
+
+  return {
+    allowed: false,
+    reason: "quota_exhausted",
+    subscriptionActive: false,
+  };
+}
+
+/**
+ * Unified quota/saldo consumption for a single AI request.
+ *
+ * Owner requirement (2026-09-09):
+ *   1. If user has an ACTIVE subscription → use it (do NOT deduct saldo).
+ *   2. If user has NO subscription OR subscription quota exhausted:
+ *      - If autofallbackEnabled → use saldo (deduct costCents).
+ *      - If autofallback disabled → deny.
+ *   3. If saldo insufficient → deny (regardless of subscription).
+ *
+ * Maps `tierId` ("haiku-4.5" | "sonnet-5") → `modelType` ("lama" | "baru" | "campuran").
+ * - haiku-4.5 → "lama"
+ * - sonnet-5  → "baru"
+ *
+ * Returns QuotaResult. Caller is responsible for calling AI and (if method="saldo")
+ * the deduction is already applied by this function. If method="subscription",
+ * the caller should log AI usage but NOT deduct.
+ */
+export async function consumeQuotaForAIRequest(params: {
+  userId: string;
+  tierId: string;
+  inputTokens: number;
+  outputTokens: number;
+  costCents: number;
+}): Promise<QuotaResult> {
+  const { userId, tierId, inputTokens, outputTokens, costCents } = params;
+
+  // Map tierId → modelType for subscription tracking
+  let modelType: "lama" | "baru" | "campuran" = "lama";
+  if (tierId === "sonnet-5") {
+    modelType = "baru";
+  } else if (tierId === "haiku-4.5") {
+    modelType = "lama";
+  }
+
+  const haikuTokensUsed = modelType === "lama" || modelType === "campuran" ? inputTokens + outputTokens : 0;
+  const sonnetTokensUsed = modelType === "baru" || modelType === "campuran" ? inputTokens + outputTokens : 0;
+
+  // 1. Check active subscription
+  const { subscription } = await getUserActiveSubscription(userId);
+
+  if (subscription && subscription.status === "active" && new Date() < subscription.expiresAt) {
+    // Try subscription path first
+    const result = await checkQuotaAndAccumulate({
+      userId,
+      subscriptionId: subscription.id,
+      packageId: subscription.packageId,
+      modelType,
+      haikuTokensUsed,
+      sonnetTokensUsed,
+      costCents,
+    });
+
+    // If subscription covered it, return as-is
+    if (result.allowed && result.method === "subscription") {
+      return result;
+    }
+
+    // If subscription quota exhausted but we still have saldo (with autofallback)
+    // the inner checkQuotaAndAccumulate already handled that fallback path.
+    // Just return what it decided.
+    return result;
+  }
+
+  // 2. No active subscription — check saldo (with autofallback gate)
+  const [balance] = await db
+    .select()
+    .from(userBalancesTable)
+    .where(eq(userBalancesTable.userId, userId));
+
+  const balanceCents = balance?.balanceCents ?? 0;
+  const autofallbackEnabled = balance?.autofallbackEnabled ?? false;
+
+  if (autofallbackEnabled && balanceCents >= costCents && costCents > 0) {
+    // Deduct from saldo
+    const newBalance = balanceCents - costCents;
+
+    await db.transaction(async (tx) => {
+      await tx
+        .update(userBalancesTable)
+        .set({ balanceCents: newBalance, updatedAt: new Date() })
+        .where(eq(userBalancesTable.userId, userId));
+
+      await tx.insert(tokenTransactionsTable).values({
+        userId,
+        type: "ai_usage",
+        amountCents: -costCents,
+        balanceAfterCents: newBalance,
+        description: `AI usage (saldo only)`,
+      });
+    });
+
+    return { allowed: true, method: "saldo", deductCents: costCents };
+  }
+
+  // 3. Deny — no subscription and no usable saldo
+  if (balanceCents < costCents && costCents > 0) {
+    return {
+      allowed: false,
+      reason: "saldo_insufficient",
+      balanceCents,
+      requiredCents: costCents,
+    };
+  }
+
+  return {
+    allowed: false,
+    reason: "quota_exhausted",
+    subscriptionActive: false,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// 7. expireOldWindows
 // ---------------------------------------------------------------------------
 
 /**

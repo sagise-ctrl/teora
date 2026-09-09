@@ -26,8 +26,9 @@ import { logActivity } from "../lib/activity.js";
 import { requireProjectOwnership } from "../lib/ownership.js";
 import { callAI, buildSystemPrompt, getTierConfig, getTierForUser } from "../lib/ai.js";
 import { logAIUsage } from "../lib/ai-usage-log.js";
-import { checkCreditBalance, deductCredit } from "../lib/credit.js";
+import { checkAIAccess, consumeQuotaForAIRequest } from "../lib/subscription.js";
 import { sanitizeInstructionText, sanitizeUserMessage } from "../lib/prompt-injection.js";
+import { logger } from "../lib/logger.js";
 
 const router: IRouter = Router();
 
@@ -304,20 +305,31 @@ router.post("/projects/:projectId/analyze", async (req, res): Promise<void> => {
     return;
   }
 
-  // Pre-check credit for paid tiers before running the pipeline
+  // Pre-check: estimate cost and verify quota (subscription OR saldo)
   if (!selectedTier.isFree) {
     const estimatedCostCents = Math.max(
       100,
       selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents,
     );
-    const creditCheck = await checkCreditBalance(project.userId, estimatedCostCents, false);
-    if (!creditCheck.allowed) {
-      res.status(402).json({
-        error: creditCheck.reason,
-        balanceCents: creditCheck.balanceCents,
-        costCents: creditCheck.costCents,
-        tierName: selectedTier.name,
-      });
+    const accessCheck = await checkAIAccess({
+      userId: project.userId,
+      tierId: selectedTier.id,
+      estimatedCostCents,
+    });
+    if (!accessCheck.allowed) {
+      if (accessCheck.reason === "saldo_insufficient") {
+        res.status(402).json({
+          error: "Saldo tidak mencukupi. Silakan topup terlebih dahulu.",
+          balanceCents: accessCheck.balanceCents,
+          costCents: accessCheck.requiredCents,
+          tierName: selectedTier.name,
+        });
+      } else {
+        res.status(402).json({
+          error: "Quota langganan habis dan saldo tidak tersedia. Silakan topup atau perpanjang langganan.",
+          tierName: selectedTier.name,
+        });
+      }
       return;
     }
   }
@@ -405,14 +417,19 @@ Hasilkan JSON dengan struktur berikut (HANYA JSON, tanpa teks lain):
     });
 
     if (!selectedTier.isFree && analysisUsage.costCents > 0) {
-      await deductCredit({
+      const consumeResult = await consumeQuotaForAIRequest({
         userId: project.userId,
-        costCents: analysisUsage.costCents,
-        tierIsFree: false,
         tierId: selectedTier.id,
-        aiUsageLogId: analyzeUsageLog?.id,
-        description: `AI analyze — ${selectedTier.name} tier`,
+        inputTokens: analysisUsage.inputTokens,
+        outputTokens: analysisUsage.outputTokens,
+        costCents: analysisUsage.costCents,
       });
+      if (!consumeResult.allowed) {
+        logger.warn(
+          { userId: project.userId, reason: consumeResult.reason },
+          "Quota/saldo exhausted during analyze"
+        );
+      }
     }
 
     const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
@@ -500,14 +517,19 @@ Tulis dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan b
     });
 
     if (!selectedTier.isFree && writeUsage.costCents > 0) {
-      await deductCredit({
+      const consumeResult = await consumeQuotaForAIRequest({
         userId: project.userId,
-        costCents: writeUsage.costCents,
-        tierIsFree: false,
         tierId: selectedTier.id,
-        aiUsageLogId: writeUsageLog?.id,
-        description: `AI write — ${selectedTier.name} tier`,
+        inputTokens: writeUsage.inputTokens,
+        outputTokens: writeUsage.outputTokens,
+        costCents: writeUsage.costCents,
       });
+      if (!consumeResult.allowed) {
+        logger.warn(
+          { userId: project.userId, reason: consumeResult.reason },
+          "Quota/saldo exhausted during write"
+        );
+      }
     }
 
     const versions = await db
@@ -598,20 +620,31 @@ router.post("/projects/:projectId/outline", async (req, res): Promise<void> => {
     return;
   }
 
-  // Pre-check credit for paid tiers
+  // Pre-check quota (subscription OR saldo)
   if (!selectedTier.isFree) {
     const estimatedCostCents = Math.max(
       100,
       selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents,
     );
-    const creditCheck = await checkCreditBalance(project.userId, estimatedCostCents, false);
-    if (!creditCheck.allowed) {
-      res.status(402).json({
-        error: creditCheck.reason,
-        balanceCents: creditCheck.balanceCents,
-        costCents: creditCheck.costCents,
-        tierName: selectedTier.name,
-      });
+    const accessCheck = await checkAIAccess({
+      userId: project.userId,
+      tierId: selectedTier.id,
+      estimatedCostCents,
+    });
+    if (!accessCheck.allowed) {
+      if (accessCheck.reason === "saldo_insufficient") {
+        res.status(402).json({
+          error: "Saldo tidak mencukupi. Silakan topup terlebih dahulu.",
+          balanceCents: accessCheck.balanceCents,
+          costCents: accessCheck.requiredCents,
+          tierName: selectedTier.name,
+        });
+      } else {
+        res.status(402).json({
+          error: "Quota langganan habis dan saldo tidak tersedia. Silakan topup atau perpanjang langganan.",
+          tierName: selectedTier.name,
+        });
+      }
       return;
     }
   }
@@ -645,14 +678,19 @@ router.post("/projects/:projectId/outline", async (req, res): Promise<void> => {
   });
 
   if (!selectedTier.isFree && usage.costCents > 0) {
-    await deductCredit({
+    const consumeResult = await consumeQuotaForAIRequest({
       userId: project.userId,
-      costCents: usage.costCents,
-      tierIsFree: false,
       tierId: selectedTier.id,
-      aiUsageLogId: usageLog?.id,
-      description: `AI outline — ${selectedTier.name} tier`,
+      inputTokens: usage.inputTokens,
+      outputTokens: usage.outputTokens,
+      costCents: usage.costCents,
     });
+    if (!consumeResult.allowed) {
+      logger.warn(
+        { userId: project.userId, reason: consumeResult.reason },
+        "Quota/saldo exhausted during outline"
+      );
+    }
   }
 
   // Update metadata with new outline
@@ -714,20 +752,31 @@ router.post("/projects/:projectId/documents/generate", async (req, res): Promise
     return;
   }
 
-  // Pre-check credit for paid tiers
+  // Pre-check quota (subscription OR saldo)
   if (!selectedTier.isFree) {
     const estimatedCostCents = Math.max(
       100,
       selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents,
     );
-    const creditCheck = await checkCreditBalance(project.userId, estimatedCostCents, false);
-    if (!creditCheck.allowed) {
-      res.status(402).json({
-        error: creditCheck.reason,
-        balanceCents: creditCheck.balanceCents,
-        costCents: creditCheck.costCents,
-        tierName: selectedTier.name,
-      });
+    const accessCheck = await checkAIAccess({
+      userId: project.userId,
+      tierId: selectedTier.id,
+      estimatedCostCents,
+    });
+    if (!accessCheck.allowed) {
+      if (accessCheck.reason === "saldo_insufficient") {
+        res.status(402).json({
+          error: "Saldo tidak mencukupi. Silakan topup terlebih dahulu.",
+          balanceCents: accessCheck.balanceCents,
+          costCents: accessCheck.requiredCents,
+          tierName: selectedTier.name,
+        });
+      } else {
+        res.status(402).json({
+          error: "Quota langganan habis dan saldo tidak tersedia. Silakan topup atau perpanjang langganan.",
+          tierName: selectedTier.name,
+        });
+      }
       return;
     }
   }
@@ -844,14 +893,19 @@ async function runDocumentGeneration(
     });
 
     if (!selectedTier.isFree && usage.costCents > 0) {
-      await deductCredit({
+      const consumeResult = await consumeQuotaForAIRequest({
         userId: project.userId,
-        costCents: usage.costCents,
-        tierIsFree: false,
         tierId: selectedTier.id,
-        aiUsageLogId: usageLog?.id,
-        description: `AI generate document — ${selectedTier.name} tier`,
+        inputTokens: usage.inputTokens,
+        outputTokens: usage.outputTokens,
+        costCents: usage.costCents,
       });
+      if (!consumeResult.allowed) {
+        logger.warn(
+          { userId: project.userId, reason: consumeResult.reason },
+          "Quota/saldo exhausted during generate document"
+        );
+      }
     }
 
     const versions = await db

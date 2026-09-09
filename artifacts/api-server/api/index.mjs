@@ -27,11 +27,11 @@ var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
 };
-var __copyProps = (to, from, except, desc19) => {
+var __copyProps = (to, from, except, desc20) => {
   if (from && typeof from === "object" || typeof from === "function") {
     for (let key of __getOwnPropNames(from))
       if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc19 = __getOwnPropDesc(from, key)) || desc19.enumerable });
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc20 = __getOwnPropDesc(from, key)) || desc20.enumerable });
   }
   return to;
 };
@@ -1470,10 +1470,10 @@ var require_http_errors = __commonJS({
       return ServerError;
     }
     function nameFunc(func, name) {
-      var desc19 = Object.getOwnPropertyDescriptor(func, "name");
-      if (desc19 && desc19.configurable) {
-        desc19.value = name;
-        Object.defineProperty(func, "name", desc19);
+      var desc20 = Object.getOwnPropertyDescriptor(func, "name");
+      if (desc20 && desc20.configurable) {
+        desc20.value = name;
+        Object.defineProperty(func, "name", desc20);
       }
     }
     function populateConstructorExports(exports2, codes, HttpError) {
@@ -16967,14 +16967,14 @@ var require_get = __commonJS({
         throw e2;
       }
     }
-    var desc19 = !!hasProtoAccessor && gOPD && gOPD(
+    var desc20 = !!hasProtoAccessor && gOPD && gOPD(
       Object.prototype,
       /** @type {keyof typeof Object.prototype} */
       "__proto__"
     );
     var $Object = Object;
     var $getPrototypeOf = $Object.getPrototypeOf;
-    module.exports = desc19 && typeof desc19.get === "function" ? callBind([desc19.get]) : typeof $getPrototypeOf === "function" ? (
+    module.exports = desc20 && typeof desc20.get === "function" ? callBind([desc20.get]) : typeof $getPrototypeOf === "function" ? (
       /** @type {import('./get')} */
       function getDunder(value) {
         return $getPrototypeOf(value == null ? value : $Object(value));
@@ -17324,10 +17324,10 @@ var require_get_intrinsic = __commonJS({
             return void undefined2;
           }
           if ($gOPD && i2 + 1 >= parts.length) {
-            var desc19 = $gOPD(value, part);
-            isOwn = !!desc19;
-            if (isOwn && "get" in desc19 && !("originalValue" in desc19.get)) {
-              value = desc19.get;
+            var desc20 = $gOPD(value, part);
+            isOwn = !!desc20;
+            if (isOwn && "get" in desc20 && !("originalValue" in desc20.get)) {
+              value = desc20.get;
             } else {
               value = value[part];
             }
@@ -28547,18 +28547,18 @@ var require_logger = __commonJS({
       delete opts.customErroredMessage;
       const quietReqLogger = !!opts.quietReqLogger;
       const quietResLogger = !!opts.quietResLogger;
-      const logger3 = wrapChild(opts, theStream);
-      const validLogLevels = Object.keys(logger3.levels.values).concat("silent");
+      const logger2 = wrapChild(opts, theStream);
+      const validLogLevels = Object.keys(logger2.levels.values).concat("silent");
       const useLevel = getValidLogLevel(opts.useLevel);
       delete opts.useLevel;
       const genReqId = reqIdGenFactory(opts.genReqId);
       const result = (req, res, next) => {
-        return loggingMiddleware(logger3, req, res, next);
+        return loggingMiddleware(logger2, req, res, next);
       };
-      result.logger = logger3;
+      result.logger = logger2;
       return result;
-      function onResFinished(res, logger4, err) {
-        let log = logger4;
+      function onResFinished(res, logger3, err) {
+        let log = logger3;
         const responseTime = Date.now() - res[startTime];
         const req = res[reqObject];
         const level = getLogLevelFromCustomLogLevel(customLogLevel, useLevel, res, err, req);
@@ -28567,10 +28567,10 @@ var require_logger = __commonJS({
         }
         const customPropBindings = typeof customProps === "function" ? customProps(req, res) : customProps;
         if (customPropBindings) {
-          const customPropBindingStr = logger4[stringifySym](customPropBindings).replace(/[{}]/g, "");
-          const customPropBindingsStr = logger4[chindingsSym];
+          const customPropBindingStr = logger3[stringifySym](customPropBindings).replace(/[{}]/g, "");
+          const customPropBindingsStr = logger3[chindingsSym];
           if (!customPropBindingsStr.includes(customPropBindingStr)) {
-            log = logger4.child(customPropBindings);
+            log = logger3.child(customPropBindings);
           }
         }
         if (err || res.err || res.statusCode >= 500) {
@@ -28593,10 +28593,10 @@ var require_logger = __commonJS({
           successMessage(req, res, responseTime)
         );
       }
-      function loggingMiddleware(logger4, req, res, next) {
+      function loggingMiddleware(logger3, req, res, next) {
         let shouldLogSuccess = true;
         req.id = req.id || genReqId(req, res);
-        const log = quietReqLogger ? logger4.child({ [requestIdKey]: req.id }) : logger4;
+        const log = quietReqLogger ? logger3.child({ [requestIdKey]: req.id }) : logger3;
         let fullReqLogger = log.child({ [reqKey]: req });
         const customPropBindings = typeof customProps === "function" ? customProps(req, res) : customProps;
         if (customPropBindings) {
@@ -28652,20 +28652,20 @@ var require_logger = __commonJS({
     function wrapChild(opts, stream2) {
       const prevLogger = opts.logger;
       const prevGenReqId = opts.genReqId;
-      let logger3 = null;
+      let logger2 = null;
       if (prevLogger) {
         opts.logger = void 0;
         opts.genReqId = void 0;
-        logger3 = prevLogger.child({}, opts);
+        logger2 = prevLogger.child({}, opts);
         opts.logger = prevLogger;
         opts.genReqId = prevGenReqId;
       } else {
         if (opts.transport && !opts.transport.caller) {
           opts.transport.caller = getCallerFile();
         }
-        logger3 = pino2(opts, stream2);
+        logger2 = pino2(opts, stream2);
       }
-      return logger3;
+      return logger2;
     }
     function reqIdGenFactory(func) {
       if (typeof func === "function") return func;
@@ -28762,9 +28762,9 @@ function __rest(s2, e2) {
     }
   return t2;
 }
-function __decorate(decorators, target, key, desc19) {
-  var c = arguments.length, r2 = c < 3 ? target : desc19 === null ? desc19 = Object.getOwnPropertyDescriptor(target, key) : desc19, d;
-  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r2 = Reflect.decorate(decorators, target, key, desc19);
+function __decorate(decorators, target, key, desc20) {
+  var c = arguments.length, r2 = c < 3 ? target : desc20 === null ? desc20 = Object.getOwnPropertyDescriptor(target, key) : desc20, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r2 = Reflect.decorate(decorators, target, key, desc20);
   else for (var i2 = decorators.length - 1; i2 >= 0; i2--) if (d = decorators[i2]) r2 = (c < 3 ? d(r2) : c > 3 ? d(target, key, r2) : d(target, key)) || r2;
   return c > 3 && r2 && Object.defineProperty(target, key, r2), r2;
 }
@@ -29165,13 +29165,13 @@ var init_tslib_es6 = __esm({
     };
     __createBinding = Object.create ? (function(o, m2, k, k2) {
       if (k2 === void 0) k2 = k;
-      var desc19 = Object.getOwnPropertyDescriptor(m2, k);
-      if (!desc19 || ("get" in desc19 ? !m2.__esModule : desc19.writable || desc19.configurable)) {
-        desc19 = { enumerable: true, get: function() {
+      var desc20 = Object.getOwnPropertyDescriptor(m2, k);
+      if (!desc20 || ("get" in desc20 ? !m2.__esModule : desc20.writable || desc20.configurable)) {
+        desc20 = { enumerable: true, get: function() {
           return m2[k];
         } };
       }
-      Object.defineProperty(o, k2, desc19);
+      Object.defineProperty(o, k2, desc20);
     }) : (function(o, m2, k, k2) {
       if (k2 === void 0) k2 = k;
       o[k2] = m2[k];
@@ -30135,11 +30135,11 @@ var require_phoenix_cjs = __commonJS({
       for (var name in all)
         __defProp3(target, name, { get: all[name], enumerable: true });
     };
-    var __copyProps3 = (to, from, except, desc19) => {
+    var __copyProps3 = (to, from, except, desc20) => {
       if (from && typeof from === "object" || typeof from === "function") {
         for (let key of __getOwnPropNames3(from))
           if (!__hasOwnProp3.call(to, key) && key !== except)
-            __defProp3(to, key, { get: () => from[key], enumerable: !(desc19 = __getOwnPropDesc3(from, key)) || desc19.enumerable });
+            __defProp3(to, key, { get: () => from[key], enumerable: !(desc20 = __getOwnPropDesc3(from, key)) || desc20.enumerable });
       }
       return to;
     };
@@ -173464,14 +173464,14 @@ var require_trees = __commonJS({
         s2.bi_valid -= 8;
       }
     }
-    function gen_bitlen(s2, desc19) {
-      var tree = desc19.dyn_tree;
-      var max_code = desc19.max_code;
-      var stree = desc19.stat_desc.static_tree;
-      var has_stree = desc19.stat_desc.has_stree;
-      var extra = desc19.stat_desc.extra_bits;
-      var base = desc19.stat_desc.extra_base;
-      var max_length = desc19.stat_desc.max_length;
+    function gen_bitlen(s2, desc20) {
+      var tree = desc20.dyn_tree;
+      var max_code = desc20.max_code;
+      var stree = desc20.stat_desc.static_tree;
+      var has_stree = desc20.stat_desc.has_stree;
+      var extra = desc20.stat_desc.extra_bits;
+      var base = desc20.stat_desc.extra_base;
+      var max_length = desc20.stat_desc.max_length;
       var h2;
       var n, m2;
       var bits;
@@ -173698,11 +173698,11 @@ var require_trees = __commonJS({
       }
       send_code(s2, END_BLOCK, ltree);
     }
-    function build_tree(s2, desc19) {
-      var tree = desc19.dyn_tree;
-      var stree = desc19.stat_desc.static_tree;
-      var has_stree = desc19.stat_desc.has_stree;
-      var elems = desc19.stat_desc.elems;
+    function build_tree(s2, desc20) {
+      var tree = desc20.dyn_tree;
+      var stree = desc20.stat_desc.static_tree;
+      var has_stree = desc20.stat_desc.has_stree;
+      var elems = desc20.stat_desc.elems;
       var n, m2;
       var max_code = -1;
       var node;
@@ -173725,7 +173725,7 @@ var require_trees = __commonJS({
           s2.static_len -= stree[node * 2 + 1];
         }
       }
-      desc19.max_code = max_code;
+      desc20.max_code = max_code;
       for (n = s2.heap_len >> 1; n >= 1; n--) {
         pqdownheap(s2, tree, n);
       }
@@ -173769,7 +173769,7 @@ var require_trees = __commonJS({
         1
         /*SMALLEST*/
       ];
-      gen_bitlen(s2, desc19);
+      gen_bitlen(s2, desc20);
       gen_codes(tree, max_code, s2.bl_count);
     }
     function scan_tree(s2, tree, max_code) {
@@ -179222,7 +179222,7 @@ var require_logger2 = __commonJS({
       value: true
     });
     exports.default = void 0;
-    var logger3 = {
+    var logger2 = {
       _output(level, scope, msg) {
         this._log.push(scope, msg);
         if (this._levels.indexOf(level) < this._levels.indexOf(this.level)) {
@@ -179235,15 +179235,15 @@ var require_logger2 = __commonJS({
       _levels: ["http", "debug", "unmapped", "info", "warn", "error", "silent"],
       level: "silent"
     };
-    for (const level of logger3._levels) {
-      logger3[level] = (scope, ...msg) => logger3._output(level, scope, msg);
+    for (const level of logger2._levels) {
+      logger2[level] = (scope, ...msg) => logger2._output(level, scope, msg);
     }
     if (typeof console.Console === "function") {
-      logger3._console = new console.Console(process.stderr);
+      logger2._console = new console.Console(process.stderr);
     } else {
-      logger3._console = console;
+      logger2._console = console;
     }
-    var _default = exports.default = logger3;
+    var _default = exports.default = logger2;
   }
 });
 
@@ -180849,9 +180849,9 @@ var require_body = __commonJS({
           if (name === "constructor") {
             continue;
           }
-          const desc19 = Object.getOwnPropertyDescriptor(_Body.prototype, name);
+          const desc20 = Object.getOwnPropertyDescriptor(_Body.prototype, name);
           Object.defineProperty(proto, name, {
-            ...desc19,
+            ...desc20,
             enumerable: true
           });
         }
@@ -190004,9 +190004,9 @@ var require_google_books = __commonJS({
       var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor;
       for (var key in obj) {
         if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) {
-          var desc19 = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null;
-          if (desc19 && (desc19.get || desc19.set)) {
-            Object.defineProperty(newObj, key, desc19);
+          var desc20 = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null;
+          if (desc20 && (desc20.get || desc20.set)) {
+            Object.defineProperty(newObj, key, desc20);
           } else {
             newObj[key] = obj[key];
           }
@@ -190168,9 +190168,9 @@ var require_open_library = __commonJS({
       var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor;
       for (var key in obj) {
         if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) {
-          var desc19 = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null;
-          if (desc19 && (desc19.get || desc19.set)) {
-            Object.defineProperty(newObj, key, desc19);
+          var desc20 = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null;
+          if (desc20 && (desc20.get || desc20.set)) {
+            Object.defineProperty(newObj, key, desc20);
           } else {
             newObj[key] = obj[key];
           }
@@ -190370,9 +190370,9 @@ var require_input5 = __commonJS({
       var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor;
       for (var key in obj) {
         if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) {
-          var desc19 = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null;
-          if (desc19 && (desc19.get || desc19.set)) {
-            Object.defineProperty(newObj, key, desc19);
+          var desc20 = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null;
+          if (desc20 && (desc20.get || desc20.set)) {
+            Object.defineProperty(newObj, key, desc20);
           } else {
             newObj[key] = obj[key];
           }
@@ -202897,6 +202897,7 @@ import {
   text as text16,
   boolean as boolean7,
   integer as integer14,
+  numeric,
   timestamp as timestamp16,
   index as index3
 } from "drizzle-orm/pg-core";
@@ -202923,6 +202924,10 @@ var aiTiersTable = pgTable16(
     // Provider cost in USD cents per 1M tokens (for margin calculation)
     providerCostPer1MInputCents: integer14("provider_cost_per_1m_input_cents").notNull().default(0),
     providerCostPer1MOutputCents: integer14("provider_cost_per_1m_output_cents").notNull().default(0),
+    // Markup multiplier for topup charges (Opsi B — Owner 2026-09-09)
+    // 1.40 = 40% markup above cost. Applied ONLY to topup, NOT subscription.
+    // numeric(5,3) allows values 0.001 to 9.999 with 3 decimal precision.
+    markupMultiplier: numeric("markup_multiplier", { precision: 5, scale: 3 }).notNull().default("1.400"),
     // Rate limits
     rateLimitRpm: integer14("rate_limit_rpm"),
     rateLimitTpd: integer14("rate_limit_tpd"),
@@ -204011,7 +204016,7 @@ var shared_default = router3;
 
 // src/routes/projects.ts
 var import_express4 = __toESM(require_express2(), 1);
-import { eq as eq6, desc as desc2, sql as sql6, and as and4, isNull as isNull2 } from "drizzle-orm";
+import { eq as eq6, desc as desc3, sql as sql6, and as and4, isNull as isNull2 } from "drizzle-orm";
 
 // src/lib/activity.ts
 async function logActivity(projectId, eventType, description) {
@@ -204064,7 +204069,7 @@ import { eq as eq4 } from "drizzle-orm";
 // src/lib/logger.ts
 var import_pino = __toESM(require_pino(), 1);
 var isProduction = process.env.NODE_ENV === "production";
-var logger2 = (0, import_pino.default)({
+var logger = (0, import_pino.default)({
   level: process.env.LOG_LEVEL ?? "info",
   redact: [
     "req.headers.authorization",
@@ -204101,6 +204106,7 @@ async function getTierConfig(tierId) {
     pricePer1MOutputCents: tier.pricePer1MOutputCents,
     providerCostPer1MInputCents: tier.providerCostPer1MInputCents,
     providerCostPer1MOutputCents: tier.providerCostPer1MOutputCents,
+    markupMultiplier: Number(tier.markupMultiplier),
     rateLimitRpm: tier.rateLimitRpm,
     rateLimitTpd: tier.rateLimitTpd,
     isFree: tier.isFree,
@@ -204116,7 +204122,7 @@ async function getTierForUser(userId, preferredTierId) {
     const tier = await getTierConfig(preferredTierId);
     if (tier) return tier;
   }
-  return getTierConfig("free");
+  return getTierConfig("haiku-4.5");
 }
 var MODEL_PRICING = {
   // OpenAI
@@ -204136,7 +204142,8 @@ var MODEL_PRICING = {
   "gemini-1.5-flash": { inputPer1M: 0.075, outputPer1M: 0.3 }
 };
 function estimateCost(model, inputTokens, outputTokens, tierConfig) {
-  const costCents = inputTokens / 1e6 * tierConfig.pricePer1MInputCents + outputTokens / 1e6 * tierConfig.pricePer1MOutputCents;
+  const providerCostCents = inputTokens / 1e6 * tierConfig.providerCostPer1MInputCents + outputTokens / 1e6 * tierConfig.providerCostPer1MOutputCents;
+  const costCents = providerCostCents * tierConfig.markupMultiplier;
   const pricing = MODEL_PRICING[model] ?? { inputPer1M: 0.5, outputPer1M: 1.5 };
   const estimatedCostUsd = inputTokens / 1e6 * pricing.inputPer1M + outputTokens / 1e6 * pricing.outputPer1M;
   return { estimatedCostUsd, costCents: Math.round(costCents) };
@@ -204156,16 +204163,16 @@ function getApiKey(envVarName) {
 async function callAI(messages, tierId, mode) {
   const tier = await getTierConfig(tierId);
   if (!tier) {
-    logger2.warn({ tierId }, "AI tier not found \u2014 falling back to free tier");
-    const freeTier = await getTierConfig("free");
-    if (!freeTier) {
-      throw new Error("Free tier not configured");
+    logger.warn({ tierId }, "AI tier not found \u2014 falling back to haiku-4.5");
+    const haikuTier = await getTierConfig("haiku-4.5");
+    if (!haikuTier) {
+      throw new Error("Haiku 4.5 tier not configured");
     }
-    return callAI(messages, "free", mode);
+    return callAI(messages, "haiku-4.5", mode);
   }
   const apiKey = getApiKey(tier.apiKeyEnvVar);
   if (!apiKey) {
-    logger2.warn({ tierId, envVar: tier.apiKeyEnvVar }, "AI API key not set \u2014 returning placeholder");
+    logger.warn({ tierId, envVar: tier.apiKeyEnvVar }, "AI API key not set \u2014 returning placeholder");
     return {
       content: `AI belum dikonfigurasi. Tier "${tier.name}" memerlukan ${tier.apiKeyEnvVar} di environment variables.`,
       usage: { inputTokens: 0, outputTokens: 0, estimatedCostUsd: 0, costCents: 0, tierId },
@@ -204194,7 +204201,7 @@ async function callOpenAICompatible(messages, tier, mode) {
   });
   if (!response.ok) {
     const errorBody = await response.text();
-    logger2.error({ status: response.status, body: errorBody, tier: tier.id }, "AI API error");
+    logger.error({ status: response.status, body: errorBody, tier: tier.id }, "AI API error");
     throw new Error(`AI API error ${response.status}: ${errorBody}`);
   }
   const data = await response.json();
@@ -204233,7 +204240,7 @@ async function callAnthropic(messages, tier, mode) {
   });
   if (!response.ok) {
     const errorBody = await response.text();
-    logger2.error({ status: response.status, body: errorBody, tier: tier.id }, "Anthropic API error");
+    logger.error({ status: response.status, body: errorBody, tier: tier.id }, "Anthropic API error");
     throw new Error(`Anthropic API error ${response.status}: ${errorBody}`);
   }
   const data = await response.json();
@@ -204333,76 +204340,370 @@ async function logAIUsage(opts) {
     }).returning({ id: aiUsageLogTable.id });
     return log ?? null;
   } catch (err) {
-    logger2.error({ err, userId: opts.userId, projectId: opts.projectId }, "Failed to write AI usage log");
+    logger.error({ err, userId: opts.userId, projectId: opts.projectId }, "Failed to write AI usage log");
     return null;
   }
 }
 
-// src/lib/credit.ts
-import { eq as eq5 } from "drizzle-orm";
-async function checkCreditBalance(userId, costCents, tierIsFree) {
-  if (tierIsFree || costCents === 0) {
-    return { allowed: true, balanceCents: 0, costCents: 0 };
+// src/lib/subscription.ts
+import { eq as eq5, and as and3, desc as desc2 } from "drizzle-orm";
+
+// ../../node_modules/date-fns/toDate.mjs
+function toDate(argument) {
+  const argStr = Object.prototype.toString.call(argument);
+  if (argument instanceof Date || typeof argument === "object" && argStr === "[object Date]") {
+    return new argument.constructor(+argument);
+  } else if (typeof argument === "number" || argStr === "[object Number]" || typeof argument === "string" || argStr === "[object String]") {
+    return new Date(argument);
+  } else {
+    return /* @__PURE__ */ new Date(NaN);
+  }
+}
+
+// ../../node_modules/date-fns/constructFrom.mjs
+function constructFrom(date2, value) {
+  if (date2 instanceof Date) {
+    return new date2.constructor(value);
+  } else {
+    return new Date(value);
+  }
+}
+
+// ../../node_modules/date-fns/addDays.mjs
+function addDays(date2, amount) {
+  const _date = toDate(date2);
+  if (isNaN(amount)) return constructFrom(date2, NaN);
+  if (!amount) {
+    return _date;
+  }
+  _date.setDate(_date.getDate() + amount);
+  return _date;
+}
+
+// ../../node_modules/date-fns/addMilliseconds.mjs
+function addMilliseconds(date2, amount) {
+  const timestamp33 = +toDate(date2);
+  return constructFrom(date2, timestamp33 + amount);
+}
+
+// ../../node_modules/date-fns/constants.mjs
+var daysInYear = 365.2425;
+var maxTime = Math.pow(10, 8) * 24 * 60 * 60 * 1e3;
+var minTime = -maxTime;
+var millisecondsInHour = 36e5;
+var secondsInHour = 3600;
+var secondsInDay = secondsInHour * 24;
+var secondsInWeek = secondsInDay * 7;
+var secondsInYear = secondsInDay * daysInYear;
+var secondsInMonth = secondsInYear / 12;
+var secondsInQuarter = secondsInMonth * 3;
+
+// ../../node_modules/date-fns/addHours.mjs
+function addHours(date2, amount) {
+  return addMilliseconds(date2, amount * millisecondsInHour);
+}
+
+// ../../node_modules/date-fns/isAfter.mjs
+function isAfter(date2, dateToCompare) {
+  const _date = toDate(date2);
+  const _dateToCompare = toDate(dateToCompare);
+  return _date.getTime() > _dateToCompare.getTime();
+}
+
+// src/lib/subscription.ts
+function calculateWindowStart(anchorAt, windowNumber, windowType) {
+  if (windowNumber < 1) windowNumber = 1;
+  if (windowType === "5h") {
+    return addHours(anchorAt, (windowNumber - 1) * 5);
+  } else {
+    return addDays(anchorAt, (windowNumber - 1) * 7);
+  }
+}
+function getMaxWindows(periodDays, windowType) {
+  if (windowType === "5h") {
+    return Math.floor(periodDays * 24 / 5);
+  } else {
+    return Math.floor(periodDays / 7);
+  }
+}
+async function getUserActiveSubscription(userId) {
+  const rows = await db.select().from(subscriptionsTable).innerJoin(
+    packagesTable,
+    eq5(subscriptionsTable.packageId, packagesTable.id)
+  ).where(
+    and3(
+      eq5(subscriptionsTable.userId, userId),
+      eq5(subscriptionsTable.status, "active")
+    )
+  ).orderBy(desc2(subscriptionsTable.createdAt)).limit(1);
+  if (rows.length === 0) {
+    return { subscription: null };
+  }
+  const row = rows[0];
+  return {
+    subscription: {
+      ...row.subscriptions,
+      package: row.packages
+    }
+  };
+}
+async function getActiveUsageWindow(userId, subscriptionId, modelType, windowType) {
+  const [sub] = await db.select().from(subscriptionsTable).where(eq5(subscriptionsTable.id, subscriptionId));
+  if (!sub) {
+    throw new Error(`Subscription ${subscriptionId} not found`);
+  }
+  const anchorAt = sub.usageAnchorAt ?? sub.startsAt;
+  const now = /* @__PURE__ */ new Date();
+  let windowNumber = 1;
+  if (windowType === "5h") {
+    const elapsedMs = now.getTime() - anchorAt.getTime();
+    const elapsed5hSlots = elapsedMs / (5 * 60 * 60 * 1e3);
+    windowNumber = Math.max(1, Math.floor(elapsed5hSlots) + 1);
+  } else {
+    const elapsedMs = now.getTime() - anchorAt.getTime();
+    const elapsed7dSlots = elapsedMs / (7 * 24 * 60 * 60 * 1e3);
+    windowNumber = Math.max(1, Math.floor(elapsed7dSlots) + 1);
+  }
+  const [existing] = await db.select().from(usageWindowsTable).where(
+    and3(
+      eq5(usageWindowsTable.subscriptionId, subscriptionId),
+      eq5(usageWindowsTable.modelType, modelType),
+      eq5(usageWindowsTable.windowType, windowType),
+      eq5(usageWindowsTable.windowNumber, windowNumber)
+    )
+  );
+  if (existing && !existing.isExhausted) {
+    if (isAfter(now, existing.windowEndAt)) {
+      await db.update(usageWindowsTable).set({ isExhausted: true, updatedAt: now }).where(eq5(usageWindowsTable.id, existing.id));
+      return { window: { ...existing, isExhausted: true }, wasCreated: false };
+    }
+    return { window: existing, wasCreated: false };
+  }
+  if (existing && existing.isExhausted && isAfter(now, existing.windowEndAt)) {
+    windowNumber = existing.windowNumber + 1;
+  }
+  const periodDays = Math.ceil(
+    (sub.expiresAt.getTime() - sub.startsAt.getTime()) / (7 * 24 * 60 * 60 * 1e3)
+  );
+  const maxWindows = getMaxWindows(periodDays, windowType);
+  if (windowNumber > maxWindows) {
+    windowNumber = maxWindows;
+  }
+  const windowStartAt = calculateWindowStart(anchorAt, windowNumber, windowType);
+  const windowEndAt = windowType === "5h" ? addHours(windowStartAt, 5) : addHours(windowStartAt, 168);
+  const [newWindow] = await db.insert(usageWindowsTable).values({
+    subscriptionId,
+    userId,
+    modelType,
+    windowType,
+    windowNumber,
+    windowStartAt,
+    windowEndAt,
+    haikuTokensUsed: 0,
+    sonnetTokensUsed: 0,
+    costCents: 0,
+    isExhausted: false,
+    isOverLimit: false
+  }).returning();
+  return { window: newWindow, wasCreated: true };
+}
+async function checkQuotaAndAccumulate(params) {
+  const { userId, subscriptionId, packageId, modelType, haikuTokensUsed, sonnetTokensUsed, costCents } = params;
+  const [sub] = await db.select().from(subscriptionsTable).where(
+    and3(
+      eq5(subscriptionsTable.id, subscriptionId),
+      eq5(subscriptionsTable.userId, userId),
+      eq5(subscriptionsTable.status, "active")
+    )
+  );
+  const [pkg] = await db.select().from(packagesTable).where(eq5(packagesTable.id, packageId));
+  const subActive = !!sub && sub.status === "active" && /* @__PURE__ */ new Date() < sub.expiresAt;
+  if (subActive && pkg) {
+    let capHaiku = 0;
+    let capSonnet = 0;
+    if (modelType === "lama") {
+      capHaiku = pkg.quota5hHaikuTokens;
+    } else if (modelType === "campuran") {
+      capHaiku = pkg.quota5hHaikuTokens;
+      capSonnet = pkg.quota5hSonnetTokens;
+    } else if (modelType === "baru") {
+      capSonnet = pkg.quota5hSonnetTokens;
+    }
+    const { window: window5h } = await getActiveUsageWindow(
+      userId,
+      subscriptionId,
+      modelType,
+      "5h"
+    );
+    let newHaiku5h = window5h.haikuTokensUsed + (haikuTokensUsed > 0 ? haikuTokensUsed : 0);
+    let newSonnet5h = window5h.sonnetTokensUsed + (sonnetTokensUsed > 0 ? sonnetTokensUsed : 0);
+    let newCost5h = window5h.costCents + costCents;
+    let isOverLimit5h = false;
+    if (modelType === "lama" && newHaiku5h > capHaiku) isOverLimit5h = true;
+    if (modelType === "campuran" && (newHaiku5h > capHaiku || newSonnet5h > capSonnet)) isOverLimit5h = true;
+    if (modelType === "baru" && newSonnet5h > capSonnet) isOverLimit5h = true;
+    const wasExhausted5h = window5h.isExhausted;
+    const isNowExhausted5h = isOverLimit5h;
+    await db.update(usageWindowsTable).set({
+      haikuTokensUsed: newHaiku5h,
+      sonnetTokensUsed: newSonnet5h,
+      costCents: newCost5h,
+      isExhausted: isNowExhausted5h || wasExhausted5h,
+      isOverLimit: window5h.isOverLimit || isOverLimit5h,
+      updatedAt: /* @__PURE__ */ new Date()
+    }).where(eq5(usageWindowsTable.id, window5h.id));
+    if (!isNowExhausted5h && !wasExhausted5h) {
+      return { allowed: true, method: "subscription", windowId: window5h.id };
+    }
+    const { window: window7d } = await getActiveUsageWindow(
+      userId,
+      subscriptionId,
+      modelType,
+      "7d"
+    );
+    let newHaiku7d = window7d.haikuTokensUsed + (haikuTokensUsed > 0 ? haikuTokensUsed : 0);
+    let newSonnet7d = window7d.sonnetTokensUsed + (sonnetTokensUsed > 0 ? sonnetTokensUsed : 0);
+    let newCost7d = window7d.costCents + costCents;
+    let capHaiku7d = 0;
+    let capSonnet7d = 0;
+    if (modelType === "lama") {
+      capHaiku7d = pkg.quota7dHaikuTokens;
+    } else if (modelType === "campuran") {
+      capHaiku7d = pkg.quota7dHaikuTokens;
+      capSonnet7d = pkg.quota7dSonnetTokens;
+    } else if (modelType === "baru") {
+      capSonnet7d = pkg.quota7dSonnetTokens;
+    }
+    let isOverLimit7d = false;
+    if (modelType === "lama" && newHaiku7d > capHaiku7d) isOverLimit7d = true;
+    if (modelType === "campuran" && (newHaiku7d > capHaiku7d || newSonnet7d > capSonnet7d)) isOverLimit7d = true;
+    if (modelType === "baru" && newSonnet7d > capSonnet7d) isOverLimit7d = true;
+    const wasExhausted7d = window7d.isExhausted;
+    const isNowExhausted7d = isOverLimit7d;
+    await db.update(usageWindowsTable).set({
+      haikuTokensUsed: newHaiku7d,
+      sonnetTokensUsed: newSonnet7d,
+      costCents: newCost7d,
+      isExhausted: isNowExhausted7d || wasExhausted7d,
+      isOverLimit: window7d.isOverLimit || isOverLimit7d,
+      updatedAt: /* @__PURE__ */ new Date()
+    }).where(eq5(usageWindowsTable.id, window7d.id));
+    if (!isNowExhausted7d && !wasExhausted7d) {
+      return { allowed: true, method: "subscription", windowId: window7d.id };
+    }
   }
   const [balance] = await db.select().from(userBalancesTable).where(eq5(userBalancesTable.userId, userId));
   const balanceCents = balance?.balanceCents ?? 0;
-  if (balanceCents < costCents) {
+  const autofallbackEnabled = balance?.autofallbackEnabled ?? false;
+  if (autofallbackEnabled && balanceCents >= costCents && costCents > 0) {
+    const newBalance = balanceCents - costCents;
+    await db.transaction(async (tx) => {
+      await tx.update(userBalancesTable).set({ balanceCents: newBalance, updatedAt: /* @__PURE__ */ new Date() }).where(eq5(userBalancesTable.userId, userId));
+      await tx.insert(tokenTransactionsTable).values({
+        userId,
+        type: "ai_usage",
+        amountCents: -costCents,
+        balanceAfterCents: newBalance,
+        description: `AI usage (autofallback from subscription quota)`
+      });
+    });
+    return { allowed: true, method: "saldo", deductCents: costCents };
+  }
+  if (balanceCents < costCents && costCents > 0) {
     return {
       allowed: false,
-      reason: "Saldo tidak mencukupi. Silakan topup terlebih dahulu.",
+      reason: "saldo_insufficient",
       balanceCents,
-      costCents
+      requiredCents: costCents
     };
   }
-  return { allowed: true, balanceCents, costCents };
-}
-async function deductCredit(opts) {
-  if (opts.tierIsFree || opts.costCents === 0) {
-    return { success: true, balanceAfterCents: 0 };
-  }
-  const [balance] = await db.select().from(userBalancesTable).where(eq5(userBalancesTable.userId, opts.userId));
-  const balanceCents = balance?.balanceCents ?? 0;
-  const newBalance = Math.max(0, balanceCents - opts.costCents);
-  try {
-    if (balance) {
-      await db.update(userBalancesTable).set({
-        balanceCents: newBalance,
-        updatedAt: /* @__PURE__ */ new Date()
-      }).where(eq5(userBalancesTable.userId, opts.userId));
-    } else {
-      await db.insert(userBalancesTable).values({
-        userId: opts.userId,
-        balanceCents: newBalance
-      });
-    }
-    const [transaction] = await db.insert(tokenTransactionsTable).values({
-      userId: opts.userId,
-      type: "ai_usage",
-      amountCents: -opts.costCents,
-      balanceAfterCents: newBalance,
-      aiUsageLogId: opts.aiUsageLogId,
-      description: opts.description
-    }).returning();
-    return { success: true, balanceAfterCents: newBalance, transactionId: transaction.id };
-  } catch (err) {
-    logger2.error({ err, userId: opts.userId, costCents: opts.costCents }, "Failed to deduct credit");
-    return { success: false, balanceAfterCents: balanceCents };
-  }
-}
-async function getUserBalance(userId) {
-  const [balance] = await db.select().from(userBalancesTable).where(eq5(userBalancesTable.userId, userId));
-  const transactions = await db.select({
-    id: tokenTransactionsTable.id,
-    type: tokenTransactionsTable.type,
-    amountCents: tokenTransactionsTable.amountCents,
-    balanceAfterCents: tokenTransactionsTable.balanceAfterCents,
-    description: tokenTransactionsTable.description,
-    createdAt: tokenTransactionsTable.createdAt
-  }).from(tokenTransactionsTable).where(eq5(tokenTransactionsTable.userId, userId)).orderBy(tokenTransactionsTable.createdAt).limit(20);
   return {
-    balanceCents: balance?.balanceCents ?? 0,
-    preferredTierId: balance?.preferredTierId ?? null,
-    recentTransactions: transactions
+    allowed: false,
+    reason: "quota_exhausted",
+    subscriptionActive: false
+  };
+}
+async function checkAIAccess(params) {
+  const { userId, tierId, estimatedCostCents } = params;
+  const { subscription } = await getUserActiveSubscription(userId);
+  if (subscription && subscription.status === "active" && /* @__PURE__ */ new Date() < subscription.expiresAt) {
+    return { allowed: true, method: "subscription" };
+  }
+  const [balance] = await db.select().from(userBalancesTable).where(eq5(userBalancesTable.userId, userId));
+  const balanceCents = balance?.balanceCents ?? 0;
+  const autofallbackEnabled = balance?.autofallbackEnabled ?? false;
+  if (autofallbackEnabled && balanceCents >= estimatedCostCents && estimatedCostCents > 0) {
+    return { allowed: true, method: "saldo" };
+  }
+  if (balanceCents < estimatedCostCents && estimatedCostCents > 0) {
+    return {
+      allowed: false,
+      reason: "saldo_insufficient",
+      balanceCents,
+      requiredCents: estimatedCostCents
+    };
+  }
+  return {
+    allowed: false,
+    reason: "quota_exhausted",
+    subscriptionActive: false
+  };
+}
+async function consumeQuotaForAIRequest(params) {
+  const { userId, tierId, inputTokens, outputTokens, costCents } = params;
+  let modelType = "lama";
+  if (tierId === "sonnet-5") {
+    modelType = "baru";
+  } else if (tierId === "haiku-4.5") {
+    modelType = "lama";
+  }
+  const haikuTokensUsed = modelType === "lama" || modelType === "campuran" ? inputTokens + outputTokens : 0;
+  const sonnetTokensUsed = modelType === "baru" || modelType === "campuran" ? inputTokens + outputTokens : 0;
+  const { subscription } = await getUserActiveSubscription(userId);
+  if (subscription && subscription.status === "active" && /* @__PURE__ */ new Date() < subscription.expiresAt) {
+    const result = await checkQuotaAndAccumulate({
+      userId,
+      subscriptionId: subscription.id,
+      packageId: subscription.packageId,
+      modelType,
+      haikuTokensUsed,
+      sonnetTokensUsed,
+      costCents
+    });
+    if (result.allowed && result.method === "subscription") {
+      return result;
+    }
+    return result;
+  }
+  const [balance] = await db.select().from(userBalancesTable).where(eq5(userBalancesTable.userId, userId));
+  const balanceCents = balance?.balanceCents ?? 0;
+  const autofallbackEnabled = balance?.autofallbackEnabled ?? false;
+  if (autofallbackEnabled && balanceCents >= costCents && costCents > 0) {
+    const newBalance = balanceCents - costCents;
+    await db.transaction(async (tx) => {
+      await tx.update(userBalancesTable).set({ balanceCents: newBalance, updatedAt: /* @__PURE__ */ new Date() }).where(eq5(userBalancesTable.userId, userId));
+      await tx.insert(tokenTransactionsTable).values({
+        userId,
+        type: "ai_usage",
+        amountCents: -costCents,
+        balanceAfterCents: newBalance,
+        description: `AI usage (saldo only)`
+      });
+    });
+    return { allowed: true, method: "saldo", deductCents: costCents };
+  }
+  if (balanceCents < costCents && costCents > 0) {
+    return {
+      allowed: false,
+      reason: "saldo_insufficient",
+      balanceCents,
+      requiredCents: costCents
+    };
+  }
+  return {
+    allowed: false,
+    reason: "quota_exhausted",
+    subscriptionActive: false
   };
 }
 
@@ -204472,10 +204773,10 @@ function sanitizePromptInjection(content, options) {
   }
   if (sanitized.length > 1e5) {
     sanitized = sanitized.substring(0, 1e5);
-    logger2.warn({ label: options.label, originalLength, truncatedTo: 1e5 }, "User content truncated \u2014 excessive length");
+    logger.warn({ label: options.label, originalLength, truncatedTo: 1e5 }, "User content truncated \u2014 excessive length");
   }
   if (detected.length > 0) {
-    logger2.info({ label: options.label, patterns: detected, originalLength, sanitizedLength: sanitized.length }, "Prompt injection pattern detected and neutralized");
+    logger.info({ label: options.label, patterns: detected, originalLength, sanitizedLength: sanitized.length }, "Prompt injection pattern detected and neutralized");
   }
   return sanitized;
 }
@@ -204507,12 +204808,12 @@ var __getProtoOf2 = Object.getPrototypeOf;
 var __hasOwnProp2 = Object.prototype.hasOwnProperty;
 var __esmMin = (fn, res) => () => (fn && (res = fn(fn = 0)), res);
 var __commonJSMin = (cb, mod) => () => (mod || (cb((mod = { exports: {} }).exports, mod), cb = null), mod.exports);
-var __copyProps2 = (to, from, except, desc19) => {
+var __copyProps2 = (to, from, except, desc20) => {
   if (from && typeof from === "object" || typeof from === "function") for (var keys = __getOwnPropNames2(from), i2 = 0, n = keys.length, key; i2 < n; i2++) {
     key = keys[i2];
     if (!__hasOwnProp2.call(to, key) && key !== except) __defProp2(to, key, {
       get: ((k) => from[k]).bind(null, key),
-      enumerable: !(desc19 = __getOwnPropDesc2(from, key)) || desc19.enumerable
+      enumerable: !(desc20 = __getOwnPropDesc2(from, key)) || desc20.enumerable
     });
   }
   return to;
@@ -206668,10 +206969,10 @@ var require_get2 = /* @__PURE__ */ __commonJSMin(((exports, module) => {
   } catch (e2) {
     if (!e2 || typeof e2 !== "object" || !("code" in e2) || e2.code !== "ERR_PROTO_ACCESS") throw e2;
   }
-  var desc19 = !!hasProtoAccessor && gOPD && gOPD(Object.prototype, "__proto__");
+  var desc20 = !!hasProtoAccessor && gOPD && gOPD(Object.prototype, "__proto__");
   var $Object = Object;
   var $getPrototypeOf = $Object.getPrototypeOf;
-  module.exports = desc19 && typeof desc19.get === "function" ? callBind([desc19.get]) : typeof $getPrototypeOf === "function" ? function getDunder(value) {
+  module.exports = desc20 && typeof desc20.get === "function" ? callBind([desc20.get]) : typeof $getPrototypeOf === "function" ? function getDunder(value) {
     return $getPrototypeOf(value == null ? value : $Object(value));
   } : false;
 }));
@@ -207004,9 +207305,9 @@ var require_get_intrinsic2 = /* @__PURE__ */ __commonJSMin(((exports, module) =>
           return;
         }
         if ($gOPD && i2 + 1 >= parts.length) {
-          var desc19 = $gOPD(value, part);
-          isOwn = !!desc19;
-          if (isOwn && "get" in desc19 && !("originalValue" in desc19.get)) value = desc19.get;
+          var desc20 = $gOPD(value, part);
+          isOwn = !!desc20;
+          if (isOwn && "get" in desc20 && !("originalValue" in desc20.get)) value = desc20.get;
           else value = value[part];
         } else {
           isOwn = hasOwn(value, part);
@@ -207219,12 +207520,12 @@ var require_define_data_property = /* @__PURE__ */ __commonJSMin(((exports, modu
     var nonWritable = arguments.length > 4 ? arguments[4] : null;
     var nonConfigurable = arguments.length > 5 ? arguments[5] : null;
     var loose = arguments.length > 6 ? arguments[6] : false;
-    var desc19 = !!gopd && gopd(obj, property);
+    var desc20 = !!gopd && gopd(obj, property);
     if ($defineProperty) $defineProperty(obj, property, {
-      configurable: nonConfigurable === null && desc19 ? desc19.configurable : !nonConfigurable,
-      enumerable: nonEnumerable === null && desc19 ? desc19.enumerable : !nonEnumerable,
+      configurable: nonConfigurable === null && desc20 ? desc20.configurable : !nonConfigurable,
+      enumerable: nonEnumerable === null && desc20 ? desc20.enumerable : !nonEnumerable,
       value,
-      writable: nonWritable === null && desc19 ? desc19.writable : !nonWritable
+      writable: nonWritable === null && desc20 ? desc20.writable : !nonWritable
     });
     else if (loose || !nonEnumerable && !nonWritable && !nonConfigurable) obj[property] = value;
     else throw new $SyntaxError("This environment does not support defining a property as non-configurable, non-writable, or non-enumerable.");
@@ -207259,9 +207560,9 @@ var require_set_function_length = /* @__PURE__ */ __commonJSMin(((exports, modul
     var functionLengthIsConfigurable = true;
     var functionLengthIsWritable = true;
     if ("length" in fn && gOPD) {
-      var desc19 = gOPD(fn, "length");
-      if (desc19 && !desc19.configurable) functionLengthIsConfigurable = false;
-      if (desc19 && !desc19.writable) functionLengthIsWritable = false;
+      var desc20 = gOPD(fn, "length");
+      if (desc20 && !desc20.configurable) functionLengthIsConfigurable = false;
+      if (desc20 && !desc20.writable) functionLengthIsWritable = false;
     }
     if (functionLengthIsConfigurable || functionLengthIsWritable || !loose) if (hasDescriptors) define2(fn, "length", length, true, true);
     else define2(fn, "length", length);
@@ -207776,14 +208077,14 @@ var require_util = /* @__PURE__ */ __commonJSMin(((exports) => {
     return output;
   }
   function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array2) {
-    var name, str, desc19 = Object.getOwnPropertyDescriptor(value, key) || { value: value[key] };
-    if (desc19.get) if (desc19.set) str = ctx.stylize("[Getter/Setter]", "special");
+    var name, str, desc20 = Object.getOwnPropertyDescriptor(value, key) || { value: value[key] };
+    if (desc20.get) if (desc20.set) str = ctx.stylize("[Getter/Setter]", "special");
     else str = ctx.stylize("[Getter]", "special");
-    else if (desc19.set) str = ctx.stylize("[Setter]", "special");
+    else if (desc20.set) str = ctx.stylize("[Setter]", "special");
     if (!hasOwnProperty(visibleKeys, key)) name = "[" + key + "]";
-    if (!str) if (ctx.seen.indexOf(desc19.value) < 0) {
-      if (isNull7(recurseTimes)) str = formatValue(ctx, desc19.value, null);
-      else str = formatValue(ctx, desc19.value, recurseTimes - 1);
+    if (!str) if (ctx.seen.indexOf(desc20.value) < 0) {
+      if (isNull7(recurseTimes)) str = formatValue(ctx, desc20.value, null);
+      else str = formatValue(ctx, desc20.value, recurseTimes - 1);
       if (str.indexOf("\n") > -1) if (array2) str = str.split("\n").map(function(line) {
         return "  " + line;
       }).join("\n").slice(2);
@@ -223731,9 +224032,9 @@ function _define_property(obj, key, value) {
 }
 
 // ../../node_modules/tslib/tslib.es6.mjs
-function __decorate2(decorators, target, key, desc19) {
-  var c = arguments.length, r2 = c < 3 ? target : desc19 === null ? desc19 = Object.getOwnPropertyDescriptor(target, key) : desc19, d;
-  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r2 = Reflect.decorate(decorators, target, key, desc19);
+function __decorate2(decorators, target, key, desc20) {
+  var c = arguments.length, r2 = c < 3 ? target : desc20 === null ? desc20 = Object.getOwnPropertyDescriptor(target, key) : desc20, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r2 = Reflect.decorate(decorators, target, key, desc20);
   else for (var i2 = decorators.length - 1; i2 >= 0; i2--) if (d = decorators[i2]) r2 = (c < 3 ? d(r2) : c > 3 ? d(target, key, r2) : d(target, key)) || r2;
   return c > 3 && r2 && Object.defineProperty(target, key, r2), r2;
 }
@@ -250624,7 +250925,7 @@ router4.get("/projects/stats", async (req, res) => {
     byType[typeKey] = (byType[typeKey] ?? 0) + 1;
   }
   const projectIds = all.map((p) => p.id);
-  const recent = projectIds.length > 0 ? await db.select().from(activitiesTable).where(sql6`${activitiesTable.projectId} in (${sql6.join(projectIds.map((id) => sql6`${id}`), sql6`, `)})`).orderBy(desc2(activitiesTable.createdAt)).limit(5) : [];
+  const recent = projectIds.length > 0 ? await db.select().from(activitiesTable).where(sql6`${activitiesTable.projectId} in (${sql6.join(projectIds.map((id) => sql6`${id}`), sql6`, `)})`).orderBy(desc3(activitiesTable.createdAt)).limit(5) : [];
   res.json({ total, byStatus, byType, recentActivity: recent });
 });
 router4.get("/projects/:projectId", async (req, res) => {
@@ -250771,14 +251072,25 @@ router4.post("/projects/:projectId/analyze", async (req, res) => {
       100,
       selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents
     );
-    const creditCheck = await checkCreditBalance(project.userId, estimatedCostCents, false);
-    if (!creditCheck.allowed) {
-      res.status(402).json({
-        error: creditCheck.reason,
-        balanceCents: creditCheck.balanceCents,
-        costCents: creditCheck.costCents,
-        tierName: selectedTier.name
-      });
+    const accessCheck = await checkAIAccess({
+      userId: project.userId,
+      tierId: selectedTier.id,
+      estimatedCostCents
+    });
+    if (!accessCheck.allowed) {
+      if (accessCheck.reason === "saldo_insufficient") {
+        res.status(402).json({
+          error: "Saldo tidak mencukupi. Silakan topup terlebih dahulu.",
+          balanceCents: accessCheck.balanceCents,
+          costCents: accessCheck.requiredCents,
+          tierName: selectedTier.name
+        });
+      } else {
+        res.status(402).json({
+          error: "Quota langganan habis dan saldo tidak tersedia. Silakan topup atau perpanjang langganan.",
+          tierName: selectedTier.name
+        });
+      }
       return;
     }
   }
@@ -250835,14 +251147,19 @@ Hasilkan JSON dengan struktur berikut (HANYA JSON, tanpa teks lain):
       tierConfig: analysisTier
     });
     if (!selectedTier.isFree && analysisUsage.costCents > 0) {
-      await deductCredit({
+      const consumeResult = await consumeQuotaForAIRequest({
         userId: project.userId,
-        costCents: analysisUsage.costCents,
-        tierIsFree: false,
         tierId: selectedTier.id,
-        aiUsageLogId: analyzeUsageLog?.id,
-        description: `AI analyze \u2014 ${selectedTier.name} tier`
+        inputTokens: analysisUsage.inputTokens,
+        outputTokens: analysisUsage.outputTokens,
+        costCents: analysisUsage.costCents
       });
+      if (!consumeResult.allowed) {
+        logger.warn(
+          { userId: project.userId, reason: consumeResult.reason },
+          "Quota/saldo exhausted during analyze"
+        );
+      }
     }
     const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
     let metadata = {};
@@ -250913,14 +251230,19 @@ Tulis dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan b
       tierConfig: writeTier
     });
     if (!selectedTier.isFree && writeUsage.costCents > 0) {
-      await deductCredit({
+      const consumeResult = await consumeQuotaForAIRequest({
         userId: project.userId,
-        costCents: writeUsage.costCents,
-        tierIsFree: false,
         tierId: selectedTier.id,
-        aiUsageLogId: writeUsageLog?.id,
-        description: `AI write \u2014 ${selectedTier.name} tier`
+        inputTokens: writeUsage.inputTokens,
+        outputTokens: writeUsage.outputTokens,
+        costCents: writeUsage.costCents
       });
+      if (!consumeResult.allowed) {
+        logger.warn(
+          { userId: project.userId, reason: consumeResult.reason },
+          "Quota/saldo exhausted during write"
+        );
+      }
     }
     const versions = await db.select().from(documentVersionsTable).where(
       and4(
@@ -250974,14 +251296,25 @@ router4.post("/projects/:projectId/outline", async (req, res) => {
       100,
       selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents
     );
-    const creditCheck = await checkCreditBalance(project.userId, estimatedCostCents, false);
-    if (!creditCheck.allowed) {
-      res.status(402).json({
-        error: creditCheck.reason,
-        balanceCents: creditCheck.balanceCents,
-        costCents: creditCheck.costCents,
-        tierName: selectedTier.name
-      });
+    const accessCheck = await checkAIAccess({
+      userId: project.userId,
+      tierId: selectedTier.id,
+      estimatedCostCents
+    });
+    if (!accessCheck.allowed) {
+      if (accessCheck.reason === "saldo_insufficient") {
+        res.status(402).json({
+          error: "Saldo tidak mencukupi. Silakan topup terlebih dahulu.",
+          balanceCents: accessCheck.balanceCents,
+          costCents: accessCheck.requiredCents,
+          tierName: selectedTier.name
+        });
+      } else {
+        res.status(402).json({
+          error: "Quota langganan habis dan saldo tidak tersedia. Silakan topup atau perpanjang langganan.",
+          tierName: selectedTier.name
+        });
+      }
       return;
     }
   }
@@ -251023,14 +251356,19 @@ Format: outline lengkap dalam format markdown dengan bab dan sub-bab.`;
     tierConfig
   });
   if (!selectedTier.isFree && usage.costCents > 0) {
-    await deductCredit({
+    const consumeResult = await consumeQuotaForAIRequest({
       userId: project.userId,
-      costCents: usage.costCents,
-      tierIsFree: false,
       tierId: selectedTier.id,
-      aiUsageLogId: usageLog?.id,
-      description: `AI outline \u2014 ${selectedTier.name} tier`
+      inputTokens: usage.inputTokens,
+      outputTokens: usage.outputTokens,
+      costCents: usage.costCents
     });
+    if (!consumeResult.allowed) {
+      logger.warn(
+        { userId: project.userId, reason: consumeResult.reason },
+        "Quota/saldo exhausted during outline"
+      );
+    }
   }
   const [metadata] = await db.select().from(projectMetadataTable).where(eq6(projectMetadataTable.projectId, params.data.projectId));
   if (metadata) {
@@ -251071,14 +251409,25 @@ router4.post("/projects/:projectId/documents/generate", async (req, res) => {
       100,
       selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents
     );
-    const creditCheck = await checkCreditBalance(project.userId, estimatedCostCents, false);
-    if (!creditCheck.allowed) {
-      res.status(402).json({
-        error: creditCheck.reason,
-        balanceCents: creditCheck.balanceCents,
-        costCents: creditCheck.costCents,
-        tierName: selectedTier.name
-      });
+    const accessCheck = await checkAIAccess({
+      userId: project.userId,
+      tierId: selectedTier.id,
+      estimatedCostCents
+    });
+    if (!accessCheck.allowed) {
+      if (accessCheck.reason === "saldo_insufficient") {
+        res.status(402).json({
+          error: "Saldo tidak mencukupi. Silakan topup terlebih dahulu.",
+          balanceCents: accessCheck.balanceCents,
+          costCents: accessCheck.requiredCents,
+          tierName: selectedTier.name
+        });
+      } else {
+        res.status(402).json({
+          error: "Quota langganan habis dan saldo tidak tersedia. Silakan topup atau perpanjang langganan.",
+          tierName: selectedTier.name
+        });
+      }
       return;
     }
   }
@@ -251146,14 +251495,19 @@ TULIS dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan b
       tierConfig
     });
     if (!selectedTier.isFree && usage.costCents > 0) {
-      await deductCredit({
+      const consumeResult = await consumeQuotaForAIRequest({
         userId: project.userId,
-        costCents: usage.costCents,
-        tierIsFree: false,
         tierId: selectedTier.id,
-        aiUsageLogId: usageLog?.id,
-        description: `AI generate document \u2014 ${selectedTier.name} tier`
+        inputTokens: usage.inputTokens,
+        outputTokens: usage.outputTokens,
+        costCents: usage.costCents
       });
+      if (!consumeResult.allowed) {
+        logger.warn(
+          { userId: project.userId, reason: consumeResult.reason },
+          "Quota/saldo exhausted during generate document"
+        );
+      }
     }
     const versions = await db.select().from(documentVersionsTable).where(
       and4(
@@ -251195,11 +251549,11 @@ router4.get("/projects/:projectId/export/docx", async (req, res) => {
   const docs = await db.select().from(documentsTable).where(eq6(documentsTable.projectId, projectId)).orderBy(documentsTable.orderIndex);
   const documentsWithContent = await Promise.all(
     docs.map(async (doc) => {
-      const versions = await db.select().from(documentVersionsTable).where(eq6(documentVersionsTable.documentId, doc.id)).orderBy(desc2(documentVersionsTable.versionNumber)).limit(1);
+      const versions = await db.select().from(documentVersionsTable).where(eq6(documentVersionsTable.documentId, doc.id)).orderBy(desc3(documentVersionsTable.versionNumber)).limit(1);
       return { document: doc, version: versions[0] ?? null };
     })
   );
-  const standaloneVersions = await db.select().from(documentVersionsTable).where(and4(eq6(documentVersionsTable.projectId, projectId), isNull2(documentVersionsTable.documentId))).orderBy(desc2(documentVersionsTable.versionNumber));
+  const standaloneVersions = await db.select().from(documentVersionsTable).where(and4(eq6(documentVersionsTable.projectId, projectId), isNull2(documentVersionsTable.documentId))).orderBy(desc3(documentVersionsTable.versionNumber));
   const allDocuments = docs.length > 0 ? documentsWithContent : standaloneVersions.map((v) => ({
     document: {
       id: 0,
@@ -251256,7 +251610,7 @@ router4.get("/projects/:projectId/export/pdf", async (req, res) => {
     return;
   }
   const [metadata] = await db.select().from(projectMetadataTable).where(eq6(projectMetadataTable.projectId, projectId));
-  const [latestVersion] = await db.select().from(documentVersionsTable).where(eq6(documentVersionsTable.projectId, projectId)).orderBy(desc2(documentVersionsTable.versionNumber)).limit(1);
+  const [latestVersion] = await db.select().from(documentVersionsTable).where(eq6(documentVersionsTable.projectId, projectId)).orderBy(desc3(documentVersionsTable.versionNumber)).limit(1);
   const refs = await db.select().from(referencesTable).where(eq6(referencesTable.projectId, projectId));
   const [user] = await db.select({ displayName: usersTable.displayName }).from(usersTable).where(eq6(usersTable.id, req.user.id));
   try {
@@ -251303,11 +251657,11 @@ router4.get("/projects/:projectId/export/pptx", async (req, res) => {
   const docs = await db.select().from(documentsTable).where(eq6(documentsTable.projectId, projectId)).orderBy(documentsTable.orderIndex);
   const documentsWithContent = await Promise.all(
     docs.map(async (doc) => {
-      const versions = await db.select().from(documentVersionsTable).where(eq6(documentVersionsTable.documentId, doc.id)).orderBy(desc2(documentVersionsTable.versionNumber)).limit(1);
+      const versions = await db.select().from(documentVersionsTable).where(eq6(documentVersionsTable.documentId, doc.id)).orderBy(desc3(documentVersionsTable.versionNumber)).limit(1);
       return { document: doc, version: versions[0] ?? null };
     })
   );
-  const standaloneVersions = await db.select().from(documentVersionsTable).where(and4(eq6(documentVersionsTable.projectId, projectId), isNull2(documentVersionsTable.documentId))).orderBy(desc2(documentVersionsTable.versionNumber));
+  const standaloneVersions = await db.select().from(documentVersionsTable).where(and4(eq6(documentVersionsTable.projectId, projectId), isNull2(documentVersionsTable.documentId))).orderBy(desc3(documentVersionsTable.versionNumber));
   const allDocuments = docs.length > 0 ? documentsWithContent : standaloneVersions.map((v) => ({
     document: {
       id: 0,
@@ -251364,7 +251718,7 @@ router4.get("/projects/:projectId/share", async (req, res) => {
   }
   const ok = await requireProjectOwnership(projectId, req.user.id, res);
   if (!ok) return;
-  const tokens = await db.select().from(shareTokensTable).where(eq6(shareTokensTable.projectId, projectId)).orderBy(desc2(shareTokensTable.createdAt));
+  const tokens = await db.select().from(shareTokensTable).where(eq6(shareTokensTable.projectId, projectId)).orderBy(desc3(shareTokensTable.createdAt));
   res.json(
     tokens.map((t2) => ({
       ...t2,
@@ -251423,7 +251777,7 @@ var projects_default = router4;
 
 // src/routes/messages.ts
 var import_express5 = __toESM(require_express2(), 1);
-import { eq as eq7, asc, desc as desc3, and as and5, isNull as isNull3 } from "drizzle-orm";
+import { eq as eq7, asc, desc as desc4, and as and5, isNull as isNull3 } from "drizzle-orm";
 var router5 = (0, import_express5.Router)();
 router5.get("/projects/:projectId/messages", async (req, res) => {
   const params = ListMessagesParams.safeParse(req.params);
@@ -251458,14 +251812,25 @@ router5.post("/projects/:projectId/messages", async (req, res) => {
   }
   const estimatedCostCents = selectedTier.pricePer1MInputCents > 0 || selectedTier.pricePer1MOutputCents > 0 ? Math.max(100, selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents) : 0;
   if (!selectedTier.isFree) {
-    const creditCheck = await checkCreditBalance(project.userId, estimatedCostCents, false);
-    if (!creditCheck.allowed) {
-      res.status(402).json({
-        error: creditCheck.reason,
-        balanceCents: creditCheck.balanceCents,
-        costCents: creditCheck.costCents,
-        tierName: selectedTier.name
-      });
+    const accessCheck = await checkAIAccess({
+      userId: project.userId,
+      tierId: selectedTier.id,
+      estimatedCostCents
+    });
+    if (!accessCheck.allowed) {
+      if (accessCheck.reason === "saldo_insufficient") {
+        res.status(402).json({
+          error: "Saldo tidak mencukupi. Silakan topup terlebih dahulu.",
+          balanceCents: accessCheck.balanceCents,
+          costCents: accessCheck.requiredCents,
+          tierName: selectedTier.name
+        });
+      } else {
+        res.status(402).json({
+          error: "Quota langganan habis dan saldo tidak tersedia. Silakan topup atau perpanjang langganan.",
+          tierName: selectedTier.name
+        });
+      }
       return;
     }
   }
@@ -251476,8 +251841,8 @@ router5.post("/projects/:projectId/messages", async (req, res) => {
     content: sanitizedContent
   }).returning();
   const [metadata] = await db.select().from(projectMetadataTable).where(eq7(projectMetadataTable.projectId, params.data.projectId));
-  const [latestDoc] = await db.select().from(documentVersionsTable).where(eq7(documentVersionsTable.projectId, params.data.projectId)).orderBy(desc3(documentVersionsTable.versionNumber)).limit(1);
-  const recentMessages = await db.select().from(messagesTable).where(eq7(messagesTable.projectId, params.data.projectId)).orderBy(desc3(messagesTable.createdAt)).limit(10);
+  const [latestDoc] = await db.select().from(documentVersionsTable).where(eq7(documentVersionsTable.projectId, params.data.projectId)).orderBy(desc4(documentVersionsTable.versionNumber)).limit(1);
+  const recentMessages = await db.select().from(messagesTable).where(eq7(messagesTable.projectId, params.data.projectId)).orderBy(desc4(messagesTable.createdAt)).limit(10);
   const systemPrompt = buildSystemPrompt({
     title: project.title,
     instructionText: project.instructionText,
@@ -251519,14 +251884,19 @@ router5.post("/projects/:projectId/messages", async (req, res) => {
     requestType: "chat"
   }).returning();
   if (!selectedTier.isFree && usage.costCents > 0) {
-    await deductCredit({
+    const finalConsume = await consumeQuotaForAIRequest({
       userId: project.userId,
-      costCents: usage.costCents,
-      tierIsFree: false,
       tierId: selectedTier.id,
-      aiUsageLogId: usageLog.id,
-      description: `AI chat \u2014 ${selectedTier.name} tier`
+      inputTokens: usage.inputTokens,
+      outputTokens: usage.outputTokens,
+      costCents: usage.costCents
     });
+    if (!finalConsume.allowed) {
+      logger.warn(
+        { userId: project.userId, costCents: usage.costCents, reason: finalConsume.reason },
+        "Quota/saldo exhausted mid-flight"
+      );
+    }
   }
   const [assistantMessage] = await db.insert(messagesTable).values({
     projectId: params.data.projectId,
@@ -251569,7 +251939,7 @@ var messages_default = router5;
 
 // src/routes/documents.ts
 var import_express6 = __toESM(require_express2(), 1);
-import { eq as eq8, desc as desc4, and as and6, isNull as isNull4, sql as sql7, count } from "drizzle-orm";
+import { eq as eq8, desc as desc5, and as and6, isNull as isNull4, sql as sql7, count } from "drizzle-orm";
 
 // src/lib/citation-rendering.ts
 var NUMBERED_FORMATS = /* @__PURE__ */ new Set([
@@ -251691,7 +252061,7 @@ function renderParagraph(paragraphText, paragraphIndex, citationsForParagraph, f
   const htmlWithCitations = segments.reverse().join("");
   const isStructured = /^(#{1,6}\s|[-*]\s)/m.test(text33);
   if (isStructured) {
-    logger2.debug(
+    logger.debug(
       { paragraphIndex },
       "Paragraph has markdown structure \u2014 using simplified render"
     );
@@ -251968,7 +252338,7 @@ function formatBibliography(refs, format) {
     });
     return output;
   } catch (err) {
-    logger2.warn({ err, format }, "CSL formatting failed, using fallback");
+    logger.warn({ err, format }, "CSL formatting failed, using fallback");
     return formatFallback(refs, format);
   }
 }
@@ -252059,7 +252429,7 @@ router6.get("/projects/:projectId/documents", async (req, res) => {
   const docs = await db.select().from(documentsTable).where(eq8(documentsTable.projectId, projectId)).orderBy(documentsTable.orderIndex, documentsTable.createdAt);
   const docsWithVersions = await Promise.all(
     docs.map(async (doc) => {
-      const versions = await db.select().from(documentVersionsTable).where(eq8(documentVersionsTable.documentId, doc.id)).orderBy(desc4(documentVersionsTable.versionNumber));
+      const versions = await db.select().from(documentVersionsTable).where(eq8(documentVersionsTable.documentId, doc.id)).orderBy(desc5(documentVersionsTable.versionNumber));
       return {
         ...doc,
         versions: versions.map((v) => ({
@@ -252076,7 +252446,7 @@ router6.get("/projects/:projectId/documents", async (req, res) => {
         eq8(documentVersionsTable.projectId, projectId),
         isNull4(documentVersionsTable.documentId)
       )
-    ).orderBy(desc4(documentVersionsTable.versionNumber));
+    ).orderBy(desc5(documentVersionsTable.versionNumber));
     if (legacyVersions.length > 0) {
       res.json([{
         id: 0,
@@ -252147,7 +252517,7 @@ router6.get("/projects/:projectId/documents/latest", async (req, res) => {
   const projectId = params.data.projectId;
   const [activeDoc] = await db.select().from(documentsTable).where(and6(eq8(documentsTable.projectId, projectId), eq8(documentsTable.isActive, true)));
   if (activeDoc) {
-    const [version3] = await db.select().from(documentVersionsTable).where(eq8(documentVersionsTable.documentId, activeDoc.id)).orderBy(desc4(documentVersionsTable.versionNumber)).limit(1);
+    const [version3] = await db.select().from(documentVersionsTable).where(eq8(documentVersionsTable.documentId, activeDoc.id)).orderBy(desc5(documentVersionsTable.versionNumber)).limit(1);
     if (version3) {
       res.json({
         ...version3,
@@ -252159,7 +252529,7 @@ router6.get("/projects/:projectId/documents/latest", async (req, res) => {
   }
   const [anyDoc] = await db.select().from(documentsTable).where(eq8(documentsTable.projectId, projectId)).orderBy(documentsTable.orderIndex).limit(1);
   if (anyDoc) {
-    const [version3] = await db.select().from(documentVersionsTable).where(eq8(documentVersionsTable.documentId, anyDoc.id)).orderBy(desc4(documentVersionsTable.versionNumber)).limit(1);
+    const [version3] = await db.select().from(documentVersionsTable).where(eq8(documentVersionsTable.documentId, anyDoc.id)).orderBy(desc5(documentVersionsTable.versionNumber)).limit(1);
     if (version3) {
       res.json({
         ...version3,
@@ -252174,7 +252544,7 @@ router6.get("/projects/:projectId/documents/latest", async (req, res) => {
       eq8(documentVersionsTable.projectId, projectId),
       isNull4(documentVersionsTable.documentId)
     )
-  ).orderBy(desc4(documentVersionsTable.versionNumber)).limit(1);
+  ).orderBy(desc5(documentVersionsTable.versionNumber)).limit(1);
   if (legacyVersion) {
     res.json({
       ...legacyVersion,
@@ -252207,7 +252577,7 @@ router6.get("/projects/:projectId/documents/:documentId", async (req, res) => {
     res.status(404).json({ error: "Document not found" });
     return;
   }
-  const versions = await db.select().from(documentVersionsTable).where(eq8(documentVersionsTable.documentId, doc.id)).orderBy(desc4(documentVersionsTable.versionNumber));
+  const versions = await db.select().from(documentVersionsTable).where(eq8(documentVersionsTable.documentId, doc.id)).orderBy(desc5(documentVersionsTable.versionNumber));
   res.json({
     ...doc,
     versions: versions.map((v) => ({
@@ -252324,7 +252694,7 @@ router6.get("/projects/:projectId/document/preview", async (req, res) => {
     return;
   }
   const format = metadata?.citationFormat ?? project.citationFormat ?? "APA";
-  const [latest] = await db.select().from(documentVersionsTable).where(eq8(documentVersionsTable.projectId, projectId)).orderBy(desc4(documentVersionsTable.versionNumber)).limit(1);
+  const [latest] = await db.select().from(documentVersionsTable).where(eq8(documentVersionsTable.projectId, projectId)).orderBy(desc5(documentVersionsTable.versionNumber)).limit(1);
   if (!latest) {
     res.json({
       paragraphs: [],
@@ -252412,7 +252782,7 @@ var documents_default = router6;
 
 // src/routes/references.ts
 var import_express7 = __toESM(require_express2(), 1);
-import { eq as eq9, and as and7, desc as desc5, inArray } from "drizzle-orm";
+import { eq as eq9, and as and7, desc as desc6, inArray } from "drizzle-orm";
 
 // src/lib/fetch-reference-metadata.ts
 function detectIdentifierType(input) {
@@ -252615,7 +252985,7 @@ router7.get("/projects/:projectId/references", async (req, res) => {
   }
   const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
   if (!ok) return;
-  const refs = await db.select().from(referencesTable).where(eq9(referencesTable.projectId, params.data.projectId)).orderBy(desc5(referencesTable.createdAt));
+  const refs = await db.select().from(referencesTable).where(eq9(referencesTable.projectId, params.data.projectId)).orderBy(desc6(referencesTable.createdAt));
   res.json(
     refs.map((r2) => ({
       ...r2,
@@ -252885,14 +253255,25 @@ router7.post("/projects/:projectId/references/regenerate", async (req, res) => {
       100,
       selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents
     );
-    const creditCheck = await checkCreditBalance(project.userId, estimatedCostCents, false);
-    if (!creditCheck.allowed) {
-      res.status(402).json({
-        error: creditCheck.reason,
-        balanceCents: creditCheck.balanceCents,
-        costCents: creditCheck.costCents,
-        tierName: selectedTier.name
-      });
+    const accessCheck = await checkAIAccess({
+      userId: project.userId,
+      tierId: selectedTier.id,
+      estimatedCostCents
+    });
+    if (!accessCheck.allowed) {
+      if (accessCheck.reason === "saldo_insufficient") {
+        res.status(402).json({
+          error: "Saldo tidak mencukupi. Silakan topup terlebih dahulu.",
+          balanceCents: accessCheck.balanceCents,
+          costCents: accessCheck.requiredCents,
+          tierName: selectedTier.name
+        });
+      } else {
+        res.status(402).json({
+          error: "Quota langganan habis dan saldo tidak tersedia. Silakan topup atau perpanjang langganan.",
+          tierName: selectedTier.name
+        });
+      }
       return;
     }
   }
@@ -252934,14 +253315,19 @@ Format output: daftar pustaka siap pakai dalam format ${citationFormat} yang ben
     tierConfig
   });
   if (!selectedTier.isFree && usage.costCents > 0) {
-    await deductCredit({
+    const consumeResult = await consumeQuotaForAIRequest({
       userId: project.userId,
-      costCents: usage.costCents,
-      tierIsFree: false,
       tierId: selectedTier.id,
-      aiUsageLogId: usageLog?.id,
-      description: `AI bibliography \u2014 ${selectedTier.name} tier`
+      inputTokens: usage.inputTokens,
+      outputTokens: usage.outputTokens,
+      costCents: usage.costCents
     });
+    if (!consumeResult.allowed) {
+      logger.warn(
+        { userId: project.userId, reason: consumeResult.reason },
+        "Quota/saldo exhausted during bibliography"
+      );
+    }
   }
   await logActivity(params.data.projectId, "bibliography_regenerated", "Daftar pustaka diperbarui");
   res.json({ bibliography: aiResponse });
@@ -253336,7 +253722,7 @@ router7.post("/projects/:projectId/references/auto-cite", async (req, res) => {
     });
     return;
   }
-  const [latestVersion] = await db.select().from(documentVersionsTable).where(eq9(documentVersionsTable.projectId, params.data.projectId)).orderBy(desc5(documentVersionsTable.versionNumber)).limit(1);
+  const [latestVersion] = await db.select().from(documentVersionsTable).where(eq9(documentVersionsTable.projectId, params.data.projectId)).orderBy(desc6(documentVersionsTable.versionNumber)).limit(1);
   const documentText = latestVersion?.content ?? "";
   const paragraphs = documentText.split(/\n\s*\n/).map((p) => p.trim()).filter((p) => p.length > 0);
   if (paragraphs.length === 0) {
@@ -253359,18 +253745,25 @@ router7.post("/projects/:projectId/references/auto-cite", async (req, res) => {
       100,
       selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents
     );
-    const creditCheck = await checkCreditBalance(
-      project.userId,
-      estimatedCostCents,
-      false
-    );
-    if (!creditCheck.allowed) {
-      res.status(402).json({
-        error: creditCheck.reason,
-        balanceCents: creditCheck.balanceCents,
-        costCents: creditCheck.costCents,
-        tierName: selectedTier.name
-      });
+    const accessCheck = await checkAIAccess({
+      userId: project.userId,
+      tierId: selectedTier.id,
+      estimatedCostCents
+    });
+    if (!accessCheck.allowed) {
+      if (accessCheck.reason === "saldo_insufficient") {
+        res.status(402).json({
+          error: "Saldo tidak mencukupi. Silakan topup terlebih dahulu.",
+          balanceCents: accessCheck.balanceCents,
+          costCents: accessCheck.requiredCents,
+          tierName: selectedTier.name
+        });
+      } else {
+        res.status(402).json({
+          error: "Quota langganan habis dan saldo tidak tersedia. Silakan topup atau perpanjang langganan.",
+          tierName: selectedTier.name
+        });
+      }
       return;
     }
   }
@@ -253440,14 +253833,19 @@ ${candidateReferences.map(
     tierConfig
   });
   if (!selectedTier.isFree && usage.costCents > 0) {
-    await deductCredit({
+    const consumeResult = await consumeQuotaForAIRequest({
       userId: project.userId,
-      costCents: usage.costCents,
-      tierIsFree: false,
       tierId: selectedTier.id,
-      aiUsageLogId: usageLog?.id,
-      description: `AI auto-cite \u2014 ${selectedTier.name} tier`
+      inputTokens: usage.inputTokens,
+      outputTokens: usage.outputTokens,
+      costCents: usage.costCents
     });
+    if (!consumeResult.allowed) {
+      logger.warn(
+        { userId: project.userId, reason: consumeResult.reason },
+        "Quota/saldo exhausted during auto-cite"
+      );
+    }
   }
   let suggestions = [];
   try {
@@ -253673,7 +254071,7 @@ var attachments_default = router8;
 
 // src/routes/activities.ts
 var import_express9 = __toESM(require_express2(), 1);
-import { eq as eq11, desc as desc6 } from "drizzle-orm";
+import { eq as eq11, desc as desc7 } from "drizzle-orm";
 var router9 = (0, import_express9.Router)();
 router9.get("/projects/:projectId/activities", async (req, res) => {
   const params = ListActivitiesParams.safeParse(req.params);
@@ -253687,14 +254085,14 @@ router9.get("/projects/:projectId/activities", async (req, res) => {
   }
   const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
   if (!ok) return;
-  const activities = await db.select().from(activitiesTable).where(eq11(activitiesTable.projectId, params.data.projectId)).orderBy(desc6(activitiesTable.createdAt));
+  const activities = await db.select().from(activitiesTable).where(eq11(activitiesTable.projectId, params.data.projectId)).orderBy(desc7(activitiesTable.createdAt));
   res.json(activities);
 });
 var activities_default = router9;
 
 // src/routes/jobs.ts
 var import_express10 = __toESM(require_express2(), 1);
-import { eq as eq12, desc as desc7 } from "drizzle-orm";
+import { eq as eq12, desc as desc8 } from "drizzle-orm";
 var router10 = (0, import_express10.Router)();
 router10.get("/projects/:projectId/jobs", async (req, res) => {
   const params = ListJobsParams.safeParse(req.params);
@@ -253708,7 +254106,7 @@ router10.get("/projects/:projectId/jobs", async (req, res) => {
   }
   const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
   if (!ok) return;
-  const jobs = await db.select().from(jobsTable).where(eq12(jobsTable.projectId, params.data.projectId)).orderBy(desc7(jobsTable.createdAt));
+  const jobs = await db.select().from(jobsTable).where(eq12(jobsTable.projectId, params.data.projectId)).orderBy(desc8(jobsTable.createdAt));
   res.json(
     jobs.map((j) => ({
       ...j,
@@ -253755,7 +254153,7 @@ var metadata_default = router11;
 
 // src/routes/exports.ts
 var import_express12 = __toESM(require_express2(), 1);
-import { eq as eq14, desc as desc8, and as and8, isNull as isNull5 } from "drizzle-orm";
+import { eq as eq14, desc as desc9, and as and8, isNull as isNull5 } from "drizzle-orm";
 import path2 from "path";
 import fs4 from "fs/promises";
 var EXPORT_DIR = process.env.EXPORT_DIR ?? "/tmp/academic-workspace-exports";
@@ -253870,7 +254268,7 @@ router12.get("/projects/:projectId/exports", async (req, res) => {
   }
   const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
   if (!ok) return;
-  const exports = await db.select().from(exportsTable).where(eq14(exportsTable.projectId, params.data.projectId)).orderBy(desc8(exportsTable.createdAt));
+  const exports = await db.select().from(exportsTable).where(eq14(exportsTable.projectId, params.data.projectId)).orderBy(desc9(exportsTable.createdAt));
   res.json(
     exports.map((e2) => ({
       ...e2,
@@ -253902,10 +254300,10 @@ router12.post("/projects/:projectId/exports", async (req, res) => {
     const projectId = params.data.projectId;
     const [activeDoc] = await db.select().from(documentsTable).where(and8(eq14(documentsTable.projectId, projectId), eq14(documentsTable.isActive, true)));
     if (activeDoc) {
-      [doc] = await db.select().from(documentVersionsTable).where(eq14(documentVersionsTable.documentId, activeDoc.id)).orderBy(desc8(documentVersionsTable.versionNumber)).limit(1);
+      [doc] = await db.select().from(documentVersionsTable).where(eq14(documentVersionsTable.documentId, activeDoc.id)).orderBy(desc9(documentVersionsTable.versionNumber)).limit(1);
     }
     if (!doc) {
-      [doc] = await db.select().from(documentVersionsTable).where(and8(eq14(documentVersionsTable.projectId, projectId), isNull5(documentVersionsTable.documentId))).orderBy(desc8(documentVersionsTable.versionNumber)).limit(1);
+      [doc] = await db.select().from(documentVersionsTable).where(and8(eq14(documentVersionsTable.projectId, projectId), isNull5(documentVersionsTable.documentId))).orderBy(desc9(documentVersionsTable.versionNumber)).limit(1);
     }
   }
   if (!doc) {
@@ -254073,7 +254471,7 @@ var ai_usage_default = router13;
 
 // src/routes/comments.ts
 var import_express14 = __toESM(require_express2(), 1);
-import { eq as eq16, and as and10, desc as desc9 } from "drizzle-orm";
+import { eq as eq16, and as and10, desc as desc10 } from "drizzle-orm";
 var router14 = (0, import_express14.Router)();
 router14.get("/projects/:projectId/documents/:documentId/comments", async (req, res) => {
   const projectId = Number(req.params.projectId);
@@ -254088,7 +254486,7 @@ router14.get("/projects/:projectId/documents/:documentId/comments", async (req, 
   }
   const ok = await requireProjectWriteAccess(projectId, req.user.id, res);
   if (!ok) return;
-  const comments = await db.select().from(commentsTable).where(and10(eq16(commentsTable.projectId, projectId), eq16(commentsTable.documentId, documentId))).orderBy(desc9(commentsTable.createdAt));
+  const comments = await db.select().from(commentsTable).where(and10(eq16(commentsTable.projectId, projectId), eq16(commentsTable.documentId, documentId))).orderBy(desc10(commentsTable.createdAt));
   res.json(comments);
 });
 router14.post("/projects/:projectId/documents/:documentId/comments", async (req, res) => {
@@ -254297,7 +254695,7 @@ var project_members_default = router15;
 
 // src/routes/quizzes.ts
 var import_express16 = __toESM(require_express2(), 1);
-import { eq as eq18, desc as desc10 } from "drizzle-orm";
+import { eq as eq18, desc as desc11 } from "drizzle-orm";
 var router16 = (0, import_express16.Router)();
 router16.get("/projects/:projectId/quizzes", async (req, res) => {
   const projectId = Number(req.params.projectId);
@@ -254311,7 +254709,7 @@ router16.get("/projects/:projectId/quizzes", async (req, res) => {
   }
   const ok = await requireProjectOwnership(projectId, req.user.id, res);
   if (!ok) return;
-  const quizzes = await db.select().from(quizzesTable).where(eq18(quizzesTable.projectId, projectId)).orderBy(desc10(quizzesTable.createdAt));
+  const quizzes = await db.select().from(quizzesTable).where(eq18(quizzesTable.projectId, projectId)).orderBy(desc11(quizzesTable.createdAt));
   res.json(quizzes);
 });
 router16.get("/projects/:projectId/quizzes/:quizId", async (req, res) => {
@@ -254366,14 +254764,25 @@ router16.post("/projects/:projectId/quizzes", async (req, res) => {
       100,
       selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents
     );
-    const creditCheck = await checkCreditBalance(project.userId, estimatedCostCents, false);
-    if (!creditCheck.allowed) {
-      res.status(402).json({
-        error: creditCheck.reason,
-        balanceCents: creditCheck.balanceCents,
-        costCents: creditCheck.costCents,
-        tierName: selectedTier.name
-      });
+    const accessCheck = await checkAIAccess({
+      userId: project.userId,
+      tierId: selectedTier.id,
+      estimatedCostCents
+    });
+    if (!accessCheck.allowed) {
+      if (accessCheck.reason === "saldo_insufficient") {
+        res.status(402).json({
+          error: "Saldo tidak mencukupi. Silakan topup terlebih dahulu.",
+          balanceCents: accessCheck.balanceCents,
+          costCents: accessCheck.requiredCents,
+          tierName: selectedTier.name
+        });
+      } else {
+        res.status(402).json({
+          error: "Quota langganan habis dan saldo tidak tersedia. Silakan topup atau perpanjang langganan.",
+          tierName: selectedTier.name
+        });
+      }
       return;
     }
   }
@@ -254437,14 +254846,19 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks, no explanation.`;
       tierConfig: aiResult.tierConfig
     });
     if (!selectedTier.isFree && aiResult.usage.costCents > 0) {
-      await deductCredit({
+      const consumeResult = await consumeQuotaForAIRequest({
         userId: project.userId,
-        costCents: aiResult.usage.costCents,
-        tierIsFree: false,
         tierId: selectedTier.id,
-        aiUsageLogId: usageLog?.id,
-        description: `AI quiz \u2014 ${selectedTier.name} tier`
+        inputTokens: aiResult.usage.inputTokens,
+        outputTokens: aiResult.usage.outputTokens,
+        costCents: aiResult.usage.costCents
       });
+      if (!consumeResult.allowed) {
+        logger.warn(
+          { userId: project.userId, reason: consumeResult.reason },
+          "Quota/saldo exhausted during quiz generation"
+        );
+      }
     }
     const [quiz] = await db.insert(quizzesTable).values({
       projectId,
@@ -254475,7 +254889,7 @@ router16.get("/quizzes/:quizId/submissions", async (req, res) => {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const submissions = await db.select().from(quizSubmissionsTable).where(eq18(quizSubmissionsTable.quizId, quizId)).orderBy(desc10(quizSubmissionsTable.submittedAt));
+  const submissions = await db.select().from(quizSubmissionsTable).where(eq18(quizSubmissionsTable.quizId, quizId)).orderBy(desc11(quizSubmissionsTable.submittedAt));
   res.json(submissions);
 });
 router16.post("/quizzes/:quizId/submissions", async (req, res) => {
@@ -254533,7 +254947,7 @@ var quizzes_default = router16;
 
 // src/routes/rubrics.ts
 var import_express17 = __toESM(require_express2(), 1);
-import { eq as eq19, desc as desc11 } from "drizzle-orm";
+import { eq as eq19, desc as desc12 } from "drizzle-orm";
 var router17 = (0, import_express17.Router)();
 router17.get("/projects/:projectId/quizzes/:quizId/rubric", async (req, res) => {
   const quizId = Number(req.params.quizId);
@@ -254545,7 +254959,7 @@ router17.get("/projects/:projectId/quizzes/:quizId/rubric", async (req, res) => 
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const rubric = await db.select().from(rubricsTable).where(eq19(rubricsTable.quizId, quizId)).orderBy(desc11(rubricsTable.createdAt)).limit(1);
+  const rubric = await db.select().from(rubricsTable).where(eq19(rubricsTable.quizId, quizId)).orderBy(desc12(rubricsTable.createdAt)).limit(1);
   if (!rubric.length) {
     res.status(404).json({ error: "Rubric not found for this quiz" });
     return;
@@ -254585,14 +254999,25 @@ router17.post("/projects/:projectId/quizzes/:quizId/rubric", async (req, res) =>
       100,
       selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents
     );
-    const creditCheck = await checkCreditBalance(project.userId, estimatedCostCents, false);
-    if (!creditCheck.allowed) {
-      res.status(402).json({
-        error: creditCheck.reason,
-        balanceCents: creditCheck.balanceCents,
-        costCents: creditCheck.costCents,
-        tierName: selectedTier.name
-      });
+    const accessCheck = await checkAIAccess({
+      userId: project.userId,
+      tierId: selectedTier.id,
+      estimatedCostCents
+    });
+    if (!accessCheck.allowed) {
+      if (accessCheck.reason === "saldo_insufficient") {
+        res.status(402).json({
+          error: "Saldo tidak mencukupi. Silakan topup terlebih dahulu.",
+          balanceCents: accessCheck.balanceCents,
+          costCents: accessCheck.requiredCents,
+          tierName: selectedTier.name
+        });
+      } else {
+        res.status(402).json({
+          error: "Quota langganan habis dan saldo tidak tersedia. Silakan topup atau perpanjang langganan.",
+          tierName: selectedTier.name
+        });
+      }
       return;
     }
   }
@@ -254636,14 +255061,19 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks.`;
       tierConfig: aiResult.tierConfig
     });
     if (!selectedTier.isFree && aiResult.usage.costCents > 0) {
-      await deductCredit({
+      const consumeResult = await consumeQuotaForAIRequest({
         userId: project.userId,
-        costCents: aiResult.usage.costCents,
-        tierIsFree: false,
         tierId: selectedTier.id,
-        aiUsageLogId: usageLog?.id,
-        description: `AI rubric \u2014 ${selectedTier.name} tier`
+        inputTokens: aiResult.usage.inputTokens,
+        outputTokens: aiResult.usage.outputTokens,
+        costCents: aiResult.usage.costCents
       });
+      if (!consumeResult.allowed) {
+        logger.warn(
+          { userId: project.userId, reason: consumeResult.reason },
+          "Quota/saldo exhausted during rubric generation"
+        );
+      }
     }
     const [rubric] = await db.insert(rubricsTable).values({
       quizId,
@@ -254705,14 +255135,14 @@ var rubrics_default = router17;
 
 // src/routes/writing-style.ts
 var import_express18 = __toESM(require_express2(), 1);
-import { eq as eq20, desc as desc12 } from "drizzle-orm";
+import { eq as eq20, desc as desc13 } from "drizzle-orm";
 var router18 = (0, import_express18.Router)();
 router18.get("/users/me/writing-style", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const profile = await db.select().from(writingStyleProfilesTable).where(eq20(writingStyleProfilesTable.userId, req.user.id)).orderBy(desc12(writingStyleProfilesTable.analyzedAt)).limit(1);
+  const profile = await db.select().from(writingStyleProfilesTable).where(eq20(writingStyleProfilesTable.userId, req.user.id)).orderBy(desc13(writingStyleProfilesTable.analyzedAt)).limit(1);
   if (!profile.length) {
     res.status(404).json({ error: "No writing style profile found. Analyze your writing first." });
     return;
@@ -254739,14 +255169,25 @@ router18.post("/users/me/writing-style/analyze", async (req, res) => {
       100,
       selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents
     );
-    const creditCheck = await checkCreditBalance(req.user.id, estimatedCostCents, false);
-    if (!creditCheck.allowed) {
-      res.status(402).json({
-        error: creditCheck.reason,
-        balanceCents: creditCheck.balanceCents,
-        costCents: creditCheck.costCents,
-        tierName: selectedTier.name
-      });
+    const accessCheck = await checkAIAccess({
+      userId: req.user.id,
+      tierId: selectedTier.id,
+      estimatedCostCents
+    });
+    if (!accessCheck.allowed) {
+      if (accessCheck.reason === "saldo_insufficient") {
+        res.status(402).json({
+          error: "Saldo tidak mencukupi. Silakan topup terlebih dahulu.",
+          balanceCents: accessCheck.balanceCents,
+          costCents: accessCheck.requiredCents,
+          tierName: selectedTier.name
+        });
+      } else {
+        res.status(402).json({
+          error: "Quota langganan habis dan saldo tidak tersedia. Silakan topup atau perpanjang langganan.",
+          tierName: selectedTier.name
+        });
+      }
       return;
     }
   }
@@ -254784,14 +255225,19 @@ IMPORTANT: Return ONLY the JSON object, no markdown code blocks.`;
       tierConfig: aiResult.tierConfig
     });
     if (!selectedTier.isFree && aiResult.usage.costCents > 0) {
-      await deductCredit({
+      const consumeResult = await consumeQuotaForAIRequest({
         userId: req.user.id,
-        costCents: aiResult.usage.costCents,
-        tierIsFree: false,
         tierId: selectedTier.id,
-        aiUsageLogId: usageLog?.id,
-        description: `AI writing style \u2014 ${selectedTier.name} tier`
+        inputTokens: aiResult.usage.inputTokens,
+        outputTokens: aiResult.usage.outputTokens,
+        costCents: aiResult.usage.costCents
       });
+      if (!consumeResult.allowed) {
+        logger.warn(
+          { userId: req.user.id, reason: consumeResult.reason },
+          "Quota/saldo exhausted during writing style analysis"
+        );
+      }
     }
     const [profile] = await db.insert(writingStyleProfilesTable).values({
       userId: req.user.id,
@@ -254810,7 +255256,7 @@ router18.patch("/users/me/writing-style", async (req, res) => {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const [existing] = await db.select().from(writingStyleProfilesTable).where(eq20(writingStyleProfilesTable.userId, req.user.id)).orderBy(desc12(writingStyleProfilesTable.analyzedAt)).limit(1);
+  const [existing] = await db.select().from(writingStyleProfilesTable).where(eq20(writingStyleProfilesTable.userId, req.user.id)).orderBy(desc13(writingStyleProfilesTable.analyzedAt)).limit(1);
   if (!existing) {
     res.status(404).json({ error: "No profile found" });
     return;
@@ -254901,7 +255347,28 @@ var packages_default = router20;
 
 // src/routes/balance.ts
 var import_express21 = __toESM(require_express2(), 1);
+import { eq as eq24 } from "drizzle-orm";
+
+// src/lib/credit.ts
 import { eq as eq23 } from "drizzle-orm";
+async function getUserBalance(userId) {
+  const [balance] = await db.select().from(userBalancesTable).where(eq23(userBalancesTable.userId, userId));
+  const transactions = await db.select({
+    id: tokenTransactionsTable.id,
+    type: tokenTransactionsTable.type,
+    amountCents: tokenTransactionsTable.amountCents,
+    balanceAfterCents: tokenTransactionsTable.balanceAfterCents,
+    description: tokenTransactionsTable.description,
+    createdAt: tokenTransactionsTable.createdAt
+  }).from(tokenTransactionsTable).where(eq23(tokenTransactionsTable.userId, userId)).orderBy(tokenTransactionsTable.createdAt).limit(20);
+  return {
+    balanceCents: balance?.balanceCents ?? 0,
+    preferredTierId: balance?.preferredTierId ?? null,
+    recentTransactions: transactions
+  };
+}
+
+// src/routes/balance.ts
 var router21 = (0, import_express21.Router)();
 router21.get("/users/me/balance", async (req, res) => {
   if (!req.user?.id) {
@@ -254949,12 +255416,12 @@ router21.put("/users/me/ai-tier-preference", async (req, res) => {
     res.status(400).json({ error: "tierId diperlukan" });
     return;
   }
-  const [balance] = await db.select().from(userBalancesTable).where(eq23(userBalancesTable.userId, userId));
+  const [balance] = await db.select().from(userBalancesTable).where(eq24(userBalancesTable.userId, userId));
   if (balance) {
     await db.update(userBalancesTable).set({
       preferredTierId: tierId,
       updatedAt: /* @__PURE__ */ new Date()
-    }).where(eq23(userBalancesTable.userId, userId));
+    }).where(eq24(userBalancesTable.userId, userId));
   } else {
     await db.insert(userBalancesTable).values({
       userId,
@@ -254969,7 +255436,7 @@ var balance_default = router21;
 // src/routes/autofallback.ts
 var import_express22 = __toESM(require_express2(), 1);
 import { z as z6 } from "zod/v4";
-import { eq as eq24 } from "drizzle-orm";
+import { eq as eq25 } from "drizzle-orm";
 var router22 = (0, import_express22.Router)();
 router22.put("/autofallback", async (req, res) => {
   if (!req.user?.id) {
@@ -254986,7 +255453,7 @@ router22.put("/autofallback", async (req, res) => {
   }
   const { enabled } = parsed.data;
   const userId = req.user.id;
-  const [balance] = await db.select().from(userBalancesTable).where(eq24(userBalancesTable.userId, userId)).limit(1);
+  const [balance] = await db.select().from(userBalancesTable).where(eq25(userBalancesTable.userId, userId)).limit(1);
   if (!balance) {
     await db.insert(userBalancesTable).values({
       userId,
@@ -254999,7 +255466,7 @@ router22.put("/autofallback", async (req, res) => {
   await db.update(userBalancesTable).set({
     autofallbackEnabled: enabled,
     updatedAt: /* @__PURE__ */ new Date()
-  }).where(eq24(userBalancesTable.userId, userId));
+  }).where(eq25(userBalancesTable.userId, userId));
   res.json({ autofallbackEnabled: enabled });
 });
 var autofallback_default = router22;
@@ -255007,7 +255474,7 @@ var autofallback_default = router22;
 // src/routes/subscriptions.ts
 var import_express23 = __toESM(require_express2(), 1);
 import { z as z7 } from "zod/v4";
-import { eq as eq25, and as and12, lte as lte2, gte as gte2 } from "drizzle-orm";
+import { eq as eq26, and as and13, lte as lte2, gte as gte2 } from "drizzle-orm";
 var router23 = (0, import_express23.Router)();
 var createSubscriptionSchema = z7.object({
   packageId: z7.string().min(1),
@@ -255045,9 +255512,9 @@ router23.get("/users/me/subscription", async (req, res) => {
   const userId = req.user.id;
   const now = /* @__PURE__ */ new Date();
   const [sub] = await db.select().from(subscriptionsTable).where(
-    and12(
-      eq25(subscriptionsTable.userId, userId),
-      eq25(subscriptionsTable.status, "active"),
+    and13(
+      eq26(subscriptionsTable.userId, userId),
+      eq26(subscriptionsTable.status, "active"),
       lte2(subscriptionsTable.startsAt, now),
       gte2(subscriptionsTable.expiresAt, now)
     )
@@ -255056,8 +255523,8 @@ router23.get("/users/me/subscription", async (req, res) => {
     res.json({ subscription: null, usageWindows: [], maxWindows: 0 });
     return;
   }
-  const [pkg] = await db.select().from(packagesTable).where(eq25(packagesTable.id, sub.packageId)).limit(1);
-  const windows = await db.select().from(usageWindowsTable).where(eq25(usageWindowsTable.subscriptionId, sub.id));
+  const [pkg] = await db.select().from(packagesTable).where(eq26(packagesTable.id, sub.packageId)).limit(1);
+  const windows = await db.select().from(usageWindowsTable).where(eq26(usageWindowsTable.subscriptionId, sub.id));
   const maxWindows = pkg ? Math.floor(pkg.periodDays / 7) : 0;
   const formattedWindows = windows.map((w) => {
     const is5h = w.windowType === "5h";
@@ -255109,16 +255576,16 @@ router23.post("/users/me/subscription", async (req, res) => {
     return;
   }
   const { packageId, autoRenew } = parsed.data;
-  const [pkg] = await db.select().from(packagesTable).where(and12(eq25(packagesTable.id, packageId), eq25(packagesTable.isActive, true))).limit(1);
+  const [pkg] = await db.select().from(packagesTable).where(and13(eq26(packagesTable.id, packageId), eq26(packagesTable.isActive, true))).limit(1);
   if (!pkg) {
     res.status(400).json({ error: "Invalid or inactive packageId" });
     return;
   }
   const now = /* @__PURE__ */ new Date();
   const [existing] = await db.select({ id: subscriptionsTable.id }).from(subscriptionsTable).where(
-    and12(
-      eq25(subscriptionsTable.userId, userId),
-      eq25(subscriptionsTable.status, "active"),
+    and13(
+      eq26(subscriptionsTable.userId, userId),
+      eq26(subscriptionsTable.status, "active"),
       lte2(subscriptionsTable.startsAt, now),
       gte2(subscriptionsTable.expiresAt, now)
     )
@@ -255137,14 +255604,14 @@ var subscriptions_default = router23;
 
 // src/routes/account-references.ts
 var import_express24 = __toESM(require_express2(), 1);
-import { eq as eq26, desc as desc15, and as and13 } from "drizzle-orm";
+import { eq as eq27, desc as desc16, and as and14 } from "drizzle-orm";
 var router24 = (0, import_express24.Router)();
 router24.get("/account/references", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const refs = await db.select().from(accountReferencesTable).where(eq26(accountReferencesTable.userId, req.user.id)).orderBy(desc15(accountReferencesTable.createdAt));
+  const refs = await db.select().from(accountReferencesTable).where(eq27(accountReferencesTable.userId, req.user.id)).orderBy(desc16(accountReferencesTable.createdAt));
   res.json(
     refs.map((r2) => ({
       ...r2,
@@ -255170,9 +255637,9 @@ router24.post("/account/references", async (req, res) => {
   }
   if (doi && typeof doi === "string") {
     const existing = await db.select({ id: accountReferencesTable.id }).from(accountReferencesTable).where(
-      and13(
-        eq26(accountReferencesTable.userId, req.user.id),
-        eq26(accountReferencesTable.doi, doi)
+      and14(
+        eq27(accountReferencesTable.userId, req.user.id),
+        eq27(accountReferencesTable.doi, doi)
       )
     ).limit(1);
     if (existing.length > 0) {
@@ -255215,9 +255682,9 @@ router24.put("/account/references/:id", async (req, res) => {
     return;
   }
   const [existing] = await db.select().from(accountReferencesTable).where(
-    and13(
-      eq26(accountReferencesTable.id, id),
-      eq26(accountReferencesTable.userId, req.user.id)
+    and14(
+      eq27(accountReferencesTable.id, id),
+      eq27(accountReferencesTable.userId, req.user.id)
     )
   ).limit(1);
   if (!existing) {
@@ -255227,9 +255694,9 @@ router24.put("/account/references/:id", async (req, res) => {
   const { title, authors, year, journal, volume, issue, doi, url: url2, isSuggested, source } = req.body;
   if (doi && doi !== existing.doi) {
     const duplicate = await db.select({ id: accountReferencesTable.id }).from(accountReferencesTable).where(
-      and13(
-        eq26(accountReferencesTable.userId, req.user.id),
-        eq26(accountReferencesTable.doi, doi)
+      and14(
+        eq27(accountReferencesTable.userId, req.user.id),
+        eq27(accountReferencesTable.doi, doi)
       )
     ).limit(1);
     if (duplicate.length > 0) {
@@ -255249,9 +255716,9 @@ router24.put("/account/references/:id", async (req, res) => {
   if (isSuggested !== void 0) updates.isSuggested = isSuggested;
   if (source !== void 0) updates.source = source;
   const [updated] = await db.update(accountReferencesTable).set(updates).where(
-    and13(
-      eq26(accountReferencesTable.id, id),
-      eq26(accountReferencesTable.userId, req.user.id)
+    and14(
+      eq27(accountReferencesTable.id, id),
+      eq27(accountReferencesTable.userId, req.user.id)
     )
   ).returning();
   res.json({
@@ -255276,9 +255743,9 @@ router24.delete("/account/references/:id", async (req, res) => {
     return;
   }
   const [deleted] = await db.delete(accountReferencesTable).where(
-    and13(
-      eq26(accountReferencesTable.id, id),
-      eq26(accountReferencesTable.userId, req.user.id)
+    and14(
+      eq27(accountReferencesTable.id, id),
+      eq27(accountReferencesTable.userId, req.user.id)
     )
   ).returning();
   if (!deleted) {
@@ -255303,9 +255770,9 @@ router24.post("/account/references/:id/assign", async (req, res) => {
     return;
   }
   const [accountRef] = await db.select().from(accountReferencesTable).where(
-    and13(
-      eq26(accountReferencesTable.id, accountRefId),
-      eq26(accountReferencesTable.userId, req.user.id)
+    and14(
+      eq27(accountReferencesTable.id, accountRefId),
+      eq27(accountReferencesTable.userId, req.user.id)
     )
   ).limit(1);
   if (!accountRef) {
@@ -255314,9 +255781,9 @@ router24.post("/account/references/:id/assign", async (req, res) => {
   }
   if (accountRef.doi) {
     const existingInProject = await db.select({ id: referencesTable.id }).from(referencesTable).where(
-      and13(
-        eq26(referencesTable.projectId, projectId),
-        eq26(referencesTable.doi, accountRef.doi)
+      and14(
+        eq27(referencesTable.projectId, projectId),
+        eq27(referencesTable.doi, accountRef.doi)
       )
     ).limit(1);
     if (existingInProject.length > 0) {
@@ -255362,7 +255829,7 @@ router24.post("/account/references/import", async (req, res) => {
     res.status(400).json({ error: "Maximum 50 DOIs per import" });
     return;
   }
-  const existing = await db.select({ doi: accountReferencesTable.doi }).from(accountReferencesTable).where(eq26(accountReferencesTable.userId, req.user.id));
+  const existing = await db.select({ doi: accountReferencesTable.doi }).from(accountReferencesTable).where(eq27(accountReferencesTable.userId, req.user.id));
   const existingDois = new Set(
     existing.map((r2) => r2.doi).filter((d) => d !== null)
   );
@@ -255431,14 +255898,14 @@ var account_references_default = router24;
 
 // src/routes/learning-activities.ts
 var import_express25 = __toESM(require_express2(), 1);
-import { eq as eq27, desc as desc16, and as and14 } from "drizzle-orm";
+import { eq as eq28, desc as desc17, and as and15 } from "drizzle-orm";
 var router25 = (0, import_express25.Router)();
 router25.get("/learning-activities", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const activities = await db.select().from(learningActivitiesTable).where(eq27(learningActivitiesTable.userId, req.user.id)).orderBy(desc16(learningActivitiesTable.createdAt));
+  const activities = await db.select().from(learningActivitiesTable).where(eq28(learningActivitiesTable.userId, req.user.id)).orderBy(desc17(learningActivitiesTable.createdAt));
   res.json(activities);
 });
 router25.post("/learning-activities", async (req, res) => {
@@ -255453,9 +255920,9 @@ router25.post("/learning-activities", async (req, res) => {
   }
   if (body.sourceProjectId) {
     const existing = await db.select().from(learningActivitiesTable).where(
-      and14(
-        eq27(learningActivitiesTable.userId, req.user.id),
-        eq27(learningActivitiesTable.sourceProjectId, body.sourceProjectId)
+      and15(
+        eq28(learningActivitiesTable.userId, req.user.id),
+        eq28(learningActivitiesTable.sourceProjectId, body.sourceProjectId)
       )
     ).limit(1);
     if (existing.length > 0) {
@@ -255464,7 +255931,7 @@ router25.post("/learning-activities", async (req, res) => {
         subject: body.subject || null,
         extractedFrom: body.extractedFrom || "instruction",
         updatedAt: /* @__PURE__ */ new Date()
-      }).where(eq27(learningActivitiesTable.id, existing[0].id)).returning();
+      }).where(eq28(learningActivitiesTable.id, existing[0].id)).returning();
       res.status(200).json(updated[0]);
       return;
     }
@@ -255483,7 +255950,7 @@ router25.get("/learning-activities/recommendations", async (req, res) => {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const activities = await db.select().from(learningActivitiesTable).where(eq27(learningActivitiesTable.userId, req.user.id)).orderBy(desc16(learningActivitiesTable.createdAt));
+  const activities = await db.select().from(learningActivitiesTable).where(eq28(learningActivitiesTable.userId, req.user.id)).orderBy(desc17(learningActivitiesTable.createdAt));
   if (activities.length === 0) {
     res.json([]);
     return;
@@ -255530,7 +255997,7 @@ router25.get("/learning-activities/recommendations", async (req, res) => {
       });
     }
   }
-  const recentProjects = await db.select({ id: projectsTable.id, title: projectsTable.title }).from(projectsTable).where(eq27(projectsTable.userId, req.user.id)).orderBy(desc16(projectsTable.createdAt)).limit(5);
+  const recentProjects = await db.select({ id: projectsTable.id, title: projectsTable.title }).from(projectsTable).where(eq28(projectsTable.userId, req.user.id)).orderBy(desc17(projectsTable.createdAt)).limit(5);
   const existingProjectIds = new Set(
     activities.map((a) => a.sourceProjectId).filter(Boolean)
   );
@@ -255562,7 +256029,7 @@ var learning_activities_default = router25;
 
 // src/routes/usage.ts
 var import_express26 = __toESM(require_express2(), 1);
-import { eq as eq28, and as and15, gte as gte3, sql as sql10, desc as desc17 } from "drizzle-orm";
+import { eq as eq29, and as and16, gte as gte3, sql as sql10, desc as desc18 } from "drizzle-orm";
 import { z as z8 } from "zod/v4";
 var router26 = (0, import_express26.Router)();
 router26.use(authMiddleware);
@@ -255633,7 +256100,7 @@ router26.get("/users/me/usage", async (req, res) => {
     return;
   }
   const period = parsed.data;
-  const conditions = [eq28(aiUsageLogTable.userId, req.user.id)];
+  const conditions = [eq29(aiUsageLogTable.userId, req.user.id)];
   const periodCond = buildPeriodCondition(period);
   if (periodCond) conditions.push(periodCond);
   const records = await db.select({
@@ -255643,7 +256110,7 @@ router26.get("/users/me/usage", async (req, res) => {
     outputTokens: aiUsageLogTable.outputTokens,
     estimatedCostUsd: aiUsageLogTable.estimatedCostUsd,
     costCents: aiUsageLogTable.costCents
-  }).from(aiUsageLogTable).where(and15(...conditions));
+  }).from(aiUsageLogTable).where(and16(...conditions));
   const aggregated = aggregateRecords(records, true);
   res.json({
     ...aggregated,
@@ -255667,9 +256134,9 @@ router26.get("/users/me/usage/projects/:projectId", async (req, res) => {
     estimatedCostUsd: aiUsageLogTable.estimatedCostUsd,
     costCents: aiUsageLogTable.costCents
   }).from(aiUsageLogTable).where(
-    and15(
-      eq28(aiUsageLogTable.userId, req.user.id),
-      eq28(aiUsageLogTable.projectId, projectId)
+    and16(
+      eq29(aiUsageLogTable.userId, req.user.id),
+      eq29(aiUsageLogTable.projectId, projectId)
     )
   );
   const byRequestType = {};
@@ -255710,7 +256177,7 @@ router26.get("/admin/usage", async (req, res) => {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const [userRecord] = await db.select({ isOwner: usersTable.isOwner }).from(usersTable).where(eq28(usersTable.id, req.user.id)).limit(1);
+  const [userRecord] = await db.select({ isOwner: usersTable.isOwner }).from(usersTable).where(eq29(usersTable.id, req.user.id)).limit(1);
   if (!userRecord?.isOwner) {
     res.status(403).json({ error: "Admin access required" });
     return;
@@ -255724,7 +256191,7 @@ router26.get("/admin/usage", async (req, res) => {
   const conditions = [];
   const periodCond = buildPeriodCondition(period);
   if (periodCond) conditions.push(periodCond);
-  const whereClause = conditions.length > 0 ? and15(...conditions) : void 0;
+  const whereClause = conditions.length > 0 ? and16(...conditions) : void 0;
   const perUserRaw = await db.select({
     userId: aiUsageLogTable.userId,
     email: usersTable.email,
@@ -255732,7 +256199,7 @@ router26.get("/admin/usage", async (req, res) => {
     totalInputTokens: sql10`sum(${aiUsageLogTable.inputTokens})`,
     totalOutputTokens: sql10`sum(${aiUsageLogTable.outputTokens})`,
     totalCostUsd: sql10`sum(${aiUsageLogTable.estimatedCostUsd})`
-  }).from(aiUsageLogTable).leftJoin(usersTable, eq28(aiUsageLogTable.userId, usersTable.id)).where(whereClause).groupBy(aiUsageLogTable.userId, usersTable.email).orderBy(desc17(sql10`sum(${aiUsageLogTable.estimatedCostUsd})`));
+  }).from(aiUsageLogTable).leftJoin(usersTable, eq29(aiUsageLogTable.userId, usersTable.id)).where(whereClause).groupBy(aiUsageLogTable.userId, usersTable.email).orderBy(desc18(sql10`sum(${aiUsageLogTable.estimatedCostUsd})`));
   const perUser = perUserRaw.map((r2) => ({
     userId: r2.userId,
     email: r2.email ?? "unknown",
@@ -255762,7 +256229,7 @@ router26.get("/admin/usage", async (req, res) => {
     totalInputTokens: sql10`sum(${aiUsageLogTable.inputTokens})`,
     totalOutputTokens: sql10`sum(${aiUsageLogTable.outputTokens})`,
     totalCostUsd: sql10`sum(${aiUsageLogTable.estimatedCostUsd})`
-  }).from(aiUsageLogTable).where(whereClause).groupBy(sql10`date(${aiUsageLogTable.createdAt})`).orderBy(desc17(sql10`date(${aiUsageLogTable.createdAt})`));
+  }).from(aiUsageLogTable).where(whereClause).groupBy(sql10`date(${aiUsageLogTable.createdAt})`).orderBy(desc18(sql10`date(${aiUsageLogTable.createdAt})`));
   const dailyTotals = dailyTotalsRaw.map((r2) => ({
     date: String(r2.date),
     totalRequests: Number(r2.totalRequests),
@@ -255792,7 +256259,7 @@ var usage_default = router26;
 
 // src/routes/document-templates.ts
 var import_express27 = __toESM(require_express2(), 1);
-import { eq as eq29, or, isNull as isNull6, desc as desc18 } from "drizzle-orm";
+import { eq as eq30, or, isNull as isNull6, desc as desc19 } from "drizzle-orm";
 import { z as z9 } from "zod/v4";
 var router27 = (0, import_express27.Router)();
 var createTemplateSchema = z9.object({
@@ -255829,10 +256296,10 @@ router27.get("/templates", async (req, res) => {
   }
   const templates = await db.select().from(documentTemplatesTable).where(
     or(
-      eq29(documentTemplatesTable.userId, req.user.id),
+      eq30(documentTemplatesTable.userId, req.user.id),
       isNull6(documentTemplatesTable.userId)
     )
-  ).orderBy(desc18(documentTemplatesTable.createdAt));
+  ).orderBy(desc19(documentTemplatesTable.createdAt));
   res.json(templates.map(toTemplateJson));
 });
 router27.get("/templates/categories", async (req, res) => {
@@ -255864,7 +256331,7 @@ router27.get("/templates/:templateId", async (req, res) => {
     res.status(400).json({ error: "Invalid template ID" });
     return;
   }
-  const [template] = await db.select().from(documentTemplatesTable).where(eq29(documentTemplatesTable.id, templateId)).limit(1);
+  const [template] = await db.select().from(documentTemplatesTable).where(eq30(documentTemplatesTable.id, templateId)).limit(1);
   if (!template) {
     res.status(404).json({ error: "Template not found" });
     return;
@@ -255917,7 +256384,7 @@ router27.put("/templates/:templateId", async (req, res) => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
-  const [existing] = await db.select().from(documentTemplatesTable).where(eq29(documentTemplatesTable.id, templateId)).limit(1);
+  const [existing] = await db.select().from(documentTemplatesTable).where(eq30(documentTemplatesTable.id, templateId)).limit(1);
   if (!existing) {
     res.status(404).json({ error: "Template not found" });
     return;
@@ -255941,7 +256408,7 @@ router27.put("/templates/:templateId", async (req, res) => {
   if (data.tags !== void 0) updates.tags = data.tags;
   if (data.isPublic !== void 0) updates.isPublic = data.isPublic;
   updates.updatedAt = /* @__PURE__ */ new Date();
-  const [updated] = await db.update(documentTemplatesTable).set(updates).where(eq29(documentTemplatesTable.id, templateId)).returning();
+  const [updated] = await db.update(documentTemplatesTable).set(updates).where(eq30(documentTemplatesTable.id, templateId)).returning();
   res.json(toTemplateJson(updated));
 });
 router27.delete("/templates/:templateId", async (req, res) => {
@@ -255954,7 +256421,7 @@ router27.delete("/templates/:templateId", async (req, res) => {
     res.status(400).json({ error: "Invalid template ID" });
     return;
   }
-  const [existing] = await db.select().from(documentTemplatesTable).where(eq29(documentTemplatesTable.id, templateId)).limit(1);
+  const [existing] = await db.select().from(documentTemplatesTable).where(eq30(documentTemplatesTable.id, templateId)).limit(1);
   if (!existing) {
     res.status(404).json({ error: "Template not found" });
     return;
@@ -255967,14 +256434,14 @@ router27.delete("/templates/:templateId", async (req, res) => {
     res.status(403).json({ error: "Access denied" });
     return;
   }
-  await db.delete(documentTemplatesTable).where(eq29(documentTemplatesTable.id, templateId));
+  await db.delete(documentTemplatesTable).where(eq30(documentTemplatesTable.id, templateId));
   res.sendStatus(204);
 });
 var document_templates_default = router27;
 
 // src/routes/admin-ai-tiers.ts
 var import_express28 = __toESM(require_express2(), 1);
-import { eq as eq30 } from "drizzle-orm";
+import { eq as eq31 } from "drizzle-orm";
 import { z as z10 } from "zod/v4";
 var router28 = (0, import_express28.Router)();
 async function requireOwner(req, res, next) {
@@ -255982,7 +256449,7 @@ async function requireOwner(req, res, next) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const [user] = await db.select({ isOwner: usersTable.isOwner }).from(usersTable).where(eq30(usersTable.id, req.user.id)).limit(1);
+  const [user] = await db.select({ isOwner: usersTable.isOwner }).from(usersTable).where(eq31(usersTable.id, req.user.id)).limit(1);
   if (!user?.isOwner) {
     res.status(403).json({ error: "Owner access required" });
     return;
@@ -256014,7 +256481,7 @@ router28.put("/admin/ai-tiers/:id", requireOwner, async (req, res) => {
   }
   const tierId = req.params.id;
   const update = parsed.data;
-  const [existing] = await db.select().from(aiTiersTable).where(eq30(aiTiersTable.id, tierId)).limit(1);
+  const [existing] = await db.select().from(aiTiersTable).where(eq31(aiTiersTable.id, tierId)).limit(1);
   if (!existing) {
     res.status(404).json({ error: `Tier '${tierId}' tidak ditemukan` });
     return;
@@ -256025,7 +256492,7 @@ router28.put("/admin/ai-tiers/:id", requireOwner, async (req, res) => {
       updatePayload[key] = value;
     }
   }
-  const [updated] = await db.update(aiTiersTable).set(updatePayload).where(eq30(aiTiersTable.id, tierId)).returning();
+  const [updated] = await db.update(aiTiersTable).set(updatePayload).where(eq31(aiTiersTable.id, tierId)).returning();
   res.json({ tier: updated });
 });
 var admin_ai_tiers_default = router28;
@@ -256048,7 +256515,7 @@ function requireOwner2(req, res, next) {
 }
 
 // src/routes/admin.ts
-import { sql as sql11, eq as eq31, count as count2, or as or2, and as and16, gte as gte4 } from "drizzle-orm";
+import { sql as sql11, eq as eq32, count as count2, or as or2, and as and17, gte as gte4 } from "drizzle-orm";
 var router29 = (0, import_express29.Router)();
 router29.get("/me", authMiddleware, (req, res) => {
   const OWNER_EMAIL2 = process.env.OWNER_EMAIL ?? "";
@@ -256153,8 +256620,8 @@ router29.get("/stats", authMiddleware, requireOwner2, async (req, res) => {
         totalRequests: count2(),
         totalCostUsd: sql11`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`
       }).from(aiUsageLogTable).where(
-        and16(
-          eq31(aiUsageLogTable.userId, ownerUser[0].id),
+        and17(
+          eq32(aiUsageLogTable.userId, ownerUser[0].id),
           gte4(aiUsageLogTable.createdAt, startDate)
         )
       );
@@ -256264,7 +256731,7 @@ router29.get("/audit-log", authMiddleware, requireOwner2, async (req, res) => {
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 50));
     const offset = (page - 1) * limit;
     const action = req.query.action;
-    const actionCondition = action ? eq31(adminAuditLogTable.action, action) : void 0;
+    const actionCondition = action ? eq32(adminAuditLogTable.action, action) : void 0;
     const [logs, totalResult] = await Promise.all([
       db.select().from(adminAuditLogTable).where(actionCondition).orderBy(sql11`${adminAuditLogTable.createdAt} DESC`).limit(limit).offset(offset),
       db.select({ count: count2() }).from(adminAuditLogTable).where(actionCondition)
@@ -256287,7 +256754,7 @@ router29.post("/users/:userId/tier", authMiddleware, requireOwner2, async (req, 
   try {
     const { userId } = req.params;
     const { tierId } = req.body;
-    await db.update(userBalancesTable).set({ preferredTierId: tierId ?? null, updatedAt: /* @__PURE__ */ new Date() }).where(eq31(userBalancesTable.userId, userId));
+    await db.update(userBalancesTable).set({ preferredTierId: tierId ?? null, updatedAt: /* @__PURE__ */ new Date() }).where(eq32(userBalancesTable.userId, userId));
     await db.insert(adminAuditLogTable).values({
       adminEmail: req.user.email,
       action: "tier_override",
@@ -256365,7 +256832,7 @@ var routes_default = router30;
 
 // src/routes/webhooks.ts
 var import_express31 = __toESM(require_express2(), 1);
-import { eq as eq32 } from "drizzle-orm";
+import { eq as eq33 } from "drizzle-orm";
 var router31 = (0, import_express31.Router)();
 var WEBHOOK_SECRET = process.env.WEBHOOK_SECRET ?? "";
 router31.post("/webhooks/email-verified", async (req, res) => {
@@ -256384,7 +256851,7 @@ router31.post("/webhooks/email-verified", async (req, res) => {
     res.sendStatus(200);
     return;
   }
-  const [referral] = await db.select().from(referralsTable).where(eq32(referralsTable.referredId, userId));
+  const [referral] = await db.select().from(referralsTable).where(eq33(referralsTable.referredId, userId));
   if (!referral) {
     res.sendStatus(200);
     return;
@@ -256393,7 +256860,7 @@ router31.post("/webhooks/email-verified", async (req, res) => {
     res.sendStatus(200);
     return;
   }
-  await db.update(referralsTable).set({ status: "verified", updatedAt: /* @__PURE__ */ new Date() }).where(eq32(referralsTable.id, referral.id));
+  await db.update(referralsTable).set({ status: "verified", updatedAt: /* @__PURE__ */ new Date() }).where(eq33(referralsTable.id, referral.id));
   await db.insert(referralEventsTable).values({
     referralId: referral.id,
     actorId: null,
@@ -256416,7 +256883,7 @@ app.get("/test", (_req, res) => {
 var allowedOrigins = (process.env.ALLOWED_ORIGINS ?? "http://localhost:5173,http://localhost:18543").split(",").map((o) => o.trim()).filter(Boolean);
 app.use(
   (0, import_pino_http.pinoHttp)({
-    logger: logger2,
+    logger,
     serializers: {
       req(req) {
         return {
@@ -256438,7 +256905,7 @@ app.use(
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) return callback(null, true);
-      logger2.warn({ origin, allowedOrigins }, "CORS: origin not allowed");
+      logger.warn({ origin, allowedOrigins }, "CORS: origin not allowed");
       return callback(null, false);
     },
     credentials: true

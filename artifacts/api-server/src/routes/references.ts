@@ -37,7 +37,8 @@ import { callAI, buildSystemPrompt, getTierConfig, getTierForUser } from "../lib
 import { logActivity } from "../lib/activity.js";
 import { requireProjectOwnership } from "../lib/ownership.js";
 import { logAIUsage } from "../lib/ai-usage-log.js";
-import { checkCreditBalance, deductCredit } from "../lib/credit.js";
+import { checkAIAccess, consumeQuotaForAIRequest } from "../lib/subscription.js";
+import { logger } from "../lib/logger.js";
 import { sanitizeUserMessage } from "../lib/prompt-injection.js";
 import { validateReference, validateDOI, validateISBN, formatBibliography, formatCitationMarker, type CitationFormat } from "../lib/citation.js";
 import { computeSequentialNumbers } from "../lib/citation-rendering.js";
@@ -440,14 +441,25 @@ router.post("/projects/:projectId/references/regenerate", async (req, res): Prom
       100,
       selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents,
     );
-    const creditCheck = await checkCreditBalance(project.userId, estimatedCostCents, false);
-    if (!creditCheck.allowed) {
-      res.status(402).json({
-        error: creditCheck.reason,
-        balanceCents: creditCheck.balanceCents,
-        costCents: creditCheck.costCents,
-        tierName: selectedTier.name,
-      });
+    const accessCheck = await checkAIAccess({
+      userId: project.userId,
+      tierId: selectedTier.id,
+      estimatedCostCents,
+    });
+    if (!accessCheck.allowed) {
+      if (accessCheck.reason === "saldo_insufficient") {
+        res.status(402).json({
+          error: "Saldo tidak mencukupi. Silakan topup terlebih dahulu.",
+          balanceCents: accessCheck.balanceCents,
+          costCents: accessCheck.requiredCents,
+          tierName: selectedTier.name,
+        });
+      } else {
+        res.status(402).json({
+          error: "Quota langganan habis dan saldo tidak tersedia. Silakan topup atau perpanjang langganan.",
+          tierName: selectedTier.name,
+        });
+      }
       return;
     }
   }
@@ -506,14 +518,19 @@ router.post("/projects/:projectId/references/regenerate", async (req, res): Prom
   });
 
   if (!selectedTier.isFree && usage.costCents > 0) {
-    await deductCredit({
+    const consumeResult = await consumeQuotaForAIRequest({
       userId: project.userId,
-      costCents: usage.costCents,
-      tierIsFree: false,
       tierId: selectedTier.id,
-      aiUsageLogId: usageLog?.id,
-      description: `AI bibliography — ${selectedTier.name} tier`,
+      inputTokens: usage.inputTokens,
+      outputTokens: usage.outputTokens,
+      costCents: usage.costCents,
     });
+    if (!consumeResult.allowed) {
+      logger.warn(
+        { userId: project.userId, reason: consumeResult.reason },
+        "Quota/saldo exhausted during bibliography"
+      );
+    }
   }
 
   await logActivity(params.data.projectId, "bibliography_regenerated", "Daftar pustaka diperbarui");
@@ -1119,18 +1136,25 @@ router.post("/projects/:projectId/references/auto-cite", async (req, res): Promi
       100,
       selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents,
     );
-    const creditCheck = await checkCreditBalance(
-      project.userId,
+    const accessCheck = await checkAIAccess({
+      userId: project.userId,
+      tierId: selectedTier.id,
       estimatedCostCents,
-      false,
-    );
-    if (!creditCheck.allowed) {
-      res.status(402).json({
-        error: creditCheck.reason,
-        balanceCents: creditCheck.balanceCents,
-        costCents: creditCheck.costCents,
-        tierName: selectedTier.name,
-      });
+    });
+    if (!accessCheck.allowed) {
+      if (accessCheck.reason === "saldo_insufficient") {
+        res.status(402).json({
+          error: "Saldo tidak mencukupi. Silakan topup terlebih dahulu.",
+          balanceCents: accessCheck.balanceCents,
+          costCents: accessCheck.requiredCents,
+          tierName: selectedTier.name,
+        });
+      } else {
+        res.status(402).json({
+          error: "Quota langganan habis dan saldo tidak tersedia. Silakan topup atau perpanjang langganan.",
+          tierName: selectedTier.name,
+        });
+      }
       return;
     }
   }
@@ -1214,14 +1238,19 @@ ${candidateReferences
   });
 
   if (!selectedTier.isFree && usage.costCents > 0) {
-    await deductCredit({
+    const consumeResult = await consumeQuotaForAIRequest({
       userId: project.userId,
-      costCents: usage.costCents,
-      tierIsFree: false,
       tierId: selectedTier.id,
-      aiUsageLogId: usageLog?.id,
-      description: `AI auto-cite — ${selectedTier.name} tier`,
+      inputTokens: usage.inputTokens,
+      outputTokens: usage.outputTokens,
+      costCents: usage.costCents,
     });
+    if (!consumeResult.allowed) {
+      logger.warn(
+        { userId: project.userId, reason: consumeResult.reason },
+        "Quota/saldo exhausted during auto-cite"
+      );
+    }
   }
 
   // Parse AI response as JSON
