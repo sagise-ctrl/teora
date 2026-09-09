@@ -107,8 +107,8 @@ export async function getTierForUser(
     if (tier) return tier;
   }
 
-  // 2. Default to free tier
-  return getTierConfig("free");
+  // 2. Default to haiku-4.5 (Owner 2026-09-09 — pivot to Anthropic only)
+  return getTierConfig("haiku-4.5");
 }
 
 export type ChatMode = "generate" | "revise" | "reflect" | "socratic" | "quiz" | "summary";
@@ -191,12 +191,12 @@ export async function callAI(
 ): Promise<AIResponse> {
   const tier = await getTierConfig(tierId);
   if (!tier) {
-    logger.warn({ tierId }, "AI tier not found — falling back to free tier");
-    const freeTier = await getTierConfig("free");
-    if (!freeTier) {
-      throw new Error("Free tier not configured");
+    logger.warn({ tierId }, "AI tier not found — falling back to haiku-4.5");
+    const haikuTier = await getTierConfig("haiku-4.5");
+    if (!haikuTier) {
+      throw new Error("Haiku 4.5 tier not configured");
     }
-    return callAI(messages, "free", mode);
+    return callAI(messages, "haiku-4.5", mode);
   }
 
   const apiKey = getApiKey(tier.apiKeyEnvVar);

@@ -740,7 +740,7 @@ Tier sudah punya field `pricePer1MInputCents` + `pricePer1MOutputCents` (dari sc
 
 ### 14.4.1 Schema Migration — `markup_multiplier` (Applied 2026-09-09)
 
-**Migration:** `add_markup_multiplier_to_ai_tiers`
+**Migration 1:** `add_markup_multiplier_to_ai_tiers`
 
 ```sql
 ALTER TABLE public.ai_tiers
@@ -751,11 +751,20 @@ ADD CONSTRAINT chk_markup_multiplier_range
 CHECK (markup_multiplier >= 1.000 AND markup_multiplier <= 9.999);
 ```
 
-**Status:** ✅ Applied ke Supabase production. 4 existing rows (`free`, `standard`, `premium`, `ultra`) di-backfill dengan default 1.400.
+**Migration 2:** `restructure_ai_tiers_to_anthropic_models`
 
-**Drizzle schema update:** `lib/db/src/schema/ai_tiers.ts` — field `markupMultiplier: numeric("markup_multiplier", { precision: 5, scale: 3 }).notNull().default("1.400")`.
+Hapus 4 rows lama (free/standard/premium/ultra — Llama/Claude 3.5/GPT-4o, tidak ada FK reference), insert 2 rows baru:
 
-**Catatan untuk cleanup:** Existing rows masih pakai model lama (Llama 3.1, Claude 3.5 Sonnet, GPT-4o) — perlu di-update ke Haiku 4.5 + Sonnet 5 saat spec final. Belum dilakukan — beda inisiatif (pivot ke Anthropic sebagai primary provider).
+| id | name | model | price_per_1M_in (cents) | price_per_1M_out (cents) | markup_multiplier |
+|----|------|-------|------------------------|--------------------------|-------------------|
+| haiku-4.5 | Haiku 4.5 | claude-haiku-4-5-20251001 | 1.600.000 (Rp 16/1K) | 8.000.000 (Rp 80/1K) | 1.400 |
+| sonnet-5 | Sonnet 5 | claude-sonnet-5-20251001 | 3.200.000 (Rp 32/1K) | 16.000.000 (Rp 160/1K) | 1.400 |
+
+**Backend update:** `artifacts/api-server/src/lib/ai.ts` — fallback `getTierForUser()` dan `callAI()` dari `"free"` → `"haiku-4.5"`.
+
+**Status:** ✅ Applied ke Supabase production. Typecheck pass. No FK references broken (verified — `ai_usage_log.tier_id` dan `user_balances.preferred_tier_id` kosong untuk rows lama).
+
+**Catatan:** Subscription tier tiers (Starter/Standar/Premium/Pro/Ultra) tetap di `subscription_packages` (30 SKU spec final). `ai_tiers` hanya runtime model config.
 
 ### 14.5 Validasi Margin — Worst Case Analysis
 
