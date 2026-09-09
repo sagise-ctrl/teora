@@ -14,6 +14,9 @@ export interface AITierConfig {
   pricePer1MOutputCents: number;
   providerCostPer1MInputCents: number;
   providerCostPer1MOutputCents: number;
+  // Opsi B (Owner 2026-09-09) — markup applied to topup charges only
+  // Subscription uses flat per-tier pricing (no markup applied)
+  markupMultiplier: number;
   rateLimitRpm: number | null;
   rateLimitTpd: number | null;
   isFree: boolean;
@@ -49,6 +52,7 @@ export async function getTierConfig(tierId: string): Promise<AITierConfig | null
     pricePer1MOutputCents: tier.pricePer1MOutputCents,
     providerCostPer1MInputCents: tier.providerCostPer1MInputCents,
     providerCostPer1MOutputCents: tier.providerCostPer1MOutputCents,
+    markupMultiplier: Number(tier.markupMultiplier),
     rateLimitRpm: tier.rateLimitRpm,
     rateLimitTpd: tier.rateLimitTpd,
     isFree: tier.isFree,
@@ -86,6 +90,7 @@ export async function getAllActiveTiers(): Promise<AITierConfig[]> {
       pricePer1MOutputCents: tier.pricePer1MOutputCents,
       providerCostPer1MInputCents: tier.providerCostPer1MInputCents,
       providerCostPer1MOutputCents: tier.providerCostPer1MOutputCents,
+      markupMultiplier: Number(tier.markupMultiplier),
       rateLimitRpm: tier.rateLimitRpm,
       rateLimitTpd: tier.rateLimitTpd,
       isFree: tier.isFree,
@@ -157,12 +162,22 @@ function estimateCost(
   outputTokens: number,
   tierConfig: AITierConfig
 ): { estimatedCostUsd: number; costCents: number } {
-  // Use tier pricing (IDR cents per 1M tokens)
-  const costCents =
-    (inputTokens / 1_000_000) * tierConfig.pricePer1MInputCents +
-    (outputTokens / 1_000_000) * tierConfig.pricePer1MOutputCents;
+  // Opsi B (Owner 2026-09-09):
+  //   - `costCents` = charge ke user untuk topup = providerCost × markupMultiplier
+  //   - `estimatedCostUsd` = real cost ke Anthropic (FinOps reference, tidak di-charge)
+  //
+  // Untuk subscription: costCents tetap di-log untuk FinOps, tapi `deductCredit` skip karena
+  // subscription sudah bayar flat di muka (lihat flow di routes/messages.ts dll).
 
-  // Provider cost in USD for reference
+  // Provider cost in IDR cents (real cost to Teora)
+  const providerCostCents =
+    (inputTokens / 1_000_000) * tierConfig.providerCostPer1MInputCents +
+    (outputTokens / 1_000_000) * tierConfig.providerCostPer1MOutputCents;
+
+  // Charge to user = provider cost × markup (default 1.40 = +40% margin)
+  const costCents = providerCostCents * tierConfig.markupMultiplier;
+
+  // Provider cost in USD for FinOps reference (no markup)
   const pricing = MODEL_PRICING[model] ?? { inputPer1M: 0.5, outputPer1M: 1.5 };
   const estimatedCostUsd =
     (inputTokens / 1_000_000) * pricing.inputPer1M +

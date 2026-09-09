@@ -766,6 +766,64 @@ Hapus 4 rows lama (free/standard/premium/ultra — Llama/Claude 3.5/GPT-4o, tida
 
 **Catatan:** Subscription tier tiers (Starter/Standar/Premium/Pro/Ultra) tetap di `subscription_packages` (30 SKU spec final). `ai_tiers` hanya runtime model config.
 
+### 14.4.2 Backend Implementation — Markup Applied di `estimateCost()` (2026-09-09)
+
+**File:** `artifacts/api-server/src/lib/ai.ts`
+
+**Perubahan:**
+
+1. `AITierConfig` interface — tambah `markupMultiplier: number`
+2. `getTierConfig()` + `getAllActiveTiers()` — populate `markupMultiplier` dari DB (pakai `Number()` karena Postgres NUMERIC return string)
+3. `estimateCost()` — rewrite:
+
+```typescript
+// SEBELUM (single field — pricePer1M = harga jual langsung):
+const costCents =
+  (inputTokens / 1_000_000) * tierConfig.pricePer1MInputCents +
+  (outputTokens / 1_000_000) * tierConfig.pricePer1MOutputCents;
+
+// SESUDAH (Opsi B — pisah cost vs charge):
+const providerCostCents =
+  (inputTokens / 1_000_000) * tierConfig.providerCostPer1MInputCents +
+  (outputTokens / 1_000_000) * tierConfig.providerCostPer1MOutputCents;
+const costCents = providerCostCents * tierConfig.markupMultiplier;
+```
+
+**Alur charge:**
+
+```
+User panggil AI
+  → Backend hit Anthropic (real cost = providerCost)
+  → costCents = providerCost × markupMultiplier (1.40)
+     ↓
+  ┌─────────────────────────────────────────┐
+  │ charge path (topup):                    │
+  │   deductCredit(userId, costCents)       │  ← kurangi saldo topup user
+  │   token_transactions: amount=-costCents │  ← audit trail
+  │                                          │
+  │ FinOps path:                            │
+  │   ai_usage_log: costCents = charge      │  ← untuk dashboard FinOps
+  │   ai_usage_log: estimatedCostUsd = real │  ← untuk margin tracking
+  └─────────────────────────────────────────┘
+```
+
+**Verifikasi numerik (contoh 1K Haiku 65:35, USD/IDR 16.000):**
+
+| Item | Sebelum Opsi B | Sesudah Opsi B |
+|------|----------------|----------------|
+| Real cost ke Anthropic | Rp 38.4 | Rp 38.4 |
+| `pricePer1MInputCents` (Haiku) | Rp 38.4/1K → 3.840.000 cents/MTok | **Deprecated** untuk charge (tetap di kolom DB untuk backward compat admin endpoint) |
+| `providerCostPer1MInputCents` (Haiku) | Rp 38.4/1K → 3.840.000 cents/MTok | Rp 38.4/1K → 3.840.000 cents/MTok |
+| `markupMultiplier` | — | 1.400 |
+| `costCents` (charge user) | (input/1M × 3.840.000) + (output/1M × ...) | (providerCost) × 1.400 |
+| Untuk 1K Haiku 65:35 | Rp 38.4 | **Rp 53.8** (= 38.4 × 1.4) |
+
+**Status:** ✅ Typecheck pass. Belum di-deploy (perlu rebuild bundle + redeploy backend).
+
+**Known limitation — belum di-address:**
+- `routes/messages.ts`, `routes/projects.ts`, `routes/quizzes.ts` saat ini panggil `deductCredit` untuk SEMUA user tier non-free, **termasuk user subscription**. Ini pre-existing — subscription logic untuk skip `deductCredit` perlu disetup terpisah (di luar scope task ini).
+- `MODEL_PRICING` di `ai.ts:136-152` belum di-update dengan Haiku 4.5 + Sonnet 5 USD rates. Untuk saat ini fallback ke GPT-3.5 ($0.5/$1.5 per 1M) untuk FinOps estimation. Update saat spec final.
+
 ### 14.5 Validasi Margin — Worst Case Analysis
 
 **Pertanyaan owner:** "apakah fee saya aman di kedua metode?"
