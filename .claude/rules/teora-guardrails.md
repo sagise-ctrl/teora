@@ -102,10 +102,78 @@ Every feature/fix requires:
 
 ## Error Handling
 
+### Output Surface
+
 - Never expose stack traces in API responses
 - Log errors server-side with context
 - Return generic error messages to clients
 - Surface actionable errors to users (e.g., "Session expired. Please log in again.")
+
+### FIX ≠ VERIFIED (HARD RULE)
+
+**WAJIB bedakan dua status ini:**
+- **`FIXED`** — code sudah di-commit / applied
+- **`VERIFIED`** — fix sudah di-test DAN proven working (dengan evidence)
+
+**Tanpa evidence (test/curl/build result), status = `UNVERIFIED`, BUKAN `VERIFIED`.**
+
+Verification methods per error type:
+| Tipe | Verification |
+|------|--------------|
+| Code logic | Unit + integration test pass |
+| Build/Deploy | `typecheck` + `build` pass + bundle grep |
+| Production API | `curl` test + Vercel runtime log inspection |
+| Configuration | env var present + service start OK |
+| Schema | migration applied + query return expected |
+| Behavior | manual browser test + screenshot |
+
+Lihat `.ai/guidelines/error-handling-protocol.md` Step 6 untuk full evidence format.
+
+### Confidence Labels (WAJIB untuk root cause)
+
+Setiap claim root cause WAJIB diberi label:
+
+| Label | Definisi | Kapan |
+|-------|----------|-------|
+| **OBSERVED** | Langsung dari log/code | Stack trace jelas |
+| **INFERRED** | Disimpulkan, belum di-test | Pattern match |
+| **PROBABLE** | Paling plausible + beberapa evidence | Cross-checked |
+| **CONFIRMED** | Sudah di-test atau fix membuktikan | Post-verification |
+
+**Hard rule:** Jangan claim CONFIRMED tanpa evidence test. Untested = PROBABLE paling tinggi.
+
+### Memory Hygiene (WAJIB sebelum simpan error)
+
+Save error ke `.ai/error-index.md` HANYA jika punya minimal 1 dari:
+- Non-obvious root cause
+- Useful debugging procedure
+- Recurring pattern (2x+)
+- Important failure
+- Production impact
+- Regression risk
+- Architectural lesson
+- Security implication
+- Future prevention value
+
+JANGAN save: typo trivial, transient hiccup, duplicate entry, temporary environment noise.
+
+### Pattern Detection Trigger (3x+ → Promote)
+
+WAJIB cek setelah append ke error-index: `grep -c "root_cause_pattern: <X>" .ai/error-index.md`
+
+| Count | Action |
+|-------|--------|
+| 1x | Record only |
+| 2x | Investigate apakah pattern sama |
+| 3x+ | **CONFIRMED PATTERN** → promote ke `.claude/skills/error-recovery/<pattern>.md` |
+
+### Anti-Patterns (JANGAN)
+
+- ❌ Claim VERIFIED tanpa evidence
+- ❌ Hide failed attempts dari entry
+- ❌ Promote pattern ke skill setelah 1-2 occurrences (premature abstraction)
+- ❌ Use root_cause_pattern berbeda untuk error kelas sama (fragmentation)
+- ❌ Simpan error trivial ke error-index (memory pollution)
 
 ## Environment Configuration
 
