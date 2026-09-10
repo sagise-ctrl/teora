@@ -18,7 +18,31 @@ router.get("/learning-activities", async (req, res): Promise<void> => {
     .where(eq(learningActivitiesTable.userId, req.user.id))
     .orderBy(desc(learningActivitiesTable.createdAt));
 
-  res.json(activities);
+  // Collect all project IDs to batch-fetch titles
+  const projectIds = [...new Set(activities.map((a) => a.sourceProjectId).filter(Boolean))];
+  const projectMap: Record<number, string> = {};
+  if (projectIds.length > 0) {
+    const projects = await db
+      .select({ id: projectsTable.id, title: projectsTable.title })
+      .from(projectsTable)
+      .where(sql`${projectsTable.id} = ANY(${projectIds})`);
+    for (const p of projects) {
+      if (p.id) projectMap[p.id] = p.title ?? "";
+    }
+  }
+
+  const formatted = activities.map((a) => ({
+    id: a.id,
+    userId: a.userId,
+    topics: JSON.parse(a.topics || "[]"),
+    subject: a.subject,
+    sourceProjectId: a.sourceProjectId,
+    sourceProjectTitle: a.sourceProjectId ? (projectMap[a.sourceProjectId] ?? null) : null,
+    extractedFrom: a.extractedFrom,
+    createdAt: a.createdAt.toISOString(),
+  }));
+
+  res.json(formatted);
 });
 
 // POST /learning-activities
@@ -86,24 +110,47 @@ router.get("/learning-activities/recommendations", async (req, res): Promise<voi
   }
 
   // Get all activities for the user
-  const activities = await db
+  const rawActivities = await db
     .select()
     .from(learningActivitiesTable)
     .where(eq(learningActivitiesTable.userId, req.user.id))
     .orderBy(desc(learningActivitiesTable.createdAt));
 
-  if (activities.length === 0) {
+  if (rawActivities.length === 0) {
     res.json([]);
     return;
   }
 
-  // Strategy: return up to 3 recommendations
-  // 1. Most recent activity (recent_task)
-  // 2. Most frequent topic across activities (frequent_topic)
-  // 3. Most recent project not yet in activities (recent_task from recent projects)
+  // Batch-fetch project titles
+  const projectIds = [...new Set(rawActivities.map((a) => a.sourceProjectId).filter(Boolean))];
+  const projectMap: Record<number, string> = {};
+  if (projectIds.length > 0) {
+    const projects = await db
+      .select({ id: projectsTable.id, title: projectsTable.title })
+      .from(projectsTable)
+      .where(sql`${projectsTable.id} = ANY(${projectIds})`);
+    for (const p of projects) {
+      if (p.id) projectMap[p.id] = p.title ?? "";
+    }
+  }
 
+  // Format with parsed topics and project title
+  const activities = rawActivities.map((a) => ({
+    id: a.id,
+    userId: a.userId,
+    topics: JSON.parse(a.topics || "[]") as string[],
+    subject: a.subject,
+    sourceProjectId: a.sourceProjectId,
+    sourceProjectTitle: a.sourceProjectId ? (projectMap[a.sourceProjectId] ?? null) : null,
+    extractedFrom: a.extractedFrom,
+    createdAt: a.createdAt.toISOString(),
+  }));
+
+  type FormattedActivity = typeof activities[0];
+
+  // Strategy: return up to 3 recommendations
   const recommendations: Array<{
-    learningActivity: typeof activities[0];
+    learningActivity: FormattedActivity;
     reason: string;
     type: string;
   }> = [];
@@ -111,8 +158,7 @@ router.get("/learning-activities/recommendations", async (req, res): Promise<voi
   // Recommendation 1: Most recent activity
   const recentActivity = activities[0];
   if (recentActivity) {
-    const parsedTopics = JSON.parse(recentActivity.topics || "[]") as string[];
-    const topicLabel = parsedTopics[0] || "topik terbaru";
+    const topicLabel = recentActivity.topics[0] || "topik terbaru";
     recommendations.push({
       learningActivity: recentActivity,
       reason: `Dari tugas terbaru Anda: "${topicLabel}"`,
@@ -121,28 +167,20 @@ router.get("/learning-activities/recommendations", async (req, res): Promise<voi
   }
 
   // Recommendation 2: Most frequent topic
-  const topicCount: Record<string, typeof activities[0]> = {};
+  const topicCount: Record<string, FormattedActivity> = {};
   for (const activity of activities) {
-    const topics = JSON.parse(activity.topics || "[]") as string[];
-    for (const topic of topics) {
+    for (const topic of activity.topics) {
       if (!topicCount[topic]) {
         topicCount[topic] = activity;
       }
     }
   }
   const sortedTopics = Object.entries(topicCount).sort((a, b) => {
-    const countA = activities.filter((act) => {
-      const tops = JSON.parse(act.topics || "[]") as string[];
-      return tops.includes(a[0]);
-    }).length;
-    const countB = activities.filter((act) => {
-      const tops = JSON.parse(act.topics || "[]") as string[];
-      return tops.includes(b[0]);
-    }).length;
+    const countA = activities.filter((act) => act.topics.includes(a[0])).length;
+    const countB = activities.filter((act) => act.topics.includes(b[0])).length;
     return countB - countA;
   });
 
-  // Find a different activity for frequent_topic (not the same as recent)
   if (sortedTopics.length > 1) {
     const frequentTopic = sortedTopics[0][0];
     const frequentActivity = topicCount[frequentTopic];
@@ -169,13 +207,16 @@ router.get("/learning-activities/recommendations", async (req, res): Promise<voi
 
   for (const project of recentProjects) {
     if (project.id && !existingProjectIds.has(project.id)) {
-      // Create a synthetic recommendation from the project title
       recommendations.push({
         learningActivity: {
-          ...activities[0],
           id: 0,
-          topics: JSON.stringify([project.title]),
+          userId: req.user.id,
+          topics: [project.title ?? ""],
+          subject: null,
           sourceProjectId: project.id,
+          sourceProjectTitle: project.title ?? "",
+          extractedFrom: "instruction",
+          createdAt: new Date().toISOString(),
         },
         reason: `Project "${project.title}" belum di-extract`,
         type: "recent_task",

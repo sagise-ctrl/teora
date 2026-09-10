@@ -14,10 +14,14 @@ import {
   ChevronRight,
   Menu,
   X,
+  Moon,
+  Sun,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
-import { useGetMyBalance } from "@/lib/api-client-react";import { Badge } from "@/components/ui/badge";
+import { useTheme } from "@/hooks/use-theme";
+import { useGetMyBalance } from "@/lib/api-client-react";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TeoraLogo } from "@/components/brand/teora-logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -206,6 +210,7 @@ function SidebarNav({ onNavigate }: SidebarNavProps) {
 function SidebarFooter({ onNavigate }: SidebarNavProps) {
   const { user, logout } = useAuth();
   const { data: balanceData, isLoading: balanceLoading } = useGetMyBalance();
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <div className="p-3 border-t border-border space-y-3">
@@ -237,7 +242,7 @@ function SidebarFooter({ onNavigate }: SidebarNavProps) {
         </div>
       </Link>
 
-      {/* Settings + Logout */}
+      {/* Settings + Theme Toggle + Logout */}
       <div className="flex items-center gap-2">
         <Link
           href="/profile"
@@ -247,6 +252,17 @@ function SidebarFooter({ onNavigate }: SidebarNavProps) {
           <Settings className="w-3.5 h-3.5" />
           Settings
         </Link>
+        <button
+          onClick={toggleTheme}
+          className="p-2 text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent rounded-md transition-colors"
+          title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+        >
+          {theme === "dark" ? (
+            <Sun className="w-3.5 h-3.5" />
+          ) : (
+            <Moon className="w-3.5 h-3.5" />
+          )}
+        </button>
         <button
           onClick={() => {
             logout();

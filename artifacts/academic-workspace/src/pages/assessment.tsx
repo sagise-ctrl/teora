@@ -3,8 +3,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Assessment() {
+  const { toast } = useToast();
+
   return (
     <div className="space-y-6">
         <div className="flex items-center justify-between">
@@ -14,7 +17,7 @@ export default function Assessment() {
               Quiz, soal, dan evaluasi akademik
             </p>
           </div>
-          <Button>
+          <Button onClick={() => toast({ title: "Fitur dalam pengembangan", description: "Assessment kuis dan evaluasi akan segera hadir. Pantau update berikutnya.", variant: "default" })}>
             <Plus className="w-4 h-4 mr-2" />
             Buat Assessment
           </Button>
@@ -59,7 +62,7 @@ export default function Assessment() {
               <p className="text-sm text-muted-foreground mb-4">
                 Mulai buat quiz atau soal evaluasi akademik Anda.
               </p>
-              <Button>
+              <Button onClick={() => toast({ title: "Fitur dalam pengembangan", description: "Assessment kuis dan evaluasi akan segera hadir. Pantau update berikutnya.", variant: "default" })}>
                 <Plus className="w-4 h-4 mr-2" />
                 Buat Assessment Pertama
               </Button>

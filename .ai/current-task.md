@@ -9,6 +9,59 @@
 
 ---
 
+## ACTIVE 2026-09-10 — Mock Features Audit: Wire Real APIs
+
+**Status:** ✅ COMPLETE — All 4 tasks done, typecheck pass
+**Model:** claude-opus-4-6
+**Branch:** `feat/daftar-task`
+**Files changed:** 3
+
+### Task Summary
+
+| # | Task | Status | Change |
+|---|------|--------|--------|
+| 1 | Practice — wire real API + empty state | ✅ DONE (prior session) | topics parsing fix + sourceProjectTitle batch fetch + toast on Mulai Kuis |
+| 2 | Monitoring — protected route | ✅ DONE (prior session) | ProtectedRoute added to /status |
+| 3 | Usage — wire real API via manual fetch | ✅ DONE | usage.tsx: replaced MOCK_* with real `GET /users/me/subscription` via customFetch |
+| 4 | Assessment — stub Buat button | ✅ DONE | assessment.tsx: toast on both "Buat Assessment" buttons |
+
+### Task 3 Details — Usage Page Wiring
+
+**Backend:** `GET /api/users/me/subscription` returns `{ subscription, usageWindows, maxWindows }`
+- Tokens tracked per model (haiku/sonnet) per window (5h/7d)
+- Frontend converts tokens → hours at ~50 tokens/sec (Haiku rate)
+
+**Changes in `artifacts/academic-workspace/src/pages/usage.tsx`:**
+1. Replaced `import { useState }` → `import { useState, useEffect } from "react"`
+2. Added imports: `customFetch`, `useAuth`
+3. Removed mock constants: `MOCK_SUBSCRIPTION`, `MOCK_USAGE_5H`, `MOCK_USAGE_7D`, `MOCK_HISTORY`
+4. Added `SubscriptionData` interface + `TOKENS_PER_SECOND_HAIKU` constant
+5. Added `useEffect` that fetches `/api/users/me/subscription` with auth token
+6. Computed 5h/7d usage from active window tokens → hours
+7. Built daily history from usage windows
+8. Active Package card: loading skeleton + error card + empty state + real data
+9. Usage columns: conditional skeleton loading
+10. Daily history: skeleton loading + empty state
+11. Added `Skeleton`, `AlertCircle` imports
+
+### Task 4 Details — Assessment Buttons
+
+**Changes in `artifacts/academic-workspace/src/pages/assessment.tsx`:**
+- Added `import { useToast } from "@/hooks/use-toast"`
+- Header button: `onClick={() => toast({ title: "Fitur dalam pengembangan", ... })}`
+- Empty state button: same toast
+
+### Verification
+- ✅ Backend typecheck: exit 0
+- ✅ Frontend typecheck: exit 0
+- ⏳ Build + deploy pending
+
+### Next
+1. Build + deploy frontend
+2. Push to remote
+
+---
+
 ## ACTIVE 2026-09-10 — Landing Page Redesign (Maximal)
 
 **Status:** ✅ DEPLOYED — production live, all verification passed

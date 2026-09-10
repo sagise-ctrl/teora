@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Brain, Lightbulb, Clock, Target, BookOpen, ChevronRight, RefreshCw, Loader2, AlertCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +19,7 @@ const TYPE_META: Record<RecommendationType, { icon: typeof Clock; color: string;
   weak_topic: { icon: AlertCircle, color: "text-amber-600", label: "Perlu Diperkuat" },
 };
 
-function RecommendationCard({ rec }: { rec: PracticeRecommendation }) {
+function RecommendationCard({ rec, onStartQuiz }: { rec: PracticeRecommendation; onStartQuiz: () => void }) {
   const meta = TYPE_META[rec.type as RecommendationType] ?? TYPE_META.recent_task;
   const Icon = meta.icon;
 
@@ -51,7 +52,7 @@ function RecommendationCard({ rec }: { rec: PracticeRecommendation }) {
             Dari: {rec.learningActivity.sourceProjectTitle}
           </p>
         )}
-        <Button className="w-full mt-2" size="sm">
+        <Button className="w-full mt-2" size="sm" onClick={onStartQuiz}>
           Mulai Kuis
         </Button>
       </CardContent>
@@ -82,6 +83,7 @@ function SkeletonCard() {
 }
 
 export default function Practice() {
+  const { toast } = useToast();
   const recommendationsQuery = useGetPracticeRecommendations();
   const activitiesQuery = useListLearningActivities();
   const [refreshing, setRefreshing] = useState(false);
@@ -150,7 +152,13 @@ export default function Practice() {
         ) : recommendationsQuery.data && recommendationsQuery.data.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {recommendationsQuery.data.map((rec, i) => (
-              <RecommendationCard key={`${rec.type}-${rec.learningActivity.id}-${i}`} rec={rec} />
+              <RecommendationCard
+                key={`${rec.type}-${rec.learningActivity.id}-${i}`}
+                rec={rec}
+                onStartQuiz={() =>
+                  toast({ title: "Fitur kuis dalam pengembangan", description: "Kuis interaktif akan segera hadir. Pantau update berikutnya.", variant: "default" })
+                }
+              />
             ))}
           </div>
         ) : (
