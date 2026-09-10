@@ -115,7 +115,7 @@ const features = [
     icon: MessageSquare,
     title: "AI Assistant",
     description:
-      "Tanya tentang tugas, AI bantu Anda memahami, bukan sekadar menjawab.",
+      "Tanya tentang tugas, AI bantu Anda memahami selangkah demi selangkah.",
     color: "from-amber-500/20 to-orange-500/20",
     accent: "text-amber-500",
     badge: "Baru",
@@ -164,7 +164,7 @@ const steps = [
     number: "02",
     title: "Teora membimbing selangkah demi selangkah",
     description:
-      "Lewati setiap tahap dengan bimbingan AI yang menunjukkan LOGIKA di balik setiap langkah. Bukan jawaban instan, tapi pemahaman bertahap.",
+      "Lewati setiap tahap dengan bimbingan AI yang menunjukkan LOGIKA di balik setiap langkah, selangkah demi selangkah sampai paham.",
     visual: (
       <div className="relative bg-gradient-to-br from-[#1a1a2e] to-[#16213e] rounded-2xl p-6 border border-white/10">
         <div className="space-y-3">
@@ -406,10 +406,10 @@ function HeroSection() {
             Pahami tugas,
             <br />
             <span className="bg-gradient-to-r from-[#2D79FF] to-[#8E54E9] bg-clip-text text-transparent">
-              bukan sekadar
+              selangkah demi selangkah
             </span>
             <br />
-            menyelesaikannya.
+            sampai selesai.
           </motion.h1>
 
           <motion.p
@@ -420,8 +420,7 @@ function HeroSection() {
             className="text-lg text-white/60 max-w-lg leading-relaxed"
           >
             Teora membimbing Anda memahami dasar materi dan mengerjakan tugas akademik
-            selangkah demi selangkah, bukan memberikan jawaban instan, tapi membangun
-            pemahaman yang tahan lama.
+            selangkah demi selangkah, membangun pemahaman yang tahan lama.
           </motion.p>
 
           <motion.div
@@ -946,7 +945,7 @@ function CTASection() {
               Siap menemani proses belajar Anda?
             </h2>
             <p className="text-white/50 mt-4 max-w-xl mx-auto">
-              Bergabung dengan 12.000+ mahasiswa dan pengajar yang sudah menggunakan Teora untuk memahami tugas, bukan sekadar menyelesaikannya.
+              Bergabung dengan 12.000+ mahasiswa dan pengajar yang sudah menggunakan Teora untuk memahami tugas dan menyelesaikannya.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
               <Link href="/register">
@@ -985,7 +984,7 @@ function Footer() {
           <div className="col-span-2">
             <TeoraLogo size="sm" className="mb-4" />
             <p className="text-sm text-white/40 leading-relaxed max-w-xs">
-              Asisten Akademik AI untuk mahasiswa dan pengajar Indonesia. Pahami tugas, bukan sekadar menyelesaikannya.
+              Asisten Akademik AI untuk mahasiswa dan pengajar Indonesia. Membantu memahami tugas dan menyelesaikannya.
             </p>
             <div className="flex items-center gap-3 mt-4">
               {[
