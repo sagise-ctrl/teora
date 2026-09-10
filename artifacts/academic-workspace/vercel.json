@@ -1,6 +1,6 @@
 {
   "framework": null,
-  "installCommand": "pnpm install --config.registry=https://registry.npmjs.org/",
+  "installCommand": "npm install --legacy-peer-deps",
   "buildCommand": "npm run build",
   "rewrites": [
     { "source": "/api/(.*)", "destination": "https://teora-backend.vercel.app/api/$1" },
