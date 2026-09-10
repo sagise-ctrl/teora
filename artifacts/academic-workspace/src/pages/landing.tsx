@@ -403,13 +403,13 @@ function HeroSection() {
             animate="visible"
             className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold leading-tight tracking-tight"
           >
-            Pahami tugas,
+            Mendukung Proses
             <br />
             <span className="bg-gradient-to-r from-[#2D79FF] to-[#8E54E9] bg-clip-text text-transparent">
-              selangkah demi selangkah
+              Belajar dan Mengajar
             </span>
             <br />
-            sampai selesai.
+            secara lebih terarah.
           </motion.h1>
 
           <motion.p
