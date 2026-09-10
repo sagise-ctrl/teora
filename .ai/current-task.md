@@ -11,7 +11,7 @@
 
 ## ACTIVE 2026-09-10 — Mock Features Audit: Wire Real APIs
 
-**Status:** ✅ COMPLETE — All 4 tasks done, typecheck pass
+**Status:** ✅ COMPLETE — All 4 tasks done, typecheck pass, deployed
 **Model:** claude-opus-4-6
 **Branch:** `feat/daftar-task`
 **Files changed:** 3
@@ -54,11 +54,14 @@
 ### Verification
 - ✅ Backend typecheck: exit 0
 - ✅ Frontend typecheck: exit 0
-- ⏳ Build + deploy pending
+- ✅ Build: `pnpm build` 1.5MB bundle (72s)
+- ✅ Deploy: `dpl_Eov4tWjM7kBBwfZNNcVvjXggfJsY` → production alias `academic-workspace-eta.vercel.app`
+- ✅ Bundle verified: "Fitur dalam pengembangan" + "/api/users/me/subscription" present
+- ✅ Pushed: `51708f9`
 
 ### Next
-1. Build + deploy frontend
-2. Push to remote
+1. Owner verifies live: `/usage`, `/practice`, `/assessment` pages
+2. Backend deploy (if needed for subscription endpoint — it was deployed earlier)
 
 ---
 
@@ -1341,6 +1344,34 @@ DECISION 013 — Practice menu: quiz/recommendation system that auto-extracts to
 1. **Push `d3820ca` ke remote?** — Saat ini lokal saja di `feat/daftar-task`. Per Session Start Protocol push di session-close diizinkan, tapi belum dilakukan karena owner tidak eksplisit request push.
 2. **Landing-redesign di branch yang sama** — `feat/daftar-task` sekarang punya 2 unrelated concern (landing redesign + error system). Mau di-split ke branch terpisah, atau di-stash dulu?
 3. **Pattern `auth_middleware_order_or_misconfig` (4x)** — eligible untuk promosi ke skill ketiga (`auth-middleware-config.md`). Prioritaskan atau tunggu?
+
+---
+
+## Handoff 2026-09-10 09:XX — model opus-4-6
+
+**Status:** ✅ COMPLETE — Error 2013 (context window exceeded) FIXED
+
+### Task Aktif
+- ✅ Error 2013 context window exceeded — FIXED
+
+### Changes (4 files modified + 1 new)
+
+1. **`artifacts/api-server/src/lib/tokenizer.ts`** — NEW FILE: token counting via `tiktoken` (cl100k_base), `getContextWindow()`, `estimateTokensFromChars()`, `truncateToTokenLimit()` with binary search
+2. **`artifacts/api-server/src/lib/ai.ts`** — import tokenizer + error handling for Anthropic `overload_input` (2013) → throws `"KONTEKS_TERLALU_PANJANG"` + `buildSystemPrompt()` now truncates document by tokens (~2000) not chars (3000)
+3. **`artifacts/api-server/src/routes/messages.ts`** — token-aware message selection (up to 140K tokens, oldest-first) + 413 handling for `KONTEKS_TERLALU_PANJANG`
+4. **`artifacts/api-server/src/routes/references.ts`** — 413 handling for auto-cite
+5. **Dependency:** `tiktoken@1.0.22` added to api-server
+
+### Verification
+- `pnpm run typecheck` ✅
+- `pnpm run build` ✅ (exit 0)
+- `ERR-017` logged to `.ai/error-index.md`
+
+### Open Questions
+1. **Backend belum di-push ke remote** — `feat/daftar-task` branch belum push. Apakah perlu push sekarang?
+2. **Deployment** — mau deploy sekarang, atau push branch dulu untuk CI?
+
+
 4. **`.ai/` gitignore** — `.ai/error-index.md` + `.ai/guidelines/*.md` tidak masuk git (by design). Owner OK dengan operational state per-machine, atau mau force-track?
 
 ### Files Aktif Saat Ini (untuk reference next session)

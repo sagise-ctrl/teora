@@ -16,6 +16,7 @@ import {
   SendMessageBody,
 } from "@workspace/api-zod";
 import { callAI, buildSystemPrompt, type ChatMode, getTierConfig, getTierForUser } from "../lib/ai.js";
+import { estimateTokensFromChars } from "../lib/tokenizer.js";
 import { logActivity } from "../lib/activity.js";
 import { checkAIAccess, consumeQuotaForAIRequest } from "../lib/subscription.js";
 import { sanitizeUserMessage } from "../lib/prompt-injection.js";
@@ -132,13 +133,28 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
     .orderBy(desc(documentVersionsTable.versionNumber))
     .limit(1);
 
-  // Get recent chat history (last 10 messages)
-  const recentMessages = await db
+  // Get recent chat history — token-aware selection (up to 75% of context window)
+  const MAX_TOTAL_INPUT_TOKENS = 140_000; // ~70% of 200K, leaves room for output + buffer
+  const SYSTEM_PROMPT_ESTIMATE = 1500;
+
+  const allRecentMessages = await db
     .select()
     .from(messagesTable)
     .where(eq(messagesTable.projectId, params.data.projectId))
-    .orderBy(desc(messagesTable.createdAt))
-    .limit(10);
+    .orderBy(desc(messagesTable.createdAt));
+
+  // Skip the message we just inserted (first in the desc list)
+  const candidates = allRecentMessages.slice(1);
+
+  let usedTokens = SYSTEM_PROMPT_ESTIMATE;
+  const recentMessages: typeof candidates = [];
+
+  for (const msg of candidates) {
+    const msgTokens = estimateTokensFromChars(msg.content.length);
+    if (usedTokens + msgTokens > MAX_TOTAL_INPUT_TOKENS) break;
+    usedTokens += msgTokens;
+    recentMessages.push(msg);
+  }
 
   const systemPrompt = buildSystemPrompt({
     title: project.title,
@@ -172,6 +188,14 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
   try {
     usageResult = await callAI(aiMessages, selectedTier.id, mode);
   } catch (err) {
+    const errMsg = err instanceof Error ? err.message : String(err);
+    if (errMsg === "KONTEKS_TERLALU_PANJANG") {
+      res.status(413).json({
+        error: "Konteks terlalu panjang. Coba hapus chat history atau mulai project baru.",
+        code: "CONTEXT_EXCEEDED",
+      });
+      return;
+    }
     logger.error({ err, tierId: selectedTier.id }, "AI call failed");
     res.status(500).json({ error: "AI request failed. Silakan coba lagi." });
     return;

@@ -2,6 +2,7 @@ import { db } from "@workspace/db";
 import { aiTiersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { logger } from "./logger.js";
+import { truncateToTokenLimit, countTokens } from "./tokenizer.js";
 
 export interface AITierConfig {
   id: string;
@@ -315,6 +316,20 @@ async function callAnthropic(
 
   if (!response.ok) {
     const errorBody = await response.text();
+    let errorObj: Record<string, unknown> = {};
+    try { errorObj = JSON.parse(errorBody); } catch { /* not JSON */ }
+
+    // Anthropic error type "overload_input" = error code 2013 = context window exceeded
+    const errorType = (errorObj as Record<string, unknown>)?.type as string | undefined;
+    if (errorType === "overload_input" || errorType === "invalid_request_error") {
+      const errDetail = (errorObj as Record<string, unknown>)?.error as Record<string, unknown> | undefined;
+      const innerType = errDetail?.type as string | undefined;
+      if (innerType === "overload_input" || response.status === 400) {
+        logger.warn({ status: response.status, body: errorBody, tier: tier.id }, "Anthropic context window exceeded");
+        throw new Error("KONTEKS_TERLALU_PANJANG");
+      }
+    }
+
     logger.error({ status: response.status, body: errorBody, tier: tier.id }, "Anthropic API error");
     throw new Error(`Anthropic API error ${response.status}: ${errorBody}`);
   }
@@ -443,7 +458,7 @@ ${projectContext.taskType ? `Jenis Tugas: ${projectContext.taskType}` : ""}
 ${projectContext.citationFormat ? `Format Sitasi: ${projectContext.citationFormat}` : ""}
 ${projectContext.instructionText ? `\nINSTRUKSI DOSEN:\n${projectContext.instructionText}` : ""}
 ${projectContext.outline ? `\nOUTLINE DOKUMEN:\n${projectContext.outline}` : ""}
-${projectContext.latestDocument ? `\nDOKUMEN TERBARU (untuk referensi revisi):\n${projectContext.latestDocument.substring(0, 3000)}${projectContext.latestDocument.length > 3000 ? "\n...[dipotong]" : ""}` : ""}
+${projectContext.latestDocument ? `\nDOKUMEN TERBARU (untuk referensi revisi):\n${truncateToTokenLimit(projectContext.latestDocument, "claude-3-5-sonnet-20241022", 2000)}${countTokens(projectContext.latestDocument) > 2000 ? "\n...[dipotong]" : ""}` : ""}
 ${projectContext.contextSummary ? `\nRINGKASAN KONTEKS:\n${projectContext.contextSummary}` : ""}
 
 MODE INSTRUKSI (IKUTI INSTRUKSI INI SESUAI MODE YANG DIPILIH):

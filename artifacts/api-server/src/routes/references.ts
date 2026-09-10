@@ -1223,8 +1223,13 @@ ${candidateReferences
     usage = result.usage;
     tierConfig = result.tierConfig;
   } catch (err) {
+    const errMsg = err instanceof Error ? err.message : String(err);
+    if (errMsg === "KONTEKS_TERLALU_PANJANG") {
+      res.status(413).json({ error: "Konteks terlalu panjang. Coba kurangi jumlah paragraf atau referensi.", code: "CONTEXT_EXCEEDED" });
+      return;
+    }
     console.error("[auto-cite] AI call failed:", err);
-    res.status(502).json({ error: "AI provider error", detail: err instanceof Error ? err.message : String(err) });
+    res.status(502).json({ error: "AI provider error", detail: errMsg });
     return;
   }
 
