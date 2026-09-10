@@ -21,7 +21,7 @@ import AdminLayout from "@/components/admin-layout";
 import { customFetch } from "@/lib/api-client-react";
 import { AdminStats, StatCard, formatCents } from "@/lib/admin-utils";
 
-// ── Admin Overview ─────────────────────────────────────────────────────────────
+// - Admin Overview -
 
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
@@ -44,7 +44,7 @@ export default function AdminDashboard() {
           <div>
             <h1 className="text-2xl font-serif font-bold tracking-tight">Admin Dashboard</h1>
             <p className="text-muted-foreground text-sm mt-0.5">
-              Overview sistem Teora — semua data dan konfigurasi
+              Overview sistem Teora: semua data dan konfigurasi
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -86,14 +86,14 @@ export default function AdminDashboard() {
             ) : stats ? (
               <>
                 <StatCard
-                  title="Total Users"
+                  title="Total Pengguna"
                   value={stats.totals.users.toLocaleString()}
                   sub={`${stats.totals.projects} projects`}
                   icon={Users}
                   accent="blue"
                 />
                 <StatCard
-                  title="AI Requests"
+                  title="Permintaan Teora"
                   value={stats.totals.aiRequests.toLocaleString()}
                   sub={`${stats.totals.inputTokens.toLocaleString()} input / ${stats.totals.outputTokens.toLocaleString()} output tokens`}
                   icon={Zap}
@@ -107,7 +107,7 @@ export default function AdminDashboard() {
                   accent="green"
                 />
                 <StatCard
-                  title="AI Cost"
+                  title="Biaya Teora"
                   value={`$${stats.totals.aiCostUsd.toFixed(2)}`}
                   sub={`Gross margin: ${stats.revenue.grossMargin}%`}
                   icon={Coins}
@@ -128,7 +128,7 @@ export default function AdminDashboard() {
             {/* Owner Usage */}
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-base">Owner Usage (Test Mode)</CardTitle>
+                <CardTitle className="text-base">Usage Owner (Mode Test)</CardTitle>
                 <CardDescription>Usage owner tetap tercatat untuk laporan</CardDescription>
               </CardHeader>
               <CardContent>
@@ -138,7 +138,7 @@ export default function AdminDashboard() {
                   </div>
                   <div>
                     <p className="text-xl font-bold">{stats.ownerUsage.totalRequests.toLocaleString()}</p>
-                    <p className="text-sm text-muted-foreground">AI requests</p>
+                    <p className="text-sm text-muted-foreground">Permintaan Teora</p>
                     <p className="text-xs text-muted-foreground">${stats.ownerUsage.totalCostUsd.toFixed(2)} cost</p>
                   </div>
                 </div>
@@ -148,8 +148,8 @@ export default function AdminDashboard() {
             {/* Top Consumers */}
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-base">Top AI Consumers</CardTitle>
-                <CardDescription>User dengan usage tertinggi periode ini</CardDescription>
+                <CardTitle className="text-base">Pengguna Aktif Teratas</CardTitle>
+                <CardDescription>Pengguna dengan usage tertinggi periode ini</CardDescription>
               </CardHeader>
               <CardContent>
                 {stats.topConsumers.length > 0 ? (
@@ -181,10 +181,10 @@ export default function AdminDashboard() {
           <h2 className="text-lg font-semibold mb-3">Manage</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {[
-              { label: "Users", href: "/admin/users", icon: Users, desc: "Kelola user" },
+              { label: "Pengguna", href: "/admin/users", icon: Users, desc: "Kelola pengguna" },
               { label: "Financial", href: "/admin/finops", icon: TrendingUp, desc: "Revenue & cost" },
-              { label: "AI Usage", href: "/admin/usage", icon: Coins, desc: "Usage breakdown" },
-              { label: "AI Tiers", href: "/admin/ai-tiers", icon: Settings, desc: "Pricing config" },
+              { label: "Usage Teora", href: "/admin/usage", icon: Coins, desc: "Usage breakdown" },
+              { label: "Tier Teora", href: "/admin/ai-tiers", icon: Settings, desc: "Pricing config" },
               { label: "System", href: "/admin/health", icon: Activity, desc: "Health & alerts" },
               { label: "Audit Log", href: "/admin/audit-log", icon: ScrollText, desc: "Admin actions" },
               { label: "Reports", href: "/admin/reports", icon: ScrollText, desc: "Report archive" },

@@ -24,6 +24,90 @@ Format per entry:
 ---
 ```
 
+## [2026-09-01] Production: 401 "Unauthorized" di console setiap page reload + 3 bugs
+
+**Divisi:** AI Engineering (Production Operations)
+**Severity:** P1 / Production
+**Status:** ✅ RESOLVED (2026-09-01)
+**Divisi Owner:** AI Engineering
+
+**Deskripsi:** Browser console spam `GET https://teora-backend.vercel.app/api/auth/me 401 (Unauthorized)` setiap page reload. Owner frustrasi ("semaleman opus 4.6 ngoding tapi hasilnya sama aja error, gk jelas"). Investigasi menemukan 3 bug simultan di backend.
+
+**Dampak:**
+- Login flow tidak reliable
+- Console error noise menurunkan trust pada aplikasi
+- Waktu Owner terbuang semalam untuk debugging tanpa progress
+
+**Root Cause (3 bug):**
+
+### Bug A — Express middleware mount order
+`router.use(authRouter)` di `src/routes/index.ts` mount authRouter **sebelum** `router.use(authMiddleware)`. Express hanya apply middleware ke routes yang di-register **setelahnya**. Hasilnya: `/auth/me` dan `/auth/referrals` tidak terproteksi oleh middleware global — token verification tidak jalan.
+
+### Bug B — JWT verification: HS256 hard fail + JWKS URL salah
+1. **Modern Supabase (2024+) pakai ES256 (asymmetric, JWKS)**, bukan HS256 (symmetric, JWT_SECRET). Backend hanya verify HS256 → Google OAuth token selalu invalid → 401.
+2. **JWKS URL yang benar adalah `/auth/v1/.well-known/jwks.json`** (BUKAN `/jwt/v1/keys` yang sering ditulis di docs lama).
+3. Backend pakai `if/else` HS256-atau-JWKS — kalau HS256 throw (token invalid format), JWKS fallback tidak terpanggil.
+
+### Bug C — express-rate-limit ValidationError (no trust proxy)
+Vercel set header `X-Forwarded-For`. Default Express `trust proxy = false`. `express-rate-limit` keyGenerator default (`req.ip`) → throw `ERR_ERL_UNEXPECTED_X_FORWARDED_FOR`. Tidak fatal tapi log spam di Vercel runtime logs.
+
+**Fix (3 file, ~30 lines):**
+
+### Fix Bug A
+- `src/routes/auth.ts`: Tambah per-route `authMiddleware` ke `/auth/me` dan `/auth/referrals`:
+  ```ts
+  router.get("/auth/me", authMiddleware, async (req, res) => { ... });
+  router.get("/auth/referrals", authMiddleware, async (req, res) => { ... });
+  ```
+
+### Fix Bug B
+- `src/middlewares/auth.ts`:
+  1. JWKS URL fix: `${SUPABASE_URL}/auth/v1/.well-known/jwks.json`
+  2. HS256-first + JWKS fallback pattern di `authMiddleware` dan `optionalAuth`:
+     ```ts
+     let verified = false;
+     if (secret) {
+       try { /* HS256 verify */ verified = true; }
+       catch { /* fall through to JWKS */ }
+     }
+     if (!verified) { /* JWKS verify */ }
+     ```
+
+### Fix Bug C
+- `src/app.ts`: `app.set("trust proxy", 1)` setelah `const app = express()` (1 hop untuk Vercel CDN).
+
+**Deploy:** Direct Vercel CLI dari local (custom vercel.json override). Build sukses dalam 10s.
+
+- Backend: `dpl_9ducQJCXfJh3u1ec34sceQyYK8bx` aliased ke `teora-backend.vercel.app` ✅
+- Bundle verifikasi: line 193617 `router2.get("/auth/me", authMiddleware, ...)`, line 239410 `app.set("trust proxy", 1)`.
+
+**Verifikasi (post-deploy curl):**
+
+| Test | Expected | Actual |
+|------|----------|--------|
+| `GET /api/healthz` | 200 `{"status":"ok"}` | ✅ 200 |
+| `GET /api/auth/me` (no token) | 401 `{"error":"Unauthorized"}` | ✅ 401 (route handler) |
+| `GET /api/auth/me` (bad token) | 401 `{"error":"Invalid or expired token"}` | ✅ 401 (middleware) |
+| Vercel logs `ERR_ERL_UNEXPECTED_X_FORWARDED_FOR` | None | ✅ None in last 30m |
+
+**Commits:**
+- `af06d83` — fix(auth): per-route authMiddleware on /me and /referrals + HS256 to JWKS fallback with correct JWKS URL
+- `694d8f1` — fix(api): trust proxy for Vercel + cleanup vercel.json
+
+**Pencegahan:**
+- **Untuk route group dengan mount order complexity**: SELALU pakai per-route middleware (`router.get(path, middleware, handler)`) daripada global middleware yang di-apply via `router.use(path, middleware)`. Mount order bug tidak akan terjadi.
+- **Untuk Supabase modern (ES256)**: Backend HARUS verify pakai JWKS sebagai fallback. Hard HS256-only akan selalu gagal untuk Google OAuth token.
+- **Untuk deploy di Vercel/serverless behind proxy**: SELALU set `app.set("trust proxy", 1)` di awal. Tanpa ini, semua `req.ip`-based logic (rate limit, audit log) akan error.
+- **Sebelum klaim "fix tidak live"**: bundle cek langsung — `grep "fix-pattern" api/index.mjs` untuk confirm fix ada di compiled output, bukan hanya source.
+
+**Related Files:**
+- `artifacts/api-server/src/routes/auth.ts`
+- `artifacts/api-server/src/middlewares/auth.ts`
+- `artifacts/api-server/src/app.ts`
+- `artifacts/api-server/src/routes/index.ts` (mount order issue location)
+
+---
+
 ## [2026-08-31] OAuth Callback 404 — SPA routing config missing wildcard fallback
 
 **Divisi:** DevOps (Deployment)
@@ -680,5 +764,71 @@ When running `npm test` (vitest) after Phase 1.5 ESLint cleanup, 11 tests fail a
 - Baseline: `de372ca chore(lint): expand ESLint ignores for generated, bundled, local, debug files`
 
 ---
+
+## [2026-09-04] Deploy Errors — Recurring Class (7 distinct symptoms in 2 weeks)
+
+**Divisi:** AI Engineering (Production Operations)
+**Severity:** P1 Dev (deploy blocker, owner time wasted)
+**Status:** Open — Permanent fixes applied per DECISION 015, validation pending next deploy
+**Divisi Owner:** AI Engineering
+
+**Deskripsi:**
+
+7 distinct deploy error patterns observed 2026-08-22 to 2026-09-04. Each caused deploy blockage, owner wait time, or CI failure.
+
+**Ringkasan 7 patterns:**
+
+| # | Tanggal | Pattern | Symptom | Resolusi |
+|---|---------|---------|---------|----------|
+| 1 | 2026-08-22 | pnpm workspace incompatible | `Unsupported URL Type "workspace:*"` | Convert to npm (`6bc4103`) |
+| 2 | 2026-08-26 | Wrong Vercel project | `Workspace not found` / silent build | Re-link project.json |
+| 3 | 2026-08-29 | `.vercelignore` blocking dist/ | `STATIC_BUILD_NO_OUT_DIR` | Allowlist specific dirs (DECISION 008) |
+| 4 | 2026-08-31 | CI `dist/` missing | `No Output Directory named "dist" found` | Direct CLI deploy (DECISION 003) |
+| 5 | 2026-09-01 | tsconfig extends parent | `failed to resolve "extends":"../../tsconfig.base.json"` | Inline tsconfig per workspace |
+| 6 | 2026-09-04 | `link:` drizzle-zod devDep | `EUNSUPPORTEDPROTOCOL link:../drizzle-orm/dist` | `installCommand --omit=dev` + `NPM_CONFIG_PRODUCTION=true` |
+| 7 | 2026-09-04 | pnpm/npm path mismatch | `Cannot find module 'typescript/bin/tsc'` | Use direct path or `pnpm exec` |
+
+**Dampak Kumulatif:**
+- 7 deploy blockage incidents
+- Owner waiting time per incident: 10-60 min (debug + retry + verify)
+- Total owner time wasted: ~3-5 jam
+- Vercel build minutes terbuang: ~30+ build attempts
+
+**Root Cause Classes (dari lessons-learned entry playbook):**
+
+1. **Tool mismatch** — pnpm syntax tidak supported Vercel
+2. **Vercel vs local divergence** — Vercel install environment berbeda
+3. **`.vercelignore` over-broad** — `**/dist` blocks legitimate uploads
+4. **CI/CD bypass** — GitHub Actions workflows broken
+5. **`.gitignore` cross-contamination** — `dist/` excluded globally
+6. **Version pinning** — `@vercel/node` auto-injected vulnerable version
+7. **Build context isolation** — Vercel builds in `/vercel/path0/` from subdir
+
+**Rencana Fix — DECISION 015:**
+
+- ✅ Apply permanent fixes untuk semua low-risk patterns (installCommand override)
+- ✅ Document playbook untuk diagnosis cepat (memory + lessons-learned + decisions)
+- ⏳ Pin `@vercel/node` version (pending)
+- ⏳ Schedule npm audit as separate CI job (pending)
+- ⏳ Verify DECISION 015 applied config works in next deploy (validation)
+
+**Verifikasi setiap deploy baru (playbook checklist):**
+- [ ] Baca playbook entry sebelum deploy attempt
+- [ ] Sanity check local build dulu
+- [ ] Cek timestamp `dist/assets/index-*.js`
+- [ ] Setelah deploy, verify via curl + bundle grep
+- [ ] Kalau error pattern baru, tambah entry playbook
+
+**Related:**
+- `.ai/decisions.md` DECISION 015 (Deploy Robustness Strategy)
+- `.ai/lessons-learned.md` entry "Deploy Errors — Comprehensive Playbook"
+- `memory/deploy-error-playbook-20260904.md` (master playbook)
+- `memory/vercel-prebuilt-deploy-with-inline-env-20260904.md`
+- `memory/vercel-deploy-without-prebuilt-drizzle-zod-fix-20260904.md`
+- `memory/vercel-mcp-blind-spot.md`
+- `memory/deployment-environment-limits.md`
+
+---
+
 
 ---

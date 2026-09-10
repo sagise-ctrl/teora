@@ -59,10 +59,10 @@ function NavItem({ href, icon: Icon, label, badge, active }: NavItemProps) {
 
 const ADMIN_NAV = [
   { href: "/admin", icon: LayoutDashboard, label: "Overview" },
-  { href: "/admin/users", icon: Users, label: "User Management" },
+  { href: "/admin/users", icon: Users, label: "Manajemen Pengguna" },
   { href: "/admin/finops", icon: TrendingUp, label: "Financial Overview" },
-  { href: "/admin/usage", icon: Coins, label: "AI Usage" },
-  { href: "/admin/ai-tiers", icon: Settings, label: "AI Tier Config" },
+  { href: "/admin/usage", icon: Coins, label: "Usage Teora" },
+  { href: "/admin/ai-tiers", icon: Settings, label: "Konfigurasi Tier Teora" },
   { href: "/admin/health", icon: Activity, label: "System Health" },
   { href: "/admin/audit-log", icon: ScrollText, label: "Audit Log" },
   { href: "/admin/reports", icon: ScrollText, label: "Reports Archive" },
@@ -123,7 +123,7 @@ export default function AdminLayout({ children, activeTab }: { children: React.R
             className="w-full text-xs"
             onClick={() => setLocation("/")}
           >
-            ← User Dashboard (Test Mode)
+            ← Dashboard Pengguna (Mode Test)
           </Button>
         </div>
       </aside>
@@ -137,7 +137,7 @@ export default function AdminLayout({ children, activeTab }: { children: React.R
             <span className="font-semibold text-sm">Admin Dashboard</span>
           </div>
           <Button variant="ghost" size="sm" onClick={() => setLocation("/")}>
-            User Mode
+            Mode Pengguna
           </Button>
         </div>
         <div className="flex-1 overflow-auto p-4 md:p-8">

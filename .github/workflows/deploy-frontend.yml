@@ -12,6 +12,12 @@ on:
       - "package-lock.json"
       - ".vercelignore"
       - ".github/workflows/deploy-frontend.yml"
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to deploy"
+        required: true
+        default: "feat/daftar-task"
 
 permissions:
   contents: read

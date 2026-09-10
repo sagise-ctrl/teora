@@ -11,6 +11,7 @@ import {
   documentsTable,
   referencesTable,
   shareTokensTable,
+  usersTable,
 } from "@workspace/db";
 import {
   CreateProjectBody,
@@ -25,8 +26,9 @@ import { logActivity } from "../lib/activity.js";
 import { requireProjectOwnership } from "../lib/ownership.js";
 import { callAI, buildSystemPrompt, getTierConfig, getTierForUser } from "../lib/ai.js";
 import { logAIUsage } from "../lib/ai-usage-log.js";
-import { checkCreditBalance, deductCredit } from "../lib/credit.js";
+import { checkAIAccess, consumeQuotaForAIRequest } from "../lib/subscription.js";
 import { sanitizeInstructionText, sanitizeUserMessage } from "../lib/prompt-injection.js";
+import { logger } from "../lib/logger.js";
 
 const router: IRouter = Router();
 
@@ -52,6 +54,9 @@ router.get("/projects", async (req, res): Promise<void> => {
     conditions.push(
       sql`lower(${projectsTable.title}) like lower(${`%${query.data.search}%`})`
     );
+  }
+  if (query.data.type) {
+    conditions.push(eq(projectsTable.taskType, query.data.type));
   }
 
   const results = await db
@@ -79,20 +84,25 @@ router.get("/projects/stats", async (req, res): Promise<void> => {
   const all = await db.select().from(projectsTable).where(eq(projectsTable.userId, userId));
   const total = all.length;
   const byStatus: Record<string, number> = {};
+  const byType: Record<string, number> = {};
   for (const p of all) {
     byStatus[p.status] = (byStatus[p.status] ?? 0) + 1;
+    const typeKey = p.taskType ?? "null";
+    byType[typeKey] = (byType[typeKey] ?? 0) + 1;
   }
 
   // Get recent activity for user's projects
   const projectIds = all.map((p) => p.id);
-  const recent = await db
-    .select()
-    .from(activitiesTable)
-    .where(sql`${activitiesTable.projectId} in (${sql.join(projectIds.map(id => sql`${id}`), sql`, `)})`)
-    .orderBy(desc(activitiesTable.createdAt))
-    .limit(5);
+  const recent = projectIds.length > 0
+    ? await db
+        .select()
+        .from(activitiesTable)
+        .where(sql`${activitiesTable.projectId} in (${sql.join(projectIds.map(id => sql`${id}`), sql`, `)})`)
+        .orderBy(desc(activitiesTable.createdAt))
+        .limit(5)
+    : [];
 
-  res.json({ total, byStatus, recentActivity: recent });
+  res.json({ total, byStatus, byType, recentActivity: recent });
 });
 
 // GET /projects/:projectId
@@ -150,8 +160,24 @@ router.post("/projects", async (req, res): Promise<void> => {
       outputFormat: parsed.data.outputFormat,
       minRefYear: parsed.data.minRefYear,
       minRefCount: parsed.data.minRefCount,
+      // DECISION 014 — optional citation format on creation (defaults to APA via DB default)
+      citationFormat: parsed.data.citationFormat,
     })
     .returning();
+
+  // Mirror to project_metadata when provided
+  if (parsed.data.citationFormat) {
+    await db
+      .insert(projectMetadataTable)
+      .values({
+        projectId: project.id,
+        citationFormat: parsed.data.citationFormat,
+      })
+      .onConflictDoUpdate({
+        target: projectMetadataTable.projectId,
+        set: { citationFormat: parsed.data.citationFormat, updatedAt: new Date() },
+      });
+  }
 
   await logActivity(project.id, "project_created", `Project "${project.title}" dibuat`);
 
@@ -279,20 +305,31 @@ router.post("/projects/:projectId/analyze", async (req, res): Promise<void> => {
     return;
   }
 
-  // Pre-check credit for paid tiers before running the pipeline
+  // Pre-check: estimate cost and verify quota (subscription OR saldo)
   if (!selectedTier.isFree) {
     const estimatedCostCents = Math.max(
       100,
       selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents,
     );
-    const creditCheck = await checkCreditBalance(project.userId, estimatedCostCents, false);
-    if (!creditCheck.allowed) {
-      res.status(402).json({
-        error: creditCheck.reason,
-        balanceCents: creditCheck.balanceCents,
-        costCents: creditCheck.costCents,
-        tierName: selectedTier.name,
-      });
+    const accessCheck = await checkAIAccess({
+      userId: project.userId,
+      tierId: selectedTier.id,
+      estimatedCostCents,
+    });
+    if (!accessCheck.allowed) {
+      if (accessCheck.reason === "saldo_insufficient") {
+        res.status(402).json({
+          error: "Saldo tidak mencukupi. Silakan topup terlebih dahulu.",
+          balanceCents: accessCheck.balanceCents,
+          costCents: accessCheck.requiredCents,
+          tierName: selectedTier.name,
+        });
+      } else {
+        res.status(402).json({
+          error: "Quota langganan habis dan saldo tidak tersedia. Silakan topup atau perpanjang langganan.",
+          tierName: selectedTier.name,
+        });
+      }
       return;
     }
   }
@@ -380,14 +417,19 @@ Hasilkan JSON dengan struktur berikut (HANYA JSON, tanpa teks lain):
     });
 
     if (!selectedTier.isFree && analysisUsage.costCents > 0) {
-      await deductCredit({
+      const consumeResult = await consumeQuotaForAIRequest({
         userId: project.userId,
-        costCents: analysisUsage.costCents,
-        tierIsFree: false,
         tierId: selectedTier.id,
-        aiUsageLogId: analyzeUsageLog?.id,
-        description: `AI analyze — ${selectedTier.name} tier`,
+        inputTokens: analysisUsage.inputTokens,
+        outputTokens: analysisUsage.outputTokens,
+        costCents: analysisUsage.costCents,
       });
+      if (!consumeResult.allowed) {
+        logger.warn(
+          { userId: project.userId, reason: consumeResult.reason },
+          "Quota/saldo exhausted during analyze"
+        );
+      }
     }
 
     const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
@@ -475,14 +517,19 @@ Tulis dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan b
     });
 
     if (!selectedTier.isFree && writeUsage.costCents > 0) {
-      await deductCredit({
+      const consumeResult = await consumeQuotaForAIRequest({
         userId: project.userId,
-        costCents: writeUsage.costCents,
-        tierIsFree: false,
         tierId: selectedTier.id,
-        aiUsageLogId: writeUsageLog?.id,
-        description: `AI write — ${selectedTier.name} tier`,
+        inputTokens: writeUsage.inputTokens,
+        outputTokens: writeUsage.outputTokens,
+        costCents: writeUsage.costCents,
       });
+      if (!consumeResult.allowed) {
+        logger.warn(
+          { userId: project.userId, reason: consumeResult.reason },
+          "Quota/saldo exhausted during write"
+        );
+      }
     }
 
     const versions = await db
@@ -573,20 +620,31 @@ router.post("/projects/:projectId/outline", async (req, res): Promise<void> => {
     return;
   }
 
-  // Pre-check credit for paid tiers
+  // Pre-check quota (subscription OR saldo)
   if (!selectedTier.isFree) {
     const estimatedCostCents = Math.max(
       100,
       selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents,
     );
-    const creditCheck = await checkCreditBalance(project.userId, estimatedCostCents, false);
-    if (!creditCheck.allowed) {
-      res.status(402).json({
-        error: creditCheck.reason,
-        balanceCents: creditCheck.balanceCents,
-        costCents: creditCheck.costCents,
-        tierName: selectedTier.name,
-      });
+    const accessCheck = await checkAIAccess({
+      userId: project.userId,
+      tierId: selectedTier.id,
+      estimatedCostCents,
+    });
+    if (!accessCheck.allowed) {
+      if (accessCheck.reason === "saldo_insufficient") {
+        res.status(402).json({
+          error: "Saldo tidak mencukupi. Silakan topup terlebih dahulu.",
+          balanceCents: accessCheck.balanceCents,
+          costCents: accessCheck.requiredCents,
+          tierName: selectedTier.name,
+        });
+      } else {
+        res.status(402).json({
+          error: "Quota langganan habis dan saldo tidak tersedia. Silakan topup atau perpanjang langganan.",
+          tierName: selectedTier.name,
+        });
+      }
       return;
     }
   }
@@ -620,14 +678,19 @@ router.post("/projects/:projectId/outline", async (req, res): Promise<void> => {
   });
 
   if (!selectedTier.isFree && usage.costCents > 0) {
-    await deductCredit({
+    const consumeResult = await consumeQuotaForAIRequest({
       userId: project.userId,
-      costCents: usage.costCents,
-      tierIsFree: false,
       tierId: selectedTier.id,
-      aiUsageLogId: usageLog?.id,
-      description: `AI outline — ${selectedTier.name} tier`,
+      inputTokens: usage.inputTokens,
+      outputTokens: usage.outputTokens,
+      costCents: usage.costCents,
     });
+    if (!consumeResult.allowed) {
+      logger.warn(
+        { userId: project.userId, reason: consumeResult.reason },
+        "Quota/saldo exhausted during outline"
+      );
+    }
   }
 
   // Update metadata with new outline
@@ -689,20 +752,31 @@ router.post("/projects/:projectId/documents/generate", async (req, res): Promise
     return;
   }
 
-  // Pre-check credit for paid tiers
+  // Pre-check quota (subscription OR saldo)
   if (!selectedTier.isFree) {
     const estimatedCostCents = Math.max(
       100,
       selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents,
     );
-    const creditCheck = await checkCreditBalance(project.userId, estimatedCostCents, false);
-    if (!creditCheck.allowed) {
-      res.status(402).json({
-        error: creditCheck.reason,
-        balanceCents: creditCheck.balanceCents,
-        costCents: creditCheck.costCents,
-        tierName: selectedTier.name,
-      });
+    const accessCheck = await checkAIAccess({
+      userId: project.userId,
+      tierId: selectedTier.id,
+      estimatedCostCents,
+    });
+    if (!accessCheck.allowed) {
+      if (accessCheck.reason === "saldo_insufficient") {
+        res.status(402).json({
+          error: "Saldo tidak mencukupi. Silakan topup terlebih dahulu.",
+          balanceCents: accessCheck.balanceCents,
+          costCents: accessCheck.requiredCents,
+          tierName: selectedTier.name,
+        });
+      } else {
+        res.status(402).json({
+          error: "Quota langganan habis dan saldo tidak tersedia. Silakan topup atau perpanjang langganan.",
+          tierName: selectedTier.name,
+        });
+      }
       return;
     }
   }
@@ -819,14 +893,19 @@ async function runDocumentGeneration(
     });
 
     if (!selectedTier.isFree && usage.costCents > 0) {
-      await deductCredit({
+      const consumeResult = await consumeQuotaForAIRequest({
         userId: project.userId,
-        costCents: usage.costCents,
-        tierIsFree: false,
         tierId: selectedTier.id,
-        aiUsageLogId: usageLog?.id,
-        description: `AI generate document — ${selectedTier.name} tier`,
+        inputTokens: usage.inputTokens,
+        outputTokens: usage.outputTokens,
+        costCents: usage.costCents,
       });
+      if (!consumeResult.allowed) {
+        logger.warn(
+          { userId: project.userId, reason: consumeResult.reason },
+          "Quota/saldo exhausted during generate document"
+        );
+      }
     }
 
     const versions = await db
@@ -1052,6 +1131,108 @@ router.get("/projects/:projectId/export/pdf", async (req, res): Promise<void> =>
   } catch (err) {
     req.log.error({ err, projectId }, "PDF export failed");
     res.status(500).json({ error: "Gagal mengekspor PDF" });
+  }
+});
+
+// ── Export PPTX ────────────────────────────────────────────────────────────────
+
+import { generatePptx } from "../lib/pptx-export.js";
+
+// GET /projects/:projectId/export/pptx
+router.get("/projects/:projectId/export/pptx", async (req, res): Promise<void> => {
+  const projectId = Number(req.params.projectId);
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const ok = await requireProjectOwnership(projectId, req.user.id, res);
+  if (!ok) return;
+
+  const [project] = await db
+    .select()
+    .from(projectsTable)
+    .where(eq(projectsTable.id, projectId));
+
+  if (!project) {
+    res.status(404).json({ error: "Project not found" });
+    return;
+  }
+
+  // Get all documents ordered by index
+  const docs = await db
+    .select()
+    .from(documentsTable)
+    .where(eq(documentsTable.projectId, projectId))
+    .orderBy(documentsTable.orderIndex);
+
+  const documentsWithContent = await Promise.all(
+    docs.map(async (doc) => {
+      const versions = await db
+        .select()
+        .from(documentVersionsTable)
+        .where(eq(documentVersionsTable.documentId, doc.id))
+        .orderBy(desc(documentVersionsTable.versionNumber))
+        .limit(1);
+      return { document: doc, version: versions[0] ?? null };
+    })
+  );
+
+  // Fallback: standalone versions
+  const standaloneVersions = await db
+    .select()
+    .from(documentVersionsTable)
+    .where(and(eq(documentVersionsTable.projectId, projectId), isNull(documentVersionsTable.documentId)))
+    .orderBy(desc(documentVersionsTable.versionNumber));
+
+  const allDocuments =
+    docs.length > 0
+      ? documentsWithContent
+      : standaloneVersions.map((v) => ({
+          document: {
+            id: 0,
+            projectId,
+            title: project.title,
+            orderIndex: 0,
+            createdAt: v.createdAt,
+            updatedAt: v.updatedAt,
+          },
+          version: v,
+        }));
+
+  // Get references
+  const refs = await db
+    .select()
+    .from(referencesTable)
+    .where(eq(referencesTable.projectId, projectId));
+
+  try {
+    const buffer = await generatePptx(
+      project.title,
+      allDocuments,
+      refs.map((r) => ({
+        title: r.title,
+        authors: r.authors,
+        year: r.year,
+        journal: r.journal,
+        doi: r.doi,
+      })),
+      {
+        projectTitle: project.title,
+        citationFormat: project.citationFormat ?? undefined,
+        includeReferences: true,
+        theme: project.taskType === "academic" ? "academic" : "modern",
+      }
+    );
+
+    const safeName = project.title.replace(/[^a-zA-Z0-9_-]/g, "_");
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
+    res.setHeader("Content-Disposition", `attachment; filename="${safeName}.pptx"`);
+    res.setHeader("Content-Length", buffer.length);
+    res.send(buffer);
+  } catch (err) {
+    req.log.error({ err, projectId }, "PPTX export failed");
+    res.status(500).json({ error: "Gagal mengekspor slide" });
   }
 });
 

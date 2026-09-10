@@ -3,6 +3,7 @@ import { BookOpen, Loader2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { customFetch, setAuthTokenGetter } from "../lib/api-client-react";
 import { setStoredToken, setStoredRefreshToken } from "../lib/session";
+import { getPostLoginPath, type AuthUser } from "@/hooks/use-auth";
 
 export default function AuthCallback() {
   const [state, setState] = useState<"loading" | "success" | "error">("loading");
@@ -23,7 +24,7 @@ export default function AuthCallback() {
         const code = params.get("code");
 
         if (code) {
-          // PKCE flow — exchange code for session via Supabase SDK.
+          // PKCE flow: exchange code for session via Supabase SDK.
           const { supabase } = await import("../lib/supabase");
           if (!supabase) throw new Error("Supabase not configured");
           const { data, error } = await supabase.auth.exchangeCodeForSession(code);
@@ -33,7 +34,7 @@ export default function AuthCallback() {
           accessToken = data.session.access_token;
           refreshToken = data.session.refresh_token;
         } else {
-          // Implicit flow — parse tokens from URL hash.
+          // Implicit flow: parse tokens from URL hash.
           const hash = window.location.hash.slice(1);
           const hashParams = new URLSearchParams(hash);
           accessToken = hashParams.get("access_token");
@@ -75,12 +76,23 @@ export default function AuthCallback() {
         // Clear the URL hash/query so the token doesn't linger in the address bar.
         window.history.replaceState(null, "", window.location.pathname);
 
+        // Fetch /auth/me BEFORE redirecting so the owner gets /landing-admin
+        // (the 2-choice landing) instead of the regular user dashboard.
+        let postLoginPath = "/dashboard";
+        try {
+          const me = await customFetch<AuthUser>("/api/auth/me");
+          postLoginPath = getPostLoginPath(me);
+        } catch (meErr) {
+          // Non-fatal: fall back to default path if /me fails (e.g., token race).
+          console.warn("[auth-callback] /auth/me failed, defaulting to /dashboard", meErr);
+        }
+
         setState("success");
-        // Full page reload — AuthProvider must remount so it picks up the
+        // Full page reload: AuthProvider must remount so it picks up the
         // new access_token and calls /api/auth/me. wouter's setLocation
         // only swaps the path; React state (including AuthProvider's user)
         // stays stale and ProtectedRoute would bounce back to /login.
-        setTimeout(() => (window.location.href = "/landing-admin"), 800);
+        setTimeout(() => (window.location.href = postLoginPath), 800);
       } catch (err) {
         console.error("[auth-callback]", err);
         setState("error");

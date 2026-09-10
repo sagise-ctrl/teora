@@ -8,10 +8,12 @@ import {
 } from "react";
 import { customFetch, setAuthTokenGetter } from "../lib/api-client-react";
 import { getStoredToken, clearStoredToken, setStoredToken, clearStoredRefreshToken, getStoredRefreshToken } from "../lib/session";
+import { useToast } from "./use-toast";
 
 export interface AuthUser {
   id: string;
   email: string;
+  username: string;
   displayName: string | null;
   avatarUrl: string | null;
   isOwner: boolean;
@@ -21,11 +23,21 @@ export interface AuthUser {
 interface AuthContextValue {
   user: AuthUser | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, displayName?: string, referralCode?: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<AuthUser>;
+  register: (email: string, password: string, username: string, displayName?: string, referralCode?: string) => Promise<void>;
   signInWithOAuth: (provider: "google") => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
+}
+
+/**
+ * Where to send a freshly-authenticated user after login.
+ * Owners get a 2-choice landing (Admin vs User Test); everyone else goes straight to dashboard.
+ * See DECISION 014 in `.ai/decisions.md`.
+ */
+export function getPostLoginPath(user: Pick<AuthUser, "isOwner"> | null | undefined): string {
+  if (user?.isOwner) return "/landing-admin";
+  return "/dashboard";
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -33,6 +45,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   // Restore token from localStorage and register as the auth getter
   // so customFetch attaches it to every API request.
@@ -48,6 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const data = await customFetch<AuthUser>("/api/auth/me");
       setUser(data);
     } catch {
+      toast({ title: "Sesi Anda habis", description: "Silakan login kembali.", variant: "destructive" });
       setUser(null);
     }
   }, []);
@@ -66,6 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       await fetchMe();
     } catch {
+      toast({ title: "Sesi Anda habis", description: "Silakan login kembali.", variant: "destructive" });
       setUser(null);
     }
   }, [fetchMe]);
@@ -79,14 +94,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refresh().finally(() => setIsLoading(false));
   }, [refresh, fetchMe]);
 
-  const login = useCallback(async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string): Promise<AuthUser> => {
     if (import.meta.env.VITE_MOCK === "true") {
       await customFetch("/api/auth/login", {
         method: "POST",
         body: JSON.stringify({ email, password }),
       });
-      await fetchMe();
-      return;
+      const me = await fetchMe();
+      // fetchMe updates `user` state but doesn't return it — re-fetch for the caller.
+      const fresh = await customFetch<AuthUser>("/api/auth/me");
+      setUser(fresh);
+      return fresh;
     }
 
     const { supabase } = await import("../lib/supabase");
@@ -114,11 +132,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthTokenGetter(() => Promise.resolve(session.access_token));
 
     await fetchMe();
+
+    // Return the freshly-set user so the caller can branch on isOwner for redirect.
+    const fresh = await customFetch<AuthUser>("/api/auth/me");
+    setUser(fresh);
+    return fresh;
   }, [fetchMe]);
 
   const register = useCallback(async (
     email: string,
     password: string,
+    username: string,
     displayName?: string,
     referralCode?: string
   ) => {
@@ -127,7 +151,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // When email confirm is on (prod), backend returns user without access_token.
     const response = await customFetch<AuthUser & { access_token?: string }>("/api/auth/register", {
       method: "POST",
-      body: JSON.stringify({ email, password, displayName, referralCode }),
+      body: JSON.stringify({ email, password, username, displayName, referralCode }),
     });
 
     if ("error" in response) {

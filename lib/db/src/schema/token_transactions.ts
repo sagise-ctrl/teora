@@ -10,6 +10,7 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./users";
 import { aiTiersTable } from "./ai_tiers";
+import { subscriptionsTable } from "./subscriptions";
 
 export const transactionTypes = [
   "topup",
@@ -17,6 +18,7 @@ export const transactionTypes = [
   "refund",
   "bonus",
   "adjustment",
+  "subscription_payment",
 ] as const;
 export type TransactionType = (typeof transactionTypes)[number];
 
@@ -45,8 +47,12 @@ export const tokenTransactionsTable = pgTable(
     // For AI usage: reference to ai_usage_log
     aiUsageLogId: integer("ai_usage_log_id"),
 
-    // For topup: Stripe payment reference
-    stripePaymentIntentId: text("stripe_payment_intent_id"),
+    // For subscription payment: reference to subscription
+    subscriptionId: text("subscription_id")
+      .references(() => subscriptionsTable.id, { onDelete: "set null" }),
+
+    // For topup: Stripe/Midtrans payment reference
+    paymentId: text("payment_id"),
 
     // For topup: amount paid in cents (may differ from amountCents due to bonus)
     paidAmountCents: integer("paid_amount_cents"),
@@ -59,7 +65,8 @@ export const tokenTransactionsTable = pgTable(
   (table) => [
     index("idx_token_trans_user_created").on(table.userId, table.createdAt),
     index("idx_token_trans_type").on(table.type),
-    index("idx_token_trans_stripe").on(table.stripePaymentIntentId),
+    index("idx_token_trans_stripe").on(table.paymentId),
+    index("idx_token_trans_subscription").on(table.subscriptionId),
   ]
 );
 

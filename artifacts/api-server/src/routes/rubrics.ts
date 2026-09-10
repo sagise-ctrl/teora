@@ -5,7 +5,8 @@ import { requireProjectOwnership } from "../lib/ownership.js";
 import { rubricCriterionSchema } from "@workspace/db";
 import { callAI, getTierConfig, getTierForUser } from "../lib/ai.js";
 import { logAIUsage } from "../lib/ai-usage-log.js";
-import { checkCreditBalance, deductCredit } from "../lib/credit.js";
+import { checkAIAccess, consumeQuotaForAIRequest } from "../lib/subscription.js";
+import { logger } from "../lib/logger.js";
 import { z } from "zod/v4";
 
 const router: IRouter = Router();
@@ -91,14 +92,25 @@ router.post("/projects/:projectId/quizzes/:quizId/rubric", async (req, res): Pro
       100,
       selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents,
     );
-    const creditCheck = await checkCreditBalance(project.userId, estimatedCostCents, false);
-    if (!creditCheck.allowed) {
-      res.status(402).json({
-        error: creditCheck.reason,
-        balanceCents: creditCheck.balanceCents,
-        costCents: creditCheck.costCents,
-        tierName: selectedTier.name,
-      });
+    const accessCheck = await checkAIAccess({
+      userId: project.userId,
+      tierId: selectedTier.id,
+      estimatedCostCents,
+    });
+    if (!accessCheck.allowed) {
+      if (accessCheck.reason === "saldo_insufficient") {
+        res.status(402).json({
+          error: "Saldo tidak mencukupi. Silakan topup terlebih dahulu.",
+          balanceCents: accessCheck.balanceCents,
+          costCents: accessCheck.requiredCents,
+          tierName: selectedTier.name,
+        });
+      } else {
+        res.status(402).json({
+          error: "Quota langganan habis dan saldo tidak tersedia. Silakan topup atau perpanjang langganan.",
+          tierName: selectedTier.name,
+        });
+      }
       return;
     }
   }
@@ -147,14 +159,19 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks.`;
     });
 
     if (!selectedTier.isFree && aiResult.usage.costCents > 0) {
-      await deductCredit({
+      const consumeResult = await consumeQuotaForAIRequest({
         userId: project.userId,
-        costCents: aiResult.usage.costCents,
-        tierIsFree: false,
         tierId: selectedTier.id,
-        aiUsageLogId: usageLog?.id,
-        description: `AI rubric — ${selectedTier.name} tier`,
+        inputTokens: aiResult.usage.inputTokens,
+        outputTokens: aiResult.usage.outputTokens,
+        costCents: aiResult.usage.costCents,
       });
+      if (!consumeResult.allowed) {
+        logger.warn(
+          { userId: project.userId, reason: consumeResult.reason },
+          "Quota/saldo exhausted during rubric generation"
+        );
+      }
     }
 
     const [rubric] = await db

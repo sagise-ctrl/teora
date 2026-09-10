@@ -215,16 +215,56 @@ AI updates checkpoints at every milestone. New sessions read them to resume.
 Setiap sesi baru Claude Code (model apapun: opus-4-8, opus-4-6, dst) WAJIB baca file `.ai/` dalam urutan ini sebelum kerja apapun:
 
 1. `.ai/current-task.md` — apa yang sedang dikerjakan + status real-time
-2. `.ai/progress.md` — apa yang sudah selesai (newest first)
-3. `.ai/blockers.md` — apa yang diblok + butuh keputusan owner
-4. `.ai/decisions.md` — keputusan arsitektur yang sudah diambil (rationale)
-5. `git log --oneline -20` — perubahan kode terakhir
+2. `.ai/lessons-learned.md` — **WAJIB baca ini** untuk cek apakah ada kelas masalah yang sama dengan task aktif. Owner frustration: error berulang karena lesson tidak pernah dicek sebelum coding. Format entry: Gejala / Root cause / Kalau error berulang / Opsi / Kenapa pilih / Yang harus dicek di masa depan.
+3. `.ai/error-index.md` — **WAJIB baca ini** untuk cek apakah ada error signature yang mirip sebelum debug dari nol. Multi-signal tags (error message, symptom, file, pattern) untuk retrieval cepat. Lihat `.ai/guidelines/error-handling-protocol.md` Step 1 untuk full search procedure.
+4. `.ai/progress.md` — apa yang sudah selesai (newest first)
+5. `.ai/blockers.md` — apa yang diblok + butuh keputusan owner
+6. `.ai/decisions.md` — keputusan arsitektur yang sudah diambil (rationale)
+7. `git log --oneline -20` — perubahan kode terakhir
 
-Lalu balas ke owner: `Konteks loaded ✅ Model: claude-opus-4-X Task aktif: [...] Status: [...] Siap lanjut.`
+Lalu balas ke owner: `Konteks loaded ✅ Model: claude-opus-4-X Task aktif: [...] Status: [...] Lessons cross-checked: [...] Error-index cross-checked: [...] Siap lanjut.`
 
 Saat tutup sesi (atau limit harian hampir habis): edit `.ai/current-task.md` → append section `## Handoff YYYY-MM-DD HH:MM — model opus-4-X → opus-4-Y` (isi: task aktif, last 3 actions, next 3 actions, open questions). Commit + push (push allowed — owner-approved exceptions documented in Git Rules).
 
 Lihat `.ai/current-task.md` top section + `.ai/decisions.md` Decision 004 untuk full procedure.
+
+## Error Handling Protocol (since Decision 005)
+
+Setiap kali agent menemukan error (non-trivial atau berulang), WAJIB apply `.ai/guidelines/error-handling-protocol.md`:
+
+1. **SEARCH FIRST** — `.ai/error-index.md` + `.ai/lessons-learned.md` BEFORE debugging from zero
+2. **INVESTIGATE** — symptom exact, context, classify layer
+3. **ROOT CAUSE** — 5 Whys, distinguish symptom vs root cause, label confidence (OBSERVED/INFERRED/PROBABLE/CONFIRMED)
+4. **TRACK ATTEMPTS** — semua attempt, termasuk yang gagal (jangan hide)
+5. **FIX** — code committed, local build/typecheck pass
+6. **VERIFY** — evidence WAJIB. **FIXED ≠ VERIFIED.** Tanpa test/curl/build result → status UNVERIFIED, bukan VERIFIED
+7. **PREVENT** — minimum effective (lihat `.ai/guidelines/prevention-guidelines.md`). Jangan over-engineer
+8. **STORE** — append ke `.ai/error-index.md` dengan normalized schema, update lifecycle, cross-link
+
+**Pattern detection:** kalau root_cause_pattern muncul 3x+, WAJIB promote ke procedural knowledge (`.claude/skills/error-recovery/<pattern>.md`).
+
+**Self-correction:** kalau agent salah karena workflow/knowledge/instruction gap, WAJIB fix agent system (CLAUDE.md / guardrails / SOP), bukan cuma task-nya.
+
+### Prinsip Berpikir Sebelum Bertindak (WAJIB)
+
+**Sebelum coding apapun** — termasuk apply fix kecil, tambah route, edit config — jawab 3 pertanyaan dulu dan tulis singkat di awal response (bukan cuma dipikirkan diam-diam, biar owner lihat proses):
+
+1. **Apa tujuan SEBENARNYA di balik instruksi ini** — bukan cuma kata-kata literalnya?
+2. **Masalah apa yang coba diselesaikan? Kenapa ini penting buat Teora?**
+3. **Apakah pernah hadapi masalah yang MIRIP sebelumnya?** — scan `.ai/lessons-learned.md` + `.ai/decisions.md` untuk kelas masalah yang sama.
+
+**Kalau ketemu error yang terasa mirip dengan yang pernah ada:**
+- Sebelum debug dari nol: cek `.ai/lessons-learned.md`, cari apakah ada ROOT CAUSE yang sama meski GEJALANYA kelihatan beda
+- Kalau ketemu, sebutkan eksplisit: "ini kemungkinan terkait [entry X], karena [alasan]"
+- Baru lanjut verifikasi. JANGAN mulai investigasi dari nol seolah belum pernah ketemu ini.
+
+**Format WAJIB untuk entries di `.ai/lessons-learned.md`:**
+- Gejala — apa yang terlihat, error message persis
+- Root cause — kenapa ini terjadi, akar masalahnya bukan gejalanya
+- Kalau error berulang — apakah root cause sebelumnya sebenarnya belum teratasi, atau kelas masalah baru?
+- Opsi yang dipertimbangkan — pendekatan apa saja yang dipikirkan
+- Kenapa pilih pendekatan ini — alasan spesifik, bukan "ini yang akhirnya jalan"
+- Yang harus dicek di masa depan supaya tidak terulang — checklist konkret
 
 ### Incidents (`.ai/incidents/`)
 

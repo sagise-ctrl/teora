@@ -14,7 +14,7 @@ const { DB_MOCK, resetState, USER_ID, USER_EMAIL } = vi.hoisted(() => {
   const mockProject = {
     id: 1, userId: USER_ID, title: "Test Project", status: "draft" as const,
     progress: 0, instructionText: "Write a report", subject: "Computer Science",
-    taskType: "essay", citationFormat: "APA", outputFormat: "markdown",
+    taskType: "general", citationFormat: "APA", outputFormat: "markdown",
     minRefYear: 2020, minRefCount: 3,
     createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
   };
@@ -58,7 +58,7 @@ const { DB_MOCK, resetState, USER_ID, USER_EMAIL } = vi.hoisted(() => {
 
   const mockMetadata = {
     id: 1, projectId: 1, detectedTitle: "Test",
-    subject: "Computer Science", taskType: "essay", citationFormat: "APA",
+    subject: "Computer Science", taskType: "general", citationFormat: "APA",
     language: "English", outline: "BAB I: Introduction",
     contextSummary: "Test summary",
     createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),

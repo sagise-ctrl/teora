@@ -223,8 +223,8 @@ router.get("/stats", authMiddleware, requireOwner, async (req, res) => {
   }
 });
 
-// GET /admin/usage — AI usage breakdown (by model, provider, request type)
-router.get("/usage", authMiddleware, requireOwner, async (req, res) => {
+// GET /admin/usage-breakdown — AI usage breakdown (by model, provider, request type)
+router.get("/usage-breakdown", authMiddleware, requireOwner, async (req, res) => {
   try {
     const period = req.query.period as string || "month";
     const now = new Date();
@@ -303,7 +303,7 @@ router.get("/usage", authMiddleware, requireOwner, async (req, res) => {
       })),
     });
   } catch (err) {
-    console.error("[admin/usage] error", err);
+    console.error("[admin/usage-breakdown] error", err);
     res.status(500).json({ error: "Internal server error" });
   }
 });

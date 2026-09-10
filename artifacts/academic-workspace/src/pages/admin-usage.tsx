@@ -36,7 +36,7 @@ export default function AdminUsage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-serif font-bold tracking-tight">AI Usage</h1>
+            <h1 className="text-2xl font-serif font-bold tracking-tight">Penggunaan Teora</h1>
             <p className="text-muted-foreground text-sm mt-0.5">Token consumption dan cost breakdown</p>
           </div>
           <div className="flex items-center gap-2">
@@ -54,7 +54,7 @@ export default function AdminUsage() {
             Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-32" />)
           ) : data ? (
             <>
-              <StatCard title="Total Requests" value={data.totalRequests.toLocaleString()} icon={Zap} accent="purple" />
+              <StatCard title="Total Permintaan" value={data.totalRequests.toLocaleString()} icon={Zap} accent="purple" />
               <StatCard title="Input Tokens" value={data.inputTokens.toLocaleString()} icon={TrendingUp} accent="blue" />
               <StatCard title="Output Tokens" value={data.outputTokens.toLocaleString()} icon={TrendingUp} accent="green" />
               <StatCard title="Total Cost" value={`$${data.totalCostUsd.toFixed(2)}`} icon={Clock} accent="amber" />

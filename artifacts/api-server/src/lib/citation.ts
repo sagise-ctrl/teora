@@ -10,7 +10,7 @@ import { logger } from "./logger.js";
  * All formatting is done client-side with citation-js (CSL processor).
  */
 
-export type CitationFormat = "APA" | "IEEE" | "Vancouver" | "Chicago" | "MLA" | "Haravard" | "APA7";
+export type CitationFormat = "APA" | "IEEE" | "Vancouver" | "Chicago" | "MLA" | "Harvard" | "APA7";
 
 /** Required fields per citation format */
 const FORMAT_REQUIRED_FIELDS: Record<CitationFormat, string[]> = {
@@ -20,7 +20,7 @@ const FORMAT_REQUIRED_FIELDS: Record<CitationFormat, string[]> = {
   Vancouver: ["author", "title", "source", "issued"],
   Chicago: ["author", "title", "publisher", "issued"],
   MLA: ["author", "title", "container-title", "publisher", "issued"],
-  Haravard: ["author", "title", "issued", "URL"],
+  Harvard: ["author", "title", "issued", "URL"],
 };
 
 export interface ReferenceField {
@@ -339,7 +339,7 @@ function toCiteFormat(format: CitationFormat): string {
     Vancouver: "vancouver",
     Chicago: "chicago",
     MLA: "mla",
-    Haravard: "harvard1",
+    Harvard: "harvard1",
   };
   return map[format] ?? "apa";
 }
@@ -373,6 +373,78 @@ function formatFallback(refs: ReferenceField[], format: CitationFormat): string 
 }
 
 /**
+ * Extract the first author surname from a CSL-style authors string.
+ * Input formats accepted: "Smith, John", "Smith, John; Jones, Jane",
+ * "Smith; Jones; Brown", etc.
+ */
+function firstAuthorSurname(authors: string | null | undefined): string {
+  if (!authors) return "Anon.";
+  // Take first author (split by `;` or `,` — comma may appear within "Lastname, Firstname")
+  const firstAuthorRaw = authors.split(";")[0]?.split(",")[0]?.trim();
+  return firstAuthorRaw || "Anon.";
+}
+
+/**
+ * Count distinct authors in a CSL-style authors string.
+ */
+function countAuthors(authors: string | null | undefined): number {
+  if (!authors) return 0;
+  return authors.split(";").filter((a) => a.trim()).length;
+}
+
+/**
+ * Format a single in-text citation marker for one reference, per the project's
+ * citation format. Used by AI auto-cite suggestions + manual citation creation.
+ *
+ * Returns a pre-rendered string like "(Smith & Jones, 2023)" (APA) or "[1]" (IEEE).
+ *
+ * The marker is independent of position — callers add it at the right offset
+ * in the document text. To re-render after format change, just call this again.
+ */
+export function formatCitationMarker(
+  ref: ReferenceField,
+  format: CitationFormat,
+  refId?: number,
+): string {
+  const surname = firstAuthorSurname(ref.authors);
+  const nAuthors = countAuthors(ref.authors);
+  const year = ref.year ? String(ref.year) : "n.d.";
+  const yearShort = year.length >= 4 ? year.slice(0, 4) : year;
+
+  switch (format) {
+    case "APA":
+    case "APA7":
+      // (Smith, 2023) or (Smith & Jones, 2023) or (Smith et al., 2023)
+      if (nAuthors === 0) return `(${yearShort})`;
+      if (nAuthors === 1) return `(${surname}, ${yearShort})`;
+      if (nAuthors === 2) return `(${surname} et al., ${yearShort})`;
+      return `(${surname} et al., ${yearShort})`;
+
+    case "Harvard":
+      // (Smith, 2023) or (Smith and Jones, 2023) or (Smith et al., 2023)
+      if (nAuthors === 0) return `(${yearShort})`;
+      if (nAuthors === 1) return `(${surname}, ${yearShort})`;
+      return `(${surname} et al., ${yearShort})`;
+
+    case "IEEE":
+    case "Vancouver":
+    case "Chicago":
+      // Numbered — uses reference.id as the stable number for now (Phase 1).
+      // Phase 2 will re-render based on bibliography order when citation rendering
+      // is implemented. The marker field is overwritten by PATCH /citation-format
+      // whenever the project's format changes.
+      return `[${refId ?? 0}]`;
+
+    case "MLA":
+      // MLA uses (Author page) — page unknown so just author surname in parens
+      return `(${surname})`;
+
+    default:
+      return `(${surname}, ${yearShort})`;
+  }
+}
+
+/**
  * List of supported citation formats for the frontend.
  */
 export const SUPPORTED_FORMATS: Array<{ value: CitationFormat; label: string; description: string }> = [
@@ -382,5 +454,5 @@ export const SUPPORTED_FORMATS: Array<{ value: CitationFormat; label: string; de
   { value: "Vancouver", label: "Vancouver", description: "ICMJE — populer untuk jurnal medis dan kesehatan" },
   { value: "Chicago", label: "Chicago", description: "University of Chicago Press — untuk humaniora dan sosial" },
   { value: "MLA", label: "MLA", description: "Modern Language Association — untuk sastra dan bahasa" },
-  { value: "Haravard", label: "Harvard", description: "Paranormal / Harvard AGPS — populer di Australia dan UK" },
+  { value: "Harvard", label: "Harvard", description: "Harvard AGPS — populer di Australia dan UK" },
 ];

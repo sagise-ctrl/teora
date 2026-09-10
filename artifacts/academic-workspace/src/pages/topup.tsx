@@ -18,7 +18,7 @@ import { id } from "date-fns/locale";
 
 const TRANSACTION_TYPE_LABELS: Record<string, { label: string; color: string }> = {
   topup: { label: "Topup", color: "bg-green-100 text-green-700" },
-  ai_usage: { label: "Penggunaan AI", color: "bg-orange-100 text-orange-700" },
+  ai_usage: { label: "Penggunaan Teora", color: "bg-orange-100 text-orange-700" },
   refund: { label: "Refund", color: "bg-blue-100 text-blue-700" },
   bonus: { label: "Bonus", color: "bg-purple-100 text-purple-700" },
   adjustment: { label: "Penyesuaian", color: "bg-gray-100 text-gray-700" },
@@ -103,7 +103,7 @@ export default function TopupPage() {
     <div className="space-y-8 max-w-4xl mx-auto">
       {/* Page Header */}
       <div className="flex items-center gap-4">
-        <Link href="/ai-pricing">
+        <Link href="/subscribe">
           <Button variant="ghost" size="icon" className="rounded-full">
             <ArrowLeft className="w-4 h-4" />
           </Button>
@@ -158,7 +158,7 @@ export default function TopupPage() {
         </CardContent>
       </Card>
 
-      {/* Stripe Integration — Pending */}
+      {/* Stripe Integration: Pending */}
       <Card className="border-orange-200 bg-orange-50/50 dark:bg-orange-950/20">
         <CardContent className="p-6">
           <div className="flex items-start gap-3">
@@ -246,9 +246,9 @@ export default function TopupPage() {
 
       {/* Back Links */}
       <div className="text-center flex items-center justify-center gap-4">
-        <Link href="/ai-pricing">
+        <Link href="/subscribe">
           <Button variant="ghost" className="text-muted-foreground">
-            ← Lihat AI Pricing
+            ← Lihat Teora Pricing
           </Button>
         </Link>
         <Link href="/">

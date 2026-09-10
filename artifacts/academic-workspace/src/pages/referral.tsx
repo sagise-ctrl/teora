@@ -6,12 +6,9 @@ import {
   Share2,
   Gift,
   TrendingUp,
-  Zap,
-  FileText,
-  FileCheck2,
-  Shield,
-  Clock,
-  Star,
+  Users,
+  Wallet,
+  Info,
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -20,13 +17,17 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
+import { useGetMyReferralInfo } from "@/lib/api-client-react";
 
 function CopyButton({
   text,
   className,
+  onError,
 }: {
   text: string;
   className?: string;
+  onError?: (msg: string) => void;
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -36,7 +37,7 @@ function CopyButton({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // ignore
+      onError?.("Tidak dapat menyalin ke clipboard. Coba salin manual.");
     }
   }
 
@@ -61,76 +62,48 @@ function CopyButton({
   );
 }
 
-const TOKEN_PACKAGES = [
-  {
-    name: "LITE",
-    price: 5,
-    tokens: "10,000",
-    tagline: "~10 Short Essays",
-    features: [
-      { text: "~10 Short Essays", included: true },
-      { text: "Basic Grammar Checks", included: true },
-      { text: "No Plagiarism Scans", included: false },
-    ],
-    popular: false,
-  },
-  {
-    name: "PRO",
-    price: 15,
-    tokens: "40,000",
-    tagline: "~5 Full Research Papers",
-    features: [
-      { text: "~5 Full Research Papers", included: true },
-      { text: "Advanced Citations (APA/MLA)", included: true },
-      { text: "5 Plagiarism Scans", included: true },
-    ],
-    popular: true,
-  },
-  {
-    name: "ELITE",
-    price: 35,
-    tokens: "100,000",
-    tagline: "Thesis-Level Generation",
-    features: [
-      { text: "Thesis-Level Generation", included: true },
-      { text: "Priority Processing Speed", included: true },
-      { text: "Unlimited Plagiarism Scans", included: true },
-    ],
-    popular: false,
-  },
-];
+function formatRupiah(cents: number): string {
+  const rupiah = cents / 100;
+  return "Rp " + rupiah.toLocaleString("id-ID");
+}
 
 export default function ReferralPage() {
   const { user } = useAuth();
   const [sharing, setSharing] = useState(false);
+  const { toast } = useToast();
 
-  const referralCode = user?.referralCode ?? "demo-user-xyz";
-  const referralUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/register?ref=${referralCode}`;
+  const { data: referralInfo, isLoading } = useGetMyReferralInfo();
 
-  // Mock referral stats
-  const referralStats = {
-    current: 3,
-    target: 5,
-    badge: "Elite Researcher",
-  };
+  const referralCode = referralInfo?.referralCode ?? user?.referralCode ?? null;
+  const referralUrl =
+    referralCode && typeof window !== "undefined"
+      ? `${window.location.origin}/register?ref=${referralCode}`
+      : "";
 
-  const progressPercent = Math.round((referralStats.current / referralStats.target) * 100);
+  // Real data from backend
+  const referredCount = referralInfo?.referredCount ?? 0;
+  const totalRewardCents = referralInfo?.totalRewardEarnedCents ?? 0;
+  const rewardBalanceCents = referralInfo?.rewardBalanceCents ?? 0;
+  const refereeCashbackClaimed = referralInfo?.refereeCashbackClaimed ?? false;
+  const txCap = referralInfo?.referrerRewardTxCap ?? 5;
+  const rewardPercent = (referralInfo?.referrerRewardPercent ?? 0.03) * 100;
 
   async function handleShare() {
+    if (!referralUrl) return;
     setSharing(true);
     try {
       if (navigator.share) {
         await navigator.share({
-          title: "Join Teora - AI Academic Workspace",
-          text: "Get 500 free tokens when you sign up via my referral link!",
+          title: "Bergabung dengan Teora",
+          text: "Ayo gunakan Teora, asisten AI untuk riset dan tugas akademikmu. Daftar lewat link ini dan dapatkan bonus saldo Rp 5.000.",
           url: referralUrl,
         });
       } else {
         await navigator.clipboard.writeText(referralUrl);
-        // Show feedback
+        toast({ title: "Tersalin!", description: "Link referral berhasil disalin ke clipboard." });
       }
     } catch {
-      // User cancelled or error
+      // User cancelled
     } finally {
       setSharing(false);
     }
@@ -140,297 +113,242 @@ export default function ReferralPage() {
     <div className="space-y-8">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Referral & Pricing</h1>
+        <h1 className="text-2xl font-bold text-foreground">Ajak Teman, Dapat Reward</h1>
         <p className="text-muted-foreground mt-1">
-          Empower your academic journey. Earn tokens by referring peers, or top up your
-          balance to unlock advanced AI capabilities.
+          Bagikan kode referral kamu. Teman yang mendaftar akan mendapat cashback, dan
+          kamu akan mendapat reward dari setiap pembayaran pertama mereka.
         </p>
       </div>
 
-      {/* Referral Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Referral Link */}
+      {/* Referral Link Card */}
+      <Card className="border-border/50">
+        <CardContent className="p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#2D79FF]/20 to-[#8E54E9]/20 flex items-center justify-center">
+              <Gift className="w-5 h-5 text-[#2D79FF]" />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-lg font-semibold text-foreground">
+                Link Referral Kamu
+              </h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Bagikan ke teman. Kode kamu:{" "}
+                <span className="font-mono font-semibold text-foreground">
+                  {referralCode ?? "-"}
+                </span>
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+                URL Referral
+              </label>
+              <div className="flex items-center gap-2">
+                <div className="flex-1 bg-muted/50 rounded-lg px-3 py-2 text-sm font-mono text-muted-foreground truncate border border-border/50">
+                  {referralUrl || (isLoading ? "Memuat…" : "Tautan belum tersedia")}
+                </div>
+                <CopyButton
+                  text={referralUrl}
+                  onError={(msg) =>
+                    toast({ title: "Gagal", description: msg, variant: "destructive" })
+                  }
+                />
+              </div>
+            </div>
+
+            <Button
+              onClick={handleShare}
+              disabled={sharing || !referralUrl}
+              className="w-full bg-gradient-to-r from-[#2D79FF] to-[#8E54E9] hover:opacity-90 text-white"
+            >
+              <Share2 className="w-4 h-4 mr-2" />
+              {sharing ? "Membagikan…" : "Bagikan Sekarang"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* How It Works — Two columns */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* REFERRER side */}
         <Card className="border-border/50">
           <CardContent className="p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#2D79FF]/20 to-[#8E54E9]/20 flex items-center justify-center">
-                <Gift className="w-5 h-5 text-[#2D79FF]" />
+                <Users className="w-5 h-5 text-[#2D79FF]" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-foreground">Refer a Friend</h2>
+                <h3 className="font-semibold text-foreground">Untuk Kamu (Pengajak)</h3>
                 <Badge
                   variant="secondary"
                   className="mt-0.5 bg-gradient-to-r from-[#2D79FF]/10 to-[#8E54E9]/10 text-[#2D79FF] border-0 text-xs"
                 >
-                  Give 500, Get 500 Tokens
+                  Reward {rewardPercent}% × 5 transaksi
                 </Badge>
               </div>
             </div>
 
-            <p className="text-sm text-muted-foreground mb-5">
-              Share your unique link. When a friend signs up and completes their first
-              task, you both receive 500 AI tokens to fuel your research.
-            </p>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li className="flex items-start gap-2">
+                <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                <span>
+                  Dapatkan <strong className="text-foreground">{rewardPercent}%</strong> dari
+                  setiap pembayaran teman yang kamu ajak.
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                <span>
+                  Berlaku untuk <strong className="text-foreground">{txCap} pembayaran pertama</strong>{" "}
+                  teman (langganan & topup).
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                <span>
+                  Reward masuk ke <strong className="text-foreground">saldo reward</strong>{" "}
+                  (bisa dipakai untuk AI, tidak bisa ditarik).
+                </span>
+              </li>
+            </ul>
 
-            <div className="space-y-3">
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-                  Your Unique Link
-                </label>
+            {/* Reward Balance */}
+            <div className="mt-5 p-4 rounded-lg bg-gradient-to-r from-[#2D79FF]/5 to-[#8E54E9]/5 border border-border/50">
+              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="flex-1 bg-muted/50 rounded-lg px-3 py-2 text-sm font-mono text-muted-foreground truncate border border-border/50">
-                    {referralUrl}
-                  </div>
-                  <CopyButton text={referralUrl} />
+                  <Wallet className="w-4 h-4 text-[#2D79FF]" />
+                  <span className="text-sm font-medium text-foreground">Saldo Reward</span>
                 </div>
+                <span className="text-lg font-bold text-foreground">
+                  {formatRupiah(rewardBalanceCents)}
+                </span>
               </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Total reward terkumpul: {formatRupiah(totalRewardCents)}
+              </p>
+            </div>
 
-              <Button
-                onClick={handleShare}
-                disabled={sharing}
-                className="w-full bg-gradient-to-r from-[#2D79FF] to-[#8E54E9] hover:opacity-90 text-white"
-              >
-                <Share2 className="w-4 h-4 mr-2" />
-                {sharing ? "Sharing..." : "Share Now"}
-              </Button>
+            {/* Referee count */}
+            <div className="mt-4 flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Teman yang sudah mendaftar</span>
+              <span className="font-semibold text-foreground">{referredCount} orang</span>
             </div>
           </CardContent>
         </Card>
 
-        {/* Referral Progress */}
+        {/* REFEREE side */}
         <Card className="border-border/50">
           <CardContent className="p-6">
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-500/20 to-emerald-500/20 flex items-center justify-center">
                 <TrendingUp className="w-5 h-5 text-green-600" />
               </div>
-              <h2 className="text-lg font-semibold text-foreground">
-                Referral Progress
-              </h2>
+              <div>
+                <h3 className="font-semibold text-foreground">Untuk Teman Kamu (Yang Diajak)</h3>
+                <Badge
+                  variant="secondary"
+                  className="mt-0.5 bg-gradient-to-r from-green-500/10 to-emerald-500/10 text-green-700 border-0 text-xs"
+                >
+                  Cashback Rp 5.000
+                </Badge>
+              </div>
             </div>
 
-            <div className="flex items-center gap-8">
-              {/* Circular Progress */}
-              <div className="relative w-28 h-28 flex-shrink-0">
-                <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                  {/* Background circle */}
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="42"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="8"
-                    className="text-muted"
-                  />
-                  {/* Progress circle */}
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="42"
-                    fill="none"
-                    stroke="url(#progressGradient)"
-                    strokeWidth="8"
-                    strokeLinecap="round"
-                    strokeDasharray={`${progressPercent * 2.64} 264`}
-                    className="transition-all duration-700"
-                  />
-                  <defs>
-                    <linearGradient
-                      id="progressGradient"
-                      x1="0%"
-                      y1="0%"
-                      x2="100%"
-                      y2="0%"
-                    >
-                      <stop offset="0%" stopColor="#2D79FF" />
-                      <stop offset="100%" stopColor="#8E54E9" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-3xl font-bold text-foreground">
-                    {referralStats.current}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    / {referralStats.target} Referrals
-                  </span>
-                </div>
-              </div>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li className="flex items-start gap-2">
+                <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                <span>
+                  Cashback <strong className="text-foreground">{formatRupiah(500_000)}</strong>{" "}
+                  setelah pembayaran pertama berhasil.
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                <span>
+                  Berlaku untuk pembayaran pertama (langganan atau topup).
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                <span>
+                  Cashback hanya diberikan <strong className="text-foreground">sekali seumur hidup akun</strong>
+                  , bukan per metode.
+                </span>
+              </li>
+            </ul>
 
-              {/* Progress Info */}
-              <div className="flex-1 space-y-4">
-                <div>
-                  <div className="text-sm font-medium text-foreground mb-2">
-                    {referralStats.target - referralStats.current} more to unlock
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Star className="w-5 h-5 text-amber-500" />
-                    <span className="font-semibold text-foreground">
-                      {referralStats.badge}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>Progress</span>
-                    <span>{progressPercent}%</span>
-                  </div>
-                  <Progress value={progressPercent} className="h-2" />
-                </div>
+            <div className="mt-5 p-4 rounded-lg bg-gradient-to-r from-green-500/5 to-emerald-500/5 border border-border/50">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-foreground">Status cashback</span>
+                {refereeCashbackClaimed ? (
+                  <Badge variant="secondary" className="bg-green-500/20 text-green-700 border-0">
+                    Sudah diklaim
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="text-muted-foreground border-border">
+                    Belum diklaim
+                  </Badge>
+                )}
               </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                {refereeCashbackClaimed
+                  ? "Bonus Rp 5.000 sudah masuk ke saldo kamu."
+                  : "Lakukan pembayaran pertama untuk klaim cashback Rp 5.000."}
+              </p>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Token Packages */}
-      <div>
-        <div className="flex items-center gap-3 mb-2">
-          <Zap className="w-5 h-5 text-[#2D79FF]" />
-          <h2 className="text-lg font-semibold text-foreground">Token Packages</h2>
-        </div>
-        <p className="text-sm text-muted-foreground mb-6">
-          Top up your balance. 1 Token ≈ 1 Word generated. Complex tasks require more
-          tokens.
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {TOKEN_PACKAGES.map((pkg) => (
-            <Card
-              key={pkg.name}
-              className={cn(
-                "relative overflow-hidden transition-all hover:shadow-md",
-                pkg.popular
-                  ? "border-[#2D79FF] shadow-md shadow-[#2D79FF]/10"
-                  : "border-border/50"
-              )}
-            >
-              {pkg.popular && (
-                <div className="absolute top-0 right-0">
-                  <div className="bg-gradient-to-r from-[#2D79FF] to-[#8E54E9] text-white text-[10px] font-semibold px-3 py-1 rounded-bl-lg">
-                    MOST POPULAR
-                  </div>
-                </div>
-              )}
-
-              <CardContent className="p-6">
-                <div className="space-y-4">
-                  {/* Header */}
-                  <div>
-                    <Badge
-                      variant="outline"
-                      className={cn(
-                        "text-xs font-bold tracking-wider mb-2",
-                        pkg.name === "PRO"
-                          ? "border-[#2D79FF] text-[#2D79FF]"
-                          : pkg.name === "ELITE"
-                            ? "border-amber-500 text-amber-600"
-                            : "border-muted-foreground text-muted-foreground"
-                      )}
-                    >
-                      {pkg.name}
-                    </Badge>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-3xl font-bold text-foreground">
-                        ${pkg.price}
-                      </span>
-                      <span className="text-sm text-muted-foreground">/ one-time</span>
-                    </div>
-                    <div className="flex items-center gap-2 mt-2">
-                      <Gift className="w-4 h-4 text-[#2D79FF]" />
-                      <span className="text-sm font-medium text-foreground">
-                        {pkg.tokens} Tokens
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Features */}
-                  <ul className="space-y-2">
-                    {pkg.features.map((feature, idx) => (
-                      <li
-                        key={idx}
-                        className="flex items-center gap-2 text-sm"
-                      >
-                        {feature.included ? (
-                          <div className="w-4 h-4 rounded-full bg-green-500/20 flex items-center justify-center">
-                            <Check className="w-3 h-3 text-green-600" />
-                          </div>
-                        ) : (
-                          <div className="w-4 h-4 rounded-full bg-muted flex items-center justify-center">
-                            <span className="text-[10px] text-muted-foreground">✕</span>
-                          </div>
-                        )}
-                        <span
-                          className={
-                            feature.included
-                              ? "text-foreground"
-                              : "text-muted-foreground"
-                          }
-                        >
-                          {feature.text}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  {/* CTA */}
-                  <Button
-                    variant={pkg.popular ? "default" : "outline"}
-                    className={cn(
-                      "w-full",
-                      pkg.popular
-                        ? "bg-gradient-to-r from-[#2D79FF] to-[#8E54E9] hover:opacity-90 text-white border-0"
-                        : "border-border hover:bg-muted/50"
-                    )}
-                  >
-                    Purchase {pkg.name}
-                    <ChevronRight className="w-4 h-4 ml-1" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-
-      {/* Info Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="flex items-start gap-3 p-4 bg-muted/30 rounded-lg border border-border/50">
-          <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-            <FileText className="w-4 h-4 text-blue-600" />
+      {/* Referral Progress (referee count) */}
+      <Card className="border-border/50">
+        <CardContent className="p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-amber-600" />
+            </div>
+            <h2 className="text-lg font-semibold text-foreground">
+              Progress Referral Kamu
+            </h2>
           </div>
-          <div>
-            <h3 className="text-sm font-medium text-foreground">Token Value</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              1 token generates approximately 1 word with AI assistance.
-            </p>
-          </div>
-        </div>
 
-        <div className="flex items-start gap-3 p-4 bg-muted/30 rounded-lg border border-border/50">
-          <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0">
-            <Clock className="w-4 h-4 text-purple-600" />
+          <div className="flex items-center gap-6">
+            <div className="flex-1">
+              <div className="flex items-center justify-between text-sm mb-2">
+                <span className="font-medium text-foreground">
+                  {referredCount} teman sudah mendaftar
+                </span>
+              </div>
+              <Progress
+                value={Math.min((referredCount / txCap) * 100, 100)}
+                className="h-2"
+              />
+              <p className="text-xs text-muted-foreground mt-2">
+                Dari setiap teman, kamu mendapat reward dari {txCap} pembayaran pertama.
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-sm font-medium text-foreground">No Expiration</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Purchased tokens never expire. Use them at your own pace.
-            </p>
-          </div>
-        </div>
+        </CardContent>
+      </Card>
 
-        <div className="flex items-start gap-3 p-4 bg-muted/30 rounded-lg border border-border/50">
-          <div className="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center flex-shrink-0">
-            <Shield className="w-4 h-4 text-green-600" />
-          </div>
-          <div>
-            <h3 className="text-sm font-medium text-foreground">Secure Payment</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              All transactions are processed securely via Stripe.
-            </p>
-          </div>
+      {/* Fine print */}
+      <div className="flex items-start gap-3 p-4 bg-muted/30 rounded-lg border border-border/50">
+        <Info className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+        <div className="text-xs text-muted-foreground space-y-1">
+          <p>
+            <strong>Syarat & Ketentuan:</strong> Program referral berlaku untuk semua
+            metode pembayaran (langganan dan topup). Cashback referee hanya diberikan satu
+            kali per akun, pada pembayaran pertama yang berhasil. Reward pengajak
+            diberikan hingga 5 transaksi pertama per teman yang diajak. Tidak ada
+            penarikan saldo reward ke rekening bank. Refund hanya diproses manual
+            oleh CS untuk kasus khusus.
+          </p>
+          <p>
+            <strong>Sumber dana:</strong> Cashback referee disubsidi langsung oleh
+            pemilik Teora (bukan dari revenue platform).
+          </p>
         </div>
       </div>
     </div>

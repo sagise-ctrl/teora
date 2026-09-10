@@ -64,33 +64,21 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/webhooks", webhooksRouter);
 
 // Rate limiter for auth endpoints (5 attempts per IP per minute)
+// Auth endpoints don't need req.user (they SET it via login/register), so
+// mounting at app level before the router is fine here.
 const authLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 5,
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => req.path === "/healthz",
-  message: { error: "Too many attempts. Please try again after a minute." },
+  message: { error: "Terlalu banyak percobaan. Silakan coba lagi setelah satu menit." },
 });
 
-// Rate limiter for AI endpoints (30 requests per user per minute)
-// User-level quota enforcement will be added after payment system is implemented
-const aiLimiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 30,
-  standardHeaders: true,
-  legacyHeaders: false,
-  keyGenerator: (req) => req.user?.id ?? req.ip ?? "unknown",
-  message: { error: "Too many AI requests. Please wait a moment." },
-});
+// aiLimiter lives in lib/ai-limiter.ts and is mounted per-route in routes/index.ts
+// AFTER authMiddleware — see audit report .ai/ai-api-audit-report-20260905.md.
 
-// Rate-limit auth routes
 app.use("/api/auth", authLimiter);
-
-// Rate-limit AI endpoints
-app.use("/api/projects/:projectId/messages", aiLimiter);
-app.use("/api/projects/:projectId/references/regenerate", aiLimiter);
-app.use("/api/projects/:projectId/analyze", aiLimiter);
 
 app.use("/api", router);
 

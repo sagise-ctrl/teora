@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useLocation, useSearchParams } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Loader2, Eye, EyeOff, CheckCircle2, Users } from "lucide-react";
+import { Loader2, Eye, EyeOff, CheckCircle2, Users, Check, X } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { TeoraLogo } from "@/components/brand/teora-logo";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import {
   Form,
@@ -17,16 +18,26 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { customFetch } from "@/lib/api-client-react";
+
+const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,30}$/;
 
 const formSchema = z
   .object({
+    username: z
+      .string()
+      .min(1, "Username wajib diisi")
+      .regex(USERNAME_REGEX, "3-30 karakter, huruf, angka, dan underscore saja"),
     displayName: z.string().optional(),
-    email: z.string().email("Invalid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
+    email: z.string().email("Email tidak valid"),
+    password: z.string().min(6, "Password minimal 6 karakter"),
     confirmPassword: z.string(),
+    agreeToS: z.boolean().refine((val) => val === true, {
+      message: "Anda harus menyetujui Syarat Layanan dan Kebijakan Privasi",
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
+    message: "Password tidak cocok",
     path: ["confirmPassword"],
   });
 
@@ -37,28 +48,111 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [globalError, setGlobalError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [usernameChecked, setUsernameChecked] = useState(false);
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [usernameChecking, setUsernameChecking] = useState(false);
+  const [suggestedUsername, setSuggestedUsername] = useState<string | null>(null);
   const { register: doRegister } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  const usernameCheckTimer = useRef<ReturnType<typeof setTimeout>>();
 
   const referralCode = searchParams.get("ref") ?? undefined;
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      username: "",
       displayName: "",
       email: "",
       password: "",
       confirmPassword: "",
+      agreeToS: false,
     },
   });
 
+  const watchedUsername = form.watch("username");
+
+  // Check username availability after user stops typing (debounced)
+  useEffect(() => {
+    const username = watchedUsername?.trim().toLowerCase();
+    if (!username || !USERNAME_REGEX.test(username)) {
+      setUsernameAvailable(null);
+      setUsernameChecked(false);
+      return;
+    }
+
+    if (usernameCheckTimer.current) {
+      clearTimeout(usernameCheckTimer.current);
+    }
+
+    setUsernameChecking(true);
+    setUsernameChecked(false);
+
+    usernameCheckTimer.current = setTimeout(async () => {
+      try {
+        const res = await customFetch<{ available: boolean; username: string }>(
+          `/api/auth/check-username?username=${encodeURIComponent(username)}`
+        );
+        setUsernameAvailable(res.available);
+        setUsernameChecked(true);
+      } catch {
+        setUsernameAvailable(null);
+        setUsernameChecked(true);
+      } finally {
+        setUsernameChecking(false);
+      }
+    }, 500);
+
+    return () => {
+      if (usernameCheckTimer.current) clearTimeout(usernameCheckTimer.current);
+    };
+  }, [watchedUsername]);
+
+  // Derive username suggestion from displayName
+  const watchedDisplayName = form.watch("displayName");
+
+  const suggestFromDisplayName = (name: string): string => {
+    if (!name || name.trim().length < 2) return "";
+    return (
+      name
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, "") // strip non-alphanumeric except space
+        .replace(/\s+/g, "_") // space → underscore
+        .replace(/^[0-9_]+/, "") // no leading digits/underscores
+        .substring(0, 20) || ""
+    );
+  };
+
+  // Update suggestion when displayName changes (debounced, only if username field is empty)
+  useEffect(() => {
+    const name = watchedDisplayName?.trim() ?? "";
+    if (name.length < 2) {
+      setSuggestedUsername(null);
+      return;
+    }
+    // Only suggest if username field is still empty
+    const currentUsername = form.getValues("username");
+    if (currentUsername && currentUsername.trim() !== "") {
+      setSuggestedUsername(null);
+      return;
+    }
+    const candidate = suggestFromDisplayName(name);
+    setSuggestedUsername(candidate || null);
+  }, [watchedDisplayName, form]);
+
   async function onSubmit(data: FormValues) {
+    if (usernameAvailable === false) {
+      setGlobalError("Username is already taken. Please choose another.");
+      return;
+    }
+
     setGlobalError(null);
     try {
       await doRegister(
         data.email,
         data.password,
+        data.username.toLowerCase().trim(),
         data.displayName || undefined,
         referralCode
       );
@@ -71,11 +165,10 @@ export default function Register() {
       });
       setTimeout(() => setLocation("/login"), 2000);
     } catch (err) {
-      // Map technical error messages to friendly Indonesian messages
       const raw = err instanceof Error ? err.message : String(err);
       const friendly = mapErrorToIndonesian(raw);
       setGlobalError(friendly);
-      form.reset(); // Reset isSubmitting so the button becomes clickable again
+      form.reset();
       toast({
         variant: "destructive",
         title: "Registrasi gagal",
@@ -98,7 +191,6 @@ export default function Register() {
     if (lower.includes("rate limit") || lower.includes("too many requests")) {
       return "Terlalu banyak percobaan. Tunggu beberapa saat sebelum mencoba lagi.";
     }
-    // Return the raw message as fallback (already friendly from backend)
     return raw;
   }
 
@@ -124,11 +216,11 @@ export default function Register() {
         </div>
         <footer className="py-4 text-center text-xs text-muted-foreground border-t border-border">
           <div className="flex items-center justify-center gap-4">
-            <span>© 2024 Teora — Empowering Academic Excellence</span>
+            <span>© 2026 Teora</span>
             <span>·</span>
-            <a href="#" className="hover:text-foreground transition-colors">Help Center</a>
+            <Link href="/bantuan" className="hover:text-foreground transition-colors">Pusat Bantuan</Link>
             <span>·</span>
-            <a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a>
+            <Link href="/privacy" className="hover:text-foreground transition-colors">Kebijakan Privasi</Link>
           </div>
         </footer>
       </div>
@@ -148,7 +240,7 @@ export default function Register() {
               Start your journey
             </h1>
             <p className="text-muted-foreground mt-2">
-              Empowering Academic Excellence through Artificial Intelligence.
+              Asisten AI yang menemani proses belajar dan mengajar.
             </p>
           </div>
 
@@ -160,14 +252,14 @@ export default function Register() {
             <div>
               <h2 className="text-xl font-semibold text-foreground">Create account</h2>
               <p className="text-sm text-muted-foreground mt-1">
-                Start your academic writing journey with AI assistance.
+                Mulai perjalanan menulis akademik Anda bersama Teora.
               </p>
             </div>
 
             {referralCode && (
               <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2 text-sm text-emerald-700">
                 <Users className="w-4 h-4 shrink-0" />
-                <span>You were invited by a friend</span>
+                <span>Anda diundang oleh teman</span>
               </div>
             )}
 
@@ -181,10 +273,74 @@ export default function Register() {
 
                 <FormField
                   control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Username <span className="text-destructive">*</span>
+                      </FormLabel>
+                      <div className="relative">
+                        <FormControl>
+                          <Input
+                            placeholder="e.g. john_doe"
+                            className="pr-10"
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              setUsernameChecked(false);
+                              setUsernameAvailable(null);
+                            }}
+                          />
+                        </FormControl>
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          {usernameChecking ? (
+                            <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                          ) : usernameChecked && usernameAvailable === true ? (
+                            <Check className="w-4 h-4 text-emerald-600" />
+                          ) : usernameChecked && usernameAvailable === false ? (
+                            <X className="w-4 h-4 text-destructive" />
+                          ) : null}
+                        </div>
+                      </div>
+                      {suggestedUsername && (
+                        <div className="flex items-center gap-2 mt-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              form.setValue("username", suggestedUsername, {
+                                shouldValidate: true,
+                              });
+                              setUsernameChecked(false);
+                              setUsernameAvailable(null);
+                              setSuggestedUsername(null);
+                            }}
+                            className="inline-flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors cursor-pointer"
+                          >
+                            <span>Suggestion: <span className="font-mono font-medium">@{suggestedUsername}</span></span>
+                            <span className="text-muted-foreground">-</span>
+                            <span className="underline">Gunakan</span>
+                          </button>
+                        </div>
+                      )}
+                      {usernameChecked && usernameAvailable === false && (
+                        <p className="text-xs text-destructive">Username already taken</p>
+                      )}
+                      {usernameChecked && usernameAvailable === true && (
+                        <p className="text-xs text-emerald-600">Username available</p>
+                      )}
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
                   name="displayName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Display Name <span className="text-muted-foreground">(optional)</span></FormLabel>
+                      <FormLabel>
+                        Display Name <span className="text-muted-foreground">(optional)</span>
+                      </FormLabel>
                       <FormControl>
                         <Input placeholder="Your name" {...field} />
                       </FormControl>
@@ -253,19 +409,49 @@ export default function Register() {
                   )}
                 />
 
+                <FormField
+                  control={form.control}
+                  name="agreeToS"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md p-2">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          className="mt-0.5"
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel className="text-sm font-normal cursor-pointer">
+                          Saya menyetujui{" "}
+                          <Link href="/terms" className="text-primary hover:underline">
+                            Syarat Layanan
+                          </Link>{" "}
+                          dan{" "}
+                          <Link href="/privacy" className="text-primary hover:underline">
+                            Kebijakan Privasi
+                          </Link>{" "}
+                          Teora
+                        </FormLabel>
+                        <FormMessage />
+                      </div>
+                    </FormItem>
+                  )}
+                />
+
                 <Button
                   type="submit"
                   variant="gradient"
                   className="w-full font-medium shadow-sm"
-                  disabled={form.formState.isSubmitting}
+                  disabled={form.formState.isSubmitting || usernameAvailable === false}
                 >
                   {form.formState.isSubmitting ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Creating account...
+                      Membuat akun...
                     </>
                   ) : (
-                    "Create account"
+                    "Buat akun"
                   )}
                 </Button>
               </form>
@@ -286,11 +472,11 @@ export default function Register() {
       {/* Footer */}
       <footer className="py-4 text-center text-xs text-muted-foreground border-t border-border">
         <div className="flex items-center justify-center gap-4">
-          <span>© 2024 Teora — Empowering Academic Excellence</span>
-          <span>·</span>
-          <a href="#" className="hover:text-foreground transition-colors">Help Center</a>
-          <span>·</span>
-          <a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a>
+          <span>&copy; 2026 Teora</span>
+          <span>&middot;</span>
+          <Link href="/bantuan" className="hover:text-foreground transition-colors">Pusat Bantuan</Link>
+          <span>&middot;</span>
+          <Link href="/privacy" className="hover:text-foreground transition-colors">Kebijakan Privasi</Link>
         </div>
       </footer>
     </div>

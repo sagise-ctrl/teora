@@ -17,8 +17,9 @@ import {
 } from "@workspace/api-zod";
 import { callAI, buildSystemPrompt, type ChatMode, getTierConfig, getTierForUser } from "../lib/ai.js";
 import { logActivity } from "../lib/activity.js";
-import { checkCreditBalance, deductCredit } from "../lib/credit.js";
+import { checkAIAccess, consumeQuotaForAIRequest } from "../lib/subscription.js";
 import { sanitizeUserMessage } from "../lib/prompt-injection.js";
+import { logger } from "../lib/logger.js";
 
 const router: IRouter = Router();
 
@@ -75,20 +76,32 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
     return;
   }
 
-  // Pre-check: estimate cost and verify balance (don't call AI if insufficient)
+  // Pre-check: estimate cost and verify quota (subscription OR saldo)
+  // No side effects — just verify user has access.
   const estimatedCostCents = selectedTier.pricePer1MInputCents > 0 || selectedTier.pricePer1MOutputCents > 0
     ? Math.max(100, selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents)
     : 0;
 
   if (!selectedTier.isFree) {
-    const creditCheck = await checkCreditBalance(project.userId, estimatedCostCents, false);
-    if (!creditCheck.allowed) {
-      res.status(402).json({
-        error: creditCheck.reason,
-        balanceCents: creditCheck.balanceCents,
-        costCents: creditCheck.costCents,
-        tierName: selectedTier.name,
-      });
+    const accessCheck = await checkAIAccess({
+      userId: project.userId,
+      tierId: selectedTier.id,
+      estimatedCostCents,
+    });
+    if (!accessCheck.allowed) {
+      if (accessCheck.reason === "saldo_insufficient") {
+        res.status(402).json({
+          error: "Saldo tidak mencukupi. Silakan topup terlebih dahulu.",
+          balanceCents: accessCheck.balanceCents,
+          costCents: accessCheck.requiredCents,
+          tierName: selectedTier.name,
+        });
+      } else {
+        res.status(402).json({
+          error: "Quota langganan habis dan saldo tidak tersedia. Silakan topup atau perpanjang langganan.",
+          tierName: selectedTier.name,
+        });
+      }
       return;
     }
   }
@@ -183,16 +196,24 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
     })
     .returning();
 
-  // Deduct credit (non-blocking, but logged)
+  // Apply quota/saldo consumption for actual usage
+  // - If subscription: quota already accumulated by consumeQuotaForAIRequest
+  // - If saldo: saldo already deducted by consumeQuotaForAIRequest
+  // The pre-check used estimatedCost; now we apply for real costCents.
   if (!selectedTier.isFree && usage.costCents > 0) {
-    await deductCredit({
+    const finalConsume = await consumeQuotaForAIRequest({
       userId: project.userId,
-      costCents: usage.costCents,
-      tierIsFree: false,
       tierId: selectedTier.id,
-      aiUsageLogId: usageLog.id,
-      description: `AI chat — ${selectedTier.name} tier`,
+      inputTokens: usage.inputTokens,
+      outputTokens: usage.outputTokens,
+      costCents: usage.costCents,
     });
+    if (!finalConsume.allowed) {
+      logger.warn(
+        { userId: project.userId, costCents: usage.costCents, reason: finalConsume.reason },
+        "Quota/saldo exhausted mid-flight"
+      );
+    }
   }
 
   // Save AI response

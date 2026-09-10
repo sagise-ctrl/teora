@@ -59,7 +59,7 @@ export default function LandingAdmin() {
                       </span>
                     </div>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Financial overview, user management, AI tier config, system health, audit log, dan reports.
+                      Financial overview, manajemen pengguna, konfigurasi tier Teora, system health, audit log, dan reports.
                     </p>
                     <div className="mt-3 flex items-center gap-1 text-sm font-medium text-[#2D79FF]">
                       Buka Admin Dashboard
@@ -88,16 +88,16 @@ export default function LandingAdmin() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <h2 className="font-semibold text-base">User Dashboard (Test Mode)</h2>
+                      <h2 className="font-semibold text-base">Dashboard Pengguna (Mode Test)</h2>
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold text-white bg-gradient-to-r from-amber-500 to-orange-500">
                         Free Testing
                       </span>
                     </div>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Test fitur dari perspektif user. Token unlimited, tidak ada charge. Usage tetap tercatat untuk laporan cost.
+                      Test fitur dari perspektif pengguna. Token unlimited, tidak ada charge. Usage tetap tercatat untuk laporan cost.
                     </p>
                     <div className="mt-3 flex items-center gap-1 text-sm font-medium text-[#2D79FF]">
-                      Buka User Dashboard
+                      Buka Dashboard Pengguna
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>
@@ -116,10 +116,10 @@ export default function LandingAdmin() {
         >
           <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
           <div className="text-xs text-amber-800 space-y-1">
-            <p className="font-medium">Test Mode untuk User Dashboard:</p>
+            <p className="font-medium">Mode Test untuk Dashboard Pengguna:</p>
             <ul className="list-disc list-inside space-y-0.5">
-              <li>Token unlimited — test bebas tanpa batas</li>
-              <li>Payment flow disabled — tidak ada charge nyata</li>
+              <li>Token unlimited: test bebas tanpa batas</li>
+              <li>Payment flow disabled: tidak ada charge nyata</li>
               <li>Subscription tier forced ke Ultra</li>
               <li>Usage TETAP tercatat di sistem untuk laporan cost</li>
             </ul>

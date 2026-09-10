@@ -128,7 +128,7 @@ export default function AdminHealth() {
                         {svc.latencyMs !== null ? (
                           <p className="text-sm font-mono">{svc.latencyMs}ms</p>
                         ) : (
-                          <p className="text-sm text-muted-foreground">—</p>
+                          <p className="text-sm text-muted-foreground">:</p>
                         )}
                         <p className="text-xs text-muted-foreground">
                           {new Date(svc.lastChecked).toLocaleTimeString("id-ID")}

@@ -41,7 +41,7 @@ import {
 import { TeoraLogo } from "@/components/brand/teora-logo";
 
 const REQUEST_TYPE_LABELS: Record<string, string> = {
-  chat: "Chat AI",
+  chat: "Chat Teora",
   analyze: "Analisis",
   outline: "Outline",
   write: "Penulisan",
@@ -332,10 +332,10 @@ export default function FinOps() {
           </div>
           <div>
             <h1 className="text-2xl font-serif font-bold tracking-tight">
-              AI Usage & Cost
+              Penggunaan & Biaya Teora
             </h1>
             <p className="text-sm text-muted-foreground">
-              Monitor your AI API consumption and costs
+              Pantau konsumsi API Teora dan biaya Anda
             </p>
           </div>
         </div>
@@ -347,28 +347,28 @@ export default function FinOps() {
         <StatCard
           icon={ActivitySquare}
           label="Total Requests"
-          value={stats ? formatNumber(stats.totalRequests) : "—"}
+          value={stats ? formatNumber(stats.totalRequests) : ":"}
           subValue="across all features"
           color="#2D79FF"
         />
         <StatCard
           icon={Cpu}
           label="Input Tokens"
-          value={stats ? formatNumber(stats.totalInputTokens) : "—"}
-          subValue="sent to AI models"
+          value={stats ? formatNumber(stats.totalInputTokens) : ":"}
+          subValue="dikirim ke model"
           color="#8E54E9"
         />
         <StatCard
           icon={FileText}
           label="Output Tokens"
-          value={stats ? formatNumber(stats.totalOutputTokens) : "—"}
-          subValue="received from AI models"
+          value={stats ? formatNumber(stats.totalOutputTokens) : ":"}
+          subValue="diterima dari model"
           color="#10B981"
         />
         <StatCard
           icon={Coins}
           label="Estimated Cost"
-          value={stats ? formatCost(stats.totalCostUsd) : "—"}
+          value={stats ? formatCost(stats.totalCostUsd) : ":"}
           subValue="based on current pricing"
           color="#F59E0B"
         />

@@ -5,9 +5,259 @@
  * AI Academic Workspace API
  * OpenAPI spec version: 0.1.0
  */
+export interface UserReferralInfo {
+  /**
+     * User's unique referral code to share
+     * @nullable
+     */
+  referralCode: string | null;
+  /** @nullable */
+  email?: string | null;
+  /** @nullable */
+  displayName?: string | null;
+  /** Total users who signed up with this user's referral code */
+  referredCount: number;
+  /** Referees who completed their first payment (qualify for referrer reward) */
+  refereesWithFirstPayment: number;
+  /** Lifetime reward earned (IDR cents), non-withdrawable */
+  totalRewardEarnedCents: number;
+  /** Current reward balance (IDR cents), usable for AI services */
+  rewardBalanceCents: number;
+  /** Whether THIS user claimed their referee cashback of IDR 5000 */
+  refereeCashbackClaimed: boolean;
+  /** Program constant: 500000 equals IDR 5000 */
+  refereeCashbackAmountCents: number;
+  /** Program constant: 0.03 means 3 percent */
+  referrerRewardPercent: number;
+  /** Program constant: 5 transactions per referrer and referee pair */
+  referrerRewardTxCap: number;
+}
+
+/**
+ * Stub — full schema to be added when backend subscription stabilizes
+ */
+export interface Subscription {
+  id?: string;
+  userId?: string;
+  packageId?: string;
+  status?: string;
+  startsAt?: string;
+  expiresAt?: string;
+}
+
+/**
+ * Stub — full schema pending
+ */
+export interface SubscriptionResponse {
+  subscription?: Subscription;
+}
+
+/**
+ * Stub — full schema pending
+ */
+export interface CreateSubscriptionRequest {
+  packageId?: string;
+}
+
+export type PackagesResponsePackagesItem = { [key: string]: unknown };
+
+/**
+ * Stub — full schema pending
+ */
+export interface PackagesResponse {
+  packages?: PackagesResponsePackagesItem[];
+}
+
+export type PaymentWebhookPayloadMethod = typeof PaymentWebhookPayloadMethod[keyof typeof PaymentWebhookPayloadMethod];
+
+
+export const PaymentWebhookPayloadMethod = {
+  subscription: 'subscription',
+  topup: 'topup',
+} as const;
+
+export type PaymentWebhookPayloadMetadata = { [key: string]: unknown };
+
+export interface PaymentWebhookPayload {
+  /** Unique payment event ID from gateway (used for idempotency) */
+  paymentEventId: string;
+  /** Supabase user ID of the payer */
+  userId: string;
+  /** Amount paid in IDR cents (gross, before any deductions) */
+  paidAmountCents: number;
+  method: PaymentWebhookPayloadMethod;
+  paidAt: string;
+  metadata?: PaymentWebhookPayloadMetadata;
+}
+
+export type PaymentWebhookResponseRefereeCashbackReason = typeof PaymentWebhookResponseRefereeCashbackReason[keyof typeof PaymentWebhookResponseRefereeCashbackReason];
+
+
+export const PaymentWebhookResponseRefereeCashbackReason = {
+  credited: 'credited',
+  already_claimed: 'already_claimed',
+  no_referrer: 'no_referrer',
+  no_user: 'no_user',
+} as const;
+
+export type PaymentWebhookResponseRefereeCashback = {
+  credited?: boolean;
+  reason?: PaymentWebhookResponseRefereeCashbackReason;
+  amountCents?: number;
+};
+
+export type PaymentWebhookResponseReferrerRewardReason = typeof PaymentWebhookResponseReferrerRewardReason[keyof typeof PaymentWebhookResponseReferrerRewardReason];
+
+
+export const PaymentWebhookResponseReferrerRewardReason = {
+  credited: 'credited',
+  cap_reached: 'cap_reached',
+  no_referrer: 'no_referrer',
+  amount_too_small: 'amount_too_small',
+  duplicate_event: 'duplicate_event',
+} as const;
+
+export type PaymentWebhookResponseReferrerReward = {
+  credited?: boolean;
+  reason?: PaymentWebhookResponseReferrerRewardReason;
+  amountCents?: number;
+  txCount?: number;
+};
+
+export interface PaymentWebhookResponse {
+  ok?: boolean;
+  refereeCashback?: PaymentWebhookResponseRefereeCashback;
+  referrerReward?: PaymentWebhookResponseReferrerReward;
+}
+
+export interface AdminStatus {
+  isOwner: boolean;
+  email: string;
+}
+
+export interface AdminUser {
+  id?: string;
+  email?: string;
+  /** @nullable */
+  displayName?: string | null;
+  /** @nullable */
+  avatarUrl?: string | null;
+  /** @nullable */
+  referralCode?: string | null;
+  createdAt?: string;
+  projectCount?: number;
+  totalRequests?: number;
+  totalCostUsd?: number;
+}
+
+export interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+}
+
+export interface AdminUserList {
+  users: AdminUser[];
+  pagination: Pagination;
+}
+
+export type AdminStatsTotals = {
+  users?: number;
+  projects?: number;
+  aiRequests?: number;
+  aiCostUsd?: number;
+  inputTokens?: number;
+  outputTokens?: number;
+};
+
+export type AdminStatsRevenue = {
+  totalTopupCents?: number;
+  totalRefundCents?: number;
+  transactionCount?: number;
+  grossMargin?: number;
+};
+
+export type AdminStatsOwnerUsage = {
+  totalRequests?: number;
+  totalCostUsd?: number;
+};
+
+export type AdminStatsTopConsumersItem = {
+  userId?: string;
+  requests?: number;
+  costUsd?: number;
+};
+
+export interface AdminStats {
+  period?: string;
+  totals?: AdminStatsTotals;
+  revenue?: AdminStatsRevenue;
+  ownerUsage?: AdminStatsOwnerUsage;
+  topConsumers?: AdminStatsTopConsumersItem[];
+}
+
+export interface AdminUsageByProvider {
+  provider?: string;
+  totalRequests?: number;
+  totalCostUsd?: number;
+  totalInputTokens?: number;
+  totalOutputTokens?: number;
+}
+
+export interface AdminUsageByModel {
+  model?: string;
+  provider?: string;
+  totalRequests?: number;
+  totalCostUsd?: number;
+  totalInputTokens?: number;
+  totalOutputTokens?: number;
+}
+
+export interface AdminUsageByRequestType {
+  requestType?: string;
+  totalRequests?: number;
+  totalCostUsd?: number;
+  totalInputTokens?: number;
+  totalOutputTokens?: number;
+}
+
+export interface AdminUsage {
+  period?: string;
+  byProvider?: AdminUsageByProvider[];
+  byModel?: AdminUsageByModel[];
+  byRequestType?: AdminUsageByRequestType[];
+}
+
+/**
+ * @nullable
+ */
+export type AdminAuditLogDetails = { [key: string]: unknown } | null;
+
+export interface AdminAuditLog {
+  id?: number;
+  adminEmail?: string;
+  action?: string;
+  targetType?: string;
+  /** @nullable */
+  targetId?: string | null;
+  /** @nullable */
+  details?: AdminAuditLogDetails;
+  /** @nullable */
+  ipAddress?: string | null;
+  createdAt?: string;
+}
+
+export interface AdminAuditLogList {
+  logs: AdminAuditLog[];
+  pagination: Pagination;
+}
+
 export interface AuthUser {
   id: string;
   email: string;
+  /** Unique username for sharing URLs */
+  username: string;
   /** @nullable */
   displayName?: string | null;
   /** @nullable */
@@ -18,6 +268,11 @@ export interface AuthUser {
      * @nullable
      */
   referralCode?: string | null;
+  /**
+     * When username was last changed (for 30-day rate limit)
+     * @nullable
+     */
+  usernameChangedAt?: string | null;
   createdAt: string;
 }
 
@@ -31,6 +286,13 @@ export interface RegisterRequest {
   email: string;
   /** @minLength 6 */
   password: string;
+  /**
+     * Unique username for sharing (3-30 chars, alphanumeric + underscore)
+     * @minLength 3
+     * @maxLength 30
+     * @pattern ^[a-zA-Z0-9_]+$
+     */
+  username: string;
   displayName?: string;
   /** Optional referral code used during registration */
   referralCode?: string;
@@ -52,6 +314,34 @@ export const ProjectStatus = {
   archived: 'archived',
 } as const;
 
+/**
+ * @nullable
+ */
+export type ProjectTaskType = typeof ProjectTaskType[keyof typeof ProjectTaskType] | null;
+
+
+export const ProjectTaskType = {
+  general: 'general',
+  academic: 'academic',
+} as const;
+
+/**
+ * Citation format used for in-text/footnote markers and bibliography. Default = APA.
+ * @nullable
+ */
+export type ProjectCitationFormat = typeof ProjectCitationFormat[keyof typeof ProjectCitationFormat] | null;
+
+
+export const ProjectCitationFormat = {
+  APA: 'APA',
+  APA7: 'APA7',
+  IEEE: 'IEEE',
+  Vancouver: 'Vancouver',
+  Chicago: 'Chicago',
+  MLA: 'MLA',
+  Harvard: 'Harvard',
+} as const;
+
 export interface Project {
   id: number;
   title: string;
@@ -63,9 +353,12 @@ export interface Project {
   /** @nullable */
   subject?: string | null;
   /** @nullable */
-  taskType?: string | null;
-  /** @nullable */
-  citationFormat?: string | null;
+  taskType?: ProjectTaskType;
+  /**
+     * Citation format used for in-text/footnote markers and bibliography. Default = APA.
+     * @nullable
+     */
+  citationFormat?: ProjectCitationFormat;
   /** @nullable */
   outputFormat?: string | null;
   /** @nullable */
@@ -84,17 +377,63 @@ export type ProjectInputOutputFormat = typeof ProjectInputOutputFormat[keyof typ
 export const ProjectInputOutputFormat = {
   docx: 'docx',
   pdf: 'pdf',
-  markdown: 'markdown',
+  pptx: 'pptx',
+} as const;
+
+/**
+ * Project type — "general" for short tasks, "academic" for multi-section works
+ */
+export type ProjectInputTaskType = typeof ProjectInputTaskType[keyof typeof ProjectInputTaskType];
+
+
+export const ProjectInputTaskType = {
+  general: 'general',
+  academic: 'academic',
+} as const;
+
+/**
+ * DECISION 014. Citation format used for in-text/footnote markers and bibliography.
+ * Defaults to APA if omitted (workspace will create the project with APA and the
+ * user can change via PATCH /projects/:id/citation-format).
+ */
+export type ProjectInputCitationFormat = typeof ProjectInputCitationFormat[keyof typeof ProjectInputCitationFormat];
+
+
+export const ProjectInputCitationFormat = {
+  APA: 'APA',
+  APA7: 'APA7',
+  IEEE: 'IEEE',
+  Vancouver: 'Vancouver',
+  Chicago: 'Chicago',
+  MLA: 'MLA',
+  Harvard: 'Harvard',
 } as const;
 
 export interface ProjectInput {
-  /** @minLength 1 */
-  title: string;
-  instructionText?: string;
+  /**
+     * Optional. Project display name (used in document list, not in exported file).
+     * If omitted, the workspace will auto-generate a title via AI from instructionText.
+     */
+  title?: string;
+  /**
+     * REQUIRED for both General Task and Academic Work. The instructions or idea/gagasan
+     * that AI uses to generate the title (if missing), analyze the task, and produce
+     * the document.
+     * @minLength 1
+     */
+  instructionText: string;
   outputFormat?: ProjectInputOutputFormat;
   minRefYear?: number;
   minRefCount?: number;
   aiDisclosure?: boolean;
+  /** Project type — "general" for short tasks, "academic" for multi-section works */
+  taskType?: ProjectInputTaskType;
+  /**
+     * DECISION 014. Citation format used for in-text/footnote markers and bibliography.
+     * Defaults to APA if omitted (workspace will create the project with APA and the
+     * user can change via PATCH /projects/:id/citation-format).
+     */
+  citationFormat?: ProjectInputCitationFormat;
 }
 
 export type ProjectUpdateStatus = typeof ProjectUpdateStatus[keyof typeof ProjectUpdateStatus];
@@ -115,7 +454,7 @@ export type ProjectUpdateOutputFormat = typeof ProjectUpdateOutputFormat[keyof t
 export const ProjectUpdateOutputFormat = {
   docx: 'docx',
   pdf: 'pdf',
-  markdown: 'markdown',
+  pptx: 'pptx',
 } as const;
 
 export interface ProjectUpdate {
@@ -132,6 +471,11 @@ export interface ProjectUpdate {
 
 export type ProjectStatsByStatus = {[key: string]: number};
 
+/**
+ * Counts grouped by taskType (general, academic, null)
+ */
+export type ProjectStatsByType = {[key: string]: number};
+
 export interface Activity {
   id: number;
   projectId: number;
@@ -143,6 +487,8 @@ export interface Activity {
 export interface ProjectStats {
   total: number;
   byStatus: ProjectStatsByStatus;
+  /** Counts grouped by taskType (general, academic, null) */
+  byType?: ProjectStatsByType;
   recentActivity: Activity[];
 }
 
@@ -307,6 +653,11 @@ export interface Reference {
   isSuggested?: boolean;
   /** Source of the reference */
   source?: ReferenceSource;
+  /**
+     * Ceklist status — true means reference is included in bibliography and
+     * eligible for AI auto-cite. (DECISION 014)
+     */
+  isSelected?: boolean;
 }
 
 /**
@@ -345,6 +696,145 @@ export interface BulkAddReferencesRequest {
 export interface BibliographyResult {
   bibliography: string;
   format?: string;
+}
+
+export interface DocumentPreviewParagraph {
+  /** Zero-based paragraph index matching original content split */
+  index: number;
+  /**
+     * Rendered HTML for this paragraph with citation markers injected
+     * as `<sup class="cite-marker" data-citation-id="N">marker</sup>`.
+     * Marker text reflects the project's current citation format.
+     */
+  html: string;
+}
+
+export type DocumentPreviewResultCitationFormat = typeof DocumentPreviewResultCitationFormat[keyof typeof DocumentPreviewResultCitationFormat];
+
+
+export const DocumentPreviewResultCitationFormat = {
+  APA: 'APA',
+  APA7: 'APA7',
+  IEEE: 'IEEE',
+  Vancouver: 'Vancouver',
+  Chicago: 'Chicago',
+  MLA: 'MLA',
+  Harvard: 'Harvard',
+} as const;
+
+export interface DocumentPreviewResult {
+  paragraphs: DocumentPreviewParagraph[];
+  /** Auto-generated bibliography (CSL-formatted) */
+  bibliography?: string;
+  citationFormat: DocumentPreviewResultCitationFormat;
+  /** Total citation markers in this preview */
+  citationCount: number;
+}
+
+/**
+ * AI model tier to use for the suggestion
+ */
+export type AutoCiteRequestTier = typeof AutoCiteRequestTier[keyof typeof AutoCiteRequestTier];
+
+
+export const AutoCiteRequestTier = {
+  low: 'low',
+  mid: 'mid',
+  high: 'high',
+} as const;
+
+export interface AutoCiteRequest {
+  /**
+     * IDs of references to auto-cite. Only ceklist-selected references are used
+     * in practice; this list lets user override (e.g. force a specific reference).
+     * @minItems 1
+     * @maxItems 50
+     */
+  referenceIds: number[];
+  /**
+     * Cap on how many distinct paragraphs the same reference can be cited in.
+     * Default = 3 (Level C smart placement).
+     * @minimum 1
+     * @maximum 20
+     */
+  maxCitationsPerReference?: number;
+  /** AI model tier to use for the suggestion */
+  tier?: AutoCiteRequestTier;
+}
+
+export interface AutoCiteSuggestion {
+  referenceId: number;
+  /** 0-based paragraph index in the document text */
+  paragraphIndex: number;
+  /** Character offset within the paragraph (where the citation marker starts) */
+  offsetInParagraph: number;
+  /**
+     * Pre-rendered citation marker for the project's citationFormat
+     * (e.g. "(Smith & Jones, 2023)" for APA, "[1]" for IEEE)
+     */
+  formatMarker: string;
+  /** AI's explanation for why this citation belongs here */
+  placementReason: string;
+}
+
+export interface AutoCiteResponse {
+  suggestions: AutoCiteSuggestion[];
+  totalTokensUsed: number;
+  /** How many ceklist-selected references were considered */
+  referencesAnalyzed: number;
+}
+
+export interface ReferenceCitation {
+  id: number;
+  projectId: number;
+  referenceId: number;
+  paragraphIndex: number;
+  offsetInParagraph: number;
+  formatMarker: string;
+  /** @nullable */
+  placementReason?: string | null;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface CreateCitationRequest {
+  referenceId: number;
+  paragraphIndex: number;
+  offsetInParagraph?: number;
+  /** Pre-rendered marker (frontend computes from current citationFormat) */
+  formatMarker: string;
+  placementReason?: string;
+}
+
+export interface UpdateCitationRequest {
+  /** New paragraph index (for drag between paragraphs) */
+  paragraphIndex?: number;
+  /** New character offset within the paragraph */
+  offsetInParagraph?: number;
+  /** New pre-rendered marker (after citationFormat change) */
+  formatMarker?: string;
+  placementReason?: string;
+}
+
+/**
+ * Citation format for the project
+ */
+export type SetCitationFormatRequestCitationFormat = typeof SetCitationFormatRequestCitationFormat[keyof typeof SetCitationFormatRequestCitationFormat];
+
+
+export const SetCitationFormatRequestCitationFormat = {
+  APA: 'APA',
+  APA7: 'APA7',
+  IEEE: 'IEEE',
+  Vancouver: 'Vancouver',
+  Chicago: 'Chicago',
+  MLA: 'MLA',
+  Harvard: 'Harvard',
+} as const;
+
+export interface SetCitationFormatRequest {
+  /** Citation format for the project */
+  citationFormat: SetCitationFormatRequestCitationFormat;
 }
 
 export type ValidationIssueSeverity = typeof ValidationIssueSeverity[keyof typeof ValidationIssueSeverity];
@@ -456,6 +946,34 @@ export interface Job {
   updatedAt: string;
 }
 
+/**
+ * @nullable
+ */
+export type ProjectMetadataTaskType = typeof ProjectMetadataTaskType[keyof typeof ProjectMetadataTaskType] | null;
+
+
+export const ProjectMetadataTaskType = {
+  general: 'general',
+  academic: 'academic',
+} as const;
+
+/**
+ * Citation format used for in-text/footnote markers and bibliography. Default = APA.
+ * @nullable
+ */
+export type ProjectMetadataCitationFormat = typeof ProjectMetadataCitationFormat[keyof typeof ProjectMetadataCitationFormat] | null;
+
+
+export const ProjectMetadataCitationFormat = {
+  APA: 'APA',
+  APA7: 'APA7',
+  IEEE: 'IEEE',
+  Vancouver: 'Vancouver',
+  Chicago: 'Chicago',
+  MLA: 'MLA',
+  Harvard: 'Harvard',
+} as const;
+
 export interface ProjectMetadata {
   id: number;
   projectId: number;
@@ -464,9 +982,12 @@ export interface ProjectMetadata {
   /** @nullable */
   subject?: string | null;
   /** @nullable */
-  taskType?: string | null;
-  /** @nullable */
-  citationFormat?: string | null;
+  taskType?: ProjectMetadataTaskType;
+  /**
+     * Citation format used for in-text/footnote markers and bibliography. Default = APA.
+     * @nullable
+     */
+  citationFormat?: ProjectMetadataCitationFormat;
   /** @nullable */
   language?: string | null;
   /** @nullable */
@@ -483,7 +1004,7 @@ export type ExportFormat = typeof ExportFormat[keyof typeof ExportFormat];
 export const ExportFormat = {
   docx: 'docx',
   pdf: 'pdf',
-  markdown: 'markdown',
+  pptx: 'pptx',
 } as const;
 
 export type ExportStatus = typeof ExportStatus[keyof typeof ExportStatus];
@@ -511,7 +1032,7 @@ export type ExportInputFormat = typeof ExportInputFormat[keyof typeof ExportInpu
 export const ExportInputFormat = {
   docx: 'docx',
   pdf: 'pdf',
-  markdown: 'markdown',
+  pptx: 'pptx',
 } as const;
 
 export interface ExportInput {
@@ -636,6 +1157,7 @@ export type FinOpsUserUsageStatsByRequestType = {[key: string]: {
   inputTokens?: number;
   outputTokens?: number;
   costUsd?: number;
+  costCents?: number;
 }};
 
 export type FinOpsUserUsageStatsByProject = {[key: string]: {
@@ -643,6 +1165,7 @@ export type FinOpsUserUsageStatsByProject = {[key: string]: {
   inputTokens?: number;
   outputTokens?: number;
   costUsd?: number;
+  costCents?: number;
 }};
 
 export type FinOpsUserUsageStatsPeriod = typeof FinOpsUserUsageStatsPeriod[keyof typeof FinOpsUserUsageStatsPeriod];
@@ -659,6 +1182,8 @@ export interface FinOpsUserUsageStats {
   totalInputTokens: number;
   totalOutputTokens: number;
   totalCostUsd: number;
+  /** Total saldo terpakai dalam IDR cents. Ini angka yang dilihat user. */
+  totalCostCents?: number;
   byRequestType: FinOpsUserUsageStatsByRequestType;
   byProject: FinOpsUserUsageStatsByProject;
   period: FinOpsUserUsageStatsPeriod;
@@ -669,6 +1194,7 @@ export type FinOpsProjectUsageStatsByRequestType = {[key: string]: {
   inputTokens?: number;
   outputTokens?: number;
   costUsd?: number;
+  costCents?: number;
 }};
 
 export interface FinOpsProjectUsageStats {
@@ -677,6 +1203,8 @@ export interface FinOpsProjectUsageStats {
   totalInputTokens: number;
   totalOutputTokens: number;
   totalCostUsd: number;
+  /** Total saldo terpakai dalam IDR cents (project scope). */
+  totalCostCents?: number;
   byRequestType: FinOpsProjectUsageStatsByRequestType;
 }
 
@@ -866,6 +1394,17 @@ export const SharedProjectStatus = {
   archived: 'archived',
 } as const;
 
+/**
+ * @nullable
+ */
+export type SharedProjectTaskType = typeof SharedProjectTaskType[keyof typeof SharedProjectTaskType] | null;
+
+
+export const SharedProjectTaskType = {
+  general: 'general',
+  academic: 'academic',
+} as const;
+
 export type SharedProjectAccessMode = typeof SharedProjectAccessMode[keyof typeof SharedProjectAccessMode];
 
 
@@ -882,7 +1421,7 @@ export interface SharedProject {
   /** @nullable */
   subject?: string | null;
   /** @nullable */
-  taskType?: string | null;
+  taskType?: SharedProjectTaskType;
   /**
      * Latest document content (if accessMode is view or edit)
      * @nullable
@@ -1334,6 +1873,7 @@ export interface InsufficientBalanceError {
 export interface UserProfile {
   id: string;
   email: string;
+  username: string;
   /** @nullable */
   displayName: string | null;
   /** @nullable */
@@ -1341,6 +1881,11 @@ export interface UserProfile {
   isOwner: boolean;
   /** @nullable */
   referralCode?: string | null;
+  /**
+     * When username was last changed (for 30-day rate limit)
+     * @nullable
+     */
+  usernameChangedAt?: string | null;
   createdAt: string;
 }
 
@@ -1351,6 +1896,13 @@ export interface UpdateProfileRequest {
      */
   displayName?: string;
   avatarUrl?: string;
+  /**
+     * Unique username for sharing (3-30 chars, alphanumeric + underscore)
+     * @minLength 3
+     * @maxLength 30
+     * @pattern ^[a-zA-Z0-9_]+$
+     */
+  username?: string;
 }
 
 export interface AvatarUploadRequest {
@@ -1469,10 +2021,117 @@ export interface ImportAccountReferencesResponse {
   summary: ImportAccountReferencesResponseSummary;
 }
 
+/**
+ * Where the topics were extracted from
+ */
+export type LearningActivityExtractedFrom = typeof LearningActivityExtractedFrom[keyof typeof LearningActivityExtractedFrom];
+
+
+export const LearningActivityExtractedFrom = {
+  instruction: 'instruction',
+  reference: 'reference',
+  chat: 'chat',
+} as const;
+
+export interface LearningActivity {
+  id: number;
+  userId: string;
+  /** Array of topic strings extracted from the source */
+  topics: string[];
+  /**
+     * Subject or course name if detectable
+     * @nullable
+     */
+  subject?: string | null;
+  /**
+     * Link to the Task Mentor project that generated this activity
+     * @nullable
+     */
+  sourceProjectId?: number | null;
+  /**
+     * Denormalized title of the source project for display
+     * @nullable
+     */
+  sourceProjectTitle?: string | null;
+  /** Where the topics were extracted from */
+  extractedFrom: LearningActivityExtractedFrom;
+  createdAt: string;
+}
+
+export type CreateLearningActivityRequestExtractedFrom = typeof CreateLearningActivityRequestExtractedFrom[keyof typeof CreateLearningActivityRequestExtractedFrom];
+
+
+export const CreateLearningActivityRequestExtractedFrom = {
+  instruction: 'instruction',
+  reference: 'reference',
+  chat: 'chat',
+} as const;
+
+export interface CreateLearningActivityRequest {
+  /**
+     * Array of topic strings
+     * @minItems 1
+     */
+  topics: string[];
+  /** Optional subject/course name */
+  subject?: string;
+  /** ID of the Task Mentor project this activity came from */
+  sourceProjectId?: number;
+  extractedFrom: CreateLearningActivityRequestExtractedFrom;
+}
+
+/**
+ * - recent_task: from the most recently created project
+ * - frequent_topic: topics that appear most across activities
+ * - weak_topic: topics where user scored poorly in past quizzes
+ */
+export type PracticeRecommendationType = typeof PracticeRecommendationType[keyof typeof PracticeRecommendationType];
+
+
+export const PracticeRecommendationType = {
+  recent_task: 'recent_task',
+  frequent_topic: 'frequent_topic',
+  weak_topic: 'weak_topic',
+} as const;
+
+export interface PracticeRecommendation {
+  learningActivity: LearningActivity;
+  /** Human-readable reason for this recommendation */
+  reason: string;
+  /**
+     * - recent_task: from the most recently created project
+     * - frequent_topic: topics that appear most across activities
+     * - weak_topic: topics where user scored poorly in past quizzes
+     */
+  type: PracticeRecommendationType;
+}
+
+export type CheckUsernameParams = {
+username: string;
+};
+
+export type CheckUsername200 = {
+  /** Whether the username is available */
+  available?: boolean;
+  username?: string;
+};
+
 export type ListProjectsParams = {
 status?: string;
 search?: string;
+/**
+ * Filter by project type (general or academic)
+ */
+type?: ListProjectsType;
 };
+
+export type ListProjectsType = typeof ListProjectsType[keyof typeof ListProjectsType];
+
+
+export const ListProjectsType = {
+  general: 'general',
+  academic: 'academic',
+} as const;
 
 export type AnalyzeProjectBody = {
   /** AI tier to use (e.g. "free", "standard", "premium"). Defaults to user's preferred tier. */
@@ -1525,6 +2184,11 @@ export const FormatCSLBibliographyFormat = {
   MLA: 'MLA',
   Harvard: 'Harvard',
 } as const;
+
+export type ToggleReferenceSelectionBody = {
+  /** New ceklist state */
+  isSelected: boolean;
+};
 
 export type SearchReferencesParams = {
 /**
@@ -1670,11 +2334,72 @@ export type UpdateAdminAITier200 = {
   tier?: AITierAdmin;
 };
 
+export type UpdateMyProfile429 = {
+  error?: string;
+};
+
 export type ListTemplatesParams = {
 category?: string;
 };
 
 export type AssignAccountReferenceBody = {
   projectId: number;
+};
+
+export type ListAdminUsersParams = {
+/**
+ * Search by email or display name
+ */
+search?: string;
+page?: number;
+limit?: number;
+};
+
+export type GetAdminStatsParams = {
+period?: GetAdminStatsPeriod;
+};
+
+export type GetAdminStatsPeriod = typeof GetAdminStatsPeriod[keyof typeof GetAdminStatsPeriod];
+
+
+export const GetAdminStatsPeriod = {
+  today: 'today',
+  week: 'week',
+  month: 'month',
+} as const;
+
+export type GetAdminUsageParams = {
+period?: GetAdminUsagePeriod;
+};
+
+export type GetAdminUsagePeriod = typeof GetAdminUsagePeriod[keyof typeof GetAdminUsagePeriod];
+
+
+export const GetAdminUsagePeriod = {
+  today: 'today',
+  week: 'week',
+  month: 'month',
+} as const;
+
+export type GetAdminAuditLogParams = {
+action?: string;
+page?: number;
+limit?: number;
+};
+
+export type OverrideUserTierBody = {
+  /**
+     * Tier ID to set, or null to remove override
+     * @nullable
+     */
+  tierId?: string | null;
+};
+
+export type SuspendUserBody = {
+  suspend: boolean;
+};
+
+export type ToggleAutofallbackBody = {
+  enabled: boolean;
 };
 

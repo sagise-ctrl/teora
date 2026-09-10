@@ -6,6 +6,8 @@ export const usersTable = pgTable("users", {
   // Supabase auth user ID (UUID from Supabase)
   id: text("id").primaryKey(),
   email: text("email").notNull(),
+  // Username: unique, used for sharing URLs (e.g., /u/budi)
+  username: text("username").unique().notNull(),
   // Owner flag: owner doesn't need subscription
   isOwner: boolean("is_owner").notNull().default(false),
   // Optional display info
@@ -13,6 +15,8 @@ export const usersTable = pgTable("users", {
   avatarUrl: text("avatar_url"),
   // Unique referral code this user can share
   referralCode: text("referral_code").unique(),
+  // Timestamp when username was last changed (for 30-day rate limit)
+  usernameChangedAt: timestamp("username_changed_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useMemo } from "react"
 import { useParams, Link } from "wouter"
 import {
   useGetProject,
@@ -38,6 +38,15 @@ import {
   useDeleteComment,
   useGetRubric,
   useSearchReferences,
+  useToggleReferenceSelection,
+  useAutoCiteReferences,
+  useListCitations,
+  useCreateCitation,
+  useGetDocumentPreview,
+  useGetBibliography,
+  useUpdateCitation,
+  useDeleteCitation,
+  useSetProjectCitationFormat,
   getListQuizzesQueryKey,
   getGetQuizQueryKey,
   getGetLatestDocumentQueryKey,
@@ -50,6 +59,7 @@ import {
   getListJobsQueryKey,
   getListShareLinksQueryKey,
   getSearchReferencesQueryKey,
+  getListCitationsQueryKey,
   useGetAITiers,
   useGetMyBalance,
   type ChatMode,
@@ -61,6 +71,7 @@ import {
   type QuizSubmission,
   type Rubric,
   type CrossRefSearchResult,
+  type ProjectCitationFormat,
 } from "../lib/api-client-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
@@ -104,6 +115,7 @@ import {
   ExternalLink,
   Download,
   Zap,
+  Presentation,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -159,8 +171,21 @@ import type { InsufficientBalanceData } from "@/components/insufficient-balance-
 import { parseInsufficientBalance } from "@/components/parse-insufficient-balance"
 import { useInsufficientBalanceDialog } from "@/hooks/use-insufficient-balance-dialog"
 import { TierSelector } from "@/components/tier-selector"
+import { CitationMarkerMenu } from "@/components/citation-marker-menu"
+import { Checkbox } from "@/components/ui/checkbox"
 
-// ── Document Bar ────────────────────────────────────────────────────────────────
+// Citation format options — sourced from backend `lib/citation.ts` (must match)
+const CITATION_FORMAT_OPTIONS: Array<{ value: NonNullable<ProjectCitationFormat>; label: string; description: string }> = [
+  { value: "APA", label: "APA (7th ed.)", description: "Paling populer di Indonesia" },
+  { value: "APA7", label: "APA 7th Edition", description: "Versi terbaru APA" },
+  { value: "IEEE", label: "IEEE", description: "Populer untuk teknik & IT" },
+  { value: "Vancouver", label: "Vancouver", description: "ICMJE: populer untuk jurnal medis" },
+  { value: "Chicago", label: "Chicago", description: "Humaniora dan sosial" },
+  { value: "MLA", label: "MLA", description: "Sastra dan bahasa" },
+  { value: "Harvard", label: "Harvard", description: "Populer di Australia dan UK" },
+]
+
+// - Document Bar -
 
 function DocumentBar({
   projectId,
@@ -251,6 +276,7 @@ function DocumentBar({
           onSelect(doc.id)
           onRefresh()
         },
+        onError: (err) => toast({ title: "Gagal", description: String(err), variant: "destructive" }),
       }
     )
   }
@@ -379,11 +405,15 @@ export default function ProjectWorkspace() {
   const { toast } = useToast()
 
   const [selectedDocId, setSelectedDocId] = useState<number | null>(null)
+  const [activeCitationId, setActiveCitationId] = useState<number | null>(null)
+  const previewHtmlRef = useRef<HTMLDivElement>(null)
 
   const { data: project, isLoading: projectLoading } = useGetProject(projectId)
   const { data: documents, isLoading: docsLoading } = useListDocuments(projectId)
   const { data: selectedDoc } = useGetDocument(projectId, selectedDocId ?? 0)
   const { data: latestDoc } = useGetLatestDocument(projectId)
+  const { data: documentPreview, isLoading: previewLoading } = useGetDocumentPreview(projectId)
+  const { data: bibliographyData } = useGetBibliography(projectId)
   const { data: jobs } = useListJobs(projectId, { query: { queryKey: getListJobsQueryKey(projectId), refetchInterval: 5000 } })
 
   // Set default selected document
@@ -393,6 +423,26 @@ export default function ProjectWorkspace() {
       setSelectedDocId(active.id)
     }
   }, [documents, selectedDocId])
+
+  // DECISION 014 Phase 2 — Delegate citation marker clicks to open the action menu.
+  // Rendered HTML uses <sup data-citation-id="N">; clicking bubbles up here.
+  useEffect(() => {
+    const container = previewHtmlRef.current
+    if (!container) return
+    const handleClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement | null
+      const marker = target?.closest("[data-citation-id]") as HTMLElement | null
+      if (marker) {
+        const citationId = Number(marker.dataset.citationId)
+        if (!Number.isNaN(citationId)) {
+          event.preventDefault()
+          setActiveCitationId(citationId)
+        }
+      }
+    }
+    container.addEventListener("click", handleClick)
+    return () => container.removeEventListener("click", handleClick)
+  }, [documentPreview])
 
   const analyzeProject = useAnalyzeProject()
   const updateProject = useUpdateProject()
@@ -415,7 +465,7 @@ export default function ProjectWorkspace() {
   const handleAnalyze = () => {
     analyzeProject.mutate({ projectId }, {
       onSuccess: () => {
-        toast({ title: "Analysis started", description: "The AI is now analyzing your project requirements." })
+        toast({ title: "Analysis started", description: "Teora sedang menganalisis kebutuhan project Anda." })
         queryClient.invalidateQueries({ queryKey: getGetProjectQueryKey(projectId) })
       },
       onError: (err) => {
@@ -432,7 +482,7 @@ export default function ProjectWorkspace() {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getGetProjectQueryKey(projectId) })
         toast({
-          title: project.aiDisclosure ? "AI disclosure dimatikan" : "AI disclosure diaktifkan",
+          title: project.aiDisclosure ? "Label AI-assisted dimatikan" : "Label AI-assisted diaktifkan",
           description: project.aiDisclosure
             ? "Label AI-assisted tidak akan muncul di dokumen dan chat."
             : "Label AI-assisted akan muncul di dokumen dan chat.",
@@ -490,7 +540,7 @@ export default function ProjectWorkspace() {
                   <div>
                     <p className="font-medium text-foreground mb-1">Kalau diaktifkan (default):</p>
                     <ul className="list-disc list-inside text-muted-foreground space-y-1">
-                      <li>Badge "AI-assisted" muncul di pesan chat dari AI</li>
+                      <li>Badge "AI-assisted" muncul di pesan chat dari Teora</li>
                       <li>Footer peringatan muncul di preview dokumen</li>
                       <li>Peringatan muncul saat lihat versi lama dokumen</li>
                     </ul>
@@ -500,7 +550,7 @@ export default function ProjectWorkspace() {
                     <ul className="list-disc list-inside text-muted-foreground space-y-1">
                       <li>Semua label AI-assisted disembunyikan</li>
                       <li>Dokumen dan chat tampil apa adanya</li>
-                      <li>Berguna bila Anda sudah menyunting sampai tidak terasa hasil AI</li>
+                      <li>Berguna bila Anda sudah menyunting sampai tidak terasa hasil Teora</li>
                     </ul>
                   </div>
                   <p className="text-xs text-muted-foreground pt-2 border-t">
@@ -557,6 +607,12 @@ export default function ProjectWorkspace() {
             <BookMarked className="w-4 h-4 mr-2" />
             Referensi
           </TabsTrigger>
+          {project.outputFormat === "pptx" && (
+            <TabsTrigger value="ppt" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
+              <Presentation className="w-4 h-4 mr-2" />
+              Slide
+            </TabsTrigger>
+          )}
           <TabsTrigger value="attachments" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
             <Paperclip className="w-4 h-4 mr-2" />
             Lampiran
@@ -585,7 +641,27 @@ export default function ProjectWorkspace() {
               <CardContent className="p-8 prose prose-slate dark:prose-invert max-w-none">
                 {selectedDoc?.versions?.[0] ? (
                   <>
-                    <div dangerouslySetInnerHTML={{ __html: selectedDoc.versions[0].content.replace(/\n/g, '<br/>') }} />
+                    {previewLoading && !documentPreview ? (
+                      <div className="space-y-3">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-11/12" />
+                        <Skeleton className="h-4 w-10/12" />
+                        <Skeleton className="h-4 w-full" />
+                      </div>
+                    ) : documentPreview?.paragraphs && documentPreview.paragraphs.length > 0 ? (
+                      <div ref={previewHtmlRef}>
+                        {documentPreview.paragraphs.map((p) => (
+                          <div
+                            key={p.index}
+                            dangerouslySetInnerHTML={{ __html: p.html }}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      // Fallback when preview endpoint not yet available (e.g., before
+                      // any citations exist or before first document version rendered).
+                      <div dangerouslySetInnerHTML={{ __html: selectedDoc.versions[0].content.replace(/\n/g, "<br/>") }} />
+                    )}
                   </>
                 ) : (
                   <div className="h-full flex flex-col items-center justify-center py-24">
@@ -595,8 +671,8 @@ export default function ProjectWorkspace() {
                     <h3 className="text-lg font-medium text-foreground mb-2">Document not ready</h3>
                     <p className="text-sm text-muted-foreground max-w-md text-center">
                       {project.status === "draft"
-                        ? "Click Begin Analysis to start the AI writing process."
-                        : "The AI is working on your document. Check back soon."}
+                        ? "Klik Mulai Analisis untuk memulai proses penulisan oleh Teora."
+                        : "Teora sedang menyusun dokumen Anda. Cek lagi sebentar."}
                     </p>
                   </div>
                 )}
@@ -605,11 +681,41 @@ export default function ProjectWorkspace() {
                 <CardFooter className="px-8 pb-6 pt-0 border-t border-border/50">
                   <div className="flex items-center gap-2 text-xs text-muted-foreground opacity-60">
                     <Badge variant="info" className="text-[10px]">AI-assisted</Badge>
-                    <span>Dokumen ini dihasilkan dengan bantuan AI. Mohon tinjau dan sunting sesuai kebutuhan.</span>
+                    <span>Dokumen ini dihasilkan dengan bantuan Teora. Mohon tinjau dan sunting sesuai kebutuhan.</span>
                   </div>
                 </CardFooter>
               )}
             </Card>
+
+            {/* DECISION 014 Phase 2 — Daftar Pustaka section */}
+            {bibliographyData?.bibliography && (
+              <Card className="bg-card border-none shadow-sm rounded-xl overflow-hidden mt-4">
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <BookMarked className="w-5 h-5 text-primary" />
+                    <CardTitle>Daftar Pustaka</CardTitle>
+                  </div>
+                  <CardDescription>
+                    Format: {bibliographyData.format}
+                    {documentPreview && documentPreview.citationCount > 0 && (
+                      <> · {documentPreview.citationCount} sitasi</>
+                    )}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="prose prose-slate dark:prose-invert max-w-none whitespace-pre-wrap text-sm">
+                  {bibliographyData.bibliography}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* DECISION 014 Phase 2 — Citation action menu (Edit/Reposition/Hapus) */}
+            {activeCitationId !== null && (
+              <CitationMarkerMenu
+                projectId={projectId}
+                citationId={activeCitationId}
+                onClose={() => setActiveCitationId(null)}
+              />
+            )}
           </TabsContent>
 
           <TabsContent value="outline" className="m-0 focus-visible:outline-none">
@@ -621,8 +727,14 @@ export default function ProjectWorkspace() {
           </TabsContent>
 
           <TabsContent value="references" className="m-0">
-            <ReferencesTab projectId={projectId} />
+            <ReferencesTab projectId={projectId} citationFormat={project.citationFormat ?? null} />
           </TabsContent>
+
+          {project.outputFormat === "pptx" && (
+            <TabsContent value="ppt" className="m-0">
+              <PptTab projectId={projectId} projectTitle={project.title} />
+            </TabsContent>
+          )}
 
           <TabsContent value="attachments" className="m-0">
             <AttachmentsTab projectId={projectId} />
@@ -649,7 +761,7 @@ export default function ProjectWorkspace() {
   )
 }
 
-// ── Quiz Tab ─────────────────────────────────────────────────────────────────
+// - Quiz Tab -
 
 function QuizTab({ projectId }: { projectId: number }) {
   const { toast } = useToast()
@@ -721,8 +833,18 @@ function QuizTab({ projectId }: { projectId: number }) {
   const handleSelectQuiz = async (quiz: Quiz) => {
     setSelectedQuiz(quiz)
     setAnswers({})
-    const full = await fetch(`/api/projects/${projectId}/quizzes/${quiz.id}`).then(r => r.json()).catch(() => quiz)
-    setSelectedQuiz(full)
+    try {
+      const response = await fetch(`/api/projects/${projectId}/quizzes/${quiz.id}`)
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      const full = await response.json()
+      setSelectedQuiz(full)
+    } catch {
+      toast({
+        title: "Data quiz tidak terbaru",
+        description: "Tidak dapat memuat data terbaru. Menampilkan data tersimpan.",
+        variant: "destructive",
+      })
+    }
   }
 
   const questions = (selectedQuiz?.questions as unknown as QuizQuestion[]) ?? []
@@ -746,7 +868,7 @@ function QuizTab({ projectId }: { projectId: number }) {
         <Dialog open={showGenerate} onOpenChange={setShowGenerate}>
           <DialogContent className="max-w-lg">
             <DialogHeader>
-              <DialogTitle>Generate Kuis dengan AI</DialogTitle>
+              <DialogTitle>Generate Kuis dengan Teora</DialogTitle>
               <DialogDescription>Teora akan membuat soal kuis berdasarkan topik yang Anda berikan.</DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
@@ -790,7 +912,7 @@ function QuizTab({ projectId }: { projectId: number }) {
                 </Select>
               </div>
               <div>
-                <Label>AI Tier</Label>
+                <Label>Tier Teora</Label>
                 <TierSelector value={quizTierId} onChange={setQuizTierId} />
               </div>
             </div>
@@ -918,7 +1040,7 @@ function QuizTab({ projectId }: { projectId: number }) {
   )
 }
 
-// ── Comments Tab ──────────────────────────────────────────────────────────────
+// - Comments Tab -
 
 function CommentsTab({ projectId, selectedDocId }: { projectId: number; selectedDocId: number | null }) {
   const { toast } = useToast()
@@ -1172,7 +1294,7 @@ function OutlineTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosu
         <div className="flex items-center justify-between gap-3">
           <div>
             <CardTitle className="font-serif text-lg">Document Outline</CardTitle>
-            <CardDescription>Struktur dokumen — bab dan sub-bab.</CardDescription>
+            <CardDescription>Struktur dokumen: bab dan sub-bab.</CardDescription>
           </div>
           <div className="flex items-center gap-2 flex-wrap justify-end">
             <TierSelector value={outlineTierId} onChange={setOutlineTierId} compact minimal />
@@ -1251,7 +1373,7 @@ function OutlineTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosu
         <CardFooter className="border-t px-6 py-3">
           <div className="flex items-center gap-2 text-xs text-muted-foreground opacity-60">
             <Badge variant="info" className="text-[10px]">AI-assisted</Badge>
-            <span>Outline dihasilkan dengan bantuan AI. Mohon tinjau dan sesuaikan.</span>
+            <span>Outline dihasilkan dengan bantuan Teora. Mohon tinjau dan sesuaikan.</span>
           </div>
         </CardFooter>
       )}
@@ -1322,7 +1444,7 @@ function ChatTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosure:
             tierId: selectedTierId || undefined,
           })
           setInsufficientBalanceOpen(true)
-          // Don't restore content for 402 — user needs to topup, retry is automatic after
+          // Don't restore content for 402: user needs to topup, retry is automatic after
           return
         }
 
@@ -1353,7 +1475,7 @@ function ChatTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosure:
             </EmptyMedia>
             <h3 className="text-lg font-medium text-foreground mb-2">Start the conversation</h3>
             <p className="text-sm text-muted-foreground max-w-md mb-6">
-              Ask the AI to revise sections, clarify concepts, add citations, or help with research.
+              Minta Teora merevisi bagian, memperjelas konsep, menambah sitasi, atau membantu riset.
             </p>
             <div className="flex flex-wrap gap-2 justify-center">
               <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-secondary/80" onClick={() => setMode("revise")}>Revise introduction</Badge>
@@ -1471,7 +1593,7 @@ function ChatTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosure:
                   </span>
                 ) : (
                   <span>
-                    ~{selectedTier.priceDisplay ?? "—"}/1M tokens
+                    ~{selectedTier.priceDisplay ?? ":"}/1M tokens
                   </span>
                 )}
               </span>
@@ -1508,12 +1630,17 @@ function ChatTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosure:
   )
 }
 
-function ReferencesTab({ projectId }: { projectId: number }) {
+function ReferencesTab({ projectId, citationFormat }: { projectId: number; citationFormat: ProjectCitationFormat }) {
   const { data: references, isLoading } = useListReferences(projectId)
+  const { data: citations } = useListCitations(projectId)
   const createRef = useCreateReference()
   const deleteRef = useDeleteReference()
   const regenBib = useRegenerateBibliography()
   const fetchMeta = useFetchReferenceMetadata()
+  const toggleSelect = useToggleReferenceSelection()
+  const autoCite = useAutoCiteReferences()
+  const setFormat = useSetProjectCitationFormat()
+  const createCitation = useCreateCitation()
   const searchCrossRef = useSearchReferences(
     { q: searchQuery },
     { query: { enabled: false } }
@@ -1532,6 +1659,19 @@ function ReferencesTab({ projectId }: { projectId: number }) {
     title: "", authors: "", year: "", journal: "", volume: "", issue: "", doi: ""
   })
   const [addedDois, setAddedDois] = useState<Set<string>>(new Set())
+
+  // DECISION 014 — Auto-Cite state
+  const [autoCiteOpen, setAutoCiteOpen] = useState(false)
+  const [autoCiteTierId, setAutoCiteTierId] = useState<string>("")
+  const [suggestions, setSuggestions] = useState<Array<{
+    referenceId: number
+    paragraphIndex: number
+    offsetInParagraph: number
+    formatMarker: string
+    placementReason: string
+  }> | null>(null)
+
+  const selectedRefCount = references?.filter(r => r.isSelected).length ?? 0
 
   const handleLookup = () => {
     if (!lookupId.trim()) return
@@ -1605,8 +1745,106 @@ function ReferencesTab({ projectId }: { projectId: number }) {
         if (insufficientBalance.handleError(err)) return
         toast({ title: "Bibliography regeneration failed", description: String(err), variant: "destructive" })
       },
-      onSuccess: () => toast({ title: "Bibliography regenerated" })
+      onSuccess: () => toast({ title: "Berhasil", description: "Daftar pustaka berhasil diperbarui." })
     })
+  }
+
+  // DECISION 014 — Toggle ceklist status of a single reference
+  const handleToggleSelect = (referenceId: number, isSelected: boolean) => {
+    toggleSelect.mutate(
+      { projectId, referenceId, data: { isSelected } },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: getListReferencesQueryKey(projectId) })
+        },
+        onError: (err) => toast({ title: "Gagal mengubah ceklist", description: String(err), variant: "destructive" }),
+      }
+    )
+  }
+
+  // DECISION 014 — Update project's citation format (triggers re-render of all markers)
+  const handleFormatChange = (format: NonNullable<ProjectCitationFormat>) => {
+    setFormat.mutate(
+      { projectId, data: { citationFormat: format } },
+      {
+        onSuccess: () => {
+          toast({ title: `Format diubah ke ${format}` })
+          queryClient.invalidateQueries({ queryKey: getGetProjectQueryKey(projectId) })
+          queryClient.invalidateQueries({ queryKey: getListCitationsQueryKey(projectId) })
+        },
+        onError: (err) => toast({ title: "Gagal mengubah format", description: String(err), variant: "destructive" }),
+      }
+    )
+  }
+
+  // DECISION 014 — Run AI auto-cite (returns suggestions, no persistence until user clicks Apply)
+  const handleRunAutoCite = () => {
+    const selectedIds = (references ?? [])
+      .filter((r) => r.isSelected)
+      .map((r) => r.id)
+    if (selectedIds.length === 0) {
+      toast({
+        variant: "destructive",
+        title: "Pilih minimal 1 referensi",
+        description: "Centang referensi di tabel yang mau di-auto-cite.",
+      })
+      return
+    }
+    autoCite.mutate(
+      {
+        projectId,
+        data: {
+          referenceIds: selectedIds,
+          tier: (autoCiteTierId || undefined) as "low" | "mid" | "high" | undefined,
+          maxCitationsPerReference: 3,
+        },
+      },
+      {
+        onSuccess: (data) => {
+          setSuggestions(data.suggestions)
+        },
+        onError: (err) => {
+          if (insufficientBalance.handleError(err)) return
+          toast({ title: "Auto-cite gagal", description: String(err), variant: "destructive" })
+        },
+      }
+    )
+  }
+
+  // DECISION 014 — Apply all accepted suggestions (bulk create)
+  const handleApplySuggestions = async () => {
+    if (!suggestions || suggestions.length === 0) return
+    let successCount = 0
+    let firstError: string | null = null
+    for (const s of suggestions) {
+      try {
+        await createCitation.mutateAsync({
+          projectId,
+          data: {
+            referenceId: s.referenceId,
+            paragraphIndex: s.paragraphIndex,
+            offsetInParagraph: s.offsetInParagraph,
+            formatMarker: s.formatMarker,
+            placementReason: s.placementReason,
+          },
+        })
+        successCount++
+      } catch (err) {
+        if (!firstError) firstError = err instanceof Error ? err.message : String(err)
+      }
+    }
+    if (successCount === suggestions.length) {
+      toast({ title: "Saran diterapkan", description: `${successCount} sitasi berhasil ditambahkan` })
+    } else {
+      toast({
+        title: `${successCount}/${suggestions.length} sitasi diterapkan`,
+        description: firstError ?? "Sebagian saran gagal disimpan",
+        variant: "destructive",
+      })
+    }
+    setSuggestions(null)
+    setAutoCiteOpen(false)
+    queryClient.invalidateQueries({ queryKey: getListCitationsQueryKey(projectId) })
   }
 
   const handleSearch = (e: React.FormEvent) => {
@@ -1654,7 +1892,34 @@ function ReferencesTab({ projectId }: { projectId: number }) {
           <h2 className="text-xl font-serif font-semibold">References Database</h2>
           <p className="text-sm text-muted-foreground">Manage scholarly sources used in your project.</p>
         </div>
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-2 items-center flex-wrap justify-end">
+          {/* DECISION 014 — Citation format selector */}
+          <Select
+            value={citationFormat ?? "APA"}
+            onValueChange={(v) => handleFormatChange(v as NonNullable<ProjectCitationFormat>)}
+            disabled={setFormat.isPending}
+          >
+            <SelectTrigger className="w-44" aria-label="Format sitasi">
+              <SelectValue placeholder="Format sitasi" />
+            </SelectTrigger>
+            <SelectContent>
+              {CITATION_FORMAT_OPTIONS.map(f => (
+                <SelectItem key={f.value} value={f.value}>
+                  <span className="font-medium">{f.label}</span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {/* DECISION 014 — Auto-Cite button */}
+          <Button
+            variant="default"
+            onClick={() => setAutoCiteOpen(true)}
+            disabled={selectedRefCount === 0}
+            title={selectedRefCount === 0 ? "Ceklist minimal satu referensi dulu" : "Analisis dokumen dengan Teora"}
+          >
+            <Sparkles className="w-4 h-4 mr-2" />
+            Auto-Cite
+          </Button>
           <TierSelector value={bibTierId} onChange={setBibTierId} compact minimal />
           <Button variant="outline" onClick={handleRegen} disabled={regenBib.isPending}>
             <RefreshCw className={cn("w-4 h-4 mr-2", regenBib.isPending && "animate-spin")} />
@@ -1817,7 +2082,7 @@ function ReferencesTab({ projectId }: { projectId: number }) {
                     <p className="text-xs text-muted-foreground mt-1">
                       {result.authors}
                       {result.year ? ` (${result.year})` : ''}
-                      {result.journal ? ` — ${result.journal}` : ''}
+                      {result.journal ? `: ${result.journal}` : ''}
                       {result.volume ? `, Vol. ${result.volume}` : ''}
                       {result.issue ? `(${result.issue})` : ''}
                       {result.page ? `, pp. ${result.page}` : ''}
@@ -1870,7 +2135,8 @@ function ReferencesTab({ projectId }: { projectId: number }) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Status</TableHead>
+              <TableHead className="w-12">Ceklist</TableHead>
+              <TableHead className="w-12">Status</TableHead>
               <TableHead className="w-[40%]">Source</TableHead>
               <TableHead>Year</TableHead>
               <TableHead>Used In</TableHead>
@@ -1879,10 +2145,10 @@ function ReferencesTab({ projectId }: { projectId: number }) {
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              <TableRow><TableCell colSpan={5} className="text-center py-8"><Loader2 className="w-6 h-6 animate-spin mx-auto text-muted-foreground" /></TableCell></TableRow>
+              <TableRow><TableCell colSpan={6} className="text-center py-8"><Loader2 className="w-6 h-6 animate-spin mx-auto text-muted-foreground" /></TableCell></TableRow>
             ) : references?.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-16">
+                <TableCell colSpan={6} className="text-center py-16">
                   <div className="flex flex-col items-center">
                     <EmptyMedia illustration="book" className="size-16 mb-4">
                       <EmptyIllustrationBook />
@@ -1893,7 +2159,16 @@ function ReferencesTab({ projectId }: { projectId: number }) {
                 </TableCell>
               </TableRow>
             ) : references?.map(ref => (
-              <TableRow key={ref.id}>
+              <TableRow key={ref.id} className={ref.isSelected ? "bg-primary/5" : undefined}>
+                <TableCell>
+                  <Checkbox
+                    checked={ref.isSelected ?? false}
+                    onCheckedChange={(checked) => handleToggleSelect(ref.id, !!checked)}
+                    disabled={toggleSelect.isPending}
+                    aria-label={`Ceklist ${ref.title}`}
+                    title="Centang untuk masukkan ke daftar pustaka dan Auto-Cite"
+                  />
+                </TableCell>
                 <TableCell>
                   {ref.validationStatus === 'verified' && <CheckCircle2 className="w-5 h-5 text-emerald-500" />}
                   {ref.validationStatus === 'unverified' && <AlertCircle className="w-5 h-5 text-amber-500" />}
@@ -1922,7 +2197,120 @@ function ReferencesTab({ projectId }: { projectId: number }) {
           </TableBody>
         </Table>
       </Card>
+
+      {/* Existing citations (read-only summary for Phase 1) */}
+      {citations && citations.length > 0 && (
+        <Card className="bg-muted/30 border-border/60">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-primary" />
+              {citations.length} Citation Marker Aktif
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Marker yang sudah dibuat akan dirender di preview saat dokumen siap.
+              Geser/hapus manual menyusul di Phase 2.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-1 text-xs">
+            {citations.slice(0, 5).map((c, i) => {
+              const ref = references?.find(r => r.id === c.referenceId)
+              return (
+                <div key={i} className="flex items-center gap-2 text-muted-foreground">
+                  <code className="bg-background px-1.5 py-0.5 rounded text-primary font-mono text-[11px]">{c.formatMarker}</code>
+                  <span className="truncate">- {ref?.title ?? `Ref #${c.referenceId}`}</span>
+                  <span className="ml-auto text-[10px]">¶{c.paragraphIndex + 1}</span>
+                </div>
+              )
+            })}
+            {citations.length > 5 && (
+              <p className="text-[10px] text-muted-foreground pt-1">+{citations.length - 5} lainnya</p>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       <insufficientBalance.InsufficientBalanceDialog {...insufficientBalance.dialogProps} />
+
+      {/* DECISION 014 — Auto-Cite Dialog */}
+      <Dialog open={autoCiteOpen} onOpenChange={(o) => {
+        setAutoCiteOpen(o)
+        if (!o) setSuggestions(null)
+      }}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Auto-Cite dengan Teora</DialogTitle>
+            <DialogDescription>
+              Teora akan menganalisis dokumen dan merekomendasikan posisi sitasi untuk {selectedRefCount} referensi yang Anda ceklist.
+            </DialogDescription>
+          </DialogHeader>
+
+          {suggestions === null ? (
+            <div className="space-y-4 py-2">
+              <div>
+                <Label className="text-sm font-medium">Tier Teora</Label>
+                <div className="mt-2">
+                  <TierSelector value={autoCiteTierId} onChange={setAutoCiteTierId} compact />
+                </div>
+              </div>
+              <div className="bg-muted/30 rounded-lg p-3 text-sm space-y-2">
+                <p className="font-medium">Catatan:</p>
+                <ul className="list-disc list-inside text-muted-foreground text-xs space-y-0.5">
+                  <li>Hanya referensi yang Anda <strong>ceklist</strong> akan dianalisis</li>
+                  <li>Maksimal 3 posisi sitasi per referensi</li>
+                  <li>Saran ditampilkan untuk review, klik "Terapkan" untuk simpan</li>
+                </ul>
+              </div>
+              {selectedRefCount === 0 && (
+                <p className="text-sm text-destructive">Ceklist minimal satu referensi di tabel terlebih dahulu.</p>
+              )}
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setAutoCiteOpen(false)}>Batal</Button>
+                <Button onClick={handleRunAutoCite} disabled={autoCite.isPending || selectedRefCount === 0}>
+                  {autoCite.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
+                  Analisis
+                </Button>
+              </DialogFooter>
+            </div>
+          ) : (
+            <div className="space-y-4 py-2">
+              <div className="bg-primary/10 rounded-lg p-3 text-sm">
+                {suggestions.length} saran sitasi dari Teora, review lalu klik "Terapkan" untuk menyimpan.
+              </div>
+              <div className="space-y-2 max-h-[50vh] overflow-y-auto">
+                {suggestions.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    Tidak ada saran. Coba ceklist lebih banyak referensi.
+                  </p>
+                ) : (
+                  suggestions.map((s, i) => {
+                    const ref = references?.find(r => r.id === s.referenceId)
+                    return (
+                      <Card key={i} className="p-3 bg-muted/20 border-border/50">
+                        <div className="text-sm font-medium leading-snug">{ref?.title ?? `Ref #${s.referenceId}`}</div>
+                        <div className="text-xs text-muted-foreground mt-1.5 flex items-center gap-2">
+                          <span>Paragraf {s.paragraphIndex + 1}, offset {s.offsetInParagraph}</span>
+                          <span>→</span>
+                          <code className="bg-background px-1.5 py-0.5 rounded text-primary font-mono text-[11px]">{s.formatMarker}</code>
+                        </div>
+                        {s.placementReason && (
+                          <p className="text-xs mt-1.5 italic text-muted-foreground">"{s.placementReason}"</p>
+                        )}
+                      </Card>
+                    )
+                  })
+                )}
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setSuggestions(null)}>Atur Ulang</Button>
+                <Button onClick={handleApplySuggestions} disabled={createCitation.isPending || suggestions.length === 0}>
+                  {createCitation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
+                  Terapkan Semua ({suggestions.length})
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
@@ -1991,7 +2379,7 @@ function AttachmentsTab({ projectId }: { projectId: number }) {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Upload Attachment</DialogTitle>
-              <DialogDescription>Attach materials for the AI to analyze.</DialogDescription>
+              <DialogDescription>Lampirkan materi untuk dianalisis Teora.</DialogDescription>
             </DialogHeader>
             <form onSubmit={handleUpload} className="space-y-4">
               <div className="space-y-2">
@@ -2029,7 +2417,7 @@ function AttachmentsTab({ projectId }: { projectId: number }) {
               <EmptyIllustrationAttachment />
             </EmptyMedia>
             <p className="text-sm font-medium text-foreground mb-1">No attachments yet</p>
-            <p className="text-xs text-muted-foreground mb-4">Upload PDFs, rubrics, or notes for the AI to analyze</p>
+            <p className="text-xs text-muted-foreground mb-4">Upload PDF, rubrik, atau catatan untuk dianalisis Teora</p>
             <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
               <Upload className="w-4 h-4 mr-2" />
               Upload File
@@ -2121,7 +2509,7 @@ function HistoryTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosu
                       {aiDisclosure && (
                         <div className="flex items-center gap-2 px-1 py-2 border-t text-xs text-muted-foreground opacity-60">
                           <Badge variant="info" className="text-[10px]">AI-assisted</Badge>
-                          <span>Dokumen ini dihasilkan dengan bantuan AI.</span>
+                          <span>Dokumen ini dihasilkan dengan bantuan Teora.</span>
                         </div>
                       )}
                     </DialogContent>
@@ -2143,7 +2531,7 @@ function TimelineTab({ projectId }: { projectId: number }) {
     <div className="space-y-6 max-w-3xl">
       <div>
         <h2 className="text-xl font-serif font-semibold">Activity Timeline</h2>
-        <p className="text-sm text-muted-foreground">Track the AI's progress and your interactions.</p>
+        <p className="text-sm text-muted-foreground">Lacak progres dan interaksi Anda dengan Teora.</p>
       </div>
 
       <div className="grid grid-cols-3 gap-4">
@@ -2228,7 +2616,7 @@ function TimelineTab({ projectId }: { projectId: number }) {
   );
 }
 
-// ── Share Button ─────────────────────────────────────────────────────────────
+// - Share Button -
 
 function ShareButton({ projectId }: { projectId: number }) {
   const { toast } = useToast()
@@ -2408,10 +2796,10 @@ function ShareButton({ projectId }: { projectId: number }) {
 
 function ExportButton({ projectId, projectTitle }: { projectId: number; projectTitle: string }) {
   const [open, setOpen] = useState(false)
-  const [loading, setLoading] = useState<"docx" | "pdf" | null>(null)
+  const [loading, setLoading] = useState<"docx" | "pdf" | "pptx" | null>(null)
   const { toast } = useToast()
 
-  const handleDownload = async (format: "docx" | "pdf") => {
+  const handleDownload = async (format: "docx" | "pdf" | "pptx") => {
     setLoading(format)
     try {
       const baseUrl = (import.meta as unknown as Record<string, Record<string, string>>).env?.VITE_API_URL ?? ""
@@ -2429,7 +2817,7 @@ function ExportButton({ projectId, projectTitle }: { projectId: number; projectT
       URL.revokeObjectURL(blobUrl)
       setOpen(false)
       toast({ title: `Download ${format.toUpperCase()} berhasil` })
-    } catch (err) {
+    } catch {
       toast({ title: `Gagal mengunduh ${format.toUpperCase()}`, variant: "destructive" })
     } finally {
       setLoading(null)
@@ -2448,7 +2836,7 @@ function ExportButton({ projectId, projectTitle }: { projectId: number; projectT
         <DialogHeader>
           <DialogTitle>Export Dokumen</DialogTitle>
           <DialogDescription>
-            Unduh dokumen project sebagai file Word (DOCX) atau PDF.
+            Unduh dokumen project sebagai file Word, PDF, atau Slide PowerPoint.
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-3 pt-2">
@@ -2476,8 +2864,194 @@ function ExportButton({ projectId, projectTitle }: { projectId: number; projectT
             )}
             Download PDF
           </Button>
+          <Button
+            onClick={() => handleDownload("pptx")}
+            disabled={loading !== null}
+          >
+            {loading === "pptx" ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Presentation className="w-4 h-4 mr-2" />
+            )}
+            Download PPTX (Slide)
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
+  )
+}
+
+// ─── PPT Tab ───────────────────────────────────────────────────────────────────
+
+interface PptTabProps {
+  projectId: number
+  projectTitle: string
+}
+
+function PptTab({ projectId, projectTitle }: PptTabProps) {
+  const { data: documents } = useListDocuments(projectId)
+  const [previewOpen, setPreviewOpen] = useState(false)
+
+  const latestVersion = documents?.[0]?.versions?.[0]
+  const outline = latestVersion?.outline ?? latestVersion?.content ?? null
+
+  const slides = useMemo(() => {
+    if (!outline) return []
+    const lines = outline.split("\n").map((l) => l.trim()).filter(Boolean)
+    const result: { title: string; level: number }[] = []
+
+    for (const line of lines) {
+      const h1 = line.match(/^#\s+(.+)/)
+      const h2 = line.match(/^##\s+(.+)/)
+      const bold = line.match(/^\*\*(.+)\*\*$/)
+      const dash = line.match(/^[-*]\s+(.+)/)
+      const num = line.match(/^\d+(?:\.\d+)*[\.)]\s+(.+)/)
+
+      const title = h1?.[1] ?? h2?.[1] ?? bold?.[1] ?? dash?.[1] ?? num?.[1]
+      const level = h1 ? 1 : h2 ? 2 : 3
+
+      if (title) {
+        result.push({ title, level })
+      }
+    }
+    return result
+  }, [outline])
+
+  const handleDownload = async () => {
+    try {
+      const baseUrl = (import.meta as unknown as Record<string, Record<string, string>>).env?.VITE_API_URL ?? ""
+      const response = await fetch(`${baseUrl}/projects/${projectId}/export/pptx`, {
+        credentials: "include",
+      })
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `${projectTitle.replace(/[^a-zA-Z0-9_-]/g, "_")}.pptx`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch {
+      // silent
+    }
+  }
+
+  const previewHtml = useMemo(() => {
+    if (slides.length === 0) return ""
+    const titleSlide = `<section data-background-color="#1a3a5c"><h1>${projectTitle}</h1><p>Dibuat dengan Teora AI</p></section>`
+    const contentSlides = slides
+      .map(
+        (s: { title: string; level: number }, i: number) =>
+          `<section><h${Math.min(s.level + 1, 4)}>${i + 1}. ${s.title}</h${Math.min(s.level + 1, 4)}></section>`
+      )
+      .join("\n")
+
+    return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/black.min.css">
+<style>
+.reveal { height: 100vh; }
+.reveal .slides section { text-align: left; padding: 40px; }
+.reveal h1 { font-size: 1.8em; color: #fff; }
+.reveal h2 { font-size: 1.4em; }
+.reveal h3 { font-size: 1.2em; }
+.reveal p { font-size: 0.8em; color: #cbd5e1; }
+.reveal [data-background-color="#1a3a5c"] { display: flex; align-items: center; justify-content: center; flex-direction: column; }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+${titleSlide}
+${contentSlides}
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.min.js"></script>
+<script>Reveal.initialize({ controls: true, progress: true, center: false });</script>
+</body>
+</html>`
+  }, [slides, projectTitle])
+
+  if (slides.length === 0) {
+    return (
+      <Card className="bg-card border-none shadow-sm rounded-xl">
+        <CardContent className="p-8 text-center space-y-4">
+          <Presentation className="w-12 h-12 mx-auto text-muted-foreground/40" />
+          <div>
+            <h3 className="text-lg font-semibold mb-2">Belum ada outline slide</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Buka tab <strong>Outline</strong> untuk membuat kerangka slide, atau minta AI
+              melalui <strong>Chat AI</strong> untuk generate outline.
+            </p>
+            <Button variant="outline" size="sm" onClick={handleDownload}>
+              <Download className="w-4 h-4 mr-2" />
+              Download PPTX Kosong
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold">Slide Presentasi</h2>
+          <p className="text-sm text-muted-foreground">
+            {slides.length} slide · {projectTitle}
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => setPreviewOpen(true)}>
+            <Presentation className="w-4 h-4 mr-2" />
+            Preview
+          </Button>
+          <Button size="sm" onClick={handleDownload}>
+            <Download className="w-4 h-4 mr-2" />
+            Download PPTX
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {slides.map((slide, i) => (
+          <Card key={i} className="bg-card">
+            <CardHeader className="p-3 pb-1">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-muted-foreground">
+                  Slide {i + 1}
+                </span>
+                <span
+                  className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground"
+                  style={{ fontSize: 10 }}
+                >
+                  H{slide.level}
+                </span>
+              </div>
+            </CardHeader>
+            <CardContent className="p-3 pt-1">
+              <p className="text-sm font-medium leading-snug line-clamp-3">{slide.title}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="max-w-5xl w-[95vw] h-[85vh] p-0 overflow-hidden">
+          <iframe
+            srcDoc={previewHtml}
+            className="w-full h-full border-0"
+            title="Slide Preview"
+            sandbox="allow-scripts"
+          />
+        </DialogContent>
+      </Dialog>
+    </div>
   )
 }

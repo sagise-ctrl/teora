@@ -93,7 +93,7 @@ export default function Dashboard() {
   })
 
   const projectList = Array.isArray(projects) ? projects : []
-  const displayName = user?.displayName || "User"
+  const displayName = user?.displayName || "Anda"
   const firstName = displayName.split(" ")[0]
 
   return (
@@ -108,7 +108,7 @@ export default function Dashboard() {
         </p>
       </div>
 
-      {/* AI Assistant Shortcut */}
+      {/* Teora Assistant Shortcut */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -124,7 +124,7 @@ export default function Dashboard() {
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <Sparkles className="w-5 h-5 text-[#2D79FF]" />
-                  <h2 className="text-xl font-serif font-bold tracking-tight">AI Assistant</h2>
+                  <h2 className="text-xl font-serif font-bold tracking-tight">Teora Assistant</h2>
                 </div>
                 <p className="text-sm text-muted-foreground">
                   Tanya apa saja tentang tugas, referensi, atau penulisan akademik
@@ -142,7 +142,12 @@ export default function Dashboard() {
       {/* Your Tasks */}
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
-          <h2 className="text-xl font-serif font-semibold self-start sm:self-auto">Your Tasks</h2>
+          <div className="flex items-center gap-3 self-start sm:self-auto">
+            <h2 className="text-xl font-serif font-semibold">Your Tasks</h2>
+            <Link href="/projects">
+              <span className="text-xs text-primary hover:underline cursor-pointer">Lihat semua →</span>
+            </Link>
+          </div>
           <div className="flex items-center gap-3 self-start sm:self-auto w-full sm:w-auto">
             <div className="relative flex-1 sm:flex-initial sm:w-72">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />

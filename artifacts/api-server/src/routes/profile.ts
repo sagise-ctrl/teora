@@ -13,6 +13,10 @@ const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const updateProfileSchema = z.object({
   displayName: z.string().min(1).max(100).optional(),
   avatarUrl: z.string().url().optional(),
+  username: z
+    .string()
+    .regex(/^[a-zA-Z0-9_]{3,30}$/, "Username must be 3-30 characters, letters, numbers, and underscores only")
+    .optional(),
 });
 
 const avatarUploadSchema = z.object({
@@ -28,10 +32,12 @@ function toProfileJson(user: typeof usersTable.$inferSelect) {
   return {
     id: user.id,
     email: user.email,
+    username: user.username,
     displayName: user.displayName,
     avatarUrl: user.avatarUrl,
     isOwner: user.isOwner,
     referralCode: user.referralCode,
+    usernameChangedAt: user.usernameChangedAt,
     createdAt: user.createdAt,
   };
 }
@@ -69,8 +75,8 @@ router.patch("/users/me/profile", async (req, res): Promise<void> => {
     return;
   }
 
-  const { displayName, avatarUrl } = parsed.data;
-  if (!displayName && avatarUrl === undefined) {
+  const { displayName, avatarUrl, username } = parsed.data;
+  if (!displayName && avatarUrl === undefined && username === undefined) {
     res.status(400).json({ error: "No fields to update" });
     return;
   }
@@ -82,10 +88,42 @@ router.patch("/users/me/profile", async (req, res): Promise<void> => {
   if (avatarUrl !== undefined) {
     updates.avatarUrl = avatarUrl || null;
   }
+  if (username !== undefined) {
+    const normalizedUsername = username.trim().toLowerCase();
+
+    // Rate limit: check 30-day rolling window
+    const [currentUser] = await db
+      .select({ usernameChangedAt: usersTable.usernameChangedAt })
+      .from(usersTable)
+      .where(eq(usersTable.id, req.user.id));
+
+    const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
+    if (currentUser?.usernameChangedAt) {
+      const diff = Date.now() - new Date(currentUser.usernameChangedAt).getTime();
+      if (diff < thirtyDaysMs) {
+        const daysLeft = Math.ceil((thirtyDaysMs - diff) / (24 * 60 * 60 * 1000));
+        res.status(429).json({
+          error: `Username hanya bisa diganti setiap 30 hari. Masih ada ${daysLeft} hari lagi.`,
+        });
+        return;
+      }
+    }
+
+    // Check uniqueness
+    const [existing] = await db
+      .select({ id: usersTable.id })
+      .from(usersTable)
+      .where(eq(usersTable.username, normalizedUsername));
+    if (existing && existing.id !== req.user.id) {
+      res.status(400).json({ error: "Username already taken" });
+      return;
+    }
+    updates.username = normalizedUsername;
+  }
 
   const [updated] = await db
     .update(usersTable)
-    .set({ ...updates, updatedAt: new Date() })
+    .set({ ...updates, updatedAt: new Date(), ...(updates.username ? { usernameChangedAt: new Date() } : {}) })
     .where(eq(usersTable.id, req.user.id))
     .returning();
 

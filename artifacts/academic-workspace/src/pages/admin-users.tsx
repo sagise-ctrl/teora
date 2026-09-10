@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import AdminLayout from "@/components/admin-layout";
 import { customFetch } from "@/lib/api-client-react";
 import { formatUsd } from "@/lib/admin-utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface AdminUser {
   id: string;
@@ -44,14 +45,20 @@ export default function AdminUsers() {
   const [data, setData] = useState<AdminUserList | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const fetchUsers = () => {
     setLoading(true);
+    setFetchError(null);
     const params = new URLSearchParams({ page: String(page), pageSize: "20" });
     if (search) params.set("search", search);
     customFetch<AdminUserList>(`/api/admin/users?${params}`)
       .then(setData)
-      .catch(() => setData(null))
+      .catch((err) => {
+        setFetchError(String(err));
+        setData(null);
+      })
       .finally(() => setLoading(false));
   };
 
@@ -70,9 +77,10 @@ export default function AdminUsers() {
         method: "POST",
         body: JSON.stringify({ tier }),
       });
+      toast({ title: "Berhasil", description: `Tier pengguna diubah ke ${tier}.` });
       fetchUsers();
-    } catch {
-      // silently fail
+    } catch (err) {
+      toast({ title: "Gagal", description: String(err), variant: "destructive" });
     } finally {
       setActionLoading(null);
     }
@@ -85,9 +93,10 @@ export default function AdminUsers() {
         method: "POST",
         body: JSON.stringify({ suspended: suspend }),
       });
+      toast({ title: "Berhasil", description: suspend ? "Pengguna ditangguhkan." : "Pengguna diaktifkan kembali." });
       fetchUsers();
-    } catch {
-      // silently fail
+    } catch (err) {
+      toast({ title: "Gagal", description: String(err), variant: "destructive" });
     } finally {
       setActionLoading(null);
     }
@@ -99,9 +108,9 @@ export default function AdminUsers() {
     <AdminLayout activeTab="/admin/users">
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-serif font-bold tracking-tight">User Management</h1>
+          <h1 className="text-2xl font-serif font-bold tracking-tight">Manajemen Pengguna</h1>
           <p className="text-muted-foreground text-sm mt-0.5">
-            {data ? `${data.total} users` : "Semua user terdaftar"}
+            {data ? `${data.total} pengguna` : "Semua pengguna terdaftar"}
           </p>
         </div>
 
@@ -126,11 +135,11 @@ export default function AdminUsers() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b bg-muted/50">
-                    <th className="text-left px-4 py-3 font-medium text-muted-foreground">User</th>
+                    <th className="text-left px-4 py-3 font-medium text-muted-foreground">Pengguna</th>
                     <th className="text-left px-4 py-3 font-medium text-muted-foreground">Tier</th>
                     <th className="text-left px-4 py-3 font-medium text-muted-foreground">Projects</th>
-                    <th className="text-left px-4 py-3 font-medium text-muted-foreground">AI Requests</th>
-                    <th className="text-left px-4 py-3 font-medium text-muted-foreground">AI Cost</th>
+                    <th className="text-left px-4 py-3 font-medium text-muted-foreground">Permintaan Teora</th>
+                    <th className="text-left px-4 py-3 font-medium text-muted-foreground">Biaya Teora</th>
                     <th className="text-left px-4 py-3 font-medium text-muted-foreground">Status</th>
                     <th className="text-left px-4 py-3 font-medium text-muted-foreground">Actions</th>
                   </tr>
@@ -144,10 +153,17 @@ export default function AdminUsers() {
                         ))}
                       </tr>
                     ))
+                  ) : fetchError ? (
+                    <tr>
+                      <td colSpan={7} className="px-4 py-8 text-center">
+                        <p className="text-destructive font-medium">Gagal memuat data</p>
+                        <p className="text-xs text-muted-foreground mt-1">{fetchError}</p>
+                      </td>
+                    </tr>
                   ) : data?.users.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
-                        Tidak ada user ditemukan
+                        Tidak ada pengguna ditemukan
                       </td>
                     </tr>
                   ) : (
@@ -155,7 +171,7 @@ export default function AdminUsers() {
                       <tr key={user.id} className="border-b hover:bg-muted/30 transition-colors">
                         <td className="px-4 py-3">
                           <div>
-                            <p className="font-medium">{user.displayName ?? "—"}</p>
+                            <p className="font-medium">{user.displayName ?? ":"}</p>
                             <p className="text-xs text-muted-foreground font-mono">{user.email}</p>
                           </div>
                         </td>
@@ -208,7 +224,7 @@ export default function AdminUsers() {
         {totalPages > 1 && (
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              Page {page} of {totalPages} — {data?.total} users
+              Page {page} dari {totalPages}: {data?.total} pengguna
             </p>
             <div className="flex items-center gap-2">
               <Button

@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Teora Design System - Specification</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* Brand Colors */
+      --brand-blue: #2D79FF;
+      --brand-blue-h: 217; --brand-blue-s: 92%; --brand-blue-l: 58%;
+      --brand-purple: #8E54E9;
+      --brand-purple-h: 255; --brand-purple-s: 58%; --brand-purple-l: 60%;
+      --brand-bg: #1a1a2e;
+      --brand-bg-h: 240; --brand-bg-s: 30%; --brand-bg-l: 12%;
+      --brand-surface: #16213e;
+      --brand-surface-2: #0f3460;
+      --brand-border: #2a2a4a;
+
+      /* Text */
+      --text-primary: #e8eaf0;
+      --text-secondary: #9ba3bf;
+      --text-muted: #5a6080;
+
+      /* Semantic */
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --info: #3b82f6;
+
+      /* Fonts */
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-heading: 'Space Grotesk', 'Inter', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+      /* Spacing */
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-5: 1.25rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-10: 2.5rem;
+      --space-12: 3rem;
+      --space-16: 4rem;
+      --space-20: 5rem;
+      --space-24: 6rem;
+
+      /* Radius */
+      --radius-sm: 0.25rem;
+      --radius-md: 0.375rem;
+      --radius-lg: 0.5rem;
+      --radius-xl: 0.75rem;
+      --radius-2xl: 1rem;
+      --radius-full: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.3);
+      --shadow-lg: 0 10px 15px rgba(0,0,0,0.3);
+      --shadow-glow-blue: 0 0 30px rgba(45,121,255,0.3);
+      --shadow-glow-purple: 0 0 30px rgba(142,84,233,0.3);
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--brand-bg);
+      color: var(--text-primary);
+      line-height: 1.6;
+      font-size: 16px;
+    }
+
+    /* Layout */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 var(--space-6);
+    }
+
+    /* Navigation */
+    .toc {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 240px;
+      height: 100vh;
+      background: rgba(26,26,46,0.95);
+      border-right: 1px solid var(--brand-border);
+      padding: var(--space-6);
+      overflow-y: auto;
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+    .toc-logo {
+      font-family: var(--font-heading);
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--brand-blue), var(--brand-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: var(--space-6);
+      padding-bottom: var(--space-4);
+      border-bottom: 1px solid var(--brand-border);
+    }
+    .toc-nav { list-style: none; }
+    .toc-nav li { margin-bottom: var(--space-1); }
+    .toc-nav a {
+      display: block;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.875rem;
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-md);
+      transition: all 0.15s;
+    }
+    .toc-nav a:hover { background: var(--brand-surface); color: var(--text-primary); }
+    .toc-nav a.active { background: var(--brand-blue); color: white; }
+    .toc-section { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin: var(--space-4) 0 var(--space-2); padding-left: var(--space-3); }
+
+    /* Main content */
+    .main { margin-left: 240px; padding: var(--space-12) var(--space-8); }
+
+    /* Sections */
+    .section { margin-bottom: var(--space-20); }
+    .section-title {
+      font-family: var(--font-heading);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: var(--space-2);
+    }
+    .section-desc {
+      color: var(--text-secondary);
+      font-size: 1rem;
+      margin-bottom: var(--space-8);
+      max-width: 600px;
+    }
+    .section-label {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--brand-blue);
+      background: rgba(45,121,255,0.1);
+      border: 1px solid rgba(45,121,255,0.2);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      margin-bottom: var(--space-4);
+    }
+
+    /* Color swatches */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: var(--space-4);
+    }
+    .color-swatch {
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      border: 1px solid var(--brand-border);
+      background: var(--brand-surface);
+    }
+    .color-preview {
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .color-info {
+      padding: var(--space-4);
+    }
+    .color-name {
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      margin-bottom: var(--space-1);
+    }
+    .color-hex {
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-1);
+    }
+    .color-usage {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Typography */
+    .type-sample {
+      padding: var(--space-6);
+      background: var(--brand-surface);
+      border: 1px solid var(--brand-border);
+      border-radius: var(--radius-xl);
+      margin-bottom: var(--space-4);
+    }
+    .type-meta {
+      display: flex;
+      gap: var(--space-4);
+      margin-bottom: var(--space-3);
+    }
+    .type-meta span {
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+    }
+    .type-sample h1 { font-family: var(--font-heading); font-size: 2.5rem; font-weight: 700; line-height: 1.2; color: var(--text-primary); }
+    .type-sample h2 { font-family: var(--font-heading); font-size: 1.875rem; font-weight: 600; line-height: 1.3; color: var(--text-primary); }
+    .type-sample h3 { font-family: var(--font-heading); font-size: 1.375rem; font-weight: 600; line-height: 1.4; color: var(--text-primary); }
+    .type-sample h4 { font-family: var(--font-sans); font-size: 1.125rem; font-weight: 600; color: var(--text-primary); }
+    .type-sample p { font-size: 1rem; color: var(--text-secondary); line-height: 1.7; }
+    .type-sample .caption { font-size: 0.875rem; color: var(--text-muted); }
+    .type-sample .small { font-size: 0.75rem; color: var(--text-muted); }
+    .type-sample code { font-family: var(--font-mono); font-size: 0.875em; background: rgba(45,121,255,0.1); color: var(--brand-blue); padding: 2px 6px; border-radius: 4px; }
+
+    /* Spacing */
+    .spacing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: var(--space-4);
+    }
+    .spacing-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+    .spacing-box {
+      background: linear-gradient(135deg, rgba(45,121,255,0.2), rgba(142,84,233,0.2));
+      border: 1px solid rgba(45,121,255,0.3);
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .spacing-label { font-size: 0.75rem; }
+    .spacing-label strong { display: block; font-family: var(--font-mono); color: var(--text-primary); font-size: 0.8125rem; }
+    .spacing-label span { color: var(--text-muted); }
+
+    /* Buttons */
+    .btn-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+      align-items: center;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-3) var(--space-6);
+      border-radius: var(--radius-lg);
+      font-family: var(--font-sans);
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--brand-blue), var(--brand-purple));
+      color: white;
+      box-shadow: var(--shadow-glow-blue);
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 0 40px rgba(45,121,255,0.4); }
+    .btn-secondary {
+      background: var(--brand-surface);
+      color: var(--text-primary);
+      border: 1px solid var(--brand-border);
+    }
+    .btn-secondary:hover { background: var(--brand-surface-2); border-color: var(--brand-blue); }
+    .btn-ghost { background: transparent; color: var(--text-secondary); }
+    .btn-ghost:hover { background: var(--brand-surface); color: var(--text-primary); }
+    .btn-sm { padding: var(--space-2) var(--space-4); font-size: 0.8125rem; }
+    .btn-lg { padding: var(--space-4) var(--space-8); font-size: 1rem; }
+
+    /* Cards */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--space-4);
+    }
+    .card {
+      background: var(--brand-surface);
+      border: 1px solid var(--brand-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      transition: all 0.2s;
+    }
+    .card:hover { border-color: var(--brand-blue); box-shadow: var(--shadow-glow-blue); transform: translateY(-2px); }
+    .card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, rgba(45,121,255,0.15), rgba(142,84,233,0.15));
+      border: 1px solid rgba(45,121,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: var(--space-4);
+      font-size: 1.5rem;
+    }
+    .card-title { font-weight: 600; font-size: 1rem; margin-bottom: var(--space-2); color: var(--text-primary); }
+    .card-desc { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6; }
+
+    /* Hero Example */
+    .hero-example {
+      background: var(--brand-bg);
+      border: 1px solid var(--brand-border);
+      border-radius: var(--radius-2xl);
+      overflow: hidden;
+      position: relative;
+    }
+    .hero-example-inner {
+      padding: var(--space-16) var(--space-8);
+      text-align: center;
+      position: relative;
+    }
+    .hero-example .badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--brand-blue);
+      background: rgba(45,121,255,0.1);
+      border: 1px solid rgba(45,121,255,0.2);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      margin-bottom: var(--space-4);
+    }
+    .hero-example h1 {
+      font-family: var(--font-heading);
+      font-size: 2.5rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: var(--space-4);
+      background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .hero-example p {
+      color: var(--text-secondary);
+      font-size: 1.125rem;
+      max-width: 600px;
+      margin: 0 auto var(--space-6);
+      line-height: 1.7;
+    }
+    .hero-example .cta { display: flex; gap: var(--space-3); justify-content: center; }
+
+    /* Pricing Card */
+    .pricing-card {
+      background: var(--brand-surface);
+      border: 1px solid var(--brand-border);
+      border-radius: var(--radius-2xl);
+      padding: var(--space-8);
+      position: relative;
+      overflow: hidden;
+    }
+    .pricing-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--brand-blue), var(--brand-purple));
+    }
+    .pricing-card.popular { border-color: var(--brand-blue); box-shadow: var(--shadow-glow-blue); }
+    .pricing-badge {
+      display: inline-block;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--brand-blue);
+      background: rgba(45,121,255,0.1);
+      border: 1px solid rgba(45,121,255,0.2);
+      padding: 2px var(--space-2);
+      border-radius: var(--radius-full);
+      margin-bottom: var(--space-3);
+    }
+    .pricing-name { font-family: var(--font-heading); font-size: 1.5rem; font-weight: 700; margin-bottom: var(--space-2); }
+    .pricing-desc { font-size: 0.875rem; color: var(--text-secondary); margin-bottom: var(--space-4); }
+    .pricing-price { display: flex; align-items: baseline; gap: var(--space-1); margin-bottom: var(--space-4); }
+    .pricing-amount { font-family: var(--font-heading); font-size: 2.5rem; font-weight: 700; }
+    .pricing-period { font-size: 0.875rem; color: var(--text-muted); }
+    .pricing-features { list-style: none; margin-bottom: var(--space-6); }
+    .pricing-features li {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      padding: var(--space-2) 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .pricing-features li::before { content: ''; width: 16px; height: 16px; border-radius: 50%; background: linear-gradient(135deg, var(--brand-blue), var(--brand-purple)); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .pricing-features li::after { content: 'check'; font-size: 0.625rem; color: white; margin-left: -10px; }
+
+    /* Grid System */
+    .grid-demo { margin-top: var(--space-6); }
+    .grid-row { display: flex; gap: var(--space-3); margin-bottom: var(--space-3); }
+    .grid-cell {
+      background: rgba(45,121,255,0.08);
+      border: 1px solid rgba(45,121,255,0.15);
+      border-radius: var(--radius-md);
+      padding: var(--space-3);
+      text-align: center;
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+    }
+    .grid-label { font-size: 0.75rem; color: var(--text-muted); margin-bottom: var(--space-2); font-family: var(--font-mono); }
+
+    /* Badge / Status */
+    .badge-grid { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge-blue { background: rgba(45,121,255,0.15); color: var(--brand-blue); border: 1px solid rgba(45,121,255,0.2); }
+    .badge-purple { background: rgba(142,84,233,0.15); color: var(--brand-purple); border: 1px solid rgba(142,84,233,0.2); }
+    .badge-green { background: rgba(34,197,94,0.15); color: var(--success); border: 1px solid rgba(34,197,94,0.2); }
+    .badge-amber { background: rgba(245,158,11,0.15); color: var(--warning); border: 1px solid rgba(245,158,11,0.2); }
+    .badge-red { background: rgba(239,68,68,0.15); color: var(--error); border: 1px solid rgba(239,68,68,0.2); }
+    .badge-gray { background: rgba(255,255,255,0.05); color: var(--text-secondary); border: 1px solid var(--brand-border); }
+
+    /* Input */
+    .input-demo { display: flex; flex-direction: column; gap: var(--space-4); max-width: 400px; }
+    .input-group label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: var(--space-2); color: var(--text-primary); }
+    .input {
+      width: 100%;
+      padding: var(--space-3) var(--space-4);
+      background: var(--brand-surface);
+      border: 1px solid var(--brand-border);
+      border-radius: var(--radius-lg);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 0.875rem;
+      transition: all 0.15s;
+    }
+    .input:focus { outline: none; border-color: var(--brand-blue); box-shadow: 0 0 0 3px rgba(45,121,255,0.15); }
+    .input::placeholder { color: var(--text-muted); }
+
+    /* Divider */
+    .divider { height: 1px; background: var(--brand-border); margin: var(--space-8) 0; }
+
+    /* Two column layout */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-8); }
+    @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* Code block */
+    .code-block {
+      background: #0a0a1a;
+      border: 1px solid var(--brand-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      overflow-x: auto;
+      line-height: 1.7;
+    }
+    .code-block .k { color: var(--brand-purple); }
+    .code-block .s { color: var(--success); }
+    .code-block .c { color: var(--text-muted); }
+
+    /* Shadow swatches */
+    .shadow-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--space-4); }
+    .shadow-swatch {
+      background: var(--brand-surface);
+      border: 1px solid var(--brand-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      text-align: center;
+    }
+    .shadow-swatch .shadow-preview { height: 60px; margin-bottom: var(--space-3); }
+    .shadow-swatch .shadow-name { font-size: 0.75rem; font-family: var(--font-mono); color: var(--text-muted); }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--brand-bg); }
+    ::-webkit-scrollbar-thumb { background: var(--brand-border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+  </style>
+</head>
+<body>
+
+<!-- Table of Contents -->
+<nav class="toc">
+  <div class="toc-logo">Teora</div>
+  <ul class="toc-nav">
+    <span class="toc-section">Foundation</span>
+    <li><a href="#colors">Colors</a></li>
+    <li><a href="#typography">Typography</a></li>
+    <li><a href="#spacing">Spacing</a></li>
+    <li><a href="#shadows">Shadows</a></li>
+    <li><a href="#radius">Radius</a></li>
+    <span class="toc-section">Components</span>
+    <li><a href="#buttons">Buttons</a></li>
+    <li><a href="#badges">Badges</a></li>
+    <li><a href="#cards">Cards</a></li>
+    <li><a href="#inputs">Inputs</a></li>
+    <span class="toc-section">Patterns</span>
+    <li><a href="#hero">Hero Section</a></li>
+    <li><a href="#pricing">Pricing Card</a></li>
+    <li><a href="#grid">Grid System</a></li>
+  </ul>
+</nav>
+
+<!-- Main Content -->
+<main class="main">
+
+  <!-- Colors -->
+  <section id="colors" class="section">
+    <span class="section-label">Foundation</span>
+    <h2 class="section-title">Color Palette</h2>
+    <p class="section-desc">Teora uses a deep dark foundation with vibrant blue and purple as primary brand colors. The palette balances academic credibility with modern AI energy.</p>
+
+    <div class="color-grid">
+      <div class="color-swatch">
+        <div class="color-preview" style="background:#2D79FF;"></div>
+        <div class="color-info">
+          <div class="color-name">Primary Blue</div>
+          <div class="color-hex">#2D79FF</div>
+          <div class="color-usage">CTAs, links, primary actions</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-preview" style="background:#8E54E9;"></div>
+        <div class="color-info">
+          <div class="color-name">Accent Purple</div>
+          <div class="color-hex">#8E54E9</div>
+          <div class="color-usage">Highlights, secondary actions</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-preview" style="background:linear-gradient(135deg,#2D79FF,#8E54E9);"></div>
+        <div class="color-info">
+          <div class="color-name">Brand Gradient</div>
+          <div class="color-hex">blue to purple</div>
+          <div class="color-usage">Hero backgrounds, glows, gradients</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-preview" style="background:#1a1a2e;"></div>
+        <div class="color-info">
+          <div class="color-name">Background</div>
+          <div class="color-hex">#1a1a2e</div>
+          <div class="color-usage">Page background, dark surfaces</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-preview" style="background:#16213e;"></div>
+        <div class="color-info">
+          <div class="color-name">Surface</div>
+          <div class="color-hex">#16213e</div>
+          <div class="color-usage">Cards, panels, elevated surfaces</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-preview" style="background:#0f3460;"></div>
+        <div class="color-info">
+          <div class="color-name">Surface 2</div>
+          <div class="color-hex">#0f3460</div>
+          <div class="color-usage">Hover states, secondary surfaces</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-preview" style="background:#2a2a4a;"></div>
+        <div class="color-info">
+          <div class="color-name">Border</div>
+          <div class="color-hex">#2a2a4a</div>
+          <div class="color-usage">Dividers, card borders</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-preview" style="background:#e8eaf0;"></div>
+        <div class="color-info">
+          <div class="color-name">Text Primary</div>
+          <div class="color-hex">#e8eaf0</div>
+          <div class="color-usage">Headings, important text</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-preview" style="background:#9ba3bf;"></div>
+        <div class="color-info">
+          <div class="color-name">Text Secondary</div>
+          <div class="color-hex">#9ba3bf</div>
+          <div class="color-usage">Body text, descriptions</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-preview" style="background:#5a6080;"></div>
+        <div class="color-info">
+          <div class="color-name">Text Muted</div>
+          <div class="color-hex">#5a6080</div>
+          <div class="color-usage">Captions, placeholders, disabled</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-preview" style="background:#22c55e;"></div>
+        <div class="color-info">
+          <div class="color-name">Success</div>
+          <div class="color-hex">#22c55e</div>
+          <div class="color-usage">Success states, positive feedback</div>
+        </div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-preview" style="background:#f59e0b;"></div>
+        <div class="color-info">
+          <div class="color-name">Warning</div>
+          <div class="color-hex">#f59e0b</div>
+          <div class="color-usage">Warning states, caution</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <h3 style="font-size:1rem;font-weight:600;margin-bottom:var(--space-4);">HSL Variables (CSS)</h3>
+    <div class="code-block">
+<span class="c">/* Light mode (parchment) */</span>
+<span class="k">--brand-h</span>: 217; <span class="k">--brand-s</span>: 92%; <span class="k">--brand-l</span>: 58%; <span class="c">/* #2D79FF */</span>
+<span class="k">--purple-h</span>: 255; <span class="k">--purple-s</span>: 58%; <span class="k">--purple-l</span>: 60%; <span class="c">/* #8E54E9 */</span>
+
+<span class="c">/* Dark mode (deep space) */</span>
+<span class="k">--brand-h</span>: 217; <span class="k">--brand-s</span>: 92%; <span class="k">--brand-l</span>: 65%;
+<span class="k">--purple-h</span>: 255; <span class="k">--purple-s</span>: 58%; <span class="k">--purple-l</span>: 70%;
+    </div>
+  </section>
+
+  <!-- Typography -->
+  <section id="typography" class="section">
+    <span class="section-label">Foundation</span>
+    <h2 class="section-title">Typography</h2>
+    <p class="section-desc">Teora uses a three-font system: Space Grotesk for headings, Inter for body text, and JetBrains Mono for code and technical content.</p>
+
+    <div class="type-sample">
+      <div class="type-meta">
+        <span>Space Grotesk Bold</span>
+        <span>2.5rem / 40px</span>
+        <span>Heading 1</span>
+      </div>
+      <h1>Asisten AI yang menemani proses belajar</h1>
+    </div>
+
+    <div class="type-sample">
+      <div class="type-meta">
+        <span>Space Grotesk Semibold</span>
+        <span>1.875rem / 30px</span>
+        <span>Heading 2</span>
+      </div>
+      <h2>Task Mentor membantu memahami tugas akademik</h2>
+    </div>
+
+    <div class="type-sample">
+      <div class="type-meta">
+        <span>Space Grotesk Semibold</span>
+        <span>1.375rem / 22px</span>
+        <span>Heading 3</span>
+      </div>
+      <h3>Fitur utama platform Teora</h3>
+    </div>
+
+    <div class="type-sample">
+      <div class="type-meta">
+        <span>Inter Semibold</span>
+        <span>1.125rem / 18px</span>
+        <span>Heading 4</span>
+      </div>
+      <h4>Pustaka Referensi dengan Auto-Cite</h4>
+    </div>
+
+    <div class="type-sample">
+      <div class="type-meta">
+        <span>Inter Regular</span>
+        <span>1rem / 16px</span>
+        <span>Body</span>
+      </div>
+      <p>Teora adalah asisten akademik berbasis AI yang menemani proses belajar dan mengajar. Untuk mahasiswa, Teora membantu memahami materi dan menyusun tugas hingga karya ilmiah lewat bimbingan bertahap.</p>
+    </div>
+
+    <div class="type-sample">
+      <div class="type-meta">
+        <span>Inter Regular</span>
+        <span>0.875rem / 14px</span>
+        <span>Caption</span>
+      </div>
+      <p class="caption">Kuota akan reset setiap 7 hari dari waktu penggunaan pertama. Sisa kuota tidak dapat diuangkan.</p>
+    </div>
+
+    <div class="type-sample">
+      <div class="type-meta">
+        <span>JetBrains Mono</span>
+        <span>0.875em</span>
+        <span>Code</span>
+      </div>
+      <p>Token usage: <code>1,234 / 5,000 tokens</code> - Model: Sonnet 5</p>
+    </div>
+
+    <div class="divider"></div>
+    <h3 style="font-size:1rem;font-weight:600;margin-bottom:var(--space-4);">Google Fonts Import</h3>
+    <div class="code-block">
+<span class="k">@import</span> <span class="s">url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+<span class="c">/* CSS Variables */</span>
+<span class="k">--font-sans</span>: 'Inter', sans-serif;
+<span class="k">--font-heading</span>: 'Space Grotesk', 'Inter', sans-serif;
+<span class="k">--font-mono</span>: 'JetBrains Mono', monospace;
+    </div>
+  </section>
+
+  <!-- Spacing -->
+  <section id="spacing" class="section">
+    <span class="section-label">Foundation</span>
+    <h2 class="section-title">Spacing System</h2>
+    <p class="section-desc">Teora uses a 4px base unit. All spacing values are multiples of 4 to ensure visual harmony across the interface.</p>
+
+    <div class="spacing-grid">
+      <div class="spacing-item">
+        <div class="spacing-box" style="width:4px;height:4px;"></div>
+        <div class="spacing-label"><strong>4px</strong><span>space-1 (0.25rem)</span></div>
+      </div>
+      <div class="spacing-item">
+        <div class="spacing-box" style="width:8px;height:8px;"></div>
+        <div class="spacing-label"><strong>8px</strong><span>space-2 (0.5rem)</span></div>
+      </div>
+      <div class="spacing-item">
+        <div class="spacing-box" style="width:12px;height:12px;"></div>
+        <div class="spacing-label"><strong>12px</strong><span>space-3 (0.75rem)</span></div>
+      </div>
+      <div class="spacing-item">
+        <div class="spacing-box" style="width:16px;height:16px;"></div>
+        <div class="spacing-label"><strong>16px</strong><span>space-4 (1rem)</span></div>
+      </div>
+      <div class="spacing-item">
+        <div class="spacing-box" style="width:20px;height:20px;"></div>
+        <div class="spacing-label"><strong>20px</strong><span>space-5 (1.25rem)</span></div>
+      </div>
+      <div class="spacing-item">
+        <div class="spacing-box" style="width:24px;height:24px;"></div>
+        <div class="spacing-label"><strong>24px</strong><span>space-6 (1.5rem)</span></div>
+      </div>
+      <div class="spacing-item">
+        <div class="spacing-box" style="width:32px;height:32px;"></div>
+        <div class="spacing-label"><strong>32px</strong><span>space-8 (2rem)</span></div>
+      </div>
+      <div class="spacing-item">
+        <div class="spacing-box" style="width:40px;height:40px;"></div>
+        <div class="spacing-label"><strong>40px</strong><span>space-10 (2.5rem)</span></div>
+      </div>
+      <div class="spacing-item">
+        <div class="spacing-box" style="width:48px;height:48px;"></div>
+        <div class="spacing-label"><strong>48px</strong><span>space-12 (3rem)</span></div>
+      </div>
+      <div class="spacing-item">
+        <div class="spacing-box" style="width:64px;height:32px;"></div>
+        <div class="spacing-label"><strong>64px</strong><span>space-16 (4rem)</span></div>
+      </div>
+      <div class="spacing-item">
+        <div class="spacing-box" style="width:80px;height:32px;"></div>
+        <div class="spacing-label"><strong>80px</strong><span>space-20 (5rem)</span></div>
+      </div>
+      <div class="spacing-item">
+        <div class="spacing-box" style="width:96px;height:32px;"></div>
+        <div class="spacing-label"><strong>96px</strong><span>space-24 (6rem)</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Shadows -->
+  <section id="shadows" class="section">
+    <span class="section-label">Foundation</span>
+    <h2 class="section-title">Shadows & Glows</h2>
+    <p class="section-desc">Shadows are used sparingly on the dark theme. Glow effects with brand colors create focal points on key UI elements like buttons and cards.</p>
+
+    <div class="shadow-grid">
+      <div class="shadow-swatch">
+        <div class="shadow-preview" style="box-shadow:var(--shadow-sm);border-radius:8px;"></div>
+        <div class="shadow-name">shadow-sm</div>
+      </div>
+      <div class="shadow-swatch">
+        <div class="shadow-preview" style="box-shadow:var(--shadow-md);border-radius:8px;"></div>
+        <div class="shadow-name">shadow-md</div>
+      </div>
+      <div class="shadow-swatch">
+        <div class="shadow-preview" style="box-shadow:var(--shadow-lg);border-radius:8px;"></div>
+        <div class="shadow-name">shadow-lg</div>
+      </div>
+      <div class="shadow-swatch">
+        <div class="shadow-preview" style="box-shadow:var(--shadow-glow-blue);border-radius:8px;background:linear-gradient(135deg,#2D79FF,#8E54E9);"></div>
+        <div class="shadow-name">shadow-glow-blue</div>
+      </div>
+      <div class="shadow-swatch">
+        <div class="shadow-preview" style="box-shadow:var(--shadow-glow-purple);border-radius:8px;background:linear-gradient(135deg,#2D79FF,#8E54E9);"></div>
+        <div class="shadow-name">shadow-glow-purple</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Radius -->
+  <section id="radius" class="section">
+    <span class="section-label">Foundation</span>
+    <h2 class="section-title">Border Radius</h2>
+
+    <div class="spacing-grid">
+      <div class="spacing-item">
+        <div style="width:32px;height:32px;background:var(--brand-surface);border:1px solid var(--brand-border);border-radius:var(--radius-sm);"></div>
+        <div class="spacing-label"><strong>sm</strong><span>4px</span></div>
+      </div>
+      <div class="spacing-item">
+        <div style="width:32px;height:32px;background:var(--brand-surface);border:1px solid var(--brand-border);border-radius:var(--radius-md);"></div>
+        <div class="spacing-label"><strong>md</strong><span>6px</span></div>
+      </div>
+      <div class="spacing-item">
+        <div style="width:32px;height:32px;background:var(--brand-surface);border:1px solid var(--brand-border);border-radius:var(--radius-lg);"></div>
+        <div class="spacing-label"><strong>lg</strong><span>8px</span></div>
+      </div>
+      <div class="spacing-item">
+        <div style="width:32px;height:32px;background:var(--brand-surface);border:1px solid var(--brand-border);border-radius:var(--radius-xl);"></div>
+        <div class="spacing-label"><strong>xl</strong><span>12px</span></div>
+      </div>
+      <div class="spacing-item">
+        <div style="width:32px;height:32px;background:var(--brand-surface);border:1px solid var(--brand-border);border-radius:var(--radius-2xl);"></div>
+        <div class="spacing-label"><strong>2xl</strong><span>16px</span></div>
+      </div>
+      <div class="spacing-item">
+        <div style="width:32px;height:32px;background:var(--brand-surface);border:1px solid var(--brand-border);border-radius:var(--radius-full);"></div>
+        <div class="spacing-label"><strong>full</strong><span>9999px</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Buttons -->
+  <section id="buttons" class="section">
+    <span class="section-label">Components</span>
+    <h2 class="section-title">Buttons</h2>
+    <p class="section-desc">Buttons use the brand gradient for primary actions. Secondary and ghost variants provide appropriate hierarchy for less prominent actions.</p>
+
+    <div class="card" style="margin-bottom:var(--space-6);">
+      <h3 style="font-size:1rem;font-weight:600;margin-bottom:var(--space-4);">Variants</h3>
+      <div class="btn-grid">
+        <button class="btn btn-primary">Primary CTA</button>
+        <button class="btn btn-secondary">Secondary</button>
+        <button class="btn btn-ghost">Ghost</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:var(--space-6);">
+      <h3 style="font-size:1rem;font-weight:600;margin-bottom:var(--space-4);">Sizes</h3>
+      <div class="btn-grid">
+        <button class="btn btn-primary btn-sm">Small</button>
+        <button class="btn btn-primary">Default</button>
+        <button class="btn btn-primary btn-lg">Large</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size:1rem;font-weight:600;margin-bottom:var(--space-4);">With Icons</h3>
+      <div class="btn-grid">
+        <button class="btn btn-primary">Mulai Gratis</button>
+        <button class="btn btn-secondary">Lihat Demo</button>
+        <button class="btn btn-ghost">Pelajari Lebih</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Badges -->
+  <section id="badges" class="section">
+    <span class="section-label">Components</span>
+    <h2 class="section-title">Badges & Status</h2>
+    <p class="section-desc">Status badges use semantic colors. Blue and purple carry the brand identity for feature labels and categories.</p>
+
+    <div class="badge-grid" style="margin-bottom:var(--space-6);">
+      <span class="badge badge-blue">Task Mentor</span>
+      <span class="badge badge-purple">Practice</span>
+      <span class="badge badge-green">Terverifikasi</span>
+      <span class="badge badge-amber">Saran AI</span>
+      <span class="badge badge-red">Error</span>
+      <span class="badge badge-gray">Draft</span>
+    </div>
+
+    <div class="code-block">
+<span class="c">/* Badge CSS */</span>
+<span class="k">.badge</span> {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+<span class="k">.badge-blue</span> { background: rgba(45,121,255,0.15); color: #2D79FF; border: 1px solid rgba(45,121,255,0.2); }
+<span class="k">.badge-purple</span> { background: rgba(142,84,233,0.15); color: #8E54E9; border: 1px solid rgba(142,84,233,0.2); }
+    </div>
+  </section>
+
+  <!-- Cards -->
+  <section id="cards" class="section">
+    <span class="section-label">Components</span>
+    <h2 class="section-title">Feature Cards</h2>
+    <p class="section-desc">Feature cards use subtle gradient icons and hover effects with the brand glow. Cards lift on hover to create depth.</p>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon">🧠</div>
+        <div class="card-title">Task Mentor</div>
+        <div class="card-desc">Pahami tugas akademik selangkah demi selangkah, dengan AI yang menjelaskan dasar materinya.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">📖</div>
+        <div class="card-title">Practice</div>
+        <div class="card-desc">Quiz berdasarkan topik tugas Anda, dengan sistem pengulangan yang membantu Anda mengingat.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">📚</div>
+        <div class="card-title">Pustaka Saya</div>
+        <div class="card-desc">Kelola pustaka referensi dengan Auto-Cite dan format sitasi otomatis dalam 7 gaya.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Inputs -->
+  <section id="inputs" class="section">
+    <span class="section-label">Components</span>
+    <h2 class="section-title">Form Inputs</h2>
+    <p class="section-desc">Input fields use the surface color as background with a subtle border. Focus states use the brand blue with a ring effect.</p>
+
+    <div class="two-col">
+      <div class="input-demo">
+        <div class="input-group">
+          <label>Email address</label>
+          <input type="email" class="input" placeholder="nama@email.com"/>
+        </div>
+        <div class="input-group">
+          <label>Password</label>
+          <input type="password" class="input" placeholder="Minimal 8 karakter"/>
+        </div>
+        <div class="input-group">
+          <label>Username</label>
+          <input type="text" class="input" value="@sagiseainun" style="opacity:0.7;"/>
+        </div>
+      </div>
+      <div class="code-block" style="font-size:0.75rem;">
+<span class="k">.input</span> {
+  width: 100%;
+  padding: 12px 16px;
+  background: <span class="k">#16213e</span>;
+  border: 1px solid <span class="k">#2a2a4a</span>;
+  border-radius: 8px;
+  color: <span class="k">#e8eaf0</span>;
+  font-size: 0.875rem;
+  transition: all 0.15s;
+}
+<span class="k">.input:focus</span> {
+  outline: none;
+  border-color: <span class="k">#2D79FF</span>;
+  box-shadow: <span class="k">0 0 0 3px rgba(45,121,255,0.15)</span>;
+}
+      </div>
+    </div>
+  </section>
+
+  <!-- Hero Section -->
+  <section id="hero" class="section">
+    <span class="section-label">Patterns</span>
+    <h2 class="section-title">Hero Section</h2>
+    <p class="section-desc">The hero section combines the SVG illustration, gradient typography, and clear CTAs. The background uses the subtle hexagonal pattern for visual depth.</p>
+
+    <div class="hero-example">
+      <!-- Background pattern (CSS reference) -->
+      <div class="hero-example-inner" style="background-image: url('landing-bg-pattern.svg'); background-size: cover; background-position: center; position: relative;">
+        <!-- Dark overlay for readability -->
+        <div style="position:absolute;inset:0;background:linear-gradient(135deg, rgba(26,26,46,0.85) 0%, rgba(26,26,46,0.7) 100%);border-radius:inherit;"></div>
+        <!-- Hero SVG illustration -->
+        <div style="position:absolute;top:0;left:0;right:0;opacity:0.5;">
+          <img src="landing-hero.svg" alt="Teora hero illustration" style="width:100%;height:100%;object-fit:cover;"/>
+        </div>
+        <!-- Content -->
+        <div style="position:relative;z-index:1;">
+          <div class="badge" style="background:rgba(45,121,255,0.1);border-color:rgba(45,121,255,0.2);color:#2D79FF;font-size:0.75rem;">AI Academic Assistant</div>
+          <h1 style="margin-top:var(--space-4);">Asisten AI yang menemani proses<br/>belajar dan mengajar</h1>
+          <p>Teora adalah asisten akademik berbasis AI yang menemani proses belajar dan mengajar. Untuk mahasiswa, Teora membantu memahami materi dan menyusun tugas hingga karya ilmiah.</p>
+          <div class="cta">
+            <button class="btn btn-primary btn-lg">Mulai Gratis</button>
+            <button class="btn btn-secondary btn-lg">Masuk</button>
+          </div>
+          <p style="font-size:0.75rem;margin-top:var(--space-4);color:var(--text-muted);">Untuk mahasiswa dan pengajar di Indonesia</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Card -->
+  <section id="pricing" class="section">
+    <span class="section-label">Patterns</span>
+    <h2 class="section-title">Pricing Card</h2>
+    <p class="section-desc">Pricing cards use a top gradient bar and card elevation to create hierarchy. The popular tier gets a blue glow border.</p>
+
+    <div class="card-grid" style="max-width:900px;">
+      <div class="pricing-card">
+        <div class="pricing-badge">Starter</div>
+        <div class="pricing-name">Paket Starter</div>
+        <div class="pricing-desc">Coba-coba fitur dasar Teora</div>
+        <div class="pricing-price">
+          <span class="pricing-amount" style="color:var(--text-primary);">Rp29.000</span>
+          <span class="pricing-period">/ 15 hari</span>
+        </div>
+        <ul class="pricing-features">
+          <li>Kuota AI 50.000 token/7 hari</li>
+          <li>Akses Task Mentor</li>
+          <li>Export dokumen</li>
+          <li>Email support</li>
+        </ul>
+        <button class="btn btn-secondary" style="width:100%;">Pilih Paket</button>
+      </div>
+
+      <div class="pricing-card popular">
+        <div class="pricing-badge">Pilihan Terbaik</div>
+        <div class="pricing-name">Paket Premium</div>
+        <div class="pricing-desc">Untuk penggunaan intensif akademis</div>
+        <div class="pricing-price">
+          <span class="pricing-amount" style="background:linear-gradient(135deg,#2D79FF,#8E54E9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Rp99.000</span>
+          <span class="pricing-period">/ 30 hari</span>
+        </div>
+        <ul class="pricing-features">
+          <li>Kuota AI 200.000 token/7 hari</li>
+          <li>Akses semua fitur</li>
+          <li>Priority support</li>
+          <li>Export PPTX + DOCX</li>
+          <li>Auto-Cite unlimited</li>
+        </ul>
+        <button class="btn btn-primary" style="width:100%;">Pilih Paket</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Grid System -->
+  <section id="grid" class="section">
+    <span class="section-label">Patterns</span>
+    <h2 class="section-title">Layout Grid</h2>
+    <p class="section-desc">Teora uses a 12-column responsive grid with 16px gutters. Containers max out at 1280px with horizontal padding of 24px.</p>
+
+    <div class="grid-demo">
+      <div class="grid-label">12-column grid (full width)</div>
+      <div class="grid-row">
+        <div class="grid-cell" style="flex:12;">12</div>
+      </div>
+      <div class="grid-row">
+        <div class="grid-cell" style="flex:6;">6</div>
+        <div class="grid-cell" style="flex:6;">6</div>
+      </div>
+      <div class="grid-row">
+        <div class="grid-cell" style="flex:4;">4</div>
+        <div class="grid-cell" style="flex:4;">4</div>
+        <div class="grid-cell" style="flex:4;">4</div>
+      </div>
+      <div class="grid-row">
+        <div class="grid-cell" style="flex:3;">3</div>
+        <div class="grid-cell" style="flex:3;">3</div>
+        <div class="grid-cell" style="flex:3;">3</div>
+        <div class="grid-cell" style="flex:3;">3</div>
+      </div>
+      <div class="grid-row">
+        <div class="grid-cell" style="flex:8;">8</div>
+        <div class="grid-cell" style="flex:4;">4</div>
+      </div>
+      <div class="grid-row">
+        <div class="grid-cell" style="flex:3;">3</div>
+        <div class="grid-cell" style="flex:9;">9</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <h3 style="font-size:1rem;font-weight:600;margin-bottom:var(--space-4);">Breakpoints</h3>
+    <div class="code-block">
+<span class="c">/* Tailwind default breakpoints (for reference) */</span>
+<span class="k">sm</span>:  640px   <span class="c">/* Mobile landscape */</span>
+<span class="k">md</span>:  768px   <span class="c">/* Tablet */</span>
+<span class="k">lg</span>: 1024px   <span class="c">/* Desktop */</span>
+<span class="k">xl</span>: 1280px   <span class="c">/* Wide desktop */</span>
+<span class="k">2xl</span>: 1536px   <span class="c">/* Extra wide */</span>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer style="border-top:1px solid var(--brand-border);padding:var(--space-8) 0;margin-top:var(--space-16);">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--space-4);">
+      <div>
+        <div style="font-family:var(--font-heading);font-weight:700;font-size:1.125rem;background:linear-gradient(135deg,var(--brand-blue),var(--brand-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Teora</div>
+        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">Design System v1.0 - 2026</div>
+      </div>
+      <div style="font-size:0.75rem;color:var(--text-muted);">
+        Brand colors: Primary #2D79FF, Accent #8E54E9
+      </div>
+    </div>
+  </footer>
+
+</main>
+
+</body>
+</html>

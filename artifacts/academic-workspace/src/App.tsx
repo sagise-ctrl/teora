@@ -7,6 +7,7 @@ import { ProtectedRoute } from "@/hooks/protected-route";
 import NotFound from "@/pages/not-found";
 import { Route, Switch, Router as WouterRouter } from "wouter";
 import Dashboard from "@/pages/dashboard";
+import TaskListPage from "@/pages/tasks";
 import NewProject from "@/pages/new-project";
 import ProjectWorkspace from "@/pages/project";
 import Login from "@/pages/login";
@@ -15,10 +16,10 @@ import Confirm from "@/pages/confirm";
 import AuthCallback from "@/pages/auth-callback";
 import FinOps from "@/pages/finops";
 import Referral from "@/pages/referral";
-import AIPricing from "@/pages/ai-pricing";
 import Topup from "@/pages/topup";
 import Terms from "@/pages/terms";
 import Privacy from "@/pages/privacy";
+import Help from "@/pages/help";
 import Monitoring from "@/pages/monitoring";
 import Admin from "@/pages/admin";
 import LandingAdmin from "@/pages/landing-admin";
@@ -33,7 +34,11 @@ import Profile from "@/pages/profile";
 import PustakaSaya from "@/pages/pustaka-saya";
 import Assessment from "@/pages/assessment";
 import Akun from "@/pages/akun";
+import Usage from "@/pages/usage";
+import Practice from "@/pages/practice";
 import SharedProject from "@/pages/shared";
+import Landing from "@/pages/landing";
+import Langganan from "@/pages/langganan";
 import Layout from "@/components/layout";
 
 const queryClient = new QueryClient();
@@ -61,14 +66,16 @@ function AnimatedPage({ children }: { children: React.ReactNode }) {
 function AppRouter() {
   return (
     <Switch>
+      {/* Public routes */}
+      <Route path="/" component={Landing} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/auth/confirm" component={Confirm} />
       <Route path="/callback" component={AuthCallback} />
       <Route path="/auth/callback" component={AuthCallback} />
-      {/* Public shared project route — no auth required */}
+      {/* public shared project route — no auth required */}
       <Route path="/shared/:token" component={SharedProject} />
-      <Route path="/">
+      <Route path="/dashboard">
         <ProtectedRoute>
           <Layout>
             <AnimatedPage><Dashboard /></AnimatedPage>
@@ -79,6 +86,13 @@ function AppRouter() {
         <ProtectedRoute>
           <Layout>
             <AnimatedPage><NewProject /></AnimatedPage>
+          </Layout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/projects">
+        <ProtectedRoute>
+          <Layout>
+            <AnimatedPage><TaskListPage /></AnimatedPage>
           </Layout>
         </ProtectedRoute>
       </Route>
@@ -103,13 +117,6 @@ function AppRouter() {
           </Layout>
         </ProtectedRoute>
       </Route>
-      <Route path="/ai-pricing">
-        <ProtectedRoute>
-          <Layout>
-            <AnimatedPage><AIPricing /></AnimatedPage>
-          </Layout>
-        </ProtectedRoute>
-      </Route>
       <Route path="/topup">
         <ProtectedRoute>
           <Layout>
@@ -119,6 +126,7 @@ function AppRouter() {
       </Route>
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />
+      <Route path="/bantuan" component={Help} />
       <Route path="/status" component={Monitoring} />
       <Route path="/landing-admin">
         <ProtectedRoute>
@@ -148,6 +156,13 @@ function AppRouter() {
           </Layout>
         </ProtectedRoute>
       </Route>
+      <Route path="/practice">
+        <ProtectedRoute>
+          <Layout>
+            <AnimatedPage><Practice /></AnimatedPage>
+          </Layout>
+        </ProtectedRoute>
+      </Route>
       <Route path="/assessment">
         <ProtectedRoute>
           <Layout>
@@ -155,10 +170,24 @@ function AppRouter() {
           </Layout>
         </ProtectedRoute>
       </Route>
+      <Route path="/usage">
+        <ProtectedRoute>
+          <Layout>
+            <AnimatedPage><Usage /></AnimatedPage>
+          </Layout>
+        </ProtectedRoute>
+      </Route>
       <Route path="/akun">
         <ProtectedRoute>
           <Layout>
             <AnimatedPage><Akun /></AnimatedPage>
+          </Layout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/subscribe">
+        <ProtectedRoute>
+          <Layout>
+            <AnimatedPage><Langganan /></AnimatedPage>
           </Layout>
         </ProtectedRoute>
       </Route>

@@ -57,7 +57,7 @@ export default function AdminAuditLog() {
         <div>
           <h1 className="text-2xl font-serif font-bold tracking-tight">Audit Log</h1>
           <p className="text-muted-foreground text-sm mt-0.5">
-            Semua aksi admin tercatat di sini — {data ? `${data.total} entries` : "Loading..."}
+            Semua aksi admin tercatat di sini: {data ? `${data.total} entries` : "Memuat..."}
           </p>
         </div>
 
@@ -118,10 +118,10 @@ export default function AdminAuditLog() {
                             )}
                           </td>
                           <td className="px-4 py-3 text-xs text-muted-foreground max-w-48 truncate">
-                            {entry.details ? JSON.stringify(entry.details) : "—"}
+                            {entry.details ? JSON.stringify(entry.details) : "-"}
                           </td>
                           <td className="px-4 py-3 text-xs font-mono text-muted-foreground">
-                            {entry.ipAddress ?? "—"}
+                            {entry.ipAddress ?? "-"}
                           </td>
                         </tr>
                       );
@@ -137,7 +137,7 @@ export default function AdminAuditLog() {
         {totalPages > 1 && (
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              Page {page} of {totalPages} — {data?.total} entries
+              Page {page} dari {totalPages}: {data?.total} entries
             </p>
             <div className="flex items-center gap-2">
               <Button

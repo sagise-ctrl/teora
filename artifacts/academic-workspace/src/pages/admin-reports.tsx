@@ -18,7 +18,7 @@ interface Report {
 const MOCK_REPORTS: Report[] = [
   {
     id: "rpt-2026-08",
-    title: "Monthly Report — August 2026",
+    title: "Monthly Report: August 2026",
     description: "Full financial, usage, dan user report untuk bulan Agustus 2026",
     period: "2026-08",
     generatedAt: new Date().toISOString(),
@@ -27,7 +27,7 @@ const MOCK_REPORTS: Report[] = [
   },
   {
     id: "rpt-2026-08-financial",
-    title: "Financial Report — August 2026",
+    title: "Financial Report: August 2026",
     description: "Revenue, costs, dan profit breakdown",
     period: "2026-08",
     generatedAt: new Date().toISOString(),
@@ -36,7 +36,7 @@ const MOCK_REPORTS: Report[] = [
   },
   {
     id: "rpt-2026-08-usage",
-    title: "AI Usage Report — August 2026",
+    title: "Laporan Penggunaan Teora: Agustus 2026",
     description: "Token consumption, model breakdown, dan cost analysis",
     period: "2026-08",
     generatedAt: new Date().toISOString(),
@@ -45,7 +45,7 @@ const MOCK_REPORTS: Report[] = [
   },
   {
     id: "rpt-2026-08-user",
-    title: "User Activity Report — August 2026",
+    title: "Laporan Aktivitas Pengguna: Agustus 2026",
     description: "User growth, retention, dan engagement metrics",
     period: "2026-08",
     generatedAt: new Date().toISOString(),
@@ -56,8 +56,8 @@ const MOCK_REPORTS: Report[] = [
 
 const REPORT_TYPE_CONFIG: Record<string, { icon: React.ElementType; color: string; label: string }> = {
   financial: { icon: TrendingUp, color: "text-emerald-600", label: "Financial" },
-  usage: { icon: Zap, color: "text-purple-600", label: "AI Usage" },
-  user: { icon: Users, color: "text-blue-600", label: "User" },
+  usage: { icon: Zap, color: "text-purple-600", label: "Penggunaan Teora" },
+  user: { icon: Users, color: "text-blue-600", label: "Pengguna" },
   combined: { icon: FileText, color: "text-[#2D79FF]", label: "Combined" },
 };
 
@@ -67,7 +67,7 @@ export default function AdminReports() {
 
   const handleDownload = async (report: Report) => {
     setDownloading(report.id);
-    // Simulate download — in production, this would call /api/admin/reports/:id/export
+    // Simulate download: in production, this would call /api/admin/reports/:id/export
     await new Promise((r) => setTimeout(r, 1500));
     setDownloading(null);
     // Would trigger browser download of the report
@@ -118,7 +118,7 @@ export default function AdminReports() {
                       disabled={downloading === report.id}
                     >
                       <Download className="w-4 h-4 mr-1" />
-                      {downloading === report.id ? "Generating..." : "Download"}
+                      {downloading === report.id ? "Membuat..." : "Unduh"}
                     </Button>
                   </div>
                 </CardContent>
@@ -132,9 +132,9 @@ export default function AdminReports() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium">Need a custom report?</p>
+                <p className="text-sm font-medium">Butuh laporan khusus?</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Custom reports based on date range dan report type akan segera hadir
+                  Custom reports berdasarkan rentang tanggal serta tipe tertentu akan segera hadir
                 </p>
               </div>
               <Button variant="secondary" size="sm" disabled>

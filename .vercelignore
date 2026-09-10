@@ -46,7 +46,8 @@ CLAUDE.md
 .github
 .claude
 
-# MCP
+# Local dev tools / caches
+.local
 .mcp.json
 
 # Schema source

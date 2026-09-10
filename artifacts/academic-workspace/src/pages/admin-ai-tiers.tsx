@@ -26,28 +26,28 @@ const DEFAULT_TIERS: TierList["tiers"] = {
     name: "Free",
     monthlyPriceCents: 0,
     tokenLimit: 1000,
-    features: ["Basic AI features", "Limited projects"],
+    features: ["Fitur dasar Teora", "Project terbatas"],
     providers: ["openai"],
   },
   starter: {
     name: "Starter",
     monthlyPriceCents: 49000,
     tokenLimit: 50000,
-    features: ["Priority support", "More projects"],
+    features: ["Support prioritas", "Lebih banyak project"],
     providers: ["openai", "anthropic"],
   },
   pro: {
     name: "Pro",
     monthlyPriceCents: 199000,
     tokenLimit: 200000,
-    features: ["Advanced features", "Priority queue"],
+    features: ["Fitur lanjutan", "Antrian prioritas"],
     providers: ["openai", "anthropic", "google"],
   },
   ultra: {
     name: "Ultra",
     monthlyPriceCents: 499000,
     tokenLimit: 1000000,
-    features: ["Unlimited features", "Dedicated support", "Early access"],
+    features: ["Fitur tanpa batas", "Support khusus", "Akses awal"],
     providers: ["openai", "anthropic", "google", "deepseek"],
   },
 };
@@ -85,7 +85,7 @@ export default function AdminAITiers() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-serif font-bold tracking-tight">AI Tier Config</h1>
+            <h1 className="text-2xl font-serif font-bold tracking-tight">Konfigurasi Tier Teora</h1>
             <p className="text-muted-foreground text-sm mt-0.5">
               Konfigurasi pricing dan limit per tier
             </p>

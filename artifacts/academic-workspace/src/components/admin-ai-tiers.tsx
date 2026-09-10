@@ -225,13 +225,13 @@ function TierEditorCard({
                     {margin.pct}%
                   </p>
                 ) : (
-                  <p className="text-xs text-muted-foreground mt-0.5">—</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">:</p>
                 )}
               </div>
               <div className="bg-muted/30 rounded p-2">
                 <p className="text-muted-foreground">Rate Limit</p>
                 <p className="text-sm mt-0.5">
-                  {tier.rateLimitRpm ?? "—"} req/menit
+                  {tier.rateLimitRpm ?? ":"} req/menit
                 </p>
               </div>
               <div className="bg-muted/30 rounded p-2">
@@ -239,7 +239,7 @@ function TierEditorCard({
                 <p className="text-sm mt-0.5">
                   {tier.rateLimitTpd
                     ? tier.rateLimitTpd.toLocaleString("id-ID")
-                    : "—"}
+                    : ":"}
                 </p>
               </div>
             </div>
@@ -371,7 +371,7 @@ function TierEditorCard({
                 />
               </div>
               <div>
-                <Label className="text-xs">Usage Tips (untuk user)</Label>
+                <Label className="text-xs">Usage Tips (untuk pengguna)</Label>
                 <Textarea
                   value={form.usageTips ?? ""}
                   onChange={(e) =>
@@ -416,7 +416,7 @@ export default function AdminAiTiersPanel() {
         <div>
           <h2 className="text-lg font-semibold flex items-center gap-2">
             <Coins className="w-5 h-5" />
-            AI Tier Pricing
+            Pricing Tier Teora
           </h2>
           <p className="text-sm text-muted-foreground">
             Konfigurasi harga per-tier, margin, dan rate limit
@@ -436,10 +436,10 @@ export default function AdminAiTiersPanel() {
             <div className="space-y-1">
               <p className="text-sm font-medium">Cara Menghitung Harga</p>
               <p className="text-xs text-muted-foreground">
-                <strong>Harga user</strong> = (biaya provider + margin) × 16.000
+                <strong>Harga pengguna</strong> = (biaya provider + margin) × 16.000
                 (kurs USD→IDR).{" "}
                 <strong>Satuan</strong>: cents per 1M tokens.{" "}
-                <strong>Saldo user</strong> dipotong sesuai tokens aktual yang
+                <strong>Saldo pengguna</strong> dipotong sesuai tokens aktual yang
                 dipakai. Lihat{" "}
                 <code className="bg-muted px-1 rounded">
                   docs/ai-team/finance/ai-provider-pricing.md

@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 
 export default function PrivacyPolicy() {
   const { user } = useAuth();
-  const effectiveDate = "1 September 2025";
+  const effectiveDate = "1 September 2026";
 
   return (
     <div className="min-h-screen bg-background">
@@ -19,7 +19,7 @@ export default function PrivacyPolicy() {
               {user ? "Kembali" : "Login"}
             </Button>
           </Link>
-          <h1 className="text-lg font-semibold">Kebijakan Privasi — Teora</h1>
+          <h1 className="text-lg font-semibold">Kebijakan Privasi: Teora</h1>
         </div>
       </header>
 
@@ -64,19 +64,19 @@ export default function PrivacyPolicy() {
               Sesuai dengan Undang-Undang Perlindungan Data Pribadi (UU PDP) No. 27 Tahun 2022 Indonesia, dasar hukum pemrosesan data pribadi kami meliputi:
             </p>
             <ul className="list-disc list-inside space-y-1">
-              <li><strong>Persetujuan</strong> — Anda memberikan persetujuan saat mendaftar dan menggunakan layanan</li>
-              <li><strong>Pelaksanaan kontrak</strong> — Pemrosesan diperlukan untuk menyediakan layanan kepada Anda</li>
-              <li><strong>Keperluan hukum</strong> — Pemrosesan diperlukan untuk mematuhi kewajiban regulasi</li>
+              <li><strong>Persetujuan</strong>: Anda memberikan persetujuan saat mendaftar dan menggunakan layanan</li>
+              <li><strong>Pelaksanaan kontrak</strong>: Pemrosesan diperlukan untuk menyediakan layanan kepada Anda</li>
+              <li><strong>Keperluan hukum</strong>: Pemrosesan diperlukan untuk mematuhi kewajiban regulasi</li>
             </ul>
 
             <h2 className="text-lg font-semibold mt-8">4. Pembagian Informasi dengan Pihak Ketiga</h2>
             <h3 className="font-medium mt-4">4.1 Penyedia Layanan</h3>
             <p>Kami membagikan data dengan penyedia layanan pihak ketiga untuk mengoperasikan Teora:</p>
             <ul className="list-disc list-inside space-y-1">
-              <li><strong>Supabase</strong> — Database dan autentikasi (data disimpan di infrastruktur Supabase)</li>
-              <li><strong>Provider AI</strong> (OpenAI/anthropic) — Interaksi AI diproses oleh provider ini</li>
-              <li><strong>Vercel</strong> — Hosting infrastruktur aplikasi</li>
-              <li><strong>Penyedia pembayaran</strong> — Untuk pemrosesan pembayaran langganan</li>
+              <li><strong>Supabase</strong>: Database dan autentikasi (data disimpan di infrastruktur Supabase)</li>
+              <li><strong>Provider AI</strong> (OpenAI/anthropic): Interaksi AI diproses oleh provider ini</li>
+              <li><strong>Vercel</strong>: Hosting infrastruktur aplikasi</li>
+              <li><strong>Penyedia pembayaran</strong>: Untuk pemrosesan pembayaran langganan</li>
             </ul>
 
             <h3 className="font-medium mt-4">4.2 Persyaratan Hukum</h3>
@@ -93,14 +93,14 @@ export default function PrivacyPolicy() {
             <h2 className="text-lg font-semibold mt-8">6. Hak Anda (UU PDP 2022)</h2>
             <p>Sesuai UU PDP 2022, Anda memiliki hak untuk:</p>
             <ul className="list-disc list-inside space-y-1">
-              <li><strong>Akses</strong> — Meminta salinan data pribadi Anda</li>
-              <li><strong>Koreksi</strong> — Meminta perbaikan data yang tidak akurat</li>
-              <li><strong>Hapus</strong> — Meminta penghapusan data pribadi Anda</li>
-              <li><strong>Portabilitas</strong> — Menerima data Anda dalam format terstruktur</li>
-              <li><strong>Menarik persetujuan</strong> — Menarik persetujuan pemrosesan data</li>
-              <li><strong>Keberatan</strong> — Menolak pemrosesan tertentu</li>
+              <li><strong>Akses</strong>: Meminta salinan data pribadi Anda</li>
+              <li><strong>Koreksi</strong>: Meminta perbaikan data yang tidak akurat</li>
+              <li><strong>Hapus</strong>: Meminta penghapusan data pribadi Anda</li>
+              <li><strong>Portabilitas</strong>: Menerima data Anda dalam format terstruktur</li>
+              <li><strong>Menarik persetujuan</strong>: Menarik persetujuan pemrosesan data</li>
+              <li><strong>Keberatan</strong>: Menolak pemrosesan tertentu</li>
             </ul>
-            <p>Untuk行使 hak ini, silakan hubungi kami di <strong>privacy@teora.id</strong>.</p>
+            <p>Untuk menggunakan hak ini, silakan hubungi kami di <strong>privacy@teora.id</strong>.</p>
 
             <h2 className="text-lg font-semibold mt-8">7. Keamanan Data</h2>
             <p>
@@ -142,7 +142,7 @@ export default function PrivacyPolicy() {
         <div className="flex items-center justify-center gap-6 mt-8 text-xs text-muted-foreground">
           <Link href="/terms" className="hover:text-foreground transition-colors">Ketentuan Layanan</Link>
           <Link href="/login" className="hover:text-foreground transition-colors">Login</Link>
-          <span>© 2025 PT Teora Teknologi Indonesia</span>
+          <span>&copy; 2026 PT Teora Teknologi Indonesia</span>
         </div>
       </div>
     </div>

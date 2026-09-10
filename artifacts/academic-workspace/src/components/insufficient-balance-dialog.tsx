@@ -27,7 +27,7 @@ interface InsufficientBalanceDialogProps {
 }
 
 function formatIdr(cents: number | undefined): string {
-  if (cents === undefined || cents === null) return "—";
+  if (cents === undefined || cents === null) return "-";
   return "Rp " + (cents / 100).toLocaleString("id-ID", { maximumFractionDigits: 0 });
 }
 

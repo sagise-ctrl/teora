@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 @import 'tailwindcss';
 @import 'tw-animate-css';
@@ -24,6 +24,12 @@
   --color-primary: hsl(var(--primary));
   --color-primary-foreground: hsl(var(--primary-foreground));
   --color-primary-border: var(--primary-border);
+
+  /* Brand colors (defined in :root / .dark) */
+  --color-brand: hsl(var(--brand-h) var(--brand-s) var(--brand-l));
+  --color-brand-foreground: hsl(var(--brand-fg-h) var(--brand-fg-s) var(--brand-fg-l));
+  --color-brand-purple: hsl(var(--purple-h) var(--purple-s) var(--purple-l));
+  --color-brand-purple-foreground: hsl(var(--purple-fg-h) var(--purple-fg-s) var(--purple-fg-l));
 
   --color-secondary: hsl(var(--secondary));
   --color-secondary-foreground: hsl(var(--secondary-foreground));
@@ -64,6 +70,12 @@
 
 /* LIGHT MODE */
 :root {
+  /* Brand HSL components */
+  --brand-h: 217; --brand-s: 92%; --brand-l: 58%; /* #2D79FF */
+  --brand-fg-h: 0; --brand-fg-s: 0%; --brand-fg-l: 100%;
+  --purple-h: 255; --purple-s: 58%; --purple-l: 60%; /* #8E54E9 */
+  --purple-fg-h: 0; --purple-fg-s: 0%; --purple-fg-l: 100%;
+
   --button-outline: rgba(15, 23, 42, 0.1);
   --badge-outline: rgba(15, 23, 42, 0.05);
 
@@ -125,9 +137,9 @@
   --chart-4: 40 40% 60%;
   --chart-5: 220 20% 40%;
 
-  --app-font-sans: 'DM Sans', sans-serif;
-  --app-font-serif: 'Fraunces', serif;
-  --app-font-mono: 'Space Mono', monospace;
+  --app-font-sans: 'Inter', sans-serif;
+  --app-font-serif: 'Space Grotesk', sans-serif;
+  --app-font-mono: 'JetBrains Mono', monospace;
   
   --radius: 0.375rem; /* 6px */
   
@@ -216,6 +228,12 @@
   --chart-3: 180 40% 50%;
   --chart-4: 40 40% 60%;
   --chart-5: 220 20% 65%;
+
+  /* Brand HSL components for dark mode */
+  --brand-h: 217; --brand-s: 92%; --brand-l: 65%;
+  --brand-fg-h: 0; --brand-fg-s: 0%; --brand-fg-l: 100%;
+  --purple-h: 255; --purple-s: 58%; --purple-l: 70%;
+  --purple-fg-h: 0; --purple-fg-s: 0%; --purple-fg-l: 100%;
 }
 
 @layer base {
@@ -231,12 +249,13 @@
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-serif tracking-tight text-foreground;
+    font-weight: 600;
   }
 }
 
 /* Academic Prose Styling — for document preview and outline tabs */
 .prose-academic {
-  font-family: var(--app-font-serif);
+  font-family: var(--app-font-sans);
   line-height: 1.8;
   font-size: 1rem;
 }
@@ -275,7 +294,7 @@
   --tw-prose-pre-bg: hsl(var(--muted));
   --tw-prose-th-borders: hsl(var(--border));
   --tw-prose-td-borders: hsl(var(--border));
-  font-family: var(--app-font-serif);
+  font-family: var(--app-font-sans);
   line-height: 1.8;
 }
 .prose h1,

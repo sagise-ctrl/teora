@@ -42,7 +42,7 @@ const SERVICES: ServiceStatus[] = [
   { name: "Frontend App", status: "operational", latency: "<200ms", lastChecked: new Date().toISOString(), description: "Teora web application", icon: Globe },
   { name: "API Server", status: "operational", latency: "<150ms", lastChecked: new Date().toISOString(), description: "REST API endpoints", icon: Server },
   { name: "Database", status: "operational", latency: "<50ms", lastChecked: new Date().toISOString(), description: "PostgreSQL via Supabase", icon: Database },
-  { name: "AI Processing", status: "operational", lastChecked: new Date().toISOString(), description: "OpenAI / Claude API", icon: Zap },
+  { name: "Pemrosesan Teora", status: "operational", lastChecked: new Date().toISOString(), description: "OpenAI / Claude API", icon: Zap },
   { name: "Authentication", status: "operational", lastChecked: new Date().toISOString(), description: "Supabase Auth", icon: Shield },
 ];
 

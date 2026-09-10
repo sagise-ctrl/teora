@@ -70,7 +70,7 @@ export default function AdminFinOps() {
               <StatCard title="Gross Revenue" value={formatCents(stats.revenue.totalTopupCents)} sub={`${stats.revenue.transactionCount} transactions`} icon={DollarSign} accent="green" />
               <StatCard title="Refunds" value={formatCents(stats.revenue.totalRefundCents)} sub={`${stats.revenue.refunds} refund events`} icon={TrendingDown} accent="red" />
               <StatCard title="Net Revenue" value={formatCents(stats.revenue.netRevenue)} sub={`Margin: ${stats.revenue.grossMargin}%`} icon={TrendingUp} accent="blue" />
-              <StatCard title="AI Cost" value={`$${stats.costs.totalAiCostUsd.toFixed(2)}`} sub={`Profit: ${formatUsd(stats.summary.profitUsd)}`} icon={PiggyBank} accent="amber" />
+              <StatCard title="Biaya Teora" value={`$${stats.costs.totalAiCostUsd.toFixed(2)}`} sub={`Profit: ${formatUsd(stats.summary.profitUsd)}`} icon={PiggyBank} accent="amber" />
             </>
           ) : (
             <div className="col-span-4 text-center py-8 text-muted-foreground">Gagal memuat data</div>
@@ -115,7 +115,7 @@ export default function AdminFinOps() {
                     <span className="font-medium">{formatCents(stats.summary.avgRevenuePerTransaction)}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Avg cost per AI request</span>
+                    <span className="text-sm text-muted-foreground">Avg cost per permintaan Teora</span>
                     <span className="font-medium">${stats.summary.avgCostPerRequest.toFixed(4)}</span>
                   </div>
                   <div className="flex items-center justify-between border-t pt-4">

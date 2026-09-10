@@ -13,10 +13,12 @@ import * as zod from 'zod';
 export const GetCurrentUserResponse = zod.object({
   "id": zod.string(),
   "email": zod.string(),
+  "username": zod.string().describe('Unique username for sharing URLs'),
   "displayName": zod.string().nullish(),
   "avatarUrl": zod.string().nullish(),
   "isOwner": zod.boolean(),
   "referralCode": zod.string().nullish().describe('Unique referral code this user can share'),
+  "usernameChangedAt": zod.coerce.date().nullish().describe('When username was last changed (for 30-day rate limit)'),
   "createdAt": zod.coerce.date()
 })
 
@@ -32,10 +34,12 @@ export const LoginBody = zod.object({
 export const LoginResponse = zod.object({
   "id": zod.string(),
   "email": zod.string(),
+  "username": zod.string().describe('Unique username for sharing URLs'),
   "displayName": zod.string().nullish(),
   "avatarUrl": zod.string().nullish(),
   "isOwner": zod.boolean(),
   "referralCode": zod.string().nullish().describe('Unique referral code this user can share'),
+  "usernameChangedAt": zod.coerce.date().nullish().describe('When username was last changed (for 30-day rate limit)'),
   "createdAt": zod.coerce.date()
 })
 
@@ -46,11 +50,17 @@ export const LoginResponse = zod.object({
 export const registerBodyEmailRegExp = new RegExp('^[^@]+@[^@]+\\.[^@]+$');
 export const registerBodyPasswordMin = 6;
 
+export const registerBodyUsernameMin = 3;
+export const registerBodyUsernameMax = 30;
+
+
+export const registerBodyUsernameRegExp = new RegExp('^[a-zA-Z0-9_]+$');
 
 
 export const RegisterBody = zod.object({
   "email": zod.string().regex(registerBodyEmailRegExp),
   "password": zod.string().min(registerBodyPasswordMin),
+  "username": zod.string().min(registerBodyUsernameMin).max(registerBodyUsernameMax).regex(registerBodyUsernameRegExp).describe('Unique username for sharing (3-30 chars, alphanumeric + underscore)'),
   "displayName": zod.string().optional(),
   "referralCode": zod.string().optional().describe('Optional referral code used during registration')
 })
@@ -58,10 +68,12 @@ export const RegisterBody = zod.object({
 export const RegisterResponse = zod.object({
   "id": zod.string(),
   "email": zod.string(),
+  "username": zod.string().describe('Unique username for sharing URLs'),
   "displayName": zod.string().nullish(),
   "avatarUrl": zod.string().nullish(),
   "isOwner": zod.boolean(),
   "referralCode": zod.string().nullish().describe('Unique referral code this user can share'),
+  "usernameChangedAt": zod.coerce.date().nullish().describe('When username was last changed (for 30-day rate limit)'),
   "createdAt": zod.coerce.date()
 })
 
@@ -70,6 +82,19 @@ export const RegisterResponse = zod.object({
  * @summary Sign out and clear session
  */
 export const LogoutResponse = zod.unknown()
+
+
+/**
+ * @summary Check if a username is available
+ */
+export const CheckUsernameQueryParams = zod.object({
+  "username": zod.coerce.string()
+})
+
+export const CheckUsernameResponse = zod.object({
+  "available": zod.boolean().optional().describe('Whether the username is available'),
+  "username": zod.string().optional()
+})
 
 
 /**
@@ -117,7 +142,8 @@ export const HealthCheckResponse = zod.object({
  */
 export const ListProjectsQueryParams = zod.object({
   "status": zod.coerce.string().optional(),
-  "search": zod.coerce.string().optional()
+  "search": zod.coerce.string().optional(),
+  "type": zod.enum(['general', 'academic']).optional().describe('Filter by project type (general or academic)')
 })
 
 export const ListProjectsResponseItem = zod.object({
@@ -127,8 +153,8 @@ export const ListProjectsResponseItem = zod.object({
   "progress": zod.number().describe('0-100 percent'),
   "instructionText": zod.string().nullish(),
   "subject": zod.string().nullish(),
-  "taskType": zod.string().nullish(),
-  "citationFormat": zod.string().nullish(),
+  "taskType": zod.enum(['general', 'academic']).nullish(),
+  "citationFormat": zod.union([zod.literal('APA'),zod.literal('APA7'),zod.literal('IEEE'),zod.literal('Vancouver'),zod.literal('Chicago'),zod.literal('MLA'),zod.literal('Harvard'),zod.literal(null)]).nullish().describe('Citation format used for in-text\/footnote markers and bibliography. Default = APA.'),
   "outputFormat": zod.string().nullish(),
   "minRefYear": zod.number().nullish(),
   "minRefCount": zod.number().nullish(),
@@ -146,12 +172,14 @@ export const ListProjectsResponse = zod.array(ListProjectsResponseItem)
 
 
 export const CreateProjectBody = zod.object({
-  "title": zod.string().min(1),
-  "instructionText": zod.string().optional(),
-  "outputFormat": zod.enum(['docx', 'pdf', 'markdown']).optional(),
+  "title": zod.string().optional().describe('Optional. Project display name (used in document list, not in exported file).\nIf omitted, the workspace will auto-generate a title via AI from instructionText.\n'),
+  "instructionText": zod.string().min(1).describe('REQUIRED for both General Task and Academic Work. The instructions or idea\/gagasan\nthat AI uses to generate the title (if missing), analyze the task, and produce\nthe document.\n'),
+  "outputFormat": zod.enum(['docx', 'pdf', 'pptx']).optional(),
   "minRefYear": zod.number().optional(),
   "minRefCount": zod.number().optional(),
-  "aiDisclosure": zod.boolean().optional()
+  "aiDisclosure": zod.boolean().optional(),
+  "taskType": zod.enum(['general', 'academic']).optional().describe('Project type — \"general\" for short tasks, \"academic\" for multi-section works'),
+  "citationFormat": zod.enum(['APA', 'APA7', 'IEEE', 'Vancouver', 'Chicago', 'MLA', 'Harvard']).optional().describe('DECISION 014. Citation format used for in-text\/footnote markers and bibliography.\nDefaults to APA if omitted (workspace will create the project with APA and the\nuser can change via PATCH \/projects\/:id\/citation-format).\n')
 })
 
 export const CreateProjectResponse = zod.object({
@@ -161,8 +189,8 @@ export const CreateProjectResponse = zod.object({
   "progress": zod.number().describe('0-100 percent'),
   "instructionText": zod.string().nullish(),
   "subject": zod.string().nullish(),
-  "taskType": zod.string().nullish(),
-  "citationFormat": zod.string().nullish(),
+  "taskType": zod.enum(['general', 'academic']).nullish(),
+  "citationFormat": zod.union([zod.literal('APA'),zod.literal('APA7'),zod.literal('IEEE'),zod.literal('Vancouver'),zod.literal('Chicago'),zod.literal('MLA'),zod.literal('Harvard'),zod.literal(null)]).nullish().describe('Citation format used for in-text\/footnote markers and bibliography. Default = APA.'),
   "outputFormat": zod.string().nullish(),
   "minRefYear": zod.number().nullish(),
   "minRefCount": zod.number().nullish(),
@@ -178,6 +206,7 @@ export const CreateProjectResponse = zod.object({
 export const GetProjectStatsResponse = zod.object({
   "total": zod.number(),
   "byStatus": zod.record(zod.string(), zod.number()),
+  "byType": zod.record(zod.string(), zod.number()).optional().describe('Counts grouped by taskType (general, academic, null)'),
   "recentActivity": zod.array(zod.object({
   "id": zod.number(),
   "projectId": zod.number(),
@@ -202,8 +231,8 @@ export const GetProjectResponse = zod.object({
   "progress": zod.number().describe('0-100 percent'),
   "instructionText": zod.string().nullish(),
   "subject": zod.string().nullish(),
-  "taskType": zod.string().nullish(),
-  "citationFormat": zod.string().nullish(),
+  "taskType": zod.enum(['general', 'academic']).nullish(),
+  "citationFormat": zod.union([zod.literal('APA'),zod.literal('APA7'),zod.literal('IEEE'),zod.literal('Vancouver'),zod.literal('Chicago'),zod.literal('MLA'),zod.literal('Harvard'),zod.literal(null)]).nullish().describe('Citation format used for in-text\/footnote markers and bibliography. Default = APA.'),
   "outputFormat": zod.string().nullish(),
   "minRefYear": zod.number().nullish(),
   "minRefCount": zod.number().nullish(),
@@ -227,7 +256,7 @@ export const UpdateProjectBody = zod.object({
   "title": zod.string().min(1).optional(),
   "status": zod.enum(['draft', 'analyzing', 'writing', 'waiting_revision', 'completed', 'archived']).optional(),
   "instructionText": zod.string().optional(),
-  "outputFormat": zod.enum(['docx', 'pdf', 'markdown']).optional(),
+  "outputFormat": zod.enum(['docx', 'pdf', 'pptx']).optional(),
   "minRefYear": zod.number().optional(),
   "minRefCount": zod.number().optional(),
   "progress": zod.number().optional(),
@@ -241,8 +270,8 @@ export const UpdateProjectResponse = zod.object({
   "progress": zod.number().describe('0-100 percent'),
   "instructionText": zod.string().nullish(),
   "subject": zod.string().nullish(),
-  "taskType": zod.string().nullish(),
-  "citationFormat": zod.string().nullish(),
+  "taskType": zod.enum(['general', 'academic']).nullish(),
+  "citationFormat": zod.union([zod.literal('APA'),zod.literal('APA7'),zod.literal('IEEE'),zod.literal('Vancouver'),zod.literal('Chicago'),zod.literal('MLA'),zod.literal('Harvard'),zod.literal(null)]).nullish().describe('Citation format used for in-text\/footnote markers and bibliography. Default = APA.'),
   "outputFormat": zod.string().nullish(),
   "minRefYear": zod.number().nullish(),
   "minRefCount": zod.number().nullish(),
@@ -529,7 +558,8 @@ export const ListReferencesResponseItem = zod.object({
   "usedInChapters": zod.string().nullish(),
   "createdAt": zod.coerce.date(),
   "isSuggested": zod.boolean().optional().describe('Whether this reference was auto-suggested by CrossRef'),
-  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference')
+  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference'),
+  "isSelected": zod.boolean().optional().describe('Ceklist status — true means reference is included in bibliography and\neligible for AI auto-cite. (DECISION 014)\n')
 })
 export const ListReferencesResponse = zod.array(ListReferencesResponseItem)
 
@@ -573,7 +603,8 @@ export const CreateReferenceResponse = zod.object({
   "usedInChapters": zod.string().nullish(),
   "createdAt": zod.coerce.date(),
   "isSuggested": zod.boolean().optional().describe('Whether this reference was auto-suggested by CrossRef'),
-  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference')
+  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference'),
+  "isSelected": zod.boolean().optional().describe('Ceklist status — true means reference is included in bibliography and\neligible for AI auto-cite. (DECISION 014)\n')
 })
 
 
@@ -622,7 +653,8 @@ export const BulkAddReferencesResponseItem = zod.object({
   "usedInChapters": zod.string().nullish(),
   "createdAt": zod.coerce.date(),
   "isSuggested": zod.boolean().optional().describe('Whether this reference was auto-suggested by CrossRef'),
-  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference')
+  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference'),
+  "isSelected": zod.boolean().optional().describe('Ceklist status — true means reference is included in bibliography and\neligible for AI auto-cite. (DECISION 014)\n')
 })
 export const BulkAddReferencesResponse = zod.array(BulkAddReferencesResponseItem)
 
@@ -694,6 +726,239 @@ export const FormatCSLBibliographyQueryParams = zod.object({
 })
 
 export const FormatCSLBibliographyResponse = zod.object({
+  "bibliography": zod.string(),
+  "format": zod.string().optional()
+})
+
+
+/**
+ * Reads the current document + the references the user has ceklist (selected = true),
+ * then asks the AI to find paragraphs where each reference is relevant and insert
+ * a citation marker. Supports multi-cite — one reference can be cited in multiple
+ * paragraphs. User reviews the suggestions before applying them.
+ * @summary AI suggests citation positions for selected references
+ */
+export const AutoCiteReferencesParams = zod.object({
+  "projectId": zod.coerce.number()
+})
+
+export const autoCiteReferencesBodyReferenceIdsMax = 50;
+
+export const autoCiteReferencesBodyMaxCitationsPerReferenceDefault = 3;
+export const autoCiteReferencesBodyMaxCitationsPerReferenceMax = 20;
+
+export const autoCiteReferencesBodyTierDefault = `mid`;
+
+export const AutoCiteReferencesBody = zod.object({
+  "referenceIds": zod.array(zod.number()).min(1).max(autoCiteReferencesBodyReferenceIdsMax).describe('IDs of references to auto-cite. Only ceklist-selected references are used\nin practice; this list lets user override (e.g. force a specific reference).\n'),
+  "maxCitationsPerReference": zod.number().min(1).max(autoCiteReferencesBodyMaxCitationsPerReferenceMax).default(autoCiteReferencesBodyMaxCitationsPerReferenceDefault).describe('Cap on how many distinct paragraphs the same reference can be cited in.\nDefault = 3 (Level C smart placement).\n'),
+  "tier": zod.enum(['low', 'mid', 'high']).default(autoCiteReferencesBodyTierDefault).describe('AI model tier to use for the suggestion')
+})
+
+export const AutoCiteReferencesResponse = zod.object({
+  "suggestions": zod.array(zod.object({
+  "referenceId": zod.number(),
+  "paragraphIndex": zod.number().describe('0-based paragraph index in the document text'),
+  "offsetInParagraph": zod.number().describe('Character offset within the paragraph (where the citation marker starts)'),
+  "formatMarker": zod.string().describe('Pre-rendered citation marker for the project\'s citationFormat\n(e.g. \"(Smith & Jones, 2023)\" for APA, \"[1]\" for IEEE)\n'),
+  "placementReason": zod.string().describe('AI\'s explanation for why this citation belongs here')
+})),
+  "totalTokensUsed": zod.number(),
+  "referencesAnalyzed": zod.number().describe('How many ceklist-selected references were considered')
+})
+
+
+/**
+ * When ceklist = true, the reference is included in the bibliography and eligible
+ * for AI auto-cite. When false, the reference is hidden from auto-cite but still
+ * visible in the Tab Referensi list.
+ * @summary Toggle the ceklist status of a reference
+ */
+export const ToggleReferenceSelectionParams = zod.object({
+  "projectId": zod.coerce.number(),
+  "referenceId": zod.coerce.number()
+})
+
+export const ToggleReferenceSelectionBody = zod.object({
+  "isSelected": zod.boolean().describe('New ceklist state')
+})
+
+export const ToggleReferenceSelectionResponse = zod.object({
+  "id": zod.number(),
+  "projectId": zod.number(),
+  "title": zod.string(),
+  "authors": zod.string().nullish(),
+  "year": zod.number().nullish(),
+  "journal": zod.string().nullish(),
+  "volume": zod.string().nullish(),
+  "issue": zod.string().nullish(),
+  "doi": zod.string().nullish(),
+  "url": zod.string().nullish(),
+  "validationStatus": zod.enum(['unverified', 'verified', 'invalid']),
+  "usedInChapters": zod.string().nullish(),
+  "createdAt": zod.coerce.date(),
+  "isSuggested": zod.boolean().optional().describe('Whether this reference was auto-suggested by CrossRef'),
+  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference'),
+  "isSelected": zod.boolean().optional().describe('Ceklist status — true means reference is included in bibliography and\neligible for AI auto-cite. (DECISION 014)\n')
+})
+
+
+/**
+ * @summary List all citation marker positions for a project
+ */
+export const ListCitationsParams = zod.object({
+  "projectId": zod.coerce.number()
+})
+
+export const ListCitationsResponseItem = zod.object({
+  "id": zod.number(),
+  "projectId": zod.number(),
+  "referenceId": zod.number(),
+  "paragraphIndex": zod.number(),
+  "offsetInParagraph": zod.number(),
+  "formatMarker": zod.string(),
+  "placementReason": zod.string().nullish(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date().optional()
+})
+export const ListCitationsResponse = zod.array(ListCitationsResponseItem)
+
+
+/**
+ * Used when user inserts citation manually (not via AI auto-cite).
+ * @summary Manually add a citation marker at a position
+ */
+export const CreateCitationParams = zod.object({
+  "projectId": zod.coerce.number()
+})
+
+export const createCitationBodyOffsetInParagraphDefault = 0;
+
+export const CreateCitationBody = zod.object({
+  "referenceId": zod.number(),
+  "paragraphIndex": zod.number(),
+  "offsetInParagraph": zod.number().default(createCitationBodyOffsetInParagraphDefault),
+  "formatMarker": zod.string().describe('Pre-rendered marker (frontend computes from current citationFormat)'),
+  "placementReason": zod.string().optional()
+})
+
+export const CreateCitationResponse = zod.object({
+  "id": zod.number(),
+  "projectId": zod.number(),
+  "referenceId": zod.number(),
+  "paragraphIndex": zod.number(),
+  "offsetInParagraph": zod.number(),
+  "formatMarker": zod.string(),
+  "placementReason": zod.string().nullish(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date().optional()
+})
+
+
+/**
+ * @summary Update citation position (drag) or format marker
+ */
+export const UpdateCitationParams = zod.object({
+  "projectId": zod.coerce.number(),
+  "citationId": zod.coerce.number()
+})
+
+export const UpdateCitationBody = zod.object({
+  "paragraphIndex": zod.number().optional().describe('New paragraph index (for drag between paragraphs)'),
+  "offsetInParagraph": zod.number().optional().describe('New character offset within the paragraph'),
+  "formatMarker": zod.string().optional().describe('New pre-rendered marker (after citationFormat change)'),
+  "placementReason": zod.string().optional()
+})
+
+export const UpdateCitationResponse = zod.object({
+  "id": zod.number(),
+  "projectId": zod.number(),
+  "referenceId": zod.number(),
+  "paragraphIndex": zod.number(),
+  "offsetInParagraph": zod.number(),
+  "formatMarker": zod.string(),
+  "placementReason": zod.string().nullish(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date().optional()
+})
+
+
+/**
+ * @summary Remove a citation marker
+ */
+export const DeleteCitationParams = zod.object({
+  "projectId": zod.coerce.number(),
+  "citationId": zod.coerce.number()
+})
+
+export const DeleteCitationResponse = zod.void()
+
+
+/**
+ * Updates the citation format used to render citation markers in the document
+ * and generate the bibliography section. Triggers re-render of all existing
+ * citation markers.
+ * @summary Set the citation format for a project
+ */
+export const SetProjectCitationFormatParams = zod.object({
+  "projectId": zod.coerce.number()
+})
+
+export const SetProjectCitationFormatBody = zod.object({
+  "citationFormat": zod.enum(['APA', 'APA7', 'IEEE', 'Vancouver', 'Chicago', 'MLA', 'Harvard']).describe('Citation format for the project')
+})
+
+export const SetProjectCitationFormatResponse = zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "status": zod.enum(['draft', 'analyzing', 'writing', 'waiting_revision', 'completed', 'archived']),
+  "progress": zod.number().describe('0-100 percent'),
+  "instructionText": zod.string().nullish(),
+  "subject": zod.string().nullish(),
+  "taskType": zod.enum(['general', 'academic']).nullish(),
+  "citationFormat": zod.union([zod.literal('APA'),zod.literal('APA7'),zod.literal('IEEE'),zod.literal('Vancouver'),zod.literal('Chicago'),zod.literal('MLA'),zod.literal('Harvard'),zod.literal(null)]).nullish().describe('Citation format used for in-text\/footnote markers and bibliography. Default = APA.'),
+  "outputFormat": zod.string().nullish(),
+  "minRefYear": zod.number().nullish(),
+  "minRefCount": zod.number().nullish(),
+  "aiDisclosure": zod.boolean().optional().describe('Toggle AI disclosure labels (default true)'),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * Returns the latest document version with citation markers injected inline
+ * at their stored (paragraphIndex, offsetInParagraph) positions, plus a
+ * formatted bibliography section. For numbered formats (IEEE, Vancouver,
+ * Chicago) markers use sequential numbers based on order of appearance.
+ * @summary Get rendered document preview with citation markers + bibliography
+ */
+export const GetDocumentPreviewParams = zod.object({
+  "projectId": zod.coerce.number()
+})
+
+export const GetDocumentPreviewResponse = zod.object({
+  "paragraphs": zod.array(zod.object({
+  "index": zod.number().describe('Zero-based paragraph index matching original content split'),
+  "html": zod.string().describe('Rendered HTML for this paragraph with citation markers injected\nas `<sup class=\"cite-marker\" data-citation-id=\"N\">marker<\/sup>`.\nMarker text reflects the project\'s current citation format.\n')
+})),
+  "bibliography": zod.string().optional().describe('Auto-generated bibliography (CSL-formatted)'),
+  "citationFormat": zod.enum(['APA', 'APA7', 'IEEE', 'Vancouver', 'Chicago', 'MLA', 'Harvard']),
+  "citationCount": zod.number().describe('Total citation markers in this preview')
+})
+
+
+/**
+ * Returns the CSL-formatted bibliography for all references that have
+ * at least one citation in the project. Cheaper than
+ * POST /references/regenerate (no AI call).
+ * @summary Get formatted bibliography for a project
+ */
+export const GetBibliographyParams = zod.object({
+  "projectId": zod.coerce.number()
+})
+
+export const GetBibliographyResponse = zod.object({
   "bibliography": zod.string(),
   "format": zod.string().optional()
 })
@@ -824,7 +1089,7 @@ export const AccessSharedProjectResponse = zod.object({
   "title": zod.string(),
   "status": zod.enum(['draft', 'analyzing', 'writing', 'waiting_revision', 'completed', 'archived']),
   "subject": zod.string().nullish(),
-  "taskType": zod.string().nullish(),
+  "taskType": zod.enum(['general', 'academic']).nullish(),
   "latestDocument": zod.string().nullish().describe('Latest document content (if accessMode is view or edit)'),
   "accessMode": zod.enum(['view', 'comment', 'edit']),
   "ownerEmail": zod.string().optional().describe('Owner email (for display purposes only)'),
@@ -951,8 +1216,8 @@ export const GetProjectMetadataResponse = zod.object({
   "projectId": zod.number(),
   "detectedTitle": zod.string().nullish(),
   "subject": zod.string().nullish(),
-  "taskType": zod.string().nullish(),
-  "citationFormat": zod.string().nullish(),
+  "taskType": zod.enum(['general', 'academic']).nullish(),
+  "citationFormat": zod.union([zod.literal('APA'),zod.literal('APA7'),zod.literal('IEEE'),zod.literal('Vancouver'),zod.literal('Chicago'),zod.literal('MLA'),zod.literal('Harvard'),zod.literal(null)]).nullish().describe('Citation format used for in-text\/footnote markers and bibliography. Default = APA.'),
   "language": zod.string().nullish(),
   "outline": zod.string().nullish(),
   "contextSummary": zod.string().nullish(),
@@ -1032,17 +1297,20 @@ export const GetMyUsageStatsResponse = zod.object({
   "totalInputTokens": zod.number(),
   "totalOutputTokens": zod.number(),
   "totalCostUsd": zod.number(),
+  "totalCostCents": zod.number().optional().describe('Total saldo terpakai dalam IDR cents. Ini angka yang dilihat user.'),
   "byRequestType": zod.record(zod.string(), zod.object({
   "requests": zod.number().optional(),
   "inputTokens": zod.number().optional(),
   "outputTokens": zod.number().optional(),
-  "costUsd": zod.number().optional()
+  "costUsd": zod.number().optional(),
+  "costCents": zod.number().optional()
 })),
   "byProject": zod.record(zod.string(), zod.object({
   "requests": zod.number().optional(),
   "inputTokens": zod.number().optional(),
   "outputTokens": zod.number().optional(),
-  "costUsd": zod.number().optional()
+  "costUsd": zod.number().optional(),
+  "costCents": zod.number().optional()
 })),
   "period": zod.enum(['7d', '30d', 'all'])
 })
@@ -1061,11 +1329,13 @@ export const GetMyProjectUsageStatsResponse = zod.object({
   "totalInputTokens": zod.number(),
   "totalOutputTokens": zod.number(),
   "totalCostUsd": zod.number(),
+  "totalCostCents": zod.number().optional().describe('Total saldo terpakai dalam IDR cents (project scope).'),
   "byRequestType": zod.record(zod.string(), zod.object({
   "requests": zod.number().optional(),
   "inputTokens": zod.number().optional(),
   "outputTokens": zod.number().optional(),
-  "costUsd": zod.number().optional()
+  "costUsd": zod.number().optional(),
+  "costCents": zod.number().optional()
 }))
 })
 
@@ -1125,7 +1395,7 @@ export const ListExportsParams = zod.object({
 export const ListExportsResponseItem = zod.object({
   "id": zod.number(),
   "projectId": zod.number(),
-  "format": zod.enum(['docx', 'pdf', 'markdown']),
+  "format": zod.enum(['docx', 'pdf', 'pptx']),
   "status": zod.enum(['pending', 'completed', 'failed']),
   "filePath": zod.string().nullish(),
   "createdAt": zod.coerce.date()
@@ -1141,14 +1411,14 @@ export const CreateExportParams = zod.object({
 })
 
 export const CreateExportBody = zod.object({
-  "format": zod.enum(['docx', 'pdf', 'markdown']),
+  "format": zod.enum(['docx', 'pdf', 'pptx']),
   "documentVersionId": zod.number().optional()
 })
 
 export const CreateExportResponse = zod.object({
   "id": zod.number(),
   "projectId": zod.number(),
-  "format": zod.enum(['docx', 'pdf', 'markdown']),
+  "format": zod.enum(['docx', 'pdf', 'pptx']),
   "status": zod.enum(['pending', 'completed', 'failed']),
   "filePath": zod.string().nullish(),
   "createdAt": zod.coerce.date()
@@ -2070,34 +2340,44 @@ export const UpdateAdminAITierResponse = zod.object({
 export const GetMyProfileResponse = zod.object({
   "id": zod.string(),
   "email": zod.string(),
+  "username": zod.string(),
   "displayName": zod.string().nullable(),
   "avatarUrl": zod.string().nullable(),
   "isOwner": zod.boolean(),
   "referralCode": zod.string().nullish(),
+  "usernameChangedAt": zod.coerce.date().nullish().describe('When username was last changed (for 30-day rate limit)'),
   "createdAt": zod.coerce.date()
 })
 
 
 /**
- * Update display name and/or avatar URL.
+ * Update display name, avatar URL, and/or username. Username changes are rate-limited to once per 30 days (rolling window).
  * @summary Update current user's profile
  */
 export const updateMyProfileBodyDisplayNameMax = 100;
 
+export const updateMyProfileBodyUsernameMin = 3;
+export const updateMyProfileBodyUsernameMax = 30;
+
+
+export const updateMyProfileBodyUsernameRegExp = new RegExp('^[a-zA-Z0-9_]+$');
 
 
 export const UpdateMyProfileBody = zod.object({
   "displayName": zod.string().min(1).max(updateMyProfileBodyDisplayNameMax).optional(),
-  "avatarUrl": zod.url().optional()
+  "avatarUrl": zod.url().optional(),
+  "username": zod.string().min(updateMyProfileBodyUsernameMin).max(updateMyProfileBodyUsernameMax).regex(updateMyProfileBodyUsernameRegExp).optional().describe('Unique username for sharing (3-30 chars, alphanumeric + underscore)')
 })
 
 export const UpdateMyProfileResponse = zod.object({
   "id": zod.string(),
   "email": zod.string(),
+  "username": zod.string(),
   "displayName": zod.string().nullable(),
   "avatarUrl": zod.string().nullable(),
   "isOwner": zod.boolean(),
   "referralCode": zod.string().nullish(),
+  "usernameChangedAt": zod.coerce.date().nullish().describe('When username was last changed (for 30-day rate limit)'),
   "createdAt": zod.coerce.date()
 })
 
@@ -2421,5 +2701,355 @@ export const AssignAccountReferenceResponse = zod.object({
   "usedInChapters": zod.string().nullish(),
   "createdAt": zod.coerce.date(),
   "isSuggested": zod.boolean().optional().describe('Whether this reference was auto-suggested by CrossRef'),
-  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference')
+  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference'),
+  "isSelected": zod.boolean().optional().describe('Ceklist status — true means reference is included in bibliography and\neligible for AI auto-cite. (DECISION 014)\n')
 })
+
+
+/**
+ * Returns all learning activities for the authenticated user, ordered by recency. Used by Practice to build quiz recommendations.
+ * @summary List learning activities for recommendations
+ */
+export const ListLearningActivitiesResponseItem = zod.object({
+  "id": zod.number(),
+  "userId": zod.string(),
+  "topics": zod.array(zod.string()).describe('Array of topic strings extracted from the source'),
+  "subject": zod.string().nullish().describe('Subject or course name if detectable'),
+  "sourceProjectId": zod.number().nullish().describe('Link to the Task Mentor project that generated this activity'),
+  "sourceProjectTitle": zod.string().nullish().describe('Denormalized title of the source project for display'),
+  "extractedFrom": zod.enum(['instruction', 'reference', 'chat']).describe('Where the topics were extracted from'),
+  "createdAt": zod.coerce.date()
+})
+export const ListLearningActivitiesResponse = zod.array(ListLearningActivitiesResponseItem)
+
+
+/**
+ * Records topics extracted from a source (instruction, reference, or chat). Used to build the practice recommendation engine.
+ * @summary Log a learning activity
+ */
+
+export const createLearningActivityBodyExtractedFromDefault = `instruction`;
+
+export const CreateLearningActivityBody = zod.object({
+  "topics": zod.array(zod.string()).min(1).describe('Array of topic strings'),
+  "subject": zod.string().optional().describe('Optional subject\/course name'),
+  "sourceProjectId": zod.number().optional().describe('ID of the Task Mentor project this activity came from'),
+  "extractedFrom": zod.enum(['instruction', 'reference', 'chat']).default(createLearningActivityBodyExtractedFromDefault)
+})
+
+export const CreateLearningActivityResponse = zod.object({
+  "id": zod.number(),
+  "userId": zod.string(),
+  "topics": zod.array(zod.string()).describe('Array of topic strings extracted from the source'),
+  "subject": zod.string().nullish().describe('Subject or course name if detectable'),
+  "sourceProjectId": zod.number().nullish().describe('Link to the Task Mentor project that generated this activity'),
+  "sourceProjectTitle": zod.string().nullish().describe('Denormalized title of the source project for display'),
+  "extractedFrom": zod.enum(['instruction', 'reference', 'chat']).describe('Where the topics were extracted from'),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * Returns 2-3 quiz recommendations based on the user's learning activities. Recommendations prioritize recent activities and topics with quiz history.
+ * @summary Get quiz recommendations
+ */
+export const GetPracticeRecommendationsResponseItem = zod.object({
+  "learningActivity": zod.object({
+  "id": zod.number(),
+  "userId": zod.string(),
+  "topics": zod.array(zod.string()).describe('Array of topic strings extracted from the source'),
+  "subject": zod.string().nullish().describe('Subject or course name if detectable'),
+  "sourceProjectId": zod.number().nullish().describe('Link to the Task Mentor project that generated this activity'),
+  "sourceProjectTitle": zod.string().nullish().describe('Denormalized title of the source project for display'),
+  "extractedFrom": zod.enum(['instruction', 'reference', 'chat']).describe('Where the topics were extracted from'),
+  "createdAt": zod.coerce.date()
+}),
+  "reason": zod.string().describe('Human-readable reason for this recommendation'),
+  "type": zod.enum(['recent_task', 'frequent_topic', 'weak_topic']).describe('- recent_task: from the most recently created project\n- frequent_topic: topics that appear most across activities\n- weak_topic: topics where user scored poorly in past quizzes\n')
+})
+export const GetPracticeRecommendationsResponse = zod.array(GetPracticeRecommendationsResponseItem)
+
+
+/**
+ * Returns whether the current user is the owner/admin.
+ * @summary Get admin (owner) status
+ */
+export const GetAdminStatusResponse = zod.object({
+  "isOwner": zod.boolean(),
+  "email": zod.string()
+})
+
+
+/**
+ * @summary List all users (admin only)
+ */
+export const listAdminUsersQueryPageDefault = 1;
+export const listAdminUsersQueryLimitDefault = 20;
+
+export const ListAdminUsersQueryParams = zod.object({
+  "search": zod.coerce.string().optional().describe('Search by email or display name'),
+  "page": zod.coerce.number().default(listAdminUsersQueryPageDefault),
+  "limit": zod.coerce.number().default(listAdminUsersQueryLimitDefault)
+})
+
+export const ListAdminUsersResponse = zod.object({
+  "users": zod.array(zod.object({
+  "id": zod.string().optional(),
+  "email": zod.string().optional(),
+  "displayName": zod.string().nullish(),
+  "avatarUrl": zod.string().nullish(),
+  "referralCode": zod.string().nullish(),
+  "createdAt": zod.coerce.date().optional(),
+  "projectCount": zod.number().optional(),
+  "totalRequests": zod.number().optional(),
+  "totalCostUsd": zod.number().optional()
+})),
+  "pagination": zod.object({
+  "page": zod.number(),
+  "limit": zod.number(),
+  "total": zod.number(),
+  "pages": zod.number()
+})
+})
+
+
+/**
+ * @summary Get aggregate system stats (admin only)
+ */
+export const getAdminStatsQueryPeriodDefault = `month`;
+
+export const GetAdminStatsQueryParams = zod.object({
+  "period": zod.enum(['today', 'week', 'month']).default(getAdminStatsQueryPeriodDefault)
+})
+
+export const GetAdminStatsResponse = zod.object({
+  "period": zod.string().optional(),
+  "totals": zod.object({
+  "users": zod.number().optional(),
+  "projects": zod.number().optional(),
+  "aiRequests": zod.number().optional(),
+  "aiCostUsd": zod.number().optional(),
+  "inputTokens": zod.number().optional(),
+  "outputTokens": zod.number().optional()
+}).optional(),
+  "revenue": zod.object({
+  "totalTopupCents": zod.number().optional(),
+  "totalRefundCents": zod.number().optional(),
+  "transactionCount": zod.number().optional(),
+  "grossMargin": zod.number().optional()
+}).optional(),
+  "ownerUsage": zod.object({
+  "totalRequests": zod.number().optional(),
+  "totalCostUsd": zod.number().optional()
+}).optional(),
+  "topConsumers": zod.array(zod.object({
+  "userId": zod.string().optional(),
+  "requests": zod.number().optional(),
+  "costUsd": zod.number().optional()
+})).optional()
+})
+
+
+/**
+ * @summary Get AI usage breakdown (admin only)
+ */
+export const getAdminUsageQueryPeriodDefault = `month`;
+
+export const GetAdminUsageQueryParams = zod.object({
+  "period": zod.enum(['today', 'week', 'month']).default(getAdminUsageQueryPeriodDefault)
+})
+
+export const GetAdminUsageResponse = zod.object({
+  "period": zod.string().optional(),
+  "byProvider": zod.array(zod.object({
+  "provider": zod.string().optional(),
+  "totalRequests": zod.number().optional(),
+  "totalCostUsd": zod.number().optional(),
+  "totalInputTokens": zod.number().optional(),
+  "totalOutputTokens": zod.number().optional()
+})).optional(),
+  "byModel": zod.array(zod.object({
+  "model": zod.string().optional(),
+  "provider": zod.string().optional(),
+  "totalRequests": zod.number().optional(),
+  "totalCostUsd": zod.number().optional(),
+  "totalInputTokens": zod.number().optional(),
+  "totalOutputTokens": zod.number().optional()
+})).optional(),
+  "byRequestType": zod.array(zod.object({
+  "requestType": zod.string().optional(),
+  "totalRequests": zod.number().optional(),
+  "totalCostUsd": zod.number().optional(),
+  "totalInputTokens": zod.number().optional(),
+  "totalOutputTokens": zod.number().optional()
+})).optional()
+})
+
+
+/**
+ * @summary Get admin audit log (admin only)
+ */
+export const getAdminAuditLogQueryPageDefault = 1;
+export const getAdminAuditLogQueryLimitDefault = 50;
+
+export const GetAdminAuditLogQueryParams = zod.object({
+  "action": zod.coerce.string().optional(),
+  "page": zod.coerce.number().default(getAdminAuditLogQueryPageDefault),
+  "limit": zod.coerce.number().default(getAdminAuditLogQueryLimitDefault)
+})
+
+export const GetAdminAuditLogResponse = zod.object({
+  "logs": zod.array(zod.object({
+  "id": zod.number().optional(),
+  "adminEmail": zod.string().optional(),
+  "action": zod.string().optional(),
+  "targetType": zod.string().optional(),
+  "targetId": zod.string().nullish(),
+  "details": zod.looseObject({
+
+}).nullish(),
+  "ipAddress": zod.string().nullish(),
+  "createdAt": zod.coerce.date().optional()
+})),
+  "pagination": zod.object({
+  "page": zod.number(),
+  "limit": zod.number(),
+  "total": zod.number(),
+  "pages": zod.number()
+})
+})
+
+
+/**
+ * @summary Override user tier (admin only)
+ */
+export const OverrideUserTierParams = zod.object({
+  "userId": zod.coerce.string()
+})
+
+export const OverrideUserTierBody = zod.object({
+  "tierId": zod.string().nullish().describe('Tier ID to set, or null to remove override')
+})
+
+export const OverrideUserTierResponse = zod.unknown()
+
+
+/**
+ * @summary Suspend or unsuspend user (admin only)
+ */
+export const SuspendUserParams = zod.object({
+  "userId": zod.coerce.string()
+})
+
+export const SuspendUserBody = zod.object({
+  "suspend": zod.boolean()
+})
+
+export const SuspendUserResponse = zod.unknown()
+
+
+/**
+ * @summary List subscription packages
+ */
+export const GetPackagesResponse = zod.object({
+  "packages": zod.array(zod.looseObject({
+
+})).optional()
+}).describe('Stub — full schema pending')
+
+
+/**
+ * Returns the authenticated user's referral code (to share), number of
+ * referees invited, total reward earned, current reward balance, and
+ * whether the user has claimed their referee cashback.
+ * @summary Get current user's referral program status
+ */
+export const GetMyReferralInfoResponse = zod.object({
+  "referralCode": zod.string().nullable().describe('User\'s unique referral code to share'),
+  "email": zod.string().nullish(),
+  "displayName": zod.string().nullish(),
+  "referredCount": zod.number().describe('Total users who signed up with this user\'s referral code'),
+  "refereesWithFirstPayment": zod.number().describe('Referees who completed their first payment (qualify for referrer reward)'),
+  "totalRewardEarnedCents": zod.number().describe('Lifetime reward earned (IDR cents), non-withdrawable'),
+  "rewardBalanceCents": zod.number().describe('Current reward balance (IDR cents), usable for AI services'),
+  "refereeCashbackClaimed": zod.boolean().describe('Whether THIS user claimed their referee cashback of IDR 5000'),
+  "refereeCashbackAmountCents": zod.number().describe('Program constant: 500000 equals IDR 5000'),
+  "referrerRewardPercent": zod.number().describe('Program constant: 0.03 means 3 percent'),
+  "referrerRewardTxCap": zod.number().describe('Program constant: 5 transactions per referrer and referee pair')
+})
+
+
+/**
+ * Endpoint that payment gateway webhooks call on successful payment.
+ * Triggers referral rewards: referee cashback (Rp 5,000, first payment only)
+ * + referrer reward (3% × payment amount, capped at 5 transactions).
+ * Idempotent via `paymentEventId`.
+ * Header: `x-webhook-signature: sha256=<hex>` (HMAC-SHA256 of body using
+ * `REFERRAL_WEBHOOK_SECRET`).
+ * @summary Payment gateway webhook — referral reward trigger (gateway-agnostic)
+ */
+export const PaymentSuccessWebhookBody = zod.object({
+  "paymentEventId": zod.string().describe('Unique payment event ID from gateway (used for idempotency)'),
+  "userId": zod.string().describe('Supabase user ID of the payer'),
+  "paidAmountCents": zod.number().describe('Amount paid in IDR cents (gross, before any deductions)'),
+  "method": zod.enum(['subscription', 'topup']),
+  "paidAt": zod.coerce.date(),
+  "metadata": zod.record(zod.string(), zod.unknown()).optional()
+})
+
+export const PaymentSuccessWebhookResponse = zod.object({
+  "ok": zod.boolean().optional(),
+  "refereeCashback": zod.object({
+  "credited": zod.boolean().optional(),
+  "reason": zod.enum(['credited', 'already_claimed', 'no_referrer', 'no_user']).optional(),
+  "amountCents": zod.number().optional()
+}).optional(),
+  "referrerReward": zod.object({
+  "credited": zod.boolean().optional(),
+  "reason": zod.enum(['credited', 'cap_reached', 'no_referrer', 'amount_too_small', 'duplicate_event']).optional(),
+  "amountCents": zod.number().optional(),
+  "txCount": zod.number().optional()
+}).optional()
+})
+
+
+/**
+ * @summary Get current subscription and usage
+ */
+export const GetMySubscriptionResponse = zod.object({
+  "subscription": zod.object({
+  "id": zod.string().optional(),
+  "userId": zod.string().optional(),
+  "packageId": zod.string().optional(),
+  "status": zod.string().optional(),
+  "startsAt": zod.coerce.date().optional(),
+  "expiresAt": zod.coerce.date().optional()
+}).optional().describe('Stub — full schema to be added when backend subscription stabilizes')
+}).describe('Stub — full schema pending')
+
+
+/**
+ * @summary Create a new subscription
+ */
+export const CreateSubscriptionBody = zod.object({
+  "packageId": zod.string().optional()
+}).describe('Stub — full schema pending')
+
+export const CreateSubscriptionResponse = zod.object({
+  "id": zod.string().optional(),
+  "userId": zod.string().optional(),
+  "packageId": zod.string().optional(),
+  "status": zod.string().optional(),
+  "startsAt": zod.coerce.date().optional(),
+  "expiresAt": zod.coerce.date().optional()
+}).describe('Stub — full schema to be added when backend subscription stabilizes')
+
+
+/**
+ * @summary Toggle hybrid autofallback setting
+ */
+export const ToggleAutofallbackBody = zod.object({
+  "enabled": zod.boolean()
+})
+
+export const ToggleAutofallbackResponse = zod.unknown()

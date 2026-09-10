@@ -9,6 +9,19 @@
 5. One referral code per user
 6. Self-referral not allowed
 
+## Username Rules
+
+1. Username is required at registration (cannot be empty)
+2. Format: 3-30 characters, alphanumeric + underscore only (`[a-zA-Z0-9_]`)
+3. Username is unique (enforced at DB level)
+4. Stored and compared in lowercase
+5. Used for public share URLs: `/u/{username}`
+6. Auto-suggest from `displayName` on registration page (user clicks "Gunakan" to accept)
+7. Change rate limit: 1 change per 30 days (rolling window)
+   - `usernameChangedAt` column tracks last change timestamp
+   - Existing OAuth users who got auto-derived usernames on first login are counted as "changed" (30-day wait applies)
+8. Frontend shows countdown badge: "X hari lagi" when rate-limited, "Boleh ganti" when available
+
 ## Project Rules
 
 1. Project title: required, max 255 chars
