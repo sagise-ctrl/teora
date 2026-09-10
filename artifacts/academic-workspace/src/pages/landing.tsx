@@ -56,10 +56,10 @@ const scaleIn = {
 // ─── Data ───────────────────────────────────────────────────────────────────
 
 const stats = [
-  { value: "12.000+", label: "Mahasiswa & Pengajar aktif" },
+  { value: "12.000+", label: "Akademisi aktif" },
   { value: "4.9", label: "Rating rata-rata", suffix: "/5" },
   { value: "98%", label: "Tingkat pemahaman setelah pakai" },
-  { value: "50.000+", label: "Tugas dikerjakan" },
+  { value: "50.000+", label: "Bimbingan materi" },
 ];
 
 const problems = [
@@ -67,17 +67,17 @@ const problems = [
     icon: Clock,
     title: "Terlalu banyak waktu untuk memahami materi dasar",
     description:
-      "Sebelum mulai mengerjakan tugas, kamu harus memahami materinya dulu. Tapi referensi berserakan dan waktu terbatas.",
+      "Sebelum bisa mulai menulis, kamu harus memahami materinya dulu. Tapi referensi berserakan dan waktu terbatas.",
   },
   {
     icon: MessageSquare,
-    title: "AI generatif sering kasih jawaban tanpa penjelasan",
+    title: "Paham itu beda dari sekadar dapat jawaban",
     description:
-      "Chatbot AI menjawab soal, tapi tidak membantu kamu memahami JALAN BERPIKIRnya. Nilai bagus, pemahaman nol.",
+      "Dapat jawaban itu satu hal, benar-benar mengerti itu hal lain. Banyak yang baru sadar belum paham pas ujian atau ada pertanyaan yg belum terfikirkan.",
   },
   {
     icon: FileDown,
-    title: "Susah merangkum dan menyitasi referensi",
+    title: "Bingung merangkum dan format menyitasi referensi",
     description:
       "Pustaka digital banyak, tapi mengelola referensi dan membuat sitasi yang benar memakan waktu berjam-jam.",
   },
@@ -88,7 +88,7 @@ const features = [
     icon: Brain,
     title: "Task Mentor",
     description:
-      "Pahami tugas akademik selangkah demi selangkah, dengan AI yang menjelaskan dasar materinya.",
+      "Pahami structural tugas akademik, Teora yang menjelaskan dasar materinya.",
     color: "from-blue-500/20 to-purple-500/20",
     accent: "text-blue-500",
     badge: "Bestseller",
@@ -97,7 +97,7 @@ const features = [
     icon: BookOpen,
     title: "Practice",
     description:
-      "Quiz berdasarkan topik tugas Anda, dengan sistem pengulangan yang membantu Anda mengingat.",
+      "Quiz berdasarkan topik materi Anda, dengan sistem pengulangan yang membantu Anda mengingat.",
     color: "from-purple-500/20 to-pink-500/20",
     accent: "text-purple-500",
     badge: null,
@@ -106,16 +106,16 @@ const features = [
     icon: Library,
     title: "Pustaka Saya",
     description:
-      "Kelola pustaka referensi dengan Auto-Cite dan format sitasi otomatis.",
+      "Kelola pustaka referensi dengan Auto-Cite dan format sitasi yang berfariasi.",
     color: "from-emerald-500/20 to-teal-500/20",
     accent: "text-emerald-500",
     badge: null,
   },
   {
     icon: MessageSquare,
-    title: "AI Assistant",
+    title: "Teora Assistant",
     description:
-      "Tanya tentang tugas, AI bantu Anda memahami selangkah demi selangkah.",
+      "Tanya tentang materi, Teora bantu Anda memahami detailnya.",
     color: "from-amber-500/20 to-orange-500/20",
     accent: "text-amber-500",
     badge: "Baru",
@@ -124,7 +124,7 @@ const features = [
     icon: FileDown,
     title: "Export",
     description:
-      "Hasilkan dokumen siap submit dalam format DOCX, PDF, atau PPTX.",
+      "Hasilkan dokumen siap pakai dalam format yang tersedia.",
     color: "from-rose-500/20 to-red-500/20",
     accent: "text-rose-500",
     badge: null,
@@ -133,7 +133,7 @@ const features = [
     icon: GraduationCap,
     title: "Assessment Tools",
     description:
-      "Bantu pengajar siapkan soal, rubrik penilaian, dan materi ajar lebih cepat.",
+      "Menyusun bersama Anda untu siapkan soal, rubrik penilaian, dan materi ajar lebih cepat.",
     color: "from-cyan-500/20 to-blue-500/20",
     accent: "text-cyan-500",
     badge: "Untuk Pengajar",
@@ -143,9 +143,9 @@ const features = [
 const steps = [
   {
     number: "01",
-    title: "Tulis topik tugas Anda",
+    title: "Tulis topik akademmik Anda",
     description:
-      "Mulai dengan topik tugas, judul, atau materi yang ingin Anda pahami. Teora membantu Anda menguraikan langkah-langkah pengerjaan.",
+      "Mulai dengan topik, judul, atau materi yang ingin Anda pahami. Teora membantu Anda menguraikan secara terstruktur.",
     visual: (
       <div className="relative bg-gradient-to-br from-[#1a1a2e] to-[#16213e] rounded-2xl p-6 border border-white/10">
         <div className="space-y-3">
@@ -162,14 +162,14 @@ const steps = [
   },
   {
     number: "02",
-    title: "Teora membimbing selangkah demi selangkah",
+    title: "Teora membimbing langkah demi langkah",
     description:
-      "Lewati setiap tahap dengan bimbingan AI yang menunjukkan LOGIKA di balik setiap langkah, selangkah demi selangkah sampai paham.",
+      "Lewati setiap tahap dengan bimbingan Teora yang menunjukkan logika di balik setiap kalimat, langkah demi langkah sampai paham.",
     visual: (
       <div className="relative bg-gradient-to-br from-[#1a1a2e] to-[#16213e] rounded-2xl p-6 border border-white/10">
         <div className="space-y-3">
           {[
-            { label: "Langkah 1", text: "Identifikasi jenis tugas", done: true },
+            { label: "Langkah 1", text: "Identifikasi jenis topik", done: true },
             { label: "Langkah 2", text: "Kumpulkan referensi", done: true },
             { label: "Langkah 3", text: "Susun kerangka", done: false },
           ].map((step) => (
@@ -203,9 +203,9 @@ const steps = [
   },
   {
     number: "03",
-    title: "hasilkan dokumen siap submit",
+    title: "hasilkan dokumen siap pakai",
     description:
-      "Setelah memahami dan mengerjakan, export hasil ke format yang dibutuhkan: DOCX, PDF, atau PPTX. Lengkap dengan sitasi otomatis.",
+      "Setelah memahami dan mengerjakan, export hasil ke format yang dibutuhkan: DOCX, PDF, atau PPTX. Lengkap dengan sitasi yang tersusun.",
     visual: (
       <div className="relative bg-gradient-to-br from-[#1a1a2e] to-[#16213e] rounded-2xl p-6 border border-white/10">
         <div className="grid grid-cols-3 gap-3">
@@ -244,10 +244,10 @@ const testimonials = [
     rating: 5,
   },
   {
-    name: "Dr. Budi Santoso",
+    name: "Andri Raharja",
     role: "Dosen Teknik Elektro",
     university: "Institut Teknologi Bandung",
-    avatar: "B",
+    avatar: "A",
     color: "from-purple-500 to-pink-500",
     quote:
       "Untuk saya yang juga ngajar, Teora menghemat waktu prepping soal dan rubrik sampai 60%. Fitur Assessment untuk pengajar sangat membantu.",
@@ -384,7 +384,7 @@ function HeroSection() {
           <motion.div variants={fadeUp} custom={0} initial="hidden" animate="visible">
             <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-[#2D79FF]/20 to-[#8E54E9]/20 border border-[#2D79FF]/30 text-xs text-[#2D79FF] font-medium">
               <Sparkles className="w-3.5 h-3.5" />
-              Asisten Akademik AI untuk Indonesia
+              Asisten Artificial Intelligence Akademik
             </span>
           </motion.div>
 
@@ -411,8 +411,7 @@ function HeroSection() {
             animate="visible"
             className="text-lg text-white/60 max-w-lg leading-relaxed"
           >
-            Teora membimbing Anda memahami dasar materi dan mengerjakan tugas akademik
-            selangkah demi selangkah, membangun pemahaman yang tahan lama.
+            Teora membimbing Anda memahami dasar tugas akademik secara structural ataupun menyusun materi akademik, untuk membangun pemahaman yang baik.
           </motion.p>
 
           <motion.div
@@ -447,7 +446,7 @@ function HeroSection() {
           >
             <span className="flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4 text-green-500" />
-              Gratis untuk mahasiswa
+              Gratis untuk Akademisi
             </span>
             <span className="flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4 text-green-500" />
@@ -541,7 +540,7 @@ function ProblemSection() {
             Pernah alami ini?
           </span>
           <h2 className="text-3xl md:text-4xl font-serif font-bold mt-3">
-            Tantangan tugas akademik yang
+            Tantangan materi akademik yang
             <br className="hidden md:block" />
             <span className="text-white/50"> menguras waktu dan energi</span>
           </h2>
@@ -598,7 +597,7 @@ function FeaturesSection() {
             dalam satu platform akademik
           </h2>
           <p className="text-white/50 mt-4 max-w-2xl mx-auto">
-            Dirancang untuk mahasiswa dan pengajar Indonesia. Dari memahami materi sampai menghasilkan dokumen siap submit.
+            Dirancang untuk Akademisi. Dari memahami materi sampai menyimpan dokumen siap pakai.
           </p>
         </motion.div>
 
@@ -722,7 +721,7 @@ function TestimonialsSection() {
             Testimoni
           </span>
           <h2 className="text-3xl md:text-4xl font-serif font-bold mt-3">
-            Digunakan oleh mahasiswa dan pengajar
+            Digunakan oleh Akademisi
           </h2>
         </motion.div>
 
@@ -809,7 +808,7 @@ function PricingSection() {
         "Practice (lengkap + spaced repetition)",
         "Export DOCX, PDF, PPTX",
         "Pustaka Saya (unlimited)",
-        "AI Assistant (unlimited)",
+        "Teora Assistant (unlimited)",
         "Auto-Cite semua format",
         "Assessment Tools (untuk pengajar)",
         "Priority support",
@@ -934,10 +933,10 @@ function CTASection() {
 
           <div className="relative">
             <h2 className="text-3xl md:text-4xl font-serif font-bold">
-              Siap menemani proses belajar Anda?
+              Siap menemani proses akademik Anda?
             </h2>
             <p className="text-white/50 mt-4 max-w-xl mx-auto">
-              Bergabung dengan 12.000+ mahasiswa dan pengajar yang sudah menggunakan Teora untuk memahami tugas dan menyelesaikannya.
+              Bergabung dengan 12.000+ akademisi yang sudah menggunakan Teora untuk memahami materi dan menyelesaikannya.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
               <Link href="/register">
@@ -964,7 +963,7 @@ function Footer() {
   const links = {
     Product: ["Fitur", "Harga", "Cara Kerja", "Testimoni"],
     Resources: ["Dokumentasi", "Tutorial", "Blog", "FAQ"],
-    Company: ["Tentang", "Karir", "Kontak", "Press"],
+    Company: ["Tentang", "Kontak", "Press"],
     Legal: ["Syarat Layanan", "Kebijakan Privasi", "Cookie Policy"],
   };
 
@@ -976,7 +975,7 @@ function Footer() {
           <div className="col-span-2">
             <TeoraLogo size="sm" className="mb-4" />
             <p className="text-sm text-white/40 leading-relaxed max-w-xs">
-              Asisten Akademik AI untuk mahasiswa dan pengajar Indonesia. Membantu memahami tugas dan menyelesaikannya.
+              Teora: Asisten Artificial Intelligence Akademik. Membantu memahami materi dan menyelesaikannya.
             </p>
             <div className="flex items-center gap-3 mt-4">
               {[
