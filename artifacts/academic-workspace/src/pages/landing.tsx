@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Link, Redirect } from "wouter";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/use-auth";
 import { TeoraLogo } from "@/components/brand/teora-logo";
 import { Button } from "@/components/ui/button";
@@ -359,13 +359,8 @@ function Navbar() {
 }
 
 function HeroSection() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], [0, 80]);
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
-
   return (
-    <section ref={ref} className="relative min-h-screen flex items-center pt-24 pb-16 overflow-hidden">
+    <section className="relative min-h-screen flex items-center pt-24 pb-16 overflow-hidden">
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-40">
         <img
@@ -383,10 +378,7 @@ function HeroSection() {
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#2D79FF]/10 rounded-full blur-[120px]" />
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#8E54E9]/10 rounded-full blur-[120px]" />
 
-      <motion.div
-        style={{ y, opacity }}
-        className="relative max-w-6xl mx-auto px-6 py-12 grid lg:grid-cols-2 gap-12 items-center"
-      >
+      <div className="relative max-w-6xl mx-auto px-6 py-12 grid lg:grid-cols-2 gap-12 items-center">
         {/* Text content */}
         <div className="space-y-6">
           <motion.div variants={fadeUp} custom={0} initial="hidden" animate="visible">
@@ -483,7 +475,7 @@ function HeroSection() {
             />
           </div>
         </motion.div>
-      </motion.div>
+      </div>
 
       {/* Scroll indicator */}
       <motion.div
