@@ -179,7 +179,7 @@ const CITATION_FORMAT_OPTIONS: Array<{ value: NonNullable<ProjectCitationFormat>
   { value: "APA", label: "APA (7th ed.)", description: "Paling populer di Indonesia" },
   { value: "APA7", label: "APA 7th Edition", description: "Versi terbaru APA" },
   { value: "IEEE", label: "IEEE", description: "Populer untuk teknik & IT" },
-  { value: "Vancouver", label: "Vancouver", description: "ICMJE — populer untuk jurnal medis" },
+  { value: "Vancouver", label: "Vancouver", description: "ICMJE: populer untuk jurnal medis" },
   { value: "Chicago", label: "Chicago", description: "Humaniora dan sosial" },
   { value: "MLA", label: "MLA", description: "Sastra dan bahasa" },
   { value: "Harvard", label: "Harvard", description: "Populer di Australia dan UK" },
@@ -672,7 +672,7 @@ export default function ProjectWorkspace() {
                     <p className="text-sm text-muted-foreground max-w-md text-center">
                       {project.status === "draft"
                         ? "Klik Mulai Analisis untuk memulai proses penulisan oleh Teora."
-                        : "Teora sedang mengerjakan dokumen Anda. Cek lagi sebentar."}
+                        : "Teora sedang menyusun dokumen Anda. Cek lagi sebentar."}
                     </p>
                   </div>
                 )}
@@ -2217,7 +2217,7 @@ function ReferencesTab({ projectId, citationFormat }: { projectId: number; citat
               return (
                 <div key={i} className="flex items-center gap-2 text-muted-foreground">
                   <code className="bg-background px-1.5 py-0.5 rounded text-primary font-mono text-[11px]">{c.formatMarker}</code>
-                  <span className="truncate">— {ref?.title ?? `Ref #${c.referenceId}`}</span>
+                  <span className="truncate">- {ref?.title ?? `Ref #${c.referenceId}`}</span>
                   <span className="ml-auto text-[10px]">¶{c.paragraphIndex + 1}</span>
                 </div>
               )
@@ -2257,7 +2257,7 @@ function ReferencesTab({ projectId, citationFormat }: { projectId: number; citat
                 <ul className="list-disc list-inside text-muted-foreground text-xs space-y-0.5">
                   <li>Hanya referensi yang Anda <strong>ceklist</strong> akan dianalisis</li>
                   <li>Maksimal 3 posisi sitasi per referensi</li>
-                  <li>Saran ditampilkan untuk review — klik "Terapkan" untuk simpan</li>
+                  <li>Saran ditampilkan untuk review, klik "Terapkan" untuk simpan</li>
                 </ul>
               </div>
               {selectedRefCount === 0 && (
@@ -2274,7 +2274,7 @@ function ReferencesTab({ projectId, citationFormat }: { projectId: number; citat
           ) : (
             <div className="space-y-4 py-2">
               <div className="bg-primary/10 rounded-lg p-3 text-sm">
-                {suggestions.length} saran sitasi dari Teora — review lalu klik "Terapkan" untuk menyimpan.
+                {suggestions.length} saran sitasi dari Teora, review lalu klik "Terapkan" untuk menyimpan.
               </div>
               <div className="space-y-2 max-h-[50vh] overflow-y-auto">
                 {suggestions.length === 0 ? (

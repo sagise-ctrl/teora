@@ -266,7 +266,7 @@ function TaskCard({ project, type }: { project: any; type: TaskType }) {
   const stage = backendStatusToStage(project.status);
   const meta = stageMeta(stage);
   const isDraft = project.status === "draft";
-  const ctaLabel = isDraft ? "Mulai Kerjakan" : "Lanjutkan";
+  const ctaLabel = isDraft ? "Mulai Sekarang" : "Lanjutkan";
   const updatedRelative = formatDistanceToNow(new Date(project.updatedAt), {
     addSuffix: true,
     locale: localeId,

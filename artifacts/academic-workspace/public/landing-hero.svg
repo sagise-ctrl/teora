@@ -1,0 +1,353 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Teora hero illustration">
+  <title>Teora - AI Academic Assistant</title>
+  <desc>Abstract geometric illustration of a student studying with AI assistance, featuring books, neural network patterns, and glowing lightbulbs in Teora brand colors</desc>
+
+  <defs>
+    <!-- Brand gradient: blue to purple -->
+    <linearGradient id="heroGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2D79FF" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#8E54E9" stop-opacity="0.9"/>
+    </linearGradient>
+
+    <!-- Blue to purple vertical -->
+    <linearGradient id="bluePurpleV" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2D79FF"/>
+      <stop offset="100%" stop-color="#8E54E9"/>
+    </linearGradient>
+
+    <!-- Radial glow blue -->
+    <radialGradient id="glowBlue" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#2D79FF" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#2D79FF" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Radial glow purple -->
+    <radialGradient id="glowPurple" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#8E54E9" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#8E54E9" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Radial glow warm -->
+    <radialGradient id="glowWarm" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#2D79FF" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#2D79FF" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Soft glow filter -->
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Stronger glow -->
+    <filter id="strongGlow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Subtle drop shadow -->
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#2D79FF" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- ===================== BACKGROUND ELEMENTS ===================== -->
+
+  <!-- Large ambient glow left -->
+  <ellipse cx="200" cy="250" rx="280" ry="200" fill="url(#glowBlue)"/>
+  <!-- Large ambient glow right -->
+  <ellipse cx="600" cy="250" rx="280" ry="200" fill="url(#glowPurple)"/>
+  <!-- Center warm glow -->
+  <ellipse cx="400" cy="260" rx="200" ry="160" fill="url(#glowWarm)"/>
+
+  <!-- ===================== GEOMETRIC FLOATING SHAPES ===================== -->
+
+  <!-- Hexagon top-left -->
+  <polygon points="120,60 145,45 170,60 170,85 145,100 120,85"
+           fill="none" stroke="#2D79FF" stroke-width="1.5" stroke-opacity="0.3"
+           transform="rotate(15, 145, 72)"/>
+  <!-- Hexagon small top-left-2 -->
+  <polygon points="80,120 95,110 110,120 110,135 95,145 80,135"
+           fill="#2D79FF" fill-opacity="0.08" stroke="#2D79FF" stroke-width="1" stroke-opacity="0.4"/>
+
+  <!-- Hexagon top-right -->
+  <polygon points="640,50 665,35 690,50 690,75 665,90 640,75"
+           fill="none" stroke="#8E54E9" stroke-width="1.5" stroke-opacity="0.3"
+           transform="rotate(-10, 665, 62)"/>
+  <!-- Hexagon small top-right-2 -->
+  <polygon points="700,90 712,82 724,90 724,102 712,110 700,102"
+           fill="#8E54E9" fill-opacity="0.08" stroke="#8E54E9" stroke-width="1" stroke-opacity="0.35"/>
+
+  <!-- Floating circles -->
+  <circle cx="90" cy="200" r="8" fill="#2D79FF" fill-opacity="0.15" stroke="#2D79FF" stroke-width="1" stroke-opacity="0.4"/>
+  <circle cx="730" cy="140" r="6" fill="#8E54E9" fill-opacity="0.15" stroke="#8E54E9" stroke-width="1" stroke-opacity="0.4"/>
+  <circle cx="150" cy="380" r="5" fill="#2D79FF" fill-opacity="0.2"/>
+  <circle cx="680" cy="350" r="7" fill="#8E54E9" fill-opacity="0.15" stroke="#8E54E9" stroke-width="1" stroke-opacity="0.3"/>
+  <circle cx="60" cy="300" r="4" fill="#2D79FF" fill-opacity="0.2"/>
+  <circle cx="760" cy="220" r="5" fill="#8E54E9" fill-opacity="0.2"/>
+
+  <!-- Triangles -->
+  <polygon points="200,40 215,60 185,60" fill="none" stroke="#2D79FF" stroke-width="1.5" stroke-opacity="0.25" transform="rotate(20, 200, 50)"/>
+  <polygon points="580,30 592,46 568,46" fill="#8E54E9" fill-opacity="0.1" stroke="#8E54E9" stroke-width="1" stroke-opacity="0.35" transform="rotate(-15, 580, 38)"/>
+  <polygon points="750,300 762,318 738,318" fill="none" stroke="#8E54E9" stroke-width="1.5" stroke-opacity="0.25" transform="rotate(10, 750, 309)"/>
+
+  <!-- Dotted orbital arcs -->
+  <circle cx="400" cy="250" r="160" fill="none" stroke="#2D79FF" stroke-width="1" stroke-opacity="0.12" stroke-dasharray="4,8"/>
+  <circle cx="400" cy="250" r="200" fill="none" stroke="#8E54E9" stroke-width="1" stroke-opacity="0.08" stroke-dasharray="2,12"/>
+
+  <!-- ===================== NEURAL NETWORK LEFT ===================== -->
+
+  <!-- Network nodes and connections left side -->
+  <g stroke="#2D79FF" stroke-opacity="0.3" stroke-width="1" fill="none">
+    <line x1="70" y1="160" x2="140" y2="200"/>
+    <line x1="70" y1="220" x2="140" y2="200"/>
+    <line x1="70" y1="280" x2="140" y2="250"/>
+    <line x1="140" y1="200" x2="200" y2="230"/>
+    <line x1="140" y1="250" x2="200" y2="230"/>
+    <line x1="200" y1="230" x2="260" y2="250"/>
+  </g>
+  <!-- Network nodes -->
+  <circle cx="60" cy="160" r="5" fill="#2D79FF" fill-opacity="0.3"/>
+  <circle cx="70" cy="220" r="4" fill="#2D79FF" fill-opacity="0.25"/>
+  <circle cx="70" cy="280" r="4" fill="#2D79FF" fill-opacity="0.25"/>
+  <circle cx="140" cy="200" r="6" fill="#2D79FF" fill-opacity="0.4"/>
+  <circle cx="140" cy="250" r="5" fill="#2D79FF" fill-opacity="0.3"/>
+  <circle cx="200" cy="230" r="7" fill="#2D79FF" fill-opacity="0.5" filter="url(#softGlow)"/>
+  <circle cx="260" cy="250" r="8" fill="url(#bluePurpleV)" fill-opacity="0.7" filter="url(#softGlow)"/>
+
+  <!-- Network nodes right side -->
+  <g stroke="#8E54E9" stroke-opacity="0.3" stroke-width="1" fill="none">
+    <line x1="740" y1="180" x2="670" y2="220"/>
+    <line x1="740" y1="240" x2="670" y2="240"/>
+    <line x1="740" y1="300" x2="670" y2="260"/>
+    <line x1="670" y1="220" x2="600" y2="250"/>
+    <line x1="670" y1="240" x2="600" y2="250"/>
+    <line x1="600" y1="250" x2="540" y2="260"/>
+  </g>
+  <circle cx="750" cy="180" r="5" fill="#8E54E9" fill-opacity="0.3"/>
+  <circle cx="740" cy="240" r="4" fill="#8E54E9" fill-opacity="0.25"/>
+  <circle cx="740" cy="300" r="4" fill="#8E54E9" fill-opacity="0.25"/>
+  <circle cx="670" cy="220" r="6" fill="#8E54E9" fill-opacity="0.4"/>
+  <circle cx="670" cy="260" r="5" fill="#8E54E9" fill-opacity="0.3"/>
+  <circle cx="600" cy="250" r="7" fill="#8E54E9" fill-opacity="0.5" filter="url(#softGlow)"/>
+  <circle cx="540" cy="260" r="8" fill="url(#bluePurpleV)" fill-opacity="0.7" filter="url(#softGlow)"/>
+
+  <!-- ===================== BOOKS (LEFT STACK) ===================== -->
+
+  <!-- Book stack left - stylized -->
+  <g filter="url(#shadow)">
+    <!-- Book 1 (bottom) -->
+    <rect x="130" y="340" width="90" height="22" rx="3" fill="#2D79FF" fill-opacity="0.7"/>
+    <rect x="130" y="340" width="6" height="22" rx="2" fill="#1a5ce0"/>
+    <!-- Book 2 -->
+    <rect x="125" y="315" width="85" height="22" rx="3" fill="#8E54E9" fill-opacity="0.65"/>
+    <rect x="125" y="315" width="6" height="22" rx="2" fill="#7035c9"/>
+    <!-- Book 3 (top) -->
+    <rect x="128" y="290" width="80" height="22" rx="3" fill="#2D79FF" fill-opacity="0.5"/>
+    <rect x="128" y="290" width="6" height="22" rx="2" fill="#1a5ce0"/>
+    <!-- Spine lines -->
+    <line x1="138" y1="346" x2="138" y2="356" stroke="#1a5ce0" stroke-width="1" stroke-opacity="0.5"/>
+    <line x1="133" y1="321" x2="133" y2="331" stroke="#7035c9" stroke-width="1" stroke-opacity="0.5"/>
+  </g>
+
+  <!-- ===================== BOOKS (RIGHT STACK) ===================== -->
+
+  <g filter="url(#shadow)">
+    <!-- Book 1 (bottom) -->
+    <rect x="580" y="360" width="80" height="20" rx="3" fill="#8E54E9" fill-opacity="0.6"/>
+    <rect x="580" y="360" width="6" height="20" rx="2" fill="#7035c9"/>
+    <!-- Book 2 -->
+    <rect x="583" y="338" width="75" height="20" rx="3" fill="#2D79FF" fill-opacity="0.55"/>
+    <rect x="583" y="338" width="6" height="20" rx="2" fill="#1a5ce0"/>
+    <!-- Book 3 (top) -->
+    <rect x="586" y="316" width="70" height="20" rx="3" fill="#8E54E9" fill-opacity="0.45"/>
+    <rect x="586" y="316" width="6" height="20" rx="2" fill="#7035c9"/>
+  </g>
+
+  <!-- ===================== OPEN BOOK CENTER BOTTOM ===================== -->
+
+  <g filter="url(#shadow)">
+    <!-- Left page -->
+    <path d="M340,400 Q370,380 400,390 L400,445 Q370,435 340,445 Z"
+          fill="#ffffff" fill-opacity="0.9" stroke="#2D79FF" stroke-width="1" stroke-opacity="0.3"/>
+    <!-- Right page -->
+    <path d="M400,390 Q430,380 460,400 L460,445 Q430,435 400,445 Z"
+          fill="#ffffff" fill-opacity="0.85" stroke="#8E54E9" stroke-width="1" stroke-opacity="0.3"/>
+    <!-- Spine -->
+    <line x1="400" y1="390" x2="400" y2="445" stroke="#2D79FF" stroke-width="1.5" stroke-opacity="0.4"/>
+    <!-- Text lines on left page -->
+    <line x1="350" y1="405" x2="390" y2="402" stroke="#2D79FF" stroke-width="1" stroke-opacity="0.3"/>
+    <line x1="352" y1="413" x2="392" y2="410" stroke="#2D79FF" stroke-width="1" stroke-opacity="0.25"/>
+    <line x1="354" y1="421" x2="390" y2="418" stroke="#2D79FF" stroke-width="1" stroke-opacity="0.2"/>
+    <!-- Text lines on right page -->
+    <line x1="408" y1="402" x2="448" y2="405" stroke="#8E54E9" stroke-width="1" stroke-opacity="0.3"/>
+    <line x1="406" y1="410" x2="446" y2="413" stroke="#8E54E9" stroke-width="1" stroke-opacity="0.25"/>
+    <line x1="408" y1="418" x2="444" y2="421" stroke="#8E54E9" stroke-width="1" stroke-opacity="0.2"/>
+    <!-- Bookmark ribbon -->
+    <path d="M425,390 L425,410 L420,405 L415,410 L415,390" fill="#8E54E9" fill-opacity="0.5"/>
+  </g>
+
+  <!-- ===================== PERSON STUDYING (CENTER) ===================== -->
+
+  <!-- Person sitting at desk -->
+  <g filter="url(#softGlow)">
+    <!-- Desk surface -->
+    <rect x="330" y="370" width="140" height="8" rx="4" fill="url(#bluePurpleV)" fill-opacity="0.5"/>
+    <!-- Desk legs -->
+    <rect x="335" y="378" width="6" height="50" rx="2" fill="#2D79FF" fill-opacity="0.3"/>
+    <rect x="459" y="378" width="6" height="50" rx="2" fill="#8E54E9" fill-opacity="0.3"/>
+
+    <!-- Chair back -->
+    <rect x="370" y="360" width="60" height="15" rx="6" fill="url(#bluePurpleV)" fill-opacity="0.3"/>
+    <!-- Chair seat -->
+    <rect x="368" y="370" width="64" height="8" rx="3" fill="url(#bluePurpleV)" fill-opacity="0.25"/>
+
+    <!-- Person body/torso -->
+    <ellipse cx="400" cy="340" rx="28" ry="22" fill="url(#bluePurpleV)" fill-opacity="0.4"/>
+
+    <!-- Person head -->
+    <circle cx="400" cy="295" r="26" fill="url(#bluePurpleV)" fill-opacity="0.5"/>
+
+    <!-- Hair/head detail -->
+    <path d="M378,285 Q400,265 422,285" fill="none" stroke="#2D79FF" stroke-width="2" stroke-opacity="0.4"/>
+
+    <!-- Eyes (looking at screen) -->
+    <circle cx="392" cy="293" r="3" fill="#2D79FF" fill-opacity="0.7"/>
+    <circle cx="408" cy="293" r="3" fill="#2D79FF" fill-opacity="0.7"/>
+    <!-- Smile -->
+    <path d="M394,303 Q400,309 406,303" fill="none" stroke="#2D79FF" stroke-width="1.5" stroke-opacity="0.5" stroke-linecap="round"/>
+
+    <!-- Left arm reaching to keyboard -->
+    <path d="M372,340 Q355,355 345,365" fill="none" stroke="#2D79FF" stroke-width="5" stroke-opacity="0.4" stroke-linecap="round"/>
+    <!-- Right arm -->
+    <path d="M428,340 Q445,355 455,365" fill="none" stroke="#8E54E9" stroke-width="5" stroke-opacity="0.35" stroke-linecap="round"/>
+  </g>
+
+  <!-- ===================== LAPTOP/SCREEN ===================== -->
+
+  <g filter="url(#shadow)">
+    <!-- Laptop base -->
+    <rect x="340" y="365" width="120" height="8" rx="3" fill="#2D79FF" fill-opacity="0.4"/>
+    <!-- Laptop screen frame -->
+    <rect x="348" y="310" width="104" height="58" rx="5" fill="#1a1a2e" fill-opacity="0.8" stroke="#2D79FF" stroke-width="1.5" stroke-opacity="0.5"/>
+    <!-- Screen inner -->
+    <rect x="352" y="314" width="96" height="50" rx="3" fill="#0f0f1a" fill-opacity="0.9"/>
+    <!-- Screen content: gradient bar representing AI analysis -->
+    <rect x="356" y="318" width="88" height="8" rx="2" fill="url(#bluePurpleV)" fill-opacity="0.6"/>
+    <!-- Lines representing data/code -->
+    <rect x="356" y="330" width="55" height="4" rx="2" fill="#2D79FF" fill-opacity="0.4"/>
+    <rect x="356" y="338" width="70" height="4" rx="2" fill="#2D79FF" fill-opacity="0.3"/>
+    <rect x="356" y="346" width="45" height="4" rx="2" fill="#8E54E9" fill-opacity="0.4"/>
+    <rect x="356" y="354" width="60" height="4" rx="2" fill="#8E54E9" fill-opacity="0.3"/>
+    <!-- Screen glow -->
+    <rect x="352" y="314" width="96" height="50" rx="3" fill="url(#glowBlue)" fill-opacity="0.3"/>
+  </g>
+
+  <!-- ===================== LIGHTBULB (AI INSIGHT) ===================== -->
+
+  <g filter="url(#strongGlow)" transform="translate(490, 100)">
+    <!-- Bulb glow circle -->
+    <circle cx="0" cy="0" r="35" fill="url(#glowBlue)" opacity="0.6"/>
+    <!-- Bulb body -->
+    <path d="M-12,5 Q-18,-8 -10,-18 Q0,-28 10,-18 Q18,-8 12,5 Q8,15 8,20 L-8,20 Q-8,15 -12,5 Z"
+          fill="#2D79FF" fill-opacity="0.7"/>
+    <!-- Bulb base -->
+    <rect x="-8" y="20" width="16" height="6" rx="2" fill="#8E54E9" fill-opacity="0.7"/>
+    <rect x="-6" y="26" width="12" height="3" rx="1.5" fill="#2D79FF" fill-opacity="0.6"/>
+    <rect x="-4" y="29" width="8" height="3" rx="1.5" fill="#8E54E9" fill-opacity="0.6"/>
+    <!-- Filament glow lines -->
+    <line x1="-5" y1="5" x2="5" y2="5" stroke="#ffffff" stroke-width="1.5" stroke-opacity="0.6" stroke-linecap="round"/>
+    <line x1="-4" y1="10" x2="4" y2="10" stroke="#ffffff" stroke-width="1.5" stroke-opacity="0.5" stroke-linecap="round"/>
+    <!-- Rays -->
+    <line x1="0" y1="-32" x2="0" y2="-40" stroke="#2D79FF" stroke-width="2" stroke-opacity="0.6" stroke-linecap="round"/>
+    <line x1="22" y1="-22" x2="29" y2="-28" stroke="#2D79FF" stroke-width="2" stroke-opacity="0.5" stroke-linecap="round"/>
+    <line x1="-22" y1="-22" x2="-29" y2="-28" stroke="#2D79FF" stroke-width="2" stroke-opacity="0.5" stroke-linecap="round"/>
+    <line x1="28" y1="0" x2="36" y2="0" stroke="#8E54E9" stroke-width="2" stroke-opacity="0.5" stroke-linecap="round"/>
+    <line x1="-28" y1="0" x2="-36" y2="0" stroke="#8E54E9" stroke-width="2" stroke-opacity="0.5" stroke-linecap="round"/>
+    <!-- Small sparkle dots -->
+    <circle cx="18" cy="-12" r="2" fill="#2D79FF" fill-opacity="0.6"/>
+    <circle cx="-18" cy="-10" r="2" fill="#8E54E9" fill-opacity="0.5"/>
+    <circle cx="8" cy="-35" r="2" fill="#2D79FF" fill-opacity="0.5"/>
+  </g>
+
+  <!-- ===================== FLOATING GEOMETRIC ELEMENTS (CENTER-AIR) ===================== -->
+
+  <!-- Small floating diamond shapes -->
+  <rect x="320" y="180" width="12" height="12" rx="2" fill="#2D79FF" fill-opacity="0.2" stroke="#2D79FF" stroke-width="1" stroke-opacity="0.4" transform="rotate(45, 326, 186)"/>
+  <rect x="470" y="160" width="10" height="10" rx="2" fill="#8E54E9" fill-opacity="0.2" stroke="#8E54E9" stroke-width="1" stroke-opacity="0.4" transform="rotate(45, 475, 165)"/>
+  <rect x="285" y="220" width="8" height="8" rx="1" fill="#2D79FF" fill-opacity="0.15" transform="rotate(45, 289, 224)"/>
+  <rect x="500" y="210" width="9" height="9" rx="1.5" fill="#8E54E9" fill-opacity="0.15" transform="rotate(45, 504, 214)"/>
+
+  <!-- Floating plus signs -->
+  <g stroke="#2D79FF" stroke-width="2" stroke-opacity="0.3" stroke-linecap="round">
+    <line x1="300" y1="150" x2="300" y2="164"/>
+    <line x1="293" y1="157" x2="307" y2="157"/>
+  </g>
+  <g stroke="#8E54E9" stroke-width="2" stroke-opacity="0.3" stroke-linecap="round">
+    <line x1="510" y1="140" x2="510" y2="154"/>
+    <line x1="503" y1="147" x2="517" y2="147"/>
+  </g>
+  <g stroke="#2D79FF" stroke-width="2" stroke-opacity="0.2" stroke-linecap="round">
+    <line x1="275" y1="350" x2="275" y2="362"/>
+    <line x1="269" y1="356" x2="281" y2="356"/>
+  </g>
+  <g stroke="#8E54E9" stroke-width="2" stroke-opacity="0.2" stroke-linecap="round">
+    <line x1="530" y1="330" x2="530" y2="342"/>
+    <line x1="524" y1="336" x2="536" y2="336"/>
+  </g>
+
+  <!-- Dots grid subtle -->
+  <g fill="#2D79FF" fill-opacity="0.15">
+    <circle cx="240" cy="150" r="2"/>
+    <circle cx="255" cy="150" r="2"/>
+    <circle cx="240" cy="165" r="2"/>
+    <circle cx="255" cy="165" r="2"/>
+  </g>
+  <g fill="#8E54E9" fill-opacity="0.15">
+    <circle cx="545" cy="120" r="2"/>
+    <circle cx="560" cy="120" r="2"/>
+    <circle cx="545" cy="135" r="2"/>
+    <circle cx="560" cy="135" r="2"/>
+  </g>
+
+  <!-- ===================== SPEECH/THOUGHT BUBBLE (AI RESPONSE) ===================== -->
+
+  <g filter="url(#softGlow)">
+    <!-- Bubble -->
+    <ellipse cx="310" cy="120" rx="55" ry="30" fill="url(#bluePurpleV)" fill-opacity="0.15" stroke="url(#bluePurpleV)" stroke-width="1.5" stroke-opacity="0.5"/>
+    <!-- Bubble tail -->
+    <path d="M340,145 Q348,155 355,150 Q360,158 368,155 Q360,162 352,160 Q344,165 340,155 Q336,148 340,145" fill="url(#bluePurpleV)" fill-opacity="0.15" stroke="url(#bluePurpleV)" stroke-width="1" stroke-opacity="0.4"/>
+    <!-- AI text lines -->
+    <rect x="282" y="108" width="40" height="4" rx="2" fill="#2D79FF" fill-opacity="0.5"/>
+    <rect x="278" y="118" width="50" height="4" rx="2" fill="#2D79FF" fill-opacity="0.4"/>
+    <rect x="285" y="128" width="35" height="4" rx="2" fill="#8E54E9" fill-opacity="0.4"/>
+  </g>
+
+  <!-- ===================== FLOATING MATH/SCIENCE SYMBOLS ===================== -->
+
+  <!-- Pi symbol -->
+  <text x="220" y="310" font-family="serif" font-size="20" fill="#2D79FF" fill-opacity="0.25" font-weight="bold">pi</text>
+  <!-- Sigma -->
+  <text x="620" y="180" font-family="serif" font-size="18" fill="#8E54E9" fill-opacity="0.25" font-weight="bold">Sigma</text>
+  <!-- Infinity-ish shape -->
+  <path d="M170,180 Q185,170 200,180 Q215,190 230,180 Q215,170 200,180 Q185,190 170,180" fill="none" stroke="#2D79FF" stroke-width="1.5" stroke-opacity="0.3"/>
+
+  <!-- ===================== CONNECTION LINES (AI LINK) ===================== -->
+
+  <!-- Animated-style dashed lines connecting elements to person -->
+  <path d="M400,270 Q440,220 490,130" fill="none" stroke="url(#bluePurpleV)" stroke-width="1.5" stroke-opacity="0.25" stroke-dasharray="6,4"/>
+  <path d="M400,270 Q360,230 310,130" fill="none" stroke="url(#bluePurpleV)" stroke-width="1.5" stroke-opacity="0.2" stroke-dasharray="6,4"/>
+  <path d="M490,145 Q520,180 540,250" fill="none" stroke="#8E54E9" stroke-width="1" stroke-opacity="0.15" stroke-dasharray="4,6"/>
+  <path d="M310,145 Q280,180 260,250" fill="none" stroke="#2D79FF" stroke-width="1" stroke-opacity="0.15" stroke-dasharray="4,6"/>
+
+  <!-- ===================== BOTTOM GRADIENT FADE ===================== -->
+
+  <!-- Fade out at bottom -->
+  <rect x="0" y="430" width="800" height="70" fill="url(#glowBlue)" opacity="0.15"/>
+</svg>

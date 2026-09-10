@@ -54,7 +54,7 @@ const CITATION_FORMAT_OPTIONS: Array<{ value: CitationFormat; label: string; des
   { value: "APA", label: "APA (7th ed.)", description: "Paling populer di Indonesia" },
   { value: "APA7", label: "APA 7th Edition", description: "Versi terbaru APA" },
   { value: "IEEE", label: "IEEE", description: "Populer untuk teknik & IT" },
-  { value: "Vancouver", label: "Vancouver", description: "ICMJE — populer untuk jurnal medis" },
+  { value: "Vancouver", label: "Vancouver", description: "ICMJE: populer untuk jurnal medis" },
   { value: "Chicago", label: "Chicago", description: "Humaniora dan sosial" },
   { value: "MLA", label: "MLA", description: "Sastra dan bahasa" },
   { value: "Harvard", label: "Harvard", description: "Populer di Australia dan UK" },
@@ -74,7 +74,7 @@ type FormValues = z.infer<typeof formSchema>
 const COPY = {
   general: {
     pageTitle: "Task Umum Baru",
-    pageSubtitle: "Mulai tugas singkat. Teora akan kerjakan langsung jadi dokumen siap export.",
+    pageSubtitle: "Mulai tugas singkat. Teora bantu susun kerangka dan pahami instruksi Anda.",
     icon: ListChecks,
     iconBg: "bg-blue-100 dark:bg-blue-900/30",
     iconColor: "text-blue-600 dark:text-blue-400",
@@ -231,7 +231,7 @@ export default function NewProject() {
               <CardDescription>
                 {isAcademic
                   ? "Mulai dari tema dan ide. Teora akan kembangkan jadi outline + kerangka awal yang siap direfine bareng."
-                  : "Mulai dari instruksi. Teora akan kerjakan langsung jadi dokumen siap export."}
+                  : "Mulai dari instruksi. Teora bantu susun kerangka, refine bareng, baru generate."}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">

@@ -673,7 +673,7 @@ function AssignDialog({
             value={selectedProjectId}
             onChange={(e) => setSelectedProjectId(e.target.value)}
           >
-            <option value="">— Pilih proyek —</option>
+            <option value="">Pilih proyek</option>
             {projectList.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.title}

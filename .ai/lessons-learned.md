@@ -26,7 +26,7 @@ Setiap error/bug yang diperbaiki WAJIB dicatat dengan format ini — bukan cuma 
 
 ---
 
-## [Backend 401 "Unauthorized" — mount order middleware + JWT verification + trust proxy]
+## [Backend 401 "Unauthorized" — mount order middleware + JWT verification + trust proxy] `[ERR-009]`
 
 **Tanggal:** 2026-09-01
 **Severity:** P1 Production
@@ -121,7 +121,7 @@ Setiap error/bug yang diperbaiki WAJIB dicatat dengan format ini — bukan cuma 
 
 ---
 
-## [Cross-origin cookie auth failure di Vercel proxy]
+## [Cross-origin cookie auth failure di Vercel proxy] `[ERR-006]`
 
 **Tanggal:** 2026-08-28
 **Severity:** P2 Production
@@ -158,7 +158,7 @@ Same-domain setup memerlukan restructure arsitektur Vercel (1 project bukan 2). 
 
 ---
 
-## [Rate limiter blanket `app.use(path, limiter)` hits auto-called endpoints]
+## [Rate limiter blanket `app.use(path, limiter)` hits auto-called endpoints] `[ERR-007]`
 
 **Tanggal:** 2026-08-28
 **Severity:** P3 Production
@@ -180,7 +180,7 @@ Setelah fix `401 "No refresh token"`, muncul error baru: `GET /api/auth/me 429 T
 
 ---
 
-## [Orphaned Vercel projects — MCP blind spot 403/404]
+## [Orphaned Vercel projects — MCP blind spot 403/404] `[ERR-016]`
 
 **Tanggal:** 2026-08-25
 **Severity:** P1 Dev (Trust)
@@ -206,7 +206,7 @@ MCP Vercel plugin hanya menampilkan 1 dari 4 project Vercel yang owner punya. 3 
 
 ---
 
-## [pnpm workspace + Vercel incompatibility]
+## [pnpm workspace + Vercel incompatibility] `[ERR-003]`
 
 **Tanggal:** 2026-08-22
 **Severity:** P1 Dev
@@ -233,7 +233,7 @@ Monorepo pakai fitur pnpm (`workspace:*`, `catalog:`, overrides) tanpa verifikas
 
 ---
 
-## [Vercel `vercel deploy --prebuilt` serves stale `.vercel/output/` from cache]
+## [Vercel `vercel deploy --prebuilt` serves stale `.vercel/output/` from cache] `[ERR-010]`
 
 - **Gejala**: Setelah `vite build` lokal + `npx vercel deploy --prod --prebuilt`, served bundle punya hash berbeda dari local `dist/`. Bundle `index-Bg74yc0K.js` (1,388,681 bytes) served, sedangkan local `dist/assets/index-Dhp-nRov.js` (1,404,322 bytes) tidak pernah di-upload. `vercel inspect` bilang "Builds [0ms]" — kelihatan seperti pakai prebuilt, padahal pakai cache kemarin.
 
@@ -275,7 +275,7 @@ Monorepo pakai fitur pnpm (`workspace:*`, `catalog:`, overrides) tanpa verifikas
 
 ---
 
-## [Vercel deploy — npm 11 strict rejects `link:` in pnpm-managed node_modules]
+## [Vercel deploy — npm 11 strict rejects `link:` in pnpm-managed node_modules] `[ERR-012]`
 
 **Tanggal:** 2026-09-04
 **Severity:** P2 Deploy Blocker
@@ -323,7 +323,7 @@ Opsi 1-3 perlu perubahan config yang akan persisted dan mungkin affect CI workfl
 
 ---
 
-## [Deploy Errors — Comprehensive Playbook]
+## [Deploy Errors — Comprehensive Playbook] `[ERR-014 / ERR-015]`
 
 **Tanggal:** 2026-09-04
 **Severity:** P1 Dev (deploy blocker, owner time wasted)
@@ -418,7 +418,7 @@ Pending fixes tracked in memory `deploy-error-playbook-20260904.md`.
 
 ---
 
-## [Backend 500 — `db.sql is not a function` di /api/auth/login (Google OAuth flow)]
+## [Backend 500 — `db.sql is not a function` di /api/auth/login (Google OAuth flow)] `[ERR-005]`
 
 **Tanggal:** 2026-09-05
 **Severity:** P1 Production (login 100% broken untuk semua Google OAuth user)
@@ -607,3 +607,91 @@ Opsi 3 terlalu besar — global error handler affect semua routes, butuh audit s
 3. Commit ke git (kalau file tracked)
 
 **Update CLAUDE.md Session Start Protocol** kalau ada lessons baru yang harus selalu di-load.
+
+---
+
+## [Vercel Deploy Blocked — pnpm localhost proxy + pnpm@6/Node.js 24 incompatibility] `[ERR-013]`
+
+**Tanggal:** 2026-09-10
+**Severity:** P1 Deploy Blocker
+**Kelas masalah:** Vercel build environment pnpm configuration broken
+
+### Gejala
+
+Deploy gagal dengan error beruntun:
+
+**Error 1 — pnpm proxy ke `127.0.0.1:8402`:**
+```
+WARN  GET http://127.0.0.1:8402/@radix-ui%2Freact-dialog error (ERR_INVALID_THIS)
+ERR_PNPM_META_FETCH_FAIL  GET http://127.0.0.1:8402/@hookform%2Fresolvers
+```
+Vercel build machine menjalankan pnpm dan semua HTTP request diarahkan ke `127.0.0.1:8402` (localhost proxy). Proxy ini tidak ada di cloud → semua package fetch gagal.
+
+**Error 2 — pnpm 6.35.1 + Node.js 24 `ERR_INVALID_THIS`:**
+Setelah registry override ke `registry.npmjs.org`, error berubah jadi request KE registry.npmjs.org tetap gagal dengan `ERR_INVALID_THIS`. pnpm 6.35.1 punya bug dengan Node.js 24 (`v24.19.0` di Vercel build machine) — URLSearchParams tidak bisa di-pass sebagai konteks `this` yang salah.
+
+**Error 3 — corepack pnpm@9 tidak meng-overwrite pnpm 6.35.1:**
+`npm install -g pnpm@9` atau `corepack prepare pnpm@9 --activate` install pnpm 9.x tapi `pnpm install` berikutnya tetap gunakan pnpm 6.35.1 (shell hash/ PATH cache di environment Vercel).
+
+**Error 4 — prebuilt mode serving 404:**
+```
+vercel deploy --prod --prebuilt --yes
+# Status: READY
+# curl https://... → "page could not be found NOT_FOUND"
+# vercel inspect → 0 files uploaded
+```
+0 files ter-upload dengan `--prebuilt`. Deployment "READY" tapi tidak serving static files.
+
+### Root cause
+
+**Tiga masalah terpisah yang combine:**
+
+1. **pnpm proxy `127.0.0.1:8402`:** Vercel build machine punya pnpm config yang menunjuk ke localhost proxy. Tidak ada di `.npmrc`, `pnpm config.toml`, atau environment variables lokal. Kemungkinan: Vercel project/team-level setting atau cached environment.
+
+2. **pnpm 6.35.1 / Node.js 24 incompatibility:** Bug fundamental di pnpm 6.x dengan Node.js 24. Fix: upgrade ke pnpm 9.x. Tapi upgrade tidak berhasil karena shell cache.
+
+3. **prebuilt routing 404:** `.vercel/output/config.json` tidak di-respected untuk static file serving saat pakai `--prebuilt` tanpa build step.
+
+### Kalau error berulang
+
+**YA — ini error kombinasi baru:**
+- Masalah pnpm registry proxy BARU terdeteksi 2026-09-10 (sebelumnya mungkin build machine berbeda)
+- Masalah pnpm/Node 24 incompatibility BARU karena Vercel update build machine ke Node 24.x
+- `--prebuilt` 404 sudah pernah terjadi sebelumnya (entry terpisah di file ini)
+
+### Opsi yang dipertimbangkan
+
+**Untuk Error 1 & 2:**
+1. Override registry via `pnpm install --config.registry=...` ✅ (fix proxy, tapi Error 2 tetap)
+2. `npm install -g pnpm@9` → ❌ shell cache blok
+3. `corepack prepare pnpm@9 --activate` → ❌ pnpm 6.x shim override
+4. **Migrate to npm workspaces** → work-around, invasive
+5. **Request Vercel support** untuk upgrade pnpm / use Node 22
+
+**Untuk Error 4:**
+1. Fix `config.json` routing → ❌ tidak ada format yang work
+2. Fix `.vercelignore` (sudah done — exclude `.local` → file count turun drastis)
+
+### Yang harus dicek di masa depan
+
+**Diagnosis approach:**
+1. `cat .vercel/output/diagnostics/cli_traces.json | grep fileCount` — kalau > 15,000, perlu fix `.vercelignore`
+2. Cek `pnpm --version` di build machine — kalau 6.x + Node 24, deploy akan gagal
+3. `vercel inspect` setelah deploy — kalau 0 files, prebuilt routing broken
+
+**Fix yang sudah applied:**
+- `.vercelignore` → tambah `**/.local` (exclude pnpm store — 28k files)
+- Vercel project settings → `installCommand: "corepack enable && corepack prepare pnpm@9 --activate && pnpm install"`
+- `artifacts/academic-workspace/vercel.json` → `installCommand: "pnpm install --config.registry=https://registry.npmjs.org/"`
+
+**Investigasi lanjut needed:**
+- [ ] Cari source proxy `127.0.0.1:8402` di Vercel dashboard (project settings atau team settings)
+- [ ] Test apakah `corepack enable && pnpm install` menggunakan shim yang benar
+- [ ] Test GitHub Actions deploy (CI/CD) sebagai work-around
+- [ ] Pertimbangkan npm workspaces sebagai long-term fix
+
+**Deploy work-around sementara (saat error ini terjadi):**
+1. Build lokal: `pnpm run build` ( WORKS — lokal tidak ada proxy issue)
+2. Commit + push ke branch → GitHub Actions CI/CD trigger Vercel deploy
+3. Alternative: deploy dari environment tanpa proxy (bukan mesin ini)
+

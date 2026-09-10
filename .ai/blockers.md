@@ -92,7 +92,8 @@ Sudah di-set via Vercel CLI:
 |---|------|--------------|---------|
 | 1 | **Revoke all tokens that ever appeared in chat history** | (a) Vercel token `[REDACTED]` → revoke at https://vercel.com/account/tokens. (b) GitHub PAT `[REDACTED]` → revoke at https://github.com/settings/tokens. (c) Olagon Gateway token `[REDACTED]` in `~/.claude/settings.json` → rotate at Olagon dashboard. | After web launches / goes live |
 | 2 | **Re-integrate new tokens between GitHub ↔ Vercel ↔ Supabase ↔ Olagon** | Generate fresh tokens on each platform, re-add to (a) GitHub repo secrets (FRONTEND_VITE_SUPABASE_*, VERCEL_TOKEN), (b) Vercel project env vars (DATABASE_*, SUPABASE_*, AI_API_KEY, ALLOWED_ORIGINS, etc.), (c) `~/.claude/settings.json` (ANTHROPIC_AUTH_TOKEN), (d) Claude Code settings.local.json permissions if needed. Verify production still 200 OK after rotation. | After #1 above |
-| 3 | **Build autonomous AI maintenance agent layer** (4 components: monitoring + alert pipeline + AI agent + auto-deploy) | See scope below | Post-launch, P1 priority |
+| 4 | **Supabase URL exposure in Google OAuth login page** | Quick fix: set Site URL ke `https://academic-workspace-eta.vercel.app` di Supabase Dashboard → Authentication → URL Configuration. Proper fix: custom domain `teora.com` + setup di Supabase Auth. Screenshot showing exposed URL: `e:\teora\screnshoot\brn.png` | Before launch |
+| 5 | **AI maintenance agent setup** | Build autonomous maintenance layer (monitoring + alert pipeline + AI agent + auto-deploy) | Post-launch, P1 |
 
 ## Audit Findings (2026-09-05) — NEW
 

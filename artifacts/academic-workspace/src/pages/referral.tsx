@@ -134,7 +134,7 @@ export default function ReferralPage() {
               <p className="text-xs text-muted-foreground mt-0.5">
                 Bagikan ke teman. Kode kamu:{" "}
                 <span className="font-mono font-semibold text-foreground">
-                  {referralCode ?? "—"}
+                  {referralCode ?? "-"}
                 </span>
               </p>
             </div>
@@ -273,8 +273,8 @@ export default function ReferralPage() {
               <li className="flex items-start gap-2">
                 <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
                 <span>
-                  Cashback hanya diberikan <strong className="text-foreground">sekali seumur hidup akun</strong>{" "}
-                  — bukan per metode.
+                  Cashback hanya diberikan <strong className="text-foreground">sekali seumur hidup akun</strong>
+                  , bukan per metode.
                 </span>
               </li>
             </ul>

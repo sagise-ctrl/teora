@@ -317,7 +317,7 @@ export default function Register() {
                             className="inline-flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors cursor-pointer"
                           >
                             <span>Suggestion: <span className="font-mono font-medium">@{suggestedUsername}</span></span>
-                            <span className="text-muted-foreground">—</span>
+                            <span className="text-muted-foreground">-</span>
                             <span className="underline">Gunakan</span>
                           </button>
                         </div>

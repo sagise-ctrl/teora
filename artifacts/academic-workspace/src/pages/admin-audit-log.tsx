@@ -118,10 +118,10 @@ export default function AdminAuditLog() {
                             )}
                           </td>
                           <td className="px-4 py-3 text-xs text-muted-foreground max-w-48 truncate">
-                            {entry.details ? JSON.stringify(entry.details) : "—"}
+                            {entry.details ? JSON.stringify(entry.details) : "-"}
                           </td>
                           <td className="px-4 py-3 text-xs font-mono text-muted-foreground">
-                            {entry.ipAddress ?? "—"}
+                            {entry.ipAddress ?? "-"}
                           </td>
                         </tr>
                       );
