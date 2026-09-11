@@ -129,6 +129,8 @@ IMPORTANT: Return ONLY the JSON object, no markdown code blocks.`;
       tierConfig: aiResult.tierConfig,
     });
 
+    // Expose method + saldoUsedCents in response for UX transparency
+    let quotaInfo: { method: string; saldoUsedCents: number } | undefined;
     if (!selectedTier.isFree && aiResult.usage.costCents > 0) {
       const consumeResult = await consumeQuotaForAIRequest({
         userId: req.user!.id,
@@ -143,6 +145,10 @@ IMPORTANT: Return ONLY the JSON object, no markdown code blocks.`;
           "Quota/saldo exhausted during writing style analysis"
         );
       }
+      quotaInfo = {
+        method: consumeResult.method ?? "subscription",
+        saldoUsedCents: consumeResult.method === "saldo" ? (consumeResult.deductCents ?? 0) : 0,
+      };
     }
 
     const [profile] = await db
@@ -155,7 +161,7 @@ IMPORTANT: Return ONLY the JSON object, no markdown code blocks.`;
       })
       .returning();
 
-    res.status(201).json(profile);
+    res.status(201).json({ ...profile, ...(quotaInfo ?? {}) });
   } catch (err) {
     console.error("Writing style analysis error:", err);
     res.status(500).json({ error: "Failed to analyze writing style" });

@@ -54,6 +54,8 @@ tags:
     description: Admin (owner) dashboard — user management, financials, system config
   - name: subscriptions
     description: Subscription management — packages, plans, and usage windows
+  - name: simulasi
+    description: AI simulation — practice presentations with adversarial questioner
 paths:
   # ── Auth ──────────────────────────────────────────────────────────────────
   /auth/me:
@@ -385,6 +387,262 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InsufficientBalanceError"
+
+  # ── Simulasi ─────────────────────────────────────────────────────────────
+  /projects/{projectId}/simulasi/sessions:
+    post:
+      operationId: createSimulationSession
+      tags: [simulasi]
+      summary: Create a new simulation session. AI initiates with the first question.
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSimulationSessionInput"
+      responses:
+        "201":
+          description: New session with first AI question
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimulationSessionWithMessage"
+        "402":
+          description: Insufficient balance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InsufficientBalanceError"
+
+    get:
+      operationId: listSimulationSessions
+      tags: [simulasi]
+      summary: List all simulation sessions for a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: List of sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: "#/components/schemas/SimulationSession"
+                    - type: object
+                      properties:
+                        quotaInfo:
+                          $ref: "#/components/schemas/QuotaInfo"
+
+  /projects/{projectId}/simulasi/sessions/{sessionId}/messages:
+    get:
+      operationId: listSimulationMessages
+      tags: [simulasi]
+      summary: Get all messages in a simulation session
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Session with messages ordered by sequence index
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SimulationSession"
+                  - type: object
+                    properties:
+                      messages:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/SimulationMessage"
+                      quotaInfo:
+                        $ref: "#/components/schemas/QuotaInfo"
+
+    post:
+      operationId: sendSimulationMessage
+      tags: [simulasi]
+      summary: User responds to AI question. Returns AI follow-up or session complete signal.
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendSimulationMessageInput"
+      responses:
+        "200":
+          description: Session with latest messages (continuing or completed)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SimulationSession"
+                  - type: object
+                    properties:
+                      messages:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/SimulationMessage"
+                      report:
+                        $ref: "#/components/schemas/SimulationReport"
+                      quotaInfo:
+                        $ref: "#/components/schemas/QuotaInfo"
+        "402":
+          description: Insufficient balance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InsufficientBalanceError"
+
+  /projects/{projectId}/simulasi/sessions/{sessionId}/complete:
+    post:
+      operationId: completeSimulationSession
+      tags: [simulasi]
+      summary: User ends session early — generate report from current state
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Report generated
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SimulationSession"
+                  - type: object
+                    properties:
+                      report:
+                        $ref: "#/components/schemas/SimulationReport"
+                      quotaInfo:
+                        $ref: "#/components/schemas/QuotaInfo"
+
+  /projects/{projectId}/simulasi/latest-report:
+    get:
+      operationId: getLatestSimulationReport
+      tags: [simulasi]
+      summary: Get latest simulation report for a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Latest report or null
+          content:
+            application/json:
+              schema:
+                nullable: true
+                $ref: "#/components/schemas/SimulationReport"
+
+  /shared/simulasi/{sessionId}:
+    get:
+      operationId: getSharedSimulationReport
+      tags: [simulasi]
+      summary: Public access to a shared simulation report
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Shared simulation report (anonymized)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SharedSimulationReport"
+        "404":
+          description: Not found or not shared
+
+  /projects/{projectId}/simulasi/sessions/{sessionId}/share:
+    post:
+      operationId: createSimulationShareToken
+      tags: [simulasi]
+      summary: Create a public share link for a simulation session report
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                expiresInDays:
+                  type: number
+                  default: 7
+                  description: Number of days until the share link expires
+      responses:
+        "201":
+          description: Share token created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tokenId:
+                    type: string
+                    description: The public share token to use in the URL
+                  expiresAt:
+                    type: string
+                    format: date-time
+        "401":
+          description: Unauthorized
+        "404":
+          description: Session not found
 
   # ── Documents ─────────────────────────────────────────────────────────────
   /projects/{projectId}/documents:
@@ -5420,4 +5678,225 @@ components:
           type: number
         pages:
           type: number
+
+    # ── Simulasi ─────────────────────────────────────────────────────────────────
+    SimulationPersona:
+      type: string
+      enum: [dosen_strict, dosen_friendly, audience_awam, audience_expert]
+      description: |
+        Persona of the AI questioner:
+        - dosen_strict: Sharp criticism, deep probing, demanding standards
+        - dosen_friendly: Supportive + probing, warm and encouraging
+        - audience_awam: Simple language, asks for clarification
+        - audience_expert: Advanced discussion, jargon OK
+
+    CreateSimulationSessionInput:
+      type: object
+      required: [persona]
+      properties:
+        persona:
+          $ref: "#/components/schemas/SimulationPersona"
+        tierId:
+          type: ["string", "null"]
+          description: AI tier ID to use. Defaults to cheapest eligible.
+
+    SendSimulationMessageInput:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+          minLength: 1
+          description: User's response to the AI's question
+        tierId:
+          type: ["string", "null"]
+          description: AI tier ID for this message. Defaults to cheapest eligible.
+
+    SimulationSession:
+      type: object
+      required: [id, projectId, persona, status, questionsAsked, totalInputTokens, totalOutputTokens, totalCostCents, startedAt, createdAt]
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: integer
+        persona:
+          $ref: "#/components/schemas/SimulationPersona"
+        status:
+          type: string
+          enum: [active, completed, abandoned, failed]
+        questionsAsked:
+          type: integer
+          description: Number of questions asked so far (safety cap 10)
+        totalInputTokens:
+          type: integer
+          description: Running total input tokens used in this session
+        totalOutputTokens:
+          type: integer
+          description: Running total output tokens generated in this session
+        totalCostCents:
+          type: integer
+          description: Running total cost in IDR cents
+        tierId:
+          type: ["string", "null"]
+        startedAt:
+          type: string
+          format: date-time
+        endedAt:
+          type: ["string", "null"]
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    QuotaInfo:
+      type: object
+      properties:
+        saldoUsedCents:
+          type: integer
+          description: Total saldo deducted for this session (always 0 when subscription quota is used)
+
+    SimulationSessionWithMessages:
+      allOf:
+        - $ref: "#/components/schemas/SimulationSession"
+        - type: object
+          properties:
+            messages:
+              type: array
+              items:
+                $ref: "#/components/schemas/SimulationMessage"
+            quotaInfo:
+              $ref: "#/components/schemas/QuotaInfo"
+
+    SimulationSessionWithReport:
+      allOf:
+        - $ref: "#/components/schemas/SimulationSession"
+        - type: object
+          properties:
+            report:
+              $ref: "#/components/schemas/SimulationReport"
+            quotaInfo:
+              $ref: "#/components/schemas/QuotaInfo"
+
+    SimulationSessionWithMessage:
+      allOf:
+        - $ref: "#/components/schemas/SimulationSession"
+        - type: object
+          properties:
+            messages:
+              type: array
+              items:
+                $ref: "#/components/schemas/SimulationMessage"
+            quotaInfo:
+              $ref: "#/components/schemas/QuotaInfo"
+
+    SimulationMessage:
+      type: object
+      required: [id, sessionId, role, content, inputTokens, outputTokens, costCents, sequenceIndex, createdAt]
+      properties:
+        id:
+          type: integer
+        sessionId:
+          type: integer
+        role:
+          type: string
+          enum: [user, assistant, system]
+        content:
+          type: string
+        inputTokens:
+          type: integer
+        outputTokens:
+          type: integer
+        costCents:
+          type: integer
+        sequenceIndex:
+          type: integer
+          description: Order index (1-based)
+        createdAt:
+          type: string
+          format: date-time
+
+    SimulationScore:
+      type: object
+      required: [criterion, score, notes]
+      properties:
+        criterion:
+          type: string
+          description: Name of the evaluation criterion
+        score:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Score 0-100
+        notes:
+          type: string
+          description: Brief note explaining the score
+
+    SimulationReport:
+      type: object
+      required: [id, sessionId, projectId, overallScore, summary, strengths, weaknesses, recommendations, scores, isLatestForProject, createdAt]
+      properties:
+        id:
+          type: integer
+        sessionId:
+          type: integer
+        projectId:
+          type: integer
+        overallScore:
+          type: integer
+          minimum: 0
+          maximum: 100
+        summary:
+          type: string
+          description: 2-3 sentence summary
+        strengths:
+          type: string
+          description: Markdown bullet list of strengths
+        weaknesses:
+          type: string
+          description: Markdown bullet list of weaknesses
+        recommendations:
+          type: string
+          description: Markdown bullet list of actionable recommendations
+        scores:
+          type: array
+          items:
+            $ref: "#/components/schemas/SimulationScore"
+        isLatestForProject:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    SharedSimulationReport:
+      type: object
+      description: Anonymized simulation report — no user information exposed
+      required: [sessionId, persona, status, overallScore, summary, strengths, weaknesses, recommendations, scores, createdAt]
+      properties:
+        sessionId:
+          type: integer
+        persona:
+          $ref: "#/components/schemas/SimulationPersona"
+        status:
+          type: string
+          enum: [active, completed, abandoned, failed]
+        overallScore:
+          type: integer
+        summary:
+          type: string
+        strengths:
+          type: string
+        weaknesses:
+          type: string
+        recommendations:
+          type: string
+        scores:
+          type: array
+          items:
+            $ref: "#/components/schemas/SimulationScore"
+        questionsAsked:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
 

@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { Brain, Lightbulb, Clock, Target, BookOpen, ChevronRight, RefreshCw, Loader2, AlertCircle } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Brain, Lightbulb, Clock, Target, BookOpen, ChevronRight, RefreshCw, AlertCircle, Sparkles } from "lucide-react";
+import { useLocation } from "wouter";
+import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -9,6 +11,7 @@ import {
   useListLearningActivities,
 } from "@/lib/api-client-react";
 import type { PracticeRecommendation, LearningActivity } from "@/lib/api-client-react/generated/api.schemas";
+import { PracticeQuizPicker } from "@/components/practice-quiz-picker";
 
 type RecommendationType = "recent_task" | "frequent_topic" | "weak_topic";
 
@@ -18,29 +21,30 @@ const TYPE_META: Record<RecommendationType, { icon: typeof Clock; color: string;
   weak_topic: { icon: AlertCircle, color: "text-amber-600", label: "Perlu Diperkuat" },
 };
 
-function RecommendationCard({ rec }: { rec: PracticeRecommendation }) {
+function RecommendationCard({
+  rec,
+  onStartQuiz,
+}: {
+  rec: PracticeRecommendation;
+  onStartQuiz: () => void;
+}) {
   const meta = TYPE_META[rec.type as RecommendationType] ?? TYPE_META.recent_task;
   const Icon = meta.icon;
 
   return (
-    <Card className="hover:border-[#2D79FF]/40 transition-all cursor-pointer group">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-2">
-            <div className={`p-2 rounded-lg bg-muted ${meta.color}`}>
-              <Icon className="w-4 h-4" />
-            </div>
-            <Badge variant="secondary" className="text-xs font-medium">
-              {meta.label}
-            </Badge>
+    <Card className="hover:border-[#2D79FF]/40 transition-all">
+      <CardContent className="p-4 space-y-3">
+        <div className="flex items-start gap-2">
+          <div className={`p-1.5 rounded-lg bg-muted ${meta.color}`}>
+            <Icon className="w-3.5 h-3.5" />
           </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+          <Badge variant="secondary" className="text-xs font-medium">
+            {meta.label}
+          </Badge>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-3">
         <p className="text-sm text-muted-foreground leading-relaxed">{rec.reason}</p>
         <div className="flex flex-wrap gap-1.5">
-          {rec.learningActivity.topics.slice(0, 5).map((topic: string) => (
+          {(rec.learningActivity.topics as string[]).slice(0, 5).map((topic: string) => (
             <Badge key={topic} variant="outline" className="text-xs font-normal">
               {topic}
             </Badge>
@@ -51,7 +55,7 @@ function RecommendationCard({ rec }: { rec: PracticeRecommendation }) {
             Dari: {rec.learningActivity.sourceProjectTitle}
           </p>
         )}
-        <Button className="w-full mt-2" size="sm">
+        <Button className="w-full" size="sm" onClick={onStartQuiz}>
           Mulai Kuis
         </Button>
       </CardContent>
@@ -62,13 +66,11 @@ function RecommendationCard({ rec }: { rec: PracticeRecommendation }) {
 function SkeletonCard() {
   return (
     <Card>
-      <CardHeader className="pb-3">
+      <CardContent className="p-4 space-y-3">
         <div className="flex items-center gap-2">
-          <Skeleton className="h-8 w-8 rounded-lg" />
+          <Skeleton className="h-7 w-7 rounded-lg" />
           <Skeleton className="h-4 w-24" />
         </div>
-      </CardHeader>
-      <CardContent className="space-y-3">
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-3/4" />
         <div className="flex gap-1.5">
@@ -85,12 +87,26 @@ export default function Practice() {
   const recommendationsQuery = useGetPracticeRecommendations();
   const activitiesQuery = useListLearningActivities();
   const [refreshing, setRefreshing] = useState(false);
+  const [, navigate] = useLocation();
+
+  const [quizPickerOpen, setQuizPickerOpen] = useState(false);
+  const [selectedRecommendation, setSelectedRecommendation] = useState<PracticeRecommendation | null>(null);
 
   const handleRefresh = async () => {
     setRefreshing(true);
     await recommendationsQuery.refetch();
     await activitiesQuery.refetch();
     setRefreshing(false);
+  };
+
+  const handleStartQuiz = (rec: PracticeRecommendation) => {
+    setSelectedRecommendation(rec);
+    setQuizPickerOpen(true);
+  };
+
+  const handleNavigateQuiz = (quizId: number, projectId: number) => {
+    setQuizPickerOpen(false);
+    navigate(`/practice/quiz/${quizId}?projectId=${projectId}`);
   };
 
   return (
@@ -116,6 +132,46 @@ export default function Practice() {
           Refresh
         </Button>
       </div>
+
+      {/* Simulasi Section */}
+      <section>
+        <div className="flex items-center gap-2 mb-4">
+          <Sparkles className="w-4 h-4 text-[#2D79FF]" />
+          <h2 className="text-lg font-semibold">Simulasi Presentasi</h2>
+        </div>
+        <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+          <CardContent className="p-6">
+            <div className="flex items-start gap-4">
+              <div className="p-3 rounded-xl bg-primary/10 flex-shrink-0">
+                <Sparkles className="w-6 h-6 text-primary" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold mb-1">Latihan Presentasi dengan AI</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                  Simulasikan presentasi sidang atau seminar dengan AI sebagai penanya kritis. Pilih persona — dosen ketat, dosen ramah, audiens awam, atau audiens ahli — dan dapatkan laporan evaluasi beserta skor di akhir sesi.
+                </p>
+                <div className="flex gap-2">
+                  <Button onClick={() => navigate("/projects")} size="sm">
+                    Pilih Proyek untuk Disimulasikan
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      toast({
+                        title: "Buka tab Simulasi di workspace proyek",
+                        description: "Navigasi ke proyek, lalu pilih tab Simulasi untuk memulai.",
+                      })
+                    }
+                  >
+                    Pelajari Lebih Lanjut
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
 
       {/* Recommendations */}
       <section>
@@ -150,7 +206,11 @@ export default function Practice() {
         ) : recommendationsQuery.data && recommendationsQuery.data.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {recommendationsQuery.data.map((rec, i) => (
-              <RecommendationCard key={`${rec.type}-${rec.learningActivity.id}-${i}`} rec={rec} />
+              <RecommendationCard
+                key={`${rec.type}-${(rec.learningActivity as { id?: number }).id}-${i}`}
+                rec={rec as PracticeRecommendation}
+                onStartQuiz={() => handleStartQuiz(rec as PracticeRecommendation)}
+              />
             ))}
           </div>
         ) : (
@@ -192,7 +252,7 @@ export default function Practice() {
           </div>
         ) : activitiesQuery.data && activitiesQuery.data.length > 0 ? (
           <div className="space-y-2">
-            {activitiesQuery.data.slice(0, 10).map((activity: LearningActivity) => (
+            {(activitiesQuery.data as LearningActivity[]).slice(0, 10).map((activity) => (
               <div
                 key={activity.id}
                 className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/40 transition-colors"
@@ -214,7 +274,7 @@ export default function Practice() {
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-1">
-                    {activity.topics.slice(0, 4).map((topic) => (
+                    {(activity.topics as string[]).slice(0, 4).map((topic) => (
                       <span
                         key={topic}
                         className="text-xs px-2 py-0.5 bg-muted rounded-full text-muted-foreground"
@@ -242,6 +302,14 @@ export default function Practice() {
           </Card>
         )}
       </section>
+
+      {/* Quiz Picker Modal */}
+      <PracticeQuizPicker
+        open={quizPickerOpen}
+        onOpenChange={setQuizPickerOpen}
+        recommendation={selectedRecommendation}
+        onNavigate={handleNavigateQuiz}
+      />
     </div>
   );
 }

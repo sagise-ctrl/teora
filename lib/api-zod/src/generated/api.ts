@@ -357,6 +357,326 @@ export const SendMessageResponse = zod.object({
 
 
 /**
+ * @summary Create a new simulation session. AI initiates with the first question.
+ */
+export const CreateSimulationSessionParams = zod.object({
+  "projectId": zod.coerce.number()
+})
+
+export const CreateSimulationSessionBody = zod.object({
+  "persona": zod.enum(['dosen_strict', 'dosen_friendly', 'audience_awam', 'audience_expert']).describe('Persona of the AI questioner:\n- dosen_strict: Sharp criticism, deep probing, demanding standards\n- dosen_friendly: Supportive + probing, warm and encouraging\n- audience_awam: Simple language, asks for clarification\n- audience_expert: Advanced discussion, jargon OK\n'),
+  "tierId": zod.string().nullish().describe('AI tier ID to use. Defaults to cheapest eligible.')
+})
+
+export const CreateSimulationSessionResponse = zod.object({
+  "id": zod.int(),
+  "projectId": zod.int(),
+  "persona": zod.enum(['dosen_strict', 'dosen_friendly', 'audience_awam', 'audience_expert']).describe('Persona of the AI questioner:\n- dosen_strict: Sharp criticism, deep probing, demanding standards\n- dosen_friendly: Supportive + probing, warm and encouraging\n- audience_awam: Simple language, asks for clarification\n- audience_expert: Advanced discussion, jargon OK\n'),
+  "status": zod.enum(['active', 'completed', 'abandoned', 'failed']),
+  "questionsAsked": zod.int().describe('Number of questions asked so far (safety cap 10)'),
+  "totalInputTokens": zod.int().describe('Running total input tokens used in this session'),
+  "totalOutputTokens": zod.int().describe('Running total output tokens generated in this session'),
+  "totalCostCents": zod.int().describe('Running total cost in IDR cents'),
+  "tierId": zod.string().nullish(),
+  "startedAt": zod.coerce.date(),
+  "endedAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date()
+}).and(zod.object({
+  "messages": zod.array(zod.object({
+  "id": zod.int(),
+  "sessionId": zod.int(),
+  "role": zod.enum(['user', 'assistant', 'system']),
+  "content": zod.string(),
+  "inputTokens": zod.int(),
+  "outputTokens": zod.int(),
+  "costCents": zod.int(),
+  "sequenceIndex": zod.int().describe('Order index (1-based)'),
+  "createdAt": zod.coerce.date()
+})).optional(),
+  "quotaInfo": zod.object({
+  "saldoUsedCents": zod.int().optional().describe('Total saldo deducted for this session (always 0 when subscription quota is used)')
+}).optional()
+}))
+
+
+/**
+ * @summary List all simulation sessions for a project
+ */
+export const ListSimulationSessionsParams = zod.object({
+  "projectId": zod.coerce.number()
+})
+
+export const ListSimulationSessionsResponseItem = zod.object({
+  "id": zod.int(),
+  "projectId": zod.int(),
+  "persona": zod.enum(['dosen_strict', 'dosen_friendly', 'audience_awam', 'audience_expert']).describe('Persona of the AI questioner:\n- dosen_strict: Sharp criticism, deep probing, demanding standards\n- dosen_friendly: Supportive + probing, warm and encouraging\n- audience_awam: Simple language, asks for clarification\n- audience_expert: Advanced discussion, jargon OK\n'),
+  "status": zod.enum(['active', 'completed', 'abandoned', 'failed']),
+  "questionsAsked": zod.int().describe('Number of questions asked so far (safety cap 10)'),
+  "totalInputTokens": zod.int().describe('Running total input tokens used in this session'),
+  "totalOutputTokens": zod.int().describe('Running total output tokens generated in this session'),
+  "totalCostCents": zod.int().describe('Running total cost in IDR cents'),
+  "tierId": zod.string().nullish(),
+  "startedAt": zod.coerce.date(),
+  "endedAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date()
+}).and(zod.object({
+  "quotaInfo": zod.object({
+  "saldoUsedCents": zod.int().optional().describe('Total saldo deducted for this session (always 0 when subscription quota is used)')
+}).optional()
+}))
+export const ListSimulationSessionsResponse = zod.array(ListSimulationSessionsResponseItem)
+
+
+/**
+ * @summary Get all messages in a simulation session
+ */
+export const ListSimulationMessagesParams = zod.object({
+  "projectId": zod.coerce.number(),
+  "sessionId": zod.coerce.number()
+})
+
+export const ListSimulationMessagesResponse = zod.object({
+  "id": zod.int(),
+  "projectId": zod.int(),
+  "persona": zod.enum(['dosen_strict', 'dosen_friendly', 'audience_awam', 'audience_expert']).describe('Persona of the AI questioner:\n- dosen_strict: Sharp criticism, deep probing, demanding standards\n- dosen_friendly: Supportive + probing, warm and encouraging\n- audience_awam: Simple language, asks for clarification\n- audience_expert: Advanced discussion, jargon OK\n'),
+  "status": zod.enum(['active', 'completed', 'abandoned', 'failed']),
+  "questionsAsked": zod.int().describe('Number of questions asked so far (safety cap 10)'),
+  "totalInputTokens": zod.int().describe('Running total input tokens used in this session'),
+  "totalOutputTokens": zod.int().describe('Running total output tokens generated in this session'),
+  "totalCostCents": zod.int().describe('Running total cost in IDR cents'),
+  "tierId": zod.string().nullish(),
+  "startedAt": zod.coerce.date(),
+  "endedAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date()
+}).and(zod.object({
+  "messages": zod.array(zod.object({
+  "id": zod.int(),
+  "sessionId": zod.int(),
+  "role": zod.enum(['user', 'assistant', 'system']),
+  "content": zod.string(),
+  "inputTokens": zod.int(),
+  "outputTokens": zod.int(),
+  "costCents": zod.int(),
+  "sequenceIndex": zod.int().describe('Order index (1-based)'),
+  "createdAt": zod.coerce.date()
+})).optional(),
+  "quotaInfo": zod.object({
+  "saldoUsedCents": zod.int().optional().describe('Total saldo deducted for this session (always 0 when subscription quota is used)')
+}).optional()
+}))
+
+
+/**
+ * @summary User responds to AI question. Returns AI follow-up or session complete signal.
+ */
+export const SendSimulationMessageParams = zod.object({
+  "projectId": zod.coerce.number(),
+  "sessionId": zod.coerce.number()
+})
+
+
+
+
+export const SendSimulationMessageBody = zod.object({
+  "content": zod.string().min(1).describe('User\'s response to the AI\'s question'),
+  "tierId": zod.string().nullish().describe('AI tier ID for this message. Defaults to cheapest eligible.')
+})
+
+export const sendSimulationMessageResponseTwoReportOverallScoreMin = 0;
+export const sendSimulationMessageResponseTwoReportOverallScoreMax = 100;
+
+export const sendSimulationMessageResponseTwoReportScoresItemScoreMin = 0;
+export const sendSimulationMessageResponseTwoReportScoresItemScoreMax = 100;
+
+
+
+export const SendSimulationMessageResponse = zod.object({
+  "id": zod.int(),
+  "projectId": zod.int(),
+  "persona": zod.enum(['dosen_strict', 'dosen_friendly', 'audience_awam', 'audience_expert']).describe('Persona of the AI questioner:\n- dosen_strict: Sharp criticism, deep probing, demanding standards\n- dosen_friendly: Supportive + probing, warm and encouraging\n- audience_awam: Simple language, asks for clarification\n- audience_expert: Advanced discussion, jargon OK\n'),
+  "status": zod.enum(['active', 'completed', 'abandoned', 'failed']),
+  "questionsAsked": zod.int().describe('Number of questions asked so far (safety cap 10)'),
+  "totalInputTokens": zod.int().describe('Running total input tokens used in this session'),
+  "totalOutputTokens": zod.int().describe('Running total output tokens generated in this session'),
+  "totalCostCents": zod.int().describe('Running total cost in IDR cents'),
+  "tierId": zod.string().nullish(),
+  "startedAt": zod.coerce.date(),
+  "endedAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date()
+}).and(zod.object({
+  "messages": zod.array(zod.object({
+  "id": zod.int(),
+  "sessionId": zod.int(),
+  "role": zod.enum(['user', 'assistant', 'system']),
+  "content": zod.string(),
+  "inputTokens": zod.int(),
+  "outputTokens": zod.int(),
+  "costCents": zod.int(),
+  "sequenceIndex": zod.int().describe('Order index (1-based)'),
+  "createdAt": zod.coerce.date()
+})).optional(),
+  "report": zod.object({
+  "id": zod.int(),
+  "sessionId": zod.int(),
+  "projectId": zod.int(),
+  "overallScore": zod.int().min(sendSimulationMessageResponseTwoReportOverallScoreMin).max(sendSimulationMessageResponseTwoReportOverallScoreMax),
+  "summary": zod.string().describe('2-3 sentence summary'),
+  "strengths": zod.string().describe('Markdown bullet list of strengths'),
+  "weaknesses": zod.string().describe('Markdown bullet list of weaknesses'),
+  "recommendations": zod.string().describe('Markdown bullet list of actionable recommendations'),
+  "scores": zod.array(zod.object({
+  "criterion": zod.string().describe('Name of the evaluation criterion'),
+  "score": zod.int().min(sendSimulationMessageResponseTwoReportScoresItemScoreMin).max(sendSimulationMessageResponseTwoReportScoresItemScoreMax).describe('Score 0-100'),
+  "notes": zod.string().describe('Brief note explaining the score')
+})),
+  "isLatestForProject": zod.boolean(),
+  "createdAt": zod.coerce.date()
+}).optional(),
+  "quotaInfo": zod.object({
+  "saldoUsedCents": zod.int().optional().describe('Total saldo deducted for this session (always 0 when subscription quota is used)')
+}).optional()
+}))
+
+
+/**
+ * @summary User ends session early — generate report from current state
+ */
+export const CompleteSimulationSessionParams = zod.object({
+  "projectId": zod.coerce.number(),
+  "sessionId": zod.coerce.number()
+})
+
+export const completeSimulationSessionResponseTwoReportOverallScoreMin = 0;
+export const completeSimulationSessionResponseTwoReportOverallScoreMax = 100;
+
+export const completeSimulationSessionResponseTwoReportScoresItemScoreMin = 0;
+export const completeSimulationSessionResponseTwoReportScoresItemScoreMax = 100;
+
+
+
+export const CompleteSimulationSessionResponse = zod.object({
+  "id": zod.int(),
+  "projectId": zod.int(),
+  "persona": zod.enum(['dosen_strict', 'dosen_friendly', 'audience_awam', 'audience_expert']).describe('Persona of the AI questioner:\n- dosen_strict: Sharp criticism, deep probing, demanding standards\n- dosen_friendly: Supportive + probing, warm and encouraging\n- audience_awam: Simple language, asks for clarification\n- audience_expert: Advanced discussion, jargon OK\n'),
+  "status": zod.enum(['active', 'completed', 'abandoned', 'failed']),
+  "questionsAsked": zod.int().describe('Number of questions asked so far (safety cap 10)'),
+  "totalInputTokens": zod.int().describe('Running total input tokens used in this session'),
+  "totalOutputTokens": zod.int().describe('Running total output tokens generated in this session'),
+  "totalCostCents": zod.int().describe('Running total cost in IDR cents'),
+  "tierId": zod.string().nullish(),
+  "startedAt": zod.coerce.date(),
+  "endedAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date()
+}).and(zod.object({
+  "report": zod.object({
+  "id": zod.int(),
+  "sessionId": zod.int(),
+  "projectId": zod.int(),
+  "overallScore": zod.int().min(completeSimulationSessionResponseTwoReportOverallScoreMin).max(completeSimulationSessionResponseTwoReportOverallScoreMax),
+  "summary": zod.string().describe('2-3 sentence summary'),
+  "strengths": zod.string().describe('Markdown bullet list of strengths'),
+  "weaknesses": zod.string().describe('Markdown bullet list of weaknesses'),
+  "recommendations": zod.string().describe('Markdown bullet list of actionable recommendations'),
+  "scores": zod.array(zod.object({
+  "criterion": zod.string().describe('Name of the evaluation criterion'),
+  "score": zod.int().min(completeSimulationSessionResponseTwoReportScoresItemScoreMin).max(completeSimulationSessionResponseTwoReportScoresItemScoreMax).describe('Score 0-100'),
+  "notes": zod.string().describe('Brief note explaining the score')
+})),
+  "isLatestForProject": zod.boolean(),
+  "createdAt": zod.coerce.date()
+}).optional(),
+  "quotaInfo": zod.object({
+  "saldoUsedCents": zod.int().optional().describe('Total saldo deducted for this session (always 0 when subscription quota is used)')
+}).optional()
+}))
+
+
+/**
+ * @summary Get latest simulation report for a project
+ */
+export const GetLatestSimulationReportParams = zod.object({
+  "projectId": zod.coerce.number()
+})
+
+export const getLatestSimulationReportResponseOneOverallScoreMin = 0;
+export const getLatestSimulationReportResponseOneOverallScoreMax = 100;
+
+export const getLatestSimulationReportResponseOneScoresItemScoreMin = 0;
+export const getLatestSimulationReportResponseOneScoresItemScoreMax = 100;
+
+
+
+export const GetLatestSimulationReportResponse = zod.union([zod.object({
+  "id": zod.int(),
+  "sessionId": zod.int(),
+  "projectId": zod.int(),
+  "overallScore": zod.int().min(getLatestSimulationReportResponseOneOverallScoreMin).max(getLatestSimulationReportResponseOneOverallScoreMax),
+  "summary": zod.string().describe('2-3 sentence summary'),
+  "strengths": zod.string().describe('Markdown bullet list of strengths'),
+  "weaknesses": zod.string().describe('Markdown bullet list of weaknesses'),
+  "recommendations": zod.string().describe('Markdown bullet list of actionable recommendations'),
+  "scores": zod.array(zod.object({
+  "criterion": zod.string().describe('Name of the evaluation criterion'),
+  "score": zod.int().min(getLatestSimulationReportResponseOneScoresItemScoreMin).max(getLatestSimulationReportResponseOneScoresItemScoreMax).describe('Score 0-100'),
+  "notes": zod.string().describe('Brief note explaining the score')
+})),
+  "isLatestForProject": zod.boolean(),
+  "createdAt": zod.coerce.date()
+}),zod.null()])
+
+
+/**
+ * @summary Public access to a shared simulation report
+ */
+export const GetSharedSimulationReportParams = zod.object({
+  "sessionId": zod.coerce.number()
+})
+
+export const getSharedSimulationReportResponseScoresItemScoreMin = 0;
+export const getSharedSimulationReportResponseScoresItemScoreMax = 100;
+
+
+
+export const GetSharedSimulationReportResponse = zod.object({
+  "sessionId": zod.int(),
+  "persona": zod.enum(['dosen_strict', 'dosen_friendly', 'audience_awam', 'audience_expert']).describe('Persona of the AI questioner:\n- dosen_strict: Sharp criticism, deep probing, demanding standards\n- dosen_friendly: Supportive + probing, warm and encouraging\n- audience_awam: Simple language, asks for clarification\n- audience_expert: Advanced discussion, jargon OK\n'),
+  "status": zod.enum(['active', 'completed', 'abandoned', 'failed']),
+  "overallScore": zod.int(),
+  "summary": zod.string(),
+  "strengths": zod.string(),
+  "weaknesses": zod.string(),
+  "recommendations": zod.string(),
+  "scores": zod.array(zod.object({
+  "criterion": zod.string().describe('Name of the evaluation criterion'),
+  "score": zod.int().min(getSharedSimulationReportResponseScoresItemScoreMin).max(getSharedSimulationReportResponseScoresItemScoreMax).describe('Score 0-100'),
+  "notes": zod.string().describe('Brief note explaining the score')
+})),
+  "questionsAsked": zod.int().optional(),
+  "createdAt": zod.coerce.date()
+}).describe('Anonymized simulation report — no user information exposed')
+
+
+/**
+ * @summary Create a public share link for a simulation session report
+ */
+export const CreateSimulationShareTokenParams = zod.object({
+  "projectId": zod.coerce.number(),
+  "sessionId": zod.coerce.number()
+})
+
+export const createSimulationShareTokenBodyExpiresInDaysDefault = 7;
+
+export const CreateSimulationShareTokenBody = zod.object({
+  "expiresInDays": zod.number().default(createSimulationShareTokenBodyExpiresInDaysDefault).describe('Number of days until the share link expires')
+})
+
+export const CreateSimulationShareTokenResponse = zod.object({
+  "tokenId": zod.string().optional().describe('The public share token to use in the URL'),
+  "expiresAt": zod.coerce.date().optional()
+})
+
+
+/**
  * @summary List all documents in a project
  */
 export const ListDocumentsParams = zod.object({

@@ -27,11 +27,11 @@ var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
 };
-var __copyProps = (to, from, except, desc20) => {
+var __copyProps = (to, from, except, desc21) => {
   if (from && typeof from === "object" || typeof from === "function") {
     for (let key of __getOwnPropNames(from))
       if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc20 = __getOwnPropDesc(from, key)) || desc20.enumerable });
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc21 = __getOwnPropDesc(from, key)) || desc21.enumerable });
   }
   return to;
 };
@@ -209,18 +209,18 @@ var require_common = __commonJS({
           if (typeof args[0] !== "string") {
             args.unshift("%O");
           }
-          let index11 = 0;
+          let index14 = 0;
           args[0] = args[0].replace(/%([a-zA-Z%])/g, (match, format) => {
             if (match === "%%") {
               return "%";
             }
-            index11++;
+            index14++;
             const formatter2 = createDebug.formatters[format];
             if (typeof formatter2 === "function") {
-              const val = args[index11];
+              const val = args[index14];
               match = formatter2.call(self2, val);
-              args.splice(index11, 1);
-              index11--;
+              args.splice(index14, 1);
+              index14--;
             }
             return match;
           });
@@ -455,15 +455,15 @@ var require_browser = __commonJS({
       }
       const c = "color: " + this.color;
       args.splice(1, 0, c, "color: inherit");
-      let index11 = 0;
+      let index14 = 0;
       let lastC = 0;
       args[0].replace(/%[a-zA-Z%]/g, (match) => {
         if (match === "%%") {
           return;
         }
-        index11++;
+        index14++;
         if (match === "%c") {
-          lastC = index11;
+          lastC = index14;
         }
       });
       args.splice(lastC, 0, c);
@@ -977,8 +977,8 @@ var require_depd = __commonJS({
       return typeName && callSite.getMethodName() ? typeName + "." + funcName : funcName;
     }
     function formatPlain(msg, caller, stack) {
-      var timestamp33 = (/* @__PURE__ */ new Date()).toUTCString();
-      var formatted = timestamp33 + " " + this._namespace + " deprecated " + msg;
+      var timestamp36 = (/* @__PURE__ */ new Date()).toUTCString();
+      var formatted = timestamp36 + " " + this._namespace + " deprecated " + msg;
       if (this._traced) {
         for (var i2 = 0; i2 < stack.length; i2++) {
           formatted += "\n    at " + stack[i2].toString();
@@ -1470,10 +1470,10 @@ var require_http_errors = __commonJS({
       return ServerError;
     }
     function nameFunc(func, name) {
-      var desc20 = Object.getOwnPropertyDescriptor(func, "name");
-      if (desc20 && desc20.configurable) {
-        desc20.value = name;
-        Object.defineProperty(func, "name", desc20);
+      var desc21 = Object.getOwnPropertyDescriptor(func, "name");
+      if (desc21 && desc21.configurable) {
+        desc21.value = name;
+        Object.defineProperty(func, "name", desc21);
       }
     }
     function populateConstructorExports(exports2, codes, HttpError) {
@@ -5328,7 +5328,7 @@ var require_lib = __commonJS({
     module.exports._canonicalizeEncoding = function(encoding) {
       return ("" + encoding).toLowerCase().replace(/:\d{4}$|[^0-9a-z]/g, "");
     };
-    module.exports.getEncoder = function getEncoder(encoding, options) {
+    module.exports.getEncoder = function getEncoder2(encoding, options) {
       var codec = module.exports.getCodec(encoding);
       var encoder2 = new codec.encoder(options, codec);
       if (codec.bomAware && options && options.addBOM) {
@@ -5800,15 +5800,15 @@ var require_dist = __commonJS({
     function parse2(header, options) {
       const stopChar = options?.comma === true ? COMMA : 65536;
       const len = header.length;
-      let index11 = skipOWS(header, options?.start ?? 0, len);
-      const valueStart = index11;
-      index11 = skipValue(header, index11, len, stopChar);
-      const valueEnd = trailingOWS(header, valueStart, index11);
+      let index14 = skipOWS(header, options?.start ?? 0, len);
+      const valueStart = index14;
+      index14 = skipValue(header, index14, len, stopChar);
+      const valueEnd = trailingOWS(header, valueStart, index14);
       const type = header.slice(valueStart, valueEnd).toLowerCase();
       if (options?.parameters === false) {
-        return { type, index: index11, parameters: new NullObject() };
+        return { type, index: index14, parameters: new NullObject() };
       }
-      return parseParameters(header, type, index11, len, stopChar);
+      return parseParameters(header, type, index14, len, stopChar);
     }
     var SP = 32;
     var HTAB = 9;
@@ -5817,72 +5817,72 @@ var require_dist = __commonJS({
     var DQUOTE = 34;
     var BSLASH = 92;
     var COMMA = 44;
-    function parseParameters(header, type, index11, len, stopChar) {
+    function parseParameters(header, type, index14, len, stopChar) {
       const parameters2 = new NullObject();
-      parameter: while (index11 < len) {
-        if (header.charCodeAt(index11) === stopChar)
+      parameter: while (index14 < len) {
+        if (header.charCodeAt(index14) === stopChar)
           break;
-        index11 = skipOWS(header, index11 + 1, len);
-        const keyStart = index11;
-        while (index11 < len) {
-          const code = header.charCodeAt(index11);
+        index14 = skipOWS(header, index14 + 1, len);
+        const keyStart = index14;
+        while (index14 < len) {
+          const code = header.charCodeAt(index14);
           if (code === stopChar)
             break parameter;
           if (code === SEMI)
             continue parameter;
           if (code === EQ) {
-            const keyEnd = trailingOWS(header, keyStart, index11);
+            const keyEnd = trailingOWS(header, keyStart, index14);
             const key = header.slice(keyStart, keyEnd).toLowerCase();
-            index11 = skipOWS(header, index11 + 1, len);
-            if (index11 < len && header.charCodeAt(index11) === DQUOTE) {
-              index11++;
+            index14 = skipOWS(header, index14 + 1, len);
+            if (index14 < len && header.charCodeAt(index14) === DQUOTE) {
+              index14++;
               let value = "";
-              while (index11 < len) {
-                const code2 = header.charCodeAt(index11++);
+              while (index14 < len) {
+                const code2 = header.charCodeAt(index14++);
                 if (code2 === DQUOTE) {
-                  index11 = skipValue(header, index11, len, stopChar);
+                  index14 = skipValue(header, index14, len, stopChar);
                   if (parameters2[key] === void 0)
                     parameters2[key] = value;
                   break;
                 }
-                if (code2 === BSLASH && index11 < len) {
-                  value += header[index11++];
+                if (code2 === BSLASH && index14 < len) {
+                  value += header[index14++];
                   continue;
                 }
                 value += String.fromCharCode(code2);
               }
               continue parameter;
             }
-            const valueStart = index11;
-            index11 = skipValue(header, index11, len, stopChar);
+            const valueStart = index14;
+            index14 = skipValue(header, index14, len, stopChar);
             if (parameters2[key] === void 0) {
-              const valueEnd = trailingOWS(header, valueStart, index11);
+              const valueEnd = trailingOWS(header, valueStart, index14);
               parameters2[key] = header.slice(valueStart, valueEnd);
             }
             continue parameter;
           }
-          index11++;
+          index14++;
         }
       }
-      return { type, index: index11, parameters: parameters2 };
+      return { type, index: index14, parameters: parameters2 };
     }
-    function skipValue(str, index11, len, stopChar) {
-      while (index11 < len) {
-        const code = str.charCodeAt(index11);
+    function skipValue(str, index14, len, stopChar) {
+      while (index14 < len) {
+        const code = str.charCodeAt(index14);
         if (code === SEMI || code === stopChar)
           break;
-        index11++;
+        index14++;
       }
-      return index11;
+      return index14;
     }
-    function skipOWS(header, index11, len) {
-      while (index11 < len) {
-        const char = header.charCodeAt(index11);
+    function skipOWS(header, index14, len) {
+      while (index14 < len) {
+        const char = header.charCodeAt(index14);
         if (char !== SP && char !== HTAB)
           break;
-        index11++;
+        index14++;
       }
-      return index11;
+      return index14;
     }
     function trailingOWS(header, start, end) {
       while (end > start) {
@@ -15457,10 +15457,10 @@ var require_media_typer = __commonJS({
       var type = match[1];
       var subtype = match[2];
       var suffix;
-      var index11 = subtype.lastIndexOf("+");
-      if (index11 !== -1) {
-        suffix = subtype.substr(index11 + 1);
-        subtype = subtype.substr(0, index11);
+      var index14 = subtype.lastIndexOf("+");
+      if (index14 !== -1) {
+        suffix = subtype.substr(index14 + 1);
+        subtype = subtype.substr(0, index14);
       }
       return new MediaType(type, subtype, suffix);
     }
@@ -15836,10 +15836,10 @@ var require_json = __commonJS({
       };
     }
     function createStrictSyntaxError(str, char) {
-      const index11 = str.indexOf(char);
+      const index14 = str.indexOf(char);
       let partial = "";
-      if (index11 !== -1) {
-        partial = str.substring(0, index11) + JSON_SYNTAX_CHAR.repeat(str.length - index11);
+      if (index14 !== -1) {
+        partial = str.substring(0, index14) + JSON_SYNTAX_CHAR.repeat(str.length - index14);
       }
       try {
         JSON.parse(partial);
@@ -15847,7 +15847,7 @@ var require_json = __commonJS({
       } catch (e2) {
         return normalizeJsonSyntaxError(e2, {
           message: e2.message.replace(JSON_SYNTAX_REGEXP, function(placeholder) {
-            return str.substring(index11, index11 + placeholder.length);
+            return str.substring(index14, index14 + placeholder.length);
           }),
           stack: e2.stack
         });
@@ -15901,8 +15901,8 @@ var require_text = __commonJS({
     var debug = require_src()("body-parser:text");
     var read = require_read();
     var { normalizeOptions, passthrough } = require_utils();
-    module.exports = text33;
-    function text33(options) {
+    module.exports = text36;
+    function text36(options) {
       const normalizedOptions = normalizeOptions(options, "text/plain");
       return function textParser(req, res, next) {
         read(req, res, next, passthrough, debug, normalizedOptions);
@@ -16967,14 +16967,14 @@ var require_get = __commonJS({
         throw e2;
       }
     }
-    var desc20 = !!hasProtoAccessor && gOPD && gOPD(
+    var desc21 = !!hasProtoAccessor && gOPD && gOPD(
       Object.prototype,
       /** @type {keyof typeof Object.prototype} */
       "__proto__"
     );
     var $Object = Object;
     var $getPrototypeOf = $Object.getPrototypeOf;
-    module.exports = desc20 && typeof desc20.get === "function" ? callBind([desc20.get]) : typeof $getPrototypeOf === "function" ? (
+    module.exports = desc21 && typeof desc21.get === "function" ? callBind([desc21.get]) : typeof $getPrototypeOf === "function" ? (
       /** @type {import('./get')} */
       function getDunder(value) {
         return $getPrototypeOf(value == null ? value : $Object(value));
@@ -17324,10 +17324,10 @@ var require_get_intrinsic = __commonJS({
             return void undefined2;
           }
           if ($gOPD && i2 + 1 >= parts.length) {
-            var desc20 = $gOPD(value, part);
-            isOwn = !!desc20;
-            if (isOwn && "get" in desc20 && !("originalValue" in desc20.get)) {
-              value = desc20.get;
+            var desc21 = $gOPD(value, part);
+            isOwn = !!desc21;
+            if (isOwn && "get" in desc21 && !("originalValue" in desc21.get)) {
+              value = desc21.get;
             } else {
               value = value[part];
             }
@@ -18319,18 +18319,18 @@ var require_parse = __commonJS({
           obj = options.plainObjects ? { __proto__: null } : {};
           var cleanRoot = root.charAt(0) === "[" && root.charAt(root.length - 1) === "]" ? root.slice(1, -1) : root;
           var decodedRoot = options.decodeDotInKeys ? cleanRoot.replace(/%2E/g, ".") : cleanRoot;
-          var index11 = parseInt(decodedRoot, 10);
-          var isValidArrayIndex = !isNaN(index11) && root !== decodedRoot && String(index11) === decodedRoot && index11 >= 0 && options.parseArrays;
+          var index14 = parseInt(decodedRoot, 10);
+          var isValidArrayIndex = !isNaN(index14) && root !== decodedRoot && String(index14) === decodedRoot && index14 >= 0 && options.parseArrays;
           if (!options.parseArrays && decodedRoot === "") {
             obj = { 0: leaf };
-          } else if (isValidArrayIndex && index11 < options.arrayLimit) {
+          } else if (isValidArrayIndex && index14 < options.arrayLimit) {
             obj = [];
-            obj[index11] = leaf;
+            obj[index14] = leaf;
           } else if (isValidArrayIndex && options.throwOnLimitExceeded) {
             throw new RangeError("Array limit exceeded. Only " + options.arrayLimit + " element" + (options.arrayLimit === 1 ? "" : "s") + " allowed in an array.");
           } else if (isValidArrayIndex) {
-            obj[index11] = leaf;
-            utils.markOverflow(obj, index11);
+            obj[index14] = leaf;
+            utils.markOverflow(obj, index14);
           } else if (decodedRoot !== "__proto__") {
             obj[decodedRoot] = leaf;
           }
@@ -18572,12 +18572,12 @@ var require_urlencoded = __commonJS({
     }
     function parameterCount(body, limit) {
       let count3 = 0;
-      let index11 = -1;
+      let index14 = -1;
       do {
         count3++;
         if (count3 > limit) return void 0;
-        index11 = body.indexOf("&", index11 + 1);
-      } while (index11 !== -1);
+        index14 = body.indexOf("&", index14 + 1);
+      } while (index14 !== -1);
       return count3;
     }
   }
@@ -18650,10 +18650,10 @@ var require_escape_html = __commonJS({
       }
       var escape2;
       var html = "";
-      var index11 = 0;
+      var index14 = 0;
       var lastIndex = 0;
-      for (index11 = match.index; index11 < str.length; index11++) {
-        switch (str.charCodeAt(index11)) {
+      for (index14 = match.index; index14 < str.length; index14++) {
+        switch (str.charCodeAt(index14)) {
           case 34:
             escape2 = "&quot;";
             break;
@@ -18672,13 +18672,13 @@ var require_escape_html = __commonJS({
           default:
             continue;
         }
-        if (lastIndex !== index11) {
-          html += str.substring(lastIndex, index11);
+        if (lastIndex !== index14) {
+          html += str.substring(lastIndex, index14);
         }
-        lastIndex = index11 + 1;
+        lastIndex = index14 + 1;
         html += escape2;
       }
-      return lastIndex !== index11 ? html + str.substring(lastIndex, index11) : html;
+      return lastIndex !== index14 ? html + str.substring(lastIndex, index14) : html;
     }
   }
 });
@@ -19031,22 +19031,22 @@ var require_content_type = __commonJS({
       if (typeof header !== "string") {
         throw new TypeError("argument string is required to be a string");
       }
-      var index11 = header.indexOf(";");
-      var type = index11 !== -1 ? header.slice(0, index11).trim() : header.trim();
+      var index14 = header.indexOf(";");
+      var type = index14 !== -1 ? header.slice(0, index14).trim() : header.trim();
       if (!TYPE_REGEXP.test(type)) {
         throw new TypeError("invalid media type");
       }
       var obj = new ContentType(type.toLowerCase());
-      if (index11 !== -1) {
+      if (index14 !== -1) {
         var key;
         var match;
         var value;
-        PARAM_REGEXP.lastIndex = index11;
+        PARAM_REGEXP.lastIndex = index14;
         while (match = PARAM_REGEXP.exec(header)) {
-          if (match.index !== index11) {
+          if (match.index !== index14) {
             throw new TypeError("invalid parameter format");
           }
-          index11 += match[0].length;
+          index14 += match[0].length;
           key = match[1].toLowerCase();
           value = match[2];
           if (value.charCodeAt(0) === 34) {
@@ -19057,7 +19057,7 @@ var require_content_type = __commonJS({
           }
           obj.parameters[key] = value;
         }
-        if (index11 !== header.length) {
+        if (index14 !== header.length) {
           throw new TypeError("invalid parameter format");
         }
       }
@@ -19986,25 +19986,25 @@ var require_utils3 = __commonJS({
     function acceptParams(str) {
       var length = str.length;
       var colonIndex = str.indexOf(";");
-      var index11 = colonIndex === -1 ? length : colonIndex;
-      var ret = { value: str.slice(0, index11).trim(), quality: 1, params: {} };
-      while (index11 < length) {
-        var splitIndex = str.indexOf("=", index11);
+      var index14 = colonIndex === -1 ? length : colonIndex;
+      var ret = { value: str.slice(0, index14).trim(), quality: 1, params: {} };
+      while (index14 < length) {
+        var splitIndex = str.indexOf("=", index14);
         if (splitIndex === -1) break;
-        var colonIndex = str.indexOf(";", index11);
+        var colonIndex = str.indexOf(";", index14);
         var endIndex = colonIndex === -1 ? length : colonIndex;
         if (splitIndex > endIndex) {
-          index11 = str.lastIndexOf(";", splitIndex - 1) + 1;
+          index14 = str.lastIndexOf(";", splitIndex - 1) + 1;
           continue;
         }
-        var key = str.slice(index11, splitIndex).trim();
+        var key = str.slice(index14, splitIndex).trim();
         var value = str.slice(splitIndex + 1, endIndex).trim();
         if (key === "q") {
           ret.quality = parseFloat(value);
         } else {
           ret.params[key] = value;
         }
-        index11 = endIndex + 1;
+        index14 = endIndex + 1;
       }
       return ret;
     }
@@ -20205,11 +20205,11 @@ var require_dist2 = __commonJS({
     exports.TokenData = TokenData;
     var PathError = class extends TypeError {
       constructor(message2, originalPath) {
-        let text33 = message2;
+        let text36 = message2;
         if (originalPath)
-          text33 += `: ${originalPath}`;
-        text33 += `; visit https://git.new/pathToRegexpError for info`;
-        super(text33);
+          text36 += `: ${originalPath}`;
+        text36 += `; visit https://git.new/pathToRegexpError for info`;
+        super(text36);
         this.originalPath = originalPath;
       }
     };
@@ -20217,7 +20217,7 @@ var require_dist2 = __commonJS({
     function parse2(str, options = {}) {
       const { encodePath = NOOP_VALUE } = options;
       const chars = [...str];
-      let index11 = 0;
+      let index14 = 0;
       function consumeUntil(end) {
         const output = [];
         let path3 = "";
@@ -20230,44 +20230,44 @@ var require_dist2 = __commonJS({
           });
           path3 = "";
         }
-        while (index11 < chars.length) {
-          const value = chars[index11++];
+        while (index14 < chars.length) {
+          const value = chars[index14++];
           if (value === end) {
             writePath();
             return output;
           }
           if (value === "\\") {
-            if (index11 === chars.length) {
-              throw new PathError(`Unexpected end after \\ at index ${index11}`, str);
+            if (index14 === chars.length) {
+              throw new PathError(`Unexpected end after \\ at index ${index14}`, str);
             }
-            path3 += chars[index11++];
+            path3 += chars[index14++];
             continue;
           }
           if (value === ":" || value === "*") {
             const type = value === ":" ? "param" : "wildcard";
             let name = "";
-            if (ID_START.test(chars[index11])) {
+            if (ID_START.test(chars[index14])) {
               do {
-                name += chars[index11++];
-              } while (ID_CONTINUE.test(chars[index11]));
-            } else if (chars[index11] === '"') {
-              let quoteStart = index11;
-              while (index11 < chars.length) {
-                if (chars[++index11] === '"') {
-                  index11++;
+                name += chars[index14++];
+              } while (ID_CONTINUE.test(chars[index14]));
+            } else if (chars[index14] === '"') {
+              let quoteStart = index14;
+              while (index14 < chars.length) {
+                if (chars[++index14] === '"') {
+                  index14++;
                   quoteStart = 0;
                   break;
                 }
-                if (chars[index11] === "\\")
-                  index11++;
-                name += chars[index11];
+                if (chars[index14] === "\\")
+                  index14++;
+                name += chars[index14];
               }
               if (quoteStart) {
                 throw new PathError(`Unterminated quote at index ${quoteStart}`, str);
               }
             }
             if (!name) {
-              throw new PathError(`Missing parameter name at index ${index11}`, str);
+              throw new PathError(`Missing parameter name at index ${index14}`, str);
             }
             writePath();
             output.push({ type, name });
@@ -20282,12 +20282,12 @@ var require_dist2 = __commonJS({
             continue;
           }
           if (value === "}" || value === "(" || value === ")" || value === "[" || value === "]" || value === "+" || value === "?" || value === "!") {
-            throw new PathError(`Unexpected ${value} at index ${index11 - 1}`, str);
+            throw new PathError(`Unexpected ${value} at index ${index14 - 1}`, str);
           }
           path3 += value;
         }
         if (end) {
-          throw new PathError(`Unexpected end at index ${index11}, expected ${end}`, str);
+          throw new PathError(`Unexpected end at index ${index14}, expected ${end}`, str);
         }
         writePath();
         return output;
@@ -20421,12 +20421,12 @@ var require_dist2 = __commonJS({
       pattern2 += end ? "$" : "(?=" + escape2(delimiter) + "|$)";
       return { regexp: new RegExp(pattern2, sensitive ? "" : "i"), keys };
     }
-    function flatten(tokens, index11, result, callback) {
-      while (index11 < tokens.length) {
-        const token = tokens[index11++];
+    function flatten(tokens, index14, result, callback) {
+      while (index14 < tokens.length) {
+        const token = tokens[index14++];
         if (token.type === "group") {
           const len = result.length;
-          flatten(token.tokens, 0, result, (seq) => flatten(tokens, index11, seq, callback));
+          flatten(token.tokens, 0, result, (seq) => flatten(tokens, index14, seq, callback));
           result.length = len;
           continue;
         }
@@ -20440,10 +20440,10 @@ var require_dist2 = __commonJS({
       let wildcardBacktrack = "";
       let prevCaptureType = 0;
       let hasSegmentCapture = 0;
-      let index11 = 0;
-      function hasInSegment(index12, type) {
-        while (index12 < tokens.length) {
-          const token = tokens[index12++];
+      let index14 = 0;
+      function hasInSegment(index15, type) {
+        while (index15 < tokens.length) {
+          const token = tokens[index15++];
           if (token.type === type)
             return true;
           if (token.type === "text") {
@@ -20453,18 +20453,18 @@ var require_dist2 = __commonJS({
         }
         return false;
       }
-      function peekText(index12) {
+      function peekText(index15) {
         let result2 = "";
-        while (index12 < tokens.length) {
-          const token = tokens[index12++];
+        while (index15 < tokens.length) {
+          const token = tokens[index15++];
           if (token.type !== "text")
             break;
           result2 += token.value;
         }
         return result2;
       }
-      while (index11 < tokens.length) {
-        const token = tokens[index11++];
+      while (index14 < tokens.length) {
+        const token = tokens[index14++];
         if (token.type === "text") {
           result += escape2(token.value);
           backtrack += token.value;
@@ -20479,7 +20479,7 @@ var require_dist2 = __commonJS({
             throw new PathError(`Missing text before "${token.name}" ${token.type}`, originalPath);
           }
           if (token.type === "param") {
-            result += hasSegmentCapture & 2 ? `(${negate(delimiter, backtrack)}+)` : hasInSegment(index11, "wildcard") ? `(${negate(delimiter, peekText(index11))}+)` : hasSegmentCapture & 1 ? `(${negate(delimiter, backtrack)}+|${escape2(backtrack)})` : `(${negate(delimiter, "")}+)`;
+            result += hasSegmentCapture & 2 ? `(${negate(delimiter, backtrack)}+)` : hasInSegment(index14, "wildcard") ? `(${negate(delimiter, peekText(index14))}+)` : hasSegmentCapture & 1 ? `(${negate(delimiter, backtrack)}+|${escape2(backtrack)})` : `(${negate(delimiter, "")}+)`;
             hasSegmentCapture |= prevCaptureType = 1;
           } else {
             result += hasSegmentCapture & 2 ? `(${negate(backtrack, "")}+)` : wildcardBacktrack ? `(${negate(wildcardBacktrack, "")}+|${negate(delimiter, "")}+)` : `([^]+)`;
@@ -20505,10 +20505,10 @@ var require_dist2 = __commonJS({
         return `(?:(?!${escape2(a)})[^${escape2(b)}])`;
       return `[^${escape2(a + b)}]`;
     }
-    function stringifyTokens(tokens, index11) {
+    function stringifyTokens(tokens, index14) {
       let value = "";
-      while (index11 < tokens.length) {
-        const token = tokens[index11++];
+      while (index14 < tokens.length) {
+        const token = tokens[index14++];
         if (token.type === "text") {
           value += escapeText(token.value);
           continue;
@@ -20518,11 +20518,11 @@ var require_dist2 = __commonJS({
           continue;
         }
         if (token.type === "param") {
-          value += ":" + stringifyName(token.name, tokens[index11]);
+          value += ":" + stringifyName(token.name, tokens[index14]);
           continue;
         }
         if (token.type === "wildcard") {
-          value += "*" + stringifyName(token.name, tokens[index11]);
+          value += "*" + stringifyName(token.name, tokens[index14]);
           continue;
         }
         throw new TypeError(`Unknown token type: ${token.type}`);
@@ -20827,27 +20827,27 @@ var require_router = __commonJS({
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var methods = METHODS.map((method) => method.toLowerCase());
-    module.exports = Router34;
+    module.exports = Router36;
     module.exports.Route = Route;
-    function Router34(options) {
-      if (!(this instanceof Router34)) {
-        return new Router34(options);
+    function Router36(options) {
+      if (!(this instanceof Router36)) {
+        return new Router36(options);
       }
       const opts = options || {};
-      function router34(req, res, next) {
-        router34.handle(req, res, next);
+      function router36(req, res, next) {
+        router36.handle(req, res, next);
       }
-      Object.setPrototypeOf(router34, this);
-      router34.caseSensitive = opts.caseSensitive;
-      router34.mergeParams = opts.mergeParams;
-      router34.params = {};
-      router34.strict = opts.strict;
-      router34.stack = [];
-      return router34;
+      Object.setPrototypeOf(router36, this);
+      router36.caseSensitive = opts.caseSensitive;
+      router36.mergeParams = opts.mergeParams;
+      router36.params = {};
+      router36.strict = opts.strict;
+      router36.stack = [];
+      return router36;
     }
-    Router34.prototype = function() {
+    Router36.prototype = function() {
     };
-    Router34.prototype.param = function param(name, fn) {
+    Router36.prototype.param = function param(name, fn) {
       if (!name) {
         throw new TypeError("argument name is required");
       }
@@ -20867,7 +20867,7 @@ var require_router = __commonJS({
       params.push(fn);
       return this;
     };
-    Router34.prototype.handle = function handle(req, res, callback) {
+    Router36.prototype.handle = function handle(req, res, callback) {
       if (!callback) {
         throw new TypeError("argument callback is required");
       }
@@ -20994,7 +20994,7 @@ var require_router = __commonJS({
         }
       }
     };
-    Router34.prototype.use = function use(handler) {
+    Router36.prototype.use = function use(handler) {
       let offset = 0;
       let path3 = "/";
       if (typeof handler !== "function") {
@@ -21027,7 +21027,7 @@ var require_router = __commonJS({
       }
       return this;
     };
-    Router34.prototype.route = function route(path3) {
+    Router36.prototype.route = function route(path3) {
       const route2 = new Route(path3);
       const layer = new Layer(path3, {
         sensitive: this.caseSensitive,
@@ -21042,7 +21042,7 @@ var require_router = __commonJS({
       return route2;
     };
     methods.concat("all").forEach(function(method) {
-      Router34.prototype[method] = function(path3) {
+      Router36.prototype[method] = function(path3) {
         const route = this.route(path3);
         route[method].apply(route, slice.call(arguments, 1));
         return this;
@@ -21225,13 +21225,13 @@ var require_application = __commonJS({
     var compileTrust = require_utils3().compileTrust;
     var resolve = __require("node:path").resolve;
     var once = require_once();
-    var Router34 = require_router();
+    var Router36 = require_router();
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var app2 = exports = module.exports = {};
     var trustProxyDefaultSymbol = "@@symbol:trust_proxy_default";
     app2.init = function init() {
-      var router34 = null;
+      var router36 = null;
       this.cache = /* @__PURE__ */ Object.create(null);
       this.engines = /* @__PURE__ */ Object.create(null);
       this.settings = /* @__PURE__ */ Object.create(null);
@@ -21240,13 +21240,13 @@ var require_application = __commonJS({
         configurable: true,
         enumerable: true,
         get: function getrouter() {
-          if (router34 === null) {
-            router34 = new Router34({
+          if (router36 === null) {
+            router36 = new Router36({
               caseSensitive: this.enabled("case sensitive routing"),
               strict: this.enabled("strict routing")
             });
           }
-          return router34;
+          return router36;
         }
       });
     };
@@ -21317,15 +21317,15 @@ var require_application = __commonJS({
       if (fns.length === 0) {
         throw new TypeError("app.use() requires a middleware function");
       }
-      var router34 = this.router;
+      var router36 = this.router;
       fns.forEach(function(fn2) {
         if (!fn2 || !fn2.handle || !fn2.set) {
-          return router34.use(path3, fn2);
+          return router36.use(path3, fn2);
         }
         debug(".use app under %s", path3);
         fn2.mountpath = path3;
         fn2.parent = this;
-        router34.use(path3, function mounted_app(req, res, next) {
+        router36.use(path3, function mounted_app(req, res, next) {
           var orig = req.app;
           fn2.handle(req, res, function(err) {
             Object.setPrototypeOf(req, orig.request);
@@ -21480,18 +21480,18 @@ var require_accept = __commonJS({
     module.exports = parseAccept;
     function parseAccept(header) {
       var values = [];
-      var index11 = 0;
-      while (index11 < header.length) {
-        var start = skipOptionalWhitespace(header, index11);
+      var index14 = 0;
+      while (index14 < header.length) {
+        var start = skipOptionalWhitespace(header, index14);
         var parsed = contentType.parse(header, { comma: true, start });
         parsed.type = header.slice(start, start + parsed.type.length);
         values.push(parsed);
-        index11 = parsed.index + 1;
+        index14 = parsed.index + 1;
       }
       return values;
     }
-    function skipOptionalWhitespace(header, index11) {
-      var cursor = index11;
+    function skipOptionalWhitespace(header, index14) {
+      var cursor = index14;
       while (header.charCodeAt(cursor) === 32 || header.charCodeAt(cursor) === 9) {
         cursor++;
       }
@@ -21524,17 +21524,17 @@ var require_charset = __commonJS({
         i: i2
       };
     }
-    function getCharsetPriority(charset, accepted, index11) {
+    function getCharsetPriority(charset, accepted, index14) {
       var priority = { o: -1, q: 0, s: 0 };
       for (var i2 = 0; i2 < accepted.length; i2++) {
-        var spec = specify(charset, accepted[i2], index11);
+        var spec = specify(charset, accepted[i2], index14);
         if (spec && (priority.s - spec.s || priority.q - spec.q || priority.o - spec.o) < 0) {
           priority = spec;
         }
       }
       return priority;
     }
-    function specify(charset, spec, index11) {
+    function specify(charset, spec, index14) {
       var s2 = 0;
       if (spec.charset.toLowerCase() === charset.toLowerCase()) {
         s2 |= 1;
@@ -21542,7 +21542,7 @@ var require_charset = __commonJS({
         return null;
       }
       return {
-        i: index11,
+        i: index14,
         o: spec.i,
         q: spec.q,
         s: s2
@@ -21553,8 +21553,8 @@ var require_charset = __commonJS({
       if (!provided) {
         return accepts.filter(isQuality).sort(compareSpecs).map(getFullCharset);
       }
-      var priorities = provided.map(function getPriority(type, index11) {
-        return getCharsetPriority(type, accepts, index11);
+      var priorities = provided.map(function getPriority(type, index14) {
+        return getCharsetPriority(type, accepts, index14);
       });
       return priorities.filter(isQuality).sort(compareSpecs).map(function getCharset(priority) {
         return provided[priorities.indexOf(priority)];
@@ -21609,17 +21609,17 @@ var require_encoding = __commonJS({
         i: i2
       };
     }
-    function getEncodingPriority(encoding, accepted, index11) {
+    function getEncodingPriority(encoding, accepted, index14) {
       var priority = { encoding, o: -1, q: 0, s: 0 };
       for (var i2 = 0; i2 < accepted.length; i2++) {
-        var spec = specify(encoding, accepted[i2], index11);
+        var spec = specify(encoding, accepted[i2], index14);
         if (spec && (priority.s - spec.s || priority.q - spec.q || priority.o - spec.o) < 0) {
           priority = spec;
         }
       }
       return priority;
     }
-    function specify(encoding, spec, index11) {
+    function specify(encoding, spec, index14) {
       var s2 = 0;
       if (spec.encoding.toLowerCase() === encoding.toLowerCase()) {
         s2 |= 1;
@@ -21628,7 +21628,7 @@ var require_encoding = __commonJS({
       }
       return {
         encoding,
-        i: index11,
+        i: index14,
         o: spec.i,
         q: spec.q,
         s: s2
@@ -21653,8 +21653,8 @@ var require_encoding = __commonJS({
       if (!provided) {
         return accepts.filter(isQuality).sort(comparator).map(getFullEncoding);
       }
-      var priorities = provided.map(function getPriority(type, index11) {
-        return getEncodingPriority(type, accepts, index11);
+      var priorities = provided.map(function getPriority(type, index14) {
+        return getEncodingPriority(type, accepts, index14);
       });
       return priorities.filter(isQuality).sort(comparator).map(function getEncoding(priority) {
         return provided[priorities.indexOf(priority)];
@@ -21702,17 +21702,17 @@ var require_language = __commonJS({
         full: parsed.type
       };
     }
-    function getLanguagePriority(language, accepted, index11) {
+    function getLanguagePriority(language, accepted, index14) {
       var priority = { o: -1, q: 0, s: 0 };
       for (var i2 = 0; i2 < accepted.length; i2++) {
-        var spec = specify(language, accepted[i2], index11);
+        var spec = specify(language, accepted[i2], index14);
         if (spec && (priority.s - spec.s || priority.q - spec.q || priority.o - spec.o) < 0) {
           priority = spec;
         }
       }
       return priority;
     }
-    function specify(language, spec, index11) {
+    function specify(language, spec, index14) {
       var p = formatLanguage(contentType.parse(language), 0);
       if (!p) return null;
       var s2 = 0;
@@ -21726,7 +21726,7 @@ var require_language = __commonJS({
         return null;
       }
       return {
-        i: index11,
+        i: index14,
         o: spec.i,
         q: spec.q,
         s: s2
@@ -21737,8 +21737,8 @@ var require_language = __commonJS({
       if (!provided) {
         return accepts.filter(isQuality).sort(compareSpecs).map(getFullLanguage);
       }
-      var priorities = provided.map(function getPriority(type, index11) {
-        return getLanguagePriority(type, accepts, index11);
+      var priorities = provided.map(function getPriority(type, index14) {
+        return getLanguagePriority(type, accepts, index14);
       });
       return priorities.filter(isQuality).sort(compareSpecs).map(function getLanguage(priority) {
         return provided[priorities.indexOf(priority)];
@@ -21786,17 +21786,17 @@ var require_mediaType = __commonJS({
         i: i2
       };
     }
-    function getMediaTypePriority(type, accepted, index11) {
+    function getMediaTypePriority(type, accepted, index14) {
       var priority = { o: -1, q: 0, s: 0 };
       for (var i2 = 0; i2 < accepted.length; i2++) {
-        var spec = specify(type, accepted[i2], index11);
+        var spec = specify(type, accepted[i2], index14);
         if (spec && (priority.s - spec.s || priority.q - spec.q || priority.o - spec.o) < 0) {
           priority = spec;
         }
       }
       return priority;
     }
-    function specify(type, spec, index11) {
+    function specify(type, spec, index14) {
       var p = formatMediaType(contentType.parse(type), 0);
       var s2 = 0;
       if (!p) {
@@ -21823,7 +21823,7 @@ var require_mediaType = __commonJS({
         }
       }
       return {
-        i: index11,
+        i: index14,
         o: spec.i,
         q: spec.q,
         s: s2
@@ -21834,8 +21834,8 @@ var require_mediaType = __commonJS({
       if (!provided) {
         return accepts.filter(isQuality).sort(compareSpecs).map(getFullType);
       }
-      var priorities = provided.map(function getPriority(type, index11) {
-        return getMediaTypePriority(type, accepts, index11);
+      var priorities = provided.map(function getPriority(type, index14) {
+        return getMediaTypePriority(type, accepts, index14);
       });
       return priorities.filter(isQuality).sort(compareSpecs).map(function getType(priority) {
         return provided[priorities.indexOf(priority)];
@@ -22033,8 +22033,8 @@ var require_fresh = __commonJS({
       return true;
     }
     function parseHttpDate(date2) {
-      var timestamp33 = date2 && Date.parse(date2);
-      return typeof timestamp33 === "number" ? timestamp33 : NaN;
+      var timestamp36 = date2 && Date.parse(date2);
+      return typeof timestamp36 === "number" ? timestamp36 : NaN;
     }
     function parseTokenList(str) {
       var end = 0;
@@ -22071,13 +22071,13 @@ var require_range_parser = __commonJS({
       if (typeof str !== "string") {
         throw new TypeError("argument str must be a string");
       }
-      var index11 = str.indexOf("=");
-      if (index11 === -1) {
+      var index14 = str.indexOf("=");
+      if (index14 === -1) {
         return -2;
       }
-      var arr = str.slice(index11 + 1).split(",");
+      var arr = str.slice(index14 + 1).split(",");
       var ranges = [];
-      ranges.type = str.slice(0, index11);
+      ranges.type = str.slice(0, index14);
       for (var i2 = 0; i2 < arr.length; i2++) {
         var indexOf = arr[i2].indexOf("-");
         if (indexOf === -1) {
@@ -22133,11 +22133,11 @@ var require_range_parser = __commonJS({
       combined.type = ranges.type;
       return combined;
     }
-    function mapWithIndex(range, index11) {
+    function mapWithIndex(range, index14) {
       return {
         start: range.start,
         end: range.end,
-        index: index11
+        index: index14
       };
     }
     function mapWithoutIndex(range) {
@@ -22230,8 +22230,8 @@ var require_request = __commonJS({
         return proto;
       }
       var header = this.get("X-Forwarded-Proto") || proto;
-      var index11 = header.indexOf(",");
-      return index11 !== -1 ? header.substring(0, index11).trim() : header.trim();
+      var index14 = header.indexOf(",");
+      return index14 !== -1 ? header.substring(0, index14).trim() : header.trim();
     });
     defineGetter(req, "secure", function secure() {
       return this.protocol === "https";
@@ -22270,8 +22270,8 @@ var require_request = __commonJS({
       var host = this.host;
       if (!host) return;
       var offset = host[0] === "[" ? host.indexOf("]") + 1 : 0;
-      var index11 = host.indexOf(":", offset);
-      return index11 !== -1 ? host.substring(0, index11) : host;
+      var index14 = host.indexOf(":", offset);
+      return index14 !== -1 ? host.substring(0, index14) : host;
     });
     defineGetter(req, "fresh", function() {
       var method = this.method;
@@ -22411,18 +22411,18 @@ var require_content_disposition = __commonJS({
       if (!match) {
         throw new TypeError("invalid type format");
       }
-      var index11 = match[0].length;
+      var index14 = match[0].length;
       var type = match[1].toLowerCase();
       var key;
       var names = [];
       var params = {};
       var value;
-      index11 = PARAM_REGEXP.lastIndex = match[0].slice(-1) === ";" ? index11 - 1 : index11;
+      index14 = PARAM_REGEXP.lastIndex = match[0].slice(-1) === ";" ? index14 - 1 : index14;
       while (match = PARAM_REGEXP.exec(string2)) {
-        if (match.index !== index11) {
+        if (match.index !== index14) {
           throw new TypeError("invalid parameter format");
         }
-        index11 += match[0].length;
+        index14 += match[0].length;
         key = match[1].toLowerCase();
         value = match[2];
         if (names.indexOf(key) !== -1) {
@@ -22443,7 +22443,7 @@ var require_content_disposition = __commonJS({
         }
         params[key] = value;
       }
-      if (index11 !== -1 && index11 !== string2.length) {
+      if (index14 !== -1 && index14 !== string2.length) {
         throw new TypeError("invalid parameter format");
       }
       return new ContentDisposition(type, params);
@@ -22550,20 +22550,20 @@ var require_cookie = __commonJS({
       var len = str.length;
       if (len < 2) return obj;
       var dec = opt && opt.decode || decode2;
-      var index11 = 0;
+      var index14 = 0;
       var eqIdx = 0;
       var endIdx = 0;
       do {
-        eqIdx = str.indexOf("=", index11);
+        eqIdx = str.indexOf("=", index14);
         if (eqIdx === -1) break;
-        endIdx = str.indexOf(";", index11);
+        endIdx = str.indexOf(";", index14);
         if (endIdx === -1) {
           endIdx = len;
         } else if (eqIdx > endIdx) {
-          index11 = str.lastIndexOf(";", eqIdx - 1) + 1;
+          index14 = str.lastIndexOf(";", eqIdx - 1) + 1;
           continue;
         }
-        var keyStartIdx = startIndex(str, index11, eqIdx);
+        var keyStartIdx = startIndex(str, index14, eqIdx);
         var keyEndIdx = endIndex(str, eqIdx, keyStartIdx);
         var key = str.slice(keyStartIdx, keyEndIdx);
         if (!__hasOwnProperty.call(obj, key)) {
@@ -22576,21 +22576,21 @@ var require_cookie = __commonJS({
           var val = str.slice(valStartIdx, valEndIdx);
           obj[key] = tryDecode(val, dec);
         }
-        index11 = endIdx + 1;
-      } while (index11 < len);
+        index14 = endIdx + 1;
+      } while (index14 < len);
       return obj;
     }
-    function startIndex(str, index11, max) {
+    function startIndex(str, index14, max) {
       do {
-        var code = str.charCodeAt(index11);
-        if (code !== 32 && code !== 9) return index11;
-      } while (++index11 < max);
+        var code = str.charCodeAt(index14);
+        if (code !== 32 && code !== 9) return index14;
+      } while (++index14 < max);
       return max;
     }
-    function endIndex(str, index11, min) {
-      while (index11 > min) {
-        var code = str.charCodeAt(--index11);
-        if (code !== 32 && code !== 9) return index11 + 1;
+    function endIndex(str, index14, min) {
+      while (index14 > min) {
+        var code = str.charCodeAt(--index14);
+        if (code !== 32 && code !== 9) return index14 + 1;
       }
       return min;
     }
@@ -23139,8 +23139,8 @@ var require_send = __commonJS({
       return list;
     }
     function parseHttpDate(date2) {
-      var timestamp33 = date2 && Date.parse(date2);
-      return typeof timestamp33 === "number" ? timestamp33 : NaN;
+      var timestamp36 = date2 && Date.parse(date2);
+      return typeof timestamp36 === "number" ? timestamp36 : NaN;
     }
     function parseTokenList(str) {
       var end = 0;
@@ -23834,7 +23834,7 @@ var require_express = __commonJS({
     var EventEmitter2 = __require("node:events").EventEmitter;
     var mixin2 = require_merge_descriptors();
     var proto = require_application();
-    var Router34 = require_router();
+    var Router36 = require_router();
     var req = require_request();
     var res = require_response();
     exports = module.exports = createApplication;
@@ -23856,8 +23856,8 @@ var require_express = __commonJS({
     exports.application = proto;
     exports.request = req;
     exports.response = res;
-    exports.Route = Router34.Route;
-    exports.Router = Router34;
+    exports.Route = Router36.Route;
+    exports.Router = Router36;
     exports.json = bodyParser.json;
     exports.raw = bodyParser.raw;
     exports.static = require_serve_static();
@@ -25082,8 +25082,8 @@ var require_redaction = __commonJS({
         if (o[ns] === null) {
           return o;
         }
-        const { index: index11 } = next;
-        const nextPath = `${str.substr(index11, str.length - 1)}`;
+        const { index: index14 } = next;
+        const nextPath = `${str.substr(index14, str.length - 1)}`;
         o[ns] = o[ns] || [];
         if (ns !== wildcardFirstSym && o[ns].length === 0) {
           o[ns].push(...o[wildcardFirstSym] || []);
@@ -25189,8 +25189,8 @@ var require_quick_format_unescaped = __commonJS({
         if (len === 1) return f3;
         var objects = new Array(len);
         objects[0] = ss(f3);
-        for (var index11 = 1; index11 < len; index11++) {
-          objects[index11] = ss(args[index11]);
+        for (var index14 = 1; index14 < len; index14++) {
+          objects[index14] = ss(args[index14]);
         }
         return objects.join(" ");
       }
@@ -25961,8 +25961,8 @@ var require_on_exit_leak_free = __commonJS({
     }
     function clear(ref) {
       for (const event of ["exit", "beforeExit"]) {
-        const index11 = refs[event].indexOf(ref);
-        refs[event].splice(index11, index11 + 1);
+        const index14 = refs[event].indexOf(ref);
+        refs[event].splice(index14, index14 + 1);
         uninstall(event);
       }
     }
@@ -26072,9 +26072,9 @@ var require_wait = __commonJS({
   "../../node_modules/.pnpm/thread-stream@3.1.0/node_modules/thread-stream/lib/wait.js"(exports, module) {
     "use strict";
     var MAX_TIMEOUT = 1e3;
-    function wait(state, index11, expected, timeout, done) {
+    function wait(state, index14, expected, timeout, done) {
       const max = Date.now() + timeout;
-      let current = Atomics.load(state, index11);
+      let current = Atomics.load(state, index14);
       if (current === expected) {
         done(null, "ok");
         return;
@@ -26086,7 +26086,7 @@ var require_wait = __commonJS({
         } else {
           setTimeout(() => {
             prior = current;
-            current = Atomics.load(state, index11);
+            current = Atomics.load(state, index14);
             if (current === prior) {
               check(backoff >= MAX_TIMEOUT ? MAX_TIMEOUT : backoff * 2);
             } else {
@@ -26098,9 +26098,9 @@ var require_wait = __commonJS({
       };
       check(1);
     }
-    function waitDiff(state, index11, expected, timeout, done) {
+    function waitDiff(state, index14, expected, timeout, done) {
       const max = Date.now() + timeout;
-      let current = Atomics.load(state, index11);
+      let current = Atomics.load(state, index14);
       if (current !== expected) {
         done(null, "ok");
         return;
@@ -26110,7 +26110,7 @@ var require_wait = __commonJS({
           done(null, "timed-out");
         } else {
           setTimeout(() => {
-            current = Atomics.load(state, index11);
+            current = Atomics.load(state, index14);
             if (current !== expected) {
               done(null, "ok");
             } else {
@@ -28194,9 +28194,9 @@ var require_multistream = __commonJS({
       }
       function remove2(id) {
         const { streams } = this;
-        const index11 = streams.findIndex((s2) => s2.id === id);
-        if (index11 >= 0) {
-          streams.splice(index11, 1);
+        const index14 = streams.findIndex((s2) => s2.id === id);
+        if (index14 >= 0) {
+          streams.splice(index14, 1);
           streams.sort(compareByLevel);
           this.minLevel = streams.length > 0 ? streams[0].level : -1;
         }
@@ -28342,7 +28342,7 @@ var require_pino = __commonJS({
         redact,
         crlf,
         serializers: serializers2,
-        timestamp: timestamp33,
+        timestamp: timestamp36,
         messageKey,
         errorKey,
         nestedKey,
@@ -28392,7 +28392,7 @@ var require_pino = __commonJS({
           chindings = coreChindings(Object.assign({}, base, { name }));
         }
       }
-      const time2 = timestamp33 instanceof Function ? timestamp33 : timestamp33 ? epochTime : nullTime;
+      const time2 = timestamp36 instanceof Function ? timestamp36 : timestamp36 ? epochTime : nullTime;
       const timeSliceIndex = time2().indexOf(":") + 1;
       if (useOnlyCustomLevels && !customLevels) throw Error("customLevels is required if useOnlyCustomLevels is set true");
       if (mixin2 && typeof mixin2 !== "function") throw Error(`Unknown mixin type "${typeof mixin2}" - expected "function"`);
@@ -28762,9 +28762,9 @@ function __rest(s2, e2) {
     }
   return t2;
 }
-function __decorate(decorators, target, key, desc20) {
-  var c = arguments.length, r2 = c < 3 ? target : desc20 === null ? desc20 = Object.getOwnPropertyDescriptor(target, key) : desc20, d;
-  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r2 = Reflect.decorate(decorators, target, key, desc20);
+function __decorate(decorators, target, key, desc21) {
+  var c = arguments.length, r2 = c < 3 ? target : desc21 === null ? desc21 = Object.getOwnPropertyDescriptor(target, key) : desc21, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r2 = Reflect.decorate(decorators, target, key, desc21);
   else for (var i2 = decorators.length - 1; i2 >= 0; i2--) if (d = decorators[i2]) r2 = (c < 3 ? d(r2) : c > 3 ? d(target, key, r2) : d(target, key)) || r2;
   return c > 3 && r2 && Object.defineProperty(target, key, r2), r2;
 }
@@ -29165,13 +29165,13 @@ var init_tslib_es6 = __esm({
     };
     __createBinding = Object.create ? (function(o, m2, k, k2) {
       if (k2 === void 0) k2 = k;
-      var desc20 = Object.getOwnPropertyDescriptor(m2, k);
-      if (!desc20 || ("get" in desc20 ? !m2.__esModule : desc20.writable || desc20.configurable)) {
-        desc20 = { enumerable: true, get: function() {
+      var desc21 = Object.getOwnPropertyDescriptor(m2, k);
+      if (!desc21 || ("get" in desc21 ? !m2.__esModule : desc21.writable || desc21.configurable)) {
+        desc21 = { enumerable: true, get: function() {
           return m2[k];
         } };
       }
-      Object.defineProperty(o, k2, desc20);
+      Object.defineProperty(o, k2, desc21);
     }) : (function(o, m2, k, k2) {
       if (k2 === void 0) k2 = k;
       o[k2] = m2[k];
@@ -30135,11 +30135,11 @@ var require_phoenix_cjs = __commonJS({
       for (var name in all)
         __defProp3(target, name, { get: all[name], enumerable: true });
     };
-    var __copyProps3 = (to, from, except, desc20) => {
+    var __copyProps3 = (to, from, except, desc21) => {
       if (from && typeof from === "object" || typeof from === "function") {
         for (let key of __getOwnPropNames3(from))
           if (!__hasOwnProp3.call(to, key) && key !== except)
-            __defProp3(to, key, { get: () => from[key], enumerable: !(desc20 = __getOwnPropDesc3(from, key)) || desc20.enumerable });
+            __defProp3(to, key, { get: () => from[key], enumerable: !(desc21 = __getOwnPropDesc3(from, key)) || desc21.enumerable });
       }
       return to;
     };
@@ -33287,9 +33287,9 @@ var require_RealtimeClient = __commonJS({
         getItem(key) {
           return store.has(key) ? store.get(key) : null;
         },
-        key(index11) {
+        key(index14) {
           var _a;
-          return (_a = Array.from(store.keys())[index11]) !== null && _a !== void 0 ? _a : null;
+          return (_a = Array.from(store.keys())[index14]) !== null && _a !== void 0 ? _a : null;
         },
         removeItem(key) {
           store.delete(key);
@@ -34599,19 +34599,19 @@ var require_helpers = __commonJS({
     exports.pkceVerifierSlotKey = pkceVerifierSlotKey;
     var pkceFlowIndexKey = (storageKey) => `${storageKey}-flows-code-verifier`;
     async function getPKCEFlowIndex(storage, storageKey) {
-      const index11 = await (0, exports.getItemAsync)(storage, pkceFlowIndexKey(storageKey));
-      return Array.isArray(index11) ? index11.filter((id) => validatePKCEFlowId(id) !== null) : [];
+      const index14 = await (0, exports.getItemAsync)(storage, pkceFlowIndexKey(storageKey));
+      return Array.isArray(index14) ? index14.filter((id) => validatePKCEFlowId(id) !== null) : [];
     }
     async function storePKCEVerifier(storage, storageKey, flowId, verifier, onEvictFlow) {
       await (0, exports.setItemAsync)(storage, (0, exports.pkceVerifierSlotKey)(storageKey, flowId), verifier);
-      const index11 = (await getPKCEFlowIndex(storage, storageKey)).filter((id) => id !== flowId);
-      index11.push(flowId);
-      while (index11.length > constants_1.PKCE_MAX_CONCURRENT_FLOWS) {
-        const evicted = index11.shift();
+      const index14 = (await getPKCEFlowIndex(storage, storageKey)).filter((id) => id !== flowId);
+      index14.push(flowId);
+      while (index14.length > constants_1.PKCE_MAX_CONCURRENT_FLOWS) {
+        const evicted = index14.shift();
         await (0, exports.removeItemAsync)(storage, (0, exports.pkceVerifierSlotKey)(storageKey, evicted));
         onEvictFlow === null || onEvictFlow === void 0 ? void 0 : onEvictFlow(evicted);
       }
-      await (0, exports.setItemAsync)(storage, pkceFlowIndexKey(storageKey), index11);
+      await (0, exports.setItemAsync)(storage, pkceFlowIndexKey(storageKey), index14);
       await (0, exports.setItemAsync)(storage, `${storageKey}-code-verifier`, verifier);
     }
     async function retrievePKCEVerifier(storage, storageKey, flowId) {
@@ -34631,9 +34631,9 @@ var require_helpers = __commonJS({
       const slotKey = (0, exports.pkceVerifierSlotKey)(storageKey, flowId);
       const slotValue = await (0, exports.getItemAsync)(storage, slotKey);
       await (0, exports.removeItemAsync)(storage, slotKey);
-      const index11 = await getPKCEFlowIndex(storage, storageKey);
-      const remaining = index11.filter((id) => id !== flowId);
-      if (remaining.length !== index11.length) {
+      const index14 = await getPKCEFlowIndex(storage, storageKey);
+      const remaining = index14.filter((id) => id !== flowId);
+      if (remaining.length !== index14.length) {
         if (remaining.length > 0) {
           await (0, exports.setItemAsync)(storage, pkceFlowIndexKey(storageKey), remaining);
         } else {
@@ -34645,8 +34645,8 @@ var require_helpers = __commonJS({
       }
     }
     async function removeAllPKCEVerifiers(storage, storageKey) {
-      const index11 = await getPKCEFlowIndex(storage, storageKey);
-      for (const flowId of index11) {
+      const index14 = await getPKCEFlowIndex(storage, storageKey);
+      for (const flowId of index14) {
         await (0, exports.removeItemAsync)(storage, (0, exports.pkceVerifierSlotKey)(storageKey, flowId));
       }
       await (0, exports.removeItemAsync)(storage, pkceFlowIndexKey(storageKey));
@@ -42388,6 +42388,465 @@ var require_main3 = __commonJS({
   }
 });
 
+// ../../node_modules/.pnpm/tiktoken@1.0.22/node_modules/tiktoken/tiktoken_bg.cjs
+var require_tiktoken_bg = __commonJS({
+  "../../node_modules/.pnpm/tiktoken@1.0.22/node_modules/tiktoken/tiktoken_bg.cjs"(exports, module) {
+    var wasm;
+    module.exports.__wbg_set_wasm = function(val) {
+      wasm = val;
+    };
+    var lTextDecoder = typeof TextDecoder === "undefined" ? (0, module.require)("util").TextDecoder : TextDecoder;
+    var cachedTextDecoder = new lTextDecoder("utf-8", { ignoreBOM: true, fatal: true });
+    cachedTextDecoder.decode();
+    var cachedUint8ArrayMemory0 = null;
+    function getUint8ArrayMemory0() {
+      if (cachedUint8ArrayMemory0 === null || cachedUint8ArrayMemory0.byteLength === 0) {
+        cachedUint8ArrayMemory0 = new Uint8Array(wasm.memory.buffer);
+      }
+      return cachedUint8ArrayMemory0;
+    }
+    function getStringFromWasm0(ptr, len) {
+      ptr = ptr >>> 0;
+      return cachedTextDecoder.decode(getUint8ArrayMemory0().subarray(ptr, ptr + len));
+    }
+    var heap = new Array(128).fill(void 0);
+    heap.push(void 0, null, true, false);
+    var heap_next = heap.length;
+    function addHeapObject(obj) {
+      if (heap_next === heap.length) heap.push(heap.length + 1);
+      const idx = heap_next;
+      heap_next = heap[idx];
+      heap[idx] = obj;
+      return idx;
+    }
+    function handleError2(f3, args) {
+      try {
+        return f3.apply(this, args);
+      } catch (e2) {
+        wasm.__wbindgen_export_0(addHeapObject(e2));
+      }
+    }
+    function getObject(idx) {
+      return heap[idx];
+    }
+    function dropObject(idx) {
+      if (idx < 132) return;
+      heap[idx] = heap_next;
+      heap_next = idx;
+    }
+    function takeObject(idx) {
+      const ret = getObject(idx);
+      dropObject(idx);
+      return ret;
+    }
+    var WASM_VECTOR_LEN = 0;
+    var lTextEncoder = typeof TextEncoder === "undefined" ? (0, module.require)("util").TextEncoder : TextEncoder;
+    var cachedTextEncoder = new lTextEncoder("utf-8");
+    var encodeString = typeof cachedTextEncoder.encodeInto === "function" ? function(arg, view) {
+      return cachedTextEncoder.encodeInto(arg, view);
+    } : function(arg, view) {
+      const buf = cachedTextEncoder.encode(arg);
+      view.set(buf);
+      return {
+        read: arg.length,
+        written: buf.length
+      };
+    };
+    function passStringToWasm0(arg, malloc, realloc) {
+      if (realloc === void 0) {
+        const buf = cachedTextEncoder.encode(arg);
+        const ptr2 = malloc(buf.length, 1) >>> 0;
+        getUint8ArrayMemory0().subarray(ptr2, ptr2 + buf.length).set(buf);
+        WASM_VECTOR_LEN = buf.length;
+        return ptr2;
+      }
+      let len = arg.length;
+      let ptr = malloc(len, 1) >>> 0;
+      const mem = getUint8ArrayMemory0();
+      let offset = 0;
+      for (; offset < len; offset++) {
+        const code = arg.charCodeAt(offset);
+        if (code > 127) break;
+        mem[ptr + offset] = code;
+      }
+      if (offset !== len) {
+        if (offset !== 0) {
+          arg = arg.slice(offset);
+        }
+        ptr = realloc(ptr, len, len = offset + arg.length * 3, 1) >>> 0;
+        const view = getUint8ArrayMemory0().subarray(ptr + offset, ptr + len);
+        const ret = encodeString(arg, view);
+        offset += ret.written;
+        ptr = realloc(ptr, len, offset, 1) >>> 0;
+      }
+      WASM_VECTOR_LEN = offset;
+      return ptr;
+    }
+    function isLikeNone(x2) {
+      return x2 === void 0 || x2 === null;
+    }
+    var cachedDataViewMemory0 = null;
+    function getDataViewMemory0() {
+      if (cachedDataViewMemory0 === null || cachedDataViewMemory0.buffer.detached === true || cachedDataViewMemory0.buffer.detached === void 0 && cachedDataViewMemory0.buffer !== wasm.memory.buffer) {
+        cachedDataViewMemory0 = new DataView(wasm.memory.buffer);
+      }
+      return cachedDataViewMemory0;
+    }
+    var cachedUint32ArrayMemory0 = null;
+    function getUint32ArrayMemory0() {
+      if (cachedUint32ArrayMemory0 === null || cachedUint32ArrayMemory0.byteLength === 0) {
+        cachedUint32ArrayMemory0 = new Uint32Array(wasm.memory.buffer);
+      }
+      return cachedUint32ArrayMemory0;
+    }
+    function getArrayU32FromWasm0(ptr, len) {
+      ptr = ptr >>> 0;
+      return getUint32ArrayMemory0().subarray(ptr / 4, ptr / 4 + len);
+    }
+    function passArray8ToWasm0(arg, malloc) {
+      const ptr = malloc(arg.length * 1, 1) >>> 0;
+      getUint8ArrayMemory0().set(arg, ptr / 1);
+      WASM_VECTOR_LEN = arg.length;
+      return ptr;
+    }
+    function passArray32ToWasm0(arg, malloc) {
+      const ptr = malloc(arg.length * 4, 4) >>> 0;
+      getUint32ArrayMemory0().set(arg, ptr / 4);
+      WASM_VECTOR_LEN = arg.length;
+      return ptr;
+    }
+    function getArrayU8FromWasm0(ptr, len) {
+      ptr = ptr >>> 0;
+      return getUint8ArrayMemory0().subarray(ptr / 1, ptr / 1 + len);
+    }
+    module.exports.get_encoding = function(encoding, extend_special_tokens) {
+      if (wasm == null) throw new Error("tiktoken: WASM binary has not been propery initialized.");
+      try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        const ptr0 = passStringToWasm0(encoding, wasm.__wbindgen_export_1, wasm.__wbindgen_export_2);
+        const len0 = WASM_VECTOR_LEN;
+        wasm.get_encoding(retptr, ptr0, len0, addHeapObject(extend_special_tokens));
+        var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+        var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+        var r2 = getDataViewMemory0().getInt32(retptr + 4 * 2, true);
+        if (r2) {
+          throw takeObject(r1);
+        }
+        return Tiktoken.__wrap(r0);
+      } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+      }
+    };
+    module.exports.encoding_for_model = function(model, extend_special_tokens) {
+      if (wasm == null) throw new Error("tiktoken: WASM binary has not been propery initialized.");
+      try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        const ptr0 = passStringToWasm0(model, wasm.__wbindgen_export_1, wasm.__wbindgen_export_2);
+        const len0 = WASM_VECTOR_LEN;
+        wasm.encoding_for_model(retptr, ptr0, len0, addHeapObject(extend_special_tokens));
+        var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+        var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+        var r2 = getDataViewMemory0().getInt32(retptr + 4 * 2, true);
+        if (r2) {
+          throw takeObject(r1);
+        }
+        return Tiktoken.__wrap(r0);
+      } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+      }
+    };
+    module.exports.get_encoding_name_for_model = function(model) {
+      if (wasm == null) throw new Error("tiktoken: WASM binary has not been propery initialized.");
+      let deferred3_0;
+      let deferred3_1;
+      try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        const ptr0 = passStringToWasm0(model, wasm.__wbindgen_export_1, wasm.__wbindgen_export_2);
+        const len0 = WASM_VECTOR_LEN;
+        wasm.get_encoding_name_for_model(retptr, ptr0, len0);
+        var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+        var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+        var r2 = getDataViewMemory0().getInt32(retptr + 4 * 2, true);
+        var r3 = getDataViewMemory0().getInt32(retptr + 4 * 3, true);
+        var ptr2 = r0;
+        var len2 = r1;
+        if (r3) {
+          ptr2 = 0;
+          len2 = 0;
+          throw takeObject(r2);
+        }
+        deferred3_0 = ptr2;
+        deferred3_1 = len2;
+        return getStringFromWasm0(ptr2, len2);
+      } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+        wasm.__wbindgen_export_3(deferred3_0, deferred3_1, 1);
+      }
+    };
+    var TiktokenFinalization = typeof FinalizationRegistry === "undefined" ? { register: () => {
+    }, unregister: () => {
+    } } : new FinalizationRegistry((ptr) => wasm.__wbg_tiktoken_free(ptr >>> 0, 1));
+    var Tiktoken = class _Tiktoken {
+      /**
+       * @param {string} tiktoken_bfe
+       * @param {any} special_tokens
+       * @param {string} pat_str
+       */
+      constructor(tiktoken_bfe, special_tokens, pat_str) {
+        if (wasm == null) throw new Error("tiktoken: WASM binary has not been propery initialized.");
+        const ptr0 = passStringToWasm0(tiktoken_bfe, wasm.__wbindgen_export_1, wasm.__wbindgen_export_2);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(pat_str, wasm.__wbindgen_export_1, wasm.__wbindgen_export_2);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.tiktoken_new(ptr0, len0, addHeapObject(special_tokens), ptr1, len1);
+        this.__wbg_ptr = ret >>> 0;
+        TiktokenFinalization.register(this, this.__wbg_ptr, this);
+        return this;
+      }
+      /** @returns {string | undefined} */
+      get name() {
+        try {
+          const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+          wasm.tiktoken_name(retptr, this.__wbg_ptr);
+          var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+          var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+          let v1;
+          if (r0 !== 0) {
+            v1 = getStringFromWasm0(r0, r1).slice();
+            wasm.__wbindgen_export_3(r0, r1 * 1, 1);
+          }
+          return v1;
+        } finally {
+          wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+      }
+      static __wrap(ptr) {
+        ptr = ptr >>> 0;
+        const obj = Object.create(_Tiktoken.prototype);
+        obj.__wbg_ptr = ptr;
+        TiktokenFinalization.register(obj, obj.__wbg_ptr, obj);
+        return obj;
+      }
+      __destroy_into_raw() {
+        const ptr = this.__wbg_ptr;
+        this.__wbg_ptr = 0;
+        TiktokenFinalization.unregister(this);
+        return ptr;
+      }
+      free() {
+        if (wasm == null) throw new Error("tiktoken: WASM binary has not been propery initialized.");
+        const ptr = this.__destroy_into_raw();
+        wasm.__wbg_tiktoken_free(ptr, 0);
+      }
+      /**
+       * @param {string} text
+       * @param {any} allowed_special
+       * @param {any} disallowed_special
+       * @returns {Uint32Array}
+       */
+      encode(text36, allowed_special, disallowed_special) {
+        if (wasm == null) throw new Error("tiktoken: WASM binary has not been propery initialized.");
+        try {
+          const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+          const ptr0 = passStringToWasm0(text36, wasm.__wbindgen_export_1, wasm.__wbindgen_export_2);
+          const len0 = WASM_VECTOR_LEN;
+          wasm.tiktoken_encode(retptr, this.__wbg_ptr, ptr0, len0, addHeapObject(allowed_special), addHeapObject(disallowed_special));
+          var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+          var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+          var r2 = getDataViewMemory0().getInt32(retptr + 4 * 2, true);
+          var r3 = getDataViewMemory0().getInt32(retptr + 4 * 3, true);
+          if (r3) {
+            throw takeObject(r2);
+          }
+          var v2 = getArrayU32FromWasm0(r0, r1).slice();
+          wasm.__wbindgen_export_3(r0, r1 * 4, 4);
+          return v2;
+        } finally {
+          wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+      }
+      /**
+       * @param {string} text
+       * @returns {Uint32Array}
+       */
+      encode_ordinary(text36) {
+        if (wasm == null) throw new Error("tiktoken: WASM binary has not been propery initialized.");
+        try {
+          const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+          const ptr0 = passStringToWasm0(text36, wasm.__wbindgen_export_1, wasm.__wbindgen_export_2);
+          const len0 = WASM_VECTOR_LEN;
+          wasm.tiktoken_encode_ordinary(retptr, this.__wbg_ptr, ptr0, len0);
+          var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+          var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+          var v2 = getArrayU32FromWasm0(r0, r1).slice();
+          wasm.__wbindgen_export_3(r0, r1 * 4, 4);
+          return v2;
+        } finally {
+          wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+      }
+      /**
+       * @param {string} text
+       * @param {any} allowed_special
+       * @param {any} disallowed_special
+       * @returns {any}
+       */
+      encode_with_unstable(text36, allowed_special, disallowed_special) {
+        if (wasm == null) throw new Error("tiktoken: WASM binary has not been propery initialized.");
+        try {
+          const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+          const ptr0 = passStringToWasm0(text36, wasm.__wbindgen_export_1, wasm.__wbindgen_export_2);
+          const len0 = WASM_VECTOR_LEN;
+          wasm.tiktoken_encode_with_unstable(retptr, this.__wbg_ptr, ptr0, len0, addHeapObject(allowed_special), addHeapObject(disallowed_special));
+          var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+          var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+          var r2 = getDataViewMemory0().getInt32(retptr + 4 * 2, true);
+          if (r2) {
+            throw takeObject(r1);
+          }
+          return takeObject(r0);
+        } finally {
+          wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+      }
+      /**
+       * @param {Uint8Array} bytes
+       * @returns {number}
+       */
+      encode_single_token(bytes) {
+        if (wasm == null) throw new Error("tiktoken: WASM binary has not been propery initialized.");
+        const ptr0 = passArray8ToWasm0(bytes, wasm.__wbindgen_export_1);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.tiktoken_encode_single_token(this.__wbg_ptr, ptr0, len0);
+        return ret >>> 0;
+      }
+      /**
+       * @param {Uint32Array} tokens
+       * @returns {Uint8Array}
+       */
+      decode(tokens) {
+        if (wasm == null) throw new Error("tiktoken: WASM binary has not been propery initialized.");
+        try {
+          const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+          const ptr0 = passArray32ToWasm0(tokens, wasm.__wbindgen_export_1);
+          const len0 = WASM_VECTOR_LEN;
+          wasm.tiktoken_decode(retptr, this.__wbg_ptr, ptr0, len0);
+          var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+          var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+          var v2 = getArrayU8FromWasm0(r0, r1).slice();
+          wasm.__wbindgen_export_3(r0, r1 * 1, 1);
+          return v2;
+        } finally {
+          wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+      }
+      /**
+       * @param {number} token
+       * @returns {Uint8Array}
+       */
+      decode_single_token_bytes(token) {
+        if (wasm == null) throw new Error("tiktoken: WASM binary has not been propery initialized.");
+        try {
+          const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+          wasm.tiktoken_decode_single_token_bytes(retptr, this.__wbg_ptr, token);
+          var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+          var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+          var v1 = getArrayU8FromWasm0(r0, r1).slice();
+          wasm.__wbindgen_export_3(r0, r1 * 1, 1);
+          return v1;
+        } finally {
+          wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+      }
+      /** @returns {any} */
+      token_byte_values() {
+        if (wasm == null) throw new Error("tiktoken: WASM binary has not been propery initialized.");
+        const ret = wasm.tiktoken_token_byte_values(this.__wbg_ptr);
+        return takeObject(ret);
+      }
+    };
+    module.exports.Tiktoken = Tiktoken;
+    module.exports.__wbg_parse_def2e24ef1252aff = function() {
+      return handleError2(function(arg0, arg1) {
+        const ret = JSON.parse(getStringFromWasm0(arg0, arg1));
+        return addHeapObject(ret);
+      }, arguments);
+    };
+    module.exports.__wbg_stringify_f7ed6987935b4a24 = function() {
+      return handleError2(function(arg0) {
+        const ret = JSON.stringify(getObject(arg0));
+        return addHeapObject(ret);
+      }, arguments);
+    };
+    module.exports.__wbindgen_error_new = function(arg0, arg1) {
+      const ret = new Error(getStringFromWasm0(arg0, arg1));
+      return addHeapObject(ret);
+    };
+    module.exports.__wbindgen_is_undefined = function(arg0) {
+      const ret = getObject(arg0) === void 0;
+      return ret;
+    };
+    module.exports.__wbindgen_object_drop_ref = function(arg0) {
+      takeObject(arg0);
+    };
+    module.exports.__wbindgen_string_get = function(arg0, arg1) {
+      if (wasm == null) throw new Error("tiktoken: WASM binary has not been propery initialized.");
+      const obj = getObject(arg1);
+      const ret = typeof obj === "string" ? obj : void 0;
+      var ptr1 = isLikeNone(ret) ? 0 : passStringToWasm0(ret, wasm.__wbindgen_export_1, wasm.__wbindgen_export_2);
+      var len1 = WASM_VECTOR_LEN;
+      getDataViewMemory0().setInt32(arg0 + 4 * 1, len1, true);
+      getDataViewMemory0().setInt32(arg0 + 4 * 0, ptr1, true);
+    };
+    module.exports.__wbindgen_throw = function(arg0, arg1) {
+      throw new Error(getStringFromWasm0(arg0, arg1));
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/tiktoken@1.0.22/node_modules/tiktoken/tiktoken.cjs
+var require_tiktoken = __commonJS({
+  "../../node_modules/.pnpm/tiktoken@1.0.22/node_modules/tiktoken/tiktoken.cjs"(exports) {
+    var wasm = require_tiktoken_bg();
+    var imports = {};
+    imports["./tiktoken_bg.js"] = wasm;
+    var path3 = __require("path");
+    var fs5 = __require("fs");
+    var candidates = __dirname.split(path3.sep).reduce((memo, _, index14, array2) => {
+      const prefix = array2.slice(0, index14 + 1).join(path3.sep) + path3.sep;
+      if (!prefix.includes("node_modules" + path3.sep)) {
+        memo.unshift(
+          path3.join(
+            prefix,
+            "node_modules",
+            "tiktoken",
+            "",
+            "./tiktoken_bg.wasm"
+          )
+        );
+      }
+      return memo;
+    }, []);
+    candidates.unshift(path3.join(__dirname, "./tiktoken_bg.wasm"));
+    var bytes = null;
+    for (const candidate of candidates) {
+      try {
+        bytes = fs5.readFileSync(candidate);
+        break;
+      } catch {
+      }
+    }
+    if (bytes == null) throw new Error("Missing tiktoken_bg.wasm");
+    var wasmModule = new WebAssembly.Module(bytes);
+    var wasmInstance = new WebAssembly.Instance(wasmModule, imports);
+    wasm.__wbg_set_wasm(wasmInstance.exports);
+    exports["get_encoding"] = wasm["get_encoding"];
+    exports["encoding_for_model"] = wasm["encoding_for_model"];
+    exports["get_encoding_name_for_model"] = wasm["get_encoding_name_for_model"];
+    exports["Tiktoken"] = wasm["Tiktoken"];
+  }
+});
+
 // ../../node_modules/fast-deep-equal/index.js
 var require_fast_deep_equal = __commonJS({
   "../../node_modules/fast-deep-equal/index.js"(exports, module) {
@@ -42841,23 +43300,23 @@ var require_unicode_trie = __commonJS({
         }
       }
       get(codePoint) {
-        let index11;
+        let index14;
         if (codePoint < 0 || codePoint > 1114111) {
           return this.errorValue;
         }
         if (codePoint < 55296 || codePoint > 56319 && codePoint <= 65535) {
-          index11 = (this.data[codePoint >> SHIFT_2] << INDEX_SHIFT) + (codePoint & DATA_MASK);
-          return this.data[index11];
+          index14 = (this.data[codePoint >> SHIFT_2] << INDEX_SHIFT) + (codePoint & DATA_MASK);
+          return this.data[index14];
         }
         if (codePoint <= 65535) {
-          index11 = (this.data[LSCP_INDEX_2_OFFSET + (codePoint - 55296 >> SHIFT_2)] << INDEX_SHIFT) + (codePoint & DATA_MASK);
-          return this.data[index11];
+          index14 = (this.data[LSCP_INDEX_2_OFFSET + (codePoint - 55296 >> SHIFT_2)] << INDEX_SHIFT) + (codePoint & DATA_MASK);
+          return this.data[index14];
         }
         if (codePoint < this.highStart) {
-          index11 = this.data[INDEX_1_OFFSET - OMITTED_BMP_INDEX_1_LENGTH + (codePoint >> SHIFT_1)];
-          index11 = this.data[index11 + (codePoint >> SHIFT_2 & INDEX_2_MASK)];
-          index11 = (index11 << INDEX_SHIFT) + (codePoint & DATA_MASK);
-          return this.data[index11];
+          index14 = this.data[INDEX_1_OFFSET - OMITTED_BMP_INDEX_1_LENGTH + (codePoint >> SHIFT_1)];
+          index14 = this.data[index14 + (codePoint >> SHIFT_2 & INDEX_2_MASK)];
+          index14 = (index14 << INDEX_SHIFT) + (codePoint & DATA_MASK);
+          return this.data[index14];
         }
         return this.data[this.data.length - DATA_GRANULARITY];
       }
@@ -43028,9 +43487,9 @@ var require_clone = __commonJS({
             }
           }
           if (circular) {
-            var index11 = allParents.indexOf(parent2);
-            if (index11 != -1) {
-              return allChildren[index11];
+            var index14 = allParents.indexOf(parent2);
+            if (index14 != -1) {
+              return allChildren[index14];
             }
             allParents.push(parent2);
             allChildren.push(child);
@@ -168554,19 +169013,19 @@ var require_decode = __commonJS({
       }
       return out;
     }
-    function ReadSymbol(table2, index11, br) {
-      var start_index = index11;
+    function ReadSymbol(table2, index14, br) {
+      var start_index = index14;
       var nbits;
       br.fillBitWindow();
-      index11 += br.val_ >>> br.bit_pos_ & HUFFMAN_TABLE_MASK;
-      nbits = table2[index11].bits - HUFFMAN_TABLE_BITS;
+      index14 += br.val_ >>> br.bit_pos_ & HUFFMAN_TABLE_MASK;
+      nbits = table2[index14].bits - HUFFMAN_TABLE_BITS;
       if (nbits > 0) {
         br.bit_pos_ += HUFFMAN_TABLE_BITS;
-        index11 += table2[index11].value;
-        index11 += br.val_ >>> br.bit_pos_ & (1 << nbits) - 1;
+        index14 += table2[index14].value;
+        index14 += br.val_ >>> br.bit_pos_ & (1 << nbits) - 1;
       }
-      br.bit_pos_ += table2[index11].bits;
-      return table2[index11].value;
+      br.bit_pos_ += table2[index14].bits;
+      return table2[index14].value;
     }
     function ReadHuffmanCodeLengths(code_length_code_lengths, num_symbols, code_lengths, br) {
       var symbol = 0;
@@ -168723,27 +169182,27 @@ var require_decode = __commonJS({
       }
       return table_size;
     }
-    function ReadBlockLength(table2, index11, br) {
+    function ReadBlockLength(table2, index14, br) {
       var code;
       var nbits;
-      code = ReadSymbol(table2, index11, br);
+      code = ReadSymbol(table2, index14, br);
       nbits = Prefix.kBlockLengthPrefixCode[code].nbits;
       return Prefix.kBlockLengthPrefixCode[code].offset + br.readBits(nbits);
     }
-    function TranslateShortCodes(code, ringbuffer, index11) {
+    function TranslateShortCodes(code, ringbuffer, index14) {
       var val;
       if (code < NUM_DISTANCE_SHORT_CODES) {
-        index11 += kDistanceShortCodeIndexOffset[code];
-        index11 &= 3;
-        val = ringbuffer[index11] + kDistanceShortCodeValueOffset[code];
+        index14 += kDistanceShortCodeIndexOffset[code];
+        index14 &= 3;
+        val = ringbuffer[index14] + kDistanceShortCodeValueOffset[code];
       } else {
         val = code - NUM_DISTANCE_SHORT_CODES + 1;
       }
       return val;
     }
-    function MoveToFront(v, index11) {
-      var value = v[index11];
-      var i2 = index11;
+    function MoveToFront(v, index14) {
+      var value = v[index14];
+      var i2 = index14;
       for (; i2; --i2) v[i2] = v[i2 - 1];
       v[0] = value;
     }
@@ -168754,9 +169213,9 @@ var require_decode = __commonJS({
         mtf[i2] = i2;
       }
       for (i2 = 0; i2 < v_len; ++i2) {
-        var index11 = v[i2];
-        v[i2] = mtf[index11];
-        if (index11) MoveToFront(mtf, index11);
+        var index14 = v[i2];
+        v[i2] = mtf[index14];
+        if (index14) MoveToFront(mtf, index14);
       }
     }
     function HuffmanTreeGroup(alphabet_size, num_htrees) {
@@ -168824,13 +169283,13 @@ var require_decode = __commonJS({
     }
     function DecodeBlockType(max_block_type, trees, tree_type, block_types, ringbuffers, indexes, br) {
       var ringbuffer = tree_type * 2;
-      var index11 = tree_type;
+      var index14 = tree_type;
       var type_code = ReadSymbol(trees, tree_type * HUFFMAN_MAX_TABLE_SIZE, br);
       var block_type;
       if (type_code === 0) {
-        block_type = ringbuffers[ringbuffer + (indexes[index11] & 1)];
+        block_type = ringbuffers[ringbuffer + (indexes[index14] & 1)];
       } else if (type_code === 1) {
-        block_type = ringbuffers[ringbuffer + (indexes[index11] - 1 & 1)] + 1;
+        block_type = ringbuffers[ringbuffer + (indexes[index14] - 1 & 1)] + 1;
       } else {
         block_type = type_code - 2;
       }
@@ -168838,8 +169297,8 @@ var require_decode = __commonJS({
         block_type -= max_block_type;
       }
       block_types[tree_type] = block_type;
-      ringbuffers[ringbuffer + (indexes[index11] & 1)] = block_type;
-      ++indexes[index11];
+      ringbuffers[ringbuffer + (indexes[index14] & 1)] = block_type;
+      ++indexes[index14];
     }
     function CopyUncompressedBlockToOutput(output, len, pos, ringbuffer, ringbuffer_mask, br) {
       var rb_size = ringbuffer_mask + 1;
@@ -170886,9 +171345,9 @@ var require_stream_readable = __commonJS({
         }
         return this;
       }
-      var index11 = indexOf(state.pipes, dest);
-      if (index11 === -1) return this;
-      state.pipes.splice(index11, 1);
+      var index14 = indexOf(state.pipes, dest);
+      if (index14 === -1) return this;
+      state.pipes.splice(index14, 1);
       state.pipesCount -= 1;
       if (state.pipesCount === 1) state.pipes = state.pipes[0];
       dest.emit("unpipe", this, unpipeInfo);
@@ -172157,9 +172616,9 @@ var require_utils5 = __commonJS({
     exports.resolve = function(path3) {
       var parts = path3.split("/");
       var result = [];
-      for (var index11 = 0; index11 < parts.length; index11++) {
-        var part = parts[index11];
-        if (part === "." || part === "" && index11 !== 0 && index11 !== parts.length - 1) {
+      for (var index14 = 0; index14 < parts.length; index14++) {
+        var part = parts[index14];
+        if (part === "." || part === "" && index14 !== 0 && index14 !== parts.length - 1) {
           continue;
         } else if (part === "..") {
           result.pop();
@@ -172763,7 +173222,7 @@ var require_StreamHelper = __commonJS({
       }
     }
     function concat3(type, dataArray) {
-      var i2, index11 = 0, res = null, totalLength = 0;
+      var i2, index14 = 0, res = null, totalLength = 0;
       for (i2 = 0; i2 < dataArray.length; i2++) {
         totalLength += dataArray[i2].length;
       }
@@ -172775,8 +173234,8 @@ var require_StreamHelper = __commonJS({
         case "uint8array":
           res = new Uint8Array(totalLength);
           for (i2 = 0; i2 < dataArray.length; i2++) {
-            res.set(dataArray[i2], index11);
-            index11 += dataArray[i2].length;
+            res.set(dataArray[i2], index14);
+            index14 += dataArray[i2].length;
           }
           return res;
         case "nodebuffer":
@@ -173464,14 +173923,14 @@ var require_trees = __commonJS({
         s2.bi_valid -= 8;
       }
     }
-    function gen_bitlen(s2, desc20) {
-      var tree = desc20.dyn_tree;
-      var max_code = desc20.max_code;
-      var stree = desc20.stat_desc.static_tree;
-      var has_stree = desc20.stat_desc.has_stree;
-      var extra = desc20.stat_desc.extra_bits;
-      var base = desc20.stat_desc.extra_base;
-      var max_length = desc20.stat_desc.max_length;
+    function gen_bitlen(s2, desc21) {
+      var tree = desc21.dyn_tree;
+      var max_code = desc21.max_code;
+      var stree = desc21.stat_desc.static_tree;
+      var has_stree = desc21.stat_desc.has_stree;
+      var extra = desc21.stat_desc.extra_bits;
+      var base = desc21.stat_desc.extra_base;
+      var max_length = desc21.stat_desc.max_length;
       var h2;
       var n, m2;
       var bits;
@@ -173698,11 +174157,11 @@ var require_trees = __commonJS({
       }
       send_code(s2, END_BLOCK, ltree);
     }
-    function build_tree(s2, desc20) {
-      var tree = desc20.dyn_tree;
-      var stree = desc20.stat_desc.static_tree;
-      var has_stree = desc20.stat_desc.has_stree;
-      var elems = desc20.stat_desc.elems;
+    function build_tree(s2, desc21) {
+      var tree = desc21.dyn_tree;
+      var stree = desc21.stat_desc.static_tree;
+      var has_stree = desc21.stat_desc.has_stree;
+      var elems = desc21.stat_desc.elems;
       var n, m2;
       var max_code = -1;
       var node;
@@ -173725,7 +174184,7 @@ var require_trees = __commonJS({
           s2.static_len -= stree[node * 2 + 1];
         }
       }
-      desc20.max_code = max_code;
+      desc21.max_code = max_code;
       for (n = s2.heap_len >> 1; n >= 1; n--) {
         pqdownheap(s2, tree, n);
       }
@@ -173769,7 +174228,7 @@ var require_trees = __commonJS({
         1
         /*SMALLEST*/
       ];
-      gen_bitlen(s2, desc20);
+      gen_bitlen(s2, desc21);
       gen_codes(tree, max_code, s2.bl_count);
     }
     function scan_tree(s2, tree, max_code) {
@@ -178776,8 +179235,8 @@ var require_zipEntries = __commonJS({
         this.centralDirSize = this.reader.readInt(8);
         this.centralDirOffset = this.reader.readInt(8);
         this.zip64ExtensibleData = {};
-        var extraDataSize = this.zip64EndOfCentralSize - 44, index11 = 0, extraFieldId, extraFieldLength, extraFieldValue;
-        while (index11 < extraDataSize) {
+        var extraDataSize = this.zip64EndOfCentralSize - 44, index14 = 0, extraFieldId, extraFieldLength, extraFieldValue;
+        while (index14 < extraDataSize) {
           extraFieldId = this.reader.readInt(2);
           extraFieldLength = this.reader.readInt(4);
           extraFieldValue = this.reader.readData(extraFieldLength);
@@ -179197,11 +179656,11 @@ var require_graph = __commonJS({
     exports.removeGraph = removeGraph;
     function applyGraph(entry, graph) {
       if (entry._graph) {
-        const index11 = graph.findIndex(({
+        const index14 = graph.findIndex(({
           type
         }) => type === "@else/list+object");
-        if (index11 !== -1) {
-          graph.splice(index11 + 1, 0, ...entry._graph.slice(0, -1));
+        if (index14 !== -1) {
+          graph.splice(index14 + 1, 0, ...entry._graph.slice(0, -1));
         }
       }
       entry._graph = graph;
@@ -179338,9 +179797,9 @@ var require_type3 = __commonJS({
       delete types3[type2];
       const typeLists = [...Object.keys(dataTypes).map((key) => dataTypes[key]), ...Object.keys(types3).map((type3) => types3[type3].extensions).filter((list) => list.length > 0)];
       typeLists.forEach((typeList) => {
-        const index11 = typeList.indexOf(type2);
-        if (index11 > -1) {
-          typeList.splice(index11, 1);
+        const index14 = typeList.indexOf(type2);
+        if (index14 > -1) {
+          typeList.splice(index14, 1);
         }
       });
     }
@@ -180160,38 +180619,38 @@ var require_register = __commonJS({
     function add2(format, parsers) {
       const formatParser = new _parser.FormatParser(format, parsers);
       formatParser.validate();
-      const index11 = formats[format] || (formats[format] = {});
+      const index14 = formats[format] || (formats[format] = {});
       if (formatParser.typeParser) {
         (0, _type.addTypeParser)(format, formatParser.typeParser);
-        index11.type = true;
+        index14.type = true;
       }
       if (formatParser.dataParser) {
         (0, _data.addDataParser)(format, formatParser.dataParser);
-        index11.data = true;
+        index14.data = true;
       }
       if (formatParser.asyncDataParser) {
         (0, _data.addDataParser)(format, formatParser.asyncDataParser);
-        index11.asyncData = true;
+        index14.asyncData = true;
       }
       if (parsers.outputs) {
-        index11.outputs = parsers.outputs;
+        index14.outputs = parsers.outputs;
       }
     }
     function get2(format) {
       return formats[format];
     }
     function remove2(format) {
-      const index11 = formats[format];
-      if (!index11) {
+      const index14 = formats[format];
+      if (!index14) {
         return;
       }
-      if (index11.type) {
+      if (index14.type) {
         (0, _type.removeTypeParser)(format);
       }
-      if (index11.data) {
+      if (index14.data) {
         (0, _data.removeDataParser)(format);
       }
-      if (index11.asyncData) {
+      if (index14.asyncData) {
         (0, _data.removeDataParser)(format, true);
       }
       delete formats[format];
@@ -180849,9 +181308,9 @@ var require_body = __commonJS({
           if (name === "constructor") {
             continue;
           }
-          const desc20 = Object.getOwnPropertyDescriptor(_Body.prototype, name);
+          const desc21 = Object.getOwnPropertyDescriptor(_Body.prototype, name);
           Object.defineProperty(proto, name, {
-            ...desc20,
+            ...desc21,
             enumerable: true
           });
         }
@@ -186303,7 +186762,7 @@ var init_multipart_parser = __esm({
         let i2 = 0;
         const length_ = data.length;
         let previousIndex = this.index;
-        let { lookbehind, boundary, boundaryChars, index: index11, state, flags } = this;
+        let { lookbehind, boundary, boundaryChars, index: index14, state, flags } = this;
         const boundaryLength = this.boundary.length;
         const boundaryEnd = boundaryLength - 1;
         const bufferLength = data.length;
@@ -186337,20 +186796,20 @@ var init_multipart_parser = __esm({
           c = data[i2];
           switch (state) {
             case S.START_BOUNDARY:
-              if (index11 === boundary.length - 2) {
+              if (index14 === boundary.length - 2) {
                 if (c === HYPHEN2) {
                   flags |= F.LAST_BOUNDARY;
                 } else if (c !== CR) {
                   return;
                 }
-                index11++;
+                index14++;
                 break;
-              } else if (index11 - 1 === boundary.length - 2) {
+              } else if (index14 - 1 === boundary.length - 2) {
                 if (flags & F.LAST_BOUNDARY && c === HYPHEN2) {
                   state = S.END;
                   flags = 0;
                 } else if (!(flags & F.LAST_BOUNDARY) && c === LF) {
-                  index11 = 0;
+                  index14 = 0;
                   callback("onPartBegin");
                   state = S.HEADER_FIELD_START;
                 } else {
@@ -186358,17 +186817,17 @@ var init_multipart_parser = __esm({
                 }
                 break;
               }
-              if (c !== boundary[index11 + 2]) {
-                index11 = -2;
+              if (c !== boundary[index14 + 2]) {
+                index14 = -2;
               }
-              if (c === boundary[index11 + 2]) {
-                index11++;
+              if (c === boundary[index14 + 2]) {
+                index14++;
               }
               break;
             case S.HEADER_FIELD_START:
               state = S.HEADER_FIELD;
               mark("onHeaderField");
-              index11 = 0;
+              index14 = 0;
             // falls through
             case S.HEADER_FIELD:
               if (c === CR) {
@@ -186376,12 +186835,12 @@ var init_multipart_parser = __esm({
                 state = S.HEADERS_ALMOST_DONE;
                 break;
               }
-              index11++;
+              index14++;
               if (c === HYPHEN2) {
                 break;
               }
               if (c === COLON) {
-                if (index11 === 1) {
+                if (index14 === 1) {
                   return;
                 }
                 dataCallback("onHeaderField", true);
@@ -186425,8 +186884,8 @@ var init_multipart_parser = __esm({
               mark("onPartData");
             // falls through
             case S.PART_DATA:
-              previousIndex = index11;
-              if (index11 === 0) {
+              previousIndex = index14;
+              if (index14 === 0) {
                 i2 += boundaryEnd;
                 while (i2 < bufferLength && !(data[i2] in boundaryChars)) {
                   i2 += boundaryLength;
@@ -186434,27 +186893,27 @@ var init_multipart_parser = __esm({
                 i2 -= boundaryEnd;
                 c = data[i2];
               }
-              if (index11 < boundary.length) {
-                if (boundary[index11] === c) {
-                  if (index11 === 0) {
+              if (index14 < boundary.length) {
+                if (boundary[index14] === c) {
+                  if (index14 === 0) {
                     dataCallback("onPartData", true);
                   }
-                  index11++;
+                  index14++;
                 } else {
-                  index11 = 0;
+                  index14 = 0;
                 }
-              } else if (index11 === boundary.length) {
-                index11++;
+              } else if (index14 === boundary.length) {
+                index14++;
                 if (c === CR) {
                   flags |= F.PART_BOUNDARY;
                 } else if (c === HYPHEN2) {
                   flags |= F.LAST_BOUNDARY;
                 } else {
-                  index11 = 0;
+                  index14 = 0;
                 }
-              } else if (index11 - 1 === boundary.length) {
+              } else if (index14 - 1 === boundary.length) {
                 if (flags & F.PART_BOUNDARY) {
-                  index11 = 0;
+                  index14 = 0;
                   if (c === LF) {
                     flags &= ~F.PART_BOUNDARY;
                     callback("onPartEnd");
@@ -186468,14 +186927,14 @@ var init_multipart_parser = __esm({
                     state = S.END;
                     flags = 0;
                   } else {
-                    index11 = 0;
+                    index14 = 0;
                   }
                 } else {
-                  index11 = 0;
+                  index14 = 0;
                 }
               }
-              if (index11 > 0) {
-                lookbehind[index11 - 1] = c;
+              if (index14 > 0) {
+                lookbehind[index14 - 1] = c;
               } else if (previousIndex > 0) {
                 const _lookbehind = new Uint8Array(lookbehind.buffer, lookbehind.byteOffset, lookbehind.byteLength);
                 callback("onPartData", 0, previousIndex, _lookbehind);
@@ -186493,7 +186952,7 @@ var init_multipart_parser = __esm({
         dataCallback("onHeaderField");
         dataCallback("onHeaderValue");
         dataCallback("onPartData");
-        this.index = index11;
+        this.index = index14;
         this.state = state;
         this.flags = flags;
       }
@@ -186655,8 +187114,8 @@ var init_body = __esm({
        * @return  Promise
        */
       async json() {
-        const text33 = await this.text();
-        return JSON.parse(text33);
+        const text36 = await this.text();
+        return JSON.parse(text36);
       }
       /**
        * Decode response as text
@@ -186771,9 +187230,9 @@ import { types as types2 } from "node:util";
 import http from "node:http";
 function fromRawHeaders(headers = []) {
   return new Headers2(
-    headers.reduce((result, value, index11, array2) => {
-      if (index11 % 2 === 0) {
-        result.push(array2.slice(index11, index11 + 2));
+    headers.reduce((result, value, index14, array2) => {
+      if (index14 % 2 === 0) {
+        result.push(array2.slice(index14, index14 + 2));
       }
       return result;
     }, []).filter(([name, value]) => {
@@ -187996,7 +188455,7 @@ var require_stack = __commonJS({
       }
       matchesSequence(sequence) {
         const part = this.stack.slice(this.index, this.index + sequence.length).join("");
-        return typeof sequence === "string" ? part === sequence : sequence.every((pattern2, index11) => _TokenStack.getMatchCallback(pattern2)(part[index11]));
+        return typeof sequence === "string" ? part === sequence : sequence.every((pattern2, index14) => _TokenStack.getMatchCallback(pattern2)(part[index14]));
       }
       consumeToken(pattern2 = /^[\s\S]$/, {
         inverse = false,
@@ -188255,8 +188714,8 @@ var require_translator = __commonJS({
               });
             }
           }
-          outputProp.forEach((prop, index11) => {
-            const value = outputData[index11];
+          outputProp.forEach((prop, index14) => {
+            const value = outputData[index14];
             if (value !== void 0) {
               output[prop] = value;
             }
@@ -189318,8 +189777,8 @@ var require_json3 = __commonJS({
         return f3;
       })(e2, t2);
     }
-    function appendCommas(string2, index11, array2) {
-      return string2 + (index11 < array2.length - 1 ? "," : "");
+    function appendCommas(string2, index14, array2) {
+      return string2 + (index14 < array2.length - 1 ? "," : "");
     }
     function getJsonObject(src, dict) {
       const isArray = Array.isArray(src);
@@ -190004,9 +190463,9 @@ var require_google_books = __commonJS({
       var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor;
       for (var key in obj) {
         if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) {
-          var desc20 = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null;
-          if (desc20 && (desc20.get || desc20.set)) {
-            Object.defineProperty(newObj, key, desc20);
+          var desc21 = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null;
+          if (desc21 && (desc21.get || desc21.set)) {
+            Object.defineProperty(newObj, key, desc21);
           } else {
             newObj[key] = obj[key];
           }
@@ -190168,9 +190627,9 @@ var require_open_library = __commonJS({
       var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor;
       for (var key in obj) {
         if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) {
-          var desc20 = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null;
-          if (desc20 && (desc20.get || desc20.set)) {
-            Object.defineProperty(newObj, key, desc20);
+          var desc21 = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null;
+          if (desc21 && (desc21.get || desc21.set)) {
+            Object.defineProperty(newObj, key, desc21);
           } else {
             newObj[key] = obj[key];
           }
@@ -190370,9 +190829,9 @@ var require_input5 = __commonJS({
       var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor;
       for (var key in obj) {
         if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) {
-          var desc20 = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null;
-          if (desc20 && (desc20.get || desc20.set)) {
-            Object.defineProperty(newObj, key, desc20);
+          var desc21 = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null;
+          if (desc21 && (desc21.get || desc21.set)) {
+            Object.defineProperty(newObj, key, desc21);
           } else {
             newObj[key] = obj[key];
           }
@@ -190617,7 +191076,7 @@ var require_input5 = __commonJS({
 });
 
 // src/app.ts
-var import_express34 = __toESM(require_express2(), 1);
+var import_express36 = __toESM(require_express2(), 1);
 var import_cors = __toESM(require_lib3(), 1);
 var import_pino_http = __toESM(require_logger(), 1);
 
@@ -191392,7 +191851,7 @@ var rateLimit = (passedOptions) => {
 var lib_default = rateLimit;
 
 // src/routes/index.ts
-var import_express32 = __toESM(require_express2(), 1);
+var import_express34 = __toESM(require_express2(), 1);
 
 // ../../node_modules/.pnpm/jose@6.2.10/node_modules/jose/dist/webapi/lib/buffer_utils.js
 var encoder = new TextEncoder();
@@ -192184,7 +192643,7 @@ async function jwtVerify(jwt, key, options) {
 function isUsableJWK(jwk, entry, alg, kid) {
   const { kty, key_ops, ext, kid: jwkKid, alg: jwkAlg, use, crv } = snapshotJwk(jwk);
   const keyOps = Array.isArray(key_ops) ? [...key_ops] : key_ops;
-  return (ext === void 0 || typeof ext === "boolean") && (keyOps === void 0 || Array.isArray(keyOps) && keyOps.every((operation, index11) => typeof operation === "string" && keyOps.indexOf(operation) === index11) && keyOps.includes("verify")) && entry.kty.includes(kty) && (kid === void 0 || typeof kid === "string" && kid === jwkKid) && (jwkAlg === void 0 ? kty !== "AKP" : alg === jwkAlg) && (use === void 0 || use === "sig") && (!entry.crv || crv === entry.crv);
+  return (ext === void 0 || typeof ext === "boolean") && (keyOps === void 0 || Array.isArray(keyOps) && keyOps.every((operation, index14) => typeof operation === "string" && keyOps.indexOf(operation) === index14) && keyOps.includes("verify")) && entry.kty.includes(kty) && (kid === void 0 || typeof kid === "string" && kid === jwkKid) && (jwkAlg === void 0 ? kty !== "AKP" : alg === jwkAlg) && (use === void 0 || use === "sig") && (!entry.crv || crv === entry.crv);
 }
 async function importWithAlgCache(cache2, jwk, entry) {
   const cached2 = cache2.get(jwk) || cache2.set(jwk, {}).get(jwk);
@@ -192271,8 +192730,8 @@ async function fetchJwks(url2, headers, signal, fetchImpl = fetch) {
   }
 }
 var jwksCache = Symbol();
-function isFreshFor(timestamp33, duration) {
-  return Number.isFinite(timestamp33) && Date.now() < timestamp33 + duration;
+function isFreshFor(timestamp36, duration) {
+  return Number.isFinite(timestamp36) && Date.now() < timestamp36 + duration;
 }
 function validateDuration(value, fallback, option) {
   if (Number.isNaN(value)) {
@@ -192674,6 +193133,256 @@ var SendMessageResponse = zod.object({
   "role": zod.enum(["user", "assistant", "system"]),
   "content": zod.string(),
   "createdAt": zod.coerce.date()
+});
+var CreateSimulationSessionParams = zod.object({
+  "projectId": zod.coerce.number()
+});
+var CreateSimulationSessionBody = zod.object({
+  "persona": zod.enum(["dosen_strict", "dosen_friendly", "audience_awam", "audience_expert"]).describe("Persona of the AI questioner:\n- dosen_strict: Sharp criticism, deep probing, demanding standards\n- dosen_friendly: Supportive + probing, warm and encouraging\n- audience_awam: Simple language, asks for clarification\n- audience_expert: Advanced discussion, jargon OK\n"),
+  "tierId": zod.string().nullish().describe("AI tier ID to use. Defaults to cheapest eligible.")
+});
+var CreateSimulationSessionResponse = zod.object({
+  "id": zod.int(),
+  "projectId": zod.int(),
+  "persona": zod.enum(["dosen_strict", "dosen_friendly", "audience_awam", "audience_expert"]).describe("Persona of the AI questioner:\n- dosen_strict: Sharp criticism, deep probing, demanding standards\n- dosen_friendly: Supportive + probing, warm and encouraging\n- audience_awam: Simple language, asks for clarification\n- audience_expert: Advanced discussion, jargon OK\n"),
+  "status": zod.enum(["active", "completed", "abandoned", "failed"]),
+  "questionsAsked": zod.int().describe("Number of questions asked so far (safety cap 10)"),
+  "totalInputTokens": zod.int().describe("Running total input tokens used in this session"),
+  "totalOutputTokens": zod.int().describe("Running total output tokens generated in this session"),
+  "totalCostCents": zod.int().describe("Running total cost in IDR cents"),
+  "tierId": zod.string().nullish(),
+  "startedAt": zod.coerce.date(),
+  "endedAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date()
+}).and(zod.object({
+  "messages": zod.array(zod.object({
+    "id": zod.int(),
+    "sessionId": zod.int(),
+    "role": zod.enum(["user", "assistant", "system"]),
+    "content": zod.string(),
+    "inputTokens": zod.int(),
+    "outputTokens": zod.int(),
+    "costCents": zod.int(),
+    "sequenceIndex": zod.int().describe("Order index (1-based)"),
+    "createdAt": zod.coerce.date()
+  })).optional(),
+  "quotaInfo": zod.object({
+    "saldoUsedCents": zod.int().optional().describe("Total saldo deducted for this session (always 0 when subscription quota is used)")
+  }).optional()
+}));
+var ListSimulationSessionsParams = zod.object({
+  "projectId": zod.coerce.number()
+});
+var ListSimulationSessionsResponseItem = zod.object({
+  "id": zod.int(),
+  "projectId": zod.int(),
+  "persona": zod.enum(["dosen_strict", "dosen_friendly", "audience_awam", "audience_expert"]).describe("Persona of the AI questioner:\n- dosen_strict: Sharp criticism, deep probing, demanding standards\n- dosen_friendly: Supportive + probing, warm and encouraging\n- audience_awam: Simple language, asks for clarification\n- audience_expert: Advanced discussion, jargon OK\n"),
+  "status": zod.enum(["active", "completed", "abandoned", "failed"]),
+  "questionsAsked": zod.int().describe("Number of questions asked so far (safety cap 10)"),
+  "totalInputTokens": zod.int().describe("Running total input tokens used in this session"),
+  "totalOutputTokens": zod.int().describe("Running total output tokens generated in this session"),
+  "totalCostCents": zod.int().describe("Running total cost in IDR cents"),
+  "tierId": zod.string().nullish(),
+  "startedAt": zod.coerce.date(),
+  "endedAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date()
+}).and(zod.object({
+  "quotaInfo": zod.object({
+    "saldoUsedCents": zod.int().optional().describe("Total saldo deducted for this session (always 0 when subscription quota is used)")
+  }).optional()
+}));
+var ListSimulationSessionsResponse = zod.array(ListSimulationSessionsResponseItem);
+var ListSimulationMessagesParams = zod.object({
+  "projectId": zod.coerce.number(),
+  "sessionId": zod.coerce.number()
+});
+var ListSimulationMessagesResponse = zod.object({
+  "id": zod.int(),
+  "projectId": zod.int(),
+  "persona": zod.enum(["dosen_strict", "dosen_friendly", "audience_awam", "audience_expert"]).describe("Persona of the AI questioner:\n- dosen_strict: Sharp criticism, deep probing, demanding standards\n- dosen_friendly: Supportive + probing, warm and encouraging\n- audience_awam: Simple language, asks for clarification\n- audience_expert: Advanced discussion, jargon OK\n"),
+  "status": zod.enum(["active", "completed", "abandoned", "failed"]),
+  "questionsAsked": zod.int().describe("Number of questions asked so far (safety cap 10)"),
+  "totalInputTokens": zod.int().describe("Running total input tokens used in this session"),
+  "totalOutputTokens": zod.int().describe("Running total output tokens generated in this session"),
+  "totalCostCents": zod.int().describe("Running total cost in IDR cents"),
+  "tierId": zod.string().nullish(),
+  "startedAt": zod.coerce.date(),
+  "endedAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date()
+}).and(zod.object({
+  "messages": zod.array(zod.object({
+    "id": zod.int(),
+    "sessionId": zod.int(),
+    "role": zod.enum(["user", "assistant", "system"]),
+    "content": zod.string(),
+    "inputTokens": zod.int(),
+    "outputTokens": zod.int(),
+    "costCents": zod.int(),
+    "sequenceIndex": zod.int().describe("Order index (1-based)"),
+    "createdAt": zod.coerce.date()
+  })).optional(),
+  "quotaInfo": zod.object({
+    "saldoUsedCents": zod.int().optional().describe("Total saldo deducted for this session (always 0 when subscription quota is used)")
+  }).optional()
+}));
+var SendSimulationMessageParams = zod.object({
+  "projectId": zod.coerce.number(),
+  "sessionId": zod.coerce.number()
+});
+var SendSimulationMessageBody = zod.object({
+  "content": zod.string().min(1).describe("User's response to the AI's question"),
+  "tierId": zod.string().nullish().describe("AI tier ID for this message. Defaults to cheapest eligible.")
+});
+var sendSimulationMessageResponseTwoReportOverallScoreMin = 0;
+var sendSimulationMessageResponseTwoReportOverallScoreMax = 100;
+var sendSimulationMessageResponseTwoReportScoresItemScoreMin = 0;
+var sendSimulationMessageResponseTwoReportScoresItemScoreMax = 100;
+var SendSimulationMessageResponse = zod.object({
+  "id": zod.int(),
+  "projectId": zod.int(),
+  "persona": zod.enum(["dosen_strict", "dosen_friendly", "audience_awam", "audience_expert"]).describe("Persona of the AI questioner:\n- dosen_strict: Sharp criticism, deep probing, demanding standards\n- dosen_friendly: Supportive + probing, warm and encouraging\n- audience_awam: Simple language, asks for clarification\n- audience_expert: Advanced discussion, jargon OK\n"),
+  "status": zod.enum(["active", "completed", "abandoned", "failed"]),
+  "questionsAsked": zod.int().describe("Number of questions asked so far (safety cap 10)"),
+  "totalInputTokens": zod.int().describe("Running total input tokens used in this session"),
+  "totalOutputTokens": zod.int().describe("Running total output tokens generated in this session"),
+  "totalCostCents": zod.int().describe("Running total cost in IDR cents"),
+  "tierId": zod.string().nullish(),
+  "startedAt": zod.coerce.date(),
+  "endedAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date()
+}).and(zod.object({
+  "messages": zod.array(zod.object({
+    "id": zod.int(),
+    "sessionId": zod.int(),
+    "role": zod.enum(["user", "assistant", "system"]),
+    "content": zod.string(),
+    "inputTokens": zod.int(),
+    "outputTokens": zod.int(),
+    "costCents": zod.int(),
+    "sequenceIndex": zod.int().describe("Order index (1-based)"),
+    "createdAt": zod.coerce.date()
+  })).optional(),
+  "report": zod.object({
+    "id": zod.int(),
+    "sessionId": zod.int(),
+    "projectId": zod.int(),
+    "overallScore": zod.int().min(sendSimulationMessageResponseTwoReportOverallScoreMin).max(sendSimulationMessageResponseTwoReportOverallScoreMax),
+    "summary": zod.string().describe("2-3 sentence summary"),
+    "strengths": zod.string().describe("Markdown bullet list of strengths"),
+    "weaknesses": zod.string().describe("Markdown bullet list of weaknesses"),
+    "recommendations": zod.string().describe("Markdown bullet list of actionable recommendations"),
+    "scores": zod.array(zod.object({
+      "criterion": zod.string().describe("Name of the evaluation criterion"),
+      "score": zod.int().min(sendSimulationMessageResponseTwoReportScoresItemScoreMin).max(sendSimulationMessageResponseTwoReportScoresItemScoreMax).describe("Score 0-100"),
+      "notes": zod.string().describe("Brief note explaining the score")
+    })),
+    "isLatestForProject": zod.boolean(),
+    "createdAt": zod.coerce.date()
+  }).optional(),
+  "quotaInfo": zod.object({
+    "saldoUsedCents": zod.int().optional().describe("Total saldo deducted for this session (always 0 when subscription quota is used)")
+  }).optional()
+}));
+var CompleteSimulationSessionParams = zod.object({
+  "projectId": zod.coerce.number(),
+  "sessionId": zod.coerce.number()
+});
+var completeSimulationSessionResponseTwoReportOverallScoreMin = 0;
+var completeSimulationSessionResponseTwoReportOverallScoreMax = 100;
+var completeSimulationSessionResponseTwoReportScoresItemScoreMin = 0;
+var completeSimulationSessionResponseTwoReportScoresItemScoreMax = 100;
+var CompleteSimulationSessionResponse = zod.object({
+  "id": zod.int(),
+  "projectId": zod.int(),
+  "persona": zod.enum(["dosen_strict", "dosen_friendly", "audience_awam", "audience_expert"]).describe("Persona of the AI questioner:\n- dosen_strict: Sharp criticism, deep probing, demanding standards\n- dosen_friendly: Supportive + probing, warm and encouraging\n- audience_awam: Simple language, asks for clarification\n- audience_expert: Advanced discussion, jargon OK\n"),
+  "status": zod.enum(["active", "completed", "abandoned", "failed"]),
+  "questionsAsked": zod.int().describe("Number of questions asked so far (safety cap 10)"),
+  "totalInputTokens": zod.int().describe("Running total input tokens used in this session"),
+  "totalOutputTokens": zod.int().describe("Running total output tokens generated in this session"),
+  "totalCostCents": zod.int().describe("Running total cost in IDR cents"),
+  "tierId": zod.string().nullish(),
+  "startedAt": zod.coerce.date(),
+  "endedAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date()
+}).and(zod.object({
+  "report": zod.object({
+    "id": zod.int(),
+    "sessionId": zod.int(),
+    "projectId": zod.int(),
+    "overallScore": zod.int().min(completeSimulationSessionResponseTwoReportOverallScoreMin).max(completeSimulationSessionResponseTwoReportOverallScoreMax),
+    "summary": zod.string().describe("2-3 sentence summary"),
+    "strengths": zod.string().describe("Markdown bullet list of strengths"),
+    "weaknesses": zod.string().describe("Markdown bullet list of weaknesses"),
+    "recommendations": zod.string().describe("Markdown bullet list of actionable recommendations"),
+    "scores": zod.array(zod.object({
+      "criterion": zod.string().describe("Name of the evaluation criterion"),
+      "score": zod.int().min(completeSimulationSessionResponseTwoReportScoresItemScoreMin).max(completeSimulationSessionResponseTwoReportScoresItemScoreMax).describe("Score 0-100"),
+      "notes": zod.string().describe("Brief note explaining the score")
+    })),
+    "isLatestForProject": zod.boolean(),
+    "createdAt": zod.coerce.date()
+  }).optional(),
+  "quotaInfo": zod.object({
+    "saldoUsedCents": zod.int().optional().describe("Total saldo deducted for this session (always 0 when subscription quota is used)")
+  }).optional()
+}));
+var GetLatestSimulationReportParams = zod.object({
+  "projectId": zod.coerce.number()
+});
+var getLatestSimulationReportResponseOneOverallScoreMin = 0;
+var getLatestSimulationReportResponseOneOverallScoreMax = 100;
+var getLatestSimulationReportResponseOneScoresItemScoreMin = 0;
+var getLatestSimulationReportResponseOneScoresItemScoreMax = 100;
+var GetLatestSimulationReportResponse = zod.union([zod.object({
+  "id": zod.int(),
+  "sessionId": zod.int(),
+  "projectId": zod.int(),
+  "overallScore": zod.int().min(getLatestSimulationReportResponseOneOverallScoreMin).max(getLatestSimulationReportResponseOneOverallScoreMax),
+  "summary": zod.string().describe("2-3 sentence summary"),
+  "strengths": zod.string().describe("Markdown bullet list of strengths"),
+  "weaknesses": zod.string().describe("Markdown bullet list of weaknesses"),
+  "recommendations": zod.string().describe("Markdown bullet list of actionable recommendations"),
+  "scores": zod.array(zod.object({
+    "criterion": zod.string().describe("Name of the evaluation criterion"),
+    "score": zod.int().min(getLatestSimulationReportResponseOneScoresItemScoreMin).max(getLatestSimulationReportResponseOneScoresItemScoreMax).describe("Score 0-100"),
+    "notes": zod.string().describe("Brief note explaining the score")
+  })),
+  "isLatestForProject": zod.boolean(),
+  "createdAt": zod.coerce.date()
+}), zod.null()]);
+var GetSharedSimulationReportParams = zod.object({
+  "sessionId": zod.coerce.number()
+});
+var getSharedSimulationReportResponseScoresItemScoreMin = 0;
+var getSharedSimulationReportResponseScoresItemScoreMax = 100;
+var GetSharedSimulationReportResponse = zod.object({
+  "sessionId": zod.int(),
+  "persona": zod.enum(["dosen_strict", "dosen_friendly", "audience_awam", "audience_expert"]).describe("Persona of the AI questioner:\n- dosen_strict: Sharp criticism, deep probing, demanding standards\n- dosen_friendly: Supportive + probing, warm and encouraging\n- audience_awam: Simple language, asks for clarification\n- audience_expert: Advanced discussion, jargon OK\n"),
+  "status": zod.enum(["active", "completed", "abandoned", "failed"]),
+  "overallScore": zod.int(),
+  "summary": zod.string(),
+  "strengths": zod.string(),
+  "weaknesses": zod.string(),
+  "recommendations": zod.string(),
+  "scores": zod.array(zod.object({
+    "criterion": zod.string().describe("Name of the evaluation criterion"),
+    "score": zod.int().min(getSharedSimulationReportResponseScoresItemScoreMin).max(getSharedSimulationReportResponseScoresItemScoreMax).describe("Score 0-100"),
+    "notes": zod.string().describe("Brief note explaining the score")
+  })),
+  "questionsAsked": zod.int().optional(),
+  "createdAt": zod.coerce.date()
+}).describe("Anonymized simulation report \u2014 no user information exposed");
+var CreateSimulationShareTokenParams = zod.object({
+  "projectId": zod.coerce.number(),
+  "sessionId": zod.coerce.number()
+});
+var createSimulationShareTokenBodyExpiresInDaysDefault = 7;
+var CreateSimulationShareTokenBody = zod.object({
+  "expiresInDays": zod.number().default(createSimulationShareTokenBodyExpiresInDaysDefault).describe("Number of days until the share link expires")
+});
+var CreateSimulationShareTokenResponse = zod.object({
+  "tokenId": zod.string().optional().describe("The public share token to use in the URL"),
+  "expiresAt": zod.coerce.date().optional()
 });
 var ListDocumentsParams = zod.object({
   "projectId": zod.coerce.number()
@@ -198456,9 +199165,9 @@ function createFetchClient(options) {
         },
         body: body ? JSON.stringify(body) : void 0
       });
-      const text33 = await res.text();
+      const text36 = await res.text();
       const isJson = (res.headers.get("content-type") || "").includes("application/json");
-      const data = isJson && text33 ? JSON.parse(text33) : text33;
+      const data = isJson && text36 ? JSON.parse(text36) : text36;
       if (!res.ok) {
         const errBody = isJson ? data : void 0;
         const errorDetail = errBody?.error;
@@ -202533,6 +203242,9 @@ __export(schema_exports, {
   insertReferralSchema: () => insertReferralSchema,
   insertRubricSchema: () => insertRubricSchema,
   insertShareTokenSchema: () => insertShareTokenSchema,
+  insertSimulationMessageSchema: () => insertSimulationMessageSchema,
+  insertSimulationReportSchema: () => insertSimulationReportSchema,
+  insertSimulationSessionSchema: () => insertSimulationSessionSchema,
   insertTokenTransactionSchema: () => insertTokenTransactionSchema,
   insertUserBalanceSchema: () => insertUserBalanceSchema,
   insertUserSchema: () => insertUserSchema,
@@ -202559,6 +203271,13 @@ __export(schema_exports, {
   rubricsTable: () => rubricsTable,
   saldoStatuses: () => saldoStatuses,
   shareTokensTable: () => shareTokensTable,
+  simulationMessagesTable: () => simulationMessagesTable,
+  simulationPersonas: () => simulationPersonas,
+  simulationReportsTable: () => simulationReportsTable,
+  simulationRoles: () => simulationRoles,
+  simulationScoreSchema: () => simulationScoreSchema,
+  simulationSessionsTable: () => simulationSessionsTable,
+  simulationStatuses: () => simulationStatuses,
   styleCharacteristicsSchema: () => styleCharacteristicsSchema,
   subscriptionStatuses: () => subscriptionStatuses,
   subscriptionsTable: () => subscriptionsTable,
@@ -203116,7 +203835,9 @@ var userBalancesTable = pgTable18(
     rewardBalanceCents: integer17("reward_balance_cents").notNull().default(0),
     // Saldo status: active (normal), held (12mo inactivity), closed
     saldoStatus: text18("saldo_status").notNull().default("active").$type(),
-    // Hybrid autofallback: automatically use saldo when subscription quota is exhausted
+    // Hybrid autofallback: automatically use saldo when subscription quota is exhausted.
+    // Default TRUE is intentional — owner decision 2026-09-11. New users get seamless
+    // saldo fallback out of the box; they can opt out via settings if desired.
     autofallbackEnabled: boolean9("autofallback_enabled").notNull().default(true),
     // When the user last had any AI activity
     lastActiveAt: timestamp18("last_active_at", { withTimezone: true }),
@@ -203711,6 +204432,115 @@ var insertLearningActivitySchema = createInsertSchema29(learningActivitiesTable)
   updatedAt: true
 });
 
+// ../../lib/db/src/schema/simulation_sessions.ts
+import { pgTable as pgTable33, text as text33, serial as serial26, integer as integer31, timestamp as timestamp33, jsonb as jsonb8, index as index11 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema30 } from "drizzle-zod";
+var simulationStatuses = ["active", "completed", "abandoned", "failed"];
+var simulationPersonas = [
+  "dosen_strict",
+  "dosen_friendly",
+  "audience_awam",
+  "audience_expert"
+];
+var simulationSessionsTable = pgTable33(
+  "simulation_sessions",
+  {
+    id: serial26("id").primaryKey(),
+    userId: text33("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
+    projectId: integer31("project_id").notNull().references(() => projectsTable.id, { onDelete: "cascade" }),
+    persona: text33("persona").notNull().$type(),
+    status: text33("status").notNull().default("active").$type(),
+    projectContextSnapshot: jsonb8("project_context_snapshot").$type(),
+    questionsAsked: integer31("questions_asked").notNull().default(0),
+    totalInputTokens: integer31("total_input_tokens").notNull().default(0),
+    totalOutputTokens: integer31("total_output_tokens").notNull().default(0),
+    totalCostCents: integer31("total_cost_cents").notNull().default(0),
+    tierId: text33("tier_id"),
+    startedAt: timestamp33("started_at", { withTimezone: true }).notNull().defaultNow(),
+    endedAt: timestamp33("ended_at", { withTimezone: true }),
+    createdAt: timestamp33("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp33("updated_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table2) => [
+    index11("idx_sim_sessions_user").on(table2.userId),
+    index11("idx_sim_sessions_project").on(table2.projectId),
+    index11("idx_sim_sessions_user_status").on(table2.userId, table2.status),
+    index11("idx_sim_sessions_started").on(table2.startedAt)
+  ]
+);
+var insertSimulationSessionSchema = createInsertSchema30(simulationSessionsTable).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  startedAt: true,
+  questionsAsked: true,
+  totalInputTokens: true,
+  totalOutputTokens: true,
+  totalCostCents: true
+});
+
+// ../../lib/db/src/schema/simulation_messages.ts
+import { pgTable as pgTable34, text as text34, serial as serial27, integer as integer32, timestamp as timestamp34, index as index12 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema31 } from "drizzle-zod";
+var simulationRoles = ["user", "assistant", "system"];
+var simulationMessagesTable = pgTable34(
+  "simulation_messages",
+  {
+    id: serial27("id").primaryKey(),
+    sessionId: integer32("session_id").notNull().references(() => simulationSessionsTable.id, { onDelete: "cascade" }),
+    role: text34("role").notNull().$type(),
+    content: text34("content").notNull(),
+    inputTokens: integer32("input_tokens").notNull().default(0),
+    outputTokens: integer32("output_tokens").notNull().default(0),
+    costCents: integer32("cost_cents").notNull().default(0),
+    sequenceIndex: integer32("sequence_index").notNull(),
+    createdAt: timestamp34("created_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table2) => [
+    index12("idx_sim_messages_session").on(table2.sessionId, table2.sequenceIndex)
+  ]
+);
+var insertSimulationMessageSchema = createInsertSchema31(simulationMessagesTable).omit({
+  id: true,
+  createdAt: true
+});
+
+// ../../lib/db/src/schema/simulation_reports.ts
+import { pgTable as pgTable35, text as text35, serial as serial28, integer as integer33, timestamp as timestamp35, jsonb as jsonb9, index as index13, boolean as boolean15 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema32 } from "drizzle-zod";
+import { z as z6 } from "zod/v4";
+var simulationScoreSchema = z6.object({
+  criterion: z6.string(),
+  score: z6.number().int().min(0).max(100),
+  notes: z6.string()
+});
+var simulationReportsTable = pgTable35(
+  "simulation_reports",
+  {
+    id: serial28("id").primaryKey(),
+    sessionId: integer33("session_id").notNull().references(() => simulationSessionsTable.id, { onDelete: "cascade" }).unique(),
+    projectId: integer33("project_id").notNull().references(() => projectsTable.id, { onDelete: "cascade" }),
+    userId: text35("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
+    overallScore: integer33("overall_score").notNull(),
+    summary: text35("summary").notNull(),
+    strengths: text35("strengths").notNull(),
+    weaknesses: text35("weaknesses").notNull(),
+    recommendations: text35("recommendations").notNull(),
+    scores: jsonb9("scores").$type().notNull(),
+    isLatestForProject: boolean15("is_latest_for_project").notNull().default(true),
+    createdAt: timestamp35("created_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table2) => [
+    index13("idx_sim_reports_session").on(table2.sessionId),
+    index13("idx_sim_reports_user_created").on(table2.userId, table2.createdAt),
+    index13("idx_sim_reports_project_latest").on(table2.projectId, table2.isLatestForProject)
+  ]
+);
+var insertSimulationReportSchema = createInsertSchema32(simulationReportsTable).omit({
+  id: true,
+  createdAt: true
+});
+
 // ../../node_modules/@workspace/db/src/index.ts
 var connectionString = process.env.DATABASE_POOLER_URL ?? process.env.DATABASE_URL;
 var pool2;
@@ -204179,6 +205009,65 @@ var logger = (0, import_pino.default)({
   }
 });
 
+// src/lib/tokenizer.ts
+var import_tiktoken = __toESM(require_tiktoken(), 1);
+var MODEL_CONTEXT_WINDOWS = {
+  // Anthropic Claude 3.5
+  "claude-3-5-sonnet-20241022": 2e5,
+  "claude-3-5-haiku-20241022": 2e5,
+  // Anthropic Claude 3
+  "claude-3-opus-20240229": 2e5,
+  "claude-3-sonnet-20240229": 2e5,
+  "claude-3-haiku-20240307": 2e5,
+  // Groq
+  "llama-3.1-8b-instant": 128e3,
+  "llama-3.3-70b-versatile": 128e3,
+  // OpenAI
+  "gpt-4o": 128e3,
+  "gpt-4o-mini": 128e3,
+  // Default
+  default: 1e5
+};
+var _encoder = null;
+function getEncoder() {
+  if (!_encoder) {
+    _encoder = (0, import_tiktoken.get_encoding)("cl100k_base");
+  }
+  return _encoder;
+}
+function countTokens(text36) {
+  if (!text36) return 0;
+  const enc = getEncoder();
+  return enc.encode(text36).length;
+}
+function getContextWindow(model) {
+  return MODEL_CONTEXT_WINDOWS[model] ?? MODEL_CONTEXT_WINDOWS.default;
+}
+function estimateTokensFromChars(charCount) {
+  return Math.ceil(charCount / 4);
+}
+function truncateToTokenLimit(text36, model, maxInputTokens) {
+  if (!text36) return text36;
+  const contextWindow = getContextWindow(model);
+  const reserved = maxInputTokens ?? Math.floor(contextWindow * 0.75);
+  const maxTokens = Math.min(reserved, contextWindow - 4096);
+  const tokens = countTokens(text36);
+  if (tokens <= maxTokens) return text36;
+  let low = 0;
+  let high = text36.length;
+  while (low < high) {
+    const mid = Math.floor((low + high + 1) / 2);
+    const slice = text36.substring(0, mid);
+    if (countTokens(slice) <= maxTokens) {
+      low = mid;
+    } else {
+      high = mid - 1;
+    }
+    if (low === high) break;
+  }
+  return text36.substring(0, low);
+}
+
 // src/lib/ai.ts
 var _tierCache = /* @__PURE__ */ new Map();
 var _tierCacheTime = 0;
@@ -204335,6 +205224,20 @@ async function callAnthropic(messages, tier, mode) {
   });
   if (!response.ok) {
     const errorBody = await response.text();
+    let errorObj = {};
+    try {
+      errorObj = JSON.parse(errorBody);
+    } catch {
+    }
+    const errorType = errorObj?.type;
+    if (errorType === "overload_input" || errorType === "invalid_request_error") {
+      const errDetail = errorObj?.error;
+      const innerType = errDetail?.type;
+      if (innerType === "overload_input" || response.status === 400) {
+        logger.warn({ status: response.status, body: errorBody, tier: tier.id }, "Anthropic context window exceeded");
+        throw new Error("KONTEKS_TERLALU_PANJANG");
+      }
+    }
     logger.error({ status: response.status, body: errorBody, tier: tier.id }, "Anthropic API error");
     throw new Error(`Anthropic API error ${response.status}: ${errorBody}`);
   }
@@ -204370,7 +205273,8 @@ function buildSystemPrompt(projectContext) {
     reflect: "Kamu dalam mode REFLECT. Pengguna ingin merenungkan atau menganalisis karya mereka secara mendalam. Ajukan pertanyaan kritis tentang argumen, logika, bukti, dan struktur. Bantu pengguna menemukan kelemahan dan kekuatan dalam pekerjaannya. Gunakan pendekatan Socratic \u2014 ajukan pertanyaan, jangan langsung kasih jawaban. Keluarkan analisis tanpa preamble.",
     socratic: "Kamu dalam mode SOCRATIC. Pengguna ingin belajar melalui pertanyaan. JANGAN langsung memberikan jawaban. Sebagai gantinya, ajukan pertanyaan yang mengarahkan pengguna untuk berpikir sendiri. Mulai dari pertanyaan sederhana, secara bertahap naik ke pertanyaan yang lebih kompleks. Gunakan pertanyaan terbuka yang mendorong refleksi. Keluarkan pertanyaan tanpa preamble atau jawaban.",
     quiz: "Kamu dalam mode QUIZ. Pengguna ingin menguji pemahaman mereka. Buat pertanyaan quiz berdasarkan materi yang relevan dengan project. Campurkan soal pilihan ganda, benar-salah, dan esai singkat. Berikan kunci jawaban di akhir. Keluarkan quiz tanpa preamble.",
-    summary: "Kamu dalam mode SUMMARY. Pengguna ingin rangkuman singkat dari dokumen atau materi. Buat ringkasan yang padat, jelas, dan mencakup poin-poin utama. Gunakan bahasa yang mudah dipahami. Keluarkan ringkasan tanpa preamble."
+    summary: "Kamu dalam mode SUMMARY. Pengguna ingin rangkuman singkat dari dokumen atau materi. Buat ringkasan yang padat, jelas, dan mencakup poin-poin utama. Gunakan bahasa yang mudah dipahami. Keluarkan ringkasan tanpa preamble.",
+    simulasi: "Kamu dalam mode SIMULASI. Kamu berperan sebagai penanya dalam simulasi presentasi akademik. Ajukan pertanyaan kritis yang relevan dengan topik presentasi. Sesuaikan tingkat kesulitan dengan persona yang dipilih. Keluarkan pertanyaan tanpa preamble."
   };
   const mode = projectContext.mode ?? "revise";
   return `Kamu adalah AI asisten akademik yang membantu mengerjakan tugas kuliah dan karya ilmiah.
@@ -204409,7 +205313,7 @@ OUTLINE DOKUMEN:
 ${projectContext.outline}` : ""}
 ${projectContext.latestDocument ? `
 DOKUMEN TERBARU (untuk referensi revisi):
-${projectContext.latestDocument.substring(0, 3e3)}${projectContext.latestDocument.length > 3e3 ? "\n...[dipotong]" : ""}` : ""}
+${truncateToTokenLimit(projectContext.latestDocument, "claude-3-5-sonnet-20241022", 2e3)}${countTokens(projectContext.latestDocument) > 2e3 ? "\n...[dipotong]" : ""}` : ""}
 ${projectContext.contextSummary ? `
 RINGKASAN KONTEKS:
 ${projectContext.contextSummary}` : ""}
@@ -204477,8 +205381,8 @@ function addDays(date2, amount) {
 
 // ../../node_modules/date-fns/addMilliseconds.mjs
 function addMilliseconds(date2, amount) {
-  const timestamp33 = +toDate(date2);
-  return constructFrom(date2, timestamp33 + amount);
+  const timestamp36 = +toDate(date2);
+  return constructFrom(date2, timestamp36 + amount);
 }
 
 // ../../node_modules/date-fns/constants.mjs
@@ -204903,12 +205807,12 @@ var __getProtoOf2 = Object.getPrototypeOf;
 var __hasOwnProp2 = Object.prototype.hasOwnProperty;
 var __esmMin = (fn, res) => () => (fn && (res = fn(fn = 0)), res);
 var __commonJSMin = (cb, mod) => () => (mod || (cb((mod = { exports: {} }).exports, mod), cb = null), mod.exports);
-var __copyProps2 = (to, from, except, desc20) => {
+var __copyProps2 = (to, from, except, desc21) => {
   if (from && typeof from === "object" || typeof from === "function") for (var keys = __getOwnPropNames2(from), i2 = 0, n = keys.length, key; i2 < n; i2++) {
     key = keys[i2];
     if (!__hasOwnProp2.call(to, key) && key !== except) __defProp2(to, key, {
       get: ((k) => from[k]).bind(null, key),
-      enumerable: !(desc20 = __getOwnPropDesc2(from, key)) || desc20.enumerable
+      enumerable: !(desc21 = __getOwnPropDesc2(from, key)) || desc21.enumerable
     });
   }
   return to;
@@ -205414,8 +206318,8 @@ var require_events = /* @__PURE__ */ __commonJSMin(((exports, module) => {
     for (var i2 = 0; i2 < n; ++i2) copy[i2] = arr[i2];
     return copy;
   }
-  function spliceOne(list, index11) {
-    for (; index11 + 1 < list.length; index11++) list[index11] = list[index11 + 1];
+  function spliceOne(list, index14) {
+    for (; index14 + 1 < list.length; index14++) list[index14] = list[index14 + 1];
     list.pop();
   }
   function unwrapListeners(arr) {
@@ -207064,10 +207968,10 @@ var require_get2 = /* @__PURE__ */ __commonJSMin(((exports, module) => {
   } catch (e2) {
     if (!e2 || typeof e2 !== "object" || !("code" in e2) || e2.code !== "ERR_PROTO_ACCESS") throw e2;
   }
-  var desc20 = !!hasProtoAccessor && gOPD && gOPD(Object.prototype, "__proto__");
+  var desc21 = !!hasProtoAccessor && gOPD && gOPD(Object.prototype, "__proto__");
   var $Object = Object;
   var $getPrototypeOf = $Object.getPrototypeOf;
-  module.exports = desc20 && typeof desc20.get === "function" ? callBind([desc20.get]) : typeof $getPrototypeOf === "function" ? function getDunder(value) {
+  module.exports = desc21 && typeof desc21.get === "function" ? callBind([desc21.get]) : typeof $getPrototypeOf === "function" ? function getDunder(value) {
     return $getPrototypeOf(value == null ? value : $Object(value));
   } : false;
 }));
@@ -207400,9 +208304,9 @@ var require_get_intrinsic2 = /* @__PURE__ */ __commonJSMin(((exports, module) =>
           return;
         }
         if ($gOPD && i2 + 1 >= parts.length) {
-          var desc20 = $gOPD(value, part);
-          isOwn = !!desc20;
-          if (isOwn && "get" in desc20 && !("originalValue" in desc20.get)) value = desc20.get;
+          var desc21 = $gOPD(value, part);
+          isOwn = !!desc21;
+          if (isOwn && "get" in desc21 && !("originalValue" in desc21.get)) value = desc21.get;
           else value = value[part];
         } else {
           isOwn = hasOwn(value, part);
@@ -207615,12 +208519,12 @@ var require_define_data_property = /* @__PURE__ */ __commonJSMin(((exports, modu
     var nonWritable = arguments.length > 4 ? arguments[4] : null;
     var nonConfigurable = arguments.length > 5 ? arguments[5] : null;
     var loose = arguments.length > 6 ? arguments[6] : false;
-    var desc20 = !!gopd && gopd(obj, property);
+    var desc21 = !!gopd && gopd(obj, property);
     if ($defineProperty) $defineProperty(obj, property, {
-      configurable: nonConfigurable === null && desc20 ? desc20.configurable : !nonConfigurable,
-      enumerable: nonEnumerable === null && desc20 ? desc20.enumerable : !nonEnumerable,
+      configurable: nonConfigurable === null && desc21 ? desc21.configurable : !nonConfigurable,
+      enumerable: nonEnumerable === null && desc21 ? desc21.enumerable : !nonEnumerable,
       value,
-      writable: nonWritable === null && desc20 ? desc20.writable : !nonWritable
+      writable: nonWritable === null && desc21 ? desc21.writable : !nonWritable
     });
     else if (loose || !nonEnumerable && !nonWritable && !nonConfigurable) obj[property] = value;
     else throw new $SyntaxError("This environment does not support defining a property as non-configurable, non-writable, or non-enumerable.");
@@ -207655,9 +208559,9 @@ var require_set_function_length = /* @__PURE__ */ __commonJSMin(((exports, modul
     var functionLengthIsConfigurable = true;
     var functionLengthIsWritable = true;
     if ("length" in fn && gOPD) {
-      var desc20 = gOPD(fn, "length");
-      if (desc20 && !desc20.configurable) functionLengthIsConfigurable = false;
-      if (desc20 && !desc20.writable) functionLengthIsWritable = false;
+      var desc21 = gOPD(fn, "length");
+      if (desc21 && !desc21.configurable) functionLengthIsConfigurable = false;
+      if (desc21 && !desc21.writable) functionLengthIsWritable = false;
     }
     if (functionLengthIsConfigurable || functionLengthIsWritable || !loose) if (hasDescriptors) define2(fn, "length", length, true, true);
     else define2(fn, "length", length);
@@ -208172,14 +209076,14 @@ var require_util = /* @__PURE__ */ __commonJSMin(((exports) => {
     return output;
   }
   function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array2) {
-    var name, str, desc20 = Object.getOwnPropertyDescriptor(value, key) || { value: value[key] };
-    if (desc20.get) if (desc20.set) str = ctx.stylize("[Getter/Setter]", "special");
+    var name, str, desc21 = Object.getOwnPropertyDescriptor(value, key) || { value: value[key] };
+    if (desc21.get) if (desc21.set) str = ctx.stylize("[Getter/Setter]", "special");
     else str = ctx.stylize("[Getter]", "special");
-    else if (desc20.set) str = ctx.stylize("[Setter]", "special");
+    else if (desc21.set) str = ctx.stylize("[Setter]", "special");
     if (!hasOwnProperty(visibleKeys, key)) name = "[" + key + "]";
-    if (!str) if (ctx.seen.indexOf(desc20.value) < 0) {
-      if (isNull7(recurseTimes)) str = formatValue(ctx, desc20.value, null);
-      else str = formatValue(ctx, desc20.value, recurseTimes - 1);
+    if (!str) if (ctx.seen.indexOf(desc21.value) < 0) {
+      if (isNull7(recurseTimes)) str = formatValue(ctx, desc21.value, null);
+      else str = formatValue(ctx, desc21.value, recurseTimes - 1);
       if (str.indexOf("\n") > -1) if (array2) str = str.split("\n").map(function(line) {
         return "  " + line;
       }).join("\n").slice(2);
@@ -208290,7 +209194,7 @@ var require_util = /* @__PURE__ */ __commonJSMin(((exports) => {
     "Nov",
     "Dec"
   ];
-  function timestamp33() {
+  function timestamp36() {
     var d = /* @__PURE__ */ new Date();
     var time = [
       pad2(d.getHours()),
@@ -208304,7 +209208,7 @@ var require_util = /* @__PURE__ */ __commonJSMin(((exports) => {
     ].join(" ");
   }
   exports.log = function() {
-    console.log("%s - %s", timestamp33(), exports.format.apply(exports, arguments));
+    console.log("%s - %s", timestamp36(), exports.format.apply(exports, arguments));
   };
   exports.inherits = require_inherits_browser2();
   exports._extend = function(origin, add2) {
@@ -210290,9 +211194,9 @@ var require__stream_readable = /* @__PURE__ */ __commonJSMin(((exports, module) 
       for (var i2 = 0; i2 < len; i2++) dests[i2].emit("unpipe", this, { hasUnpiped: false });
       return this;
     }
-    var index11 = indexOf(state.pipes, dest);
-    if (index11 === -1) return this;
-    state.pipes.splice(index11, 1);
+    var index14 = indexOf(state.pipes, dest);
+    if (index14 === -1) return this;
+    state.pipes.splice(index14, 1);
     state.pipesCount -= 1;
     if (state.pipesCount === 1) state.pipes = state.pipes[0];
     dest.emit("unpipe", this, unpipeInfo);
@@ -211269,10 +212173,10 @@ var require_sax = /* @__PURE__ */ __commonJSMin(((exports) => {
       if (parser.textNode) emit(parser, "ontext", parser.textNode);
       parser.textNode = "";
     }
-    function textopts(opt, text33) {
-      if (opt.trim) text33 = text33.trim();
-      if (opt.normalize) text33 = text33.replace(/\s+/g, " ");
-      return text33;
+    function textopts(opt, text36) {
+      if (opt.trim) text36 = text36.trim();
+      if (opt.normalize) text36 = text36.replace(/\s+/g, " ");
+      return text36;
     }
     function error(parser, er) {
       closeText(parser);
@@ -211890,12 +212794,12 @@ var require_sax = /* @__PURE__ */ __commonJSMin(((exports) => {
         var codeUnits = [];
         var highSurrogate;
         var lowSurrogate;
-        var index11 = -1;
+        var index14 = -1;
         var length = arguments.length;
         if (!length) return "";
         var result = "";
-        while (++index11 < length) {
-          var codePoint = Number(arguments[index11]);
+        while (++index14 < length) {
+          var codePoint = Number(arguments[index14]);
           if (!isFinite(codePoint) || codePoint < 0 || codePoint > 1114111 || floor(codePoint) !== codePoint) throw RangeError("Invalid code point: " + codePoint);
           if (codePoint <= 65535) codeUnits.push(codePoint);
           else {
@@ -211904,7 +212808,7 @@ var require_sax = /* @__PURE__ */ __commonJSMin(((exports) => {
             lowSurrogate = codePoint % 1024 + 56320;
             codeUnits.push(highSurrogate, lowSurrogate);
           }
-          if (index11 + 1 === length || codeUnits.length > MAX_SIZE) {
+          if (index14 + 1 === length || codeUnits.length > MAX_SIZE) {
             result += stringFromCharCode.apply(null, codeUnits);
             codeUnits.length = 0;
           }
@@ -212124,13 +213028,13 @@ var require_xml2js = /* @__PURE__ */ __commonJSMin(((exports, module) => {
     element[options.parentKey] = currentElement;
     currentElement = element;
   }
-  function onText(text33) {
+  function onText(text36) {
     if (options.ignoreText) return;
-    if (!text33.trim() && !options.captureSpacesBetweenElements) return;
-    if (options.trim) text33 = text33.trim();
-    if (options.nativeType) text33 = nativeType(text33);
-    if (options.sanitize) text33 = text33.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    addField("text", text33);
+    if (!text36.trim() && !options.captureSpacesBetweenElements) return;
+    if (options.trim) text36 = text36.trim();
+    if (options.nativeType) text36 = nativeType(text36);
+    if (options.sanitize) text36 = text36.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    addField("text", text36);
   }
   function onComment(comment) {
     if (options.ignoreComment) return;
@@ -212298,12 +213202,12 @@ var require_js2xml = /* @__PURE__ */ __commonJSMin(((exports, module) => {
   function writeDoctype(doctype, options) {
     return options.ignoreDoctype ? "" : "<!DOCTYPE " + ("doctypeFn" in options ? options.doctypeFn(doctype, currentElementName, currentElement) : doctype) + ">";
   }
-  function writeText(text33, options) {
+  function writeText(text36, options) {
     if (options.ignoreText) return "";
-    text33 = "" + text33;
-    text33 = text33.replace(/&amp;/g, "&");
-    text33 = text33.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    return "textFn" in options ? options.textFn(text33, currentElementName, currentElement) : text33;
+    text36 = "" + text36;
+    text36 = text36.replace(/&amp;/g, "&");
+    text36 = text36.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    return "textFn" in options ? options.textFn(text36, currentElementName, currentElement) : text36;
   }
   function hasContent(element, options) {
     var i2;
@@ -213565,22 +214469,22 @@ var require_common$1 = /* @__PURE__ */ __commonJSMin(((exports) => {
 }));
 var require_common2 = /* @__PURE__ */ __commonJSMin(((exports) => {
   var rotr32 = require_utils4().rotr32;
-  function ft_1(s2, x2, y, z12) {
-    if (s2 === 0) return ch32(x2, y, z12);
-    if (s2 === 1 || s2 === 3) return p322(x2, y, z12);
-    if (s2 === 2) return maj32(x2, y, z12);
+  function ft_1(s2, x2, y, z13) {
+    if (s2 === 0) return ch32(x2, y, z13);
+    if (s2 === 1 || s2 === 3) return p322(x2, y, z13);
+    if (s2 === 2) return maj32(x2, y, z13);
   }
   exports.ft_1 = ft_1;
-  function ch32(x2, y, z12) {
-    return x2 & y ^ ~x2 & z12;
+  function ch32(x2, y, z13) {
+    return x2 & y ^ ~x2 & z13;
   }
   exports.ch32 = ch32;
-  function maj32(x2, y, z12) {
-    return x2 & y ^ x2 & z12 ^ y & z12;
+  function maj32(x2, y, z13) {
+    return x2 & y ^ x2 & z13 ^ y & z13;
   }
   exports.maj32 = maj32;
-  function p322(x2, y, z12) {
-    return x2 ^ y ^ z12;
+  function p322(x2, y, z13) {
+    return x2 ^ y ^ z13;
   }
   exports.p32 = p322;
   function s0_256(x2) {
@@ -214315,12 +215219,12 @@ var require_ripemd = /* @__PURE__ */ __commonJSMin(((exports) => {
     if (enc === "hex") return utils.toHex32(this.h, "little");
     else return utils.split32(this.h, "little");
   };
-  function f3(j, x2, y, z12) {
-    if (j <= 15) return x2 ^ y ^ z12;
-    else if (j <= 31) return x2 & y | ~x2 & z12;
-    else if (j <= 47) return (x2 | ~y) ^ z12;
-    else if (j <= 63) return x2 & z12 | y & ~z12;
-    else return x2 ^ (y | ~z12);
+  function f3(j, x2, y, z13) {
+    if (j <= 15) return x2 ^ y ^ z13;
+    else if (j <= 31) return x2 & y | ~x2 & z13;
+    else if (j <= 47) return (x2 | ~y) ^ z13;
+    else if (j <= 63) return x2 & z13 | y & ~z13;
+    else return x2 ^ (y | ~z13);
   }
   function K2(j) {
     if (j <= 15) return 0;
@@ -215266,7 +216170,7 @@ var createFont = ({ name, altName, panose1, charset, family, notTrueType, pitch,
     ...embedBoldItalic ? [createFontRelationship(embedBoldItalic, "w:embedBoldItalic")] : []
   ]
 });
-var createRegularFont = ({ name, index: index11, fontKey, characterSet }) => createFont({
+var createRegularFont = ({ name, index: index14, fontKey, characterSet }) => createFont({
   name,
   sig: {
     usb0: "E0002AFF",
@@ -215281,7 +216185,7 @@ var createRegularFont = ({ name, index: index11, fontKey, characterSet }) => cre
   pitch: "variable",
   embedRegular: {
     fontKey,
-    id: `rId${index11}`
+    id: `rId${index14}`
   }
 });
 var createFontTable = (fonts) => new BuilderElement({
@@ -215546,10 +216450,10 @@ var Paragraph = class extends FileChild {
   }
   prepForXml(context) {
     for (const element of this.root) if (element instanceof ExternalHyperlink) {
-      const index11 = this.root.indexOf(element);
+      const index14 = this.root.indexOf(element);
       const concreteHyperlink = new ConcreteHyperlink(element.options.children, uniqueId());
       context.viewWrapper.Relationships.addRelationship(concreteHyperlink.linkId, "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink", element.options.link, TargetModeType.EXTERNAL);
-      this.root[index11] = concreteHyperlink;
+      this.root[index14] = concreteHyperlink;
     }
     return super.prepForXml(context);
   }
@@ -215687,16 +216591,16 @@ var ContentTypes = class extends XmlComponent {
   *
   * @param index - Footer index number (e.g., 1 for footer1.xml)
   */
-  addFooter(index11) {
-    this.root.push(createOverride("application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml", `/word/footer${index11}.xml`));
+  addFooter(index14) {
+    this.root.push(createOverride("application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml", `/word/footer${index14}.xml`));
   }
   /**
   * Registers a header part in the content types.
   *
   * @param index - Header index number (e.g., 1 for header1.xml)
   */
-  addHeader(index11) {
-    this.root.push(createOverride("application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml", `/word/header${index11}.xml`));
+  addHeader(index14) {
+    this.root.push(createOverride("application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml", `/word/header${index14}.xml`));
   }
 };
 var DocumentAttributeNamespaces = {
@@ -216965,7 +217869,7 @@ var LevelBase = class extends XmlComponent {
   * @param options - Level configuration options
   * @throws Error if level is greater than 9 (Word limitation)
   */
-  constructor({ level, format, text: text33, alignment = AlignmentType.START, start = 1, style, suffix, isLegalNumberingStyle }) {
+  constructor({ level, format, text: text36, alignment = AlignmentType.START, start = 1, style, suffix, isLegalNumberingStyle }) {
     super("w:lvl");
     _defineProperty4(this, "paragraphProperties", void 0);
     _defineProperty4(this, "runProperties", void 0);
@@ -216973,7 +217877,7 @@ var LevelBase = class extends XmlComponent {
     if (format) this.root.push(new NumberFormat$1(format));
     if (suffix) this.root.push(new Suffix(suffix));
     if (isLegalNumberingStyle) this.root.push(new IsLegalNumberingStyle());
-    if (text33) this.root.push(new LevelText(text33));
+    if (text36) this.root.push(new LevelText(text36));
     this.root.push(new LevelJc(alignment));
     if (style === null || style === void 0 ? void 0 : style.style) this.root.push(createParagraphStyle(style.style));
     this.paragraphProperties = new ParagraphProperties(style && style.paragraph);
@@ -218190,17 +219094,17 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
           t3 && !r3 || (x2.crc32 = e3.crc32, x2.compressedSize = e3.compressedSize, x2.uncompressedSize = e3.uncompressedSize);
           var S2 = 0;
           t3 && (S2 |= 8), l || !_ && !g || (S2 |= 2048);
-          var z12 = 0, C = 0;
-          w && (z12 |= 16), "UNIX" === i3 ? (C = 798, z12 |= (function(e4, t4) {
+          var z13 = 0, C = 0;
+          w && (z13 |= 16), "UNIX" === i3 ? (C = 798, z13 |= (function(e4, t4) {
             var r4 = e4;
             return e4 || (r4 = t4 ? 16893 : 33204), (65535 & r4) << 16;
-          })(h2.unixPermissions, w)) : (C = 20, z12 |= (function(e4) {
+          })(h2.unixPermissions, w)) : (C = 20, z13 |= (function(e4) {
             return 63 & (e4 || 0);
           })(h2.dosPermissions)), a = k.getUTCHours(), a <<= 6, a |= k.getUTCMinutes(), a <<= 5, a |= k.getUTCSeconds() / 2, o = k.getUTCFullYear() - 1980, o <<= 4, o |= k.getUTCMonth() + 1, o <<= 5, o |= k.getUTCDate(), _ && (v = A2(1, 1) + A2(B(f3), 4) + c, b += "up" + A2(v.length, 2) + v), g && (y = A2(1, 1) + A2(B(p), 4) + m2, b += "uc" + A2(y.length, 2) + y);
           var E = "";
           return E += "\n\0", E += A2(S2, 2), E += u.magic, E += A2(a, 2), E += A2(o, 2), E += A2(x2.crc32, 4), E += A2(x2.compressedSize, 4), E += A2(x2.uncompressedSize, 4), E += A2(f3.length, 2), E += A2(b.length, 2), {
             fileRecord: R.LOCAL_FILE_HEADER + E + f3 + b,
-            dirRecord: R.CENTRAL_FILE_HEADER + A2(C, 2) + E + A2(p.length, 2) + "\0\0\0\0" + A2(z12, 4) + A2(n2, 4) + f3 + b + p
+            dirRecord: R.CENTRAL_FILE_HEADER + A2(C, 2) + E + A2(p.length, 2) + "\0\0\0\0" + A2(z13, 4) + A2(n2, 4) + f3 + b + p
           };
         }
         var I = e2("../utils"), i2 = e2("../stream/GenericWorker"), O = e2("../utf8"), B = e2("../crc32"), R = e2("../signature");
@@ -219888,7 +220792,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
       }, {}],
       46: [function(e2, t2, r2) {
         "use strict";
-        var h2, c = e2("../utils/common"), u = e2("./trees"), d = e2("./adler32"), p = e2("./crc32"), n = e2("./messages"), l = 0, f3 = 4, m2 = 0, _ = -2, g = -1, b = 4, i2 = 2, v = 8, y = 9, s2 = 286, a = 30, o = 19, w = 2 * s2 + 1, k = 15, x2 = 3, S2 = 258, z12 = S2 + x2 + 1, C = 42, E = 113, A2 = 1, I = 2, O = 3, B = 4;
+        var h2, c = e2("../utils/common"), u = e2("./trees"), d = e2("./adler32"), p = e2("./crc32"), n = e2("./messages"), l = 0, f3 = 4, m2 = 0, _ = -2, g = -1, b = 4, i2 = 2, v = 8, y = 9, s2 = 286, a = 30, o = 19, w = 2 * s2 + 1, k = 15, x2 = 3, S2 = 258, z13 = S2 + x2 + 1, C = 42, E = 113, A2 = 1, I = 2, O = 3, B = 4;
         function R(e3, t3) {
           return e3.msg = n[t3], t3;
         }
@@ -219912,7 +220816,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
           e3.pending_buf[e3.pending++] = t3 >>> 8 & 255, e3.pending_buf[e3.pending++] = 255 & t3;
         }
         function L(e3, t3) {
-          var r3, n2, i3 = e3.max_chain_length, s3 = e3.strstart, a2 = e3.prev_length, o2 = e3.nice_match, h3 = e3.strstart > e3.w_size - z12 ? e3.strstart - (e3.w_size - z12) : 0, u2 = e3.window, l2 = e3.w_mask, f4 = e3.prev, c2 = e3.strstart + S2, d2 = u2[s3 + a2 - 1], p2 = u2[s3 + a2];
+          var r3, n2, i3 = e3.max_chain_length, s3 = e3.strstart, a2 = e3.prev_length, o2 = e3.nice_match, h3 = e3.strstart > e3.w_size - z13 ? e3.strstart - (e3.w_size - z13) : 0, u2 = e3.window, l2 = e3.w_mask, f4 = e3.prev, c2 = e3.strstart + S2, d2 = u2[s3 + a2 - 1], p2 = u2[s3 + a2];
           e3.prev_length >= e3.good_match && (i3 >>= 2), o2 > e3.lookahead && (o2 = e3.lookahead);
           do
             if (u2[(r3 = t3) + a2] === p2 && u2[r3 + a2 - 1] === d2 && u2[r3] === u2[s3] && u2[++r3] === u2[s3 + 1]) {
@@ -219931,22 +220835,22 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
         function j(e3) {
           var t3, r3, n2, i3, s3, a2, o2, h3, u2, l2, f4 = e3.w_size;
           do {
-            if (i3 = e3.window_size - e3.lookahead - e3.strstart, e3.strstart >= f4 + (f4 - z12)) {
+            if (i3 = e3.window_size - e3.lookahead - e3.strstart, e3.strstart >= f4 + (f4 - z13)) {
               for (c.arraySet(e3.window, e3.window, f4, f4, 0), e3.match_start -= f4, e3.strstart -= f4, e3.block_start -= f4, t3 = r3 = e3.hash_size; n2 = e3.head[--t3], e3.head[t3] = f4 <= n2 ? n2 - f4 : 0, --r3; ) ;
               for (t3 = r3 = f4; n2 = e3.prev[--t3], e3.prev[t3] = f4 <= n2 ? n2 - f4 : 0, --r3; ) ;
               i3 += f4;
             }
             if (0 === e3.strm.avail_in) break;
             if (a2 = e3.strm, o2 = e3.window, h3 = e3.strstart + e3.lookahead, u2 = i3, l2 = void 0, l2 = a2.avail_in, u2 < l2 && (l2 = u2), r3 = 0 === l2 ? 0 : (a2.avail_in -= l2, c.arraySet(o2, a2.input, a2.next_in, l2, h3), 1 === a2.state.wrap ? a2.adler = d(a2.adler, o2, l2, h3) : 2 === a2.state.wrap && (a2.adler = p(a2.adler, o2, l2, h3)), a2.next_in += l2, a2.total_in += l2, l2), e3.lookahead += r3, e3.lookahead + e3.insert >= x2) for (s3 = e3.strstart - e3.insert, e3.ins_h = e3.window[s3], e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[s3 + 1]) & e3.hash_mask; e3.insert && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[s3 + x2 - 1]) & e3.hash_mask, e3.prev[s3 & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = s3, s3++, e3.insert--, !(e3.lookahead + e3.insert < x2)); ) ;
-          } while (e3.lookahead < z12 && 0 !== e3.strm.avail_in);
+          } while (e3.lookahead < z13 && 0 !== e3.strm.avail_in);
         }
         function Z2(e3, t3) {
           for (var r3, n2; ; ) {
-            if (e3.lookahead < z12) {
-              if (j(e3), e3.lookahead < z12 && t3 === l) return A2;
+            if (e3.lookahead < z13) {
+              if (j(e3), e3.lookahead < z13 && t3 === l) return A2;
               if (0 === e3.lookahead) break;
             }
-            if (r3 = 0, e3.lookahead >= x2 && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart), 0 !== r3 && e3.strstart - r3 <= e3.w_size - z12 && (e3.match_length = L(e3, r3)), e3.match_length >= x2) if (n2 = u._tr_tally(e3, e3.strstart - e3.match_start, e3.match_length - x2), e3.lookahead -= e3.match_length, e3.match_length <= e3.max_lazy_match && e3.lookahead >= x2) {
+            if (r3 = 0, e3.lookahead >= x2 && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart), 0 !== r3 && e3.strstart - r3 <= e3.w_size - z13 && (e3.match_length = L(e3, r3)), e3.match_length >= x2) if (n2 = u._tr_tally(e3, e3.strstart - e3.match_start, e3.match_length - x2), e3.lookahead -= e3.match_length, e3.match_length <= e3.max_lazy_match && e3.lookahead >= x2) {
               for (e3.match_length--; e3.strstart++, e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart, 0 != --e3.match_length; ) ;
               e3.strstart++;
             } else e3.strstart += e3.match_length, e3.match_length = 0, e3.ins_h = e3.window[e3.strstart], e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + 1]) & e3.hash_mask;
@@ -219957,11 +220861,11 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
         }
         function W(e3, t3) {
           for (var r3, n2, i3; ; ) {
-            if (e3.lookahead < z12) {
-              if (j(e3), e3.lookahead < z12 && t3 === l) return A2;
+            if (e3.lookahead < z13) {
+              if (j(e3), e3.lookahead < z13 && t3 === l) return A2;
               if (0 === e3.lookahead) break;
             }
-            if (r3 = 0, e3.lookahead >= x2 && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart), e3.prev_length = e3.match_length, e3.prev_match = e3.match_start, e3.match_length = x2 - 1, 0 !== r3 && e3.prev_length < e3.max_lazy_match && e3.strstart - r3 <= e3.w_size - z12 && (e3.match_length = L(e3, r3), e3.match_length <= 5 && (1 === e3.strategy || e3.match_length === x2 && 4096 < e3.strstart - e3.match_start) && (e3.match_length = x2 - 1)), e3.prev_length >= x2 && e3.match_length <= e3.prev_length) {
+            if (r3 = 0, e3.lookahead >= x2 && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart), e3.prev_length = e3.match_length, e3.prev_match = e3.match_start, e3.match_length = x2 - 1, 0 !== r3 && e3.prev_length < e3.max_lazy_match && e3.strstart - r3 <= e3.w_size - z13 && (e3.match_length = L(e3, r3), e3.match_length <= 5 && (1 === e3.strategy || e3.match_length === x2 && 4096 < e3.strstart - e3.match_start) && (e3.match_length = x2 - 1)), e3.prev_length >= x2 && e3.match_length <= e3.prev_length) {
               for (i3 = e3.strstart + e3.lookahead - x2, n2 = u._tr_tally(e3, e3.strstart - 1 - e3.prev_match, e3.prev_length - x2), e3.lookahead -= e3.prev_length - 1, e3.prev_length -= 2; ++e3.strstart <= i3 && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart), 0 != --e3.prev_length; ) ;
               if (e3.match_available = 0, e3.match_length = x2 - 1, e3.strstart++, n2 && (N(e3, false), 0 === e3.strm.avail_out)) return A2;
             } else if (e3.match_available) {
@@ -220005,7 +220909,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
               e3.strstart += e3.lookahead, e3.lookahead = 0;
               var n2 = e3.block_start + r3;
               if ((0 === e3.strstart || e3.strstart >= n2) && (e3.lookahead = e3.strstart - n2, e3.strstart = n2, N(e3, false), 0 === e3.strm.avail_out)) return A2;
-              if (e3.strstart - e3.block_start >= e3.w_size - z12 && (N(e3, false), 0 === e3.strm.avail_out)) return A2;
+              if (e3.strstart - e3.block_start >= e3.w_size - z13 && (N(e3, false), 0 === e3.strm.avail_out)) return A2;
             }
             return e3.insert = 0, t3 === f3 ? (N(e3, true), 0 === e3.strm.avail_out ? O : B) : (e3.strstart > e3.block_start && (N(e3, false), e3.strm.avail_out), A2);
           }),
@@ -220121,10 +221025,10 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
       48: [function(e2, t2, r2) {
         "use strict";
         t2.exports = function(e3, t3) {
-          var r3 = e3.state, n = e3.next_in, i2, s2, a, o, h2, u, l, f3, c, d, p, m2, _, g, b, v, y, w, k, x2, S2, z12 = e3.input, C;
+          var r3 = e3.state, n = e3.next_in, i2, s2, a, o, h2, u, l, f3, c, d, p, m2, _, g, b, v, y, w, k, x2, S2, z13 = e3.input, C;
           i2 = n + (e3.avail_in - 5), s2 = e3.next_out, C = e3.output, a = s2 - (t3 - e3.avail_out), o = s2 + (e3.avail_out - 257), h2 = r3.dmax, u = r3.wsize, l = r3.whave, f3 = r3.wnext, c = r3.window, d = r3.hold, p = r3.bits, m2 = r3.lencode, _ = r3.distcode, g = (1 << r3.lenbits) - 1, b = (1 << r3.distbits) - 1;
           e: do {
-            p < 15 && (d += z12[n++] << p, p += 8, d += z12[n++] << p, p += 8), v = m2[d & g];
+            p < 15 && (d += z13[n++] << p, p += 8, d += z13[n++] << p, p += 8), v = m2[d & g];
             t: for (; ; ) {
               if (d >>>= y = v >>> 24, p -= y, 0 === (y = v >>> 16 & 255)) C[s2++] = 65535 & v;
               else {
@@ -220140,7 +221044,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
                   e3.msg = "invalid literal/length code", r3.mode = 30;
                   break e;
                 }
-                w = 65535 & v, (y &= 15) && (p < y && (d += z12[n++] << p, p += 8), w += d & (1 << y) - 1, d >>>= y, p -= y), p < 15 && (d += z12[n++] << p, p += 8, d += z12[n++] << p, p += 8), v = _[d & b];
+                w = 65535 & v, (y &= 15) && (p < y && (d += z13[n++] << p, p += 8), w += d & (1 << y) - 1, d >>>= y, p -= y), p < 15 && (d += z13[n++] << p, p += 8, d += z13[n++] << p, p += 8), v = _[d & b];
                 r: for (; ; ) {
                   if (d >>>= y = v >>> 24, p -= y, !(16 & (y = v >>> 16 & 255))) {
                     if (0 == (64 & y)) {
@@ -220150,7 +221054,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
                     e3.msg = "invalid distance code", r3.mode = 30;
                     break e;
                   }
-                  if (k = 65535 & v, p < (y &= 15) && (d += z12[n++] << p, (p += 8) < y && (d += z12[n++] << p, p += 8)), h2 < (k += d & (1 << y) - 1)) {
+                  if (k = 65535 & v, p < (y &= 15) && (d += z13[n++] << p, (p += 8) < y && (d += z13[n++] << p, p += 8)), h2 < (k += d & (1 << y) - 1)) {
                     e3.msg = "invalid distance too far back", r3.mode = 30;
                     break e;
                   }
@@ -220236,7 +221140,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
         r2.inflateReset = o, r2.inflateReset2 = h2, r2.inflateResetKeep = a, r2.inflateInit = function(e3) {
           return u(e3, 15);
         }, r2.inflateInit2 = u, r2.inflate = function(e3, t3) {
-          var r3, n2, i3, s3, a2, o2, h3, u2, l2, f4, c2, d, p, m2, _, g, b, v, y, w, k, x2, S2, z12, C = 0, E = new I.Buf8(4), A2 = [
+          var r3, n2, i3, s3, a2, o2, h3, u2, l2, f4, c2, d, p, m2, _, g, b, v, y, w, k, x2, S2, z13, C = 0, E = new I.Buf8(4), A2 = [
             16,
             17,
             18,
@@ -220443,7 +221347,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
                 if (b < 16) u2 >>>= _, l2 -= _, r3.lens[r3.have++] = b;
                 else {
                   if (16 === b) {
-                    for (z12 = _ + 2; l2 < z12; ) {
+                    for (z13 = _ + 2; l2 < z13; ) {
                       if (0 === o2) break e;
                       o2--, u2 += n2[s3++] << l2, l2 += 8;
                     }
@@ -220453,13 +221357,13 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
                     }
                     k = r3.lens[r3.have - 1], d = 3 + (3 & u2), u2 >>>= 2, l2 -= 2;
                   } else if (17 === b) {
-                    for (z12 = _ + 3; l2 < z12; ) {
+                    for (z13 = _ + 3; l2 < z13; ) {
                       if (0 === o2) break e;
                       o2--, u2 += n2[s3++] << l2, l2 += 8;
                     }
                     l2 -= _, k = 0, d = 3 + (7 & (u2 >>>= _)), u2 >>>= 3, l2 -= 3;
                   } else {
-                    for (z12 = _ + 7; l2 < z12; ) {
+                    for (z13 = _ + 7; l2 < z13; ) {
                       if (0 === o2) break e;
                       o2--, u2 += n2[s3++] << l2, l2 += 8;
                     }
@@ -220519,7 +221423,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
               r3.extra = 15 & g, r3.mode = 22;
             case 22:
               if (r3.extra) {
-                for (z12 = r3.extra; l2 < z12; ) {
+                for (z13 = r3.extra; l2 < z13; ) {
                   if (0 === o2) break e;
                   o2--, u2 += n2[s3++] << l2, l2 += 8;
                 }
@@ -220545,7 +221449,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
               r3.offset = b, r3.extra = 15 & g, r3.mode = 24;
             case 24:
               if (r3.extra) {
-                for (z12 = r3.extra; l2 < z12; ) {
+                for (z13 = r3.extra; l2 < z13; ) {
                   if (0 === o2) break e;
                   o2--, u2 += n2[s3++] << l2, l2 += 8;
                 }
@@ -220763,14 +221667,14 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
           64
         ];
         t2.exports = function(e3, t3, r3, n, i2, s2, a, o) {
-          var h2, u, l, f3, c, d, p, m2, _, g = o.bits, b = 0, v = 0, y = 0, w = 0, k = 0, x2 = 0, S2 = 0, z12 = 0, C = 0, E = 0, A2 = null, I = 0, O = new D.Buf16(16), B = new D.Buf16(16), R = null, T = 0;
+          var h2, u, l, f3, c, d, p, m2, _, g = o.bits, b = 0, v = 0, y = 0, w = 0, k = 0, x2 = 0, S2 = 0, z13 = 0, C = 0, E = 0, A2 = null, I = 0, O = new D.Buf16(16), B = new D.Buf16(16), R = null, T = 0;
           for (b = 0; b <= 15; b++) O[b] = 0;
           for (v = 0; v < n; v++) O[t3[r3 + v]]++;
           for (k = g, w = 15; 1 <= w && 0 === O[w]; w--) ;
           if (w < k && (k = w), 0 === w) return i2[s2++] = 20971520, i2[s2++] = 20971520, o.bits = 1, 0;
           for (y = 1; y < w && 0 === O[y]; y++) ;
-          for (k < y && (k = y), b = z12 = 1; b <= 15; b++) if (z12 <<= 1, (z12 -= O[b]) < 0) return -1;
-          if (0 < z12 && (0 === e3 || 1 !== w)) return -1;
+          for (k < y && (k = y), b = z13 = 1; b <= 15; b++) if (z13 <<= 1, (z13 -= O[b]) < 0) return -1;
+          if (0 < z13 && (0 === e3 || 1 !== w)) return -1;
           for (B[1] = 0, b = 1; b < 15; b++) B[b + 1] = B[b] + O[b];
           for (v = 0; v < n; v++) 0 !== t3[r3 + v] && (a[B[t3[r3 + v]]++] = v);
           if (d = 0 === e3 ? (A2 = R = a, 19) : 1 === e3 ? (A2 = F2, I -= 257, R = N, T -= 257, 256) : (A2 = U, R = P, -1), b = y, c = s2, S2 = v = E = 0, l = -1, f3 = (C = 1 << (x2 = k)) - 1, 1 === e3 && 852 < C || 2 === e3 && 592 < C) return 1;
@@ -220782,7 +221686,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
               b = t3[r3 + a[v]];
             }
             if (k < b && (E & f3) !== l) {
-              for (0 === S2 && (S2 = k), c += y, z12 = 1 << (x2 = b - S2); x2 + S2 < w && !((z12 -= O[x2 + S2]) <= 0); ) x2++, z12 <<= 1;
+              for (0 === S2 && (S2 = k), c += y, z13 = 1 << (x2 = b - S2); x2 + S2 < w && !((z13 -= O[x2 + S2]) <= 0); ) x2++, z13 <<= 1;
               if (C += 1 << x2, 1 === e3 && 852 < C || 2 === e3 && 592 < C) return 1;
               i2[l = E & f3] = k << 24 | x2 << 16 | c - s2 | 0;
             }
@@ -220911,8 +221815,8 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
           14,
           1,
           15
-        ], z12 = new Array(2 * (l + 2));
-        n(z12);
+        ], z13 = new Array(2 * (l + 2));
+        n(z13);
         var C = new Array(2 * f3);
         n(C);
         var E = new Array(512);
@@ -221020,12 +221924,12 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
             for (A2[r3 - 1] = n2, n2 = i3 = 0; n2 < 16; n2++) for (T[n2] = i3, e4 = 0; e4 < 1 << k[n2]; e4++) E[i3++] = n2;
             for (i3 >>= 7; n2 < f3; n2++) for (T[n2] = i3 << 7, e4 = 0; e4 < 1 << k[n2] - 7; e4++) E[256 + i3++] = n2;
             for (t3 = 0; t3 <= g; t3++) s3[t3] = 0;
-            for (e4 = 0; e4 <= 143; ) z12[2 * e4 + 1] = 8, e4++, s3[8]++;
-            for (; e4 <= 255; ) z12[2 * e4 + 1] = 9, e4++, s3[9]++;
-            for (; e4 <= 279; ) z12[2 * e4 + 1] = 7, e4++, s3[7]++;
-            for (; e4 <= 287; ) z12[2 * e4 + 1] = 8, e4++, s3[8]++;
-            for (Z2(z12, l + 1, s3), e4 = 0; e4 < f3; e4++) C[2 * e4 + 1] = 5, C[2 * e4] = j(e4, 5);
-            O = new D(z12, w, u + 1, l, g), B = new D(C, k, 0, f3, g), R = new D(new Array(0), x2, 0, c, p);
+            for (e4 = 0; e4 <= 143; ) z13[2 * e4 + 1] = 8, e4++, s3[8]++;
+            for (; e4 <= 255; ) z13[2 * e4 + 1] = 9, e4++, s3[9]++;
+            for (; e4 <= 279; ) z13[2 * e4 + 1] = 7, e4++, s3[7]++;
+            for (; e4 <= 287; ) z13[2 * e4 + 1] = 8, e4++, s3[8]++;
+            for (Z2(z13, l + 1, s3), e4 = 0; e4 < f3; e4++) C[2 * e4 + 1] = 5, C[2 * e4] = j(e4, 5);
+            O = new D(z13, w, u + 1, l, g), B = new D(C, k, 0, f3, g), R = new D(new Array(0), x2, 0, c, p);
           })(), q = true), e3.l_desc = new F2(e3.dyn_ltree, O), e3.d_desc = new F2(e3.dyn_dtree, B), e3.bl_desc = new F2(e3.bl_tree, R), e3.bi_buf = 0, e3.bi_valid = 0, W(e3);
         }, r2._tr_stored_block = J, r2._tr_flush_block = function(e3, t3, r3, n2) {
           var i3, s3, a2 = 0;
@@ -221039,7 +221943,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
             var t4;
             for (X(e4, e4.dyn_ltree, e4.l_desc.max_code), X(e4, e4.dyn_dtree, e4.d_desc.max_code), Y(e4, e4.bl_desc), t4 = c - 1; 3 <= t4 && 0 === e4.bl_tree[2 * S2[t4] + 1]; t4--) ;
             return e4.opt_len += 3 * (t4 + 1) + 5 + 5 + 4, t4;
-          })(e3), i3 = e3.opt_len + 3 + 7 >>> 3, (s3 = e3.static_len + 3 + 7 >>> 3) <= i3 && (i3 = s3)) : i3 = s3 = r3 + 5, r3 + 4 <= i3 && -1 !== t3 ? J(e3, t3, r3, n2) : 4 === e3.strategy || s3 === i3 ? (P(e3, 2 + (n2 ? 1 : 0), 3), K2(e3, z12, C)) : (P(e3, 4 + (n2 ? 1 : 0), 3), (function(e4, t4, r4, n3) {
+          })(e3), i3 = e3.opt_len + 3 + 7 >>> 3, (s3 = e3.static_len + 3 + 7 >>> 3) <= i3 && (i3 = s3)) : i3 = s3 = r3 + 5, r3 + 4 <= i3 && -1 !== t3 ? J(e3, t3, r3, n2) : 4 === e3.strategy || s3 === i3 ? (P(e3, 2 + (n2 ? 1 : 0), 3), K2(e3, z13, C)) : (P(e3, 4 + (n2 ? 1 : 0), 3), (function(e4, t4, r4, n3) {
             var i4;
             for (P(e4, t4 - 257, 5), P(e4, r4 - 1, 5), P(e4, n3 - 4, 4), i4 = 0; i4 < n3; i4++) P(e4, e4.bl_tree[2 * S2[i4] + 1], 3);
             V(e4, e4.dyn_ltree, t4 - 1), V(e4, e4.dyn_dtree, r4 - 1);
@@ -221047,7 +221951,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
         }, r2._tr_tally = function(e3, t3, r3) {
           return e3.pending_buf[e3.d_buf + 2 * e3.last_lit] = t3 >>> 8 & 255, e3.pending_buf[e3.d_buf + 2 * e3.last_lit + 1] = 255 & t3, e3.pending_buf[e3.l_buf + e3.last_lit] = 255 & r3, e3.last_lit++, 0 === t3 ? e3.dyn_ltree[2 * r3]++ : (e3.matches++, t3--, e3.dyn_ltree[2 * (A2[r3] + u + 1)]++, e3.dyn_dtree[2 * N(t3)]++), e3.last_lit === e3.lit_bufsize - 1;
         }, r2._tr_align = function(e3) {
-          P(e3, 2, 3), L(e3, m2, z12), (function(e4) {
+          P(e3, 2, 3), L(e3, m2, z13), (function(e4) {
             16 === e4.bi_valid ? (U(e4, e4.bi_buf), e4.bi_buf = 0, e4.bi_valid = 0) : 8 <= e4.bi_valid && (e4.pending_buf[e4.pending++] = 255 & e4.bi_buf, e4.bi_buf >>= 8, e4.bi_valid -= 8);
           })(e3);
         };
@@ -221576,7 +222480,7 @@ var Compiler = class {
         }),
         path: "_rels/.rels"
       },
-      HeaderRelationships: file.Headers.map((headerWrapper, index11) => {
+      HeaderRelationships: file.Headers.map((headerWrapper, index14) => {
         const xmlData = (0, import_xml.default)(this.formatter.format(headerWrapper.View, {
           viewWrapper: headerWrapper,
           file,
@@ -221597,10 +222501,10 @@ var Compiler = class {
             indent: prettify,
             declaration: { encoding: "UTF-8" }
           }),
-          path: `word/_rels/header${index11 + 1}.xml.rels`
+          path: `word/_rels/header${index14 + 1}.xml.rels`
         };
       }),
-      FooterRelationships: file.Footers.map((footerWrapper, index11) => {
+      FooterRelationships: file.Footers.map((footerWrapper, index14) => {
         const xmlData = (0, import_xml.default)(this.formatter.format(footerWrapper.View, {
           viewWrapper: footerWrapper,
           file,
@@ -221621,10 +222525,10 @@ var Compiler = class {
             indent: prettify,
             declaration: { encoding: "UTF-8" }
           }),
-          path: `word/_rels/footer${index11 + 1}.xml.rels`
+          path: `word/_rels/footer${index14 + 1}.xml.rels`
         };
       }),
-      Headers: file.Headers.map((headerWrapper, index11) => {
+      Headers: file.Headers.map((headerWrapper, index14) => {
         const tempXmlData = (0, import_xml.default)(this.formatter.format(headerWrapper.View, {
           viewWrapper: headerWrapper,
           file,
@@ -221637,10 +222541,10 @@ var Compiler = class {
         const xmlData = this.imageReplacer.replace(tempXmlData, mediaDatas, 0);
         return {
           data: this.numberingReplacer.replace(xmlData, file.Numbering.ConcreteNumbering),
-          path: `word/header${index11 + 1}.xml`
+          path: `word/header${index14 + 1}.xml`
         };
       }),
-      Footers: file.Footers.map((footerWrapper, index11) => {
+      Footers: file.Footers.map((footerWrapper, index14) => {
         const tempXmlData = (0, import_xml.default)(this.formatter.format(footerWrapper.View, {
           viewWrapper: footerWrapper,
           file,
@@ -221653,7 +222557,7 @@ var Compiler = class {
         const xmlData = this.imageReplacer.replace(tempXmlData, mediaDatas, 0);
         return {
           data: this.numberingReplacer.replace(xmlData, file.Numbering.ConcreteNumbering),
-          path: `word/footer${index11 + 1}.xml`
+          path: `word/footer${index14 + 1}.xml`
         };
       }),
       ContentTypes: {
@@ -221949,8 +222853,8 @@ var Packer = class Packer2 {
       type: "nodebuffer",
       mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       compression: "DEFLATE"
-    }).then((z12) => {
-      stream2.emit("data", z12);
+    }).then((z13) => {
+      stream2.emit("data", z13);
       stream2.emit("end");
     });
     return stream2;
@@ -221964,9 +222868,9 @@ var toJson = (xmlData) => {
     captureSpacesBetweenElements: true
   });
 };
-var createTextElementContents = (text33) => {
+var createTextElementContents = (text36) => {
   var _textJson$elements$0$;
-  return (_textJson$elements$0$ = toJson((0, import_xml.default)(formatter$1.format(new Text({ text: text33 })))).elements[0].elements) !== null && _textJson$elements$0$ !== void 0 ? _textJson$elements$0$ : [];
+  return (_textJson$elements$0$ = toJson((0, import_xml.default)(formatter$1.format(new Text({ text: text36 })))).elements[0].elements) !== null && _textJson$elements$0$ !== void 0 ? _textJson$elements$0$ : [];
 };
 var patchSpaceAttribute = (element) => _objectSpread24(_objectSpread24({}, element), {}, { attributes: { "xml:space": "preserve" } });
 var getFirstLevelElements = (relationships, id) => {
@@ -222025,10 +222929,10 @@ var findRunElementIndexWithToken = (paragraphElement, token) => {
     if (element.type === "element" && element.name === "w:r") {
       var _element$elements;
       const textElement = ((_element$elements = element.elements) !== null && _element$elements !== void 0 ? _element$elements : []).filter((e2) => e2.type === "element" && e2.name === "w:t");
-      for (const text33 of textElement) {
+      for (const text36 of textElement) {
         var _text$elements, _text$elements$0$text;
-        if (!((_text$elements = text33.elements) === null || _text$elements === void 0 ? void 0 : _text$elements[0])) continue;
-        if ((_text$elements$0$text = text33.elements[0].text) === null || _text$elements$0$text === void 0 ? void 0 : _text$elements$0$text.includes(token)) return i2;
+        if (!((_text$elements = text36.elements) === null || _text$elements === void 0 ? void 0 : _text$elements[0])) continue;
+        if ((_text$elements$0$text = text36.elements[0].text) === null || _text$elements$0$text === void 0 ? void 0 : _text$elements$0$text.includes(token)) return i2;
       }
     }
   }
@@ -222064,34 +222968,34 @@ var replaceTokenInParagraphElement = ({ paragraphElement, renderedParagraph, ori
   const startIndex = renderedParagraph.text.indexOf(originalText);
   const endIndex = startIndex + originalText.length - 1;
   let replaceMode = ReplaceMode.START;
-  for (const run of renderedParagraph.runs) for (const { text: text33, index: index11, start, end } of run.parts) switch (replaceMode) {
+  for (const run of renderedParagraph.runs) for (const { text: text36, index: index14, start, end } of run.parts) switch (replaceMode) {
     case ReplaceMode.START:
       if (startIndex >= start && startIndex <= end) {
         const offsetStartIndex = startIndex - start;
         const offsetEndIndex = Math.min(endIndex, end) - start;
         const partToReplace = run.text.substring(offsetStartIndex, offsetEndIndex + 1);
         if (partToReplace === "") continue;
-        const firstPart = text33.replace(partToReplace, replacementText);
-        patchTextElement(paragraphElement.elements[run.index].elements[index11], firstPart);
+        const firstPart = text36.replace(partToReplace, replacementText);
+        patchTextElement(paragraphElement.elements[run.index].elements[index14], firstPart);
         replaceMode = ReplaceMode.MIDDLE;
         continue;
       }
       break;
     case ReplaceMode.MIDDLE:
       if (endIndex <= end) {
-        const lastPart = text33.substring(endIndex - start + 1);
-        patchTextElement(paragraphElement.elements[run.index].elements[index11], lastPart);
-        const currentElement = paragraphElement.elements[run.index].elements[index11];
-        paragraphElement.elements[run.index].elements[index11] = patchSpaceAttribute(currentElement);
+        const lastPart = text36.substring(endIndex - start + 1);
+        patchTextElement(paragraphElement.elements[run.index].elements[index14], lastPart);
+        const currentElement = paragraphElement.elements[run.index].elements[index14];
+        paragraphElement.elements[run.index].elements[index14] = patchSpaceAttribute(currentElement);
         replaceMode = ReplaceMode.END;
-      } else patchTextElement(paragraphElement.elements[run.index].elements[index11], "");
+      } else patchTextElement(paragraphElement.elements[run.index].elements[index14], "");
       break;
     default:
   }
   return paragraphElement;
 };
-var patchTextElement = (element, text33) => {
-  element.elements = createTextElementContents(text33);
+var patchTextElement = (element, text36) => {
+  element.elements = createTextElementContents(text36);
   return element;
 };
 var renderParagraphNode = (node) => {
@@ -222118,7 +223022,7 @@ var renderParagraphNode = (node) => {
     pathToParagraph: buildNodePath(node)
   };
 };
-var renderRunNode = (node, index11, currentRunStringIndex) => {
+var renderRunNode = (node, index14, currentRunStringIndex) => {
   if (!node.elements) return {
     text: "",
     parts: [],
@@ -222143,7 +223047,7 @@ var renderRunNode = (node, index11, currentRunStringIndex) => {
   return {
     text: parts.reduce((acc, curr) => acc + curr.text, ""),
     parts,
-    index: index11,
+    index: index14,
     start: currentRunStringIndex,
     end: currentTextStringIndex
   };
@@ -222172,7 +223076,7 @@ var traverse = (node) => {
   }
   return renderedParagraphs;
 };
-var findLocationOfText = (node, text33) => traverse(node).filter((p) => p.text.includes(text33));
+var findLocationOfText = (node, text36) => traverse(node).filter((p) => p.text.includes(text36));
 var formatter = new Formatter();
 var SPLIT_TOKEN = "\u0275";
 var replacer = ({ json, patch, patchText, context, keepOriginalStyles = true }) => {
@@ -222199,8 +223103,8 @@ var replacer = ({ json, patch, patchText, context, keepOriginalStyles = true }) 
           originalText: patchText,
           replacementText: SPLIT_TOKEN
         });
-        const index11 = findRunElementIndexWithToken(paragraphElement, SPLIT_TOKEN);
-        const runElementToBeReplaced = paragraphElement.elements[index11];
+        const index14 = findRunElementIndexWithToken(paragraphElement, SPLIT_TOKEN);
+        const runElementToBeReplaced = paragraphElement.elements[index14];
         const { left, right } = splitRunElement(runElementToBeReplaced, SPLIT_TOKEN);
         let newRunElements = textJson;
         let patchedRightElement = right;
@@ -222212,7 +223116,7 @@ var replacer = ({ json, patch, patchText, context, keepOriginalStyles = true }) 
           });
           patchedRightElement = _objectSpread24(_objectSpread24({}, right), {}, { elements: [...runElementNonTextualElements, ...right.elements] });
         }
-        paragraphElement.elements.splice(index11, 1, left, ...newRunElements, patchedRightElement);
+        paragraphElement.elements.splice(index14, 1, left, ...newRunElements, patchedRightElement);
         break;
       }
     }
@@ -222225,8 +223129,8 @@ var replacer = ({ json, patch, patchText, context, keepOriginalStyles = true }) 
 var goToElementFromPath = (json, path3) => {
   let element = json;
   for (let i2 = 1; i2 < path3.length; i2++) {
-    const index11 = path3[i2];
-    element = element.elements[index11];
+    const index14 = path3[i2];
+    element = element.elements[index14];
   }
   return element;
 };
@@ -222343,12 +223247,12 @@ var patchDocument = (function() {
       const relationshipKey = `word/_rels/${key.split("/").pop()}.rels`;
       const relationshipsJson = (_map$get = map.get(relationshipKey)) !== null && _map$get !== void 0 ? _map$get : createRelationshipFile();
       map.set(relationshipKey, relationshipsJson);
-      const index11 = getNextRelationshipIndex(relationshipsJson);
-      const newJson = imageReplacer.replace(JSON.stringify(map.get(key)), mediaDatas, index11);
+      const index14 = getNextRelationshipIndex(relationshipsJson);
+      const newJson = imageReplacer.replace(JSON.stringify(map.get(key)), mediaDatas, index14);
       map.set(key, JSON.parse(newJson));
       for (let i2 = 0; i2 < mediaDatas.length; i2++) {
         const { fileName } = mediaDatas[i2];
-        appendRelationship(relationshipsJson, index11 + i2, "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image", `media/${fileName}`);
+        appendRelationship(relationshipsJson, index14 + i2, "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image", `media/${fileName}`);
       }
     }
     for (const { key, hyperlink } of hyperlinkRelationshipAdditions) {
@@ -222415,10 +223319,10 @@ var patchDetector = (function() {
     return _ref.apply(this, arguments);
   };
 })();
-var findPatchKeys = (text33) => {
+var findPatchKeys = (text36) => {
   var _text$match;
   const pattern2 = /* @__PURE__ */ new RegExp("(?<=\\{\\{).+?(?=\\}\\})", "gs");
-  return (_text$match = text33.match(pattern2)) !== null && _text$match !== void 0 ? _text$match : [];
+  return (_text$match = text36.match(pattern2)) !== null && _text$match !== void 0 ? _text$match : [];
 };
 
 // src/lib/docx-export.ts
@@ -222479,7 +223383,7 @@ function parseOutlineToHeadings(outline) {
   }
   return headings;
 }
-function makeHeading(text33, level) {
+function makeHeading(text36, level) {
   const headingLevel = [
     HeadingLevel.HEADING_1,
     HeadingLevel.HEADING_2,
@@ -222489,18 +223393,18 @@ function makeHeading(text33, level) {
     HeadingLevel.HEADING_6
   ][Math.min(level - 1, 5)];
   return new Paragraph({
-    text: text33,
+    text: text36,
     heading: headingLevel,
     spacing: { before: 240, after: 120 }
   });
 }
-function makeParagraph(text33) {
+function makeParagraph(text36) {
   return new Paragraph({
-    children: [new TextRun({ text: text33, size: 24 })],
+    children: [new TextRun({ text: text36, size: 24 })],
     spacing: { before: 0, after: 120 }
   });
 }
-function makeReferenceItem(ref, index11) {
+function makeReferenceItem(ref, index14) {
   return new Paragraph({
     children: [
       new TextRun({ text: formatReferenceAPA(ref), size: 22 })
@@ -222588,11 +223492,11 @@ async function generateDocx(projectTitle, documents, references, options) {
         if (block.match(/^[-*]\s+/m)) {
           const items = block.split(/\n/).filter((l) => l.match(/^[-*]\s+/));
           for (const item of items) {
-            const text33 = item.replace(/^[-*]\s+/, "").trim();
+            const text36 = item.replace(/^[-*]\s+/, "").trim();
             sections.push(
               new Paragraph({
                 children: [
-                  new TextRun({ text: `\u2022 ${text33}`, size: 24 })
+                  new TextRun({ text: `\u2022 ${text36}`, size: 24 })
                 ],
                 indent: { left: convertInchesToTwip(0.25) },
                 spacing: { before: 60, after: 60 }
@@ -223488,17 +224392,17 @@ var LazyArrayValue = class {
     this.base = this.stream.pos;
     this.items = [];
   }
-  get(index11) {
-    if (index11 < 0 || index11 >= this.length) {
+  get(index14) {
+    if (index14 < 0 || index14 >= this.length) {
       return void 0;
     }
-    if (this.items[index11] == null) {
+    if (this.items[index14] == null) {
       const { pos } = this.stream;
-      this.stream.pos = this.base + this.type.size(null, this.ctx) * index11;
-      this.items[index11] = this.type.decode(this.stream, this.ctx);
+      this.stream.pos = this.base + this.type.size(null, this.ctx) * index14;
+      this.items[index14] = this.type.decode(this.stream, this.ctx);
       this.stream.pos = pos;
     }
-    return this.items[index11];
+    return this.items[index14];
   }
   toArray() {
     const result = [];
@@ -224127,9 +225031,9 @@ function _define_property(obj, key, value) {
 }
 
 // ../../node_modules/tslib/tslib.es6.mjs
-function __decorate2(decorators, target, key, desc20) {
-  var c = arguments.length, r2 = c < 3 ? target : desc20 === null ? desc20 = Object.getOwnPropertyDescriptor(target, key) : desc20, d;
-  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r2 = Reflect.decorate(decorators, target, key, desc20);
+function __decorate2(decorators, target, key, desc21) {
+  var c = arguments.length, r2 = c < 3 ? target : desc21 === null ? desc21 = Object.getOwnPropertyDescriptor(target, key) : desc21, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r2 = Reflect.decorate(decorators, target, key, desc21);
   else for (var i2 = decorators.length - 1; i2 >= 0; i2--) if (d = decorators[i2]) r2 = (c < 3 ? d(r2) : c > 3 ? d(target, key, r2) : d(target, key)) || r2;
   return c > 3 && r2 && Object.defineProperty(target, key, r2), r2;
 }
@@ -227311,8 +228215,8 @@ var $b84fd3dd9d8eddb2$var$PredefinedOp = class {
     return this.type.size(value, ctx);
   }
   encode(stream2, value, ctx) {
-    let index11 = this.predefinedOps.indexOf(value);
-    if (index11 !== -1) return index11;
+    let index14 = this.predefinedOps.indexOf(value);
+    if (index14 !== -1) return index14;
     return this.type.encode(stream2, value, ctx);
   }
   constructor(predefinedOps, type) {
@@ -228815,14 +229719,14 @@ var $3793b781918cfced$export$2e2bcd8739ae039 = new Struct({
   segment: new ArrayT($3793b781918cfced$var$Segment, "axisCount")
 });
 var $6cb7dd5f47d82580$var$UnboundedArrayAccessor = class {
-  getItem(index11) {
-    if (this._items[index11] == null) {
+  getItem(index14) {
+    if (this._items[index14] == null) {
       let pos = this.stream.pos;
-      this.stream.pos = this.base + this.type.size(null, this.parent) * index11;
-      this._items[index11] = this.type.decode(this.stream, this.parent);
+      this.stream.pos = this.base + this.type.size(null, this.parent) * index14;
+      this._items[index14] = this.type.decode(this.stream, this.parent);
       this.stream.pos = pos;
     }
-    return this._items[index11];
+    return this._items[index14];
   }
   inspect() {
     return `[UnboundedArray ${this.type.constructor.name}]`;
@@ -229302,9 +230206,9 @@ function $12727730ddfc8bfe$export$2e0ae67339d5f1ac(arr, cmp) {
   }
   return -1;
 }
-function $12727730ddfc8bfe$export$d02631cccf789723(index11, end) {
+function $12727730ddfc8bfe$export$d02631cccf789723(index14, end) {
   let range = [];
-  while (index11 < end) range.push(index11++);
+  while (index14 < end) range.push(index14++);
   return range;
 }
 var $12727730ddfc8bfe$export$3d28c1996ced1f14 = new TextDecoder("ascii");
@@ -229359,8 +230263,8 @@ var $f08dd41ef10b694c$export$2e2bcd8739ae039 = class {
             let gid;
             if (rangeOffset === 0) gid = codepoint + cmap.idDelta.get(mid);
             else {
-              let index11 = rangeOffset / 2 + (codepoint - cmap.startCode.get(mid)) - (cmap.segCount - mid);
-              gid = cmap.glyphIndexArray.get(index11) || 0;
+              let index14 = rangeOffset / 2 + (codepoint - cmap.startCode.get(mid)) - (cmap.segCount - mid);
+              gid = cmap.glyphIndexArray.get(index14) || 0;
               if (gid !== 0) gid += cmap.idDelta.get(mid);
             }
             return gid & 65535;
@@ -229458,8 +230362,8 @@ var $f08dd41ef10b694c$export$2e2bcd8739ae039 = class {
             let g = 0;
             if (rangeOffset === 0) g = c + delta;
             else {
-              let index11 = rangeOffset / 2 + (c - start) - (cmap.segCount - i2);
-              g = cmap.glyphIndexArray.get(index11) || 0;
+              let index14 = rangeOffset / 2 + (c - start) - (cmap.segCount - i2);
+              g = cmap.glyphIndexArray.get(index14) || 0;
               if (g !== 0) g += delta;
             }
             if (g === gid) res.push(c);
@@ -229579,8 +230483,8 @@ var $0bba3a9db57637f3$export$2e2bcd8739ae039 = class {
           if (left >= s2.leftTable.firstGlyph && left < s2.leftTable.firstGlyph + s2.leftTable.nGlyphs) leftOffset = s2.leftTable.offsets[left - s2.leftTable.firstGlyph];
           else leftOffset = s2.array.off;
           if (right >= s2.rightTable.firstGlyph && right < s2.rightTable.firstGlyph + s2.rightTable.nGlyphs) rightOffset = s2.rightTable.offsets[right - s2.rightTable.firstGlyph];
-          let index11 = (leftOffset + rightOffset - s2.array.off) / 2;
-          val = s2.array.values.get(index11);
+          let index14 = (leftOffset + rightOffset - s2.array.off) / 2;
+          val = s2.array.values.get(index14);
           break;
         case 3:
           if (left >= s2.glyphCount || right >= s2.glyphCount) return 0;
@@ -229602,12 +230506,12 @@ var $0a4bdfeb6dfd6f5e$export$2e2bcd8739ae039 = class {
   positionGlyphs(glyphs, positions) {
     let clusterStart = 0;
     let clusterEnd = 0;
-    for (let index11 = 0; index11 < glyphs.length; index11++) {
-      let glyph = glyphs[index11];
-      if (glyph.isMark) clusterEnd = index11;
+    for (let index14 = 0; index14 < glyphs.length; index14++) {
+      let glyph = glyphs[index14];
+      if (glyph.isMark) clusterEnd = index14;
       else {
         if (clusterStart !== clusterEnd) this.positionCluster(glyphs, positions, clusterStart, clusterEnd);
-        clusterStart = clusterEnd = index11;
+        clusterStart = clusterEnd = index14;
       }
     }
     if (clusterStart !== clusterEnd) this.positionCluster(glyphs, positions, clusterStart, clusterEnd);
@@ -229621,10 +230525,10 @@ var $0a4bdfeb6dfd6f5e$export$2e2bcd8739ae039 = class {
     let xOffset = -positions[clusterStart].xAdvance;
     let yOffset = 0;
     let yGap = this.font.unitsPerEm / 16;
-    for (let index11 = clusterStart + 1; index11 <= clusterEnd; index11++) {
-      let mark = glyphs[index11];
+    for (let index14 = clusterStart + 1; index14 <= clusterEnd; index14++) {
+      let mark = glyphs[index14];
       let markBox = mark.cbox;
-      let position = positions[index11];
+      let position = positions[index14];
       let combiningClass = this.getCombiningClass(mark.codePoints[0]);
       if (combiningClass !== "Not_Reordered") {
         position.xOffset = position.yOffset = 0;
@@ -230055,9 +230959,9 @@ var $be07b3e97a42687a$export$2e2bcd8739ae039 = class {
     let bbox = new (0, $f34600ab9d7f70d8$export$2e2bcd8739ae039)();
     let x2 = 0;
     let y = 0;
-    for (let index11 = 0; index11 < this.glyphs.length; index11++) {
-      let glyph = this.glyphs[index11];
-      let p = this.positions[index11];
+    for (let index14 = 0; index14 < this.glyphs.length; index14++) {
+      let glyph = this.glyphs[index14];
+      let p = this.positions[index14];
       let b = glyph.bbox;
       bbox.addPoint(b.minX + x2 + p.xOffset, b.minY + y + p.yOffset);
       bbox.addPoint(b.maxX + x2 + p.xOffset, b.maxY + y + p.yOffset);
@@ -230631,7 +231535,7 @@ var $ff5ce077dae0f144$export$2e2bcd8739ae039 = class {
       case 4:
         for (let segment of this.table.segments) if (this.table.version === 2 && segment.value === classValue) res.push(...(0, $12727730ddfc8bfe$export$d02631cccf789723)(segment.firstGlyph, segment.lastGlyph + 1));
         else {
-          for (let index11 = 0; index11 < segment.values.length; index11++) if (segment.values[index11] === classValue) res.push(segment.firstGlyph + index11);
+          for (let index14 = 0; index14 < segment.values.length; index14++) if (segment.values[index14] === classValue) res.push(segment.firstGlyph + index14);
         }
         break;
       case 6:
@@ -230660,15 +231564,15 @@ var $50c7aac9316f2948$var$DONT_ADVANCE = 16384;
 var $50c7aac9316f2948$export$2e2bcd8739ae039 = class {
   process(glyphs, reverse, processEntry) {
     let currentState = $50c7aac9316f2948$var$START_OF_TEXT_STATE;
-    let index11 = reverse ? glyphs.length - 1 : 0;
+    let index14 = reverse ? glyphs.length - 1 : 0;
     let dir = reverse ? -1 : 1;
-    while (dir === 1 && index11 <= glyphs.length || dir === -1 && index11 >= -1) {
+    while (dir === 1 && index14 <= glyphs.length || dir === -1 && index14 >= -1) {
       let glyph = null;
       let classCode = $50c7aac9316f2948$var$OUT_OF_BOUNDS_CLASS;
       let shouldAdvance = true;
-      if (index11 === glyphs.length || index11 === -1) classCode = $50c7aac9316f2948$var$END_OF_TEXT_CLASS;
+      if (index14 === glyphs.length || index14 === -1) classCode = $50c7aac9316f2948$var$END_OF_TEXT_CLASS;
       else {
-        glyph = glyphs[index11];
+        glyph = glyphs[index14];
         if (glyph.id === 65535) classCode = $50c7aac9316f2948$var$DELETED_GLYPH_CLASS;
         else {
           classCode = this.lookupTable.lookup(glyph.id);
@@ -230679,11 +231583,11 @@ var $50c7aac9316f2948$export$2e2bcd8739ae039 = class {
       let entryIndex = row[classCode];
       let entry = this.stateTable.entryTable.getItem(entryIndex);
       if (classCode !== $50c7aac9316f2948$var$END_OF_TEXT_CLASS && classCode !== $50c7aac9316f2948$var$DELETED_GLYPH_CLASS) {
-        processEntry(glyph, entry, index11);
+        processEntry(glyph, entry, index14);
         shouldAdvance = !(entry.flags & $50c7aac9316f2948$var$DONT_ADVANCE);
       }
       currentState = entry.newState;
-      if (shouldAdvance) index11 += dir;
+      if (shouldAdvance) index14 += dir;
     }
     return glyphs;
   }
@@ -230745,10 +231649,10 @@ var $55f71433a605c87d$export$2e2bcd8739ae039 = class {
       }
       for (let subtable of chain.subtables) if (subtable.subFeatureFlags & flags) this.processSubtable(subtable, glyphs);
     }
-    let index11 = glyphs.length - 1;
-    while (index11 >= 0) {
-      if (glyphs[index11].id === 65535) glyphs.splice(index11, 1);
-      index11--;
+    let index14 = glyphs.length - 1;
+    while (index14 >= 0) {
+      if (glyphs[index14].id === 65535) glyphs.splice(index14, 1);
+      index14--;
     }
     return glyphs;
   }
@@ -230788,12 +231692,12 @@ var $55f71433a605c87d$export$2e2bcd8739ae039 = class {
         throw new Error(`Invalid morx subtable type: ${this.subtable.type}`);
     }
   }
-  processIndicRearragement(glyph, entry, index11) {
-    if (entry.flags & $55f71433a605c87d$var$MARK_FIRST) this.firstGlyph = index11;
-    if (entry.flags & $55f71433a605c87d$var$MARK_LAST) this.lastGlyph = index11;
+  processIndicRearragement(glyph, entry, index14) {
+    if (entry.flags & $55f71433a605c87d$var$MARK_FIRST) this.firstGlyph = index14;
+    if (entry.flags & $55f71433a605c87d$var$MARK_LAST) this.lastGlyph = index14;
     $55f71433a605c87d$var$reorderGlyphs(this.glyphs, entry.flags & $55f71433a605c87d$var$VERB, this.firstGlyph, this.lastGlyph);
   }
-  processContextualSubstitution(glyph, entry, index11) {
+  processContextualSubstitution(glyph, entry, index14) {
     let subsitutions = this.subtable.table.substitutionTable.items;
     if (entry.markIndex !== 65535) {
       let lookup = subsitutions.getItem(entry.markIndex);
@@ -230805,14 +231709,14 @@ var $55f71433a605c87d$export$2e2bcd8739ae039 = class {
     if (entry.currentIndex !== 65535) {
       let lookup = subsitutions.getItem(entry.currentIndex);
       let lookupTable = new (0, $ff5ce077dae0f144$export$2e2bcd8739ae039)(lookup);
-      glyph = this.glyphs[index11];
+      glyph = this.glyphs[index14];
       var gid = lookupTable.lookup(glyph.id);
-      if (gid) this.glyphs[index11] = this.font.getGlyph(gid, glyph.codePoints);
+      if (gid) this.glyphs[index14] = this.font.getGlyph(gid, glyph.codePoints);
     }
-    if (entry.flags & $55f71433a605c87d$var$SET_MARK) this.markedGlyph = index11;
+    if (entry.flags & $55f71433a605c87d$var$SET_MARK) this.markedGlyph = index14;
   }
-  processLigature(glyph, entry, index11) {
-    if (entry.flags & $55f71433a605c87d$var$SET_COMPONENT) this.ligatureStack.push(index11);
+  processLigature(glyph, entry, index14) {
+    if (entry.flags & $55f71433a605c87d$var$SET_COMPONENT) this.ligatureStack.push(index14);
     if (entry.flags & $55f71433a605c87d$var$PERFORM_ACTION) {
       let actions = this.subtable.table.ligatureActions;
       let components = this.subtable.table.components;
@@ -230843,13 +231747,13 @@ var $55f71433a605c87d$export$2e2bcd8739ae039 = class {
       this.ligatureStack.push(...ligatureGlyphs);
     }
   }
-  processNoncontextualSubstitutions(subtable, glyphs, index11) {
+  processNoncontextualSubstitutions(subtable, glyphs, index14) {
     let lookupTable = new (0, $ff5ce077dae0f144$export$2e2bcd8739ae039)(subtable.table.lookupTable);
-    for (index11 = 0; index11 < glyphs.length; index11++) {
-      let glyph = glyphs[index11];
+    for (index14 = 0; index14 < glyphs.length; index14++) {
+      let glyph = glyphs[index14];
       if (glyph.id !== 65535) {
         let gid = lookupTable.lookup(glyph.id);
-        if (gid) glyphs[index11] = this.font.getGlyph(gid, glyph.codePoints);
+        if (gid) glyphs[index14] = this.font.getGlyph(gid, glyph.codePoints);
       }
     }
   }
@@ -230862,8 +231766,8 @@ var $55f71433a605c87d$export$2e2bcd8739ae039 = class {
     if (!isBefore) glyphIndex++;
     this.glyphs.splice(glyphIndex, 0, ...insertions);
   }
-  processGlyphInsertion(glyph, entry, index11) {
-    if (entry.flags & $55f71433a605c87d$var$SET_MARK) this.markedIndex = index11;
+  processGlyphInsertion(glyph, entry, index14) {
+    if (entry.flags & $55f71433a605c87d$var$SET_MARK) this.markedIndex = index14;
     if (entry.markedInsertIndex !== 65535) {
       let count3 = (entry.flags & $55f71433a605c87d$var$MARKED_INSERT_COUNT) >>> 5;
       let isBefore = !!(entry.flags & $55f71433a605c87d$var$MARKED_INSERT_BEFORE);
@@ -230872,7 +231776,7 @@ var $55f71433a605c87d$export$2e2bcd8739ae039 = class {
     if (entry.currentInsertIndex !== 65535) {
       let count3 = (entry.flags & $55f71433a605c87d$var$CURRENT_INSERT_COUNT) >>> 5;
       let isBefore = !!(entry.flags & $55f71433a605c87d$var$CURRENT_INSERT_BEFORE);
-      this._insertGlyphs(index11, entry.currentInsertIndex, count3, isBefore);
+      this._insertGlyphs(index14, entry.currentInsertIndex, count3, isBefore);
     }
   }
   getSupportedFeatures() {
@@ -231102,11 +232006,11 @@ var $ba6dd74203be8728$export$2e2bcd8739ae039 = class {
     for (let glyphs of glyphStrings) this._addStrings(glyphs, 0, result, "");
     return result;
   }
-  _addStrings(glyphs, index11, strings, string2) {
-    let codePoints = this.font._cmapProcessor.codePointsForGlyph(glyphs[index11]);
+  _addStrings(glyphs, index14, strings, string2) {
+    let codePoints = this.font._cmapProcessor.codePointsForGlyph(glyphs[index14]);
     for (let codePoint of codePoints) {
       let s2 = string2 + String.fromCodePoint(codePoint);
-      if (index11 < glyphs.length - 1) this._addStrings(glyphs, index11 + 1, strings, s2);
+      if (index14 < glyphs.length - 1) this._addStrings(glyphs, index14 + 1, strings, s2);
       else strings.add(s2);
     }
   }
@@ -231565,10 +232469,10 @@ var $764eb544bbe1ccf0$export$2e2bcd8739ae039 = class extends (0, $649970d87335b3
       actions[i2] = curAction;
       prev = i2;
     }
-    for (let index11 = 0; index11 < glyphs.length; index11++) {
+    for (let index14 = 0; index14 < glyphs.length; index14++) {
       let feature;
-      var glyph = glyphs[index11];
-      if (feature = actions[index11]) glyph.features[feature] = true;
+      var glyph = glyphs[index14];
+      if (feature = actions[index14]) glyph.features[feature] = true;
     }
   }
 };
@@ -231580,11 +232484,11 @@ function $764eb544bbe1ccf0$var$getShapingClass(codePoint) {
   return $764eb544bbe1ccf0$var$ShapingClasses.Non_Joining;
 }
 var $85d408632270248b$export$2e2bcd8739ae039 = class {
-  reset(options = {}, index11 = 0) {
+  reset(options = {}, index14 = 0) {
     this.options = options;
     this.flags = options.flags || {};
     this.markAttachmentType = options.markAttachmentType || 0;
-    this.index = index11;
+    this.index = index14;
   }
   get cur() {
     return this.glyphs[this.index] || null;
@@ -231822,21 +232726,21 @@ var $a83b9c36aaa94fd3$export$2e2bcd8739ae039 = class {
     return this.match(sequenceIndex, sequence, (classID, glyph) => classID === this.getClassID(glyph.id, classDef));
   }
   applyContext(table2) {
-    let index11, set;
+    let index14, set;
     switch (table2.version) {
       case 1:
-        index11 = this.coverageIndex(table2.coverage);
-        if (index11 === -1) return false;
-        set = table2.ruleSets[index11];
+        index14 = this.coverageIndex(table2.coverage);
+        if (index14 === -1) return false;
+        set = table2.ruleSets[index14];
         for (let rule of set) {
           if (this.sequenceMatches(1, rule.input)) return this.applyLookupList(rule.lookupRecords);
         }
         break;
       case 2:
         if (this.coverageIndex(table2.coverage) === -1) return false;
-        index11 = this.getClassID(this.glyphIterator.cur.id, table2.classDef);
-        if (index11 === -1) return false;
-        set = table2.classSet[index11];
+        index14 = this.getClassID(this.glyphIterator.cur.id, table2.classDef);
+        if (index14 === -1) return false;
+        set = table2.classSet[index14];
         for (let rule of set) {
           if (this.classSequenceMatches(1, rule.classes, table2.classDef)) return this.applyLookupList(rule.lookupRecords);
         }
@@ -231848,20 +232752,20 @@ var $a83b9c36aaa94fd3$export$2e2bcd8739ae039 = class {
     return false;
   }
   applyChainingContext(table2) {
-    let index11;
+    let index14;
     switch (table2.version) {
       case 1:
-        index11 = this.coverageIndex(table2.coverage);
-        if (index11 === -1) return false;
-        let set = table2.chainRuleSets[index11];
+        index14 = this.coverageIndex(table2.coverage);
+        if (index14 === -1) return false;
+        let set = table2.chainRuleSets[index14];
         for (let rule of set) {
           if (this.sequenceMatches(-rule.backtrack.length, rule.backtrack) && this.sequenceMatches(1, rule.input) && this.sequenceMatches(1 + rule.input.length, rule.lookahead)) return this.applyLookupList(rule.lookupRecords);
         }
         break;
       case 2:
         if (this.coverageIndex(table2.coverage) === -1) return false;
-        index11 = this.getClassID(this.glyphIterator.cur.id, table2.inputClassDef);
-        let rules = table2.chainClassSet[index11];
+        index14 = this.getClassID(this.glyphIterator.cur.id, table2.inputClassDef);
+        let rules = table2.chainClassSet[index14];
         if (!rules) return false;
         for (let rule of rules) {
           if (this.classSequenceMatches(-rule.backtrack.length, rule.backtrack, table2.backtrackClassDef) && this.classSequenceMatches(1, rule.input, table2.inputClassDef) && this.classSequenceMatches(1 + rule.input.length, rule.lookahead, table2.lookaheadClassDef)) return this.applyLookupList(rule.lookupRecords);
@@ -233049,23 +233953,23 @@ var $0a876c45f1f7c41c$export$2e2bcd8739ae039 = class extends (0, $a83b9c36aaa94f
   applyLookup(lookupType, table2) {
     switch (lookupType) {
       case 1: {
-        let index11 = this.coverageIndex(table2.coverage);
-        if (index11 === -1) return false;
+        let index14 = this.coverageIndex(table2.coverage);
+        if (index14 === -1) return false;
         let glyph = this.glyphIterator.cur;
         switch (table2.version) {
           case 1:
             glyph.id = glyph.id + table2.deltaGlyphID & 65535;
             break;
           case 2:
-            glyph.id = table2.substitute.get(index11);
+            glyph.id = table2.substitute.get(index14);
             break;
         }
         return true;
       }
       case 2: {
-        let index11 = this.coverageIndex(table2.coverage);
-        if (index11 !== -1) {
-          let sequence = table2.sequences.get(index11);
+        let index14 = this.coverageIndex(table2.coverage);
+        if (index14 !== -1) {
+          let sequence = table2.sequences.get(index14);
           if (sequence.length === 0) {
             this.glyphs.splice(this.glyphIterator.index, 1);
             return true;
@@ -233089,23 +233993,23 @@ var $0a876c45f1f7c41c$export$2e2bcd8739ae039 = class extends (0, $a83b9c36aaa94f
         return false;
       }
       case 3: {
-        let index11 = this.coverageIndex(table2.coverage);
-        if (index11 !== -1) {
+        let index14 = this.coverageIndex(table2.coverage);
+        if (index14 !== -1) {
           let USER_INDEX = 0;
-          this.glyphIterator.cur.id = table2.alternateSet.get(index11)[USER_INDEX];
+          this.glyphIterator.cur.id = table2.alternateSet.get(index14)[USER_INDEX];
           return true;
         }
         return false;
       }
       case 4: {
-        let index11 = this.coverageIndex(table2.coverage);
-        if (index11 === -1) return false;
-        for (let ligature of table2.ligatureSets.get(index11)) {
+        let index14 = this.coverageIndex(table2.coverage);
+        if (index14 === -1) return false;
+        for (let ligature of table2.ligatureSets.get(index14)) {
           let matched = this.sequenceMatchIndices(1, ligature.components);
           if (!matched) continue;
           let curGlyph = this.glyphIterator.cur;
           let characters2 = curGlyph.codePoints.slice();
-          for (let index12 of matched) characters2.push(...this.glyphs[index12].codePoints);
+          for (let index15 of matched) characters2.push(...this.glyphs[index15].codePoints);
           let ligatureGlyph = new (0, $10e7b257e1a9a756$export$2e2bcd8739ae039)(this.font, ligature.glyph, characters2, curGlyph.features);
           ligatureGlyph.shaperInfo = curGlyph.shaperInfo;
           ligatureGlyph.isLigated = true;
@@ -233172,14 +234076,14 @@ var $c96c93587d49c14d$export$2e2bcd8739ae039 = class extends (0, $a83b9c36aaa94f
   applyLookup(lookupType, table2) {
     switch (lookupType) {
       case 1: {
-        let index11 = this.coverageIndex(table2.coverage);
-        if (index11 === -1) return false;
+        let index14 = this.coverageIndex(table2.coverage);
+        if (index14 === -1) return false;
         switch (table2.version) {
           case 1:
             this.applyPositionValue(0, table2.value);
             break;
           case 2:
-            this.applyPositionValue(0, table2.values.get(index11));
+            this.applyPositionValue(0, table2.values.get(index14));
             break;
         }
         return true;
@@ -233187,11 +234091,11 @@ var $c96c93587d49c14d$export$2e2bcd8739ae039 = class extends (0, $a83b9c36aaa94f
       case 2: {
         let nextGlyph = this.glyphIterator.peek();
         if (!nextGlyph) return false;
-        let index11 = this.coverageIndex(table2.coverage);
-        if (index11 === -1) return false;
+        let index14 = this.coverageIndex(table2.coverage);
+        if (index14 === -1) return false;
         switch (table2.version) {
           case 1:
-            let set = table2.pairSets.get(index11);
+            let set = table2.pairSets.get(index14);
             for (let pair2 of set) if (pair2.secondGlyph === nextGlyph.id) {
               this.applyPositionValue(0, pair2.value1);
               this.applyPositionValue(1, pair2.value2);
@@ -234457,7 +235361,7 @@ var $62cc5109c6101893$export$2e2bcd8739ae039 = class extends (0, $f92906be28e617
       while (stream2.pos < end) {
         let op = stream2.readUInt8();
         if (op < 32) {
-          let index11, subr, phase;
+          let index14, subr, phase;
           let c1x, c1y, c2x, c2y, c3x, c3y;
           let c4x, c4y, c5x, c5y, c6x, c6y;
           let pts;
@@ -234502,10 +235406,10 @@ var $62cc5109c6101893$export$2e2bcd8739ae039 = class extends (0, $f92906be28e617
               }
               break;
             case 10:
-              index11 = stack.pop() + subrsBias;
-              subr = subrs[index11];
+              index14 = stack.pop() + subrsBias;
+              subr = subrs[index14];
               if (subr) {
-                usedSubrs[index11] = true;
+                usedSubrs[index14] = true;
                 let p = stream2.pos;
                 let e2 = end;
                 stream2.pos = subr.offset;
@@ -234618,10 +235522,10 @@ var $62cc5109c6101893$export$2e2bcd8739ae039 = class extends (0, $f92906be28e617
               stack.push(stream2.readInt16BE());
               break;
             case 29:
-              index11 = stack.pop() + gsubrsBias;
-              subr = gsubrs[index11];
+              index14 = stack.pop() + gsubrsBias;
+              subr = gsubrs[index14];
               if (subr) {
-                usedGsubrs[index11] = true;
+                usedGsubrs[index14] = true;
                 let p = stream2.pos;
                 let e2 = end;
                 stream2.pos = subr.offset;
@@ -236254,7 +237158,7 @@ var $21ee218f84ac7f32$export$2e2bcd8739ae039 = class extends (0, $4c1709dee528ea
     this.stream.pos = this.directory.tables.glyf.offset;
     let table2 = $21ee218f84ac7f32$var$GlyfTable.decode(this.stream);
     let glyphs = [];
-    for (let index11 = 0; index11 < table2.numGlyphs; index11++) {
+    for (let index14 = 0; index14 < table2.numGlyphs; index14++) {
       let glyph = {};
       let nContours = table2.nContours.readInt16BE();
       glyph.numberOfContours = nContours;
@@ -237888,12 +238792,12 @@ var PNG = class _PNG {
           }
           break;
         case "tEXt":
-          var text33 = this.read(chunkSize);
-          var index11 = text33.indexOf(0);
-          var key = String.fromCharCode.apply(String, text33.slice(0, index11));
+          var text36 = this.read(chunkSize);
+          var index14 = text36.indexOf(0);
+          var key = String.fromCharCode.apply(String, text36.slice(0, index14));
           this.text[key] = String.fromCharCode.apply(
             String,
-            text33.slice(index11 + 1)
+            text36.slice(index14 + 1)
           );
           break;
         case "IEND":
@@ -238957,12 +239861,12 @@ var shiftsL160 = idxL.map((idx, i2) => idx.map((j) => shifts160[i2][j]));
 var shiftsR160 = idxR.map((idx, i2) => idx.map((j) => shifts160[i2][j]));
 var Kl160 = Uint32Array.from([0, 1518500249, 1859775393, 2400959708, 2840853838]);
 var Kr160 = Uint32Array.from([1352829926, 1548603684, 1836072691, 2053994217, 0]);
-function ripemd_f(group, x2, y, z12) {
-  if (group === 0) return x2 ^ y ^ z12;
-  if (group === 1) return x2 & y | ~x2 & z12;
-  if (group === 2) return (x2 | ~y) ^ z12;
-  if (group === 3) return x2 & z12 | y & ~z12;
-  return x2 ^ (y | ~z12);
+function ripemd_f(group, x2, y, z13) {
+  if (group === 0) return x2 ^ y ^ z13;
+  if (group === 1) return x2 & y | ~x2 & z13;
+  if (group === 2) return (x2 | ~y) ^ z13;
+  if (group === 3) return x2 & z13 | y & ~z13;
+  return x2 ^ (y | ~z13);
 }
 var BUF_160 = new Uint32Array(16);
 var RIPEMD160 = class extends HashMD {
@@ -239848,18 +240752,18 @@ function getEncryptedPermissionsR5(permissions, encryptionKey, generateRandomWor
 function processPasswordR2R3R4(password = "") {
   const out = new Uint8Array(32);
   const length = password.length;
-  let index11 = 0;
-  while (index11 < length && index11 < 32) {
-    const code = password.charCodeAt(index11);
+  let index14 = 0;
+  while (index14 < length && index14 < 32) {
+    const code = password.charCodeAt(index14);
     if (code > 255) {
       throw new Error("Password contains one or more invalid characters.");
     }
-    out[index11] = code;
-    index11++;
+    out[index14] = code;
+    index14++;
   }
-  while (index11 < 32) {
-    out[index11] = PASSWORD_PADDING[index11 - length];
-    index11++;
+  while (index14 < 32) {
+    out[index14] = PASSWORD_PADDING[index14 - length];
+    index14++;
   }
   return out;
 }
@@ -241292,12 +242196,12 @@ var AFMFont = class {
     this.capHeight = data.capHeight;
     this.lineGap = this.bbox[3] - this.bbox[1] - (this.ascender - this.descender);
     const glyphNames = data.glyphNames.split(" ");
-    this.glyphWidths = Object.fromEntries(glyphNames.map((name, index11) => [name, data.glyphWidths[index11]]));
+    this.glyphWidths = Object.fromEntries(glyphNames.map((name, index14) => [name, data.glyphWidths[index14]]));
     this.kernPairs = {};
-    for (let index11 = 0; index11 < data.kernPairs.length; index11 += 2) {
-      const amount = data.kernPairs[index11];
+    for (let index14 = 0; index14 < data.kernPairs.length; index14 += 2) {
+      const amount = data.kernPairs[index14];
       let pairId = 0;
-      for (const delta of data.kernPairs[index11 + 1]) {
+      for (const delta of data.kernPairs[index14 + 1]) {
         pairId += delta;
         const left = Math.floor(pairId / glyphNames.length);
         const right = pairId % glyphNames.length;
@@ -241305,10 +242209,10 @@ var AFMFont = class {
       }
     }
   }
-  encodeText(text33) {
+  encodeText(text36) {
     const res = [];
-    for (let i2 = 0, len = text33.length; i2 < len; i2++) {
-      let char = text33.charCodeAt(i2);
+    for (let i2 = 0, len = text36.length; i2 < len; i2++) {
+      let char = text36.charCodeAt(i2);
       char = WIN_ANSI_MAP[char] || char;
       res.push(char.toString(16));
     }
@@ -241333,9 +242237,9 @@ var AFMFont = class {
   }
   advancesForGlyphs(glyphs) {
     const advances = [];
-    for (let index11 = 0; index11 < glyphs.length; index11++) {
-      const left = glyphs[index11];
-      const right = glyphs[index11 + 1];
+    for (let index14 = 0; index14 < glyphs.length; index14++) {
+      const left = glyphs[index14];
+      const right = glyphs[index14 + 1];
       advances.push(this.widthOfGlyph(left) + this.getKernPair(left, right));
     }
     return advances;
@@ -241393,9 +242297,9 @@ var StandardFont = class extends PDFFont {
     };
     return this.dictionary.end();
   }
-  encode(text33) {
-    const encoded = this.font.encodeText(text33);
-    const glyphs = this.font.glyphsForString(`${text33}`);
+  encode(text36) {
+    const encoded = this.font.encodeText(text36);
+    const glyphs = this.font.glyphsForString(`${text36}`);
     const advances = this.font.advancesForGlyphs(glyphs);
     const positions = [];
     for (let i2 = 0; i2 < glyphs.length; i2++) {
@@ -241445,8 +242349,8 @@ var EmbeddedFont = class extends PDFFont {
       this.layoutCache = /* @__PURE__ */ Object.create(null);
     }
   }
-  layoutRun(text33, features) {
-    const run = this.font.layout(text33, features);
+  layoutRun(text36, features) {
+    const run = this.font.layout(text36, features);
     for (let i2 = 0; i2 < run.positions.length; i2++) {
       const position = run.positions[i2];
       for (let key in position) {
@@ -241456,39 +242360,39 @@ var EmbeddedFont = class extends PDFFont {
     }
     return run;
   }
-  layoutCached(text33) {
+  layoutCached(text36) {
     if (!this.layoutCache) {
-      return this.layoutRun(text33);
+      return this.layoutRun(text36);
     }
     let cached2;
-    if (cached2 = this.layoutCache[text33]) {
+    if (cached2 = this.layoutCache[text36]) {
       return cached2;
     }
-    const run = this.layoutRun(text33);
-    this.layoutCache[text33] = run;
+    const run = this.layoutRun(text36);
+    this.layoutCache[text36] = run;
     return run;
   }
-  layout(text33, features, onlyWidth) {
+  layout(text36, features, onlyWidth) {
     if (features) {
-      return this.layoutRun(text33, features);
+      return this.layoutRun(text36, features);
     }
     let glyphs = onlyWidth ? null : [];
     let positions = onlyWidth ? null : [];
     let advanceWidth = 0;
     let last2 = 0;
-    let index11 = 0;
-    while (index11 <= text33.length) {
+    let index14 = 0;
+    while (index14 <= text36.length) {
       var needle;
-      if (index11 === text33.length && last2 < index11 || (needle = text33.charAt(index11), [" ", "	"].includes(needle))) {
-        const run = this.layoutCached(text33.slice(last2, ++index11));
+      if (index14 === text36.length && last2 < index14 || (needle = text36.charAt(index14), [" ", "	"].includes(needle))) {
+        const run = this.layoutCached(text36.slice(last2, ++index14));
         if (!onlyWidth) {
           glyphs = glyphs.concat(run.glyphs);
           positions = positions.concat(run.positions);
         }
         advanceWidth += run.advanceWidth;
-        last2 = index11;
+        last2 = index14;
       } else {
-        index11++;
+        index14++;
       }
     }
     return {
@@ -241497,11 +242401,11 @@ var EmbeddedFont = class extends PDFFont {
       advanceWidth
     };
   }
-  encode(text33, features) {
+  encode(text36, features) {
     const {
       glyphs,
       positions
-    } = this.layout(text33, features);
+    } = this.layout(text36, features);
     const res = [];
     for (let i2 = 0; i2 < glyphs.length; i2++) {
       const glyph = glyphs[i2];
@@ -241866,8 +242770,8 @@ var EventEmitter = class {
   off(event, listener) {
     const listeners = this._listeners[event];
     if (listeners) {
-      const index11 = listeners.indexOf(listener);
-      if (index11 !== -1) listeners.splice(index11, 1);
+      const index14 = listeners.indexOf(listener);
+      if (index14 !== -1) listeners.splice(index14, 1);
     }
     return this;
   }
@@ -241959,14 +242863,14 @@ var LineWrapper = class extends EventEmitter {
     }
     return w + this.wordWidth(HYPHEN) <= this.spaceLeft;
   }
-  eachWord(text33, fn) {
+  eachWord(text36, fn) {
     let bk;
-    const breaker = new $557adaaeb0c7885f$exports(text33);
+    const breaker = new $557adaaeb0c7885f$exports(text36);
     let last2 = null;
     const wordWidths = /* @__PURE__ */ Object.create(null);
     while (bk = breaker.nextBreak()) {
       var shouldContinue;
-      let word = text33.slice((last2 != null ? last2.position : void 0) || 0, bk.position);
+      let word = text36.slice((last2 != null ? last2.position : void 0) || 0, bk.position);
       let w = wordWidths[word] != null ? wordWidths[word] : wordWidths[word] = this.wordWidth(word);
       if (w > this.lineWidth + this.continuedX) {
         let lbk = last2;
@@ -242014,7 +242918,7 @@ var LineWrapper = class extends EventEmitter {
       last2 = bk;
     }
   }
-  wrap(text33, options) {
+  wrap(text36, options) {
     const {
       document: document2
     } = this;
@@ -242049,7 +242953,7 @@ var LineWrapper = class extends EventEmitter {
       return lc++;
     };
     this.emit("sectionStart", options, this);
-    this.eachWord(text33, (word, w, bk, last2) => {
+    this.eachWord(text36, (word, w, bk, last2) => {
       if (last2 == null || last2.required) {
         this.emit("firstLine", options, this);
         this.spaceLeft = this.lineWidth;
@@ -242167,8 +243071,8 @@ function formatListLabel(n, listType) {
   }
   var letter = String.fromCharCode((n - 1) % 26 + 65);
   var times = Math.floor((n - 1) / 26 + 1);
-  var text33 = Array(times + 1).join(letter);
-  return `${text33}.`;
+  var text36 = Array(times + 1).join(letter);
+  return `${text36}.`;
 }
 var TextMixin = {
   initText() {
@@ -242195,11 +243099,11 @@ var TextMixin = {
     this.y -= this.currentLineHeight(true) * lines + this._lineGap;
     return this;
   },
-  _text(text33, x2, y, options, lineCallback) {
+  _text(text36, x2, y, options, lineCallback) {
     options = this._initOptions(x2, y, options);
-    text33 = text33 == null ? "" : `${text33}`;
+    text36 = text36 == null ? "" : `${text36}`;
     if (options.wordSpacing) {
-      text33 = text33.replace(/\s{2,}/g, " ");
+      text36 = text36.replace(/\s{2,}/g, " ");
     }
     const addStructure = () => {
       if (options.structParent) {
@@ -242221,9 +243125,9 @@ var TextMixin = {
       }
       this._wrapper = options.continued ? wrapper : null;
       this._textOptions = options.continued ? options : null;
-      wrapper.wrap(text33, options);
+      wrapper.wrap(text36, options);
     } else {
-      for (let line of text33.split("\n")) {
+      for (let line of text36.split("\n")) {
         addStructure();
         lineCallback(line, options);
       }
@@ -242231,8 +243135,8 @@ var TextMixin = {
     if (options.rotation !== 0) this.restore();
     return this;
   },
-  text(text33, x2, y, options) {
-    return this._text(text33, x2, y, options, this._line);
+  text(text36, x2, y, options) {
+    return this._text(text36, x2, y, options, this._line);
   },
   widthOfString(string2, options = {}) {
     const horizontalScaling = options.horizontalScaling || 100;
@@ -242253,19 +243157,19 @@ var TextMixin = {
     }
     if (options.width) {
       let wrapper = new LineWrapper(this, options);
-      wrapper.on("line", (text33, options2) => {
+      wrapper.on("line", (text36, options2) => {
         this.y += lineHeight;
-        text33 = text33.replace(/\n/g, "");
-        if (text33.length) {
+        text36 = text36.replace(/\n/g, "");
+        if (text36.length) {
           let wordSpacing = options2.wordSpacing ?? 0;
           const characterSpacing = options2.characterSpacing ?? 0;
           if (options2.width && options2.align === "justify") {
-            const words = text33.trim().split(/\s+/);
-            const textWidth = this.widthOfString(text33.replace(/\s+/g, ""), options2);
+            const words = text36.trim().split(/\s+/);
+            const textWidth = this.widthOfString(text36.replace(/\s+/g, ""), options2);
             const spaceWidth = this.widthOfString(" ") + characterSpacing;
             wordSpacing = Math.max(0, (options2.lineWidth - textWidth) / Math.max(1, words.length - 1) - spaceWidth);
           }
-          contentWidth = Math.max(contentWidth, options2.textWidth + wordSpacing * (options2.wordCount - 1) + characterSpacing * (text33.length - 1));
+          contentWidth = Math.max(contentWidth, options2.textWidth + wordSpacing * (options2.wordCount - 1) + characterSpacing * (text36.length - 1));
         }
       });
       wrapper.wrap(string2, options);
@@ -242330,7 +243234,7 @@ var TextMixin = {
       height: yMax - yMin
     };
   },
-  heightOfString(text33, options) {
+  heightOfString(text36, options) {
     const {
       x: x2,
       y
@@ -242338,7 +243242,7 @@ var TextMixin = {
     options = this._initOptions(options);
     options.height = Infinity;
     const lineGap = options.lineGap || this._lineGap || 0;
-    this._text(text33, this.x, this.y, options, () => {
+    this._text(text36, this.x, this.y, options, () => {
       this.y += this.currentLineHeight(true) + lineGap;
     });
     const height = this.y - y;
@@ -242412,8 +243316,8 @@ var TextMixin = {
             break;
           case "numbered":
           case "lettered":
-            var text33 = formatListLabel(numbers[i2 - 1], listType);
-            this._fragment(text33, this.x - indent, this.y, options);
+            var text36 = formatListLabel(numbers[i2 - 1], listType);
+            this._fragment(text36, this.x - indent, this.y, options);
             break;
         }
         if (item && labelType && bodyType) {
@@ -242478,19 +243382,19 @@ var TextMixin = {
     if (result.rotation < 0) result.rotation += 360;
     return result;
   },
-  _line(text33, options = {}, wrapper) {
-    this._fragment(text33, this.x, this.y, options);
+  _line(text36, options = {}, wrapper) {
+    this._fragment(text36, this.x, this.y, options);
     if (wrapper) {
       const lineGap = options.lineGap || this._lineGap || 0;
       this.y += this.currentLineHeight(true) + lineGap;
     } else {
-      this.x += this.widthOfString(text33, options);
+      this.x += this.widthOfString(text36, options);
     }
   },
-  _fragment(text33, x2, y, options) {
+  _fragment(text36, x2, y, options) {
     let dy, encoded, i2, positions, textWidth, words;
-    text33 = `${text33}`.replace(/\n/g, "");
-    if (text33.length === 0) {
+    text36 = `${text36}`.replace(/\n/g, "");
+    if (text36.length === 0) {
       return;
     }
     const align = options.align || "left";
@@ -242500,15 +243404,15 @@ var TextMixin = {
     if (options.width) {
       switch (align) {
         case "right":
-          textWidth = this.widthOfString(text33.replace(/\s+$/, ""), options);
+          textWidth = this.widthOfString(text36.replace(/\s+$/, ""), options);
           x2 += options.lineWidth - textWidth;
           break;
         case "center":
           x2 += options.lineWidth / 2 - options.textWidth / 2;
           break;
         case "justify":
-          words = text33.trim().split(/\s+/);
-          textWidth = this.widthOfString(text33.replace(/\s+/g, ""), options);
+          words = text36.trim().split(/\s+/);
+          textWidth = this.widthOfString(text36.replace(/\s+/g, ""), options);
           var spaceWidth = this.widthOfString(" ") + characterSpacing;
           wordSpacing = Math.max(0, (options.lineWidth - textWidth) / Math.max(1, words.length - 1) - spaceWidth);
           break;
@@ -242546,7 +243450,7 @@ var TextMixin = {
       }
       dy = dy / 1e3 * this._fontSize;
     }
-    const renderedWidth = options.textWidth + wordSpacing * (options.wordCount - 1) + characterSpacing * (text33.length - 1);
+    const renderedWidth = options.textWidth + wordSpacing * (options.wordCount - 1) + characterSpacing * (text36.length - 1);
     if (options.link != null) {
       const linkOptions = {};
       if (this._currentStructureElement && this._currentStructureElement.dictionary.data.S === "Link") {
@@ -242617,7 +243521,7 @@ var TextMixin = {
       this.addContent(`${horizontalScaling} Tz`);
     }
     if (wordSpacing) {
-      words = text33.trim().split(/\s+/);
+      words = text36.trim().split(/\s+/);
       wordSpacing += this.widthOfString(" ") + characterSpacing;
       wordSpacing *= 1e3 / this._fontSize;
       encoded = [];
@@ -242636,7 +243540,7 @@ var TextMixin = {
         positions[positions.length - 1] = space;
       }
     } else {
-      [encoded, positions] = this._font.encode(text33, options.features);
+      [encoded, positions] = this._font.encode(text36, options.features);
     }
     const scale = this._fontSize / 1e3;
     const commands = [];
@@ -243276,11 +244180,11 @@ var AnnotationsMixin = {
     };
     return this.annotate(x2, y, w, h2, annotationOptions);
   },
-  textAnnotation(x2, y, w, h2, text33, options) {
+  textAnnotation(x2, y, w, h2, text36, options) {
     const annotationOptions = {
       ...options,
       Subtype: "FreeText",
-      Contents: new String(text33),
+      Contents: new String(text36),
       DA: new String()
     };
     return this.annotate(x2, y, w, h2, annotationOptions);
@@ -243504,12 +244408,12 @@ var PDFStructureElement = class _PDFStructureElement {
     if (this._attached) {
       return;
     }
-    this._children.forEach((child, index11) => {
+    this._children.forEach((child, index14) => {
       if (child instanceof _PDFStructureElement) {
         child.setAttached();
       }
       if (typeof child === "function") {
-        this._children[index11] = this._contentForClosure(child);
+        this._children[index14] = this._contentForClosure(child);
       }
     });
     this._attached = true;
@@ -244346,8 +245250,8 @@ function normalizeAlignment(align) {
 function normalizeTable() {
   const doc = this.document;
   const opts = this.opts;
-  let index11 = doc._tableIndex++;
-  this._id = new String(opts.id ?? `table-${index11}`);
+  let index14 = doc._tableIndex++;
+  this._id = new String(opts.id ?? `table-${index14}`);
   this._position = {
     x: doc.sizeToPoint(opts.position?.x, doc.x),
     y: doc.sizeToPoint(opts.position?.y, doc.y)
@@ -244384,9 +245288,9 @@ function normalizeTable() {
   if (!rowStyle) rowStyle = () => ({});
   this._rowStyle = normalizedRowStyle.bind(this, defaultRowStyle, rowStyle);
 }
-function normalizeText(text33) {
-  if (text33 != null) text33 = `${text33}`;
-  return text33;
+function normalizeText(text36) {
+  if (text36 != null) text36 = `${text36}`;
+  return text36;
 }
 function normalizeCell(cell, rowIndex, colIndex) {
   const colStyle = this._colStyle(colIndex);
@@ -245289,7 +246193,7 @@ function parseOutline(outlineText) {
     return { level: 3, text: trimmed };
   });
 }
-function formatReferenceAPA2(ref, index11) {
+function formatReferenceAPA2(ref, index14) {
   const parts = [];
   if (ref.authors) parts.push(ref.authors);
   if (ref.year) parts.push(`(${ref.year})`);
@@ -245304,7 +246208,7 @@ function formatReferenceAPA2(ref, index11) {
   }
   if (ref.doi) parts.push(`https://doi.org/${ref.doi}`);
   else if (ref.url) parts.push(ref.url);
-  return `${index11 + 1}. ${parts.join(" ")}`;
+  return `${index14 + 1}. ${parts.join(" ")}`;
 }
 async function generatePDF(data) {
   return new Promise((resolve, reject) => {
@@ -247279,11 +248183,11 @@ function addTableDefinition(target, tableRows, options, slideLayout, presLayout,
   }
   return newAutoPagedSlides;
 }
-function addTextDefinition(target, text33, opts, isPlaceholder) {
+function addTextDefinition(target, text36, opts, isPlaceholder) {
   const newObject = {
     _type: isPlaceholder ? SLIDE_OBJECT_TYPES.placeholder : SLIDE_OBJECT_TYPES.text,
     shape: (opts === null || opts === void 0 ? void 0 : opts.shape) || SHAPE_TYPE.RECTANGLE,
-    text: !text33 || text33.length === 0 ? [{ text: "", options: null }] : text33,
+    text: !text36 || text36.length === 0 ? [{ text: "", options: null }] : text36,
     options: opts || {}
   };
   function cleanOpts(itemOpts) {
@@ -247413,49 +248317,49 @@ function addBackgroundDefinition(props, target) {
     target._bkgdImgRid = intRels;
   }
 }
-function createHyperlinkRels(target, text33, options) {
+function createHyperlinkRels(target, text36, options) {
   let textObjs = [];
-  if (typeof text33 === "string" || typeof text33 === "number")
+  if (typeof text36 === "string" || typeof text36 === "number")
     return;
-  else if (Array.isArray(text33))
-    textObjs = text33;
-  else if (typeof text33 === "object")
-    textObjs = [text33];
-  textObjs.forEach((text34, idx) => {
+  else if (Array.isArray(text36))
+    textObjs = text36;
+  else if (typeof text36 === "object")
+    textObjs = [text36];
+  textObjs.forEach((text37, idx) => {
     if (options && options[idx] && options[idx].hyperlink)
-      text34.options = Object.assign(Object.assign({}, text34.options), options[idx]);
-    if (Array.isArray(text34)) {
+      text37.options = Object.assign(Object.assign({}, text37.options), options[idx]);
+    if (Array.isArray(text37)) {
       const cellOpts = [];
-      text34.forEach((tablecell) => {
+      text37.forEach((tablecell) => {
         if (tablecell.options && !tablecell.text.options) {
           cellOpts.push(tablecell.options);
         }
       });
-      createHyperlinkRels(target, text34, cellOpts);
-    } else if (Array.isArray(text34.text)) {
-      createHyperlinkRels(target, text34.text, options && options[idx] ? [options[idx]] : void 0);
-    } else if (text34 && typeof text34 === "object" && text34.options && text34.options.hyperlink && !text34.options.hyperlink._rId) {
-      if (typeof text34.options.hyperlink !== "object") {
+      createHyperlinkRels(target, text37, cellOpts);
+    } else if (Array.isArray(text37.text)) {
+      createHyperlinkRels(target, text37.text, options && options[idx] ? [options[idx]] : void 0);
+    } else if (text37 && typeof text37 === "object" && text37.options && text37.options.hyperlink && !text37.options.hyperlink._rId) {
+      if (typeof text37.options.hyperlink !== "object") {
         console.log("ERROR: text `hyperlink` option should be an object. Ex: `hyperlink: {url:'https://github.com'}` ");
-      } else if (!text34.options.hyperlink.url && !text34.options.hyperlink.slide) {
+      } else if (!text37.options.hyperlink.url && !text37.options.hyperlink.slide) {
         console.log("ERROR: 'hyperlink requires either: `url` or `slide`'");
       } else {
         const relId = getNewRelId(target);
         target._rels.push({
           type: SLIDE_OBJECT_TYPES.hyperlink,
-          data: text34.options.hyperlink.slide ? "slide" : "dummy",
+          data: text37.options.hyperlink.slide ? "slide" : "dummy",
           rId: relId,
-          Target: encodeXmlEntities(text34.options.hyperlink.url) || text34.options.hyperlink.slide.toString()
+          Target: encodeXmlEntities(text37.options.hyperlink.url) || text37.options.hyperlink.slide.toString()
         });
-        text34.options.hyperlink._rId = relId;
+        text37.options.hyperlink._rId = relId;
       }
-    } else if (text34 && typeof text34 === "object" && text34.options && text34.options.hyperlink && text34.options.hyperlink._rId) {
-      if (target._rels.filter((rel) => rel.rId === text34.options.hyperlink._rId).length === 0) {
+    } else if (text37 && typeof text37 === "object" && text37.options && text37.options.hyperlink && text37.options.hyperlink._rId) {
+      if (target._rels.filter((rel) => rel.rId === text37.options.hyperlink._rId).length === 0) {
         target._rels.push({
           type: SLIDE_OBJECT_TYPES.hyperlink,
-          data: text34.options.hyperlink.slide ? "slide" : "dummy",
-          rId: text34.options.hyperlink._rId,
-          Target: encodeXmlEntities(text34.options.hyperlink.url) || text34.options.hyperlink.slide.toString()
+          data: text37.options.hyperlink.slide ? "slide" : "dummy",
+          rId: text37.options.hyperlink._rId,
+          Target: encodeXmlEntities(text37.options.hyperlink.url) || text37.options.hyperlink.slide.toString()
         });
       }
     }
@@ -247591,8 +248495,8 @@ var Slide = class {
    * @param {TextPropsOptions} options - text options
    * @return {Slide} this Slide
    */
-  addText(text33, options) {
-    const textParam = typeof text33 === "string" || typeof text33 === "number" ? [{ text: text33, options }] : text33;
+  addText(text36, options) {
+    const textParam = typeof text36 === "string" || typeof text36 === "number" ? [{ text: text36, options }] : text36;
     addTextDefinition(this, textParam, options, false);
     return this;
   }
@@ -248061,10 +248965,10 @@ function makeChartType(chartType, data, opts, valAxisId, catAxisId, isMultiTypeC
           strXml += "</c:marker>";
         }
         if ((chartType === CHART_TYPE.BAR || chartType === CHART_TYPE.BAR3D) && data.length === 1 && (opts.chartColors && opts.chartColors !== BARCHART_COLORS && opts.chartColors.length > 1 || ((_a = opts.invertedColors) === null || _a === void 0 ? void 0 : _a.length))) {
-          obj.values.forEach((value, index11) => {
+          obj.values.forEach((value, index14) => {
             const arrColors = value < 0 ? opts.invertedColors || opts.chartColors || BARCHART_COLORS : opts.chartColors || [];
             strXml += "  <c:dPt>";
-            strXml += `    <c:idx val="${index11}"/>`;
+            strXml += `    <c:idx val="${index14}"/>`;
             strXml += '      <c:invertIfNegative val="0"/>';
             strXml += '    <c:bubble3D val="0"/>';
             strXml += "    <c:spPr>";
@@ -248072,12 +248976,12 @@ function makeChartType(chartType, data, opts, valAxisId, catAxisId, isMultiTypeC
               strXml += "<a:ln><a:noFill/></a:ln>";
             } else if (chartType === CHART_TYPE.BAR) {
               strXml += "<a:solidFill>";
-              strXml += '  <a:srgbClr val="' + arrColors[index11 % arrColors.length] + '"/>';
+              strXml += '  <a:srgbClr val="' + arrColors[index14 % arrColors.length] + '"/>';
               strXml += "</a:solidFill>";
             } else {
               strXml += "<a:ln>";
               strXml += "  <a:solidFill>";
-              strXml += '   <a:srgbClr val="' + arrColors[index11 % arrColors.length] + '"/>';
+              strXml += '   <a:srgbClr val="' + arrColors[index14 % arrColors.length] + '"/>';
               strXml += "  </a:solidFill>";
               strXml += "</a:ln>";
             }
@@ -248332,10 +249236,10 @@ function makeChartType(chartType, data, opts, valAxisId, catAxisId, isMultiTypeC
           }
         }
         if (data.length === 1 && opts.chartColors !== BARCHART_COLORS) {
-          obj.values.forEach((value, index11) => {
+          obj.values.forEach((value, index14) => {
             const arrColors = value < 0 ? opts.invertedColors || opts.chartColors || BARCHART_COLORS : opts.chartColors || [];
             strXml += "  <c:dPt>";
-            strXml += `    <c:idx val="${index11}"/>`;
+            strXml += `    <c:idx val="${index14}"/>`;
             strXml += '      <c:invertIfNegative val="0"/>';
             strXml += '    <c:bubble3D val="0"/>';
             strXml += "    <c:spPr>";
@@ -248343,7 +249247,7 @@ function makeChartType(chartType, data, opts, valAxisId, catAxisId, isMultiTypeC
               strXml += "<a:ln><a:noFill/></a:ln>";
             } else {
               strXml += "<a:solidFill>";
-              strXml += ' <a:srgbClr val="' + arrColors[index11 % arrColors.length] + '"/>';
+              strXml += ' <a:srgbClr val="' + arrColors[index14 % arrColors.length] + '"/>';
               strXml += "</a:solidFill>";
             }
             strXml += createShadowElement(opts.shadow, DEF_SHAPE_SHADOW);
@@ -251192,13 +252096,21 @@ router4.post("/projects/:projectId/analyze", async (req, res) => {
   const [job] = await db.insert(jobsTable).values({ projectId: project.id, jobType: "analyze", status: "pending" }).returning();
   await db.update(projectsTable).set({ status: "analyzing" }).where(eq6(projectsTable.id, project.id));
   await logActivity(project.id, "analysis_started", "Analisis instruksi dimulai");
-  runAnalysisPipeline(project.id, job.id, selectedTier).catch((err) => {
+  let quotaInfo = {
+    method: "subscription",
+    saldoUsedCents: 0
+  };
+  try {
+    await runAnalysisPipeline(project.id, job.id, selectedTier);
+  } catch (err) {
     req.log.error({ err, projectId: project.id }, "Analysis pipeline failed");
-  });
+    quotaInfo = { method: "subscription", saldoUsedCents: 0 };
+  }
   res.status(202).json({
     ...job,
     result: job.result ?? null,
-    errorMessage: job.errorMessage ?? null
+    errorMessage: job.errorMessage ?? null,
+    ...quotaInfo
   });
 });
 async function runAnalysisPipeline(projectId, jobId, selectedTier) {
@@ -251324,17 +252236,18 @@ Tulis dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan b
       usage: writeUsage,
       tierConfig: writeTier
     });
+    let writeQuota = null;
     if (!selectedTier.isFree && writeUsage.costCents > 0) {
-      const consumeResult = await consumeQuotaForAIRequest({
+      writeQuota = await consumeQuotaForAIRequest({
         userId: project.userId,
         tierId: selectedTier.id,
         inputTokens: writeUsage.inputTokens,
         outputTokens: writeUsage.outputTokens,
         costCents: writeUsage.costCents
       });
-      if (!consumeResult.allowed) {
+      if (!writeQuota.allowed) {
         logger.warn(
-          { userId: project.userId, reason: consumeResult.reason },
+          { userId: project.userId, reason: writeQuota.reason },
           "Quota/saldo exhausted during write"
         );
       }
@@ -251357,6 +252270,10 @@ Tulis dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan b
     await db.update(jobsTable).set({ status: "completed", result: "Dokumen berhasil ditulis" }).where(eq6(jobsTable.id, writeJob[0].id));
     await db.update(jobsTable).set({ status: "completed", result: "Analisis dan penulisan selesai" }).where(eq6(jobsTable.id, jobId));
     await logActivity(projectId, "document_written", `Versi ${newVersion} dokumen selesai ditulis`);
+    return {
+      method: writeQuota?.allowed ? writeQuota.method ?? "subscription" : "subscription",
+      saldoUsedCents: writeQuota?.allowed && writeQuota.method === "saldo" ? writeQuota.deductCents ?? 0 : 0
+    };
   } catch (err) {
     await db.update(jobsTable).set({ status: "failed", errorMessage: String(err) }).where(eq6(jobsTable.id, jobId));
     await db.update(projectsTable).set({ status: "draft" }).where(eq6(projectsTable.id, projectId));
@@ -251450,6 +252367,7 @@ Format: outline lengkap dalam format markdown dengan bab dan sub-bab.`;
     usage,
     tierConfig
   });
+  let quotaInfo;
   if (!selectedTier.isFree && usage.costCents > 0) {
     const consumeResult = await consumeQuotaForAIRequest({
       userId: project.userId,
@@ -251464,6 +252382,10 @@ Format: outline lengkap dalam format markdown dengan bab dan sub-bab.`;
         "Quota/saldo exhausted during outline"
       );
     }
+    quotaInfo = {
+      method: consumeResult.allowed ? consumeResult.method ?? "subscription" : "subscription",
+      saldoUsedCents: consumeResult.allowed && consumeResult.method === "saldo" ? consumeResult.deductCents ?? 0 : 0
+    };
   }
   const [metadata] = await db.select().from(projectMetadataTable).where(eq6(projectMetadataTable.projectId, params.data.projectId));
   if (metadata) {
@@ -251475,7 +252397,7 @@ Format: outline lengkap dalam format markdown dengan bab dan sub-bab.`;
     });
   }
   await logActivity(params.data.projectId, "outline_regenerated", "Outline dokumen diperbarui");
-  res.json({ outline: outlineContent });
+  res.json({ outline: outlineContent, ...quotaInfo ?? {} });
 });
 router4.post("/projects/:projectId/documents/generate", async (req, res) => {
   const userId = getUserId(req);
@@ -251547,10 +252469,17 @@ router4.post("/projects/:projectId/documents/generate", async (req, res) => {
   }).returning();
   await db.update(projectsTable).set({ status: "writing" }).where(eq6(projectsTable.id, project.id));
   await logActivity(project.id, "document_generation_started", "Penulisan dokumen dimulai");
-  runDocumentGeneration(project.id, job.id, outline, selectedTier).catch((err) => {
+  let quotaInfo = {
+    method: "subscription",
+    saldoUsedCents: 0
+  };
+  try {
+    await runDocumentGeneration(project.id, job.id, outline, selectedTier);
+  } catch (err) {
     req.log.error({ err, projectId: project.id }, "Document generation failed");
-  });
-  res.status(202).json({ jobId: job.id, status: "started" });
+    quotaInfo = { method: "subscription", saldoUsedCents: 0 };
+  }
+  res.status(202).json({ jobId: job.id, status: "started", ...quotaInfo });
 });
 async function runDocumentGeneration(projectId, jobId, outline, selectedTier) {
   try {
@@ -251589,17 +252518,18 @@ TULIS dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan b
       usage,
       tierConfig
     });
+    let quotaResult = null;
     if (!selectedTier.isFree && usage.costCents > 0) {
-      const consumeResult = await consumeQuotaForAIRequest({
+      quotaResult = await consumeQuotaForAIRequest({
         userId: project.userId,
         tierId: selectedTier.id,
         inputTokens: usage.inputTokens,
         outputTokens: usage.outputTokens,
         costCents: usage.costCents
       });
-      if (!consumeResult.allowed) {
+      if (!quotaResult.allowed) {
         logger.warn(
-          { userId: project.userId, reason: consumeResult.reason },
+          { userId: project.userId, reason: quotaResult.reason },
           "Quota/saldo exhausted during generate document"
         );
       }
@@ -251621,6 +252551,10 @@ TULIS dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan b
     await db.update(projectsTable).set({ status: "waiting_revision", progress: 80 }).where(eq6(projectsTable.id, projectId));
     await db.update(jobsTable).set({ status: "completed", result: `Dokumen versi ${newVersion} berhasil ditulis` }).where(eq6(jobsTable.id, jobId));
     await logActivity(projectId, "document_generated", `Versi ${newVersion} dokumen berhasil ditulis`);
+    return {
+      method: quotaResult?.allowed ? quotaResult.method ?? "subscription" : "subscription",
+      saldoUsedCents: quotaResult?.allowed && quotaResult.method === "saldo" ? quotaResult.deductCents ?? 0 : 0
+    };
   } catch (err) {
     await db.update(jobsTable).set({ status: "failed", errorMessage: String(err) }).where(eq6(jobsTable.id, jobId));
     await db.update(projectsTable).set({ status: "draft" }).where(eq6(projectsTable.id, projectId));
@@ -251937,7 +252871,18 @@ router5.post("/projects/:projectId/messages", async (req, res) => {
   }).returning();
   const [metadata] = await db.select().from(projectMetadataTable).where(eq7(projectMetadataTable.projectId, params.data.projectId));
   const [latestDoc] = await db.select().from(documentVersionsTable).where(eq7(documentVersionsTable.projectId, params.data.projectId)).orderBy(desc4(documentVersionsTable.versionNumber)).limit(1);
-  const recentMessages = await db.select().from(messagesTable).where(eq7(messagesTable.projectId, params.data.projectId)).orderBy(desc4(messagesTable.createdAt)).limit(10);
+  const MAX_TOTAL_INPUT_TOKENS = 14e4;
+  const SYSTEM_PROMPT_ESTIMATE = 1500;
+  const allRecentMessages = await db.select().from(messagesTable).where(eq7(messagesTable.projectId, params.data.projectId)).orderBy(desc4(messagesTable.createdAt));
+  const candidates = allRecentMessages.slice(1);
+  let usedTokens = SYSTEM_PROMPT_ESTIMATE;
+  const recentMessages = [];
+  for (const msg of candidates) {
+    const msgTokens = estimateTokensFromChars(msg.content.length);
+    if (usedTokens + msgTokens > MAX_TOTAL_INPUT_TOKENS) break;
+    usedTokens += msgTokens;
+    recentMessages.push(msg);
+  }
   const systemPrompt = buildSystemPrompt({
     title: project.title,
     instructionText: project.instructionText,
@@ -251961,6 +252906,14 @@ router5.post("/projects/:projectId/messages", async (req, res) => {
   try {
     usageResult = await callAI(aiMessages, selectedTier.id, mode);
   } catch (err) {
+    const errMsg = err instanceof Error ? err.message : String(err);
+    if (errMsg === "KONTEKS_TERLALU_PANJANG") {
+      res.status(413).json({
+        error: "Konteks terlalu panjang. Coba hapus chat history atau mulai project baru.",
+        code: "CONTEXT_EXCEEDED"
+      });
+      return;
+    }
     logger.error({ err, tierId: selectedTier.id }, "AI call failed");
     res.status(500).json({ error: "AI request failed. Silakan coba lagi." });
     return;
@@ -251978,8 +252931,9 @@ router5.post("/projects/:projectId/messages", async (req, res) => {
     costCents: usage.costCents,
     requestType: "chat"
   }).returning();
+  let finalConsume = null;
   if (!selectedTier.isFree && usage.costCents > 0) {
-    const finalConsume = await consumeQuotaForAIRequest({
+    finalConsume = await consumeQuotaForAIRequest({
       userId: project.userId,
       tierId: selectedTier.id,
       inputTokens: usage.inputTokens,
@@ -252019,6 +252973,13 @@ router5.post("/projects/:projectId/messages", async (req, res) => {
       `Versi ${newVersion} dibuat dari revisi`
     );
   }
+  let quotaInfo;
+  if (!selectedTier.isFree && usage.costCents > 0 && finalConsume) {
+    quotaInfo = {
+      method: finalConsume.method ?? "subscription",
+      saldoUsedCents: finalConsume.method === "saldo" ? finalConsume.deductCents ?? 0 : 0
+    };
+  }
   res.status(201).json({
     ...assistantMessage,
     usage: {
@@ -252026,7 +252987,8 @@ router5.post("/projects/:projectId/messages", async (req, res) => {
       outputTokens: usage.outputTokens,
       costCents: usage.costCents,
       tierId: selectedTier.id,
-      tierName: selectedTier.name
+      tierName: selectedTier.name,
+      ...quotaInfo ?? {}
     }
   });
 });
@@ -252042,8 +253004,8 @@ var NUMBERED_FORMATS = /* @__PURE__ */ new Set([
   "Vancouver",
   "Chicago"
 ]);
-function escapeHtml(text33) {
-  return text33.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+function escapeHtml(text36) {
+  return text36.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 function splitParagraphs(content) {
   return content.split(/\n\s*\n/).map((p) => p.trim()).filter((p) => p.length > 0);
@@ -252091,8 +253053,8 @@ function renderMarkerHtml(citation, marker, format) {
   const tooltipEscaped = escapeHtml(tooltip).replace(/\n/g, "&#10;");
   return `<sup class="cite-marker" data-citation-id="${citation.id}" title="${tooltipEscaped}">${escapeHtml(marker)}</sup>`;
 }
-function renderMarkdownLight(text33) {
-  const lines = text33.split("\n");
+function renderMarkdownLight(text36) {
+  const lines = text36.split("\n");
   const blocks = [];
   let currentList = [];
   let paragraphBuffer = [];
@@ -252141,26 +253103,26 @@ function renderParagraph(paragraphText, paragraphIndex, citationsForParagraph, f
     (a, b) => b.offsetInParagraph - a.offsetInParagraph
   );
   const maxOffset = paragraphText.length;
-  const text33 = paragraphText;
+  const text36 = paragraphText;
   const segments = [];
-  let cursor = text33.length;
+  let cursor = text36.length;
   for (const c of sorted) {
     const safeOffset = Math.min(Math.max(c.offsetInParagraph, 0), maxOffset);
     const marker = getMarkerForCitation(c, format, sequentialNumbers);
     const markerHtml = renderMarkerHtml(c, marker, format);
-    const afterText = escapeHtml(text33.slice(safeOffset, cursor));
+    const afterText = escapeHtml(text36.slice(safeOffset, cursor));
     segments.push(afterText, markerHtml);
     cursor = safeOffset;
   }
-  segments.push(escapeHtml(text33.slice(0, cursor)));
+  segments.push(escapeHtml(text36.slice(0, cursor)));
   const htmlWithCitations = segments.reverse().join("");
-  const isStructured = /^(#{1,6}\s|[-*]\s)/m.test(text33);
+  const isStructured = /^(#{1,6}\s|[-*]\s)/m.test(text36);
   if (isStructured) {
     logger.debug(
       { paragraphIndex },
       "Paragraph has markdown structure \u2014 using simplified render"
     );
-    const mdHtml = renderMarkdownLight(text33);
+    const mdHtml = renderMarkdownLight(text36);
     const markers = sorted.map((c) => {
       const marker = getMarkerForCitation(c, format, sequentialNumbers);
       return renderMarkerHtml(c, marker, format);
@@ -252173,15 +253135,15 @@ function renderDocument(params) {
   const { content, citations, format, formatBibliographyFn } = params;
   const paragraphs = splitParagraphs(content);
   const sequentialNumbers = computeSequentialNumbers(citations);
-  const rendered = paragraphs.map((text33, index11) => {
+  const rendered = paragraphs.map((text36, index14) => {
     const citationsForParagraph = citations.filter(
-      (c) => c.paragraphIndex === index11
+      (c) => c.paragraphIndex === index14
     );
     return {
-      index: index11,
+      index: index14,
       html: renderParagraph(
-        text33,
-        index11,
+        text36,
+        index14,
         citationsForParagraph,
         format,
         sequentialNumbers
@@ -253409,6 +254371,7 @@ Format output: daftar pustaka siap pakai dalam format ${citationFormat} yang ben
     usage,
     tierConfig
   });
+  let quotaInfo;
   if (!selectedTier.isFree && usage.costCents > 0) {
     const consumeResult = await consumeQuotaForAIRequest({
       userId: project.userId,
@@ -253423,9 +254386,13 @@ Format output: daftar pustaka siap pakai dalam format ${citationFormat} yang ben
         "Quota/saldo exhausted during bibliography"
       );
     }
+    quotaInfo = {
+      method: consumeResult.method ?? "subscription",
+      saldoUsedCents: consumeResult.method === "saldo" ? consumeResult.deductCents ?? 0 : 0
+    };
   }
   await logActivity(params.data.projectId, "bibliography_regenerated", "Daftar pustaka diperbarui");
-  res.json({ bibliography: aiResponse });
+  res.json({ bibliography: aiResponse, ...quotaInfo ?? {} });
 });
 router7.get("/references/search", async (req, res) => {
   if (!req.user?.id) {
@@ -253916,8 +254883,13 @@ ${candidateReferences.map(
     usage = result.usage;
     tierConfig = result.tierConfig;
   } catch (err) {
+    const errMsg = err instanceof Error ? err.message : String(err);
+    if (errMsg === "KONTEKS_TERLALU_PANJANG") {
+      res.status(413).json({ error: "Konteks terlalu panjang. Coba kurangi jumlah paragraf atau referensi.", code: "CONTEXT_EXCEEDED" });
+      return;
+    }
     console.error("[auto-cite] AI call failed:", err);
-    res.status(502).json({ error: "AI provider error", detail: err instanceof Error ? err.message : String(err) });
+    res.status(502).json({ error: "AI provider error", detail: errMsg });
     return;
   }
   const usageLog = await logAIUsage({
@@ -253927,6 +254899,7 @@ ${candidateReferences.map(
     usage,
     tierConfig
   });
+  let quotaInfo;
   if (!selectedTier.isFree && usage.costCents > 0) {
     const consumeResult = await consumeQuotaForAIRequest({
       userId: project.userId,
@@ -253941,6 +254914,10 @@ ${candidateReferences.map(
         "Quota/saldo exhausted during auto-cite"
       );
     }
+    quotaInfo = {
+      method: consumeResult.method ?? "subscription",
+      saldoUsedCents: consumeResult.method === "saldo" ? consumeResult.deductCents ?? 0 : 0
+    };
   }
   let suggestions = [];
   try {
@@ -254004,7 +254981,8 @@ ${candidateReferences.map(
   res.json({
     suggestions: validSuggestions,
     totalTokensUsed: usage.inputTokens + usage.outputTokens,
-    referencesAnalyzed: candidateReferences.length
+    referencesAnalyzed: candidateReferences.length,
+    ...quotaInfo ?? {}
   });
 });
 var references_default = router7;
@@ -254293,10 +255271,10 @@ function markdownToParagraphs(markdown) {
       continue;
     }
     if (line.startsWith("- ") || line.startsWith("* ")) {
-      const text33 = line.substring(2).replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1");
+      const text36 = line.substring(2).replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1");
       paragraphs.push(
         new Paragraph({
-          text: text33,
+          text: text36,
           bullet: { level: 0 },
           spacing: { before: 60, after: 60 }
         })
@@ -254304,10 +255282,10 @@ function markdownToParagraphs(markdown) {
       continue;
     }
     if (/^\d+\.\s/.test(line)) {
-      const text33 = line.replace(/^\d+\.\s/, "").replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1");
+      const text36 = line.replace(/^\d+\.\s/, "").replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1");
       paragraphs.push(
         new Paragraph({
-          text: text33,
+          text: text36,
           spacing: { before: 60, after: 60 }
         })
       );
@@ -254323,14 +255301,14 @@ function markdownToParagraphs(markdown) {
   }
   return paragraphs;
 }
-function parseInlineRuns(text33) {
+function parseInlineRuns(text36) {
   const runs = [];
   const regex = /\*\*(.+?)\*\*|\*(.+?)\*|__(.+?)__|_(.+?)_/g;
   let lastIndex = 0;
   let match;
-  while ((match = regex.exec(text33)) !== null) {
+  while ((match = regex.exec(text36)) !== null) {
     if (match.index > lastIndex) {
-      runs.push(new TextRun({ text: text33.substring(lastIndex, match.index) }));
+      runs.push(new TextRun({ text: text36.substring(lastIndex, match.index) }));
     }
     if (match[1]) {
       runs.push(new TextRun({ text: match[1], bold: true }));
@@ -254343,11 +255321,11 @@ function parseInlineRuns(text33) {
     }
     lastIndex = regex.lastIndex;
   }
-  if (lastIndex < text33.length) {
-    runs.push(new TextRun({ text: text33.substring(lastIndex) }));
+  if (lastIndex < text36.length) {
+    runs.push(new TextRun({ text: text36.substring(lastIndex) }));
   }
   if (runs.length === 0) {
-    runs.push(new TextRun({ text: text33 }));
+    runs.push(new TextRun({ text: text36 }));
   }
   return runs;
 }
@@ -254406,8 +255384,8 @@ router12.post("/projects/:projectId/exports", async (req, res) => {
     return;
   }
   await fs4.mkdir(EXPORT_DIR, { recursive: true });
-  const timestamp33 = Date.now();
-  const filename = `export-${params.data.projectId}-v${doc.versionNumber}-${timestamp33}`;
+  const timestamp36 = Date.now();
+  const filename = `export-${params.data.projectId}-v${doc.versionNumber}-${timestamp36}`;
   const content = doc.content ?? "";
   if (parsed.data.format === "docx") {
     const paragraphs = markdownToParagraphs(content);
@@ -254940,6 +255918,7 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks, no explanation.`;
       usage: aiResult.usage,
       tierConfig: aiResult.tierConfig
     });
+    let quotaInfo;
     if (!selectedTier.isFree && aiResult.usage.costCents > 0) {
       const consumeResult = await consumeQuotaForAIRequest({
         userId: project.userId,
@@ -254954,6 +255933,10 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks, no explanation.`;
           "Quota/saldo exhausted during quiz generation"
         );
       }
+      quotaInfo = {
+        method: consumeResult.method ?? "subscription",
+        saldoUsedCents: consumeResult.method === "saldo" ? consumeResult.deductCents ?? 0 : 0
+      };
     }
     const [quiz] = await db.insert(quizzesTable).values({
       projectId,
@@ -254968,7 +255951,7 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks, no explanation.`;
       createdBy: req.user.id
     }).returning();
     await logActivity(projectId, "quiz_generated", `Quiz "${sanitizedTitle}" dibuat dengan ${count3} soal`);
-    res.status(201).json(quiz);
+    res.status(201).json({ ...quiz, ...quotaInfo ?? {} });
   } catch (err) {
     console.error("Quiz generation error:", err);
     res.status(500).json({ error: "Failed to generate quiz" });
@@ -255155,6 +256138,7 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks.`;
       usage: aiResult.usage,
       tierConfig: aiResult.tierConfig
     });
+    let quotaInfo;
     if (!selectedTier.isFree && aiResult.usage.costCents > 0) {
       const consumeResult = await consumeQuotaForAIRequest({
         userId: project.userId,
@@ -255169,6 +256153,10 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks.`;
           "Quota/saldo exhausted during rubric generation"
         );
       }
+      quotaInfo = {
+        method: consumeResult.method ?? "subscription",
+        saldoUsedCents: consumeResult.method === "saldo" ? consumeResult.deductCents ?? 0 : 0
+      };
     }
     const [rubric] = await db.insert(rubricsTable).values({
       quizId,
@@ -255176,7 +256164,7 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks.`;
       manualNotes: manualNotes ?? null,
       createdBy: req.user.id
     }).returning();
-    res.status(201).json(rubric);
+    res.status(201).json({ ...rubric, ...quotaInfo ?? {} });
   } catch (err) {
     console.error("Rubric generation error:", err);
     res.status(500).json({ error: "Failed to generate rubric" });
@@ -255319,6 +256307,7 @@ IMPORTANT: Return ONLY the JSON object, no markdown code blocks.`;
       usage: aiResult.usage,
       tierConfig: aiResult.tierConfig
     });
+    let quotaInfo;
     if (!selectedTier.isFree && aiResult.usage.costCents > 0) {
       const consumeResult = await consumeQuotaForAIRequest({
         userId: req.user.id,
@@ -255333,6 +256322,10 @@ IMPORTANT: Return ONLY the JSON object, no markdown code blocks.`;
           "Quota/saldo exhausted during writing style analysis"
         );
       }
+      quotaInfo = {
+        method: consumeResult.method ?? "subscription",
+        saldoUsedCents: consumeResult.method === "saldo" ? consumeResult.deductCents ?? 0 : 0
+      };
     }
     const [profile] = await db.insert(writingStyleProfilesTable).values({
       userId: req.user.id,
@@ -255340,7 +256333,7 @@ IMPORTANT: Return ONLY the JSON object, no markdown code blocks.`;
       styleCharacteristics: characteristics,
       sampleSize: documents.length
     }).returning();
-    res.status(201).json(profile);
+    res.status(201).json({ ...profile, ...quotaInfo ?? {} });
   } catch (err) {
     console.error("Writing style analysis error:", err);
     res.status(500).json({ error: "Failed to analyze writing style" });
@@ -255530,7 +256523,7 @@ var balance_default = router21;
 
 // src/routes/autofallback.ts
 var import_express22 = __toESM(require_express2(), 1);
-import { z as z6 } from "zod/v4";
+import { z as z7 } from "zod/v4";
 import { eq as eq25 } from "drizzle-orm";
 var router22 = (0, import_express22.Router)();
 router22.put("/autofallback", async (req, res) => {
@@ -255538,8 +256531,8 @@ router22.put("/autofallback", async (req, res) => {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const schema = z6.object({
-    enabled: z6.boolean()
+  const schema = z7.object({
+    enabled: z7.boolean()
   });
   const parsed = schema.safeParse(req.body);
   if (!parsed.success) {
@@ -255568,12 +256561,12 @@ var autofallback_default = router22;
 
 // src/routes/subscriptions.ts
 var import_express23 = __toESM(require_express2(), 1);
-import { z as z7 } from "zod/v4";
+import { z as z8 } from "zod/v4";
 import { eq as eq26, and as and13, lte as lte2, gte as gte2 } from "drizzle-orm";
 var router23 = (0, import_express23.Router)();
-var createSubscriptionSchema = z7.object({
-  packageId: z7.string().min(1),
-  autoRenew: z7.boolean().default(false)
+var createSubscriptionSchema = z8.object({
+  packageId: z8.string().min(1),
+  autoRenew: z8.boolean().default(false)
 });
 function formatPackage(pkg) {
   return {
@@ -255993,7 +256986,7 @@ var account_references_default = router24;
 
 // src/routes/learning-activities.ts
 var import_express25 = __toESM(require_express2(), 1);
-import { eq as eq28, desc as desc17, and as and15 } from "drizzle-orm";
+import { eq as eq28, desc as desc17, and as and15, sql as sql9 } from "drizzle-orm";
 var router25 = (0, import_express25.Router)();
 router25.get("/learning-activities", async (req, res) => {
   if (!req.user?.id) {
@@ -256001,7 +256994,25 @@ router25.get("/learning-activities", async (req, res) => {
     return;
   }
   const activities = await db.select().from(learningActivitiesTable).where(eq28(learningActivitiesTable.userId, req.user.id)).orderBy(desc17(learningActivitiesTable.createdAt));
-  res.json(activities);
+  const projectIds = [...new Set(activities.map((a) => a.sourceProjectId).filter(Boolean))];
+  const projectMap = {};
+  if (projectIds.length > 0) {
+    const projects = await db.select({ id: projectsTable.id, title: projectsTable.title }).from(projectsTable).where(sql9`${projectsTable.id} = ANY(${projectIds})`);
+    for (const p of projects) {
+      if (p.id) projectMap[p.id] = p.title ?? "";
+    }
+  }
+  const formatted = activities.map((a) => ({
+    id: a.id,
+    userId: a.userId,
+    topics: JSON.parse(a.topics || "[]"),
+    subject: a.subject,
+    sourceProjectId: a.sourceProjectId,
+    sourceProjectTitle: a.sourceProjectId ? projectMap[a.sourceProjectId] ?? null : null,
+    extractedFrom: a.extractedFrom,
+    createdAt: a.createdAt.toISOString()
+  }));
+  res.json(formatted);
 });
 router25.post("/learning-activities", async (req, res) => {
   if (!req.user?.id) {
@@ -256045,16 +257056,33 @@ router25.get("/learning-activities/recommendations", async (req, res) => {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const activities = await db.select().from(learningActivitiesTable).where(eq28(learningActivitiesTable.userId, req.user.id)).orderBy(desc17(learningActivitiesTable.createdAt));
-  if (activities.length === 0) {
+  const rawActivities = await db.select().from(learningActivitiesTable).where(eq28(learningActivitiesTable.userId, req.user.id)).orderBy(desc17(learningActivitiesTable.createdAt));
+  if (rawActivities.length === 0) {
     res.json([]);
     return;
   }
+  const projectIds = [...new Set(rawActivities.map((a) => a.sourceProjectId).filter(Boolean))];
+  const projectMap = {};
+  if (projectIds.length > 0) {
+    const projects = await db.select({ id: projectsTable.id, title: projectsTable.title }).from(projectsTable).where(sql9`${projectsTable.id} = ANY(${projectIds})`);
+    for (const p of projects) {
+      if (p.id) projectMap[p.id] = p.title ?? "";
+    }
+  }
+  const activities = rawActivities.map((a) => ({
+    id: a.id,
+    userId: a.userId,
+    topics: JSON.parse(a.topics || "[]"),
+    subject: a.subject,
+    sourceProjectId: a.sourceProjectId,
+    sourceProjectTitle: a.sourceProjectId ? projectMap[a.sourceProjectId] ?? null : null,
+    extractedFrom: a.extractedFrom,
+    createdAt: a.createdAt.toISOString()
+  }));
   const recommendations = [];
   const recentActivity = activities[0];
   if (recentActivity) {
-    const parsedTopics = JSON.parse(recentActivity.topics || "[]");
-    const topicLabel = parsedTopics[0] || "topik terbaru";
+    const topicLabel = recentActivity.topics[0] || "topik terbaru";
     recommendations.push({
       learningActivity: recentActivity,
       reason: `Dari tugas terbaru Anda: "${topicLabel}"`,
@@ -256063,22 +257091,15 @@ router25.get("/learning-activities/recommendations", async (req, res) => {
   }
   const topicCount = {};
   for (const activity of activities) {
-    const topics = JSON.parse(activity.topics || "[]");
-    for (const topic of topics) {
+    for (const topic of activity.topics) {
       if (!topicCount[topic]) {
         topicCount[topic] = activity;
       }
     }
   }
   const sortedTopics = Object.entries(topicCount).sort((a, b) => {
-    const countA = activities.filter((act) => {
-      const tops = JSON.parse(act.topics || "[]");
-      return tops.includes(a[0]);
-    }).length;
-    const countB = activities.filter((act) => {
-      const tops = JSON.parse(act.topics || "[]");
-      return tops.includes(b[0]);
-    }).length;
+    const countA = activities.filter((act) => act.topics.includes(a[0])).length;
+    const countB = activities.filter((act) => act.topics.includes(b[0])).length;
     return countB - countA;
   });
   if (sortedTopics.length > 1) {
@@ -256100,10 +257121,14 @@ router25.get("/learning-activities/recommendations", async (req, res) => {
     if (project.id && !existingProjectIds.has(project.id)) {
       recommendations.push({
         learningActivity: {
-          ...activities[0],
           id: 0,
-          topics: JSON.stringify([project.title]),
-          sourceProjectId: project.id
+          userId: req.user.id,
+          topics: [project.title ?? ""],
+          subject: null,
+          sourceProjectId: project.id,
+          sourceProjectTitle: project.title ?? "",
+          extractedFrom: "instruction",
+          createdAt: (/* @__PURE__ */ new Date()).toISOString()
         },
         reason: `Project "${project.title}" belum di-extract`,
         type: "recent_task"
@@ -256125,10 +257150,10 @@ var learning_activities_default = router25;
 // src/routes/usage.ts
 var import_express26 = __toESM(require_express2(), 1);
 import { eq as eq29, and as and16, gte as gte3, sql as sql10, desc as desc18 } from "drizzle-orm";
-import { z as z8 } from "zod/v4";
+import { z as z9 } from "zod/v4";
 var router26 = (0, import_express26.Router)();
 router26.use(authMiddleware);
-var periodSchema = z8.enum(["7d", "30d", "all"]).default("all");
+var periodSchema = z9.enum(["7d", "30d", "all"]).default("all");
 function buildPeriodCondition(period) {
   if (period === "all") return void 0;
   const days = period === "7d" ? 7 : 30;
@@ -256355,17 +257380,17 @@ var usage_default = router26;
 // src/routes/document-templates.ts
 var import_express27 = __toESM(require_express2(), 1);
 import { eq as eq30, or, isNull as isNull6, desc as desc19 } from "drizzle-orm";
-import { z as z9 } from "zod/v4";
+import { z as z10 } from "zod/v4";
 var router27 = (0, import_express27.Router)();
-var createTemplateSchema = z9.object({
-  name: z9.string().min(1).max(120),
-  category: z9.string().min(1).max(60).default("custom"),
-  outline: z9.string().min(1),
-  citationFormat: z9.string().max(40).optional(),
-  minRefCount: z9.number().int().min(0).max(100).default(5),
-  description: z9.string().max(500).optional(),
-  tags: z9.string().max(255).optional(),
-  isPublic: z9.boolean().default(false)
+var createTemplateSchema = z10.object({
+  name: z10.string().min(1).max(120),
+  category: z10.string().min(1).max(60).default("custom"),
+  outline: z10.string().min(1),
+  citationFormat: z10.string().max(40).optional(),
+  minRefCount: z10.number().int().min(0).max(100).default(5),
+  description: z10.string().max(500).optional(),
+  tags: z10.string().max(255).optional(),
+  isPublic: z10.boolean().default(false)
 });
 var updateTemplateSchema = createTemplateSchema.partial();
 function toTemplateJson(t2) {
@@ -256537,7 +257562,7 @@ var document_templates_default = router27;
 // src/routes/admin-ai-tiers.ts
 var import_express28 = __toESM(require_express2(), 1);
 import { eq as eq31 } from "drizzle-orm";
-import { z as z10 } from "zod/v4";
+import { z as z11 } from "zod/v4";
 var router28 = (0, import_express28.Router)();
 async function requireOwner(req, res, next) {
   if (!req.user?.id) {
@@ -256551,18 +257576,18 @@ async function requireOwner(req, res, next) {
   }
   next();
 }
-var updateTierSchema = z10.object({
-  name: z10.string().min(1).max(50).optional(),
-  pricePer1MInputCents: z10.number().int().min(0).optional(),
-  pricePer1MOutputCents: z10.number().int().min(0).optional(),
-  providerCostPer1MInputCents: z10.number().int().min(0).optional(),
-  providerCostPer1MOutputCents: z10.number().int().min(0).optional(),
-  rateLimitRpm: z10.number().int().min(1).max(1e4).nullable().optional(),
-  rateLimitTpd: z10.number().int().min(1).max(1e8).nullable().optional(),
-  isFree: z10.boolean().optional(),
-  isActive: z10.boolean().optional(),
-  description: z10.string().max(500).optional(),
-  usageTips: z10.string().max(500).nullable().optional()
+var updateTierSchema = z11.object({
+  name: z11.string().min(1).max(50).optional(),
+  pricePer1MInputCents: z11.number().int().min(0).optional(),
+  pricePer1MOutputCents: z11.number().int().min(0).optional(),
+  providerCostPer1MInputCents: z11.number().int().min(0).optional(),
+  providerCostPer1MOutputCents: z11.number().int().min(0).optional(),
+  rateLimitRpm: z11.number().int().min(1).max(1e4).nullable().optional(),
+  rateLimitTpd: z11.number().int().min(1).max(1e8).nullable().optional(),
+  isFree: z11.boolean().optional(),
+  isActive: z11.boolean().optional(),
+  description: z11.string().max(500).optional(),
+  usageTips: z11.string().max(500).nullable().optional()
 });
 router28.get("/admin/ai-tiers", requireOwner, async (_req, res) => {
   const tiers = await db.select().from(aiTiersTable).orderBy(aiTiersTable.displayOrder);
@@ -257170,7 +258195,7 @@ var referral_default = router30;
 // src/routes/referral-webhook.ts
 var import_express31 = __toESM(require_express2(), 1);
 import { createHmac, timingSafeEqual } from "crypto";
-import { z as z11 } from "zod/v4";
+import { z as z12 } from "zod/v4";
 var router31 = (0, import_express31.Router)();
 var WEBHOOK_SECRET = process.env.REFERRAL_WEBHOOK_SECRET ?? "";
 function verifyWebhookSignature(req) {
@@ -257193,13 +258218,13 @@ function verifyWebhookSignature(req) {
     return false;
   }
 }
-var WebhookPayloadSchema = z11.object({
-  paymentEventId: z11.string().min(1),
-  userId: z11.string().min(1),
-  paidAmountCents: z11.number().int().positive(),
-  method: z11.enum(["subscription", "topup"]),
-  paidAt: z11.string().datetime().transform((s2) => new Date(s2)),
-  metadata: z11.record(z11.string(), z11.unknown()).optional()
+var WebhookPayloadSchema = z12.object({
+  paymentEventId: z12.string().min(1),
+  userId: z12.string().min(1),
+  paidAmountCents: z12.number().int().positive(),
+  method: z12.enum(["subscription", "topup"]),
+  paidAt: z12.string().datetime().transform((s2) => new Date(s2)),
+  metadata: z12.record(z12.string(), z12.unknown()).optional()
 });
 router31.post("/webhooks/payment-success", async (req, res) => {
   if (!verifyWebhookSignature(req)) {
@@ -257252,55 +258277,745 @@ router31.post("/webhooks/payment-success", async (req, res) => {
 });
 var referral_webhook_default = router31;
 
-// src/routes/index.ts
+// src/routes/simulasi.ts
+var import_express32 = __toESM(require_express2(), 1);
+import { eq as eq35, asc as asc3, and as and19, desc as desc20 } from "drizzle-orm";
 var router32 = (0, import_express32.Router)();
-router32.use(health_default);
-router32.use(auth_default);
-router32.use(shared_default);
-router32.use(ai_tiers_default);
-router32.use(packages_default);
-router32.use(referral_webhook_default);
-router32.use(authMiddleware);
-router32.use("/projects/:projectId/messages", aiLimiter);
-router32.use("/projects/:projectId/quizzes", aiLimiter);
-router32.use("/projects/:projectId/references", aiLimiter);
-router32.use("/projects/:projectId/analyze", aiLimiter);
-router32.use("/projects/:projectId/outline", aiLimiter);
-router32.use("/projects/:projectId/documents/generate", aiLimiter);
-router32.use("/users/me/writing-style/analyze", aiLimiter);
-router32.use(projects_default);
-router32.use(messages_default);
-router32.use(documents_default);
-router32.use(references_default);
-router32.use(account_references_default);
-router32.use(learning_activities_default);
-router32.use(attachments_default);
-router32.use(activities_default);
-router32.use(jobs_default);
-router32.use(metadata_default);
-router32.use(exports_default);
-router32.use(ai_usage_default);
-router32.use(comments_default);
-router32.use(project_members_default);
-router32.use(quizzes_default);
-router32.use(rubrics_default);
-router32.use(writing_style_default);
-router32.use(balance_default);
-router32.use(autofallback_default);
-router32.use(subscriptions_default);
-router32.use(usage_default);
-router32.use(document_templates_default);
-router32.use(admin_ai_tiers_default);
-router32.use(admin_default);
-router32.use(referral_default);
-var routes_default = router32;
+var PERSONA_PROMPTS = {
+  dosen_strict: {
+    persona: "Dosen pembimbing yang ketat dan kritis",
+    tone: "formal, kritis, dan menuntut. Mengutamakan ketelitian, kedalaman argumen, dan dasar teori yang kuat."
+  },
+  dosen_friendly: {
+    persona: "Dosen pembimbing yang ramah dan suportif",
+    tone: "hangat, suportif, tapi tetap akademis. Mengapresiasi usaha dan memberikan saran konstruktif."
+  },
+  audience_awam: {
+    persona: "Audiens umum yang bukan ahli di bidang ini",
+    tone: "sederhana, penasaran, dan ingin memahami. Bertanya dari perspektif orang awam yang tertarik dengan topik presentasi."
+  },
+  audience_expert: {
+    persona: "Audiens ahli dan kritis di bidang terkait",
+    tone: "teknis, mendalam, dan ingin menguji pemahaman presenter secara kritis. Bertanya tentang detail metodologi, data, dan klaim."
+  }
+};
+function buildSimulationSystemPrompt(params) {
+  const personaInfo = PERSONA_PROMPTS[params.persona];
+  const contextParts = [
+    `Kamu berperan sebagai ${personaInfo.persona}.`,
+    `Gaya bertanya: ${personaInfo.tone}`,
+    "",
+    `KONTEKS PRESENTASI:`,
+    `Judul: ${params.projectTitle}`
+  ];
+  if (params.subject) contextParts.push(`Mata Kuliah: ${params.subject}`);
+  if (params.taskType) contextParts.push(`Jenis Presentasi: ${params.taskType}`);
+  if (params.instructionText) {
+    contextParts.push(`
+INSTRUKSI PRESENTASI:
+${params.instructionText}`);
+  }
+  if (params.outline) {
+    contextParts.push(`
+OUTLINE PRESENTASI:
+${params.outline}`);
+  }
+  if (params.latestDocumentExcerpt) {
+    contextParts.push(`
+DOKUMEN TERBARU:
+${params.latestDocumentExcerpt}`);
+  }
+  contextParts.push(`
+ATURAN SIMULASI:
+- Bertindaklah sebagai ${personaInfo.persona}.
+- Ajukan SATU pertanyaan yang tajam dan relevan pada satu waktu.
+- Sesuaikan tingkat kesulitan pertanyaan dengan persona:
+  - dosen_strict: pertanyaan kritis tentang kelemahan argumen, referensi, dan metodologi
+  - dosen_friendly: pertanyaan reflektif tentang pemahaman dan penyampaian
+  - audience_awam: pertanyaan sederhana yang membantu menjelaskan topik ke orang awam
+  - audience_expert: pertanyaan teknis mendalam tentang metodologi, data, dan klaim
+- Pertanyaan harus mendorong presenter untuk berpikir kritis tentang pekerjaannya.
+- JANGAN memberikan jawaban atau solusi \u2014 hanya bertanya.
+- JANGAN menunjukkan emosi berlebihan.
+- Pertanyaan dalam Bahasa Indonesia.
+- JANGAN menunjukkan bahwa kamu adalah AI.
+
+SAFETY CAP:
+- BATAS MAKSIMAL 10 PERTANYAAN per sesi simulasi.
+- Jika presenter sudah menjawab dengan sangat baik dan pertanyaan kritis sudah terjawab, kamu boleh mengakhiri simulasi dengan pujian dan saran ringkas.
+- Jika 10 pertanyaan sudah tercapai, akhiri simulasi dengan ringkasan singkat.
+
+Setelah bertanya, AKHIRI pesanmu dengan tepat di sini \u2014 tanpa penjelasan tambahan, tanpa tanda terima kasih, tanpa penutup.
+`);
+  return contextParts.join("\n");
+}
+async function buildProjectContextSnapshot(projectId) {
+  const [project] = await db.select().from(projectsTable).where(eq35(projectsTable.id, projectId));
+  if (!project) return null;
+  const [latestDoc] = await db.select({ content: documentsTable.content }).from(documentsTable).where(and19(
+    eq35(documentsTable.projectId, projectId),
+    eq35(documentsTable.isDeleted, false)
+  )).orderBy(desc20(documentsTable.updatedAt)).limit(1);
+  const [metaSubject] = await db.select({ value: projectMetadataTable.value }).from(projectMetadataTable).where(and19(
+    eq35(projectMetadataTable.projectId, projectId),
+    eq35(projectMetadataTable.key, "subject")
+  )).limit(1);
+  const [metaTaskType] = await db.select({ value: projectMetadataTable.value }).from(projectMetadataTable).where(and19(
+    eq35(projectMetadataTable.projectId, projectId),
+    eq35(projectMetadataTable.key, "taskType")
+  )).limit(1);
+  const [metaOutline] = await db.select({ value: projectMetadataTable.value }).from(projectMetadataTable).where(and19(
+    eq35(projectMetadataTable.projectId, projectId),
+    eq35(projectMetadataTable.key, "outline")
+  )).limit(1);
+  const [metaInstruction] = await db.select({ value: projectMetadataTable.value }).from(projectMetadataTable).where(and19(
+    eq35(projectMetadataTable.projectId, projectId),
+    eq35(projectMetadataTable.key, "instructionText")
+  )).limit(1);
+  return {
+    title: project.title,
+    subject: metaSubject?.value ?? null,
+    taskType: metaTaskType?.value ?? null,
+    latestDocumentExcerpt: latestDoc?.content ? latestDoc.content.substring(0, 3e3) : null,
+    outline: metaOutline?.value ?? null,
+    instructionText: metaInstruction?.value ?? null
+  };
+}
+async function generateSimulationReport(params) {
+  const { sessionId, projectId, userId, persona, messages, tierId } = params;
+  const personaInfo = PERSONA_PROMPTS[persona];
+  const conversationText = messages.filter((m2) => m2.role === "user" || m2.role === "assistant").map((m2) => `${m2.role.toUpperCase()}: ${m2.content}`).join("\n\n");
+  const systemPrompt = `Kamu adalah evaluator presentasi akademik yang ahli. Berdasarkan transkrip simulasi tanya-jawab berikut, berikan evaluasi komprehensif terhadap kualitas presentasi.
+
+PERSONA PERTANYA: ${personaInfo.persona} (${personaInfo.tone})
+
+TRANSKRIP SIMULASI:
+${conversationText}
+
+FORMAT RESPONS (HANYA JSON, TANPA PREAMBLE):
+{
+  "overallScore": [0-100],
+  "summary": "[ringkasan 1-2 kalimat tentang kualitas keseluruhan presentasi]",
+  "strengths": "[3-5 poin kekuatan presentasi, pisahkan dengan newline]",
+  "weaknesses": "[3-5 poin kelemahan atau area yang perlu diperbaiki, pisahkan dengan newline]",
+  "recommendations": "[3-5 rekomendasi spesifik untuk peningkatan, pisahkan dengan newline]",
+  "scores": [
+    { "criterion": "Penguasaan Konten", "score": [0-100], "notes": "[catatan singkat]" },
+    { "criterion": "Struktur & Organisasi", "score": [0-100], "notes": "[catatan singkat]" },
+    { "criterion": "Penyampaian & Penjelasan", "score": [0-100], "notes": "[catatan singkat]" },
+    { "criterion": "Kemampuan Menjawab Pertanyaan", "score": [0-100], "notes": "[catatan singkat]" },
+    { "criterion": "Persiapan & Kedalaman Referensi", "score": [0-100], "notes": "[catatan singkat]" }
+  ]
+}
+
+HANYA KELUARKAN JSON. TANPA markdown, TANPA penjelasan, TANPA penutup.`;
+  const chatMessages = [
+    { role: "user", content: systemPrompt }
+  ];
+  const tier = await getTierConfig(tierId);
+  const selectedTier = tier ?? await getTierConfig("haiku-4.5");
+  if (!selectedTier) return null;
+  const aiResponse = await callAI(chatMessages, selectedTier.id, "summary");
+  let report;
+  try {
+    const jsonMatch = aiResponse.content.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error("No JSON found in response");
+    report = JSON.parse(jsonMatch[0]);
+  } catch {
+    logger.warn({ sessionId }, "Failed to parse simulation report JSON, using defaults");
+    report = {
+      overallScore: 70,
+      summary: "Evaluasi otomatis tidak tersedia. Presenter menunjukkan pemahaman dasar yang cukup.",
+      strengths: "Presenter menunjukkan usaha yang baik.\nPresenter menjawab dengan bahasa yang cukup jelas.\nPresenter menunjukkan persiapan terhadap materi.",
+      weaknesses: "Kedalaman jawaban masih bisa ditingkatkan.\nBeberapa pertanyaan kritis belum sepenuhnya terjawab.\nStruktur presentasi perlu lebih terorganisir.",
+      recommendations: "Pelajari lebih dalam referensi dan literatur terkait.\nLatih kemampuan menjawab pertanyaan kritis.\nPerbaiki struktur dan flow presentasi.",
+      scores: [
+        { criterion: "Penguasaan Konten", score: 70, notes: "Pemahaman dasar cukup, perlu pendalaman" },
+        { criterion: "Struktur & Organisasi", score: 65, notes: "Perlu lebih terstruktur" },
+        { criterion: "Penyampaian & Penjelasan", score: 72, notes: "Cukup jelas, bisa lebih terstruktur" },
+        { criterion: "Kemampuan Menjawab Pertanyaan", score: 68, notes: "Jawaban cukup tapi kurang mendalam" },
+        { criterion: "Persiapan & Kedalaman Referensi", score: 70, notes: "Referensi cukup, perlu lebih banyak" }
+      ]
+    };
+  }
+  return report;
+}
+function getQuotaInfo(session) {
+  return { saldoUsedCents: session.totalCostCents };
+}
+router32.post("/projects/:projectId/simulasi/sessions", async (req, res) => {
+  const params = CreateSimulationSessionParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+  const ok = await requireProjectOwnership(params.data.projectId, req.user?.id ?? "", res);
+  if (!ok) return;
+  const parsed = CreateSimulationSessionBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+  const { persona } = parsed.data;
+  const project = await db.select().from(projectsTable).where(eq35(projectsTable.id, params.data.projectId));
+  if (!project.length) {
+    res.status(404).json({ error: "Project not found" });
+    return;
+  }
+  const projectData = project[0];
+  const selectedTier = await getTierForUser(projectData.userId, null);
+  if (!selectedTier) {
+    res.status(500).json({ error: "AI tier tidak ditemukan" });
+    return;
+  }
+  if (!selectedTier.isFree) {
+    const accessCheck = await checkAIAccess({
+      userId: projectData.userId,
+      tierId: selectedTier.id,
+      estimatedCostCents: 50
+    });
+    if (!accessCheck.allowed) {
+      if (accessCheck.reason === "saldo_insufficient") {
+        res.status(402).json({
+          error: "Saldo tidak mencukupi. Silakan topup terlebih dahulu.",
+          balanceCents: accessCheck.balanceCents,
+          costCents: accessCheck.requiredCents,
+          quotaInfo: { method: "saldo", saldoUsedCents: 0 }
+        });
+      } else {
+        res.status(402).json({
+          error: "Quota langganan habis dan saldo tidak tersedia.",
+          quotaInfo: { method: "subscription", saldoUsedCents: 0 }
+        });
+      }
+      return;
+    }
+  }
+  const contextSnapshot = await buildProjectContextSnapshot(params.data.projectId);
+  if (!contextSnapshot) {
+    res.status(404).json({ error: "Project tidak ditemukan" });
+    return;
+  }
+  const [session] = await db.insert(simulationSessionsTable).values({
+    userId: projectData.userId,
+    projectId: params.data.projectId,
+    persona,
+    status: "active",
+    projectContextSnapshot: contextSnapshot,
+    tierId: selectedTier.id
+  }).returning();
+  const systemPrompt = buildSimulationSystemPrompt({
+    persona,
+    projectTitle: contextSnapshot.title,
+    subject: contextSnapshot.subject,
+    taskType: contextSnapshot.taskType,
+    latestDocumentExcerpt: contextSnapshot.latestDocumentExcerpt,
+    outline: contextSnapshot.outline,
+    instructionText: contextSnapshot.instructionText
+  });
+  const introMessage = `Halo! Saya akan menjadi ${PERSONA_PROMPTS[persona].persona.toLowerCase()} dalam simulasi presentasi ini.
+
+Silakan mulai presentasikan proyek "${contextSnapshot.title}" kepada saya. Saya akan mendengarkan dan mungkin akan mengajukan beberapa pertanyaan.
+
+Anda siap?`;
+  await db.insert(simulationMessagesTable).values({
+    sessionId: session.id,
+    role: "system",
+    content: systemPrompt,
+    inputTokens: 0,
+    outputTokens: 0,
+    costCents: 0,
+    sequenceIndex: 0
+  });
+  await db.insert(simulationMessagesTable).values({
+    sessionId: session.id,
+    role: "assistant",
+    content: introMessage,
+    inputTokens: 0,
+    outputTokens: introMessage.length / 4,
+    costCents: 0,
+    sequenceIndex: 1
+  });
+  res.status(201).json({
+    ...session,
+    messages: [{ id: 0, role: "assistant", content: introMessage, inputTokens: 0, outputTokens: 0, costCents: 0, sequenceIndex: 1, createdAt: (/* @__PURE__ */ new Date()).toISOString() }],
+    quotaInfo: getQuotaInfo(session)
+  });
+});
+router32.get("/projects/:projectId/simulasi/sessions", async (req, res) => {
+  const params = CreateSimulationSessionParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+  const ok = await requireProjectOwnership(params.data.projectId, req.user?.id ?? "", res);
+  if (!ok) return;
+  const sessions = await db.select().from(simulationSessionsTable).where(eq35(simulationSessionsTable.projectId, params.data.projectId)).orderBy(desc20(simulationSessionsTable.startedAt));
+  res.json(sessions.map((s2) => ({
+    ...s2,
+    quotaInfo: getQuotaInfo(s2)
+  })));
+});
+router32.get("/projects/:projectId/simulasi/sessions/:sessionId/messages", async (req, res) => {
+  const params = ListSimulationMessagesParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+  const [session] = await db.select().from(simulationSessionsTable).where(eq35(simulationSessionsTable.id, params.data.sessionId));
+  if (!session) {
+    res.status(404).json({ error: "Session not found" });
+    return;
+  }
+  const ok = await requireProjectOwnership(session.projectId, req.user?.id ?? "", res);
+  if (!ok) return;
+  const messages = await db.select().from(simulationMessagesTable).where(eq35(simulationMessagesTable.sessionId, params.data.sessionId)).orderBy(asc3(simulationMessagesTable.sequenceIndex));
+  res.json({
+    ...session,
+    messages: messages.map((m2) => ({
+      id: m2.id,
+      sessionId: m2.sessionId,
+      role: m2.role,
+      content: m2.content,
+      inputTokens: m2.inputTokens,
+      outputTokens: m2.outputTokens,
+      costCents: m2.costCents,
+      sequenceIndex: m2.sequenceIndex,
+      createdAt: m2.createdAt
+    })),
+    quotaInfo: getQuotaInfo(session)
+  });
+});
+router32.post("/projects/:projectId/simulasi/sessions/:sessionId/messages", async (req, res) => {
+  const params = SendSimulationMessageParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+  const [session] = await db.select().from(simulationSessionsTable).where(eq35(simulationSessionsTable.id, params.data.sessionId));
+  if (!session) {
+    res.status(404).json({ error: "Session not found" });
+    return;
+  }
+  if (session.status !== "active") {
+    res.status(400).json({ error: "Session sudah berakhir" });
+    return;
+  }
+  if (session.questionsAsked >= 10) {
+    res.status(400).json({ error: "Batas 10 pertanyaan tercapai. Sesi simulasi selesai." });
+    return;
+  }
+  const ok = await requireProjectOwnership(session.projectId, req.user?.id ?? "", res);
+  if (!ok) return;
+  const parsed = SendSimulationMessageBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+  const { content: userContent } = parsed.data;
+  const messages = await db.select().from(simulationMessagesTable).where(eq35(simulationMessagesTable.sessionId, params.data.sessionId)).orderBy(asc3(simulationMessagesTable.sequenceIndex));
+  const selectedTier = await getTierConfig(session.tierId ?? "haiku-4.5");
+  if (!selectedTier) {
+    res.status(500).json({ error: "AI tier tidak ditemukan" });
+    return;
+  }
+  if (!selectedTier.isFree) {
+    const accessCheck = await checkAIAccess({
+      userId: session.userId,
+      tierId: selectedTier.id,
+      estimatedCostCents: 50
+    });
+    if (!accessCheck.allowed) {
+      if (accessCheck.reason === "saldo_insufficient") {
+        res.status(402).json({
+          error: "Saldo tidak mencukupi.",
+          balanceCents: accessCheck.balanceCents,
+          costCents: accessCheck.requiredCents,
+          quotaInfo: { method: "saldo", saldoUsedCents: session.totalCostCents }
+        });
+      } else {
+        res.status(402).json({
+          error: "Quota langganan habis.",
+          quotaInfo: { method: "subscription", saldoUsedCents: session.totalCostCents }
+        });
+      }
+      return;
+    }
+  }
+  const sanitizedContent = sanitizeUserMessage(userContent);
+  const nextIndex = messages.length > 0 ? Math.max(...messages.map((m2) => m2.sequenceIndex)) + 1 : 0;
+  const [userMsg] = await db.insert(simulationMessagesTable).values({
+    sessionId: params.data.sessionId,
+    role: "user",
+    content: sanitizedContent,
+    inputTokens: 0,
+    outputTokens: 0,
+    costCents: 0,
+    sequenceIndex: nextIndex
+  }).returning();
+  const chatMessages = [];
+  for (const msg of messages) {
+    if (msg.role === "system") {
+      chatMessages.push({ role: "system", content: msg.content });
+    } else if (msg.role === "user") {
+      chatMessages.push({ role: "user", content: msg.content });
+    } else if (msg.role === "assistant") {
+      chatMessages.push({ role: "assistant", content: msg.content });
+    }
+  }
+  chatMessages.push({ role: "user", content: sanitizedContent });
+  const shouldEnd = session.questionsAsked >= 9;
+  if (shouldEnd) {
+    const contextSnapshot = session.projectContextSnapshot;
+    const endMessage = `Terima kasih atas presentasinya! Saya telah mengajukan ${session.questionsAsked + 1} pertanyaan dan Anda telah menjawab semuanya dengan cukup baik.
+
+Berdasarkan simulasi ini, berikut evaluasi singkat saya:
+
+`;
+    const [endMsg] = await db.insert(simulationMessagesTable).values({
+      sessionId: params.data.sessionId,
+      role: "assistant",
+      content: endMessage,
+      inputTokens: 0,
+      outputTokens: endMessage.length / 4,
+      costCents: 0,
+      sequenceIndex: nextIndex + 1
+    }).returning();
+    await db.update(simulationSessionsTable).where(eq35(simulationSessionsTable.id, params.data.sessionId));
+    const updatedSession2 = await db.select().from(simulationSessionsTable).where(eq35(simulationSessionsTable.id, params.data.sessionId));
+    res.json({
+      ...updatedSession2[0],
+      messages: [
+        {
+          id: userMsg.id,
+          sessionId: userMsg.sessionId,
+          role: userMsg.role,
+          content: userMsg.content,
+          inputTokens: userMsg.inputTokens,
+          outputTokens: userMsg.outputTokens,
+          costCents: userMsg.costCents,
+          sequenceIndex: userMsg.sequenceIndex,
+          createdAt: userMsg.createdAt
+        },
+        {
+          id: endMsg.id,
+          sessionId: endMsg.sessionId,
+          role: endMsg.role,
+          content: endMsg.content,
+          inputTokens: endMsg.inputTokens,
+          outputTokens: endMsg.outputTokens,
+          costCents: endMsg.costCents,
+          sequenceIndex: endMsg.sequenceIndex,
+          createdAt: endMsg.createdAt
+        }
+      ],
+      quotaInfo: getQuotaInfo(updatedSession2[0])
+    });
+    return;
+  }
+  let aiResponse;
+  try {
+    aiResponse = await callAI(chatMessages, selectedTier.id, "socratic");
+  } catch (err) {
+    logger.error({ err, sessionId: params.data.sessionId }, "AI call failed in simulation");
+    await db.delete(simulationMessagesTable).where(eq35(simulationMessagesTable.id, userMsg.id));
+    res.status(500).json({ error: "Gagal memproses respons AI. Silakan coba lagi." });
+    return;
+  }
+  await consumeQuotaForAIRequest({
+    userId: session.userId,
+    tierId: selectedTier.id,
+    inputTokens: aiResponse.usage.inputTokens,
+    outputTokens: aiResponse.usage.outputTokens,
+    costCents: aiResponse.usage.costCents
+  });
+  const [assistantMsg] = await db.insert(simulationMessagesTable).values({
+    sessionId: params.data.sessionId,
+    role: "assistant",
+    content: aiResponse.content,
+    inputTokens: aiResponse.usage.inputTokens,
+    outputTokens: aiResponse.usage.outputTokens,
+    costCents: aiResponse.usage.costCents,
+    sequenceIndex: nextIndex + 1
+  }).returning();
+  const newTotalInput = session.totalInputTokens + aiResponse.usage.inputTokens;
+  const newTotalOutput = session.totalOutputTokens + aiResponse.usage.outputTokens;
+  const newTotalCost = session.totalCostCents + aiResponse.usage.costCents;
+  const newQuestionsAsked = session.questionsAsked + 1;
+  await db.update(simulationSessionsTable).set({
+    totalInputTokens: newTotalInput,
+    totalOutputTokens: newTotalOutput,
+    totalCostCents: newTotalCost,
+    questionsAsked: newQuestionsAsked,
+    updatedAt: /* @__PURE__ */ new Date()
+  }).where(eq35(simulationSessionsTable.id, params.data.sessionId));
+  await db.insert(aiUsageLogTable).values({
+    userId: session.userId,
+    projectId: session.projectId,
+    tierId: selectedTier.id,
+    model: selectedTier.model,
+    inputTokens: aiResponse.usage.inputTokens,
+    outputTokens: aiResponse.usage.outputTokens,
+    costCents: aiResponse.usage.costCents,
+    mode: "simulasi",
+    feature: "simulasi_session"
+  });
+  const updatedSession = await db.select().from(simulationSessionsTable).where(eq35(simulationSessionsTable.id, params.data.sessionId));
+  res.json({
+    ...updatedSession[0],
+    messages: [
+      {
+        id: userMsg.id,
+        sessionId: userMsg.sessionId,
+        role: userMsg.role,
+        content: userMsg.content,
+        inputTokens: userMsg.inputTokens,
+        outputTokens: userMsg.outputTokens,
+        costCents: userMsg.costCents,
+        sequenceIndex: userMsg.sequenceIndex,
+        createdAt: userMsg.createdAt
+      },
+      {
+        id: assistantMsg.id,
+        sessionId: assistantMsg.sessionId,
+        role: assistantMsg.role,
+        content: assistantMsg.content,
+        inputTokens: assistantMsg.inputTokens,
+        outputTokens: assistantMsg.outputTokens,
+        costCents: assistantMsg.costCents,
+        sequenceIndex: assistantMsg.sequenceIndex,
+        createdAt: assistantMsg.createdAt
+      }
+    ],
+    quotaInfo: getQuotaInfo(updatedSession[0])
+  });
+});
+router32.post("/projects/:projectId/simulasi/sessions/:sessionId/complete", async (req, res) => {
+  const params = CompleteSimulationSessionParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+  const [session] = await db.select().from(simulationSessionsTable).where(eq35(simulationSessionsTable.id, params.data.sessionId));
+  if (!session) {
+    res.status(404).json({ error: "Session not found" });
+    return;
+  }
+  if (session.status !== "active") {
+    res.status(400).json({ error: "Session sudah berakhir" });
+    return;
+  }
+  const ok = await requireProjectOwnership(session.projectId, req.user?.id ?? "", res);
+  if (!ok) return;
+  const messages = await db.select().from(simulationMessagesTable).where(eq35(simulationMessagesTable.sessionId, params.data.sessionId)).orderBy(asc3(simulationMessagesTable.sequenceIndex));
+  const reportData = await generateSimulationReport({
+    sessionId: session.id,
+    projectId: session.projectId,
+    userId: session.userId,
+    persona: session.persona,
+    messages: messages.map((m2) => ({
+      id: m2.id,
+      sessionId: m2.sessionId,
+      role: m2.role,
+      content: m2.content,
+      inputTokens: m2.inputTokens,
+      outputTokens: m2.outputTokens,
+      costCents: m2.costCents,
+      sequenceIndex: m2.sequenceIndex,
+      createdAt: m2.createdAt
+    })),
+    tierId: session.tierId ?? "haiku-4.5"
+  });
+  await db.update(simulationReportsTable).set({ isLatestForProject: false }).where(and19(
+    eq35(simulationReportsTable.projectId, session.projectId),
+    eq35(simulationReportsTable.isLatestForProject, true)
+  ));
+  let report = null;
+  if (reportData) {
+    const [created] = await db.insert(simulationReportsTable).values({
+      sessionId: session.id,
+      projectId: session.projectId,
+      userId: session.userId,
+      overallScore: reportData.overallScore,
+      summary: reportData.summary,
+      strengths: reportData.strengths,
+      weaknesses: reportData.weaknesses,
+      recommendations: reportData.recommendations,
+      scores: reportData.scores,
+      isLatestForProject: true
+    }).returning();
+    report = created;
+  }
+  await db.update(simulationSessionsTable).set({
+    status: "completed",
+    endedAt: /* @__PURE__ */ new Date(),
+    updatedAt: /* @__PURE__ */ new Date()
+  }).where(eq35(simulationSessionsTable.id, params.data.sessionId));
+  const updatedSession = await db.select().from(simulationSessionsTable).where(eq35(simulationSessionsTable.id, params.data.sessionId));
+  res.json({
+    ...updatedSession[0],
+    report: report ?? void 0,
+    quotaInfo: getQuotaInfo(updatedSession[0])
+  });
+});
+router32.get("/projects/:projectId/simulasi/latest-report", async (req, res) => {
+  const params = GetLatestSimulationReportParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+  const ok = await requireProjectOwnership(params.data.projectId, req.user?.id ?? "", res);
+  if (!ok) return;
+  const [report] = await db.select().from(simulationReportsTable).where(and19(
+    eq35(simulationReportsTable.projectId, params.data.projectId),
+    eq35(simulationReportsTable.isLatestForProject, true)
+  )).limit(1);
+  if (!report) {
+    res.status(404).json({ error: "Belum ada laporan simulasi untuk project ini" });
+    return;
+  }
+  res.json(report);
+});
+router32.post("/projects/:projectId/simulasi/sessions/:sessionId/share", async (req, res) => {
+  const { sessionId, projectId } = req.params;
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const sessionPk = Number(sessionId);
+  const projectPk = Number(projectId);
+  const [session] = await db.select().from(simulationSessionsTable).where(eq35(simulationSessionsTable.id, sessionPk));
+  if (!session) {
+    res.status(404).json({ error: "Sesi tidak ditemukan" });
+    return;
+  }
+  const ok = await requireProjectOwnership(projectPk, req.user?.id ?? "", res);
+  if (!ok) return;
+  const expiresInDays = req.body?.expiresInDays ?? 7;
+  const expiresAt = new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1e3);
+  const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let token = "";
+  for (let i2 = 0; i2 < 32; i2++) {
+    token += chars[Math.floor(Math.random() * chars.length)];
+  }
+  const [shareToken] = await db.insert(shareTokensTable).values({
+    projectId: projectPk,
+    resourceId: sessionPk,
+    token,
+    type: "simulation_report",
+    accessMode: "view",
+    expiresAt
+  }).returning();
+  res.status(201).json({ tokenId: token, expiresAt });
+});
+var simulasi_default = router32;
+
+// src/routes/simulasi-shared.ts
+var import_express33 = __toESM(require_express2(), 1);
+import { eq as eq36, and as and20 } from "drizzle-orm";
+var router33 = (0, import_express33.Router)();
+router33.get("/shared/simulasi/:tokenId", async (req, res) => {
+  const params = GetSharedSimulationReportParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+  const { tokenId } = params.data;
+  const [token] = await db.select().from(shareTokensTable).where(and20(
+    eq36(shareTokensTable.token, tokenId),
+    eq36(shareTokensTable.type, "simulation_report"),
+    eq36(shareTokensTable.isRevoked, false)
+  ));
+  if (!token) {
+    res.status(404).json({ error: "Token tidak valid atau sudah kadaluarsa" });
+    return;
+  }
+  if (token.expiresAt && /* @__PURE__ */ new Date() > token.expiresAt) {
+    res.status(410).json({ error: "Link sudah kadaluarsa" });
+    return;
+  }
+  const [session] = await db.select().from(simulationSessionsTable).where(eq36(simulationSessionsTable.id, token.resourceId));
+  if (!session) {
+    res.status(404).json({ error: "Sesi simulasi tidak ditemukan" });
+    return;
+  }
+  const messages = await db.select().from(simulationMessagesTable).where(eq36(simulationMessagesTable.sessionId, session.id)).orderBy(simulationMessagesTable.sequenceIndex);
+  const [report] = await db.select().from(simulationReportsTable).where(eq36(simulationReportsTable.sessionId, session.id)).limit(1);
+  logger.info({ tokenId, sessionId: session.id }, "Shared simulation report accessed");
+  res.json({
+    session: {
+      id: session.id,
+      persona: session.persona,
+      status: session.status,
+      questionsAsked: session.questionsAsked,
+      totalCostCents: session.totalCostCents,
+      startedAt: session.startedAt,
+      endedAt: session.endedAt
+    },
+    messages: messages.map((m2) => ({
+      id: m2.id,
+      role: m2.role,
+      content: m2.content,
+      sequenceIndex: m2.sequenceIndex
+    })),
+    report: report ?? null,
+    sharedAt: token.createdAt
+  });
+});
+var simulasi_shared_default = router33;
+
+// src/routes/index.ts
+var router34 = (0, import_express34.Router)();
+router34.use(health_default);
+router34.use(auth_default);
+router34.use(shared_default);
+router34.use(ai_tiers_default);
+router34.use(packages_default);
+router34.use(referral_webhook_default);
+router34.use(authMiddleware);
+router34.use("/projects/:projectId/messages", aiLimiter);
+router34.use("/projects/:projectId/quizzes", aiLimiter);
+router34.use("/projects/:projectId/references", aiLimiter);
+router34.use("/projects/:projectId/analyze", aiLimiter);
+router34.use("/projects/:projectId/outline", aiLimiter);
+router34.use("/projects/:projectId/documents/generate", aiLimiter);
+router34.use("/users/me/writing-style/analyze", aiLimiter);
+router34.use("/projects/:projectId/simulasi", aiLimiter);
+router34.use(projects_default);
+router34.use(messages_default);
+router34.use(documents_default);
+router34.use(references_default);
+router34.use(account_references_default);
+router34.use(learning_activities_default);
+router34.use(attachments_default);
+router34.use(activities_default);
+router34.use(jobs_default);
+router34.use(metadata_default);
+router34.use(exports_default);
+router34.use(ai_usage_default);
+router34.use(comments_default);
+router34.use(project_members_default);
+router34.use(quizzes_default);
+router34.use(rubrics_default);
+router34.use(writing_style_default);
+router34.use(balance_default);
+router34.use(autofallback_default);
+router34.use(subscriptions_default);
+router34.use(usage_default);
+router34.use(document_templates_default);
+router34.use(admin_ai_tiers_default);
+router34.use(admin_default);
+router34.use(referral_default);
+router34.use(simulasi_default);
+router34.use(simulasi_shared_default);
+var routes_default = router34;
 
 // src/routes/webhooks.ts
-var import_express33 = __toESM(require_express2(), 1);
-import { eq as eq35 } from "drizzle-orm";
-var router33 = (0, import_express33.Router)();
+var import_express35 = __toESM(require_express2(), 1);
+import { eq as eq37 } from "drizzle-orm";
+var router35 = (0, import_express35.Router)();
 var WEBHOOK_SECRET2 = process.env.WEBHOOK_SECRET ?? "";
-router33.post("/webhooks/email-verified", async (req, res) => {
+router35.post("/webhooks/email-verified", async (req, res) => {
   if (WEBHOOK_SECRET2 && req.headers["x-webhook-secret"] !== WEBHOOK_SECRET2) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -257316,7 +259031,7 @@ router33.post("/webhooks/email-verified", async (req, res) => {
     res.sendStatus(200);
     return;
   }
-  const [referral] = await db.select().from(referralsTable).where(eq35(referralsTable.referredId, userId));
+  const [referral] = await db.select().from(referralsTable).where(eq37(referralsTable.referredId, userId));
   if (!referral) {
     res.sendStatus(200);
     return;
@@ -257325,7 +259040,7 @@ router33.post("/webhooks/email-verified", async (req, res) => {
     res.sendStatus(200);
     return;
   }
-  await db.update(referralsTable).set({ status: "verified", updatedAt: /* @__PURE__ */ new Date() }).where(eq35(referralsTable.id, referral.id));
+  await db.update(referralsTable).set({ status: "verified", updatedAt: /* @__PURE__ */ new Date() }).where(eq37(referralsTable.id, referral.id));
   await db.insert(referralEventsTable).values({
     referralId: referral.id,
     actorId: null,
@@ -257337,10 +259052,10 @@ router33.post("/webhooks/email-verified", async (req, res) => {
   });
   res.sendStatus(200);
 });
-var webhooks_default = router33;
+var webhooks_default = router35;
 
 // src/app.ts
-var app = (0, import_express34.default)();
+var app = (0, import_express36.default)();
 app.set("trust proxy", 1);
 app.get("/test", (_req, res) => {
   res.json({ ok: true, ts: Date.now() });
@@ -257376,8 +259091,8 @@ app.use(
     credentials: true
   })
 );
-app.use(import_express34.default.json());
-app.use(import_express34.default.urlencoded({ extended: true }));
+app.use(import_express36.default.json());
+app.use(import_express36.default.urlencoded({ extended: true }));
 app.use("/webhooks", webhooks_default);
 var authLimiter = lib_default({
   windowMs: 60 * 1e3,

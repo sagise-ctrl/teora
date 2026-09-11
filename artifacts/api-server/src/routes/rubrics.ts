@@ -158,6 +158,8 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks.`;
       tierConfig: aiResult.tierConfig,
     });
 
+    // Expose method + saldoUsedCents in response for UX transparency
+    let quotaInfo: { method: string; saldoUsedCents: number } | undefined;
     if (!selectedTier.isFree && aiResult.usage.costCents > 0) {
       const consumeResult = await consumeQuotaForAIRequest({
         userId: project.userId,
@@ -172,6 +174,10 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks.`;
           "Quota/saldo exhausted during rubric generation"
         );
       }
+      quotaInfo = {
+        method: consumeResult.method ?? "subscription",
+        saldoUsedCents: consumeResult.method === "saldo" ? (consumeResult.deductCents ?? 0) : 0,
+      };
     }
 
     const [rubric] = await db
@@ -184,7 +190,7 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks.`;
       })
       .returning();
 
-    res.status(201).json(rubric);
+    res.status(201).json({ ...rubric, ...(quotaInfo ?? {}) });
   } catch (err) {
     console.error("Rubric generation error:", err);
     res.status(500).json({ error: "Failed to generate rubric" });

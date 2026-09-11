@@ -346,14 +346,22 @@ router.post("/projects/:projectId/analyze", async (req, res): Promise<void> => {
 
   await logActivity(project.id, "analysis_started", "Analisis instruksi dimulai");
 
-  runAnalysisPipeline(project.id, job.id, selectedTier).catch((err) => {
+  let quotaInfo: { method: string; saldoUsedCents: number } = {
+    method: "subscription",
+    saldoUsedCents: 0,
+  };
+  try {
+    await runAnalysisPipeline(project.id, job.id, selectedTier);
+  } catch (err) {
     req.log.error({ err, projectId: project.id }, "Analysis pipeline failed");
-  });
+    quotaInfo = { method: "subscription", saldoUsedCents: 0 };
+  }
 
   res.status(202).json({
     ...job,
     result: job.result ?? null,
     errorMessage: job.errorMessage ?? null,
+    ...quotaInfo,
   });
 });
 
@@ -361,7 +369,7 @@ async function runAnalysisPipeline(
   projectId: number,
   jobId: number,
   selectedTier: Awaited<ReturnType<typeof getTierConfig>>,
-) {
+): Promise<{ method: string; saldoUsedCents: number }> {
   if (!selectedTier) throw new Error("Tier required");
   try {
     await db
@@ -516,17 +524,18 @@ Tulis dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan b
       tierConfig: writeTier,
     });
 
+    let writeQuota: Awaited<ReturnType<typeof consumeQuotaForAIRequest>> | null = null;
     if (!selectedTier.isFree && writeUsage.costCents > 0) {
-      const consumeResult = await consumeQuotaForAIRequest({
+      writeQuota = await consumeQuotaForAIRequest({
         userId: project.userId,
         tierId: selectedTier.id,
         inputTokens: writeUsage.inputTokens,
         outputTokens: writeUsage.outputTokens,
         costCents: writeUsage.costCents,
       });
-      if (!consumeResult.allowed) {
+      if (!writeQuota.allowed) {
         logger.warn(
-          { userId: project.userId, reason: consumeResult.reason },
+          { userId: project.userId, reason: writeQuota.reason },
           "Quota/saldo exhausted during write"
         );
       }
@@ -568,6 +577,11 @@ Tulis dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan b
       .where(eq(jobsTable.id, jobId));
 
     await logActivity(projectId, "document_written", `Versi ${newVersion} dokumen selesai ditulis`);
+
+    return {
+      method: writeQuota?.allowed ? (writeQuota.method ?? "subscription") : "subscription",
+      saldoUsedCents: writeQuota?.allowed && writeQuota.method === "saldo" ? (writeQuota.deductCents ?? 0) : 0,
+    };
   } catch (err) {
     await db
       .update(jobsTable)
@@ -677,6 +691,8 @@ router.post("/projects/:projectId/outline", async (req, res): Promise<void> => {
     tierConfig,
   });
 
+  // Expose method + saldoUsedCents in response for UX transparency
+  let quotaInfo: { method: string; saldoUsedCents: number } | undefined;
   if (!selectedTier.isFree && usage.costCents > 0) {
     const consumeResult = await consumeQuotaForAIRequest({
       userId: project.userId,
@@ -691,6 +707,10 @@ router.post("/projects/:projectId/outline", async (req, res): Promise<void> => {
         "Quota/saldo exhausted during outline"
       );
     }
+    quotaInfo = {
+      method: consumeResult.allowed ? (consumeResult.method ?? "subscription") : "subscription",
+      saldoUsedCents: consumeResult.allowed && consumeResult.method === "saldo" ? (consumeResult.deductCents ?? 0) : 0,
+    };
   }
 
   // Update metadata with new outline
@@ -713,7 +733,7 @@ router.post("/projects/:projectId/outline", async (req, res): Promise<void> => {
 
   await logActivity(params.data.projectId, "outline_regenerated", "Outline dokumen diperbarui");
 
-  res.json({ outline: outlineContent });
+  res.json({ outline: outlineContent, ...(quotaInfo ?? {}) });
 });
 
 // POST /projects/:projectId/documents/generate
@@ -823,11 +843,18 @@ router.post("/projects/:projectId/documents/generate", async (req, res): Promise
 
   await logActivity(project.id, "document_generation_started", "Penulisan dokumen dimulai");
 
-  runDocumentGeneration(project.id, job.id, outline, selectedTier).catch((err) => {
+  let quotaInfo: { method: string; saldoUsedCents: number } = {
+    method: "subscription",
+    saldoUsedCents: 0,
+  };
+  try {
+    await runDocumentGeneration(project.id, job.id, outline, selectedTier);
+  } catch (err) {
     req.log.error({ err, projectId: project.id }, "Document generation failed");
-  });
+    quotaInfo = { method: "subscription", saldoUsedCents: 0 };
+  }
 
-  res.status(202).json({ jobId: job.id, status: "started" });
+  res.status(202).json({ jobId: job.id, status: "started", ...quotaInfo });
 });
 
 async function runDocumentGeneration(
@@ -835,7 +862,7 @@ async function runDocumentGeneration(
   jobId: number,
   outline: string,
   selectedTier: NonNullable<Awaited<ReturnType<typeof getTierConfig>>>,
-) {
+): Promise<{ method: string; saldoUsedCents: number }> {
   try {
     await db
       .update(jobsTable)
@@ -892,17 +919,18 @@ async function runDocumentGeneration(
       tierConfig,
     });
 
+    let quotaResult: Awaited<ReturnType<typeof consumeQuotaForAIRequest>> | null = null;
     if (!selectedTier.isFree && usage.costCents > 0) {
-      const consumeResult = await consumeQuotaForAIRequest({
+      quotaResult = await consumeQuotaForAIRequest({
         userId: project.userId,
         tierId: selectedTier.id,
         inputTokens: usage.inputTokens,
         outputTokens: usage.outputTokens,
         costCents: usage.costCents,
       });
-      if (!consumeResult.allowed) {
+      if (!quotaResult.allowed) {
         logger.warn(
-          { userId: project.userId, reason: consumeResult.reason },
+          { userId: project.userId, reason: quotaResult.reason },
           "Quota/saldo exhausted during generate document"
         );
       }
@@ -939,6 +967,11 @@ async function runDocumentGeneration(
       .where(eq(jobsTable.id, jobId));
 
     await logActivity(projectId, "document_generated", `Versi ${newVersion} dokumen berhasil ditulis`);
+
+    return {
+      method: quotaResult?.allowed ? (quotaResult.method ?? "subscription") : "subscription",
+      saldoUsedCents: quotaResult?.allowed && quotaResult.method === "saldo" ? (quotaResult.deductCents ?? 0) : 0,
+    };
   } catch (err) {
     await db
       .update(jobsTable)

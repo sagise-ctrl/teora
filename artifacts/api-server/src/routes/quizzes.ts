@@ -215,6 +215,8 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks, no explanation.`;
       tierConfig: aiResult.tierConfig,
     });
 
+    // Expose method + saldoUsedCents in response for UX transparency
+    let quotaInfo: { method: string; saldoUsedCents: number } | undefined;
     if (!selectedTier.isFree && aiResult.usage.costCents > 0) {
       const consumeResult = await consumeQuotaForAIRequest({
         userId: project.userId,
@@ -229,6 +231,10 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks, no explanation.`;
           "Quota/saldo exhausted during quiz generation"
         );
       }
+      quotaInfo = {
+        method: consumeResult.method ?? "subscription",
+        saldoUsedCents: consumeResult.method === "saldo" ? (consumeResult.deductCents ?? 0) : 0,
+      };
     }
 
     const [quiz] = await db
@@ -249,7 +255,7 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks, no explanation.`;
 
     await logActivity(projectId, "quiz_generated", `Quiz "${sanitizedTitle}" dibuat dengan ${count} soal`);
 
-    res.status(201).json(quiz);
+    res.status(201).json({ ...quiz, ...(quotaInfo ?? {}) });
   } catch (err) {
     console.error("Quiz generation error:", err);
     res.status(500).json({ error: "Failed to generate quiz" });

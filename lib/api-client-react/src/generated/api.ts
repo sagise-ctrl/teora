@@ -49,9 +49,13 @@ import type {
   Comment,
   CommentInput,
   CommentUpdate,
+  CompleteSimulationSession200,
   CreateCitationRequest,
   CreateLearningActivityRequest,
   CreateShareLinkRequest,
+  CreateSimulationSessionInput,
+  CreateSimulationShareToken201,
+  CreateSimulationShareTokenBody,
   CreateSubscriptionRequest,
   CrossRefSearchResponse,
   DeleteAccountRequest,
@@ -94,6 +98,8 @@ import type {
   ListAIUsageParams,
   ListAdminUsersParams,
   ListProjectsParams,
+  ListSimulationMessages200,
+  ListSimulationSessions200Item,
   ListTemplatesParams,
   LoginRequest,
   Message,
@@ -122,10 +128,15 @@ import type {
   RegisterRequest,
   Rubric,
   SearchReferencesParams,
+  SendSimulationMessage200,
+  SendSimulationMessageInput,
   SetCitationFormatRequest,
   SetTierPreferenceRequest,
   ShareLink,
   SharedProject,
+  SharedSimulationReport,
+  SimulationReport,
+  SimulationSessionWithMessage,
   SubmitQuizRequest,
   Subscription,
   SubscriptionResponse,
@@ -1508,6 +1519,642 @@ export const useSendMessage = <TError = ErrorType<InsufficientBalanceError>,
         TContext
       > => {
       return useMutation(getSendMessageMutationOptions(options));
+    }
+
+export const getCreateSimulationSessionUrl = (projectId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/simulasi/sessions`
+}
+
+/**
+ * @summary Create a new simulation session. AI initiates with the first question.
+ */
+export const createSimulationSession = async (projectId: number,
+    createSimulationSessionInput: CreateSimulationSessionInput, options?: Parameters<typeof customFetch>[1]): Promise<SimulationSessionWithMessage> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<SimulationSessionWithMessage>(getCreateSimulationSessionUrl(projectId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(createSimulationSessionInput)
+  }
+);}
+
+
+
+
+
+export const getCreateSimulationSessionMutationKey = () => ['createSimulationSession'] as const;
+
+export const getCreateSimulationSessionMutationOptions = <TError = ErrorType<InsufficientBalanceError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSimulationSession>>, TError,CreateSimulationSessionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createSimulationSession>>, TError,CreateSimulationSessionMutationVariables, TContext> => {
+
+const mutationKey = getCreateSimulationSessionMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createSimulationSession>>, CreateSimulationSessionMutationVariables> = (props) => {
+          const {projectId,data} = props ?? {};
+
+          return  createSimulationSession(projectId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateSimulationSessionMutationResult = NonNullable<Awaited<ReturnType<typeof createSimulationSession>>>
+    export type CreateSimulationSessionMutationBody = BodyType<CreateSimulationSessionInput>
+    export type CreateSimulationSessionMutationError = ErrorType<InsufficientBalanceError>
+    export type CreateSimulationSessionMutationVariables = {projectId: number;data: BodyType<CreateSimulationSessionInput>}
+
+    /**
+ * @summary Create a new simulation session. AI initiates with the first question.
+ */
+export const useCreateSimulationSession = <TError = ErrorType<InsufficientBalanceError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSimulationSession>>, TError,CreateSimulationSessionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createSimulationSession>>,
+        TError,
+        CreateSimulationSessionMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateSimulationSessionMutationOptions(options));
+    }
+
+export const getListSimulationSessionsUrl = (projectId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/simulasi/sessions`
+}
+
+/**
+ * @summary List all simulation sessions for a project
+ */
+export const listSimulationSessions = async (projectId: number, options?: Parameters<typeof customFetch>[1]): Promise<ListSimulationSessions200Item[]> => {
+
+  return customFetch<ListSimulationSessions200Item[]>(getListSimulationSessionsUrl(projectId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListSimulationSessionsQueryKey = (projectId: number,) => {
+    return [
+    `/api/projects/${projectId}/simulasi/sessions`
+    ] as const;
+    }
+
+
+export const getListSimulationSessionsQueryOptions = <TData = Awaited<ReturnType<typeof listSimulationSessions>>, TError = ErrorType<unknown>>(projectId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listSimulationSessions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListSimulationSessionsQueryKey(projectId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listSimulationSessions>>> = ({ signal }) => listSimulationSessions(projectId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: projectId !== null && projectId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listSimulationSessions>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListSimulationSessionsQueryResult = NonNullable<Awaited<ReturnType<typeof listSimulationSessions>>>
+export type ListSimulationSessionsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List all simulation sessions for a project
+ */
+
+export function useListSimulationSessions<TData = Awaited<ReturnType<typeof listSimulationSessions>>, TError = ErrorType<unknown>>(
+ projectId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listSimulationSessions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListSimulationSessionsQueryOptions(projectId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListSimulationMessagesUrl = (projectId: number,
+    sessionId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/simulasi/sessions/${sessionId}/messages`
+}
+
+/**
+ * @summary Get all messages in a simulation session
+ */
+export const listSimulationMessages = async (projectId: number,
+    sessionId: number, options?: Parameters<typeof customFetch>[1]): Promise<ListSimulationMessages200> => {
+
+  return customFetch<ListSimulationMessages200>(getListSimulationMessagesUrl(projectId,sessionId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListSimulationMessagesQueryKey = (projectId: number,
+    sessionId: number,) => {
+    return [
+    `/api/projects/${projectId}/simulasi/sessions/${sessionId}/messages`
+    ] as const;
+    }
+
+
+export const getListSimulationMessagesQueryOptions = <TData = Awaited<ReturnType<typeof listSimulationMessages>>, TError = ErrorType<unknown>>(projectId: number,
+    sessionId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listSimulationMessages>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListSimulationMessagesQueryKey(projectId,sessionId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listSimulationMessages>>> = ({ signal }) => listSimulationMessages(projectId,sessionId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: projectId !== null && projectId !== undefined && sessionId !== null && sessionId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listSimulationMessages>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListSimulationMessagesQueryResult = NonNullable<Awaited<ReturnType<typeof listSimulationMessages>>>
+export type ListSimulationMessagesQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get all messages in a simulation session
+ */
+
+export function useListSimulationMessages<TData = Awaited<ReturnType<typeof listSimulationMessages>>, TError = ErrorType<unknown>>(
+ projectId: number,
+    sessionId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listSimulationMessages>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListSimulationMessagesQueryOptions(projectId,sessionId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getSendSimulationMessageUrl = (projectId: number,
+    sessionId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/simulasi/sessions/${sessionId}/messages`
+}
+
+/**
+ * @summary User responds to AI question. Returns AI follow-up or session complete signal.
+ */
+export const sendSimulationMessage = async (projectId: number,
+    sessionId: number,
+    sendSimulationMessageInput: SendSimulationMessageInput, options?: Parameters<typeof customFetch>[1]): Promise<SendSimulationMessage200> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<SendSimulationMessage200>(getSendSimulationMessageUrl(projectId,sessionId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(sendSimulationMessageInput)
+  }
+);}
+
+
+
+
+
+export const getSendSimulationMessageMutationKey = () => ['sendSimulationMessage'] as const;
+
+export const getSendSimulationMessageMutationOptions = <TError = ErrorType<InsufficientBalanceError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sendSimulationMessage>>, TError,SendSimulationMessageMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof sendSimulationMessage>>, TError,SendSimulationMessageMutationVariables, TContext> => {
+
+const mutationKey = getSendSimulationMessageMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof sendSimulationMessage>>, SendSimulationMessageMutationVariables> = (props) => {
+          const {projectId,sessionId,data} = props ?? {};
+
+          return  sendSimulationMessage(projectId,sessionId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SendSimulationMessageMutationResult = NonNullable<Awaited<ReturnType<typeof sendSimulationMessage>>>
+    export type SendSimulationMessageMutationBody = BodyType<SendSimulationMessageInput>
+    export type SendSimulationMessageMutationError = ErrorType<InsufficientBalanceError>
+    export type SendSimulationMessageMutationVariables = {projectId: number;sessionId: number;data: BodyType<SendSimulationMessageInput>}
+
+    /**
+ * @summary User responds to AI question. Returns AI follow-up or session complete signal.
+ */
+export const useSendSimulationMessage = <TError = ErrorType<InsufficientBalanceError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sendSimulationMessage>>, TError,SendSimulationMessageMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof sendSimulationMessage>>,
+        TError,
+        SendSimulationMessageMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSendSimulationMessageMutationOptions(options));
+    }
+
+export const getCompleteSimulationSessionUrl = (projectId: number,
+    sessionId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/simulasi/sessions/${sessionId}/complete`
+}
+
+/**
+ * @summary User ends session early — generate report from current state
+ */
+export const completeSimulationSession = async (projectId: number,
+    sessionId: number, options?: Parameters<typeof customFetch>[1]): Promise<CompleteSimulationSession200> => {
+
+  return customFetch<CompleteSimulationSession200>(getCompleteSimulationSessionUrl(projectId,sessionId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getCompleteSimulationSessionMutationKey = () => ['completeSimulationSession'] as const;
+
+export const getCompleteSimulationSessionMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof completeSimulationSession>>, TError,CompleteSimulationSessionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof completeSimulationSession>>, TError,CompleteSimulationSessionMutationVariables, TContext> => {
+
+const mutationKey = getCompleteSimulationSessionMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof completeSimulationSession>>, CompleteSimulationSessionMutationVariables> = (props) => {
+          const {projectId,sessionId} = props ?? {};
+
+          return  completeSimulationSession(projectId,sessionId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CompleteSimulationSessionMutationResult = NonNullable<Awaited<ReturnType<typeof completeSimulationSession>>>
+
+    export type CompleteSimulationSessionMutationError = ErrorType<unknown>
+    export type CompleteSimulationSessionMutationVariables = {projectId: number;sessionId: number}
+
+    /**
+ * @summary User ends session early — generate report from current state
+ */
+export const useCompleteSimulationSession = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof completeSimulationSession>>, TError,CompleteSimulationSessionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof completeSimulationSession>>,
+        TError,
+        CompleteSimulationSessionMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCompleteSimulationSessionMutationOptions(options));
+    }
+
+export const getGetLatestSimulationReportUrl = (projectId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/simulasi/latest-report`
+}
+
+/**
+ * @summary Get latest simulation report for a project
+ */
+export const getLatestSimulationReport = async (projectId: number, options?: Parameters<typeof customFetch>[1]): Promise<SimulationReport | null> => {
+
+  return customFetch<SimulationReport | null>(getGetLatestSimulationReportUrl(projectId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetLatestSimulationReportQueryKey = (projectId: number,) => {
+    return [
+    `/api/projects/${projectId}/simulasi/latest-report`
+    ] as const;
+    }
+
+
+export const getGetLatestSimulationReportQueryOptions = <TData = Awaited<ReturnType<typeof getLatestSimulationReport>>, TError = ErrorType<unknown>>(projectId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLatestSimulationReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLatestSimulationReportQueryKey(projectId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLatestSimulationReport>>> = ({ signal }) => getLatestSimulationReport(projectId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: projectId !== null && projectId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLatestSimulationReport>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetLatestSimulationReportQueryResult = NonNullable<Awaited<ReturnType<typeof getLatestSimulationReport>>>
+export type GetLatestSimulationReportQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get latest simulation report for a project
+ */
+
+export function useGetLatestSimulationReport<TData = Awaited<ReturnType<typeof getLatestSimulationReport>>, TError = ErrorType<unknown>>(
+ projectId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLatestSimulationReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetLatestSimulationReportQueryOptions(projectId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetSharedSimulationReportUrl = (sessionId: number,) => {
+
+
+
+
+  return `/api/shared/simulasi/${sessionId}`
+}
+
+/**
+ * @summary Public access to a shared simulation report
+ */
+export const getSharedSimulationReport = async (sessionId: number, options?: Parameters<typeof customFetch>[1]): Promise<SharedSimulationReport> => {
+
+  return customFetch<SharedSimulationReport>(getGetSharedSimulationReportUrl(sessionId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSharedSimulationReportQueryKey = (sessionId: number,) => {
+    return [
+    `/api/shared/simulasi/${sessionId}`
+    ] as const;
+    }
+
+
+export const getGetSharedSimulationReportQueryOptions = <TData = Awaited<ReturnType<typeof getSharedSimulationReport>>, TError = ErrorType<void>>(sessionId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSharedSimulationReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSharedSimulationReportQueryKey(sessionId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSharedSimulationReport>>> = ({ signal }) => getSharedSimulationReport(sessionId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: sessionId !== null && sessionId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSharedSimulationReport>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSharedSimulationReportQueryResult = NonNullable<Awaited<ReturnType<typeof getSharedSimulationReport>>>
+export type GetSharedSimulationReportQueryError = ErrorType<void>
+
+
+/**
+ * @summary Public access to a shared simulation report
+ */
+
+export function useGetSharedSimulationReport<TData = Awaited<ReturnType<typeof getSharedSimulationReport>>, TError = ErrorType<void>>(
+ sessionId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSharedSimulationReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSharedSimulationReportQueryOptions(sessionId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateSimulationShareTokenUrl = (projectId: number,
+    sessionId: number,) => {
+
+
+
+
+  return `/api/projects/${projectId}/simulasi/sessions/${sessionId}/share`
+}
+
+/**
+ * @summary Create a public share link for a simulation session report
+ */
+export const createSimulationShareToken = async (projectId: number,
+    sessionId: number,
+    createSimulationShareTokenBody?: CreateSimulationShareTokenBody, options?: Parameters<typeof customFetch>[1]): Promise<CreateSimulationShareToken201> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<CreateSimulationShareToken201>(getCreateSimulationShareTokenUrl(projectId,sessionId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(createSimulationShareTokenBody)
+  }
+);}
+
+
+
+
+
+export const getCreateSimulationShareTokenMutationKey = () => ['createSimulationShareToken'] as const;
+
+export const getCreateSimulationShareTokenMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSimulationShareToken>>, TError,CreateSimulationShareTokenMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createSimulationShareToken>>, TError,CreateSimulationShareTokenMutationVariables, TContext> => {
+
+const mutationKey = getCreateSimulationShareTokenMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createSimulationShareToken>>, CreateSimulationShareTokenMutationVariables> = (props) => {
+          const {projectId,sessionId,data} = props ?? {};
+
+          return  createSimulationShareToken(projectId,sessionId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateSimulationShareTokenMutationResult = NonNullable<Awaited<ReturnType<typeof createSimulationShareToken>>>
+    export type CreateSimulationShareTokenMutationBody = BodyType<CreateSimulationShareTokenBody> | undefined
+    export type CreateSimulationShareTokenMutationError = ErrorType<void>
+    export type CreateSimulationShareTokenMutationVariables = {projectId: number;sessionId: number;data?: BodyType<CreateSimulationShareTokenBody>}
+
+    /**
+ * @summary Create a public share link for a simulation session report
+ */
+export const useCreateSimulationShareToken = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSimulationShareToken>>, TError,CreateSimulationShareTokenMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createSimulationShareToken>>,
+        TError,
+        CreateSimulationShareTokenMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateSimulationShareTokenMutationOptions(options));
     }
 
 export const getListDocumentsUrl = (projectId: number,) => {

@@ -41,10 +41,11 @@ export default function Login() {
   async function onSubmit(data: FormValues) {
     setGlobalError(null);
     try {
-      const me = await login(data.email, data.password);
+      await login(data.email, data.password);
       toast({ title: "Welcome back!", description: "You are now logged in." });
-      setLocation(getPostLoginPath(me));
+      setLocation(getPostLoginPath(null));
     } catch (err) {
+      form.reset();
       const msg = err instanceof Error ? err.message : "Login failed";
       setGlobalError(msg);
       toast({ variant: "destructive", title: "Login failed", description: msg });
@@ -144,7 +145,7 @@ export default function Login() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="you@example.com" {...field} />
+                        <Input type="email" placeholder="you@example.com" required {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -163,6 +164,7 @@ export default function Login() {
                             type={showPassword ? "text" : "password"}
                             placeholder="••••••••"
                             className="pr-10"
+                            required
                             {...field}
                           />
                         </FormControl>

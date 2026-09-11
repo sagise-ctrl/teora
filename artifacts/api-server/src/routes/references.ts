@@ -517,6 +517,8 @@ router.post("/projects/:projectId/references/regenerate", async (req, res): Prom
     tierConfig,
   });
 
+  // Expose method + saldoUsedCents in response for UX transparency
+  let quotaInfo: { method: string; saldoUsedCents: number } | undefined;
   if (!selectedTier.isFree && usage.costCents > 0) {
     const consumeResult = await consumeQuotaForAIRequest({
       userId: project.userId,
@@ -531,11 +533,15 @@ router.post("/projects/:projectId/references/regenerate", async (req, res): Prom
         "Quota/saldo exhausted during bibliography"
       );
     }
+    quotaInfo = {
+      method: consumeResult.method ?? "subscription",
+      saldoUsedCents: consumeResult.method === "saldo" ? (consumeResult.deductCents ?? 0) : 0,
+    };
   }
 
   await logActivity(params.data.projectId, "bibliography_regenerated", "Daftar pustaka diperbarui");
 
-  res.json({ bibliography: aiResponse });
+  res.json({ bibliography: aiResponse, ...(quotaInfo ?? {}) });
 });
 
 // GET /references/search
@@ -1237,6 +1243,8 @@ ${candidateReferences
     tierConfig,
   });
 
+  // Expose method + saldoUsedCents in response for UX transparency
+  let quotaInfo: { method: string; saldoUsedCents: number } | undefined;
   if (!selectedTier.isFree && usage.costCents > 0) {
     const consumeResult = await consumeQuotaForAIRequest({
       userId: project.userId,
@@ -1251,6 +1259,10 @@ ${candidateReferences
         "Quota/saldo exhausted during auto-cite"
       );
     }
+    quotaInfo = {
+      method: consumeResult.method ?? "subscription",
+      saldoUsedCents: consumeResult.method === "saldo" ? (consumeResult.deductCents ?? 0) : 0,
+    };
   }
 
   // Parse AI response as JSON
@@ -1352,6 +1364,7 @@ ${candidateReferences
     suggestions: validSuggestions,
     totalTokensUsed: usage.inputTokens + usage.outputTokens,
     referencesAnalyzed: candidateReferences.length,
+    ...(quotaInfo ?? {}),
   });
 });
 
