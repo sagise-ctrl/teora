@@ -2896,7 +2896,7 @@ function PptTab({ projectId, projectTitle }: PptTabProps) {
       const h2 = line.match(/^##\s+(.+)/)
       const bold = line.match(/^\*\*(.+)\*\*$/)
       const dash = line.match(/^[-*]\s+(.+)/)
-      const num = line.match(/^\d+(?:\.\d+)*[\.)]\s+(.+)/)
+      const num = line.match(/^\d+(?:\.\d+)*[.)]\s+(.+)/)
 
       const title = h1?.[1] ?? h2?.[1] ?? bold?.[1] ?? dash?.[1] ?? num?.[1]
       const level = h1 ? 1 : h2 ? 2 : 3

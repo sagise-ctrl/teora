@@ -165,7 +165,7 @@ router.post("/auth/login", async (req, res): Promise<void> => {
 
     // Safety: if username is null, find unique suffix
     if (!localUser.username) {
-      let candidate = deriveUsername();
+      const candidate = deriveUsername();
       for (let i = 0; i < 10; i++) {
         const suffix = i === 0 ? "" : String(i + 1);
         const [existing] = await db

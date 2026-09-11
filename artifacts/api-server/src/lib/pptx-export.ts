@@ -55,7 +55,7 @@ function parseContentToSlides(
         const h2Match = line.match(/^##\s+(.+)/);
         const boldMatch = line.match(/^\*\*(.+)\*\*$/);
         const dashMatch = line.match(/^[-*]\s+(.+)/);
-        const numMatch = line.match(/^\d+(?:\.\d+)*[\.)]\s+(.+)/);
+        const numMatch = line.match(/^\d+(?:\.\d+)*[.)]\s+(.+)/);
 
         const heading = h1Match?.[1] ?? h2Match?.[1] ?? boldMatch?.[1];
         const bullet = dashMatch?.[1] ?? numMatch?.[1];
