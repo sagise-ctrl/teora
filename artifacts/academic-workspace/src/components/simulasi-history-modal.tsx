@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { History, X, Eye, Share2, Loader2, Sparkles } from "lucide-react";
 import {
@@ -15,6 +16,8 @@ import {
   useListSimulationSessions,
   useListSimulationMessages,
   useGetLatestSimulationReport,
+  getListSimulationMessagesQueryOptions,
+  getLatestSimulationReportQueryOptions,
   type SimulationSession,
   type SimulationMessage,
   type SimulationReport,
@@ -114,19 +117,24 @@ export function SimulasiHistoryModal({
   onSelectSession,
 }: SimulasiHistoryModalProps) {
   const [shareSession, setShareSession] = useState<SimulationSession | null>(null);
+  const queryClient = useQueryClient();
 
   const sessionsQuery = useListSimulationSessions(projectId);
 
   const handleView = async (session: SimulationSession) => {
-    const messagesQuery = await useListSimulationMessages(projectId, session.id!);
+    const messagesQuery = await queryClient.fetchQuery(
+      getListSimulationMessagesQueryOptions(projectId, session.id!)
+    );
 
     let report: SimulationReport | null = null;
     if (session.status === "completed") {
-      const reportQuery = await useGetLatestSimulationReport(projectId);
-      report = reportQuery.data ?? null;
+      const reportQuery = await queryClient.fetchQuery(
+        getLatestSimulationReportQueryOptions(projectId)
+      );
+      report = reportQuery ?? null;
     }
 
-    onSelectSession(session, messagesQuery.data?.messages ?? null, report);
+    onSelectSession(session, messagesQuery?.messages ?? null, report);
     onOpenChange(false);
   };
 

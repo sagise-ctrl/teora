@@ -175,7 +175,7 @@ export async function getActiveUsageWindow(
 
   // Determine current window number
   const now = new Date();
-  let windowNumber = 1;
+  let windowNumber: number;
 
   if (windowType === "5h") {
     const elapsedMs = now.getTime() - anchorAt.getTime();
@@ -325,9 +325,9 @@ export async function checkQuotaAndAccumulate(params: {
     );
 
     // Accumulate in 5h window
-    let newHaiku5h = window5h.haikuTokensUsed + (haikuTokensUsed > 0 ? haikuTokensUsed : 0);
-    let newSonnet5h = window5h.sonnetTokensUsed + (sonnetTokensUsed > 0 ? sonnetTokensUsed : 0);
-    let newCost5h = window5h.costCents + costCents;
+    const newHaiku5h = window5h.haikuTokensUsed + (haikuTokensUsed > 0 ? haikuTokensUsed : 0);
+    const newSonnet5h = window5h.sonnetTokensUsed + (sonnetTokensUsed > 0 ? sonnetTokensUsed : 0);
+    const newCost5h = window5h.costCents + costCents;
 
     let isOverLimit5h = false;
     if (modelType === "lama" && newHaiku5h > capHaiku) isOverLimit5h = true;
@@ -363,9 +363,9 @@ export async function checkQuotaAndAccumulate(params: {
       "7d"
     );
 
-    let newHaiku7d = window7d.haikuTokensUsed + (haikuTokensUsed > 0 ? haikuTokensUsed : 0);
-    let newSonnet7d = window7d.sonnetTokensUsed + (sonnetTokensUsed > 0 ? sonnetTokensUsed : 0);
-    let newCost7d = window7d.costCents + costCents;
+    const newHaiku7d = window7d.haikuTokensUsed + (haikuTokensUsed > 0 ? haikuTokensUsed : 0);
+    const newSonnet7d = window7d.sonnetTokensUsed + (sonnetTokensUsed > 0 ? sonnetTokensUsed : 0);
+    const newCost7d = window7d.costCents + costCents;
 
     // 7d caps
     let capHaiku7d = 0;
