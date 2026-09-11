@@ -1,6 +1,6 @@
 # Pricing Strategy Discussion — Haiku 4.5 + Sonnet 5 (Anthropic)
 
-> **Status:** OPEN — diskusi aktif dengan owner, angka belum final
+> **Status:** APPROVED — keputusan owner 2026-09-11 (Haiku 4.5 + Sonnet 5 IDR tiers Rp29rb/Rp75rb/Rp165rb, autofallback enabled, autofallback Rp0 topup minimum)
 > **Updated:** 2026-09-08
 > **Session:** Pricing discussion round 1 (continuation allowed)
 > **Model pricing verified against:** https://platform.claude.com/docs/id/about-claude/pricing (snapshot 2026-09-08)

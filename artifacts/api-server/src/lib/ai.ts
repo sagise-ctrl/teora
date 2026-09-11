@@ -116,7 +116,7 @@ export async function getTierForUser(
   return getTierConfig("haiku-4.5");
 }
 
-export type ChatMode = "generate" | "revise" | "reflect" | "socratic" | "quiz" | "summary";
+export type ChatMode = "generate" | "revise" | "reflect" | "socratic" | "quiz" | "summary" | "simulasi";
 
 export interface ChatMessage {
   role: "system" | "user" | "assistant";
@@ -410,6 +410,11 @@ export function buildSystemPrompt(projectContext: {
       "Buat ringkasan yang padat, jelas, dan mencakup poin-poin utama. " +
       "Gunakan bahasa yang mudah dipahami. " +
       "Keluarkan ringkasan tanpa preamble.",
+    simulasi:
+      "Kamu dalam mode SIMULASI. Kamu berperan sebagai penanya dalam simulasi presentasi akademik. " +
+      "Ajukan pertanyaan kritis yang relevan dengan topik presentasi. " +
+      "Sesuaikan tingkat kesulitan dengan persona yang dipilih. " +
+      "Keluarkan pertanyaan tanpa preamble.",
   };
 
   const mode = projectContext.mode ?? "revise";

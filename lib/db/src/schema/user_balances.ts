@@ -50,7 +50,9 @@ export const userBalancesTable = pgTable(
       .default("active" as SaldoStatus)
       .$type<SaldoStatus>(),
 
-    // Hybrid autofallback: automatically use saldo when subscription quota is exhausted
+    // Hybrid autofallback: automatically use saldo when subscription quota is exhausted.
+    // Default TRUE is intentional — owner decision 2026-09-11. New users get seamless
+    // saldo fallback out of the box; they can opt out via settings if desired.
     autofallbackEnabled: boolean("autofallback_enabled").notNull().default(true),
 
     // When the user last had any AI activity

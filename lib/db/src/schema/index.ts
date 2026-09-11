@@ -30,3 +30,6 @@ export * from "./writing_style_profiles";
 export * from "./document-templates";
 export * from "./admin-audit-log";
 export * from "./learning-activities";
+export * from "./simulation_sessions";
+export * from "./simulation_messages";
+export * from "./simulation_reports";

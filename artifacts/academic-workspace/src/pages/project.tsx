@@ -28,15 +28,10 @@ import {
   useListShareLinks,
   useCreateShareLink,
   useDeleteShareLink,
-  useListQuizzes,
-  useGenerateQuiz,
-  useGetQuiz,
-  useSubmitQuiz,
   useListComments,
   useCreateComment,
   useUpdateComment,
   useDeleteComment,
-  useGetRubric,
   useSearchReferences,
   useToggleReferenceSelection,
   useAutoCiteReferences,
@@ -47,8 +42,6 @@ import {
   useUpdateCitation,
   useDeleteCitation,
   useSetProjectCitationFormat,
-  getListQuizzesQueryKey,
-  getGetQuizQueryKey,
   getGetLatestDocumentQueryKey,
   getListMessagesQueryKey,
   getListReferencesQueryKey,
@@ -64,15 +57,11 @@ import {
   useGetMyBalance,
   type ChatMode,
   type DocumentWithVersions,
-  type Quiz,
-  type QuizQuestion,
-  type QuizQuestionType,
   type Comment,
-  type QuizSubmission,
-  type Rubric,
   type CrossRefSearchResult,
   type ProjectCitationFormat,
 } from "../lib/api-client-react"
+import { SimulasiTab } from "@/components/simulasi-tab"
 import { useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
 import { 
@@ -625,9 +614,9 @@ export default function ProjectWorkspace() {
             <ActivitySquare className="w-4 h-4 mr-2" />
             Timeline
           </TabsTrigger>
-          <TabsTrigger value="quiz" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
-            <ListChecks className="w-4 h-4 mr-2" />
-            Kuis
+          <TabsTrigger value="simulasi" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
+            <Sparkles className="w-4 h-4 mr-2" />
+            Simulasi
           </TabsTrigger>
           <TabsTrigger value="comments" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-6 h-full flex items-center">
             <MessageCircle className="w-4 h-4 mr-2" />
@@ -748,8 +737,8 @@ export default function ProjectWorkspace() {
             <TimelineTab projectId={projectId} />
           </TabsContent>
 
-          <TabsContent value="quiz" className="m-0">
-            <QuizTab projectId={projectId} />
+          <TabsContent value="simulasi" className="m-0">
+            <SimulasiTab projectId={projectId} />
           </TabsContent>
 
           <TabsContent value="comments" className="m-0">
@@ -763,282 +752,284 @@ export default function ProjectWorkspace() {
 
 // - Quiz Tab -
 
-function QuizTab({ projectId }: { projectId: number }) {
-  const { toast } = useToast()
-  const queryClient = useQueryClient()
-  const insufficientBalance = useInsufficientBalanceDialog()
+/**
+ * HIDDEN: QuizTab dipindah ke Practice menu.
+ * See: .ai/simulasi-discussion-20260911.md (internal discussion)
+ *
+ * Uncomment below to restore Quiz tab.
+ */
+// function QuizTab({ projectId }: { projectId: number }) {
+//   const { toast } = useToast()
+//   const queryClient = useQueryClient()
+//   const insufficientBalance = useInsufficientBalanceDialog()
 
-  const { data: quizzes, isLoading } = useListQuizzes(projectId)
-  const generateQuiz = useGenerateQuiz(projectId)
+//   const { data: quizzes, isLoading } = useListQuizzes(projectId)
+//   const generateQuiz = useGenerateQuiz(projectId)
 
-  const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null)
-  const [showGenerate, setShowGenerate] = useState(false)
-  const [generateForm, setGenerateForm] = useState({
-    title: "",
-    topic: "",
-    questionCount: 10,
-    questionTypes: ["multiple_choice", "short_answer", "essay"],
-    difficulty: "medium",
-  })
-  const [quizTierId, setQuizTierId] = useState<string>("")
-  const [answers, setAnswers] = useState<Record<string, string>>({})
-  const [submitting, setSubmitting] = useState(false)
+//   const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null)
+//   const [showGenerate, setShowGenerate] = useState(false)
+//   const [generateForm, setGenerateForm] = useState({
+//     title: "",
+//     topic: "",
+//     questionCount: 10,
+//     questionTypes: ["multiple_choice", "short_answer", "essay"],
+//     difficulty: "medium",
+//   })
+//   const [quizTierId, setQuizTierId] = useState<string>("")
+//   const [answers, setAnswers] = useState<Record<string, string>>({})
+//   const [submitting, setSubmitting] = useState(false)
 
-  const submitMutation = useSubmitQuiz(selectedQuiz?.id ?? 0)
+//   const submitMutation = useSubmitQuiz(selectedQuiz?.id ?? 0)
 
-  const handleGenerate = () => {
-    if (!generateForm.title.trim()) {
-      toast({ title: "Judul diperlukan", variant: "destructive" })
-      return
-    }
-    generateQuiz.mutate(
-      { data: { title: generateForm.title, topic: generateForm.topic, questionCount: generateForm.questionCount, questionTypes: generateForm.questionTypes, difficulty: generateForm.difficulty, tier: quizTierId || undefined } },
-      {
-        onSuccess: (quiz) => {
-          toast({ title: "Kuis dibuat!", description: `${(quiz.questions as unknown as QuizQuestion[])?.length ?? 0} soal` })
-          setShowGenerate(false)
-          setGenerateForm({ title: "", topic: "", questionCount: 10, questionTypes: ["multiple_choice", "short_answer", "essay"], difficulty: "medium" })
-          queryClient.invalidateQueries({ queryKey: getListQuizzesQueryKey(projectId) })
-          queryClient.invalidateQueries({ queryKey: ["getMyBalance"] })
-          setSelectedQuiz(quiz as unknown as Quiz)
-        },
-        onError: (err) => {
-          if (insufficientBalance.handleError(err)) return
-          toast({ title: "Gagal generate", description: String(err), variant: "destructive" })
-        },
-      }
-    )
-  }
+//   const handleGenerate = () => {
+//     if (!generateForm.title.trim()) {
+//       toast({ title: "Judul diperlukan", variant: "destructive" })
+//       return
+//     }
+//     generateQuiz.mutate(
+//       { data: { title: generateForm.title, topic: generateForm.topic, questionCount: generateForm.questionCount, questionTypes: generateForm.questionTypes, difficulty: generateForm.difficulty, tier: quizTierId || undefined } },
+//       {
+//         onSuccess: (quiz) => {
+//           toast({ title: "Kuis dibuat!", description: `${(quiz.questions as unknown as QuizQuestion[])?.length ?? 0} soal` })
+//           setShowGenerate(false)
+//           setGenerateForm({ title: "", topic: "", questionCount: 10, questionTypes: ["multiple_choice", "short_answer", "essay"], difficulty: "medium" })
+//           queryClient.invalidateQueries({ queryKey: getListQuizzesQueryKey(projectId) })
+//           queryClient.invalidateQueries({ queryKey: ["getMyBalance"] })
+//           setSelectedQuiz(quiz as unknown as Quiz)
+//         },
+//         onError: (err) => {
+//           if (insufficientBalance.handleError(err)) return
+//           toast({ title: "Gagal generate", description: String(err), variant: "destructive" })
+//         },
+//       }
+//     )
+//   }
 
-  const handleSubmit = () => {
-    if (!selectedQuiz) return
-    const questions = (selectedQuiz.questions as unknown as QuizQuestion[]) ?? []
-    const responses = questions.map((q) => ({ questionId: q.id, answer: answers[q.id] ?? "" }))
-    setSubmitting(true)
-    submitMutation.mutate(
-      { data: { responses } },
-      {
-        onSuccess: () => {
-          toast({ title: "Jawaban disimpan!", description: "Submission berhasil." })
-          setSubmitting(false)
-        },
-        onError: (err) => {
-          toast({ title: "Gagal submit", description: String(err), variant: "destructive" })
-          setSubmitting(false)
-        },
-      }
-    )
-  }
+//   const handleSubmit = () => {
+//     if (!selectedQuiz) return
+//     const questions = (selectedQuiz.questions as unknown as QuizQuestion[]) ?? []
+//     const responses = questions.map((q) => ({ questionId: q.id, answer: answers[q.id] ?? "" }))
+//     setSubmitting(true)
+//     submitMutation.mutate(
+//       { data: { responses } },
+//       {
+//         onSuccess: () => {
+//           toast({ title: "Jawaban disimpan!", description: "Submission berhasil." })
+//           setSubmitting(false)
+//         },
+//         onError: (err) => {
+//           toast({ title: "Gagal submit", description: String(err), variant: "destructive" })
+//           setSubmitting(false)
+//         },
+//       }
+//     )
+//   }
 
-  const handleSelectQuiz = async (quiz: Quiz) => {
-    setSelectedQuiz(quiz)
-    setAnswers({})
-    try {
-      const response = await fetch(`/api/projects/${projectId}/quizzes/${quiz.id}`)
-      if (!response.ok) throw new Error(`HTTP ${response.status}`)
-      const full = await response.json()
-      setSelectedQuiz(full)
-    } catch {
-      toast({
-        title: "Data quiz tidak terbaru",
-        description: "Tidak dapat memuat data terbaru. Menampilkan data tersimpan.",
-        variant: "destructive",
-      })
-    }
-  }
+//   const handleSelectQuiz = async (quiz: Quiz) => {
+//     setSelectedQuiz(quiz)
+//     setAnswers({})
+//     try {
+//       const response = await fetch(`/api/projects/${projectId}/quizzes/${quiz.id}`)
+//       if (!response.ok) throw new Error(`HTTP ${response.status}`)
+//       const full = await response.json()
+//       setSelectedQuiz(full)
+//     } catch {
+//       toast({
+//         title: "Data quiz tidak terbaru",
+//         description: "Tidak dapat memuat data terbaru. Menampilkan data tersimpan.",
+//         variant: "destructive",
+//       })
+//     }
+//   }
 
-  const questions = (selectedQuiz?.questions as unknown as QuizQuestion[]) ?? []
-  const diffColors: Record<string, string> = { easy: "text-green-600", medium: "text-yellow-600", hard: "text-red-600" }
-  const diffLabels: Record<string, string> = { easy: "Mudah", medium: "Sedang", hard: "Sulit" }
+//   const questions = (selectedQuiz?.questions as unknown as QuizQuestion[]) ?? []
+//   const diffColors: Record<string, string> = { easy: "text-green-600", medium: "text-yellow-600", hard: "text-red-600" }
 
-  return (
-    <Card className="bg-card border-none shadow-sm rounded-xl">
-      <CardHeader className="flex flex-row items-center justify-between pb-4">
-        <div>
-          <CardTitle className="text-lg">Kuis</CardTitle>
-          <CardDescription>Kelola soal kuis dan submissions</CardDescription>
-        </div>
-        <Button size="sm" onClick={() => setShowGenerate(true)}>
-          <Sparkles className="w-4 h-4 mr-2" />
-          Generate Kuis
-        </Button>
-      </CardHeader>
-      <CardContent>
-        {/* Generate Dialog */}
-        <Dialog open={showGenerate} onOpenChange={setShowGenerate}>
-          <DialogContent className="max-w-lg">
-            <DialogHeader>
-              <DialogTitle>Generate Kuis dengan Teora</DialogTitle>
-              <DialogDescription>Teora akan membuat soal kuis berdasarkan topik yang Anda berikan.</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label>Judul Kuis *</Label>
-                <Input value={generateForm.title} onChange={e => setGenerateForm(f => ({ ...f, title: e.target.value }))} placeholder="Contoh: UH Bahasa Indonesia 1" />
-              </div>
-              <div>
-                <Label>Topik / Materi</Label>
-                <Textarea value={generateForm.topic} onChange={e => setGenerateForm(f => ({ ...f, topic: e.target.value }))} placeholder="Topik spesifik atau biarkan kosong untuk topik umum..." rows={2} />
-              </div>
-              <div>
-                <Label>Jumlah Soal: {generateForm.questionCount}</Label>
-                <input type="range" min={5} max={20} value={generateForm.questionCount} onChange={e => setGenerateForm(f => ({ ...f, questionCount: Number(e.target.value) }))} className="w-full" />
-              </div>
-              <div>
-                <Label>Tipe Soal</Label>
-                <div className="flex gap-4 flex-wrap">
-                  {[["multiple_choice", "Pilihan Ganda"], ["short_answer", "Isian Singkat"], ["essay", "Essay"]].map(([val, label]) => (
-                    <label key={val} className="flex items-center gap-2 text-sm">
-                      <input type="checkbox" checked={generateForm.questionTypes.includes(val)} onChange={e => {
-                        setGenerateForm(f => ({
-                          ...f,
-                          questionTypes: e.target.checked ? [...f.questionTypes, val] : f.questionTypes.filter(t => t !== val)
-                        }))
-                      }} />
-                      {label}
-                    </label>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <Label>Tingkat Kesulitan</Label>
-                <Select value={generateForm.difficulty} onValueChange={v => setGenerateForm(f => ({ ...f, difficulty: v }))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="easy">Mudah</SelectItem>
-                    <SelectItem value="medium">Sedang</SelectItem>
-                    <SelectItem value="sulit">Sulit</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Tier Teora</Label>
-                <TierSelector value={quizTierId} onChange={setQuizTierId} />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowGenerate(false)}>Batal</Button>
-              <Button onClick={handleGenerate} disabled={generateQuiz.isPending}>
-                {generateQuiz.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
-                Generate
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+//   return (
+//     <Card className="bg-card border-none shadow-sm rounded-xl">
+//       <CardHeader className="flex flex-row items-center justify-between pb-4">
+//         <div>
+//           <CardTitle className="text-lg">Kuis</CardTitle>
+//           <CardDescription>Kelola soal kuis dan submissions</CardDescription>
+//         </div>
+//         <Button size="sm" onClick={() => setShowGenerate(true)}>
+//           <Sparkles className="w-4 h-4 mr-2" />
+//           Generate Kuis
+//         </Button>
+//       </CardHeader>
+//       <CardContent>
+//         <Dialog open={showGenerate} onOpenChange={setShowGenerate}>
+//           <DialogContent className="max-w-lg">
+//             <DialogHeader>
+//               <DialogTitle>Generate Kuis dengan Teora</DialogTitle>
+//               <DialogDescription>Teora akan membuat soal kuis berdasarkan topik yang Anda berikan.</DialogDescription>
+//             </DialogHeader>
+//             <div className="space-y-4">
+//               <div>
+//                 <Label>Judul Kuis *</Label>
+//                 <Input value={generateForm.title} onChange={e => setGenerateForm(f => ({ ...f, title: e.target.value }))} placeholder="Contoh: UH Bahasa Indonesia 1" />
+//               </div>
+//               <div>
+//                 <Label>Topik / Materi</Label>
+//                 <Textarea value={generateForm.topic} onChange={e => setGenerateForm(f => ({ ...f, topic: e.target.value }))} placeholder="Topik spesifik atau biarkan kosong untuk topik umum..." rows={2} />
+//               </div>
+//               <div>
+//                 <Label>Jumlah Soal: {generateForm.questionCount}</Label>
+//                 <input type="range" min={5} max={20} value={generateForm.questionCount} onChange={e => setGenerateForm(f => ({ ...f, questionCount: Number(e.target.value) }))} className="w-full" />
+//               </div>
+//               <div>
+//                 <Label>Tipe Soal</Label>
+//                 <div className="flex gap-4 flex-wrap">
+//                   {[["multiple_choice", "Pilihan Ganda"], ["short_answer", "Isian Singkat"], ["essay", "Essay"]].map(([val, label]) => (
+//                     <label key={val} className="flex items-center gap-2 text-sm">
+//                       <input type="checkbox" checked={generateForm.questionTypes.includes(val)} onChange={e => {
+//                         setGenerateForm(f => ({
+//                           ...f,
+//                           questionTypes: e.target.checked ? [...f.questionTypes, val] : f.questionTypes.filter(t => t !== val)
+//                         }))
+//                       }} />
+//                       {label}
+//                     </label>
+//                   ))}
+//                 </div>
+//               </div>
+//               <div>
+//                 <Label>Tingkat Kesulitan</Label>
+//                 <Select value={generateForm.difficulty} onValueChange={v => setGenerateForm(f => ({ ...f, difficulty: v }))}>
+//                   <SelectTrigger><SelectValue /></SelectTrigger>
+//                   <SelectContent>
+//                     <SelectItem value="easy">Mudah</SelectItem>
+//                     <SelectItem value="medium">Sedang</SelectItem>
+//                     <SelectItem value="sulit">Sulit</SelectItem>
+//                   </SelectContent>
+//                 </Select>
+//               </div>
+//               <div>
+//                 <Label>Tier Teora</Label>
+//                 <TierSelector value={quizTierId} onChange={setQuizTierId} />
+//               </div>
+//             </div>
+//             <DialogFooter>
+//               <Button variant="outline" onClick={() => setShowGenerate(false)}>Batal</Button>
+//               <Button onClick={handleGenerate} disabled={generateQuiz.isPending}>
+//                 {generateQuiz.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
+//                 Generate
+//               </Button>
+//             </DialogFooter>
+//           </DialogContent>
+//         </Dialog>
 
-        {/* 402 Insufficient Balance Dialog */}
-        <insufficientBalance.InsufficientBalanceDialog {...insufficientBalance.dialogProps} />
+//         <insufficientBalance.InsufficientBalanceDialog {...insufficientBalance.dialogProps} />
 
-        {/* Quiz List / Viewer */}
-        {!selectedQuiz ? (
-          <div>
-            {isLoading ? (
-              <div className="space-y-3">
-                {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 w-full" />)}
-              </div>
-            ) : quizzes && quizzes.length > 0 ? (
-              <div className="space-y-3">
-                {quizzes.map(quiz => {
-                  const qs = (quiz.questions as unknown as QuizQuestion[]) ?? []
-                  return (
-                    <Card key={quiz.id} className="cursor-pointer hover:bg-muted/30 transition-colors" onClick={() => handleSelectQuiz(quiz as unknown as Quiz)}>
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <h3 className="font-medium">{quiz.title}</h3>
-                            <p className="text-sm text-muted-foreground">{qs.length} soal</p>
-                            <div className="flex gap-2 mt-1">
-                              {quiz.metadata && typeof quiz.metadata === "object" && "difficulty" in (quiz.metadata as object) && (
-                                <Badge variant="outline" className={diffColors[(quiz.metadata as { difficulty?: string }).difficulty ?? "medium"]}>
-                                  {(quiz.metadata as { difficulty?: string }).difficulty}
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-                          <div className="text-xs text-muted-foreground">{quiz.createdAt ? format(new Date(quiz.createdAt), "dd MMM yyyy") : ""}</div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )
-                })}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <EmptyMedia illustration="quiz" className="size-16 mx-auto mb-4">
-                  <EmptyIllustrationQuiz />
-                </EmptyMedia>
-                <p className="text-sm font-medium text-foreground mb-1">Belum ada kuis</p>
-                <p className="text-xs text-muted-foreground">Generate kuis pertama Anda!</p>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div>
-            <Button variant="ghost" size="sm" onClick={() => setSelectedQuiz(null)} className="mb-4">
-              ← Kembali ke daftar
-            </Button>
-            <h2 className="text-xl font-semibold mb-1">{selectedQuiz.title}</h2>
-            {selectedQuiz.description && <p className="text-muted-foreground mb-4">{selectedQuiz.description}</p>}
-            <div className="space-y-6">
-              {questions.map((q, idx) => (
-                <Card key={q.id} className="bg-muted/20">
-                  <CardContent className="p-5">
-                    <div className="flex items-start gap-3 mb-3">
-                      <Badge variant="outline" className="shrink-0 mt-0.5">{idx + 1}</Badge>
-                      <div>
-                        <p className="font-medium">{q.text}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5 capitalize">
-                          {q.type === "multiple_choice" ? "Pilihan Ganda" : q.type === "short_answer" ? "Isian Singkat" : "Essay"} &bull; {q.type === "multiple_choice" && q.options ? `${q.options.length} opsi` : ""}
-                        </p>
-                      </div>
-                    </div>
-                    {q.type === "multiple_choice" && q.options ? (
-                      <div className="space-y-2 ml-10">
-                        {q.options.map(opt => (
-                          <label key={opt.id} className="flex items-center gap-3 cursor-pointer">
-                            <input
-                              type="radio"
-                              name={`q-${q.id}`}
-                              checked={answers[q.id] === opt.id}
-                              onChange={() => setAnswers(a => ({ ...a, [q.id]: opt.id }))}
-                              className="accent-primary"
-                            />
-                            <span>{opt.text}</span>
-                          </label>
-                        ))}
-                      </div>
-                    ) : q.type === "short_answer" ? (
-                      <div className="ml-10">
-                        <Input
-                          value={answers[q.id] ?? ""}
-                          onChange={e => setAnswers(a => ({ ...a, [q.id]: e.target.value }))}
-                          placeholder="Jawaban singkat..."
-                        />
-                      </div>
-                    ) : (
-                      <div className="ml-10">
-                        <Textarea
-                          value={answers[q.id] ?? ""}
-                          onChange={e => setAnswers(a => ({ ...a, [q.id]: e.target.value }))}
-                          placeholder="Jawaban esai..."
-                          rows={4}
-                        />
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-            <Button className="mt-6" onClick={handleSubmit} disabled={submitting || submitMutation.isPending}>
-              {submitting || submitMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-2" />}
-              Submit Jawaban
-            </Button>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  )
-}
+//         {!selectedQuiz ? (
+//           <div>
+//             {isLoading ? (
+//               <div className="space-y-3">
+//                 {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 w-full" />)}
+//               </div>
+//             ) : quizzes && quizzes.length > 0 ? (
+//               <div className="space-y-3">
+//                 {quizzes.map(quiz => {
+//                   const qs = (quiz.questions as unknown as QuizQuestion[]) ?? []
+//                   return (
+//                     <Card key={quiz.id} className="cursor-pointer hover:bg-muted/30 transition-colors" onClick={() => handleSelectQuiz(quiz as unknown as Quiz)}>
+//                       <CardContent className="p-4">
+//                         <div className="flex items-start justify-between">
+//                           <div>
+//                             <h3 className="font-medium">{quiz.title}</h3>
+//                             <p className="text-sm text-muted-foreground">{qs.length} soal</p>
+//                             <div className="flex gap-2 mt-1">
+//                               {quiz.metadata && typeof quiz.metadata === "object" && "difficulty" in (quiz.metadata as object) && (
+//                                 <Badge variant="outline" className={diffColors[(quiz.metadata as { difficulty?: string }).difficulty ?? "medium"]}>
+//                                   {(quiz.metadata as { difficulty?: string }).difficulty}
+//                                 </Badge>
+//                               )}
+//                             </div>
+//                           </div>
+//                           <div className="text-xs text-muted-foreground">{quiz.createdAt ? format(new Date(quiz.createdAt), "dd MMM yyyy") : ""}</div>
+//                         </div>
+//                       </CardContent>
+//                     </Card>
+//                   )
+//                 })}
+//               </div>
+//             ) : (
+//               <div className="text-center py-12">
+//                 <EmptyMedia illustration="quiz" className="size-16 mx-auto mb-4">
+//                   <EmptyIllustrationQuiz />
+//                 </EmptyMedia>
+//                 <p className="text-sm font-medium text-foreground mb-1">Belum ada kuis</p>
+//                 <p className="text-xs text-muted-foreground">Generate kuis pertama Anda!</p>
+//               </div>
+//             )}
+//           </div>
+//         ) : (
+//           <div>
+//             <Button variant="ghost" size="sm" onClick={() => setSelectedQuiz(null)} className="mb-4">
+//               ← Kembali ke daftar
+//             </Button>
+//             <h2 className="text-xl font-semibold mb-1">{selectedQuiz.title}</h2>
+//             {selectedQuiz.description && <p className="text-muted-foreground mb-4">{selectedQuiz.description}</p>}
+//             <div className="space-y-6">
+//               {questions.map((q, idx) => (
+//                 <Card key={q.id} className="bg-muted/20">
+//                   <CardContent className="p-5">
+//                     <div className="flex items-start gap-3 mb-3">
+//                       <Badge variant="outline" className="shrink-0 mt-0.5">{idx + 1}</Badge>
+//                       <div>
+//                         <p className="font-medium">{q.text}</p>
+//                         <p className="text-xs text-muted-foreground mt-0.5 capitalize">
+//                           {q.type === "multiple_choice" ? "Pilihan Ganda" : q.type === "short_answer" ? "Isian Singkat" : "Essay"} • {q.type === "multiple_choice" && q.options ? `${q.options.length} opsi` : ""}
+//                         </p>
+//                       </div>
+//                     </div>
+//                     {q.type === "multiple_choice" && q.options ? (
+//                       <div className="space-y-2 ml-10">
+//                         {q.options.map(opt => (
+//                           <label key={opt.id} className="flex items-center gap-3 cursor-pointer">
+//                             <input
+//                               type="radio"
+//                               name={`q-${q.id}`}
+//                               checked={answers[q.id] === opt.id}
+//                               onChange={() => setAnswers(a => ({ ...a, [q.id]: opt.id }))}
+//                               className="accent-primary"
+//                             />
+//                             <span>{opt.text}</span>
+//                           </label>
+//                         ))}
+//                       </div>
+//                     ) : q.type === "short_answer" ? (
+//                       <div className="ml-10">
+//                         <Input
+//                           value={answers[q.id] ?? ""}
+//                           onChange={e => setAnswers(a => ({ ...a, [q.id]: e.target.value }))}
+//                           placeholder="Jawaban singkat..."
+//                         />
+//                       </div>
+//                     ) : (
+//                       <div className="ml-10">
+//                         <Textarea
+//                           value={answers[q.id] ?? ""}
+//                           onChange={e => setAnswers(a => ({ ...a, [q.id]: e.target.value }))}
+//                           placeholder="Jawaban esai..."
+//                           rows={4}
+//                         />
+//                       </div>
+//                     )}
+//                   </CardContent>
+//                 </Card>
+//               ))}
+//             </div>
+//             <Button className="mt-6" onClick={handleSubmit} disabled={submitting || submitMutation.isPending}>
+//               {submitting || submitMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-2" />}
+//               Submit Jawaban
+//             </Button>
+//           </div>
+//         )}
+//       </CardContent>
+//     </Card>
+//   )
+// }
 
 // - Comments Tab -
 

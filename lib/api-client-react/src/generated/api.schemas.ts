@@ -2106,6 +2106,180 @@ export interface PracticeRecommendation {
   type: PracticeRecommendationType;
 }
 
+/**
+ * Persona of the AI questioner:
+ * - dosen_strict: Sharp criticism, deep probing, demanding standards
+ * - dosen_friendly: Supportive + probing, warm and encouraging
+ * - audience_awam: Simple language, asks for clarification
+ * - audience_expert: Advanced discussion, jargon OK
+ */
+export type SimulationPersona = typeof SimulationPersona[keyof typeof SimulationPersona];
+
+
+export const SimulationPersona = {
+  dosen_strict: 'dosen_strict',
+  dosen_friendly: 'dosen_friendly',
+  audience_awam: 'audience_awam',
+  audience_expert: 'audience_expert',
+} as const;
+
+export interface CreateSimulationSessionInput {
+  persona: SimulationPersona;
+  /**
+     * AI tier ID to use. Defaults to cheapest eligible.
+     * @nullable
+     */
+  tierId?: string | null;
+}
+
+export interface SendSimulationMessageInput {
+  /**
+     * User's response to the AI's question
+     * @minLength 1
+     */
+  content: string;
+  /**
+     * AI tier ID for this message. Defaults to cheapest eligible.
+     * @nullable
+     */
+  tierId?: string | null;
+}
+
+export type SimulationSessionStatus = typeof SimulationSessionStatus[keyof typeof SimulationSessionStatus];
+
+
+export const SimulationSessionStatus = {
+  active: 'active',
+  completed: 'completed',
+  abandoned: 'abandoned',
+  failed: 'failed',
+} as const;
+
+export interface SimulationSession {
+  id: number;
+  projectId: number;
+  persona: SimulationPersona;
+  status: SimulationSessionStatus;
+  /** Number of questions asked so far (safety cap 10) */
+  questionsAsked: number;
+  /** Running total input tokens used in this session */
+  totalInputTokens: number;
+  /** Running total output tokens generated in this session */
+  totalOutputTokens: number;
+  /** Running total cost in IDR cents */
+  totalCostCents: number;
+  /** @nullable */
+  tierId?: string | null;
+  startedAt: string;
+  /** @nullable */
+  endedAt?: string | null;
+  createdAt: string;
+}
+
+export interface QuotaInfo {
+  /** Total saldo deducted for this session (always 0 when subscription quota is used) */
+  saldoUsedCents?: number;
+}
+
+export type SimulationMessageRole = typeof SimulationMessageRole[keyof typeof SimulationMessageRole];
+
+
+export const SimulationMessageRole = {
+  user: 'user',
+  assistant: 'assistant',
+  system: 'system',
+} as const;
+
+export interface SimulationMessage {
+  id: number;
+  sessionId: number;
+  role: SimulationMessageRole;
+  content: string;
+  inputTokens: number;
+  outputTokens: number;
+  costCents: number;
+  /** Order index (1-based) */
+  sequenceIndex: number;
+  createdAt: string;
+}
+
+export type SimulationSessionWithMessages = SimulationSession & {
+  messages?: SimulationMessage[];
+  quotaInfo?: QuotaInfo;
+};
+
+export interface SimulationScore {
+  /** Name of the evaluation criterion */
+  criterion: string;
+  /**
+     * Score 0-100
+     * @minimum 0
+     * @maximum 100
+     */
+  score: number;
+  /** Brief note explaining the score */
+  notes: string;
+}
+
+export interface SimulationReport {
+  id: number;
+  sessionId: number;
+  projectId: number;
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  overallScore: number;
+  /** 2-3 sentence summary */
+  summary: string;
+  /** Markdown bullet list of strengths */
+  strengths: string;
+  /** Markdown bullet list of weaknesses */
+  weaknesses: string;
+  /** Markdown bullet list of actionable recommendations */
+  recommendations: string;
+  scores: SimulationScore[];
+  isLatestForProject: boolean;
+  createdAt: string;
+}
+
+export type SimulationSessionWithReport = SimulationSession & {
+  report?: SimulationReport;
+  quotaInfo?: QuotaInfo;
+};
+
+export type SimulationSessionWithMessage = SimulationSession & {
+  messages?: SimulationMessage[];
+  quotaInfo?: QuotaInfo;
+};
+
+export type SharedSimulationReportStatus = typeof SharedSimulationReportStatus[keyof typeof SharedSimulationReportStatus];
+
+
+export const SharedSimulationReportStatus = {
+  active: 'active',
+  completed: 'completed',
+  abandoned: 'abandoned',
+  failed: 'failed',
+} as const;
+
+/**
+ * Anonymized simulation report — no user information exposed
+ */
+export interface SharedSimulationReport {
+  sessionId: number;
+  persona: SimulationPersona;
+  status: SharedSimulationReportStatus;
+  overallScore: number;
+  summary: string;
+  strengths: string;
+  weaknesses: string;
+  recommendations: string;
+  scores: SimulationScore[];
+  questionsAsked?: number;
+  createdAt: string;
+}
+
 export type CheckUsernameParams = {
 username: string;
 };
@@ -2136,6 +2310,37 @@ export const ListProjectsType = {
 export type AnalyzeProjectBody = {
   /** AI tier to use (e.g. "free", "standard", "premium"). Defaults to user's preferred tier. */
   tier?: string;
+};
+
+export type ListSimulationSessions200Item = SimulationSession & {
+  quotaInfo?: QuotaInfo;
+};
+
+export type ListSimulationMessages200 = SimulationSession & {
+  messages?: SimulationMessage[];
+  quotaInfo?: QuotaInfo;
+};
+
+export type SendSimulationMessage200 = SimulationSession & {
+  messages?: SimulationMessage[];
+  report?: SimulationReport;
+  quotaInfo?: QuotaInfo;
+};
+
+export type CompleteSimulationSession200 = SimulationSession & {
+  report?: SimulationReport;
+  quotaInfo?: QuotaInfo;
+};
+
+export type CreateSimulationShareTokenBody = {
+  /** Number of days until the share link expires */
+  expiresInDays?: number;
+};
+
+export type CreateSimulationShareToken201 = {
+  /** The public share token to use in the URL */
+  tokenId?: string;
+  expiresAt?: string;
 };
 
 export type RegenerateOutlineBody = {

@@ -200,8 +200,10 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
   // - If subscription: quota already accumulated by consumeQuotaForAIRequest
   // - If saldo: saldo already deducted by consumeQuotaForAIRequest
   // The pre-check used estimatedCost; now we apply for real costCents.
+  // Expose method + saldoUsedCents in response so frontend can show transparency.
+  let finalConsume: Awaited<ReturnType<typeof consumeQuotaForAIRequest>> | null = null;
   if (!selectedTier.isFree && usage.costCents > 0) {
-    const finalConsume = await consumeQuotaForAIRequest({
+    finalConsume = await consumeQuotaForAIRequest({
       userId: project.userId,
       tierId: selectedTier.id,
       inputTokens: usage.inputTokens,
@@ -269,6 +271,15 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
     );
   }
 
+  // Build quota info from consumption result (available after AI call completes)
+  let quotaInfo: { method: string; saldoUsedCents: number } | undefined;
+  if (!selectedTier.isFree && usage.costCents > 0 && finalConsume) {
+    quotaInfo = {
+      method: finalConsume.method ?? "subscription",
+      saldoUsedCents: finalConsume.method === "saldo" ? (finalConsume.deductCents ?? 0) : 0,
+    };
+  }
+
   res.status(201).json({
     ...assistantMessage,
     usage: {
@@ -277,6 +288,7 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
       costCents: usage.costCents,
       tierId: selectedTier.id,
       tierName: selectedTier.name,
+      ...(quotaInfo ?? {}),
     },
   });
 });

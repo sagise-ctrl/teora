@@ -432,22 +432,258 @@ export const handlers = [
     });
   }),
 
-  // Exports
-  http.get("/api/projects/:projectId/exports", async () => {
+  // Learning Activities
+  http.get("/api/learning-activities", async () => {
     await delay(200);
-    return HttpResponse.json([]);
+    return HttpResponse.json([
+      {
+        id: 1,
+        userId: "mock-user-001",
+        sourceProjectId: 1,
+        topics: ["Statistika Inferensial", "Hipotesis", "Uji-t"],
+        subject: "Statistika",
+        extractedFrom: "chat",
+        createdAt: now(),
+        updatedAt: now(),
+      },
+      {
+        id: 2,
+        userId: "mock-user-001",
+        sourceProjectId: 2,
+        topics: ["Metode Penelitian", "Kualitatif", "Wawancara"],
+        subject: "Metode Penelitian",
+        extractedFrom: "chat",
+        createdAt: new Date(Date.now() - 86400000).toISOString(),
+        updatedAt: new Date(Date.now() - 86400000).toISOString(),
+      },
+      {
+        id: 3,
+        userId: "mock-user-001",
+        sourceProjectId: 1,
+        topics: ["Analisis Regresi", "Korelasi", "SPSS"],
+        subject: "Statistika",
+        extractedFrom: "document",
+        createdAt: new Date(Date.now() - 172800000).toISOString(),
+        updatedAt: new Date(Date.now() - 172800000).toISOString(),
+      },
+    ]);
   }),
 
-  http.post("/api/projects/:projectId/exports", async ({ params }) => {
-    await delay(500);
+  // Practice Recommendations
+  http.get("/api/learning-activities/recommendations", async ({ request }) => {
+    await delay(300);
+    const url = new URL(request.url);
+    const projectId = url.searchParams.get("projectId");
+    return HttpResponse.json([
+      {
+        type: "recent_task",
+        reason: "Berdasarkan proyek yang sedang Anda kerjakan.",
+        learningActivity: {
+          id: 1,
+          userId: "mock-user-001",
+          sourceProjectId: 1,
+          topics: ["Statistika Inferensial", "Hipotesis", "Uji-t"],
+          subject: "Statistika",
+          extractedFrom: "chat",
+          sourceProjectTitle: projectId === "1" ? "Skripsi Informatika" : "Proyek Penelitian",
+          createdAt: now(),
+          updatedAt: now(),
+        },
+      },
+      {
+        type: "frequent_topic",
+        reason: "Topik ini sering muncul dalam aktivitas belajar Anda.",
+        learningActivity: {
+          id: 4,
+          userId: "mock-user-001",
+          sourceProjectId: 1,
+          topics: ["Statistika Inferensial", "Hipotesis", "Uji-t", "ANOVA", "Regresi"],
+          subject: "Statistika",
+          extractedFrom: "chat",
+          sourceProjectTitle: "Skripsi Informatika",
+          createdAt: now(),
+          updatedAt: now(),
+        },
+      },
+      {
+        type: "weak_topic",
+        reason: "Area ini perlu diperkuat untuk hasil yang lebih baik.",
+        learningActivity: {
+          id: 5,
+          userId: "mock-user-001",
+          sourceProjectId: 2,
+          topics: ["Metode Penelitian", "Kualitatif", "Observasi"],
+          subject: "Metode Penelitian",
+          extractedFrom: "document",
+          sourceProjectTitle: "Proyek Penelitian",
+          createdAt: now(),
+          updatedAt: now(),
+        },
+      },
+    ]);
+  }),
+
+  // Quizzes - list
+  http.get("/api/projects/:projectId/quizzes", async ({ params }) => {
+    await delay(200);
+    const id = Number(params.projectId);
+    return HttpResponse.json([
+      {
+        id: 1,
+        projectId: id,
+        title: "Kuis Statistika Inferensial",
+        topic: "Statistika Inferensial",
+        metadata: { difficulty: "medium", questionTypes: ["multiple_choice", "short_answer"] },
+        questions: [
+          {
+            id: "q1",
+            type: "multiple_choice",
+            text: "Apa hipotesis nol (H0) dalam uji-t?",
+            points: 10,
+            options: [
+              { id: "a", text: "Tidak ada perbedaan antar kelompok" },
+              { id: "b", text: "Ada perbedaan antar kelompok" },
+              { id: "c", text: "Semua mean sama" },
+              { id: "d", text: "Varians homogen" },
+            ],
+          },
+          {
+            id: "q2",
+            type: "short_answer",
+            text: "Jelaskan perbedaan antara uji-t satu sampel dan uji-t dua sampel.",
+            points: 20,
+          },
+          {
+            id: "q3",
+            type: "multiple_choice",
+            text: "Apa yang dimaksud dengan p-value?",
+            points: 10,
+            options: [
+              { id: "a", text: "Probabilitas menolak H0 padahal H0 benar" },
+              { id: "b", text: "Probabilitas menerima H1 padahal H1 benar" },
+              { id: "c", text: "Tingkat signifikansi" },
+              { id: "d", text: "Ukuran efek" },
+            ],
+          },
+          {
+            id: "q4",
+            type: "essay",
+            text: "Buatlah hipotesis nol dan hipotesis alternatif untuk penelitian tentang pengaruh metode belajar terhadap nilai ujian.",
+            points: 30,
+          },
+          {
+            id: "q5",
+            type: "multiple_choice",
+            text: "Kapan sebaiknya menggunakan uji Mann-Whitney?",
+            points: 10,
+            options: [
+              { id: "a", text: "Data berdistribusi normal" },
+              { id: "b", text: "Data tidak berdistribusi normal" },
+              { id: "c", text: "Varians homogen" },
+              { id: "d", text: "Sampel besar" },
+            ],
+          },
+        ],
+        createdAt: now(),
+        updatedAt: now(),
+      },
+      {
+        id: 2,
+        projectId: id,
+        title: "Kuis Metode Penelitian",
+        topic: "Metode Penelitian",
+        metadata: { difficulty: "easy", questionTypes: ["multiple_choice"] },
+        questions: [
+          {
+            id: "q6",
+            type: "multiple_choice",
+            text: "Apa perbedaan utama antara penelitian kualitatif dan kuantitatif?",
+            points: 10,
+            options: [
+              { id: "a", text: "Kualitatif menggunakan angka, kuantitatif menggunakan kata" },
+              { id: "b", text: "Kualitatif eksploratif, kuantitatif mengukur" },
+              { id: "c", text: "Kualitatif lebih valid" },
+              { id: "d", text: "Tidak ada perbedaan" },
+            ],
+          },
+          {
+            id: "q7",
+            type: "short_answer",
+            text: "Berikan contoh teknik pengumpulan data dalam penelitian kualitatif.",
+            points: 20,
+          },
+        ],
+        createdAt: new Date(Date.now() - 86400000).toISOString(),
+        updatedAt: new Date(Date.now() - 86400000).toISOString(),
+      },
+    ]);
+  }),
+
+  // Quizzes - generate
+  http.post("/api/projects/:projectId/quizzes", async ({ params }) => {
+    await delay(600);
     const id = Number(params.projectId);
     return HttpResponse.json({
-      id: 1,
+      id: 100 + id,
       projectId: id,
-      format: "pdf",
-      status: "completed",
-      filePath: null,
+      title: "Kuis AI Generated",
+      topic: "Topik Umum",
+      metadata: { difficulty: "medium", questionTypes: ["multiple_choice", "short_answer"] },
+      questions: [
+        {
+          id: "gen1",
+          type: "multiple_choice",
+          text: "Apa konsep utama dari topik ini?",
+          points: 10,
+          options: [
+            { id: "a", text: "Opsi A" },
+            { id: "b", text: "Opsi B" },
+            { id: "c", text: "Opsi C" },
+            { id: "d", text: "Opsi D" },
+          ],
+        },
+        {
+          id: "gen2",
+          type: "short_answer",
+          text: "Jelaskan konsep utama dari topik ini dalam 3 kalimat.",
+          points: 20,
+        },
+      ],
       createdAt: now(),
+      updatedAt: now(),
     }, { status: 201 });
+  }),
+
+  // Quizzes - submit
+  http.post("/api/quizzes/:quizId/submissions", async ({ params }) => {
+    await delay(400);
+    const quizId = Number(params.quizId);
+    return HttpResponse.json({
+      id: 500 + quizId,
+      quizId,
+      userId: "mock-user-001",
+      score: null,
+      maxScore: 100,
+      feedback: null,
+      submittedAt: now(),
+      createdAt: now(),
+      updatedAt: now(),
+    }, { status: 201 });
+  }),
+
+  // Quizzes - get own submission
+  http.get("/api/quizzes/:quizId/submissions/me", async () => {
+    await delay(200);
+    return HttpResponse.json({
+      id: 501,
+      quizId: 1,
+      userId: "mock-user-001",
+      score: null,
+      maxScore: 100,
+      feedback: null,
+      submittedAt: now(),
+      createdAt: now(),
+      updatedAt: now(),
+    });
   }),
 ];

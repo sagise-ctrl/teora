@@ -33,6 +33,8 @@ import adminAiTiersRouter from "./admin-ai-tiers.js";
 import adminRouter from "./admin.js";
 import referralRouter from "./referral.js";
 import referralWebhookRouter from "./referral-webhook.js";
+import simulasiRouter from "./simulasi.js";
+import simulasiSharedRouter from "./simulasi-shared.js";
 
 const router: IRouter = Router();
 
@@ -59,6 +61,7 @@ router.use("/projects/:projectId/analyze", aiLimiter);
 router.use("/projects/:projectId/outline", aiLimiter);
 router.use("/projects/:projectId/documents/generate", aiLimiter);
 router.use("/users/me/writing-style/analyze", aiLimiter);
+router.use("/projects/:projectId/simulasi", aiLimiter);
 
 router.use(projectsRouter);
 router.use(messagesRouter);
@@ -85,5 +88,7 @@ router.use(documentTemplatesRouter);
 router.use(adminAiTiersRouter);
 router.use(adminRouter);
 router.use(referralRouter);
+router.use(simulasiRouter);
+router.use(simulasiSharedRouter);
 
 export default router;

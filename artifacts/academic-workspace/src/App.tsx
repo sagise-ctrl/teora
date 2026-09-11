@@ -36,9 +36,11 @@ import Assessment from "@/pages/assessment";
 import Akun from "@/pages/akun";
 import Usage from "@/pages/usage";
 import Practice from "@/pages/practice";
+import PracticeQuiz from "@/pages/practice-quiz";
 import SharedProject from "@/pages/shared";
 import Landing from "@/pages/landing";
 import Langganan from "@/pages/langganan";
+import SimulasiSession from "@/pages/simulasi-session";
 import Layout from "@/components/layout";
 
 const queryClient = new QueryClient();
@@ -156,6 +158,13 @@ function AppRouter() {
           </Layout>
         </ProtectedRoute>
       </Route>
+      <Route path="/practice/quiz/:quizId">
+        <ProtectedRoute>
+          <Layout>
+            <AnimatedPage><PracticeQuiz /></AnimatedPage>
+          </Layout>
+        </ProtectedRoute>
+      </Route>
       <Route path="/practice">
         <ProtectedRoute>
           <Layout>
@@ -174,6 +183,13 @@ function AppRouter() {
         <ProtectedRoute>
           <Layout>
             <AnimatedPage><Usage /></AnimatedPage>
+          </Layout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/simulasi/:sessionId">
+        <ProtectedRoute>
+          <Layout>
+            <AnimatedPage><SimulasiSession /></AnimatedPage>
           </Layout>
         </ProtectedRoute>
       </Route>
