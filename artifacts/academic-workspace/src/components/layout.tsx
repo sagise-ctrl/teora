@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useLocation, Link } from "wouter";
+import { useTheme } from "next-themes";
 import {
   LayoutDashboard,
   BookOpen,
@@ -14,6 +15,8 @@ import {
   ChevronRight,
   Menu,
   X,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
@@ -237,7 +240,7 @@ function SidebarFooter({ onNavigate }: SidebarNavProps) {
         </div>
       </Link>
 
-      {/* Settings + Logout */}
+      {/* Settings + Theme Toggle + Logout */}
       <div className="flex items-center gap-2">
         <Link
           href="/profile"
@@ -247,6 +250,15 @@ function SidebarFooter({ onNavigate }: SidebarNavProps) {
           <Settings className="w-3.5 h-3.5" />
           Settings
         </Link>
+        <button
+          type="button"
+          onClick={() => setTheme(isDark ? "light" : "dark")}
+          className="p-2 text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent rounded-md transition-colors"
+          title={isDark ? "Mode terang" : "Mode gelap"}
+          aria-label={isDark ? "Ganti ke mode terang" : "Ganti ke mode gelap"}
+        >
+          {isDark ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+        </button>
         <button
           onClick={() => {
             logout();
@@ -320,6 +332,8 @@ function SidebarHeader({ onNavigate }: SidebarNavProps) {
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const isDark = theme === "dark";
 
   return (
     <div className="flex min-h-[100dvh] w-full bg-background text-foreground">
@@ -371,8 +385,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <Menu className="w-5 h-5" />
           </button>
           <TeoraLogo size="sm" />
-          {/* Spacer to keep logo centered */}
-          <div className="w-9" />
+          <button
+            type="button"
+            onClick={() => setTheme(isDark ? "light" : "dark")}
+            className="p-2 text-sidebar-foreground/70 hover:bg-sidebar-accent rounded-md transition-colors"
+            aria-label={isDark ? "Ganti ke mode terang" : "Ganti ke mode gelap"}
+          >
+            {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </button>
         </div>
         <div className="flex-1 overflow-auto p-4 md:p-8">
           <div className="mx-auto max-w-6xl">
