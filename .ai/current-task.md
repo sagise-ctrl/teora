@@ -9,6 +9,115 @@
 
 ---
 
+## 🎯 ACTIVE 2026-09-12 — INC-004: ERR-017 Cherry-Pick + Fix (opus-4-X)
+
+**Status:** ✅ RESOLVED — fix deployed to production + verified 200 OK
+**Model:** claude-opus-4-8
+**Branch:** `fix/err-017-context-window-auto-truncate`
+**Resolution Commit:** `e6ef53f` (fix) + `c38cb2c` (.ai/ memory)
+
+### Apa yang terjadi
+
+Owner: kerjakan ERR-017 cherry-pick dulu (dari feat/daftar-task ke main), sambil ingatkan SOP error handling — deploy/commit via GitHub sering bermasalah, owner lebih suka direct Vercel CLI untuk live deploy.
+
+### Investigation (8-step SOP applied per Decision 005)
+
+1. **SEARCH FIRST** — `.ai/error-index.md [ERR-017]` → context window exceeded, di-feat/daftar-task bel
+2. **INVESTIGATE** — Cherry-pick `5838f1e` (feat/daftar-task → main); bundle built 6.8MB, grep verified 14 fix patterns + 41 tiktoken hits
+3. **ROOT CAUSE (WRONG initially)** — INFERRED "esbuild bundles everything" → turned out NOT bundle WASM
+4. **Deploy attempt** — `vercel deploy --prod --yes` → `dpl_3yDGUUTQ4EyFzgBiSrDsE8eMK8w3` READY
+5. **VERIFY** — `curl /api/healthz` → **500 FUNCTION_INVOCATION_FAILED**
+6. **Vercel logs** — `Error: Missing tiktoken_bg.wasm at tiktoken/tiktoken.cjs`
+7. **ROLLBACK** — `vercel rollback` → `dpl_HsMepdHAbi1LUGVw3pujeEdsjyMy` restored (~3 min downtime)
+8. **Real root cause (CONFIRMED)** — `tiktoken@1.0.22` uses WASM; esbuild bundles JS only, NOT .wasm; Vercel doesn't auto-include WASM
+
+### Resolution
+
+- **Option A applied:** Refactor `tokenizer.ts` → remove tiktoken → use `estimateTokensFromChars` heuristic (CHARS_PER_TOKEN=3)
+- **Reverted** `package.json` + `pnpm-lock.yaml` (tiktoken removed)
+- **Committed** `e6ef53f` on `fix/err-017-context-window-auto-truncate`
+- **Local smoke test** — `node -e "import('./dist/index.mjs')"` → no WASM error
+- **Deployed** → `dpl_7TTs2gRwb8jsh5HQPTS5aDosPySk`
+- **Production verified** — `curl https://teora-backend.vercel.app/api/healthz` → **200 OK** `{"status":"ok"}` ✅
+- **Bundle verified** — 0 tiktoken refs in `dist/index.mjs`, 6 fix-pattern matches
+
+### Owner Reminder (validated)
+
+Owner preferensi: live deploy HARUS via direct Vercel CLI (`vercel deploy --prod --yes`), BUKAN GitHub merge/CI. Workflow ini tetap dipakai.
+
+### New Pattern — ERR-019 (1x tracked, eligible for 3x promotion)
+
+`native_dependency_not_bundleable` — class baru di layer runtime asset (sibling ERR-012 di lockfile layer). Includes:
+- `@dqbd/tiktoken` (WASM)
+- `onnxruntime-node`, `bcrypt`, `better-sqlite3` (.node binary)
+- `sharp` (native image)
+
+### Files Changed
+
+- `artifacts/api-server/src/lib/tokenizer.ts` (NEW — char-based heuristic, no tiktoken)
+- `artifacts/api-server/src/lib/ai.ts` (new `truncateToTokenLimit(text, maxTokens)`)
+- `artifacts/api-server/src/routes/messages.ts` (token-aware + 413)
+- `artifacts/api-server/src/routes/references.ts` (413 for auto-cite)
+- `package.json` — tiktoken NOT added (correct final state)
+- `pnpm-lock.yaml` — tiktoken NOT in lockfile
+- `.ai/incidents/incident-registry.md` — INC-004 status update (committed c38cb2c)
+- `.ai/lessons-learned.md` — appended [ERR-019] entry (committed c38cb2c)
+- `.ai/incidents/20260912-001.md` — full INC-004 post-mortem (untracked, .ai/ gitignored)
+- `.ai/error-index.md` — ERR-017 FIXED→VERIFIED, added ERR-019 (untracked, .ai/ gitignored)
+
+### Prevention Going Forward (SOP Step 7)
+
+- [x] Local smoke test before deploy: `cd artifacts/api-server && node -e "import('./dist/index.mjs')"`
+- [x] Vercel logs inspection 5 min post-deploy
+- [x] `curl /api/healthz` immediately post-deploy
+- [x] Deploy checklist updated in `.ai/lessons-learned.md [ERR-019]`
+- [x] Pattern `native_dependency_not_bundleable` tracked in `.ai/error-index.md` (1x → 3x for skill promotion)
+
+### Lessons (FIX ≠ VERIFIED hard rule confirmed)
+
+> **Build succeeded ≠ runtime will work** untuk dep dengan non-JS bindings (WASM, .node, native addons). SELALU runtime smoke test sebelum deploy production.
+
+### Decision on Decision 005 SOP
+
+Step 6 (VERIFY) di-deploy-error-protocol sekarang WAJIB include:
+(a) `node -e "import('./dist/index.mjs')"` smoke test OR `vercel dev` start,
+(b) `curl /api/healthz` post-deploy,
+(c) inspect Vercel runtime logs selama 5 menit.
+
+Untuk deps tanpa native assets — bundle grep cukup (existing behavior).
+
+### Next Tasks (per user: "lanjut ... dan yg lainnya")
+
+1. **#2** — Fix em dash violations di `simulasi-*.tsx` files (3 user-facing violations, P3 per memory `frontend-no-em-dash-preference-20260904`)
+2. **#3** — Cherry-pick `51708f9` (dark mode toggle) ke main
+3. **#4** — Decision: feat/daftar-task merge strategy (merge penuh vs cherry-pick per-fitur)
+4. **#5** — Discussion: feat/tier-2-complete payment gateway stub (`b0b5c8a`) → Midtrans integration foundation?
+
+---
+
+## HANDOVER 2026-09-12 — model opus-4-8 → opus-4-X
+
+**INC-004 RESOLVED ✅ — production verified 200 OK.**
+
+**Last 3 actions:**
+1. Cherry-pick `5838f1e` (ERR-017) → main tried first → Vercel 500 → rollback (3 min)
+2. Diagnosed real root cause: tiktoken WASM not bundleable (new pattern ERR-019)
+3. Refactor `tokenizer.ts` → char-based heuristic → commit `e6ef53f` → deploy `dpl_7TTs2gRwb8jsh5HQPTS5aDosPySk` → curl 200 OK ✅
+
+**Next 3 actions:**
+1. Continue with #2 — em dash fix in simulasi-*.tsx (user explicitly authorized "dan yg lainnya")
+2. Continue with #3 — cherry-pick dark mode toggle
+3. Continue with #4+#5 — feat/daftar-task merge decision + payment gateway discussion
+
+**Open questions:**
+1. Merge feat/daftar-task ke main atau per-fitur cherry-pick? 54 commits di feat/daftar-task NOT in main.
+2. Midtrans / Xendit / Stripe untuk payment gateway?
+3. Tier-2-complete (`b0b5c8a`) payment stub → foundation untuk Midtrans, atau re-design?
+
+**Fix ≠ VERIFIED lesson:** Going forward — untuk deps dengan WASM/.node/native assets, ALWAYS runtime smoke test (`node -e "import('./dist/index.mjs')"`) BEFORE `vercel deploy --prod`. Build success ≠ runtime success untuk deps dengan non-JS bindings.
+
+---
+
 ## ACTIVE 2026-09-10 — Landing Page Redesign (Maximal)
 
 **Status:** ✅ DEPLOYED — production live, all verification passed

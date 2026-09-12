@@ -17,7 +17,7 @@ import {
   useListSimulationMessages,
   useGetLatestSimulationReport,
   getListSimulationMessagesQueryOptions,
-  getLatestSimulationReportQueryOptions,
+  getGetLatestSimulationReportQueryOptions,
   type SimulationSession,
   type SimulationMessage,
   type SimulationReport,
@@ -54,7 +54,7 @@ interface SessionRowProps {
 
 function SessionRow({ session, onView, onShare, isLoading }: SessionRowProps) {
   const isCompleted = session.status === "completed";
-  const personaLabel = PERSONA_LABELS[session.persona ?? ""] ?? session.persona ?? "—";
+  const personaLabel = PERSONA_LABELS[session.persona ?? ""] ?? session.persona ?? "-";
   const personaIcon = PERSONA_ICONS[session.persona ?? ""] ?? "🎤";
 
   return (
@@ -129,7 +129,7 @@ export function SimulasiHistoryModal({
     let report: SimulationReport | null = null;
     if (session.status === "completed") {
       const reportQuery = await queryClient.fetchQuery(
-        getLatestSimulationReportQueryOptions(projectId)
+        getGetLatestSimulationReportQueryOptions(projectId)
       );
       report = reportQuery ?? null;
     }

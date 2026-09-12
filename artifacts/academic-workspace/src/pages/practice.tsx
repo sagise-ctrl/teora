@@ -148,7 +148,7 @@ export default function Practice() {
               <div className="flex-1">
                 <h3 className="font-semibold mb-1">Latihan Presentasi dengan AI</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                  Simulasikan presentasi sidang atau seminar dengan AI sebagai penanya kritis. Pilih persona — dosen ketat, dosen ramah, audiens awam, atau audiens ahli — dan dapatkan laporan evaluasi beserta skor di akhir sesi.
+                  Simulasikan presentasi sidang atau seminar dengan AI sebagai penanya kritis. Pilih persona: dosen ketat, dosen ramah, audiens awam, atau audiens ahli, dan dapatkan laporan evaluasi beserta skor di akhir sesi.
                 </p>
                 <div className="flex gap-2">
                   <Button onClick={() => navigate("/projects")} size="sm">

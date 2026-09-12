@@ -134,7 +134,7 @@ export default function SimulasiSession() {
     }
   };
 
-  const personaLabel = session?.persona ? PERSONA_LABELS[session.persona] ?? session.persona : "—";
+  const personaLabel = session?.persona ? PERSONA_LABELS[session.persona] ?? session.persona : "-";
   const isActive = session?.status === "active";
 
   if (loadingSession) {

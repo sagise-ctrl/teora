@@ -252,7 +252,7 @@ export function SimulasiTab({ projectId }: { projectId: number }) {
               </div>
               <h2 className="text-xl font-semibold">Simulasi Presentasi</h2>
               <p className="text-sm text-muted-foreground leading-relaxed max-w-md mx-auto">
-                Latihan presentasi dengan AI sebagai penanya kritis. AI akan memulai dan bertanya langsung tentang project Anda — seolah-olah Anda sedang di ruang sidang atau seminar.
+                Latihan presentasi dengan AI sebagai penanya kritis. AI akan memulai dan bertanya langsung tentang project Anda, seolah-olah Anda sedang di ruang sidang atau seminar.
               </p>
             </div>
 
@@ -272,7 +272,7 @@ export function SimulasiTab({ projectId }: { projectId: number }) {
                 </div>
                 <div>
                   <span className="font-medium">4 persona penanya</span>
-                  <p className="text-muted-foreground text-xs mt-0.5">Dosen ketat, dosen ramah, audiens awam, atau audiens ahli — pilih sesuai kebutuhan.</p>
+                  <p className="text-muted-foreground text-xs mt-0.5">Dosen ketat, dosen ramah, audiens awam, atau audiens ahli, pilih sesuai kebutuhan.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 text-sm">
