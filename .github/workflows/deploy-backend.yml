@@ -45,6 +45,13 @@ jobs:
           echo "@workspace/db:"
           ls -la node_modules/@workspace/db 2>&1 | head -5 || echo "NOT FOUND"
 
+      - name: Pre-deploy banned-deps check
+        run: |
+          echo "::group::Banned deps scan"
+          chmod +x ./scripts/sop-pre-deploy-banned-deps-check.sh
+          ./scripts/sop-pre-deploy-banned-deps-check.sh
+          echo "::endgroup::"
+
       - name: Build API server
         id: build_api
         run: |
