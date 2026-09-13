@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useTheme } from "next-themes";
 import { Link, Redirect } from "wouter";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useAuth } from "@/hooks/use-auth";
@@ -1042,6 +1043,11 @@ function Footer() {
 
 export default function Landing() {
   const { user } = useAuth();
+  const { setTheme } = useTheme();
+
+  useEffect(() => {
+    setTheme("dark");
+  }, [setTheme]);
 
   if (user) return <Redirect to="/dashboard" />;
 
