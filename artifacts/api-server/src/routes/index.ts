@@ -40,14 +40,14 @@ const router: IRouter = Router();
 router.use(healthRouter);
 router.use(authRouter);
 router.use(sharedRouter);
-// Public routes (no auth required)
-router.use(aiTiersRouter);
-router.use(packagesRouter);
 // Webhook handler — no auth (signature-verified instead). MUST be registered
 // BEFORE router.use(authMiddleware) per DECISION 006.
 // Note: referralWebhookRouter is mounted in app.ts with express.raw() before
 // express.json() to preserve raw body for HMAC verification.
 router.use(authMiddleware);
+
+router.use(aiTiersRouter);
+router.use(packagesRouter);
 
 // AI rate limiter — mounted AFTER authMiddleware so req.user.id is populated.
 // keyGenerator uses req.user.id for per-user quota (not per-IP).
