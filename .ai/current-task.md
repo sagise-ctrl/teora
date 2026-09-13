@@ -9,11 +9,11 @@
 
 ---
 
-## 🎯 ACTIVE 2026-09-13 — Project-Wide Code Audit (opus-4-6)
+## 🎯 ACTIVE 2026-09-13 — Project-Wide Code Audit (opus-4-8)
 
-**Status:** 🔄 IN PROGRESS — 14/27 fixed (H1-H8, M1-M2, M4-M5, M10, L1-L2, L4-L5)
-**Commit:** `6aa9ab4` (L1 L2 L4 L5)
-**In Progress:** M6-M9 (agent running in background)
+**Status:** 🔄 IN PROGRESS — 22/27 fixed
+**Pushed to origin/main:** `d80a7ca..37df517` (19 commits) ✅
+**In Progress:** M9 (DOCX streaming — library limit), C1, C2 (needs owner)
 
 ### Audit Findings — Status Tracker
 
@@ -50,14 +50,21 @@
 1. ~~Fix H1-H8~~ ✅ DONE
 2. ~~Fix M1-M2, M4-M5, M10~~ ✅ DONE
 3. ~~Fix L1-L6~~ ✅ DONE (L3, L6 already fixed)
-4. Fix M3: Webhook HMAC static header compare
-5. Fix M6-M9: AI endpoint tests, rate limiting, chat cap, DOCX streaming (agent running)
-6. Fix C1, C2: Configuration issues (needs owner decision)
+4. ~~Fix M3~~ ✅ DONE (commit 368eb67, timing-safe)
+5. ~~Fix M6-M8~~ ✅ DONE (tests, rate limit, chat cap)
+6. Verify live: visit https://academic-workspace-eta.vercel.app (landing dark mode + all fixes)
+7. M9: DOCX streaming — investigate library support or skip with limit
+8. C1, C2: Configuration issues (needs owner decision)
 
 ### Blockers
 - **C1 (needs owner):** `supabase-admin.ts` throws at module level. App crashes if `SUPABASE_SERVICE_ROLE_KEY` not set. Owner decision needed: fix with lazy initialization?
 - **C2:** No file size limit on uploads. 10MB limit needed to prevent OOM. Owner decision: proceed with fix?
-3. Owner decision: C1/C2 production alignment
+
+### Deployment SOP (CRITICAL — owner instruction 2026-09-13)
+- **WAJIB**: Sebelum klaim "fix live", verifikasi `git log origin/main..main --oneline` kosong ATAU commit fix ada di `origin/main`
+- Setelah batch fix selesai, default behavior: Tanya owner apakah push sekarang
+- Emergency production fix: push langsung + report, tunda confirmasi
+- Detail: `~/.claude/projects/E--teora/memory/deployment-drift-local-vs-live-20260913.md`
 
 ---
 
