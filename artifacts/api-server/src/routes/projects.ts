@@ -387,86 +387,77 @@ async function runAnalysisPipeline(
   selectedTier: Awaited<ReturnType<typeof getTierConfig>>,
 ): Promise<{ method: string; saldoUsedCents: number }> {
   if (!selectedTier) throw new Error("Tier required");
-  try {
-    await db
+
+  // Step 1: fetch project (read-only, outside transaction)
+  const [project] = await db
+    .select()
+    .from(projectsTable)
+    .where(eq(projectsTable.id, projectId));
+  if (!project) throw new Error("Project not found");
+
+  const safeInstructionText = sanitizeInstructionText(project.instructionText ?? "");
+  const systemPrompt = buildSystemPrompt({ title: project.title, instructionText: safeInstructionText });
+
+  // Step 2: AI call 1 — analysis (outside transaction, no DB side effects)
+  const { content: aiResponse, usage: analysisUsage, tierConfig: analysisTier } = await callAI(
+    [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: `Analisis instruksi tugas berikut dan berikan respons dalam format JSON:\n\nINSTRUKSI TUGAS:\n${safeInstructionText || project.title}\n\nHasilkan JSON dengan struktur berikut (HANYA JSON, tanpa teks lain):\n{\n  "detectedTitle": "judul yang tepat untuk tugas ini",\n  "subject": "nama mata kuliah yang relevan",\n  "taskType": "jenis tugas (makalah/skripsi/laporan/esai/dll)",\n  "citationFormat": "format sitasi yang sesuai (APA/MLA/Chicago/IEEE/dll)",\n  "language": "bahasa utama (Indonesia/Inggris)",\n  "outline": "outline lengkap dalam format:\\nBAB I: ...\\nA. ...\\nB. ...\\n\\nBAB II: ...\\ndll",\n  "contextSummary": "ringkasan konteks tugas dalam 2-3 kalimat"\n}` },
+    ],
+    selectedTier.id,
+  );
+
+  const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+  let metadata: Record<string, string> = {};
+  if (jsonMatch) {
+    try { metadata = JSON.parse(jsonMatch[0]); } catch { metadata = {}; }
+  }
+
+  // Step 3: AI call 2 — write (outside transaction)
+  const { content: documentContent, usage: writeUsage, tierConfig: writeTier } = await callAI(
+    [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: `Berdasarkan outline berikut, tulis dokumen akademik lengkap dalam Bahasa Indonesia:\n\n${metadata.outline ?? "Tulis dokumen berdasarkan instruksi dosen."}\n\nTulis dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan bahasa akademik yang natural dan mengalir.` },
+    ],
+    selectedTier.id,
+  );
+
+  // Step 4: consume quotas (outside transaction — idempotent)
+  if (!selectedTier.isFree && analysisUsage.costCents > 0) {
+    const consumeResult = await consumeQuotaForAIRequest({
+      userId: project.userId,
+      tierId: selectedTier.id,
+      inputTokens: analysisUsage.inputTokens,
+      outputTokens: analysisUsage.outputTokens,
+      costCents: analysisUsage.costCents,
+    });
+    if (!consumeResult.allowed) {
+      logger.warn({ userId: project.userId, reason: consumeResult.reason }, "Quota/saldo exhausted during analyze");
+    }
+  }
+
+  let writeQuota: Awaited<ReturnType<typeof consumeQuotaForAIRequest>> | null = null;
+  if (!selectedTier.isFree && writeUsage.costCents > 0) {
+    writeQuota = await consumeQuotaForAIRequest({
+      userId: project.userId,
+      tierId: selectedTier.id,
+      inputTokens: writeUsage.inputTokens,
+      outputTokens: writeUsage.outputTokens,
+      costCents: writeUsage.costCents,
+    });
+    if (!writeQuota.allowed) {
+      logger.warn({ userId: project.userId, reason: writeQuota.reason }, "Quota/saldo exhausted during write");
+    }
+  }
+
+  // Step 5: all DB writes in a single transaction (M4 fix)
+  await db.transaction(async (tx) => {
+    await tx
       .update(jobsTable)
       .set({ status: "running" })
       .where(eq(jobsTable.id, jobId));
 
-    const [project] = await db
-      .select()
-      .from(projectsTable)
-      .where(eq(projectsTable.id, projectId));
-
-    if (!project) throw new Error("Project not found");
-
-    // Sanitize instruction text against prompt injection before it enters AI prompts
-    const safeInstructionText = sanitizeInstructionText(project.instructionText ?? "");
-
-    const systemPrompt = buildSystemPrompt({
-      title: project.title,
-      instructionText: safeInstructionText,
-    });
-
-    const analysisPrompt = `Analisis instruksi tugas berikut dan berikan respons dalam format JSON:
-
-INSTRUKSI TUGAS:
-${safeInstructionText || project.title}
-
-Hasilkan JSON dengan struktur berikut (HANYA JSON, tanpa teks lain):
-{
-  "detectedTitle": "judul yang tepat untuk tugas ini",
-  "subject": "nama mata kuliah yang relevan",
-  "taskType": "jenis tugas (makalah/skripsi/laporan/esai/dll)",
-  "citationFormat": "format sitasi yang sesuai (APA/MLA/Chicago/IEEE/dll)",
-  "language": "bahasa utama (Indonesia/Inggris)",
-  "outline": "outline lengkap dalam format:\\nBAB I: ...\\nA. ...\\nB. ...\\n\\nBAB II: ...\\ndll",
-  "contextSummary": "ringkasan konteks tugas dalam 2-3 kalimat"
-}`;
-
-    const { content: aiResponse, usage: analysisUsage, tierConfig: analysisTier } = await callAI(
-      [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: analysisPrompt },
-      ],
-      selectedTier.id,
-    );
-
-    const analyzeUsageLog = await logAIUsage({
-      userId: project.userId,
-      projectId,
-      requestType: "analyze",
-      usage: analysisUsage,
-      tierConfig: analysisTier,
-    });
-
-    if (!selectedTier.isFree && analysisUsage.costCents > 0) {
-      const consumeResult = await consumeQuotaForAIRequest({
-        userId: project.userId,
-        tierId: selectedTier.id,
-        inputTokens: analysisUsage.inputTokens,
-        outputTokens: analysisUsage.outputTokens,
-        costCents: analysisUsage.costCents,
-      });
-      if (!consumeResult.allowed) {
-        logger.warn(
-          { userId: project.userId, reason: consumeResult.reason },
-          "Quota/saldo exhausted during analyze"
-        );
-      }
-    }
-
-    const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
-    let metadata: Record<string, string> = {};
-    if (jsonMatch) {
-      try {
-        metadata = JSON.parse(jsonMatch[0]);
-      } catch {
-        metadata = {};
-      }
-    }
-
-    await db
+    await tx
       .insert(projectMetadataTable)
       .values({
         projectId,
@@ -491,7 +482,7 @@ Hasilkan JSON dengan struktur berikut (HANYA JSON, tanpa teks lain):
         },
       });
 
-    await db
+    await tx
       .update(projectsTable)
       .set({
         subject: metadata.subject ?? null,
@@ -503,61 +494,19 @@ Hasilkan JSON dengan struktur berikut (HANYA JSON, tanpa teks lain):
       .where(eq(projectsTable.id, projectId));
 
     if (metadata.outline) {
-      await db.insert(messagesTable).values({
+      await tx.insert(messagesTable).values({
         projectId,
         role: "system",
         content: `Analisis selesai. Outline:\n\n${metadata.outline}`,
       });
     }
 
-    const writeJob = await db
+    const [writeJob] = await tx
       .insert(jobsTable)
       .values({ projectId, jobType: "write_chapter", status: "running" })
       .returning();
 
-    await logActivity(projectId, "analysis_complete", "Analisis instruksi selesai, outline dibuat");
-    await logActivity(projectId, "writing_started", "Penulisan dokumen dimulai");
-
-    const writePrompt = `Berdasarkan outline berikut, tulis dokumen akademik lengkap dalam Bahasa Indonesia:
-
-${metadata.outline ?? "Tulis dokumen berdasarkan instruksi dosen."}
-
-Tulis dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan bahasa akademik yang natural dan mengalir.`;
-
-    const { content: documentContent, usage: writeUsage, tierConfig: writeTier } = await callAI(
-      [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: writePrompt },
-      ],
-      selectedTier.id,
-    );
-
-    const writeUsageLog = await logAIUsage({
-      userId: project.userId,
-      projectId,
-      requestType: "write",
-      usage: writeUsage,
-      tierConfig: writeTier,
-    });
-
-    let writeQuota: Awaited<ReturnType<typeof consumeQuotaForAIRequest>> | null = null;
-    if (!selectedTier.isFree && writeUsage.costCents > 0) {
-      writeQuota = await consumeQuotaForAIRequest({
-        userId: project.userId,
-        tierId: selectedTier.id,
-        inputTokens: writeUsage.inputTokens,
-        outputTokens: writeUsage.outputTokens,
-        costCents: writeUsage.costCents,
-      });
-      if (!writeQuota.allowed) {
-        logger.warn(
-          { userId: project.userId, reason: writeQuota.reason },
-          "Quota/saldo exhausted during write"
-        );
-      }
-    }
-
-    const versions = await db
+    const [version] = await tx
       .select()
       .from(documentVersionsTable)
       .where(
@@ -566,10 +515,9 @@ Tulis dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan b
           isNull(documentVersionsTable.documentId)
         )
       );
+    const newVersion = (version?.versionNumber ?? 0) + 1;
 
-    const newVersion = versions.length + 1;
-
-    await db.insert(documentVersionsTable).values({
+    await tx.insert(documentVersionsTable).values({
       projectId,
       versionNumber: newVersion,
       content: documentContent,
@@ -577,42 +525,45 @@ Tulis dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan b
       changeDescription: "Dokumen awal dihasilkan dari analisis instruksi",
     });
 
-    await db
+    const [doc] = await tx
+      .insert(documentsTable)
+      .values({ projectId, versionNumber: newVersion })
+      .returning();
+
+    await tx.insert(documentVersionsTable).values({
+      projectId,
+      versionNumber: newVersion,
+      documentId: doc.id,
+      content: documentContent,
+      outline: metadata.outline ?? null,
+      changeDescription: "Versi terkelola",
+    });
+
+    await tx
       .update(projectsTable)
       .set({ status: "waiting_revision", progress: 80 })
       .where(eq(projectsTable.id, projectId));
 
-    await db
+    await tx
       .update(jobsTable)
       .set({ status: "completed", result: "Dokumen berhasil ditulis" })
-      .where(eq(jobsTable.id, writeJob[0].id));
+      .where(eq(jobsTable.id, writeJob.id));
 
-    await db
+    await tx
       .update(jobsTable)
       .set({ status: "completed", result: "Analisis dan penulisan selesai" })
       .where(eq(jobsTable.id, jobId));
+  });
 
-    await logActivity(projectId, "document_written", `Versi ${newVersion} dokumen selesai ditulis`);
+  // Activity logs (fire-and-forget, non-critical)
+  logActivity(projectId, "analysis_complete", "Analisis instruksi selesai, outline dibuat");
+  logActivity(projectId, "writing_started", "Penulisan dokumen dimulai");
+  logActivity(projectId, "document_written", `Versi ${(version?.versionNumber ?? 0) + 1} dokumen selesai ditulis`);
 
-    return {
-      method: writeQuota?.allowed ? (writeQuota.method ?? "subscription") : "subscription",
-      saldoUsedCents: writeQuota?.allowed && writeQuota.method === "saldo" ? (writeQuota.deductCents ?? 0) : 0,
-    };
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    await db
-      .update(jobsTable)
-      .set({ status: "failed", errorMessage: message })
-      .where(eq(jobsTable.id, jobId));
-
-    await db
-      .update(projectsTable)
-      .set({ status: "draft" })
-      .where(eq(projectsTable.id, projectId));
-
-    await logActivity(projectId, "analysis_failed", `Analisis gagal: ${message}`);
-    throw err;
-  }
+  return {
+    method: writeQuota?.allowed ? (writeQuota.method ?? "subscription") : "subscription",
+    saldoUsedCents: writeQuota?.allowed && writeQuota.method === "saldo" ? (writeQuota.deductCents ?? 0) : 0,
+  };
 }
 
 // POST /projects/:projectId/outline
@@ -922,92 +873,91 @@ async function runDocumentGeneration(
   outline: string,
   selectedTier: NonNullable<Awaited<ReturnType<typeof getTierConfig>>>,
 ): Promise<{ method: string; saldoUsedCents: number }> {
-  try {
-    await db
+  // Read-only DB ops outside transaction
+  const [project] = await db
+    .select()
+    .from(projectsTable)
+    .where(eq(projectsTable.id, projectId));
+  if (!project) throw new Error("Project not found");
+
+  const systemPrompt = buildSystemPrompt({
+    title: project.title,
+    instructionText: project.instructionText ?? undefined,
+    citationFormat: project.citationFormat ?? undefined,
+  });
+
+  const [metadata] = await db
+    .select()
+    .from(projectMetadataTable)
+    .where(eq(projectMetadataTable.projectId, projectId));
+
+  const refs = await db
+    .select()
+    .from(referencesTable)
+    .where(eq(referencesTable.projectId, projectId));
+
+  const refList = refs.length > 0
+    ? `\nREFERENSI YANG DAPAT DIGUNAKAN:\n${refs
+        .map(
+          (r, i) =>
+            `${i + 1}. ${r.authors ?? "Penulis"} (${r.year ?? "n.d."}). ${r.title}.`
+        )
+        .join("\n")}`
+    : "";
+
+  // AI call — outside transaction (no DB side effects)
+  const { content: documentContent, usage, tierConfig } = await callAI(
+    [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: `Tulis dokumen akademik lengkap dalam Bahasa Indonesia berdasarkan outline berikut:\n\nOUTLINE:\n${outline}${refList}\n\nTULIS dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan bahasa akademik yang natural dan mengalir. Panjang dokumen: minimal 2000 kata.` },
+    ],
+    selectedTier.id,
+  );
+
+  await logAIUsage({
+    userId: project.userId,
+    projectId,
+    requestType: "write",
+    usage,
+    tierConfig,
+  });
+
+  let quotaResult: Awaited<ReturnType<typeof consumeQuotaForAIRequest>> | null = null;
+  if (!selectedTier.isFree && usage.costCents > 0) {
+    quotaResult = await consumeQuotaForAIRequest({
+      userId: project.userId,
+      tierId: selectedTier.id,
+      inputTokens: usage.inputTokens,
+      outputTokens: usage.outputTokens,
+      costCents: usage.costCents,
+    });
+    if (!quotaResult.allowed) {
+      logger.warn(
+        { userId: project.userId, reason: quotaResult.reason },
+        "Quota/saldo exhausted during generate document"
+      );
+    }
+  }
+
+  const [version] = await db
+    .select()
+    .from(documentVersionsTable)
+    .where(
+      and(
+        eq(documentVersionsTable.projectId, projectId),
+        isNull(documentVersionsTable.documentId)
+      )
+    );
+  const newVersion = (version?.versionNumber ?? 0) + 1;
+
+  // All DB writes in a single transaction (M4 fix)
+  await db.transaction(async (tx) => {
+    await tx
       .update(jobsTable)
       .set({ status: "running" })
       .where(eq(jobsTable.id, jobId));
 
-    const [project] = await db
-      .select()
-      .from(projectsTable)
-      .where(eq(projectsTable.id, projectId));
-
-    if (!project) throw new Error("Project not found");
-
-    const systemPrompt = buildSystemPrompt({
-      title: project.title,
-      instructionText: project.instructionText ?? undefined,
-      citationFormat: project.citationFormat ?? undefined,
-    });
-
-    const [metadata] = await db
-      .select()
-      .from(projectMetadataTable)
-      .where(eq(projectMetadataTable.projectId, projectId));
-
-    const refs = await db
-      .select()
-      .from(referencesTable)
-      .where(eq(referencesTable.projectId, projectId));
-
-    const refList = refs.length > 0
-      ? `\nREFERENSI YANG DAPAT DIGUNAKAN:\n${refs
-          .map(
-            (r, i) =>
-              `${i + 1}. ${r.authors ?? "Penulis"} (${r.year ?? "n.d."}). ${r.title}.`
-          )
-          .join("\n")}`
-      : "";
-
-    const writePrompt = `Tulis dokumen akademik lengkap dalam Bahasa Indonesia berdasarkan outline berikut:\n\nOUTLINE:\n${outline}${refList}\n\nTULIS dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan bahasa akademik yang natural dan mengalir. Panjang dokumen: minimal 2000 kata.`;
-
-    const { content: documentContent, usage, tierConfig } = await callAI(
-      [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: writePrompt },
-      ],
-      selectedTier.id,
-    );
-
-    const usageLog = await logAIUsage({
-      userId: project.userId,
-      projectId,
-      requestType: "write",
-      usage,
-      tierConfig,
-    });
-
-    let quotaResult: Awaited<ReturnType<typeof consumeQuotaForAIRequest>> | null = null;
-    if (!selectedTier.isFree && usage.costCents > 0) {
-      quotaResult = await consumeQuotaForAIRequest({
-        userId: project.userId,
-        tierId: selectedTier.id,
-        inputTokens: usage.inputTokens,
-        outputTokens: usage.outputTokens,
-        costCents: usage.costCents,
-      });
-      if (!quotaResult.allowed) {
-        logger.warn(
-          { userId: project.userId, reason: quotaResult.reason },
-          "Quota/saldo exhausted during generate document"
-        );
-      }
-    }
-
-    const versions = await db
-      .select()
-      .from(documentVersionsTable)
-      .where(
-        and(
-          eq(documentVersionsTable.projectId, projectId),
-          isNull(documentVersionsTable.documentId)
-        )
-      );
-
-    const newVersion = versions.length + 1;
-
-    await db.insert(documentVersionsTable).values({
+    await tx.insert(documentVersionsTable).values({
       projectId,
       versionNumber: newVersion,
       content: documentContent,
@@ -1015,37 +965,23 @@ async function runDocumentGeneration(
       changeDescription: `Dokumen versi ${newVersion} — Generated from outline`,
     });
 
-    await db
+    await tx
       .update(projectsTable)
       .set({ status: "waiting_revision", progress: 80 })
       .where(eq(projectsTable.id, projectId));
 
-    await db
+    await tx
       .update(jobsTable)
       .set({ status: "completed", result: `Dokumen versi ${newVersion} berhasil ditulis` })
       .where(eq(jobsTable.id, jobId));
+  });
 
-    await logActivity(projectId, "document_generated", `Versi ${newVersion} dokumen berhasil ditulis`);
+  logActivity(projectId, "document_generated", `Versi ${newVersion} dokumen berhasil ditulis`);
 
-    return {
-      method: quotaResult?.allowed ? (quotaResult.method ?? "subscription") : "subscription",
-      saldoUsedCents: quotaResult?.allowed && quotaResult.method === "saldo" ? (quotaResult.deductCents ?? 0) : 0,
-    };
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    await db
-      .update(jobsTable)
-      .set({ status: "failed", errorMessage: message })
-      .where(eq(jobsTable.id, jobId));
-
-    await db
-      .update(projectsTable)
-      .set({ status: "draft" })
-      .where(eq(projectsTable.id, projectId));
-
-    await logActivity(projectId, "document_generation_failed", `Penulisan gagal: ${message}`);
-    throw err;
-  }
+  return {
+    method: quotaResult?.allowed ? (quotaResult.method ?? "subscription") : "subscription",
+    saldoUsedCents: quotaResult?.allowed && quotaResult.method === "saldo" ? (quotaResult.deductCents ?? 0) : 0,
+  };
 }
 
 // ── Export DOCX ───────────────────────────────────────────────────────────────
