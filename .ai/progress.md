@@ -19,6 +19,63 @@
 
 **Commits:** `1b77102` (H1), `842c136` (checkpoint), `c946a38` (H4), `c97fa51` (H5), `0030873` (H7), `c639e1d` (H6)
 
+---
+
+## 2026-09-13 | C1/C2/M9 audit finalization + INC-005 + SOP creation (opus-4-8)
+
+**Branch:** `main` + `feat/daftar-task`
+
+### Final 3 audit findings + INC-005 (feat/daftar-task tiktoken persists)
+
+| Finding | Description | Files | Status | Commit |
+|---------|-----------|-------|--------|--------|
+| C1 | `supabase-admin.ts` throws at module level → lazy init via Proxy + `getSupabaseAdminOr503()` helper | `lib/supabase-admin.ts` | ✅ FIXED | `2f88046` |
+| C2 | No file size limit on uploads (OOM risk) → 10MB binary / 13.97M base64 chars / 413 | `routes/attachments.ts` | ✅ FIXED | `2f88046` |
+| M9 | DOCX export CPU-intensive → 5MB source cap / 422 | `routes/exports.ts` | ✅ FIXED | `2f88046` |
+| INC-005 | feat/daftar-task tiktoken persisted after INC-004 fix → replace with heuristic | `lib/tokenizer.ts` (feat/daftar-task), `lib/ai.ts` | ✅ FIXED | `66b1cab` |
+
+### SOPs created (anti-recurrence per owner request)
+
+- **SOP-001** Deploy Verification Gate — `docs/ai-team/sops/SOP-001-deploy-verification-gate.md`
+- **SOP-002** Cross-Branch Consistency — `docs/ai-team/sops/SOP-002-cross-branch-consistency.md`
+- **Registry** Banned-deps (7 deps) — `docs/ai-team/sops/banned-deps.json`
+- **Scripts** 2 executable — `scripts/sop-pre-deploy-banned-deps-check.sh` + `scripts/sop-cross-branch-consistency-check.sh`
+- **Daily cron** 06:37 UTC — `.github/workflows/branch-consistency-daily.yml`
+
+**Commits:** `2f88046` (C1/C2/M9), `c38cb2c` (.ai/ memory), `e946d97` (decisions log), `9e6e142` (checkpoint), `66b1cab` (feat/daftar-task tiktoken), `3ba3b24` (INC-005 docs), `9658bb3` (SOPs + scripts), `1cc3f71` (INC-005 post-mortem + Q&A capture)
+
+---
+
+## 2026-09-13 | INC-005 + Owner Q&A: SOP Creation (opus-4-8)
+
+**Branch:** `main`
+
+### What owner asked (in chronological order)
+
+1. Owner identified 2 cases from observation: (a) web live tidak menampilkan data yang terupdate, (b) cari penyebab
+2. Owner Q: "apakah 2 case bisa terulang?" → AI jawab "bisa, kalau SOP tidak disiplin"
+3. Owner R: "buatkan SOP agar 2 case tidak terulang lagi" → SOP-001 + SOP-002 created
+4. Owner Q: "apa itu Daily cron, bagaimana saya tau kalau hijau?" → AI explain GitHub Actions UI + email notif
+5. Owner R: "pastikan simpan diskusi ini ke dokumentasi ya" → discussion captured
+
+### Deliverables pushed to origin/main
+
+- `docs/ai-team/incidents/20260913-002.md` — INC-005 post-mortem
+- `docs/ai-team/incidents/2026-09-13-discussion-sop-creation.md` — Q&A capture
+- `docs/ai-team/incidents/20260912-001.md` — INC-004 relocated (was in `.ai/` which is gitignored for new files)
+- `.ai/incidents/incident-registry.md` — updated registry
+
+### Production state at end of session
+
+- `teora-backend.vercel.app/api/healthz` → HTTP 200 (450ms warm)
+- New deploy `dpl_3862xm4zRniQPnduqCyuJZnEpMRg` READY (post-INC-005)
+- Cross-branch scan 23 branches: all clean (exit 0)
+- Pre-deploy check on main: exit 0
+
+**Commits:** `1cc3f71` (this entry)
+
+---
+
 ## 2026-09-09 | Referral Program — Deploy to Production (opus-4-6)
 
 **Branch:** `feat/daftar-task` → commit `ee4178d` (committed, NOT pushed to origin)

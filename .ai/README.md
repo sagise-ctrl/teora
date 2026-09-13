@@ -10,11 +10,11 @@ This directory contains AI team's working state. Updated at milestones by AI.
 | `progress.md` | Completed work log (chronological) |
 | `blockers.md` | Items waiting for owner decision |
 | `incidents/` | Production incident reports |
-| `checkpoints/` | Named checkpoints for resume |
-| `sessions/` | Full discussion archives (turn-by-turn) |
-| `daily/` | Daily status reports (owner-facing) |
-| `knowledge/` | Long-term AI team knowledge base |
-| `migrations/` | Database migration history |
+| `checkpoints/` | ⛔ **ARCHIVED** — replaced by `current-task.md` + `progress.md` |
+| `sessions/` | ⛔ **ARCHIVED** — discussion summaries captured in `progress.md` |
+| `daily/` | ⛔ **ARCHIVED** — replaced by `current-task.md` |
+| `knowledge/` | ⛔ **ARCHIVED** — lessons promoted to `.claude/skills/` + `lessons-learned.md` |
+| `audit/` | ⛔ **ARCHIVED** — superseded by `master-audit-20260905.md` + production state docs |
 
 ## Rules
 
