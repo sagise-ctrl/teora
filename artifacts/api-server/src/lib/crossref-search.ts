@@ -55,6 +55,8 @@ function extractYear(crItem: Record<string, unknown>): number | null {
   return null;
 }
 
+import { withCrossRefRateLimit } from "./crossref-ratelimit.js";
+
 export async function searchCrossRef(
   query: string,
   options: {
@@ -77,12 +79,16 @@ export async function searchCrossRef(
 
   const url = `${CROSSREF_BASE}?${params.toString()}`;
 
-  const response = await fetch(url, {
-    headers: {
-      "User-Agent": `Teora/1.0 (mailto:${POLITE_EMAIL})`,
-      "Accept": "application/json",
-    },
-  });
+  // Wrap fetch in rate limiter to respect CrossRef API limits
+  // (5 req/sec for polite pool, 10 req/sec for authenticated)
+  const response = await withCrossRefRateLimit(() =>
+    fetch(url, {
+      headers: {
+        "User-Agent": `Teora/1.0 (mailto:${POLITE_EMAIL})`,
+        "Accept": "application/json",
+      },
+    })
+  );
 
   if (!response.ok) {
     if (response.status === 429) {
