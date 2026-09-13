@@ -176,7 +176,7 @@ IMPORTANT: Return ONLY the JSON object, no markdown code blocks.`;
       });
       return;
     }
-    console.error("Writing style analysis error:", err);
+    logger.error({ err }, "Writing style analysis error");
     res.status(500).json({ error: "Failed to analyze writing style" });
   }
 });

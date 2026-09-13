@@ -19,13 +19,13 @@
     "@citation-js/plugin-doi": "^0.8.2",
     "@citation-js/plugin-isbn": "^0.4.0",
     "@react-pdf/renderer": "^4.8.1",
-    "@supabase/supabase-js": "^2.112.2",
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^25.3.3",
     "@types/pg": "^8.11.16",
-    "@types/supertest": "^6.0.3",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
     "@vercel/node": "^3.2.29",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
@@ -43,10 +43,14 @@
     "pino-http": "^10.5.0",
     "pino-pretty": "^13.1.3",
     "pptxgenjs": "^4.0.1",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "supertest": "^7.2.2",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
     "thread-stream": "3.1.0",
     "zod": "^4"
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "^2.112.2",
+    "@types/supertest": "^6.0.3",
+    "supertest": "^7.2.2"
   }
 }

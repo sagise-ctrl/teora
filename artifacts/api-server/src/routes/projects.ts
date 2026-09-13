@@ -1,5 +1,6 @@
 import { Router, type IRouter, type Request } from "express";
 import { eq, desc, sql, and, isNull } from "drizzle-orm";
+import { randomBytes } from "crypto";
 import {
   db,
   projectsTable,
@@ -1268,12 +1269,7 @@ router.get("/projects/:projectId/export/pptx", async (req, res): Promise<void> =
 // ── Share Links ──────────────────────────────────────────────────────────────
 
 function generateToken(): string {
-  const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let token = "";
-  for (let i = 0; i < 32; i++) {
-    token += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return token;
+  return randomBytes(32).toString("base64url");
 }
 
 // GET /projects/:projectId/share

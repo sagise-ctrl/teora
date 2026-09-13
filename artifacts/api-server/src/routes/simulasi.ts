@@ -1,5 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, asc, and, sql, desc } from "drizzle-orm";
+import { randomBytes } from "crypto";
 import {
   db,
   simulationSessionsTable,
@@ -943,11 +944,7 @@ router.post("/projects/:projectId/simulasi/sessions/:sessionId/share", async (re
   const expiresInDays = (req.body?.expiresInDays as number | undefined) ?? 7;
   const expiresAt = new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000);
 
-  const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let token = "";
-  for (let i = 0; i < 32; i++) {
-    token += chars[Math.floor(Math.random() * chars.length)];
-  }
+  const token = randomBytes(32).toString("base64url");
 
   const [shareToken] = await db
     .insert(shareTokensTable)

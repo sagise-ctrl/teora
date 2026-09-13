@@ -206,7 +206,7 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks.`;
       });
       return;
     }
-    console.error("Rubric generation error:", err);
+    logger.error({ err }, "Rubric generation error");
     res.status(500).json({ error: "Failed to generate rubric" });
   }
 });

@@ -271,7 +271,7 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks, no explanation.`;
       });
       return;
     }
-    console.error("Quiz generation error:", err);
+    logger.error({ err }, "Quiz generation error");
     res.status(500).json({ error: "Failed to generate quiz" });
   }
 });

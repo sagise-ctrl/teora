@@ -4,6 +4,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { customAlphabet } from "nanoid";
 import { db, usersTable, referralsTable, referralEventsTable } from "@workspace/db";
 import { authMiddleware } from "../middlewares/auth.js";
+import { logger } from "../lib/logger.js";
 
 const router: IRouter = Router();
 
@@ -202,7 +203,7 @@ router.post("/auth/login", async (req, res): Promise<void> => {
 
     res.json(toUserJson(localUser));
   } catch (err) {
-    console.error("[auth/login] unhandled error", err);
+    logger.error({ err }, "[auth/login] unhandled error");
     if (!res.headersSent) {
       res.status(500).json({ error: "Login gagal. Silakan coba lagi." });
     }

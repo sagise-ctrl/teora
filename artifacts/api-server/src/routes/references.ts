@@ -570,7 +570,7 @@ router.get("/references/search", async (req, res): Promise<void> => {
     const data = await searchCrossRef(q, { rows, offset });
     res.json(data);
   } catch (err) {
-    console.error("[CrossRef Search]", err);
+    logger.error({ err }, "[CrossRef Search]");
     const message = err instanceof Error ? err.message : "Search failed";
     res.status(502).json({ error: message });
   }
@@ -1251,7 +1251,7 @@ ${candidateReferences
       });
       return;
     }
-    console.error("[auto-cite] AI call failed:", err);
+    logger.error({ err }, "[auto-cite] AI call failed");
     res.status(502).json({ error: "AI provider error", detail: message });
     return;
   }

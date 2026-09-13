@@ -62,7 +62,7 @@ router.get("/users/me/referral-info", async (req, res): Promise<void> => {
       referrerRewardTxCap: 5, // 5 transactions
     });
   } catch (err) {
-    console.error("[referral-info] unhandled", err);
+    logger.error({ err }, "[referral-info] unhandled");
     if (!res.headersSent) {
       res.status(500).json({ error: "Gagal memuat informasi referral." });
     }

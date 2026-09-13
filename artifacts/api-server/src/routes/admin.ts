@@ -9,6 +9,7 @@ import { aiUsageLogTable } from "@workspace/db";
 import { tokenTransactionsTable } from "@workspace/db";
 import { adminAuditLogTable } from "@workspace/db";
 import { sql, eq, count, or, and, gte } from "drizzle-orm";
+import { logger } from "../lib/logger.js";
 
 const router = Router();
 
@@ -102,7 +103,7 @@ router.get("/users", authMiddleware, requireOwner, async (req, res) => {
       },
     });
   } catch (err) {
-    console.error("[admin/users] error", err);
+    logger.error({ err }, "[admin/users] error");
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -218,7 +219,7 @@ router.get("/stats", authMiddleware, requireOwner, async (req, res) => {
       })),
     });
   } catch (err) {
-    console.error("[admin/stats] error", err);
+    logger.error({ err }, "[admin/stats] error");
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -303,7 +304,7 @@ router.get("/usage-breakdown", authMiddleware, requireOwner, async (req, res) =>
       })),
     });
   } catch (err) {
-    console.error("[admin/usage-breakdown] error", err);
+    logger.error({ err }, "[admin/usage-breakdown] error");
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -344,7 +345,7 @@ router.get("/audit-log", authMiddleware, requireOwner, async (req, res) => {
       },
     });
   } catch (err) {
-    console.error("[admin/audit-log] error", err);
+    logger.error({ err }, "[admin/audit-log] error");
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -371,7 +372,7 @@ router.post("/users/:userId/tier", authMiddleware, requireOwner, async (req, res
 
     res.json({ success: true });
   } catch (err) {
-    console.error("[admin/tier-override] error", err);
+    logger.error({ err }, "[admin/tier-override] error");
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -395,7 +396,7 @@ router.post("/users/:userId/suspend", authMiddleware, requireOwner, async (req, 
 
     res.json({ success: true, message: suspend ? "User suspended" : "User unsuspended" });
   } catch (err) {
-    console.error("[admin/suspend] error", err);
+    logger.error({ err }, "[admin/suspend] error");
     res.status(500).json({ error: "Internal server error" });
   }
 });
