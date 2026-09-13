@@ -87,6 +87,7 @@ import type {
   GetAdminStatsParams,
   GetAdminUsageParams,
   GetAdminUsageStatsParams,
+  GetMyUsageDailyHistoryParams,
   GetMyUsageStatsParams,
   HealthStatus,
   ImportAccountReferencesRequest,
@@ -152,6 +153,8 @@ import type {
   UpdateMyWritingStyleBody,
   UpdateProfileRequest,
   UpdateRubricBody,
+  UsageDailyHistory,
+  UsageWindowsSummary,
   UserBalance,
   UserProfile,
   UserReferralInfo,
@@ -5424,6 +5427,167 @@ export function useGetMyProjectUsageStats<TData = Awaited<ReturnType<typeof getM
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetMyProjectUsageStatsQueryOptions(projectId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetMyUsageDailyHistoryUrl = (params?: GetMyUsageDailyHistoryParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/users/me/usage/daily?${stringifiedParams}` : `/api/users/me/usage/daily`
+}
+
+/**
+ * @summary Get daily aggregated AI usage history
+ */
+export const getMyUsageDailyHistory = async (params?: GetMyUsageDailyHistoryParams, options?: Parameters<typeof customFetch>[1]): Promise<UsageDailyHistory> => {
+
+  return customFetch<UsageDailyHistory>(getGetMyUsageDailyHistoryUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMyUsageDailyHistoryQueryKey = (params?: GetMyUsageDailyHistoryParams,) => {
+    return [
+    `/api/users/me/usage/daily`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetMyUsageDailyHistoryQueryOptions = <TData = Awaited<ReturnType<typeof getMyUsageDailyHistory>>, TError = ErrorType<void>>(params?: GetMyUsageDailyHistoryParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyUsageDailyHistory>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMyUsageDailyHistoryQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyUsageDailyHistory>>> = ({ signal }) => getMyUsageDailyHistory(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMyUsageDailyHistory>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMyUsageDailyHistoryQueryResult = NonNullable<Awaited<ReturnType<typeof getMyUsageDailyHistory>>>
+export type GetMyUsageDailyHistoryQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get daily aggregated AI usage history
+ */
+
+export function useGetMyUsageDailyHistory<TData = Awaited<ReturnType<typeof getMyUsageDailyHistory>>, TError = ErrorType<void>>(
+ params?: GetMyUsageDailyHistoryParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyUsageDailyHistory>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMyUsageDailyHistoryQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetMyUsageWindowsUrl = () => {
+
+
+
+
+  return `/api/users/me/usage/windows`
+}
+
+/**
+ * @summary Get current 5h and 7d quota window usage with subscription info
+ */
+export const getMyUsageWindows = async ( options?: Parameters<typeof customFetch>[1]): Promise<UsageWindowsSummary> => {
+
+  return customFetch<UsageWindowsSummary>(getGetMyUsageWindowsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMyUsageWindowsQueryKey = () => {
+    return [
+    `/api/users/me/usage/windows`
+    ] as const;
+    }
+
+
+export const getGetMyUsageWindowsQueryOptions = <TData = Awaited<ReturnType<typeof getMyUsageWindows>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyUsageWindows>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMyUsageWindowsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyUsageWindows>>> = ({ signal }) => getMyUsageWindows({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMyUsageWindows>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMyUsageWindowsQueryResult = NonNullable<Awaited<ReturnType<typeof getMyUsageWindows>>>
+export type GetMyUsageWindowsQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get current 5h and 7d quota window usage with subscription info
+ */
+
+export function useGetMyUsageWindows<TData = Awaited<ReturnType<typeof getMyUsageWindows>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyUsageWindows>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMyUsageWindowsQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

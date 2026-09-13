@@ -1260,6 +1260,53 @@ export interface FinOpsAdminUsageStats {
   dailyTotals: FinOpsAdminUsageStatsDailyTotalsItem[];
 }
 
+export interface UsageWindowStatus {
+  /** Total tokens used in this window (Haiku + Sonnet combined) */
+  usedTokens: number;
+  /** Total token limit for this window */
+  limitTokens: number;
+  /** Approximate hours used (tokens / 100 tokens-per-message / 12 msg/h) */
+  usedHours: number;
+  /** Approximate hourly limit */
+  limitHours: number;
+  costCents?: number;
+  /** Percentage of quota used (0-100) */
+  pct: number;
+  /** When the current window resets */
+  resetAt: string;
+}
+
+export type UsageWindowsSummarySubscription = {
+  id?: string;
+  /** @nullable */
+  packageName?: string | null;
+  /** @nullable */
+  packageTier?: string | null;
+  expiresAt?: string;
+  /** @nullable */
+  modelType?: string | null;
+} | null;
+
+export interface UsageWindowsSummary {
+  subscription?: UsageWindowsSummarySubscription;
+  windows5h?: UsageWindowStatus;
+  windows7d?: UsageWindowStatus;
+}
+
+export type UsageDailyHistoryHistoryItem = {
+  /** Date string (YYYY-MM-DD) */
+  date?: string;
+  tokens?: number;
+  hours?: number;
+  costCents?: number;
+  requestCount?: number;
+};
+
+export interface UsageDailyHistory {
+  days?: number;
+  history?: UsageDailyHistoryHistoryItem[];
+}
+
 export interface FetchReferenceMetadataRequest {
   /** DOI (e.g. 10.1000/xyz123) or ISBN-10/ISBN-13 */
   identifier: string;
@@ -2455,6 +2502,15 @@ export const GetMyUsageStatsPeriod = {
   '30d': '30d',
   all: 'all',
 } as const;
+
+export type GetMyUsageDailyHistoryParams = {
+/**
+ * Number of days to include (1-30)
+ * @minimum 1
+ * @maximum 30
+ */
+days?: number;
+};
 
 export type GetAdminUsageStatsParams = {
 /**

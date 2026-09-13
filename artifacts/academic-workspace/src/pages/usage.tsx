@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { useGetMyBalance } from "@/lib/api-client-react";
+import { useQuery } from "@tanstack/react-query";
+import { useGetMyBalance, getGetMyUsageDailyHistoryQueryOptions, getGetMyUsageWindowsQueryOptions } from "@/lib/api-client-react";
 import {
   Coins,
   ArrowLeft,
@@ -19,6 +20,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function formatIDR(cents: number | undefined | null): string {
   const value = typeof cents === "number" ? cents : 0;
@@ -42,36 +44,33 @@ function formatDate(dateStr: string | undefined | null): string {
   }
 }
 
-// Mock data — replace with real API when backend is ready
-const MOCK_SUBSCRIPTION = {
-  packageName: "Premium Plan",
-  packageTier: "premium",
-  expiresAt: "2026-09-30T23:59:59Z",
-};
+function formatHistoryDate(dateStr: string): string {
+  // "YYYY-MM-DD" → "8 Sep 2026"
+  try {
+    return new Date(dateStr + "T00:00:00").toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  } catch {
+    return dateStr;
+  }
+}
 
-const MOCK_USAGE_5H = {
-  used: 2.3,
-  limit: 5,
-  unit: "jam",
-  resetAt: "Hari ini pk 22:00",
-};
-
-const MOCK_USAGE_7D = {
-  used: 14.2,
-  limit: 50,
-  unit: "jam",
-  resetAt: "5 Sep 2026",
-};
-
-const MOCK_HISTORY = [
-  { date: "8 Sep 2026", hours: 1.5, costCents: 1500 },
-  { date: "7 Sep 2026", hours: 2.1, costCents: 2100 },
-  { date: "6 Sep 2026", hours: 3.0, costCents: 3000 },
-  { date: "5 Sep 2026", hours: 1.8, costCents: 1800 },
-  { date: "4 Sep 2026", hours: 2.5, costCents: 2500 },
-  { date: "3 Sep 2026", hours: 1.1, costCents: 1100 },
-  { date: "2 Sep 2026", hours: 2.2, costCents: 2200 },
-];
+function formatResetAt(isoDate: string): string {
+  // "2026-09-13T22:00:00Z" → "Hari ini pk 22:00" or "13 Sep 2026"
+  try {
+    const d = new Date(isoDate);
+    const now = new Date();
+    const isToday = d.toDateString() === now.toDateString();
+    if (isToday) {
+      return `Hari ini pk ${d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", hour12: false })}`;
+    }
+    return d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
+  } catch {
+    return isoDate;
+  }
+}
 
 function UsageBar({
   used,
@@ -204,14 +203,54 @@ function DailyHistoryRow({
 export default function Usage() {
   const { data: balance } = useGetMyBalance();
 
-  const subscription = MOCK_SUBSCRIPTION;
-  const usage5h = MOCK_USAGE_5H;
-  const usage7d = MOCK_USAGE_7D;
-  const history = MOCK_HISTORY;
+  const { data: windowsData, isLoading: windowsLoading } = useQuery(
+    getGetMyUsageWindowsQueryOptions()
+  );
+  const { data: dailyData, isLoading: dailyLoading } = useQuery(
+    getGetMyUsageDailyHistoryQueryOptions({ days: 7 })
+  );
+
+  // Default fallback for subscription
+  const subscription = windowsData?.subscription ?? {
+    packageName: "Tanpa Paket",
+    packageTier: null,
+    expiresAt: null,
+  };
+
+  // Default fallback for usage windows
+  const windows5h = windowsData?.windows5h ?? {
+    usedHours: 0, limitHours: 0, resetAt: "",
+  };
+  const windows7d = windowsData?.windows7d ?? {
+    usedHours: 0, limitHours: 0, resetAt: "",
+  };
+
+  // Map API response to component shape
+  const usage5h = {
+    used: windows5h.usedHours,
+    limit: windows5h.limitHours,
+    unit: "jam",
+    resetAt: windows5h.resetAt ? formatResetAt(windows5h.resetAt) : "-",
+  };
+  const usage7d = {
+    used: windows7d.usedHours,
+    limit: windows7d.limitHours,
+    unit: "jam",
+    resetAt: windows7d.resetAt ? formatResetAt(windows7d.resetAt) : "-",
+  };
+
+  // Map daily history
+  const history = (dailyData?.history ?? []).map((day) => ({
+    date: formatHistoryDate(day.date ?? ""),
+    hours: day.hours ?? 0,
+    costCents: day.costCents ?? 0,
+  }));
 
   const todayUsage = history[0];
   const totalHistoryCost = history.reduce((s, d) => s + d.costCents, 0);
   const balanceCents = balance?.balanceCents ?? 0;
+
+  const isLoading = windowsLoading || dailyLoading;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -243,21 +282,32 @@ export default function Usage() {
                 <Package className="w-5 h-5 text-white" />
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <p className="text-sm font-bold">{subscription.packageName}</p>
-                  <Badge
-                    variant="secondary"
-                    className="text-[10px] px-1.5 py-0 h-4 bg-gradient-to-r from-[#2D79FF]/10 to-[#8E54E9]/10 text-[#2D79FF] border-0 font-medium"
-                  >
-                    Aktif
-                  </Badge>
-                </div>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <Calendar className="w-3 h-3 text-muted-foreground" />
-                  <p className="text-xs text-muted-foreground">
-                    Berakhir {formatDate(subscription.expiresAt)}
-                  </p>
-                </div>
+                {isLoading ? (
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-3 w-24" />
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-bold">{subscription.packageName}</p>
+                      <Badge
+                        variant="secondary"
+                        className="text-[10px] px-1.5 py-0 h-4 bg-gradient-to-r from-[#2D79FF]/10 to-[#8E54E9]/10 text-[#2D79FF] border-0 font-medium"
+                      >
+                        Aktif
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <Calendar className="w-3 h-3 text-muted-foreground" />
+                      <p className="text-xs text-muted-foreground">
+                        {subscription.expiresAt
+                          ? `Berakhir ${formatDate(subscription.expiresAt)}`
+                          : "Tidak ada paket aktif"}
+                      </p>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
             <Link href="/subscribe">
@@ -271,24 +321,47 @@ export default function Usage() {
 
       {/* Usage Columns: 5h + 7d */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <UsageColumn
-          label="Batas 5 Jam"
-          used={usage5h.used}
-          limit={usage5h.limit}
-          unit={usage5h.unit}
-          resetAt={usage5h.resetAt}
-          color="#2D79FF"
-          icon={Clock}
-        />
-        <UsageColumn
-          label="Batas 7 Hari"
-          used={usage7d.used}
-          limit={usage7d.limit}
-          unit={usage7d.unit}
-          resetAt={usage7d.resetAt}
-          color="#8E54E9"
-          icon={TrendingDown}
-        />
+        {isLoading ? (
+          <>
+            <Card className="bg-card border-border/50 flex-1">
+              <CardContent className="p-5 space-y-4">
+                <Skeleton className="h-8 w-8 rounded-lg" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-2 w-full rounded-full" />
+                <Skeleton className="h-3 w-24" />
+              </CardContent>
+            </Card>
+            <Card className="bg-card border-border/50 flex-1">
+              <CardContent className="p-5 space-y-4">
+                <Skeleton className="h-8 w-8 rounded-lg" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-2 w-full rounded-full" />
+                <Skeleton className="h-3 w-24" />
+              </CardContent>
+            </Card>
+          </>
+        ) : (
+          <>
+            <UsageColumn
+              label="Batas 5 Jam"
+              used={usage5h.used}
+              limit={usage5h.limit}
+              unit={usage5h.unit}
+              resetAt={usage5h.resetAt}
+              color="#2D79FF"
+              icon={Clock}
+            />
+            <UsageColumn
+              label="Batas 7 Hari"
+              used={usage7d.used}
+              limit={usage7d.limit}
+              unit={usage7d.unit}
+              resetAt={usage7d.resetAt}
+              color="#8E54E9"
+              icon={TrendingDown}
+            />
+          </>
+        )}
       </div>
 
       {/* Saldo */}
@@ -332,21 +405,35 @@ export default function Usage() {
             <CardTitle className="text-base font-medium">
               Riwayat Harian
             </CardTitle>
-            <span className="text-xs text-muted-foreground">
-              Total {formatIDR(totalHistoryCost)} &middot; {history.length} hari
-            </span>
+            {!isLoading && (
+              <span className="text-xs text-muted-foreground">
+                Total {formatIDR(totalHistoryCost)} &middot; {history.length} hari
+              </span>
+            )}
           </div>
         </CardHeader>
         <CardContent className="px-3">
-          {history.map((day, i) => (
-            <DailyHistoryRow
-              key={day.date}
-              date={day.date}
-              hours={day.hours}
-              costCents={day.costCents}
-              defaultOpen={i === 0}
-            />
-          ))}
+          {isLoading ? (
+            <div className="space-y-3">
+              {[...Array(7)].map((_, i) => (
+                <Skeleton key={i} className="h-8 w-full" />
+              ))}
+            </div>
+          ) : history.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-4 text-center">
+              Belum ada data penggunaan.
+            </p>
+          ) : (
+            history.map((day, i) => (
+              <DailyHistoryRow
+                key={day.date}
+                date={day.date}
+                hours={day.hours}
+                costCents={day.costCents}
+                defaultOpen={i === 0}
+              />
+            ))
+          )}
         </CardContent>
       </Card>
     </div>

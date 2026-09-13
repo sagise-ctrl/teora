@@ -1743,6 +1743,45 @@ paths:
         "401":
           description: Unauthorized
 
+  /users/me/usage/daily:
+    get:
+      operationId: getMyUsageDailyHistory
+      tags: [finops]
+      summary: Get daily aggregated AI usage history
+      parameters:
+        - name: days
+          in: query
+          schema:
+            type: number
+            minimum: 1
+            maximum: 30
+            default: 7
+          description: Number of days to include (1-30)
+      responses:
+        "200":
+          description: Daily usage history
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsageDailyHistory"
+        "401":
+          description: Unauthorized
+
+  /users/me/usage/windows:
+    get:
+      operationId: getMyUsageWindows
+      tags: [finops]
+      summary: Get current 5h and 7d quota window usage with subscription info
+      responses:
+        "200":
+          description: Current window usage summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsageWindowsSummary"
+        "401":
+          description: Unauthorized
+
   # ── FinOps: Admin ──────────────────────────────────────────────────────────
   /admin/usage:
     get:
@@ -4686,6 +4725,77 @@ components:
               totalOutputTokens:
                 type: number
               totalCostUsd:
+                type: number
+
+    UsageWindowStatus:
+      type: object
+      required: [usedTokens, limitTokens, usedHours, limitHours, pct, resetAt]
+      properties:
+        usedTokens:
+          type: number
+          description: Total tokens used in this window (Haiku + Sonnet combined)
+        limitTokens:
+          type: number
+          description: Total token limit for this window
+        usedHours:
+          type: number
+          description: Approximate hours used (tokens / 100 tokens-per-message / 12 msg/h)
+        limitHours:
+          type: number
+          description: Approximate hourly limit
+        costCents:
+          type: number
+        pct:
+          type: number
+          description: Percentage of quota used (0-100)
+        resetAt:
+          type: string
+          format: date-time
+          description: When the current window resets
+
+    UsageWindowsSummary:
+      type: object
+      properties:
+        subscription:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: string
+            packageName:
+              type: ["string", "null"]
+            packageTier:
+              type: ["string", "null"]
+            expiresAt:
+              type: string
+              format: date-time
+            modelType:
+              type: ["string", "null"]
+        windows5h:
+          $ref: "#/components/schemas/UsageWindowStatus"
+        windows7d:
+          $ref: "#/components/schemas/UsageWindowStatus"
+
+    UsageDailyHistory:
+      type: object
+      properties:
+        days:
+          type: number
+        history:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                description: Date string (YYYY-MM-DD)
+              tokens:
+                type: number
+              hours:
+                type: number
+              costCents:
+                type: number
+              requestCount:
                 type: number
 
     # ── Share Link ────────────────────────────────────────────────────────────

@@ -1,7 +1,14 @@
 import { Router, type IRouter } from "express";
-import { eq, and, gte, sql, desc } from "drizzle-orm";
+import { eq, and, gte, sql, desc, lte } from "drizzle-orm";
 import { z } from "zod/v4";
-import { db, aiUsageLogTable, usersTable } from "@workspace/db";
+import {
+  db,
+  aiUsageLogTable,
+  usersTable,
+  subscriptionsTable,
+  packagesTable,
+  usageWindowsTable,
+} from "@workspace/db";
 import { authMiddleware } from "../middlewares/auth.js";
 
 const router: IRouter = Router();
@@ -321,6 +328,147 @@ router.get("/admin/usage", async (req, res): Promise<void> => {
     perProvider,
     topUsersBySpend,
     dailyTotals,
+  });
+});
+
+// GET /users/me/usage/daily — daily aggregated usage for the last N days
+router.get("/users/me/usage/daily", async (req, res): Promise<void> => {
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const days = Math.min(Math.max(Number(req.query.days ?? "7"), 1), 30);
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - days);
+
+  // Approximate token→hours: ~100 tokens/message × 5 min/message = 12 msg/hour
+  const TOKENS_PER_HOUR = 12 * 100;
+
+  const dailyRaw = await db
+    .select({
+      date: sql<string>`date(${aiUsageLogTable.createdAt})`,
+      totalTokens: sql<number>`sum(${aiUsageLogTable.inputTokens} + ${aiUsageLogTable.outputTokens})`,
+      totalCostCents: sql<number>`coalesce(sum(${aiUsageLogTable.costCents}), 0)`,
+      requestCount: sql<number>`count(*)`,
+    })
+    .from(aiUsageLogTable)
+    .where(
+      and(
+        eq(aiUsageLogTable.userId, req.user!.id),
+        gte(aiUsageLogTable.createdAt, cutoff),
+      ),
+    )
+    .groupBy(sql`date(${aiUsageLogTable.createdAt})`)
+    .orderBy(desc(sql`date(${aiUsageLogTable.createdAt})`));
+
+  const history = dailyRaw.map((r) => ({
+    date: String(r.date),
+    tokens: Number(r.totalTokens) || 0,
+    hours: Math.round((Number(r.totalTokens) || 0) / TOKENS_PER_HOUR * 10) / 10,
+    costCents: Number(r.totalCostCents) || 0,
+    requestCount: Number(r.requestCount) || 0,
+  }));
+
+  res.json({ days, history });
+});
+
+// GET /users/me/usage/windows — current 5h/7d quota windows with hours approximation
+router.get("/users/me/usage/windows", async (req, res): Promise<void> => {
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const userId = req.user!.id;
+
+  const now = new Date();
+  const [sub] = await db
+    .select()
+    .from(subscriptionsTable)
+    .where(
+      and(
+        eq(subscriptionsTable.userId, userId),
+        eq(subscriptionsTable.status, "active" as const),
+        lte(subscriptionsTable.startsAt, now),
+        gte(subscriptionsTable.expiresAt, now),
+      ),
+    )
+    .limit(1);
+
+  if (!sub) {
+    res.json({ subscription: null, windows5h: null, windows7d: null });
+    return;
+  }
+
+  const [pkg] = await db
+    .select()
+    .from(packagesTable)
+    .where(eq(packagesTable.id, sub.packageId))
+    .limit(1);
+
+  const windows = await db
+    .select()
+    .from(usageWindowsTable)
+    .where(eq(usageWindowsTable.subscriptionId, sub.id));
+
+  // 5h window: sum all 5h windows for current period
+  const windows5h = windows.filter((w) => w.windowType === "5h");
+  const totalHaiku5h = windows5h.reduce((sum, w) => sum + Number(w.haikuTokensUsed), 0);
+  const totalSonnet5h = windows5h.reduce((sum, w) => sum + Number(w.sonnetTokensUsed), 0);
+  const capHaiku5h = pkg?.quota5hHaikuTokens ?? 0;
+  const capSonnet5h = pkg?.quota5hSonnetTokens ?? 0;
+  const usedTokens5h = totalHaiku5h + totalSonnet5h;
+  const limitTokens5h = capHaiku5h + capSonnet5h;
+
+  // 7d window: sum all 7d windows
+  const windows7d = windows.filter((w) => w.windowType === "7d");
+  const totalHaiku7d = windows7d.reduce((sum, w) => sum + Number(w.haikuTokensUsed), 0);
+  const totalSonnet7d = windows7d.reduce((sum, w) => sum + Number(w.sonnetTokensUsed), 0);
+  const capHaiku7d = pkg?.quota7dHaikuTokens ?? 0;
+  const capSonnet7d = pkg?.quota7dSonnetTokens ?? 0;
+  const usedTokens7d = totalHaiku7d + totalSonnet7d;
+  const limitTokens7d = capHaiku7d + capSonnet7d;
+
+  // Approx: 100 tokens/message × 5 min = 12 msg/h → 1h ≈ 100 tokens for quick heuristic
+  // Use costCents as more reliable: avg ~Rp50/message → 12 msg/h → Rp600/h
+  const RP_PER_HOUR = 600; // conservative estimate
+
+  // Reset times: next window boundary
+  const nextReset5h = windows5h[0]
+    ? windows5h[0].windowEndAt
+    : new Date(Date.now() + 5 * 60 * 60 * 1000).toISOString();
+  const nextReset7d = windows7d[0]
+    ? windows7d[0].windowEndAt
+    : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+
+  res.json({
+    subscription: sub
+      ? {
+          id: sub.id,
+          packageName: pkg?.tierName ?? null,
+          packageTier: pkg?.tier ?? null,
+          expiresAt: sub.expiresAt,
+          modelType: pkg?.modelType ?? null,
+        }
+      : null,
+    windows5h: {
+      usedTokens: usedTokens5h,
+      limitTokens: limitTokens5h,
+      usedHours: Math.round(usedTokens5h / 100 / 12 * 10) / 10,
+      limitHours: Math.round(limitTokens5h / 100 / 12 * 10) / 10,
+      costCents: windows5h.reduce((sum, w) => sum + Number(w.costCents), 0),
+      pct: limitTokens5h > 0 ? Math.min(100, Math.round((usedTokens5h / limitTokens5h) * 100)) : 0,
+      resetAt: nextReset5h,
+    },
+    windows7d: {
+      usedTokens: usedTokens7d,
+      limitTokens: limitTokens7d,
+      usedHours: Math.round(usedTokens7d / 100 / 12 * 10) / 10,
+      limitHours: Math.round(limitTokens7d / 100 / 12 * 10) / 10,
+      costCents: windows7d.reduce((sum, w) => sum + Number(w.costCents), 0),
+      pct: limitTokens7d > 0 ? Math.min(100, Math.round((usedTokens7d / limitTokens7d) * 100)) : 0,
+      resetAt: nextReset7d,
+    },
   });
 });
 

@@ -1661,6 +1661,62 @@ export const GetMyProjectUsageStatsResponse = zod.object({
 
 
 /**
+ * @summary Get daily aggregated AI usage history
+ */
+export const getMyUsageDailyHistoryQueryDaysDefault = 7;
+export const getMyUsageDailyHistoryQueryDaysMax = 30;
+
+
+
+export const GetMyUsageDailyHistoryQueryParams = zod.object({
+  "days": zod.coerce.number().min(1).max(getMyUsageDailyHistoryQueryDaysMax).default(getMyUsageDailyHistoryQueryDaysDefault).describe('Number of days to include (1-30)')
+})
+
+export const GetMyUsageDailyHistoryResponse = zod.object({
+  "days": zod.number().optional(),
+  "history": zod.array(zod.object({
+  "date": zod.string().optional().describe('Date string (YYYY-MM-DD)'),
+  "tokens": zod.number().optional(),
+  "hours": zod.number().optional(),
+  "costCents": zod.number().optional(),
+  "requestCount": zod.number().optional()
+})).optional()
+})
+
+
+/**
+ * @summary Get current 5h and 7d quota window usage with subscription info
+ */
+export const GetMyUsageWindowsResponse = zod.object({
+  "subscription": zod.object({
+  "id": zod.string().optional(),
+  "packageName": zod.string().nullish(),
+  "packageTier": zod.string().nullish(),
+  "expiresAt": zod.coerce.date().optional(),
+  "modelType": zod.string().nullish()
+}).nullish(),
+  "windows5h": zod.object({
+  "usedTokens": zod.number().describe('Total tokens used in this window (Haiku + Sonnet combined)'),
+  "limitTokens": zod.number().describe('Total token limit for this window'),
+  "usedHours": zod.number().describe('Approximate hours used (tokens \/ 100 tokens-per-message \/ 12 msg\/h)'),
+  "limitHours": zod.number().describe('Approximate hourly limit'),
+  "costCents": zod.number().optional(),
+  "pct": zod.number().describe('Percentage of quota used (0-100)'),
+  "resetAt": zod.coerce.date().describe('When the current window resets')
+}).optional(),
+  "windows7d": zod.object({
+  "usedTokens": zod.number().describe('Total tokens used in this window (Haiku + Sonnet combined)'),
+  "limitTokens": zod.number().describe('Total token limit for this window'),
+  "usedHours": zod.number().describe('Approximate hours used (tokens \/ 100 tokens-per-message \/ 12 msg\/h)'),
+  "limitHours": zod.number().describe('Approximate hourly limit'),
+  "costCents": zod.number().optional(),
+  "pct": zod.number().describe('Percentage of quota used (0-100)'),
+  "resetAt": zod.coerce.date().describe('When the current window resets')
+}).optional()
+})
+
+
+/**
  * @summary Get aggregated AI usage statistics (admin only)
  */
 export const getAdminUsageStatsQueryPeriodDefault = `all`;
