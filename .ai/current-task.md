@@ -11,10 +11,9 @@
 
 ## 🎯 ACTIVE 2026-09-13 — Project-Wide Code Audit (opus-4-6)
 
-**Status:** 🔄 IN PROGRESS — 7/27 fixed (H1-H5 + H6 + H7)
-**Model:** claude-opus-4-6
-**Branch:** `main`
-**Commit:** `c639e1d` (H6 usage API)
+**Status:** 🔄 IN PROGRESS — 14/27 fixed (H1-H8, M1-M2, M4-M5, M10, L1-L2, L4-L5)
+**Commit:** `6aa9ab4` (L1 L2 L4 L5)
+**In Progress:** M6-M9 (agent running in background)
 
 ### Audit Findings — Status Tracker
 
@@ -25,17 +24,39 @@
 | H3 | HIGH | `max_tokens: 4096` hardcoded | ✅ FIXED |
 | H4 | HIGH | rawBody unreliable for HMAC webhook | ✅ FIXED (commit c946a38) |
 | H5 | HIGH | `/api/ai-tiers` publicly accessible | ✅ FIXED (commit c97fa51) |
-| H7 | HIGH | Landing page invisible text flash | ✅ FIXED (commit 0030873) |
 | H6 | HIGH | Usage page mock data | ✅ FIXED (commit c639e1d) |
-| H8 | HIGH | `z.date()` rejects string query params | 🔲 |
+| H7 | HIGH | Landing page invisible text flash | ✅ FIXED (commit 0030873) |
+| H8 | HIGH | `z.date()` rejects string query params | ✅ FIXED (commit 2a646a5) |
 | M1 | MEDIUM | `usage` used before assignment in references.ts | ✅ FIXED |
-| M2-M10 | MEDIUM | (10 findings) | 🔲 |
-| L1-L6 | LOW | (6 findings) | 🔲 |
-| C1-C2 | CRITICAL | Production alignment (needs owner) | 🔲 |
+| M2 | MEDIUM | User can request any tierId via API body (no authorization check) | ✅ FIXED (commit f00d1c5) |
+| M3 | MEDIUM | Webhook HMAC verification missing (static header compare) | 🔲 |
+| M4 | MEDIUM | No DB transactions in async pipelines | ✅ FIXED (commits 28eea05) |
+| M5 | MEDIUM | Credit deducted even when AI parse fails | ✅ FIXED (commit 613ae79) |
+| M6 | MEDIUM | No AI endpoint tests | 🔲 (agent) |
+| M7 | MEDIUM | CrossRef/DOI no rate limiting | 🔲 (agent) |
+| M8 | MEDIUM | Chat history grows indefinitely | 🔲 (agent) |
+| M9 | MEDIUM | Export DOCX CPU-intensive on serverless | 🔲 (agent) |
+| M10 | MEDIUM | Quiz submission doesn't call logActivity | ✅ FIXED (commit 1697afb) |
+| L1 | LOW | `Math.random()` for share tokens (should use crypto.randomBytes) | ✅ FIXED (commit 6aa9ab4) |
+| L2 | LOW | Inconsistent error logging (console.error vs req.log.error) | ✅ FIXED (commit 6aa9ab4) |
+| L3 | LOW | Duplicate project fetch in runAnalysisPipeline | ✅ ALREADY FIXED (restructured) |
+| L4 | LOW | `@supabase/supabase-js` in regular deps (should be devDeps) | ✅ FIXED (commit 6aa9ab4) |
+| L5 | LOW | React version mismatch between workspaces | ✅ FIXED (commit 6aa9ab4) |
+| L6 | LOW | Email case sensitivity in admin ownership check | ✅ ALREADY FIXED (toLowerCase present) |
+| C1 | CRITICAL | `supabase-admin.ts` throws at module level (server crash on missing env) | 🔲 (needs owner) |
+| C2 | CRITICAL | No file size limit on uploads (attachments.ts, OOM risk) | 🔲 |
 
 ### Next Actions
-1. Fix H8: `z.coerce.date()` in generated API Zod schemas (OpenAPI parameter fix)
-2. Fix M2-M10, L1-L6
+1. ~~Fix H1-H8~~ ✅ DONE
+2. ~~Fix M1-M2, M4-M5, M10~~ ✅ DONE
+3. ~~Fix L1-L6~~ ✅ DONE (L3, L6 already fixed)
+4. Fix M3: Webhook HMAC static header compare
+5. Fix M6-M9: AI endpoint tests, rate limiting, chat cap, DOCX streaming (agent running)
+6. Fix C1, C2: Configuration issues (needs owner decision)
+
+### Blockers
+- **C1 (needs owner):** `supabase-admin.ts` throws at module level. App crashes if `SUPABASE_SERVICE_ROLE_KEY` not set. Owner decision needed: fix with lazy initialization?
+- **C2:** No file size limit on uploads. 10MB limit needed to prevent OOM. Owner decision: proceed with fix?
 3. Owner decision: C1/C2 production alignment
 
 ---
