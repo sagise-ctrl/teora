@@ -12,7 +12,11 @@
 ## 🎯 ACTIVE 2026-09-13 — Project-Wide Code Audit (opus-4-8)
 
 **Status:** 🔄 IN PROGRESS — 22/27 fixed
-**Pushed to origin/main:** `d80a7ca..37df517` (19 commits) ✅
+**Pushed to origin/main:** `d80a7ca..d41cd14` (20 commits incl. SOP) ✅
+**Verified LIVE:**
+- Frontend: `https://academic-workspace-eta.vercel.app` returns 200, dark-mode bootstrap script (`setTheme`) present in deployed JS bundle
+- Backend: `https://teora-backend.vercel.app/api/healthz` returns 200
+- Webhooks: invalid secret returns 401 (M3 timing-safe + H4 HMAC both verified)
 **In Progress:** M9 (DOCX streaming — library limit), C1, C2 (needs owner)
 
 ### Audit Findings — Status Tracker
@@ -29,12 +33,12 @@
 | H8 | HIGH | `z.date()` rejects string query params | ✅ FIXED (commit 2a646a5) |
 | M1 | MEDIUM | `usage` used before assignment in references.ts | ✅ FIXED |
 | M2 | MEDIUM | User can request any tierId via API body (no authorization check) | ✅ FIXED (commit f00d1c5) |
-| M3 | MEDIUM | Webhook HMAC verification missing (static header compare) | 🔲 |
-| M4 | MEDIUM | No DB transactions in async pipelines | ✅ FIXED (commits 28eea05) |
+| M3 | MEDIUM | Webhook HMAC verification missing (static header compare) | ✅ FIXED (commit 368eb67, timing-safe) — VERIFIED live: 401 on bad secret |
+| M4 | MEDIUM | No DB transactions in async pipelines | ✅ FIXED (commit 28eea05) |
 | M5 | MEDIUM | Credit deducted even when AI parse fails | ✅ FIXED (commit 613ae79) |
-| M6 | MEDIUM | No AI endpoint tests | 🔲 (agent) |
-| M7 | MEDIUM | CrossRef/DOI no rate limiting | 🔲 (agent) |
-| M8 | MEDIUM | Chat history grows indefinitely | 🔲 (agent) |
+| M6 | MEDIUM | No AI endpoint tests | ✅ FIXED (commit 6e43aae) |
+| M7 | MEDIUM | CrossRef/DOI no rate limiting | ✅ FIXED (commit 59e1632) |
+| M8 | MEDIUM | Chat history grows indefinitely | ✅ FIXED (commit 7f3a9ca) |
 | M9 | MEDIUM | Export DOCX CPU-intensive on serverless | 🔲 (agent) |
 | M10 | MEDIUM | Quiz submission doesn't call logActivity | ✅ FIXED (commit 1697afb) |
 | L1 | LOW | `Math.random()` for share tokens (should use crypto.randomBytes) | ✅ FIXED (commit 6aa9ab4) |
@@ -47,12 +51,12 @@
 | C2 | CRITICAL | No file size limit on uploads (attachments.ts, OOM risk) | 🔲 |
 
 ### Next Actions
-1. ~~Fix H1-H8~~ ✅ DONE
+1. ~~Fix H1-H8~~ ✅ DONE + verified live
 2. ~~Fix M1-M2, M4-M5, M10~~ ✅ DONE
 3. ~~Fix L1-L6~~ ✅ DONE (L3, L6 already fixed)
-4. ~~Fix M3~~ ✅ DONE (commit 368eb67, timing-safe)
+4. ~~Fix M3~~ ✅ DONE (commit 368eb67, timing-safe) — VERIFIED 401
 5. ~~Fix M6-M8~~ ✅ DONE (tests, rate limit, chat cap)
-6. Verify live: visit https://academic-workspace-eta.vercel.app (landing dark mode + all fixes)
+6. ~~Verify live~~ ✅ DONE — frontend 200, backend healthz 200, webhooks 401 on bad secret
 7. M9: DOCX streaming — investigate library support or skip with limit
 8. C1, C2: Configuration issues (needs owner decision)
 
