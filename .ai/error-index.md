@@ -729,3 +729,51 @@ Confidence labels (per Error Handling Protocol Step 3):
 - Update `.ai/current-task.md` with "Pending Push" section if drift detected
 - Memory: `~/.claude/projects/E--teora/memory/deployment-drift-local-vs-live-20260913.md`
 
+---
+
+## ERR-019 (occurrence 2) — feat/daftar-task still has tiktoken import; latest prod-target deploy 500
+
+- **TITLE:** Even after INC-004 fix on main (commit `1b77102`, heuristic tokenizer), `feat/daftar-task` branch was NEVER updated — latest Vercel production-target deploy (created 2026-09-13 15:58, ID `dpl_8MNGoWhjv3vmLKACDaZswFmgTxsN`) used the broken `feat/daftar-task` source and crashed at cold-start with `Missing tiktoken_bg.wasm`.
+- **STATUS:** RESOLVED 2026-09-13 17:01 — surgical tiktoken removal committed `66b1cab` to feat/daftar-task, redeployed to `dpl_3862xm4zRniQPnduqCyuJZnEpMRg`, verified 200 OK with 0 tiktoken refs in runtime logs.
+- **SEVERITY:** P1 (broken prod-target deploy URL, but not aliased — no production user impact)
+- **CATEGORY:** deploy / dependency / branch-hygiene
+- **DATE:** 2026-09-13 16:34 (incident time) → resolved 17:01
+- **ENVIRONMENT:** Vercel Functions (api-server), esbuild bundler, Vercel CLI direct deploy
+- **SYMPTOM:**
+  - `curl https://teora-backend-4157uiebi-sagise-ctrls-projects.vercel.app/api/healthz` → **HTTP 500** (FUNCTION_INVOCATION_FAILED)
+  - Vercel runtime log: `Error: Missing tiktoken_bg.wasm at ../../node_modules/.pnpm/tiktoken@1.0.22/node_modules/tiktoken/tiktoken.cjs (file:///var/task/api/index.mjs:42839:30)`
+  - Production alias `https://teora-backend.vercel.app/api/healthz` → **HTTP 200 OK** (still healthy, points to 2h-ago deploy `dpl_EUFZYJXs4AmGLCnRRMj91tZM7Lop`)
+- **ROOT_CAUSE_STATUS:** CONFIRMED
+- **ROOT_CAUSE:** Two compounding factors:
+  1. `feat/daftar-task` branch still has `import { get_encoding, type Tiktoken } from "tiktoken";` in `artifacts/api-server/src/lib/tokenizer.ts:1` (line 1, verified via `git show feat/daftar-task:artifacts/api-server/src/lib/tokenizer.ts`)
+  2. The 36m-ago prod-target deploy was built from this branch (likely via `vercel deploy --prod --yes` from feat/daftar-task local working tree at some prior point, or via GitHub sync that included the broken file)
+  3. Branch hygiene gap: INC-004 fix (commit `e6ef53f` on `fix/err-017-context-window-auto-truncate`) was NEVER cherry-picked onto `feat/daftar-task`, so the broken tokenizer source persisted across multiple deploys
+- **CONFIDENCE:** CONFIRMED
+- **RESOLUTION APPLIED:**
+  1. (2026-09-13 17:00) Surgically removed tiktoken from feat/daftar-task source: replaced `tokenizer.ts` with heuristic-only version (CHARS_PER_TOKEN=3.5), updated `ai.ts` line 461 call site from 3-arg `truncateToTokenLimit(text, model, maxTokens)` to 2-arg `truncateToTokenLimit(text, maxTokens)`
+  2. (2026-09-13 17:00) Bundle integrity check: `grep -c tiktoken dist/index.mjs` → **0** (was 41 in feat/daftar-task broken deploy)
+  3. (2026-09-13 17:00) Local smoke test with dummy env vars: no `Missing tiktoken_bg.wasm` error
+  4. (2026-09-13 17:01) Committed `66b1cab` on feat/daftar-task — "fix: INC-004 cherry-pick to feat/daftar-task — remove tiktoken, use heuristic"
+  5. (2026-09-13 17:01) Deployed via `vercel deploy --prod --yes` → `dpl_3862xm4zRniQPnduqCyuJZnEpMRg` (15s build, READY)
+  6. (2026-09-13 17:01) Verified: `curl /api/healthz` → 200 OK `{"status":"ok"}` in 1-9ms (vs prior 1.9s crash)
+  7. (2026-09-13 17:01) Verified runtime logs: zero tiktoken errors, all requests returning 200
+- **FILES_CHANGED:**
+  - `artifacts/api-server/src/lib/tokenizer.ts` (feat/daftar-task) — replaced tiktoken import with char-based heuristic
+  - `artifacts/api-server/src/lib/ai.ts` (feat/daftar-task) — updated call site signature
+- **VERIFICATION:**
+  - Method: direct `curl` to deploy URLs + Vercel runtime logs
+  - New deploy `teora-backend-b7sgdrt49-sagise-ctrls-projects.vercel.app` → 200 OK ✅
+  - Production alias `teora-backend.vercel.app` → 200 OK ✅
+  - 36m-ago prod-target deploy `dpl_8MNGoWhjv3vmLKACDaZswFmgTxsN` → 500 (broken, will expire per Vercel retention; not aliased)
+  - `git show feat/daftar-task:artifacts/api-server/src/lib/tokenizer.ts` → NO tiktoken import (heuristic only)
+  - `grep -c tiktoken dist/index.mjs` → 0
+  - Runtime logs: `responseTime: 1-9ms`, `statusCode: 200`, no WASM loading
+- **PREVENTION:**
+  - [x] Production alias verified 200 OK (no user impact throughout)
+  - [x] Source fix applied to feat/daftar-task (no tiktoken import)
+  - [x] New deploy verified 200 OK + bundle integrity (0 tiktoken refs)
+  - **Branch hygiene SOP added**: when fixing INC-004 in one branch, MUST apply fix to all active feature branches sharing the same code surface (pre-deploy `git grep -n "from \"tiktoken\"" artifacts/api-server/src/` check before `vercel deploy --prod --yes`)
+- **RELATED:** ERR-017 (INC-004), ERR-019 (Tiktoken WASM original), ERR-019 occurrence 2 (this entry), memory `branch-divergence-reverts-audit-fixes-20260913.md`, memory `deployment-drift-local-vs-live-20260913.md`
+- **LIFECYCLE:** RESOLVED
+- **PATTERN:** `native_dependency_not_bundleable` (2x — one more occurrence triggers promotion to skill)
+
