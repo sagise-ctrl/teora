@@ -458,7 +458,7 @@ ${projectContext.taskType ? `Jenis Tugas: ${projectContext.taskType}` : ""}
 ${projectContext.citationFormat ? `Format Sitasi: ${projectContext.citationFormat}` : ""}
 ${projectContext.instructionText ? `\nINSTRUKSI DOSEN:\n${projectContext.instructionText}` : ""}
 ${projectContext.outline ? `\nOUTLINE DOKUMEN:\n${projectContext.outline}` : ""}
-${projectContext.latestDocument ? `\nDOKUMEN TERBARU (untuk referensi revisi):\n${truncateToTokenLimit(projectContext.latestDocument, "claude-3-5-sonnet-20241022", 2000)}${countTokens(projectContext.latestDocument) > 2000 ? "\n...[dipotong]" : ""}` : ""}
+${projectContext.latestDocument ? `\nDOKUMEN TERBARU (untuk referensi revisi):\n${truncateToTokenLimit(projectContext.latestDocument, 2000)}${countTokens(projectContext.latestDocument) > 2000 ? "\n...[dipotong]" : ""}` : ""}
 ${projectContext.contextSummary ? `\nRINGKASAN KONTEKS:\n${projectContext.contextSummary}` : ""}
 
 MODE INSTRUKSI (IKUTI INSTRUKSI INI SESUAI MODE YANG DIPILIH):
