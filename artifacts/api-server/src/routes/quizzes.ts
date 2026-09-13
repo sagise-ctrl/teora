@@ -356,6 +356,8 @@ router.post("/quizzes/:quizId/submissions", async (req, res): Promise<void> => {
     })
     .returning();
 
+  await logActivity(quiz.projectId, "quiz_submitted", `Submission untuk quiz #${quizId} oleh ${req.user.id}`);
+
   res.status(201).json(submission);
 });
 
