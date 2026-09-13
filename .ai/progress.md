@@ -2,6 +2,19 @@
 
 > Completed work, newest first. Format: `YYYY-MM-DD | description | files | status`
 
+## 2026-09-13 | Fix audit findings H1-H3 (opus-4-6)
+
+**Branch:** `main`
+
+| Finding | Description | Files | Status |
+|---------|-----------|-------|--------|
+| H2 | Context window truncation — KONTEKS_TERLALU_PANJANG 422 error in 9 AI routes | `routes/messages.ts`, `routes/references.ts`, `routes/projects.ts`, `routes/quizzes.ts`, `routes/rubrics.ts`, `routes/writing-style.ts`, `routes/simulasi.ts` | ✅ FIXED |
+| H3 | Hardcoded `max_tokens: 4096` — dynamic via `estimateAnthropicInputTokens` | `lib/ai.ts` | ✅ FIXED |
+| H1 | Race condition in autofallback saldo deduction (3 sites) | `lib/subscription.ts`, `lib/credit.ts` | ✅ FIXED |
+| tokenizer | Heuristic tokenizer (3.5 chars/token) replacing tiktoken (WASM incompatible with Vercel) | `lib/tokenizer.ts` (NEW) | ✅ FIXED |
+
+**Commit:** `1b77102` — fix: H1 race condition in autofallback saldo deduction (3 sites)
+
 ## 2026-09-09 | Referral Program — Deploy to Production (opus-4-6)
 
 **Branch:** `feat/daftar-task` → commit `ee4178d` (committed, NOT pushed to origin)

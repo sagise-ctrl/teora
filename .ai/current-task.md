@@ -11,37 +11,43 @@
 
 ## 🎯 ACTIVE 2026-09-13 — Project-Wide Code Audit (opus-4-6)
 
-**Status:** ✅ COMPLETE — full audit report compiled
+**Status:** 🔄 IN PROGRESS — 4/27 fixed (H1-H3 + tokenizer)
 **Model:** claude-opus-4-6
 **Branch:** `main`
-
-### Audit Dimensions
-- [x] Git state + production alignment
-- [x] Backend logic (AI gate, subscription, auth)
-- [x] Frontend-backend contract consistency
-- [x] OpenAPI drift + generated files
+**Commit:** `1b77102`
 
 ### CRITICAL Findings (need owner action)
 1. **C1:** Production running `feat/daftar-task` intermediate commit, NOT `main` — 54 commits missing
-2. **C2:** ERR-017 fix (`5838f1e`) exists on `feat/daftar-task` but NOT merged to `main` — INC-004 status above is WRONG, fix NOT on production
+2. **C2:** ERR-017 fix (`5838f1e`) exists on `feat/daftar-task` but NOT merged to `main`
 3. **H5:** `/api/ai-tiers` publicly accessible (no auth) — pricing leak
 4. **H6:** Usage page entirely mock data (5h/7d quota has no backend API)
 5. **H7:** Landing page invisible text flash (missing `setTheme("dark")` at mount)
 
-### Audit Full Report
-→ See session output above. 23 findings total: 4 CRITICAL, 7 HIGH, 8 MEDIUM, 4 LOW.
+### Audit Findings — Status Tracker
+
+| # | Severity | Finding | Status |
+|---|----------|---------|--------|
+| H1 | HIGH | Race condition autofallback balance | ✅ FIXED |
+| H2 | HIGH | No context window truncation (ERR-017) | ✅ FIXED |
+| H3 | HIGH | `max_tokens: 4096` hardcoded | ✅ FIXED |
+| H4 | HIGH | rawBody unreliable for HMAC webhook | 🔲 NEXT |
+| H5 | HIGH | `/api/ai-tiers` publicly accessible | 🔲 |
+| H6 | HIGH | Usage page mock data | 🔲 |
+| H7 | HIGH | Landing page invisible text flash | 🔲 |
+| H8 | HIGH | `z.date()` rejects string query params | 🔲 |
+| M1 | MEDIUM | `usage` used before assignment in references.ts | ✅ FIXED (in prev session) |
+| M2-M10 | MEDIUM | (10 findings) | 🔲 |
+| L1-L6 | LOW | (6 findings) | 🔲 |
+| C1-C2 | CRITICAL | Production alignment (needs owner) | 🔲 |
 
 ### Next Actions
-1. Owner decision: merge strategy for `feat/daftar-task` (DECISION 010)
-2. Owner decision: deploy ERR-017 fix to production
-3. Fix H5: add auth to `/api/ai-tiers`
-4. Fix H7: add `setTheme("dark")` in `Landing` mount effect
-5. Fix H6: implement backend quota API + regenerate hooks
-6. Fix H1: race condition in autofallback (read-then-write)
-7. Fix M1: `usage` used before assignment in references.ts catch block
-8. Fix H4: rawBody for HMAC webhook verification
-9. Fix H3: remove hardcoded `max_tokens: 4096`
-10. Fix M6: replace `Math.random()` with crypto for share tokens
+1. Fix H4: add express.raw middleware for webhook HMAC
+2. Fix H5: add auth to `/api/ai-tiers`
+3. Fix H7: add `setTheme("dark")` in `Landing` mount effect
+4. Fix H6: implement backend quota API + regenerate hooks
+5. Fix H8: `z.coerce.date()` in generated API Zod
+6. Fix M2-M10, L1-L6
+7. Owner decision: merge strategy for `feat/daftar-task`
 
 ---
 
