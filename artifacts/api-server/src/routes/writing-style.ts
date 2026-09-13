@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
 import { eq, desc } from "drizzle-orm";
 import { db, writingStyleProfilesTable, usersTable } from "@workspace/db";
-import { callAI, getTierConfig, getTierForUser } from "../lib/ai.js";
+import { callAI, getTierConfig, getTierForUser, checkTierAccess } from "../lib/ai.js";
 import { logAIUsage } from "../lib/ai-usage-log.js";
 import { checkAIAccess, consumeQuotaForAIRequest } from "../lib/subscription.js";
 import { logger } from "../lib/logger.js";
@@ -50,14 +50,18 @@ router.post("/users/me/writing-style/analyze", async (req, res): Promise<void> =
     return;
   }
 
-  // Resolve tier from request or user's preferred
-  // writing-style is a per-user feature (no project ownership), so use req.user as the owner
+  // Resolve tier: use authorized requested tier or user's preferred
   const selectedTier = requestedTier
-    ? await getTierConfig(requestedTier)
+    ? await (async () => {
+        const tier = await getTierConfig(requestedTier);
+        if (!tier) return null;
+        const authorized = await checkTierAccess(req.user!.id, requestedTier);
+        return authorized ? tier : null;
+      })()
     : await getTierForUser(req.user!.id, null);
 
   if (!selectedTier) {
-    res.status(400).json({ error: "Tier tidak valid" });
+    res.status(requestedTier ? 403 : 400).json({ error: requestedTier ? "Tier tidak diizinkan untuk paket Anda" : "Tier tidak valid" });
     return;
   }
 

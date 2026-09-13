@@ -24,7 +24,7 @@ import {
 } from "@workspace/api-zod";
 import { logActivity } from "../lib/activity.js";
 import { requireProjectOwnership } from "../lib/ownership.js";
-import { callAI, buildSystemPrompt, getTierConfig, getTierForUser } from "../lib/ai.js";
+import { callAI, buildSystemPrompt, getTierConfig, getTierForUser, checkTierAccess } from "../lib/ai.js";
 import { logAIUsage } from "../lib/ai-usage-log.js";
 import { checkAIAccess, consumeQuotaForAIRequest } from "../lib/subscription.js";
 import { sanitizeInstructionText, sanitizeUserMessage } from "../lib/prompt-injection.js";
@@ -294,14 +294,19 @@ router.post("/projects/:projectId/analyze", async (req, res): Promise<void> => {
     return;
   }
 
-  // Resolve tier from request or user's preferred
+  // Resolve tier: validate existence then authorization
   const requestedTier = typeof req.body?.tier === "string" ? req.body.tier : null;
   const selectedTier = requestedTier
-    ? await getTierConfig(requestedTier)
+    ? await (async () => {
+        const tier = await getTierConfig(requestedTier);
+        if (!tier) return null;
+        const authorized = await checkTierAccess(project.userId, requestedTier);
+        return authorized ? tier : null;
+      })()
     : await getTierForUser(project.userId, null);
 
   if (!selectedTier) {
-    res.status(400).json({ error: "Tier tidak valid" });
+    res.status(requestedTier ? 403 : 400).json({ error: requestedTier ? "Tier tidak diizinkan untuk paket Anda" : "Tier tidak valid" });
     return;
   }
 
@@ -635,14 +640,19 @@ router.post("/projects/:projectId/outline", async (req, res): Promise<void> => {
     return;
   }
 
-  // Resolve tier from request or user's preferred
+  // Resolve tier: validate existence then authorization
   const requestedTier = typeof req.body?.tier === "string" ? req.body.tier : null;
   const selectedTier = requestedTier
-    ? await getTierConfig(requestedTier)
+    ? await (async () => {
+        const tier = await getTierConfig(requestedTier);
+        if (!tier) return null;
+        const authorized = await checkTierAccess(project.userId, requestedTier);
+        return authorized ? tier : null;
+      })()
     : await getTierForUser(project.userId, null);
 
   if (!selectedTier) {
-    res.status(400).json({ error: "Tier tidak valid" });
+    res.status(requestedTier ? 403 : 400).json({ error: requestedTier ? "Tier tidak diizinkan untuk paket Anda" : "Tier tidak valid" });
     return;
   }
 
@@ -795,14 +805,19 @@ router.post("/projects/:projectId/documents/generate", async (req, res): Promise
     return;
   }
 
-  // Resolve tier from request or user's preferred
+  // Resolve tier: validate existence then authorization
   const requestedTier = typeof req.body?.tier === "string" ? req.body.tier : null;
   const selectedTier = requestedTier
-    ? await getTierConfig(requestedTier)
+    ? await (async () => {
+        const tier = await getTierConfig(requestedTier);
+        if (!tier) return null;
+        const authorized = await checkTierAccess(project.userId, requestedTier);
+        return authorized ? tier : null;
+      })()
     : await getTierForUser(project.userId, null);
 
   if (!selectedTier) {
-    res.status(400).json({ error: "Tier tidak valid" });
+    res.status(requestedTier ? 403 : 400).json({ error: requestedTier ? "Tier tidak diizinkan untuk paket Anda" : "Tier tidak valid" });
     return;
   }
 

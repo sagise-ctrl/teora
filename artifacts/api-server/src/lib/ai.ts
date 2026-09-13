@@ -1,6 +1,6 @@
 import { db } from "@workspace/db";
-import { aiTiersTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { aiTiersTable, subscriptionsTable, packagesTable } from "@workspace/db";
+import { eq, and, gt } from "drizzle-orm";
 import { logger } from "./logger.js";
 import { countTokens, truncateToTokenLimit, estimateAnthropicInputTokens } from "./tokenizer.js";
 
@@ -103,14 +103,88 @@ export async function getAllActiveTiers(): Promise<AITierConfig[]> {
   return Array.from(_tierCache.values());
 }
 
+/**
+ * Maps a subscription package tier (from subscription_packages.tier) to
+ * the AI tier IDs that users at that level are authorized to access.
+ * Controls which AI models a user can explicitly request via the API.
+ */
+function getTierIdsForPackageTier(packageTier: string | null): string[] {
+  switch (packageTier) {
+    case "ultra":
+      return ["sonnet-5", "haiku-4.5"];
+    case "pro":
+      return ["sonnet-5", "haiku-4.5"];
+    case "premium":
+      return ["sonnet-5", "haiku-4.5"];
+    case "standar":
+      return ["haiku-4.5"];
+    case "starter":
+      return ["haiku-4.5"];
+    default:
+      // No subscription: free users can only use the free tier
+      return ["haiku-4.5"];
+  }
+}
+
+/**
+ * Returns the list of AI tier IDs the user is authorized to access based on
+ * their active subscription package tier.
+ */
+export async function getAllowedTierIdsForUser(userId: string): Promise<string[]> {
+  const [sub] = await db
+    .select()
+    .from(subscriptionsTable)
+    .where(
+      and(
+        eq(subscriptionsTable.userId, userId),
+        gt(subscriptionsTable.expiresAt, new Date())
+      )
+    );
+
+  if (!sub?.packageId) return ["haiku-4.5"];
+
+  const [pkg] = await db
+    .select({ tier: packagesTable.tier })
+    .from(packagesTable)
+    .where(eq(packagesTable.id, sub.packageId));
+
+  return getTierIdsForPackageTier(pkg?.tier ?? null);
+}
+
+/**
+ * Returns true if the given tierId is authorized for this user.
+ */
+export async function checkTierAccess(userId: string, tierId: string): Promise<boolean> {
+  const allowed = await getAllowedTierIdsForUser(userId);
+  return allowed.includes(tierId);
+}
+
+/**
+ * Resolves a requested tierId for a user. Throws if the tier is not authorized.
+ */
+export async function resolveAuthorizedTier(
+  userId: string,
+  requestedTierId: string | null | undefined
+): Promise<AITierConfig | null> {
+  if (!requestedTierId) return null;
+
+  const authorized = await checkTierAccess(userId, requestedTierId);
+  if (!authorized) return null;
+
+  return getTierConfig(requestedTierId);
+}
+
 export async function getTierForUser(
   userId: string,
   preferredTierId?: string | null
 ): Promise<AITierConfig | null> {
-  // 1. Try user's preferred tier
+  // 1. Try user's preferred tier (if authorized)
   if (preferredTierId) {
-    const tier = await getTierConfig(preferredTierId);
-    if (tier) return tier;
+    const authorized = await checkTierAccess(userId, preferredTierId);
+    if (authorized) {
+      const tier = await getTierConfig(preferredTierId);
+      if (tier) return tier;
+    }
   }
 
   // 2. Default to haiku-4.5 (Owner 2026-09-09 — pivot to Anthropic only)

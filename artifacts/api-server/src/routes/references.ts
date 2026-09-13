@@ -33,7 +33,7 @@ import {
   SetProjectCitationFormatParams,
   SetProjectCitationFormatBody,
 } from "@workspace/api-zod";
-import { callAI, buildSystemPrompt, getTierConfig, getTierForUser } from "../lib/ai.js";
+import { callAI, buildSystemPrompt, getTierConfig, getTierForUser, checkTierAccess } from "../lib/ai.js";
 import { logActivity } from "../lib/activity.js";
 import { requireProjectOwnership } from "../lib/ownership.js";
 import { logAIUsage } from "../lib/ai-usage-log.js";
@@ -424,14 +424,19 @@ router.post("/projects/:projectId/references/regenerate", async (req, res): Prom
     return;
   }
 
-  // Resolve tier from request or user's preferred
+  // Resolve tier: validate existence then authorization
   const requestedTier = typeof req.body?.tier === "string" ? req.body.tier : null;
   const selectedTier = requestedTier
-    ? await getTierConfig(requestedTier)
+    ? await (async () => {
+        const tier = await getTierConfig(requestedTier);
+        if (!tier) return null;
+        const authorized = await checkTierAccess(project.userId, requestedTier);
+        return authorized ? tier : null;
+      })()
     : await getTierForUser(project.userId, null);
 
   if (!selectedTier) {
-    res.status(400).json({ error: "Tier tidak valid" });
+    res.status(requestedTier ? 403 : 400).json({ error: requestedTier ? "Tier tidak diizinkan untuk paket Anda" : "Tier tidak valid" });
     return;
   }
 
@@ -1125,14 +1130,19 @@ router.post("/projects/:projectId/references/auto-cite", async (req, res): Promi
     return;
   }
 
-  // Resolve tier
+  // Resolve tier: validate existence then authorization
   const requestedTier = body.data.tier;
   const selectedTier = requestedTier
-    ? await getTierConfig(requestedTier)
+    ? await (async () => {
+        const tier = await getTierConfig(requestedTier);
+        if (!tier) return null;
+        const authorized = await checkTierAccess(project.userId, requestedTier);
+        return authorized ? tier : null;
+      })()
     : await getTierForUser(project.userId, null);
 
   if (!selectedTier) {
-    res.status(400).json({ error: "Tier tidak valid" });
+    res.status(requestedTier ? 403 : 400).json({ error: requestedTier ? "Tier tidak diizinkan untuk paket Anda" : "Tier tidak valid" });
     return;
   }
 

@@ -15,7 +15,7 @@ import {
   SendMessageParams,
   SendMessageBody,
 } from "@workspace/api-zod";
-import { callAI, buildSystemPrompt, type ChatMode, getTierConfig, getTierForUser } from "../lib/ai.js";
+import { callAI, buildSystemPrompt, type ChatMode, getTierConfig, getTierForUser, checkTierAccess } from "../lib/ai.js";
 import { logActivity } from "../lib/activity.js";
 import { checkAIAccess, consumeQuotaForAIRequest } from "../lib/subscription.js";
 import { sanitizeUserMessage } from "../lib/prompt-injection.js";
@@ -66,13 +66,18 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
     return;
   }
 
-  // Resolve tier: use requested tier or user's preferred
+  // Resolve tier: validate existence then authorization
   const selectedTier = tierId
-    ? await getTierConfig(tierId)
+    ? await (async () => {
+        const tier = await getTierConfig(tierId);
+        if (!tier) return null;
+        const authorized = await checkTierAccess(project.userId, tierId);
+        return authorized ? tier : null;
+      })()
     : await getTierForUser(project.userId, null);
 
   if (!selectedTier) {
-    res.status(400).json({ error: "Tier tidak valid" });
+    res.status(tierId ? 403 : 400).json({ error: tierId ? "Tier tidak diizinkan untuk paket Anda" : "Tier tidak valid" });
     return;
   }
 
