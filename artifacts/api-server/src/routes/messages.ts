@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, asc, desc, and, isNull } from "drizzle-orm";
+import { eq, asc, desc, and, isNull, sql } from "drizzle-orm";
 import {
   db,
   messagesTable,
@@ -242,6 +242,25 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
       content: aiContent,
     })
     .returning();
+
+  // M8: Cap chat history at 100 messages per project
+  // Keep only the 100 most recent messages; delete older ones.
+  const MAX_MESSAGES_PER_PROJECT = 100;
+  await db
+    .delete(messagesTable)
+    .where(
+      and(
+        eq(messagesTable.projectId, params.data.projectId),
+        sql`${messagesTable.id} NOT IN (
+          SELECT id FROM (
+            SELECT id FROM messages
+            WHERE project_id = ${params.data.projectId}
+            ORDER BY created_at DESC
+            LIMIT ${MAX_MESSAGES_PER_PROJECT}
+          ) AS recent_messages
+        )`,
+      ),
+    );
 
   await logActivity(params.data.projectId, "chat_message", `User bertanya: ${sanitizedContent.substring(0, 60)}...`);
 
