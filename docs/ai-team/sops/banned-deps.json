@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "updated": "2026-09-13",
+  "rationale": "Deps yang Vercel esbuild bundler TIDAK bisa include di production bundle. Setiap kali esbuild gagal bundle dep ini, deploy crash 500. Pertahankan list ini sebagai single source of truth.",
+  "deps": [
+    { "name": "tiktoken", "reason": "WASM (.wasm) not bundled by esbuild", "incident": "INC-004 / INC-005", "added": "2026-09-13" },
+    { "name": "@dqbd/tiktoken", "reason": "WASM sibling of tiktoken", "incident": "INC-004", "added": "2026-09-13" },
+    { "name": "onnxruntime-node", "reason": "native .node binary", "incident": "ERR-019 family", "added": "2026-09-13" },
+    { "name": "bcrypt", "reason": "native binding", "incident": "ERR-019 family", "added": "2026-09-13" },
+    { "name": "better-sqlite3", "reason": "native binding", "incident": "ERR-019 family", "added": "2026-09-13" },
+    { "name": "sharp", "reason": "native image library", "incident": "ERR-019 family", "added": "2026-09-13" },
+    { "name": "canvas", "reason": "native image library (Cairo)", "incident": "ERR-019 family", "added": "2026-09-13" }
+  ]
+}

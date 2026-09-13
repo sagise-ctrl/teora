@@ -1,0 +1,56 @@
+name: branch-consistency-daily
+
+on:
+  schedule:
+    # 06:37 UTC = 13:37 WIB (off-peak, hindari round hour)
+    - cron: '37 6 * * *'
+  workflow_dispatch:  # bisa di-trigger manual juga
+
+jobs:
+  check:
+    name: Cross-branch banned-deps scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repo (full history untuk branch scanning)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Make scripts executable
+        run: chmod +x ./scripts/sop-*.sh
+
+      - name: Pre-deploy banned-deps check (current main)
+        run: ./scripts/sop-pre-deploy-banned-deps-check.sh
+
+      - name: Cross-branch consistency check (semua branch)
+        run: ./scripts/sop-cross-branch-consistency-check.sh --all
+        continue-on-error: false
+
+      - name: Report if clean
+        if: success()
+        run: |
+          echo "✅ Branch consistency OK — no banned deps detected in any active branch"
+          echo "Registry: .ai/sops/banned-deps.json"
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "❌ BRANCH DIVERGENCE DETECTED"
+          echo ""
+          echo "Lihat logs di atas untuk branch yang punya banned dep."
+          echo ""
+          echo "Tindaklanjut:"
+          echo "1. Buka .ai/error-index.md [ERR-019] untuk pattern info"
+          echo "2. Apply surgical fix (contoh: cherry-pick INC-004 fix)"
+          echo "3. Update .ai/blockers.md dengan INC-XXX label"
+          echo "4. Re-run workflow via workflow_dispatch setelah fix"
+          echo ""
+          echo "Registry: docs/ai-team/sops/banned-deps.json"
+          echo "SOP: docs/ai-team/sops/SOP-002-cross-branch-consistency.md"
