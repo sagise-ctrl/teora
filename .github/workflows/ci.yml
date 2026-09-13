@@ -30,24 +30,27 @@ jobs:
       - name: Lint commit messages
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            # PR: check commits between base and head
-            RANGE="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+            # PR: check commits between base+1 and head (exclude base itself)
+            # commitlint --from/--to is inclusive on both ends, so use parent of base
+            BASE="${{ github.event.pull_request.base.sha }}"
+            HEAD="${{ github.event.pull_request.head.sha }}"
+            # git rev-parse BASE^1 handles both merge-base case and edge case
+            FROM=$(git rev-parse "$BASE"^1 2>/dev/null || echo "$BASE")
+            npx commitlint --from="$FROM" --to="$HEAD" --verbose || {
+              echo "::error::Commit message(s) don't follow conventional commit format"
+              echo "Allowed types: feat, fix, refactor, test, docs, chore, perf, security, ci, build"
+              echo "Format: <type>(<scope>): <description>"
+              exit 1
+            }
           else
-            # Push: check the latest commit
-            RANGE="${{ github.sha }}~1..${{ github.sha }}"
+            # Push: check the latest commit only
+            npx commitlint --from="${{ github.sha }}~1" --to="${{ github.sha }}" --verbose || {
+              echo "::error::Commit message(s) don't follow conventional commit format"
+              echo "Allowed types: feat, fix, refactor, test, docs, chore, perf, security, ci, build"
+              echo "Format: <type>(<scope>): <description>"
+              exit 1
+            }
           fi
-          echo "Checking commits in range: $RANGE"
-          echo "Commits:"
-          git log --oneline "$RANGE"
-          echo "---"
-          FROM=$(echo "$RANGE" | cut -d. -f1)
-          TO=$(echo "$RANGE" | cut -d. -f2)
-          npx commitlint --from="$FROM" --to="$TO" --verbose || {
-            echo "::error::Commit message(s) don't follow conventional commit format"
-            echo "Allowed types: feat, fix, refactor, test, docs, chore, perf, security, ci, build"
-            echo "Format: <type>(<scope>): <description>"
-            exit 1
-          }
 
   ci:
     name: CI
