@@ -1201,3 +1201,74 @@ If new `vercel.json` installCommand causes build failure: rollback to `npm insta
 - Related decisions: DECISION 003 (Direct Vercel CLI), DECISION 006 (Per-route middleware), DECISION 008 (.vercelignore allowlist)
 
 ---
+
+## [2026-09-13] DECISION 018: Audit Fixes C1, C2, M9 — Server Reliability Hardening
+
+**Status:** ✅ APPLIED (commit `2f88046`, pushed to origin/main)
+**Author:** AI Engineering
+**Trigger:** Final 3 audit findings from project-wide code audit (H1-H8, M1-M10, L1-L5 done; C1, C2, M9 remaining).
+
+### Decision Summary
+
+Three independent reliability/security fixes, applied as a single commit batch:
+
+#### C1 — `supabase-admin.ts` lazy initialization
+
+**Problem:** Module-level `if (!supabaseUrl || !serviceRoleKey) throw new Error(...)` crashes the entire server at import time if either env var is missing. A single missing env var in any deployment target = total outage.
+
+**Decision:** Lazy initialization via `Proxy`. The exported `supabaseAdmin` symbol is a Proxy that calls `buildClient()` only on first property access. If env is missing, the throw happens at first use (not at server startup), and route handlers can opt into `getSupabaseAdminOr503()` helper to return a clean 503 instead of 500.
+
+**Why Proxy not getter:** Existing callers (`auth.ts`, `profile.ts`, `attachments.ts`) use `supabaseAdmin.storage.from(...).upload(...)` — preserving dot-access API requires Proxy. A getter would force migration to `supabaseAdmin().storage...` everywhere.
+
+**Verification:** 3/3 unit tests pass in `src/test/unit/supabase-admin-lazy.test.ts`. Module load succeeds when env unset. First property access throws with helpful message. `getSupabaseAdminOr503()` returns null + 503.
+
+#### C2 — 10MB attachment upload limit
+
+**Problem:** `POST /projects/:projectId/attachments` accepts arbitrary `base64Content` length, then `Buffer.from(...).length` allocates the decoded buffer. A 100MB base64 = 75MB binary in memory per request. OOM crash on serverless runtime + Active CPU billing abuse.
+
+**Decision:** Two-stage check at route layer:
+1. `base64Content.length > MAX_BASE64_CHARS` (13.97M chars ≈ 10MB binary)
+2. After decode: `buffer.length > MAX_BINARY_BYTES` (10MB)
+
+Both checks return 413 with clear MB-based message. Both must pass because attackers can send padded base64 that passes length check but decodes to large binary.
+
+**Why route-layer not Zod schema:** `UploadAttachmentBody` is in `lib/api-zod/src/generated/api.ts` — generated from OpenAPI. Modifying it directly works but gets overwritten by `pnpm codegen`. Route-layer check is the durable place.
+
+**Trade-off considered:** Could use `multer` or `express.raw({ limit })`. Decided against — codebase pattern is JSON body with Zod validation. Multer would require multipart upload, breaking the existing API contract.
+
+#### M9 — 5MB DOCX source limit
+
+**Problem:** `POST /projects/:projectId/exports` with `format: "docx"` runs `markdownToParagraphs(content)` + `Packer.toBuffer()` synchronously. For multi-MB content this blocks the serverless function for many seconds, consuming Active CPU budget and risking 300s timeout.
+
+**Decision:** Pre-check `Buffer.byteLength(content, "utf8") > MAX_DOCX_SOURCE_BYTES` (5MB) BEFORE invoking `markdownToParagraphs`. Return 422 with `sizeBytes`, `maxBytes`, and guidance (split doc or export as Markdown).
+
+**Why 5MB:** A 1000-page academic manuscript at 5KB/page = 5MB. Generous for legitimate use; large enough to cover real theses/dissertations.
+
+**Why not streaming response:** Vercel Functions support `ReadableStream` since 2026, but the `docx` library's `Packer` API only exposes `toBuffer()` and `toBlob()` — no streaming primitives. Streaming would require vendoring a ZIP encoder (DOCX is a ZIP of XML files). Not worth the maintenance cost for a corner case (multi-MB academic exports).
+
+**Trade-off considered:** Move to background job (accept job, return job ID, generate off-thread, notify on completion). Decided against — full refactor for a feature only hit by users with 1000+ page manuscripts. Size cap + 422 + clear guidance is the right pragmatic answer.
+
+### Implementation Surface
+
+| File | Change |
+|------|--------|
+| `artifacts/api-server/src/lib/supabase-admin.ts` | Proxy-based lazy init + `getSupabaseAdminOr503` helper |
+| `artifacts/api-server/src/routes/attachments.ts` | `MAX_BINARY_BYTES = 10MB`, double-check (base64 chars + decoded buffer), 413 response |
+| `artifacts/api-server/src/routes/exports.ts` | `MAX_DOCX_SOURCE_BYTES = 5MB`, byteLength pre-check, 422 response |
+| `artifacts/api-server/src/test/unit/supabase-admin-lazy.test.ts` | 3 unit tests for C1 lazy init |
+
+### Verification
+
+- **Typecheck:** Error count unchanged (324 pre-existing, +0 from these changes). Confirmed via `git stash` baseline comparison.
+- **Unit tests:** 3/3 pass for C1. Pre-existing 14 test failures unchanged.
+- **Live:** `https://teora-backend.vercel.app/api/healthz` returns 200 after push. Vercel edge returns 413 `FUNCTION_PAYLOAD_TOO_LARGE` for >15MB JSON (layer above the route — defense in depth).
+
+### Related Decisions
+
+- DECISION 005 (Error handling protocol) — applied SEARCH FIRST + INVESTIGATE + ROOT CAUSE before fixing
+- DECISION 009-017 (live audit state) — these 3 fixes complete the audit set
+- Deployment SOP (`.ai/current-task.md`) — batch push with owner approval, then verify live
+
+---
+
+

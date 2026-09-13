@@ -695,3 +695,47 @@ vercel deploy --prod --prebuilt --yes
 2. Commit + push ke branch → GitHub Actions CI/CD trigger Vercel deploy
 3. Alternative: deploy dari environment tanpa proxy (bukan mesin ini)
 
+
+---
+
+## [2026-09-13] Deployment Drift — local main 19 commit tertahan
+
+### Gejala
+
+Fix yang sudah di-commit di local main TIDAK live di web sampai di-push ke origin/main. Concrete: H7 dark mode landing fix di-commit 2026-09-13 10:38 tapi live masih menampilkan teks invisible sampai push dilakukan 2026-09-13.
+
+### Root cause
+
+- CLAUDE.md Git Rules: "**NEVER** push to remote without owner instruction"
+- 19 commit fix audit (H1-H8, M2-M10, L1-L5, M3) di-commit ke local `main` antara 2026-09-12 dan 2026-09-13
+- `git push` TIDAK pernah dilakukan
+- Vercel deploy triggered oleh `push` event ke branch `main` (`.github/workflows/deploy-frontend.yml`, `deploy-backend.yml`)
+- Live = `origin/main` tip = `d80a7ca` (2026-09-12 00:59) → tidak punya fix-fiks
+- Local main tip = `37df517` (2026-09-13) → punya 19 commit fix
+
+### Kalau error berulang — apakah kelas masalah baru?
+
+Ini **bukan bug teknis** tapi **workflow gap**: rule push yang terlalu konservatif + tidak ada scheduled sync check. Owner punya eksplisit exception untuk push hanya branch tertentu (feat/google-oauth-frontend, 0e880a7), tapi `main` tidak termasuk.
+
+### Opsi yang dipertimbangkan
+
+1. **Hapus rule "never push to main"** — terlalu liberal, risiko push yang belum siap
+2. **Push setiap selesai batch audit** — sweet spot, push saat ada milestone fix yang sudah diverifikasi ✅
+3. **Otomatis push setiap commit** — terlalu sering, risiko push yang belum dites
+4. **Buat scheduled job yang sync local → origin tiap X jam** — bisa clash dengan force-push scenarios
+
+### Kenapa pilih pendekatan ini
+
+Approach hybrid per memory file `deployment-drift-local-vs-live-20260913.md`:
+- Setelah fix milestone (audit selesai, fitur selesai), **default: tanya owner sekali untuk batch push**, dengan ringkasan apa yang akan di-push
+- Emergency fix (production broken): **push langsung** lalu report, karena biaya downtime > risiko push yang belum direview
+- TIDAK push setiap commit — overhead review jadi tidak praktis
+- TIDAK ubah CLAUDE.md tanpa diskusi owner — rule eksplisit
+
+### Yang harus dicek di masa depan supaya tidak terulang
+
+- **WAJIB**: setiap akhir batch kerja, cek `git log origin/main..main --oneline` — kalau ada commit tertahan, tanya owner apakah push sekarang
+- **WAJIB**: sebelum klaim "fix live", verifikasi commit ada di `origin/main` (bukan cuma local main)
+- Checklist: `git fetch origin && git rev-parse origin/main` lalu bandingkan dengan local main
+- Update `.ai/current-task.md` dengan section "Pending Push to origin/main" kalau ada commit tertahan
+- Untuk owner: kalau ada beberapa fix yang sudah selesai dan live butuh, kasih instruksi "push batch" sekali
