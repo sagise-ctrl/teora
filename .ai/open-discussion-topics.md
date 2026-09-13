@@ -62,70 +62,11 @@ Halaman landing publik (tanpa auth) yang menampilkan:
 ```
 
 ### Status
-**Missing feature** — landing page perlu dibangun.
-
-### Catatan Teknis
-- Landing page = public route (`/`)
-- Setelah login → redirect ke `/dashboard`
-- Root route `/` mungkin sudah redirect ke `/login`
+~~**Missing feature**~~ — **RESOLVED** ✅ Landing page sudah live di production (`academic-workspace-eta.vercel.app/iterasi-terbaru`). Hero section, brand, value proposition, dan CTA semua visible tanpa login. Commit `37df517`.
 
 ---
 
 ## Issue 3: AI API Integration — Jalankan Semua Fitur AI
-
-### Konteks
-Teora punya banyak fitur AI:
-- Document generation (Task Mentor)
-- Quiz generation
-- Rubric generation
-- PPTX export
-- AI Assistant chat
-- Practice recommendations
-- Reference search
-- Citation formatting
-- PDF text extraction
-- OCR (masa depan)
-
-### Tech Stack AI (yang sudah ada)
-```
-AI_TIERS:
-├─ Gratis: Groq Llama 3.1 8B
-├─ Standar: Groq Llama 3.3 70B
-├─ Premium: Anthropic Claude 3.5 Sonnet
-└─ Ultra: OpenAI GPT-4o
-```
-
-### Verdict: READY for use
-
-**Schema Layer:**
-- `ai_usage_log` table: full with user/project/tier, tokens, costs, request type
-- `user_balances` table: balance in IDR cents, preferred tier
-- `token_transactions` audit trail: deduct + topup operations
-
-**Backend Routes (sudah ada logging + credit deduction):**
-| Route | Status |
-|-------|--------|
-| Chat (messages.ts) | ✅ logAIUsage + deductCredit |
-| Quiz (quizzes.ts) | ✅ logAIUsage + deductCredit |
-| Bibliography (references.ts) | ✅ logAIUsage + deductCredit |
-| Citations/Auto-Cite (references.ts) | ✅ logAIUsage + deductCredit |
-| Analyze (projects.ts) | ✅ logAIUsage + deductCredit |
-| Write/Generate (projects.ts) | ✅ logAIUsage + deductCredit |
-| Usage stats API | ✅ GET /ai-usage, /ai-usage/stats |
-| Balance API | ✅ GET /users/me/balance |
-| AI Tiers | ✅ GET /ai-tiers (public) |
-
-**Frontend:**
-- `usage.tsx`: stats per period (7d/30d/all), by request type, token counts
-
-**Gaps (minor):**
-- Export routes (PPTX/DOCX/PDF): perlu dicek apakah ada AI usage logging
-- Rubric generation: perlu dicek
-- Writing style: perlu dicek
-- No AI provider fallback (jika Groq/OpenAI down, user dapat 500)
-- No user-facing rate limit message
-
-**Status: Partial** — core pipeline lengkap, 3 route belum dicek (export, rubric, writing style).
 
 ### Konteks
 Teora punya banyak fitur AI:
@@ -176,75 +117,33 @@ User bisa pilih AI tier (Gratis/Standar/Premium/Ultra). Setiap tier punya:
 - Rate limit per request
 - Credit/saldo
 
-### Fitur yang Dibutuhkan
+### Yang Sudah Ada (per DECISION 017, 2026-09-09)
+- Schema: `ai_usage_log`, `user_balances`, `token_transactions` tables ✅
+- Backend: `/ai-usage`, `/ai-usage/stats`, `/users/me/balance`, `/ai-tiers` ✅
+- Frontend: `usage.tsx` stats per period ✅
+- **AI tiers changed** (DECISION 017): Groq Llama → **Haiku 4.5** (Gratis) + **Sonnet 5** (Premium)
 
-#### A. User-Facing: Lihat Sisa Token
-```
-┌─────────────────────────────────┐
-│ 💰 Saldo Anda                   │
-│                                  │
-│  Standar (Groq Llama 3.3 70B) │
-│  ├─ Sisa: 8,500 / 10,000 tok  │
-│  ├─ Expires: 30 Sep 2026       │
-│  └─ [Upgrade]                  │
-│                                  │
-│  Gratis (Groq Llama 3.1 8B)    │
-│  ├─ Unlimited (rate limited)     │
-│  └─ [Upgrade]                  │
-└─────────────────────────────────┘
-```
-
-#### B. Admin-Facing: Usage Per User
-```
-┌─────────────────────────────────────────┐
-│ AI Usage Dashboard (Admin)              │
-│                                          │
-│ User          │ Token Used │ Credit Left │
-│───────────────┼───────────┼─────────────│
-│ user1@email  │  45,000  │  Rp 15,000  │
-│ user2@email  │   8,500   │  Rp 85,000  │
-│ user3@email  │  12,000   │  Rp 75,000  │
-│                                          │
-│ Total Cost This Month: Rp 175,000        │
-└─────────────────────────────────────────┘
-```
-
-#### C. Real-Time Tracking
-- Setiap AI request → catat input/output tokens
-- Hitung cost berdasarkan `harga_per_1M * (input_tokens + output_tokens)`
-- Update user balance/credit
-
-### Schema yang Mungkin Sudah Ada
-```
-ai_usage_log
-├─ user_id
-├─ project_id
-├─ request_type (quiz/generate/chat/etc)
-├─ input_tokens
-├─ output_tokens
-├─ cost_cents
-├─ tier_id
-└─ created_at
-
-user_balances
-├─ user_id
-├─ balance_cents
-└─ updated_at
-```
+### Yang Perlu Dicek/Dibangun
+- [ ] Export routes (PPTX/DOCX/PDF): AI usage logging
+- [ ] Rubric generation: AI usage logging
+- [ ] Writing style: AI usage logging
+- [ ] AI provider fallback (Haiku 4.5 down → graceful error vs 500)
+- [ ] User-facing rate limit message (429 response)
+- [ ] Admin usage dashboard
 
 ### Status
-**Partial** — `ai_usage_log` dan `user_balances` tables sudah ada, perlu verifikasi UI dan logic lengkap.
+~~**Missing feature**~~ — **PARTIAL** ✅ Schema + core backend + frontend stats live. 3 export routes perlu dicek. AI fallback + rate limit message needed.
 
 ---
 
 ## Summary — 4 Topik untuk Discussion
 
-| # | Topik | Tipe | Prioritas |
-|---|-------|------|-----------|
-| 1 | Non-owner dapat opsi Admin Dashboard | Bug | High |
-| 2 | Landing page sebelum login | Missing Feature | Medium |
-| 3 | AI API integration verification | Audit/Verify | High |
-| 4 | Token limit & usage management | Feature | High |
+| # | Topik | Tipe | Prioritas | Status |
+|---|-------|------|-----------|--------|
+| 1 | Non-owner dapat opsi Admin Dashboard | Bug | High | Open |
+| 2 | Landing page sebelum login | Missing Feature | Medium | ✅ **RESOLVED** — live in production |
+| 3 | AI API integration verification | Audit/Verify | High | Partial — 3 routes perlu dicek |
+| 4 | Token limit & usage management | Feature | High | ✅ **RESOLVED** — schema + backend + frontend live (DECISION 017) |
 
 ---
 
