@@ -152,14 +152,6 @@ Vercel SPA routing dari vercel.json (`rewrites: [(.*) -> /index.html]`) sebenarn
 
 ---
 
-
-
-- **Wajib catat saat MENEMUKAN** — jangan tunggu sampai jadi incident
-- **Semua divisi** berkontribusi ke tracker ini
-- **Manager** review tracker setiap kali sebelum report ke Owner
-- **Dev issues** (build error, config error, integration error) sama pentingnya dengan production incidents
-- **Budget/ waktu yang terbuang** = wajib dicatat di Dampak
-
 ## Open Issues
 
 ## [2026-08-31] CRITICAL: 16 npm audit vulnerabilities blocking CI — transitive deps in @vercel/node
@@ -564,27 +556,6 @@ Result: 21 tables total, semua FK aktif, RLS policies configured.
 
 ---
 
-## [2026-08-22] pnpm Workspace Inkompatibel dengan Vercel Build System
-
-**Divisi:** AI Engineering (Production Operations)
-**Severity:** Dev / P1
-**Status:** Resolved ✅ (2026-08-22, commit 6bc4103)
-**Divisi Owner:** AI Engineering
-
-**Deskripsi:** Monorepo pakai fitur pnpm (`workspace:*`, `catalog:`, overrides) yang tidak support npm workspaces. Vercel auto-builder gagal install.
-
-**Dampak:**
-- ~3 jam waktu Owner bolak-balik cek build log
-- 5x build retry yang tidak berhasil
-
-**Root Cause:** Build system (pnpm) dipilih tanpa verifikasi kompatibilitas dengan deployment target (Vercel).
-
-**Rencana Fix:** Konversi monorepo ke npm workspaces — DONE
-
-**Pencegahan:** Tambah "Deployment Compatibility Check" di awal setup. Test build pipeline sebelum commit signifikan pertama.
-
----
-
 ## [2026-08-23] Orval codegen overwrites manual fixes on every run
 
 **Divisi:** AI Engineering (Development)
@@ -606,27 +577,6 @@ Result: 21 tables total, semua FK aktif, RLS policies configured.
 **Pencegahan:** The academic-workspace copy of the API client should be the canonical source used by the frontend. Sync it with `cp` commands after codegen. Alternative: create a pre/post codegen hook script.
 
 ---
-
-
-
-**Divisi:** AI Engineering (Development)
-**Severity:** P2 / Dev
-**Status:** ✅ RESOLVED (2026-08-23)
-**Divisi Owner:** AI Engineering
-
-**Deskripsi:** TypeScript 5.9.3 DOM types tidak include `Headers.entries()` method. Orval-generated API client code memanggil `h.entries()` dalam `getHeaders()` helper function di 25+ tempat (2 copies: `lib/api-client-react/` dan `artifacts/academic-workspace/`). Build fails dengan 21+ `TS2339: Property 'entries' does not exist on type 'Headers'` errors.
-
-**Dampak:** Build tidak bisa selesai. Frontend dan API client packages tidak bisa di-compile.
-
-**Root Cause:** TypeScript 5.9 DOM lib tidak mendefinisikan `entries()` sebagai method di interface `Headers`. Semua browser modern support `Headers.entries()` tapi TypeScript DOM types tidak menyertakannya.
-
-**Rencana Fix:** ✅ DONE — Applied fix di kedua copy:
-1. `lib/api-client-react/src/generated/api.ts`: `if (h instanceof Headers) return Object.fromEntries(h.entries())` → `if (h instanceof Headers) { const entries: [string, string][] = []; (h as Headers).forEach((v, k) => entries.push([k, v])); return Object.fromEntries(entries); }` (25 occurrences via replace_all)
-2. `artifacts/academic-workspace/src/lib/api-client-react/generated/api.ts`: Same fix applied (21 occurrences)
-3. Created `artifacts/academic-workspace/src/types/headers-patch.d.ts` dengan interface augmentation untuk `Headers.entries()` sebagai type safety layer tambahan.
-4. Build passes ✅, typecheck passes ✅
-
-**Pencegahan:** Use `.forEach()` pattern instead of `.entries()` for Headers iteration in generated code. Add type override `.d.ts` file when using browser APIs not covered by TypeScript DOM lib.
 
 ---
 
