@@ -79,3 +79,27 @@ jobs:
         run: |
           echo "Frontend deployed to Vercel production."
           echo "Verify at: https://academic-workspace-eta.vercel.app"
+
+      - name: Post-deploy health check
+        run: |
+          echo "Waiting for Vercel to propagate..."
+          sleep 10
+          FRONTEND_URL="https://academic-workspace-eta.vercel.app"
+          echo "Checking: $FRONTEND_URL"
+          HTTP_CODE=$(curl -sS -o /dev/null -w "%{http_code}" "$FRONTEND_URL")
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "✅ Frontend health OK (HTTP $HTTP_CODE)"
+          else
+            echo "::warning::Frontend returned HTTP $HTTP_CODE — verify manually"
+          fi
+
+      - name: API smoke test
+        run: |
+          BACKEND_URL="https://teora-backend.vercel.app"
+          echo "Checking API: $BACKEND_URL/api/healthz"
+          HTTP_CODE=$(curl -sS -o /dev/null -w "%{http_code}" "$BACKEND_URL/api/healthz")
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "✅ API smoke OK (HTTP $HTTP_CODE)"
+          else
+            echo "::warning::API returned HTTP $HTTP_CODE — may indicate drift or backend issue"
+          fi
