@@ -1555,8 +1555,8 @@ export const listAIUsageQueryOffsetDefault = 0;
 export const ListAIUsageQueryParams = zod.object({
   "userId": zod.coerce.string().optional().describe('Filter by user (admin only, defaults to current user)'),
   "projectId": zod.coerce.number().optional().describe('Filter by project'),
-  "startDate": zod.date().optional(),
-  "endDate": zod.date().optional(),
+  "startDate": zod.coerce.date().optional(),
+  "endDate": zod.coerce.date().optional(),
   "limit": zod.coerce.number().default(listAIUsageQueryLimitDefault),
   "offset": zod.coerce.number().default(listAIUsageQueryOffsetDefault)
 })

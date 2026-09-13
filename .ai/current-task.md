@@ -11,10 +11,10 @@
 
 ## 🎯 ACTIVE 2026-09-13 — Project-Wide Code Audit (opus-4-6)
 
-**Status:** 🔄 IN PROGRESS — 6/27 fixed (H1-H4 + H5 + H7 code)
+**Status:** 🔄 IN PROGRESS — 7/27 fixed (H1-H5 + H6 + H7)
 **Model:** claude-opus-4-6
 **Branch:** `main`
-**Commit:** `c97fa51` (H5 auth)
+**Commit:** `c639e1d` (H6 usage API)
 
 ### Audit Findings — Status Tracker
 
@@ -25,8 +25,8 @@
 | H3 | HIGH | `max_tokens: 4096` hardcoded | ✅ FIXED |
 | H4 | HIGH | rawBody unreliable for HMAC webhook | ✅ FIXED (commit c946a38) |
 | H5 | HIGH | `/api/ai-tiers` publicly accessible | ✅ FIXED (commit c97fa51) |
-| H7 | HIGH | Landing page invisible text flash | 🔄 DONE (build verifying) |
-| H6 | HIGH | Usage page mock data | 🔲 |
+| H7 | HIGH | Landing page invisible text flash | ✅ FIXED (commit 0030873) |
+| H6 | HIGH | Usage page mock data | ✅ FIXED (commit c639e1d) |
 | H8 | HIGH | `z.date()` rejects string query params | 🔲 |
 | M1 | MEDIUM | `usage` used before assignment in references.ts | ✅ FIXED |
 | M2-M10 | MEDIUM | (10 findings) | 🔲 |
@@ -34,11 +34,9 @@
 | C1-C2 | CRITICAL | Production alignment (needs owner) | 🔲 |
 
 ### Next Actions
-1. Fix H7: add `setTheme("dark")` in `Landing` mount effect — verify build
-2. Fix H6: implement backend quota API + regenerate hooks
-3. Fix H8: `z.coerce.date()` in generated API Zod
-4. Fix M2-M10, L1-L6
-5. Owner decision: merge strategy for `feat/daftar-task`
+1. Fix H8: `z.coerce.date()` in generated API Zod schemas (OpenAPI parameter fix)
+2. Fix M2-M10, L1-L6
+3. Owner decision: C1/C2 production alignment
 
 ---
 

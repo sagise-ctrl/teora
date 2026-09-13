@@ -2,19 +2,22 @@
 
 > Completed work, newest first. Format: `YYYY-MM-DD | description | files | status`
 
-## 2026-09-13 | Fix audit findings H1-H4 (opus-4-6)
+## 2026-09-13 | Fix audit findings H1-H6 + H7 (opus-4-6)
 
 **Branch:** `main`
 
 | Finding | Description | Files | Status |
 |---------|-----------|-------|--------|
-| H2 | Context window truncation — KONTEKS_TERLALU_PANJANG 422 error in 9 AI routes | `routes/messages.ts`, `routes/references.ts`, `routes/projects.ts`, `routes/quizzes.ts`, `routes/rubrics.ts`, `routes/writing-style.ts`, `routes/simulasi.ts` | ✅ FIXED |
-| H3 | Hardcoded `max_tokens: 4096` — dynamic via `estimateAnthropicInputTokens` | `lib/ai.ts` | ✅ FIXED |
-| H1 | Race condition in autofallback saldo deduction (3 sites) | `lib/subscription.ts`, `lib/credit.ts` | ✅ FIXED |
+| H6 | Usage page mock data → real API (GET /users/me/usage/windows + /daily) | `routes/usage.ts`, `pages/usage.tsx`, `openapi.yaml`, codegen | ✅ FIXED |
+| H7 | Landing page dark mode flash — `setTheme("dark")` on mount | `pages/landing.tsx` | ✅ FIXED |
+| H5 | `/api/ai-tiers` publicly accessible | `routes/index.ts` | ✅ FIXED |
 | H4 | rawBody HMAC unreliable — express.raw() middleware preserves Buffer for signature | `app.ts`, `routes/referral-webhook.ts`, `routes/index.ts` | ✅ FIXED |
+| H3 | Hardcoded `max_tokens: 4096` — dynamic via `estimateAnthropicInputTokens` | `lib/ai.ts` | ✅ FIXED |
+| H2 | Context window truncation — KONTEKS_TERLALU_PANJANG 422 error in 9 AI routes | `routes/messages.ts`, `routes/references.ts`, `routes/projects.ts`, `routes/quizzes.ts`, `routes/rubrics.ts`, `routes/writing-style.ts`, `routes/simulasi.ts` | ✅ FIXED |
+| H1 | Race condition in autofallback saldo deduction (3 sites) | `lib/subscription.ts`, `lib/credit.ts` | ✅ FIXED |
 | tokenizer | Heuristic tokenizer (3.5 chars/token) replacing tiktoken (WASM incompatible with Vercel) | `lib/tokenizer.ts` (NEW) | ✅ FIXED |
 
-**Commits:** `1b77102` (H1), `842c136` (checkpoint), `c946a38` (H4)
+**Commits:** `1b77102` (H1), `842c136` (checkpoint), `c946a38` (H4), `c97fa51` (H5), `0030873` (H7), `c639e1d` (H6)
 
 ## 2026-09-09 | Referral Program — Deploy to Production (opus-4-6)
 
