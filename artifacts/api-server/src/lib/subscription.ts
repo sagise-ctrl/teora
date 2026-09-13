@@ -19,7 +19,7 @@ import {
   tokenTransactionsTable,
   type WindowType,
 } from "@workspace/db";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, gte, sql } from "drizzle-orm";
 import { addHours, addDays, isAfter } from "date-fns";
 import { logger } from "./logger.js";
 
@@ -415,46 +415,56 @@ export async function checkQuotaAndAccumulate(params: {
   const balanceCents = balance?.balanceCents ?? 0;
   const autofallbackEnabled = balance?.autofallbackEnabled ?? false;
 
-  if (autofallbackEnabled && balanceCents >= costCents && costCents > 0) {
-    // Deduct from saldo
-    const newBalance = balanceCents - costCents;
+  // H1 fix: Use atomic UPDATE with balance check in WHERE clause.
+  // Previous SELECT-then-UPDATE pattern had a race condition where two concurrent
+  // requests could both read the same balance, both pass the check, and both deduct.
+  // Solution: UPDATE only succeeds when balance_cents >= cost_cents in the WHERE clause.
+  const [updatedBalance] = await db.transaction(async (tx) => {
+    // Atomic: deduct only if sufficient balance exists
+    return tx
+      .update(userBalancesTable)
+      .set({ balanceCents: sql`balance_cents - ${costCents}`, updatedAt: new Date() })
+      .where(
+        and(
+          eq(userBalancesTable.userId, userId),
+          gte(userBalancesTable.balanceCents, costCents),
+          eq(userBalancesTable.autofallbackEnabled, true)
+        )
+      )
+      .returning({ balanceCents: userBalancesTable.balanceCents });
+  });
 
-    await db.transaction(async (tx) => {
-      // Update balance
-      await tx
-        .update(userBalancesTable)
-        .set({ balanceCents: newBalance, updatedAt: new Date() })
-        .where(eq(userBalancesTable.userId, userId));
-
-      // Create transaction record
-      await tx.insert(tokenTransactionsTable).values({
-        userId,
-        type: "ai_usage",
-        amountCents: -costCents,
-        balanceAfterCents: newBalance,
-        description: `AI usage (autofallback from subscription quota)`,
-      });
-    });
-
-    return { allowed: true, method: "saldo", deductCents: costCents };
+  // If no row was updated, either autofallback is off or balance was insufficient
+  if (!updatedBalance) {
+    // Re-read to provide accurate balance in the error response
+    const [balance] = await db
+      .select()
+      .from(userBalancesTable)
+      .where(eq(userBalancesTable.userId, userId));
+    const currentBalance = balance?.balanceCents ?? 0;
+    const autofallbackOff = !(balance?.autofallbackEnabled ?? false);
+    if (autofallbackOff || currentBalance < costCents) {
+      return {
+        allowed: false,
+        reason: "saldo_insufficient",
+        balanceCents: currentBalance,
+        requiredCents: costCents,
+      };
+    }
+    // Should not reach here — race condition between transaction and re-read
+    return { allowed: false, reason: "quota_exhausted", subscriptionActive: false };
   }
 
-  // 3. Balance insufficient
-  if (balanceCents < costCents && costCents > 0) {
-    return {
-      allowed: false,
-      reason: "saldo_insufficient",
-      balanceCents,
-      requiredCents: costCents,
-    };
-  }
+  // Atomic deduction succeeded — record the transaction
+  await db.insert(tokenTransactionsTable).values({
+    userId,
+    type: "ai_usage",
+    amountCents: -costCents,
+    balanceAfterCents: updatedBalance.balanceCents,
+    description: `AI usage (autofallback from subscription quota)`,
+  });
 
-  // 4. No subscription and autofallback off or zero balance
-  return {
-    allowed: false,
-    reason: "quota_exhausted",
-    subscriptionActive: false,
-  };
+  return { allowed: true, method: "saldo", deductCents: costCents };
 }
 
 // ---------------------------------------------------------------------------
@@ -691,52 +701,48 @@ export async function consumeQuotaForAIRequest(params: {
     return result;
   }
 
-  // 2. No active subscription — check saldo (with autofallback gate)
-  const [balance] = await db
-    .select()
-    .from(userBalancesTable)
-    .where(eq(userBalancesTable.userId, userId));
+  // H1 fix: Atomic UPDATE with autofallback check in WHERE clause.
+  const [updatedBalance] = await db.transaction(async (tx) => {
+    return tx
+      .update(userBalancesTable)
+      .set({ balanceCents: sql`balance_cents - ${costCents}`, updatedAt: new Date() })
+      .where(
+        and(
+          eq(userBalancesTable.userId, userId),
+          gte(userBalancesTable.balanceCents, costCents),
+          eq(userBalancesTable.autofallbackEnabled, true)
+        )
+      )
+      .returning({ balanceCents: userBalancesTable.balanceCents });
+  });
 
-  const balanceCents = balance?.balanceCents ?? 0;
-  const autofallbackEnabled = balance?.autofallbackEnabled ?? false;
-
-  if (autofallbackEnabled && balanceCents >= costCents && costCents > 0) {
-    // Deduct from saldo
-    const newBalance = balanceCents - costCents;
-
-    await db.transaction(async (tx) => {
-      await tx
-        .update(userBalancesTable)
-        .set({ balanceCents: newBalance, updatedAt: new Date() })
-        .where(eq(userBalancesTable.userId, userId));
-
-      await tx.insert(tokenTransactionsTable).values({
-        userId,
-        type: "ai_usage",
-        amountCents: -costCents,
-        balanceAfterCents: newBalance,
-        description: `AI usage (saldo only)`,
-      });
-    });
-
-    return { allowed: true, method: "saldo", deductCents: costCents };
+  if (!updatedBalance) {
+    const [balance] = await db
+      .select()
+      .from(userBalancesTable)
+      .where(eq(userBalancesTable.userId, userId));
+    const currentBalance = balance?.balanceCents ?? 0;
+    const autofallbackOff = !(balance?.autofallbackEnabled ?? false);
+    if (autofallbackOff || currentBalance < costCents) {
+      return {
+        allowed: false,
+        reason: "saldo_insufficient",
+        balanceCents: currentBalance,
+        requiredCents: costCents,
+      };
+    }
+    return { allowed: false, reason: "quota_exhausted", subscriptionActive: false };
   }
 
-  // 3. Deny — no subscription and no usable saldo
-  if (balanceCents < costCents && costCents > 0) {
-    return {
-      allowed: false,
-      reason: "saldo_insufficient",
-      balanceCents,
-      requiredCents: costCents,
-    };
-  }
+  await db.insert(tokenTransactionsTable).values({
+    userId,
+    type: "ai_usage",
+    amountCents: -costCents,
+    balanceAfterCents: updatedBalance.balanceCents,
+    description: `AI usage (saldo only)`,
+  });
 
-  return {
-    allowed: false,
-    reason: "quota_exhausted",
-    subscriptionActive: false,
-  };
+  return { allowed: true, method: "saldo", deductCents: costCents };
 }
 
 // ---------------------------------------------------------------------------

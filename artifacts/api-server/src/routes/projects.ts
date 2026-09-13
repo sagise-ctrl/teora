@@ -353,6 +353,17 @@ router.post("/projects/:projectId/analyze", async (req, res): Promise<void> => {
   try {
     await runAnalysisPipeline(project.id, job.id, selectedTier);
   } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    if (message === "KONTEKS_TERLALU_PANJANG") {
+      await db.update(jobsTable).set({ status: "failed", errorMessage: "Konteks terlalu panjang." }).where(eq(jobsTable.id, job.id));
+      await db.update(projectsTable).set({ status: "draft" }).where(eq(projectsTable.id, project.id));
+      res.status(422).json({
+        error: "Konteks terlalu panjang.",
+        detail: "Dokumen atau instruksi terlalu panjang untuk diproses.",
+        code: "KONTEKS_TERLALU_PANJANG",
+      });
+      return;
+    }
     req.log.error({ err, projectId: project.id }, "Analysis pipeline failed");
     quotaInfo = { method: "subscription", saldoUsedCents: 0 };
   }
@@ -583,9 +594,10 @@ Tulis dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan b
       saldoUsedCents: writeQuota?.allowed && writeQuota.method === "saldo" ? (writeQuota.deductCents ?? 0) : 0,
     };
   } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
     await db
       .update(jobsTable)
-      .set({ status: "failed", errorMessage: String(err) })
+      .set({ status: "failed", errorMessage: message })
       .where(eq(jobsTable.id, jobId));
 
     await db
@@ -593,7 +605,7 @@ Tulis dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan b
       .set({ status: "draft" })
       .where(eq(projectsTable.id, projectId));
 
-    await logActivity(projectId, "analysis_failed", `Analisis gagal: ${String(err)}`);
+    await logActivity(projectId, "analysis_failed", `Analisis gagal: ${message}`);
     throw err;
   }
 }
@@ -675,13 +687,35 @@ router.post("/projects/:projectId/outline", async (req, res): Promise<void> => {
     ? `Tinjauan outline pengguna berikut dan perbaiki outline dokumen akademik ini:\n\nOUTLINE SAAT INI:\n${sanitizedOutline}\n\nINSTRUKSI: Buat outline yang lebih baik berdasarkan instruksi tugas berikut.\nJudul: ${project.title}\n${project.instructionText ? `\nINSTRUKSI DOSEN:\n${project.instructionText}` : ""}`
     : `Analisis instruksi tugas berikut dan hasilkan outline dokumen akademik yang lengkap.\n\nJudul: ${project.title}\n${project.instructionText ? `\nINSTRUKSI DOSEN:\n${project.instructionText}` : ""}\n\nFormat: outline lengkap dalam format markdown dengan bab dan sub-bab.`;
 
-  const { content: outlineContent, usage, tierConfig } = await callAI(
-    [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: outlinePrompt },
-    ],
-    selectedTier.id,
-  );
+  let outlineContent: string;
+  let usage: { inputTokens: number; outputTokens: number; estimatedCostUsd: number; costCents: number; tierId: string };
+  let tierConfig: typeof selectedTier;
+
+  try {
+    const result = await callAI(
+      [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: outlinePrompt },
+      ],
+      selectedTier.id,
+    );
+    outlineContent = result.content;
+    usage = result.usage;
+    tierConfig = result.tierConfig;
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    if (message === "KONTEKS_TERLALU_PANJANG") {
+      res.status(422).json({
+        error: "Konteks terlalu panjang.",
+        detail: "Instruksi tugas terlalu panjang. Coba singkatkan instruksi.",
+        code: "KONTEKS_TERLALU_PANJANG",
+      });
+      return;
+    }
+    req.log.error({ err, projectId: params.data.projectId }, "Outline generation failed");
+    res.status(500).json({ error: "Gagal menghasilkan outline. Silakan coba lagi." });
+    return;
+  }
 
   const usageLog = await logAIUsage({
     userId: project.userId,
@@ -850,6 +884,16 @@ router.post("/projects/:projectId/documents/generate", async (req, res): Promise
   try {
     await runDocumentGeneration(project.id, job.id, outline, selectedTier);
   } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    if (message === "KONTEKS_TERLALU_PANJANG") {
+      await db.update(jobsTable).set({ status: "failed", errorMessage: "Konteks terlalu panjang." }).where(eq(jobsTable.id, job.id));
+      res.status(422).json({
+        error: "Konteks terlalu panjang.",
+        detail: "Outline atau dokumen terlalu panjang untuk diproses.",
+        code: "KONTEKS_TERLALU_PANJANG",
+      });
+      return;
+    }
     req.log.error({ err, projectId: project.id }, "Document generation failed");
     quotaInfo = { method: "subscription", saldoUsedCents: 0 };
   }
@@ -973,9 +1017,10 @@ async function runDocumentGeneration(
       saldoUsedCents: quotaResult?.allowed && quotaResult.method === "saldo" ? (quotaResult.deductCents ?? 0) : 0,
     };
   } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
     await db
       .update(jobsTable)
-      .set({ status: "failed", errorMessage: String(err) })
+      .set({ status: "failed", errorMessage: message })
       .where(eq(jobsTable.id, jobId));
 
     await db
@@ -983,7 +1028,7 @@ async function runDocumentGeneration(
       .set({ status: "draft" })
       .where(eq(projectsTable.id, projectId));
 
-    await logActivity(projectId, "document_generation_failed", `Penulisan gagal: ${String(err)}`);
+    await logActivity(projectId, "document_generation_failed", `Penulisan gagal: ${message}`);
     throw err;
   }
 }

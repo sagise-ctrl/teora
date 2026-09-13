@@ -663,8 +663,17 @@ Berdasarkan simulasi ini, berikut evaluasi singkat saya:
   try {
     aiResponse = await callAI(chatMessages, selectedTier.id, "socratic");
   } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    if (message === "KONTEKS_TERLALU_PANJANG") {
+      await db.delete(simulationMessagesTable).where(eq(simulationMessagesTable.id, userMsg.id));
+      res.status(422).json({
+        error: "Konteks terlalu panjang.",
+        detail: "Percakapan terlalu panjang. Coba mulai sesi baru.",
+        code: "KONTEKS_TERLALU_PANJANG",
+      });
+      return;
+    }
     logger.error({ err, sessionId: params.data.sessionId }, "AI call failed in simulation");
-    // Delete user message on failure
     await db.delete(simulationMessagesTable).where(eq(simulationMessagesTable.id, userMsg.id));
     res.status(500).json({ error: "Gagal memproses respons AI. Silakan coba lagi." });
     return;
@@ -792,7 +801,9 @@ router.post("/projects/:projectId/simulasi/sessions/:sessionId/complete", async 
     .orderBy(asc(simulationMessagesTable.sequenceIndex));
 
   // Generate report
-  const reportData = await generateSimulationReport({
+  let reportData: Awaited<ReturnType<typeof generateSimulationReport>>;
+  try {
+    reportData = await generateSimulationReport({
     sessionId: session.id,
     projectId: session.projectId,
     userId: session.userId,
@@ -810,6 +821,20 @@ router.post("/projects/:projectId/simulasi/sessions/:sessionId/complete", async 
     })),
     tierId: session.tierId ?? "haiku-4.5",
   });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    if (message === "KONTEKS_TERLALU_PANJANG") {
+      res.status(422).json({
+        error: "Konteks terlalu panjang.",
+        detail: "Sesi simulasi terlalu panjang untuk dievaluasi. Coba mulai sesi baru.",
+        code: "KONTEKS_TERLALU_PANJANG",
+      });
+      return;
+    }
+    logger.error({ err, sessionId: session.id }, "Simulation report generation failed");
+    res.status(500).json({ error: "Gagal menghasilkan evaluasi. Silakan coba lagi." });
+    return;
+  }
 
   // Mark existing reports for this project as not-latest
   await db

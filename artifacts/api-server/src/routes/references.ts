@@ -1214,7 +1214,9 @@ ${candidateReferences
   .join("\n")}`;
 
   let aiResponse: string;
-  let usage: { inputTokens: number; outputTokens: number; estimatedCostUsd: number; costCents: number; tierId: string };
+  let usage: { inputTokens: number; outputTokens: number; estimatedCostUsd: number; costCents: number; tierId: string } = {
+    inputTokens: 0, outputTokens: 0, estimatedCostUsd: 0, costCents: 0, tierId: selectedTier.id,
+  };
   let tierConfig: typeof selectedTier;
 
   try {
@@ -1229,8 +1231,18 @@ ${candidateReferences
     usage = result.usage;
     tierConfig = result.tierConfig;
   } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    if (message === "KONTEKS_TERLALU_PANJANG") {
+      logger.warn({ projectId: params.data.projectId }, "Context window exceeded during auto-cite");
+      res.status(422).json({
+        error: "Konteks terlalu panjang.",
+        detail: "Daftar pustaka terlalu banyak atau dokumen terlalu panjang. Coba kurangi jumlah pustaka atau singkat dokumen.",
+        code: "KONTEKS_TERLALU_PANJANG",
+      });
+      return;
+    }
     console.error("[auto-cite] AI call failed:", err);
-    res.status(502).json({ error: "AI provider error", detail: err instanceof Error ? err.message : String(err) });
+    res.status(502).json({ error: "AI provider error", detail: message });
     return;
   }
 

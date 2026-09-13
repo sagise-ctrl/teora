@@ -2,6 +2,7 @@ import { db } from "@workspace/db";
 import { aiTiersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { logger } from "./logger.js";
+import { countTokens, truncateToTokenLimit, estimateAnthropicInputTokens } from "./tokenizer.js";
 
 export interface AITierConfig {
   id: string;
@@ -294,6 +295,16 @@ async function callAnthropic(
   const systemMsg = messages.find((m) => m.role === "system");
   const conversationMessages = messages.filter((m) => m.role !== "system");
 
+  // Estimate input tokens and compute safe max_tokens to avoid context window errors.
+  // H3 fix: max_tokens was hardcoded at 4096, which truncates long outputs.
+  // H2 fix: detect context window exceeded and surface a user-friendly error.
+  const { safeMaxOutputTokens } = estimateAnthropicInputTokens(
+    systemMsg?.content ?? "",
+    conversationMessages,
+    tier.model,
+    8192 // reserve 8192 tokens for output (supports ~6000 word responses)
+  );
+
   const response = await fetch(`${tier.baseUrl}/messages`, {
     method: "POST",
     headers: {
@@ -309,12 +320,29 @@ async function callAnthropic(
         content: m.content,
       })),
       temperature: 0.7,
-      max_tokens: 4096,
+      max_tokens: safeMaxOutputTokens,
     }),
   });
 
   if (!response.ok) {
     const errorBody = await response.text();
+    let errorObj: Record<string, unknown> = {};
+    try { errorObj = JSON.parse(errorBody); } catch { /* not JSON */ }
+
+    // Anthropic error type "overload_input" = error code 2013 = context window exceeded (ERR-017)
+    const errorType = (errorObj as Record<string, unknown>)?.type as string | undefined;
+    if (errorType === "overload_input" || errorType === "invalid_request_error") {
+      const errDetail = (errorObj as Record<string, unknown>)?.error as Record<string, unknown> | undefined;
+      const innerType = errDetail?.type as string | undefined;
+      if (innerType === "overload_input" || response.status === 400) {
+        logger.warn(
+          { status: response.status, body: errorBody, tier: tier.id },
+          "Anthropic context window exceeded"
+        );
+        throw new Error("KONTEKS_TERLALU_PANJANG");
+      }
+    }
+
     logger.error({ status: response.status, body: errorBody, tier: tier.id }, "Anthropic API error");
     throw new Error(`Anthropic API error ${response.status}: ${errorBody}`);
   }

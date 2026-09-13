@@ -1,6 +1,6 @@
 import { db } from "@workspace/db";
 import { userBalancesTable, tokenTransactionsTable, aiUsageLogTable } from "@workspace/db";
-import { eq, and } from "drizzle-orm";
+import { eq, and, gte, sql } from "drizzle-orm";
 import { logger } from "./logger.js";
 
 const MINIMUM_BALANCE_CENTS = 0; // Free tier can go to 0
@@ -47,6 +47,7 @@ export async function checkCreditBalance(
 /**
  * Deduct credit after AI request completes.
  * Creates audit trail in token_transactions.
+ * H1 fix: Atomic UPDATE with balance check in WHERE clause (no race condition).
  */
 export async function deductCredit(opts: {
   userId: string;
@@ -60,49 +61,37 @@ export async function deductCredit(opts: {
     return { success: true, balanceAfterCents: 0 };
   }
 
-  const [balance] = await db
-    .select()
-    .from(userBalancesTable)
-    .where(eq(userBalancesTable.userId, opts.userId));
+  // Atomic deduction: UPDATE only succeeds when sufficient balance exists in DB
+  const [updated] = await db
+    .update(userBalancesTable)
+    .set({ balanceCents: sql`balance_cents - ${opts.costCents}`, updatedAt: new Date() })
+    .where(and(eq(userBalancesTable.userId, opts.userId), gte(userBalancesTable.balanceCents, opts.costCents)))
+    .returning({ balanceCents: userBalancesTable.balanceCents });
 
-  const balanceCents = balance?.balanceCents ?? 0;
-  const newBalance = Math.max(0, balanceCents - opts.costCents);
-
-  try {
-    // Update balance
-    if (balance) {
-      await db
-        .update(userBalancesTable)
-        .set({
-          balanceCents: newBalance,
-          updatedAt: new Date(),
-        })
-        .where(eq(userBalancesTable.userId, opts.userId));
-    } else {
-      // Create balance record if doesn't exist
-      await db.insert(userBalancesTable).values({
-        userId: opts.userId,
-        balanceCents: newBalance,
-      });
-    }
-
-    // Create transaction record
-    const [transaction] = await db
-      .insert(tokenTransactionsTable)
-      .values({
-        userId: opts.userId,
-        type: "ai_usage",
-        amountCents: -opts.costCents,
-        balanceAfterCents: newBalance,
-        aiUsageLogId: opts.aiUsageLogId,
-        description: opts.description,
-      })
-      .returning();
-    return { success: true, balanceAfterCents: newBalance, transactionId: transaction.id };
-  } catch (err) {
-    logger.error({ err, userId: opts.userId, costCents: opts.costCents }, "Failed to deduct credit");
-    return { success: false, balanceAfterCents: balanceCents };
+  if (!updated) {
+    // Either insufficient balance or no balance record — fail safely
+    const [balance] = await db
+      .select()
+      .from(userBalancesTable)
+      .where(eq(userBalancesTable.userId, opts.userId));
+    logger.warn({ userId: opts.userId, costCents: opts.costCents, existingBalance: balance?.balanceCents ?? 0 }, "Credit deduction failed — insufficient balance");
+    return { success: false, balanceAfterCents: balance?.balanceCents ?? 0 };
   }
+
+  // Record the transaction (outside transaction — balance already deducted atomically)
+  const [transaction] = await db
+    .insert(tokenTransactionsTable)
+    .values({
+      userId: opts.userId,
+      type: "ai_usage",
+      amountCents: -opts.costCents,
+      balanceAfterCents: updated.balanceCents,
+      aiUsageLogId: opts.aiUsageLogId,
+      description: opts.description,
+    })
+    .returning();
+
+  return { success: true, balanceAfterCents: updated.balanceCents, transactionId: transaction.id };
 }
 
 /**

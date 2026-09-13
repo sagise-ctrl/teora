@@ -163,6 +163,15 @@ IMPORTANT: Return ONLY the JSON object, no markdown code blocks.`;
 
     res.status(201).json({ ...profile, ...(quotaInfo ?? {}) });
   } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    if (message === "KONTEKS_TERLALU_PANJANG") {
+      res.status(422).json({
+        error: "Konteks terlalu panjang.",
+        detail: "Dokumen terlalu panjang untuk menganalisis gaya penulisan.",
+        code: "KONTEKS_TERLALU_PANJANG",
+      });
+      return;
+    }
     console.error("Writing style analysis error:", err);
     res.status(500).json({ error: "Failed to analyze writing style" });
   }

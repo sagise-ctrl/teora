@@ -172,6 +172,16 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
   try {
     usageResult = await callAI(aiMessages, selectedTier.id, mode);
   } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    if (message === "KONTEKS_TERLALU_PANJANG") {
+      logger.warn({ tierId: selectedTier.id, projectId: params.data.projectId }, "Context window exceeded — suggest truncating document");
+      res.status(422).json({
+        error: "Konteks terlalu panjang.",
+        detail: "Dokumen atau percakapan terlalu panjang untuk diproses. Coba singkatkan dokumen atau hapus beberapa pesan chat terakhir.",
+        code: "KONTEKS_TERLALU_PANJANG",
+      });
+      return;
+    }
     logger.error({ err, tierId: selectedTier.id }, "AI call failed");
     res.status(500).json({ error: "AI request failed. Silakan coba lagi." });
     return;

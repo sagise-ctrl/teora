@@ -1076,3 +1076,25 @@ c7ab68a ci: exclude pre-existing broken tests (routes.integration + use-auth)
 - 2026-08-22: Vercel Function migration complete
 - 2026-08-23: Frontend standalone refactor complete (commit 669dcae)
 - 2026-08-25: Deployment pipeline ready (prebuilt approach), owner actions pending
+
+## 2026-09-13 — Fix H2 + H3: ERR-017 Context Window + max_tokens (opus-4-6)
+
+### H2 (context window truncation) + H3 (hardcoded max_tokens) — DONE
+**Files changed:**
+- `artifacts/api-server/src/lib/tokenizer.ts` — CREATED (100 lines)
+  - `countTokens(text)` — heuristic 3.5 chars/token
+  - `estimateAnthropicInputTokens(system, messages, model)` — computes safe max_tokens
+  - `truncateToTokenLimit(text, maxTokens)` — safe truncation by backtracking to word boundary
+- `artifacts/api-server/src/lib/ai.ts` — UPDATED
+  - Import tokenizer
+  - `callAnthropic`: dynamic `max_tokens` via `estimateAnthropicInputTokens`
+  - `callAnthropic`: catch `overload_input` → throw `KONTEKS_TERLALU_PANJANG`
+- `artifacts/api-server/src/routes/messages.ts` — KONTEKS_TERLALU_PANJANG → 422 with user-friendly message
+- `artifacts/api-server/src/routes/references.ts` — KONTEKS_TERLALU_PANJANG → 422 + usage initialized (M1 fix)
+- `artifacts/api-server/src/routes/projects.ts` — KONTEKS_TERLALU_PANJANG handled in all 4 callAI sites
+- `artifacts/api-server/src/routes/quizzes.ts` — KONTEKS_TERLALU_PANJANG handled
+- `artifacts/api-server/src/routes/rubrics.ts` — KONTEKS_TERLALU_PANJANG handled
+- `artifacts/api-server/src/routes/writing-style.ts` — KONTEKS_TERLALU_PANJANG handled
+- `artifacts/api-server/src/routes/simulasi.ts` — KONTEKS_TERLALU_PANJANG handled (2 sites)
+
+**Typecheck:** 0 new errors introduced (all remaining errors are pre-existing)
