@@ -1,5 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq } from "drizzle-orm";
+import { timingSafeEqual } from "crypto";
 import { db, referralsTable, referralEventsTable } from "@workspace/db";
 
 const router: IRouter = Router();
@@ -12,8 +13,14 @@ const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET ?? "";
 // transitions from null to a timestamp.
 // ---------------------------------------------------------------------------
 router.post("/webhooks/email-verified", async (req, res): Promise<void> => {
-  // Validate webhook secret
-  if (WEBHOOK_SECRET && req.headers["x-webhook-secret"] !== WEBHOOK_SECRET) {
+  // M3 fix: use timing-safe comparison to prevent timing attacks.
+  // If no secret configured, reject (secure default — never skip auth).
+  if (!WEBHOOK_SECRET) {
+    res.status(500).json({ error: "Webhook not configured" });
+    return;
+  }
+  const providedSecret = req.headers["x-webhook-secret"];
+  if (typeof providedSecret !== "string" || !timingSafeEqual(Buffer.from(WEBHOOK_SECRET), Buffer.from(providedSecret))) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
