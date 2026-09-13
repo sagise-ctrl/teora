@@ -40,7 +40,9 @@ jobs:
           echo "Commits:"
           git log --oneline "$RANGE"
           echo "---"
-          npx commitlint --range "$RANGE" --verbose || {
+          FROM=$(echo "$RANGE" | cut -d. -f1)
+          TO=$(echo "$RANGE" | cut -d. -f2)
+          npx commitlint --from="$FROM" --to="$TO" --verbose || {
             echo "::error::Commit message(s) don't follow conventional commit format"
             echo "Allowed types: feat, fix, refactor, test, docs, chore, perf, security, ci, build"
             echo "Format: <type>(<scope>): <description>"
