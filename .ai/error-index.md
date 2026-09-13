@@ -35,7 +35,8 @@
 | `.vercelignore` `**/dist` excludes prebuilt | ERR-004, ERR-015 | WORKAROUND |
 | `RPSL Failed to lookup` / 403 Vercel MCP | ERR-016 | VERIFIED |
 | `context window exceeds limit` / 2013 / `overload_input` | ERR-017 | VERIFIED |
-| `Missing tiktoken_bg.wasm` / WASM not bundled | ERR-019 | VERIFIED (workaround applied) |
+| `Missing tiktoken_bg.wasm` / WASM not bundled | ERR-019 | VERIFIED (occurrence 1: INC-004, occurrence 2: INC-005 — consolidated) |
+| Deployment drift — local commit not live | ERR-020 | VERIFIED |
 
 ### By Symptom / User-Facing
 
@@ -110,14 +111,14 @@
 | **infra** | ERR-016 | 1 |
 | **build** | ERR-003 | 1 |
 | **dependency** | ERR-001, ERR-019 | 2 |
-| **process** | ERR-004 | 1 |
+| **process** | ERR-004, ERR-020 | 2 |
 
 ### By Severity
 
 | Severity | Entries |
 |----------|---------|
 | P0 (Production Down) | — |
-| P1 (Production Impact) | ERR-003, ERR-005, ERR-008, ERR-009, ERR-013, ERR-019 |
+| P1 (Production Impact) | ERR-003, ERR-005, ERR-008, ERR-009, ERR-013, ERR-019, ERR-020 |
 | P2 (Build/Deploy Friction / Minor Impact) | ERR-001, ERR-006, ERR-010, ERR-011, ERR-012, ERR-014, ERR-016, ERR-017 |
 | P3 (Low Impact / Edge Case) | ERR-007 |
 | Unknown / OPEN | ERR-002, ERR-004 |
@@ -129,9 +130,10 @@
 | `pnpm_workspace_vercel_incompatibility` | ERR-003, ERR-012, ERR-013 | 3 | **CONFIRMED PATTERN** |
 | `vercel_prebuilt_cache_or_routing` | ERR-010, ERR-011, ERR-014, ERR-015 | 4 | **CONFIRMED PATTERN** |
 | `auth_middleware_order_or_misconfig` | ERR-006, ERR-007, ERR-008, ERR-009 | 4 | **CONFIRMED PATTERN** |
-| `native_dependency_not_bundleable` | ERR-019 | 1 | Tracked (1x — promote at 3x) |
-| `vercel_mcp_blind_spot` | ERR-016 | 1 | Tracked |
+| `native_dependency_not_bundleable` | ERR-019 | 2 | Tracked (promote to skill at 3x) |
+| `local_main_vs_origin_main_drift` | ERR-020 | 1 | SOP-001 in place |
 | `dependency_protocol_mismatch` | ERR-001, ERR-012 | 2 | Investigate |
+| `local_main_vs_origin_main_drift` | ERR-020 | 1 | Tracked — SOP-001 already in place |
 
 ### Active Procedural Knowledge (Promoted Patterns)
 
@@ -139,6 +141,7 @@
 |---------|---------------|
 | `pnpm_workspace_vercel_incompatibility` | `.claude/skills/error-recovery/pnpm-vercel-deploy.md` (PROMOTED 2026-09-10) |
 | `vercel_prebuilt_cache_or_routing` | `.claude/skills/error-recovery/vercel-prebuilt-deploy.md` (PROMOTED 2026-09-10) |
+| `local_main_vs_origin_main_drift` | `.ai/current-task.md` SOP-001 deploy verification gate (IN PLACE 2026-09-13) |
 
 ---
 
@@ -693,7 +696,7 @@ Confidence labels (per Error Handling Protocol Step 3):
   - Anti-pattern: assuming esbuild bundles all package assets (it doesn't — WASM, .node binaries, native addons need explicit config)
 - **RELATED:** ERR-012 (link: protocol, deploy-class), ERR-014 (prebuilt cache, deploy-class), `.ai/incidents/20260912-001.md [INC-004]`, `.ai/lessons-learned.md [Native / WASM dependency bundle-ability]`
 - **LIFECYCLE:** PREVENTION_ADDED
-- **PATTERN:** `native_dependency_not_bundleable` (1x — tracked, promote to skill at 3x)
+- **PATTERN:** `native_dependency_not_bundleable` (2x — both tiktoken WASM occurrences; one more triggers promotion to skill)
 
 ---
 
@@ -705,7 +708,7 @@ Confidence labels (per Error Handling Protocol Step 3):
 | `.ai/issue-tracker.md` (19 entries) | ERR-001, ERR-002, ERR-003, ERR-004, ERR-006, ERR-008, ERR-010, ERR-013, ERR-016 |
 | `.ai/incidents/20260829-002.md` | ERR-004 |
 | `.ai/incidents/20260912-001.md` | INC-004, ERR-017, ERR-019 |
-| Memory MEMORY.md (relevant) | ERR-005, ERR-006, ERR-007, ERR-008, ERR-009, ERR-010, ERR-012, ERR-013, ERR-014, ERR-016, ERR-018 |
+| Memory MEMORY.md (relevant) | ERR-005, ERR-006, ERR-007, ERR-008, ERR-009, ERR-010, ERR-012, ERR-013, ERR-014, ERR-016, ERR-018, ERR-019, ERR-020 |
 
 ---
 
@@ -713,9 +716,10 @@ Confidence labels (per Error Handling Protocol Step 3):
 
 (Append here when reviewing entries — see `.ai/guidelines/prevention-guidelines.md` "Review Cadence")
 
+- **2026-09-13 (consolidation):** ERR-019 (tiktoken WASM, 2 occurrences → consolidated to 1 entry). ERR-020 (deployment drift, new entry). Pattern `native_dependency_not_bundleable` count updated to 2x.
 - **2026-09-10 (initial seeding):** Pattern `pnpm_workspace_vercel_incompatibility` promoted to skill. Pattern `vercel_prebuilt_cache_or_routing` promoted to skill. Pattern `auth_middleware_order_or_misconfig` should be promoted (4x — most common blocker).
 
-## ERR-019 — Deployment Drift (local main vs live)
+## ERR-020 — Deployment Drift (local main vs live)
 
 **Class:** workflow / process gap
 **Severity:** HIGH (silent feature loss; user reports "fixes disappear")
@@ -728,52 +732,8 @@ Confidence labels (per Error Handling Protocol Step 3):
 - Verify `origin/main` tip before claiming live
 - Update `.ai/current-task.md` with "Pending Push" section if drift detected
 - Memory: `~/.claude/projects/E--teora/memory/deployment-drift-local-vs-live-20260913.md`
+**Lifecycle:** PREVENTION_ADDED
+**Pattern:** `local_main_vs_origin_main_drift` (SOP-001 in place)
 
 ---
-
-## ERR-019 (occurrence 2) — feat/daftar-task still has tiktoken import; latest prod-target deploy 500
-
-- **TITLE:** Even after INC-004 fix on main (commit `1b77102`, heuristic tokenizer), `feat/daftar-task` branch was NEVER updated — latest Vercel production-target deploy (created 2026-09-13 15:58, ID `dpl_8MNGoWhjv3vmLKACDaZswFmgTxsN`) used the broken `feat/daftar-task` source and crashed at cold-start with `Missing tiktoken_bg.wasm`.
-- **STATUS:** RESOLVED 2026-09-13 17:01 — surgical tiktoken removal committed `66b1cab` to feat/daftar-task, redeployed to `dpl_3862xm4zRniQPnduqCyuJZnEpMRg`, verified 200 OK with 0 tiktoken refs in runtime logs.
-- **SEVERITY:** P1 (broken prod-target deploy URL, but not aliased — no production user impact)
-- **CATEGORY:** deploy / dependency / branch-hygiene
-- **DATE:** 2026-09-13 16:34 (incident time) → resolved 17:01
-- **ENVIRONMENT:** Vercel Functions (api-server), esbuild bundler, Vercel CLI direct deploy
-- **SYMPTOM:**
-  - `curl https://teora-backend-4157uiebi-sagise-ctrls-projects.vercel.app/api/healthz` → **HTTP 500** (FUNCTION_INVOCATION_FAILED)
-  - Vercel runtime log: `Error: Missing tiktoken_bg.wasm at ../../node_modules/.pnpm/tiktoken@1.0.22/node_modules/tiktoken/tiktoken.cjs (file:///var/task/api/index.mjs:42839:30)`
-  - Production alias `https://teora-backend.vercel.app/api/healthz` → **HTTP 200 OK** (still healthy, points to 2h-ago deploy `dpl_EUFZYJXs4AmGLCnRRMj91tZM7Lop`)
-- **ROOT_CAUSE_STATUS:** CONFIRMED
-- **ROOT_CAUSE:** Two compounding factors:
-  1. `feat/daftar-task` branch still has `import { get_encoding, type Tiktoken } from "tiktoken";` in `artifacts/api-server/src/lib/tokenizer.ts:1` (line 1, verified via `git show feat/daftar-task:artifacts/api-server/src/lib/tokenizer.ts`)
-  2. The 36m-ago prod-target deploy was built from this branch (likely via `vercel deploy --prod --yes` from feat/daftar-task local working tree at some prior point, or via GitHub sync that included the broken file)
-  3. Branch hygiene gap: INC-004 fix (commit `e6ef53f` on `fix/err-017-context-window-auto-truncate`) was NEVER cherry-picked onto `feat/daftar-task`, so the broken tokenizer source persisted across multiple deploys
-- **CONFIDENCE:** CONFIRMED
-- **RESOLUTION APPLIED:**
-  1. (2026-09-13 17:00) Surgically removed tiktoken from feat/daftar-task source: replaced `tokenizer.ts` with heuristic-only version (CHARS_PER_TOKEN=3.5), updated `ai.ts` line 461 call site from 3-arg `truncateToTokenLimit(text, model, maxTokens)` to 2-arg `truncateToTokenLimit(text, maxTokens)`
-  2. (2026-09-13 17:00) Bundle integrity check: `grep -c tiktoken dist/index.mjs` → **0** (was 41 in feat/daftar-task broken deploy)
-  3. (2026-09-13 17:00) Local smoke test with dummy env vars: no `Missing tiktoken_bg.wasm` error
-  4. (2026-09-13 17:01) Committed `66b1cab` on feat/daftar-task — "fix: INC-004 cherry-pick to feat/daftar-task — remove tiktoken, use heuristic"
-  5. (2026-09-13 17:01) Deployed via `vercel deploy --prod --yes` → `dpl_3862xm4zRniQPnduqCyuJZnEpMRg` (15s build, READY)
-  6. (2026-09-13 17:01) Verified: `curl /api/healthz` → 200 OK `{"status":"ok"}` in 1-9ms (vs prior 1.9s crash)
-  7. (2026-09-13 17:01) Verified runtime logs: zero tiktoken errors, all requests returning 200
-- **FILES_CHANGED:**
-  - `artifacts/api-server/src/lib/tokenizer.ts` (feat/daftar-task) — replaced tiktoken import with char-based heuristic
-  - `artifacts/api-server/src/lib/ai.ts` (feat/daftar-task) — updated call site signature
-- **VERIFICATION:**
-  - Method: direct `curl` to deploy URLs + Vercel runtime logs
-  - New deploy `teora-backend-b7sgdrt49-sagise-ctrls-projects.vercel.app` → 200 OK ✅
-  - Production alias `teora-backend.vercel.app` → 200 OK ✅
-  - 36m-ago prod-target deploy `dpl_8MNGoWhjv3vmLKACDaZswFmgTxsN` → 500 (broken, will expire per Vercel retention; not aliased)
-  - `git show feat/daftar-task:artifacts/api-server/src/lib/tokenizer.ts` → NO tiktoken import (heuristic only)
-  - `grep -c tiktoken dist/index.mjs` → 0
-  - Runtime logs: `responseTime: 1-9ms`, `statusCode: 200`, no WASM loading
-- **PREVENTION:**
-  - [x] Production alias verified 200 OK (no user impact throughout)
-  - [x] Source fix applied to feat/daftar-task (no tiktoken import)
-  - [x] New deploy verified 200 OK + bundle integrity (0 tiktoken refs)
-  - **Branch hygiene SOP added**: when fixing INC-004 in one branch, MUST apply fix to all active feature branches sharing the same code surface (pre-deploy `git grep -n "from \"tiktoken\"" artifacts/api-server/src/` check before `vercel deploy --prod --yes`)
-- **RELATED:** ERR-017 (INC-004), ERR-019 (Tiktoken WASM original), ERR-019 occurrence 2 (this entry), memory `branch-divergence-reverts-audit-fixes-20260913.md`, memory `deployment-drift-local-vs-live-20260913.md`
-- **LIFECYCLE:** RESOLVED
-- **PATTERN:** `native_dependency_not_bundleable` (2x — one more occurrence triggers promotion to skill)
 
