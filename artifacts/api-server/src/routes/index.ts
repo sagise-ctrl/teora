@@ -32,7 +32,6 @@ import documentTemplatesRouter from "./document-templates.js";
 import adminAiTiersRouter from "./admin-ai-tiers.js";
 import adminRouter from "./admin.js";
 import referralRouter from "./referral.js";
-import referralWebhookRouter from "./referral-webhook.js";
 import simulasiRouter from "./simulasi.js";
 import simulasiSharedRouter from "./simulasi-shared.js";
 
@@ -46,7 +45,8 @@ router.use(aiTiersRouter);
 router.use(packagesRouter);
 // Webhook handler — no auth (signature-verified instead). MUST be registered
 // BEFORE router.use(authMiddleware) per DECISION 006.
-router.use(referralWebhookRouter);
+// Note: referralWebhookRouter is mounted in app.ts with express.raw() before
+// express.json() to preserve raw body for HMAC verification.
 router.use(authMiddleware);
 
 // AI rate limiter — mounted AFTER authMiddleware so req.user.id is populated.

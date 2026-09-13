@@ -38,8 +38,12 @@ const WEBHOOK_SECRET = process.env.REFERRAL_WEBHOOK_SECRET ?? "";
  * Verify HMAC-SHA256 signature of the raw body.
  * Header: `x-webhook-signature: sha256=<hex>`
  *
+ * H4 fix: req.body is a Buffer (from express.raw() middleware in app.ts).
+ * The raw bytes are used directly — no JSON.stringify() which can alter the payload
+ * (whitespace normalization, key ordering, number precision).
+ *
  * Replace this with gateway-specific verification when payment provider is chosen.
- * Example for Midtrans: SHA-512 of `body + server_key` compared to `shrimpberry_signature`.
+ * Example for Midtrans: SHA-512 of `body + server_key` compared to `signature_key`.
  * Example for Stripe: HMAC-SHA256 of body using `stripe.webhook_secret`, header `Stripe-Signature`.
  */
 function verifyWebhookSignature(req: Request): boolean {
@@ -58,13 +62,15 @@ function verifyWebhookSignature(req: Request): boolean {
     ? sigHeader.slice(7)
     : sigHeader;
 
-  const rawBody =
-    typeof (req as Request & { rawBody?: string }).rawBody === "string"
-      ? (req as Request & { rawBody?: string }).rawBody
-      : JSON.stringify(req.body);
+  // req.body is a Buffer when mounted with express.raw({ type: "application/json" })
+  const bodyBuffer = req.body as Buffer | undefined;
+  if (!bodyBuffer || !Buffer.isBuffer(bodyBuffer)) {
+    logger.warn("[webhook] body is not a Buffer — express.raw() middleware missing?");
+    return false;
+  }
 
   const computed = createHmac("sha256", WEBHOOK_SECRET)
-    .update(rawBody)
+    .update(bodyBuffer)
     .digest("hex");
 
   try {
@@ -99,14 +105,23 @@ type WebhookPayload = z.infer<typeof WebhookPayloadSchema>;
 // ---------------------------------------------------------------------------
 
 router.post("/webhooks/payment-success", async (req, res): Promise<void> => {
-  // Verify signature
+  // Verify signature first (before any body parsing)
   if (!verifyWebhookSignature(req)) {
     res.status(401).json({ error: "Invalid signature" });
     return;
   }
 
+  // req.body is a Buffer from express.raw() — parse to JSON for Zod validation
+  let rawBody: unknown;
+  try {
+    rawBody = JSON.parse((req.body as Buffer).toString());
+  } catch {
+    res.status(400).json({ error: "Invalid JSON payload" });
+    return;
+  }
+
   // Validate payload
-  const parseResult = WebhookPayloadSchema.safeParse(req.body);
+  const parseResult = WebhookPayloadSchema.safeParse(rawBody);
   if (!parseResult.success) {
     logger.warn(
       { issues: parseResult.error.issues },

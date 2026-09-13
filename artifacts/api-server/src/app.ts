@@ -1,9 +1,11 @@
 import express, { type Express } from "express";
+import type { Request } from "express";
 import cors from "cors";
 import { pinoHttp } from "pino-http";
 import rateLimit from "express-rate-limit";
 import router from "./routes/index.js";
 import webhooksRouter from "./routes/webhooks.js";
+import referralWebhookRouter from "./routes/referral-webhook.js";
 import { logger } from "./lib/logger.js";
 
 const app: Express = express();
@@ -60,7 +62,12 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Webhook endpoints (no auth, secret-based validation)
+// H4 fix: Mount referral webhook with express.raw() BEFORE express.json().
+// This preserves the raw Buffer body needed for HMAC signature verification.
+// The HMAC must be computed over the exact bytes sent by the payment gateway,
+// not the JSON-parsed representation (JSON.stringify can change whitespace/ordering).
+app.use("/webhooks/payment-success", express.raw({ type: "application/json" }), referralWebhookRouter);
+// email-verified webhook uses JSON body (parsed by express.json() above) — secret header check only
 app.use("/webhooks", webhooksRouter);
 
 // Rate limiter for auth endpoints (5 attempts per IP per minute)
