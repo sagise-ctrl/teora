@@ -13,6 +13,12 @@
 | **AUDIT 2026-09-05 — UU PDP Compliance** | P1 | Consent banner, data retention policy, right to deletion | Legal risk |
 | **AUDIT 2026-09-05 — Free tier limits** | P1 | Definisi free tier: max projects, max tokens/day, max references | Token economy |
 
+## 📝 Documented-Deferred (Owner Decision 2026-09-13)
+
+| Item | Status | Note |
+|------|--------|------|
+| **`AI_API_KEY` (OpenAI / Anthropic)** | 📝 **DOCUMENTED-DEFERRED** | Owner instruction 2026-09-13: *"saya belum punya AI API, jadi hal ini didokumentasikan dulu saja"*. AI features (generate project, chat, quiz generation, dll) will return 503/error sampai key diset. Bukan blocker aktif — by design sampai owner punya API key. Catat di docs, jangan tagih sebagai urgent. |
+
 ## Feature Taxonomy Decisions (from feature-taxonomy.md)
 
 | # | Decision | Value | Notes |
@@ -30,7 +36,7 @@
 | Deploy api-server | ✅ Done 2026-08-26 | Direct Vercel CLI deploy via VERCEL_TOKEN. PDF export temporarily disabled. |
 | CORS preflight 204 + GET 200 from production frontend | ✅ Done 2026-08-26 | Fixed `callback(new Error(...))` → `callback(null, false)` in `src/app.ts` |
 | Frontend redeploy | On merge | Merging to main triggers frontend redeploy |
-| AI_API_KEY | Blocked | Need owner to provide OpenAI API key |
+| AI_API_KEY | 📝 Documented-Deferred | Owner 2026-09-13: belum punya API, dokumentasikan saja. See section "Documented-Deferred" above. |
 | FinOps monitoring UI | ✅ Done 2026-08-28 | Full dashboard with charts (PieChart, BarChart), usage table, stat cards in finops.tsx |
 | **Re-enable PDF export (Option 1: bundle font paksa)** | ✅ Done 2026-08-28 | pdfkit + pdfkitFontsPlugin in build.mjs. GET /projects/:id/export/pdf re-enabled in projects.ts. Committed `5d22b3b`. |
 | **Wire frontend Google OAuth button** | ✅ Done 2026-08-27 — commit `cb48d5b` on `feat/google-oauth-frontend` | login.tsx button enabled + wired to `signInWithOAuth('google')` via use-auth.tsx. New `pages/auth-callback.tsx` handles OAuth redirect. Needs merge to main → frontend redeploy to be live in production. |
@@ -45,7 +51,7 @@ Sudah di-set via Vercel CLI:
 - `SUPABASE_JWT_SECRET` ✅
 - `SUPABASE_SERVICE_ROLE_KEY` ✅
 - `ALLOWED_ORIGINS` ✅ (added 2026-08-26)
-- `AI_API_KEY` ❌ MISSING — perlu owner add
+- **`AI_API_KEY`** 📝 **DOCUMENTED-DEFERRED** — Owner 2026-09-13: belum punya API, didokumentasikan saja. AI features (generate, chat, quiz) akan return 503/error sampai key diset. Bukan urgent — akan di-add saat owner punya key.
 - `OWNER_EMAIL` ❓ NOT IN LIST — **needs verification 2026-09-08**. If unset, `requireOwner` middleware returns 403 for everyone (including owner). Default value per DECISION 014 = `sagiseainun@gmail.com`. Verify at https://vercel.com/dashboard → teora-backend → Settings → Environment Variables.
 
 ## Pending Cleanup Tasks (awaiting owner go-ahead)
