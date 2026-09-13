@@ -11,6 +11,42 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  commitlint:
+    name: Commit message lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install commitlint
+        run: npm install -g @commitlint/cli @commitlint/config-conventional
+
+      - name: Lint commit messages
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            # PR: check commits between base and head
+            RANGE="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+          else
+            # Push: check the latest commit
+            RANGE="${{ github.sha }}~1..${{ github.sha }}"
+          fi
+          echo "Checking commits in range: $RANGE"
+          echo "Commits:"
+          git log --oneline "$RANGE"
+          echo "---"
+          npx commitlint --range "$RANGE" --verbose || {
+            echo "::error::Commit message(s) don't follow conventional commit format"
+            echo "Allowed types: feat, fix, refactor, test, docs, chore, perf, security, ci, build"
+            echo "Format: <type>(<scope>): <description>"
+            exit 1
+          }
+
   ci:
     name: CI
     runs-on: ubuntu-latest
