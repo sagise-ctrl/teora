@@ -267,10 +267,7 @@ importers:
         version: 0.4.0(@citation-js/core@0.8.2)
       '@react-pdf/renderer':
         specifier: ^4.8.1
-        version: 4.9.0(react@19.2.8)
-      '@supabase/supabase-js':
-        specifier: ^2.112.2
-        version: 2.112.4
+        version: 4.9.0(react@19.1.0)
       '@types/cookie-parser':
         specifier: ^1.4.10
         version: 1.4.10(@types/express@5.0.6)
@@ -286,9 +283,12 @@ importers:
       '@types/pg':
         specifier: ^8.11.16
         version: 8.23.1
-      '@types/supertest':
-        specifier: ^6.0.3
-        version: 6.0.3
+      '@types/react':
+        specifier: ^19.2.0
+        version: 19.2.18
+      '@types/react-dom':
+        specifier: ^19.2.0
+        version: 19.2.5(@types/react@19.2.18)
       '@vercel/node':
         specifier: ^3.2.29
         version: 3.2.29
@@ -341,20 +341,27 @@ importers:
         specifier: ^4.0.1
         version: 4.0.1
       react:
-        specifier: ^19.2.8
-        version: 19.2.8
+        specifier: 19.1.0
+        version: 19.1.0
       react-dom:
-        specifier: ^19.2.8
-        version: 19.2.8(react@19.2.8)
-      supertest:
-        specifier: ^7.2.2
-        version: 7.2.2
+        specifier: 19.1.0
+        version: 19.1.0(react@19.1.0)
       thread-stream:
         specifier: 3.1.0
         version: 3.1.0
       zod:
         specifier: ^4
         version: 4.4.3
+    devDependencies:
+      '@supabase/supabase-js':
+        specifier: ^2.112.2
+        version: 2.112.4
+      '@types/supertest':
+        specifier: ^6.0.3
+        version: 6.0.3
+      supertest:
+        specifier: ^7.2.2
+        version: 7.2.2
 
   lib/api-client-react:
     dependencies:
@@ -4731,11 +4738,6 @@ packages:
     peerDependencies:
       react: ^19.1.0
 
-  react-dom@19.2.8:
-    resolution: {integrity: sha512-rVprimfGBG3DR+Tq0IQG2DT5PxKth1WIGDmj5yPmlzr4YBe7uyE+Du4oVqTDXZSHGGGXRtTJEGSSePyQCMBglQ==}
-    peerDependencies:
-      react: ^19.2.8
-
   react-hook-form@7.87.0:
     resolution: {integrity: sha512-zhFzWvLxNHH+8839OnZcUxgMZw88ah2jZWDWvKWgF3Tpbnd0vKL+dlcuU3nZVWESZQjd81EW8K+wU+cYfYAc0w==}
     engines: {node: '>=18.0.0'}
@@ -4915,9 +4917,6 @@ packages:
 
   scheduler@0.26.0:
     resolution: {integrity: sha512-NlHwttCI/l5gCPR3D1nNXtWABUmBwvZpEQiD4IXSbIDq8BzLIK/7Ir5gTFSGZDUu37K5cMNp0hFtzO38sC7gWA==}
-
-  scheduler@0.27.0:
-    resolution: {integrity: sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q==}
 
   secure-json-parse@4.1.0:
     resolution: {integrity: sha512-l4KnYfEyqYJxDwlNVyRfO2E4NTHfMKAWdUuA8J0yve2Dz/E/PdBepY03RvyJpssIpRFwJoCD55wA+mEDs6ByWA==}
@@ -7076,10 +7075,10 @@ snapshots:
 
   '@react-pdf/primitives@4.4.0': {}
 
-  '@react-pdf/reconciler@2.0.0(react@19.2.8)':
+  '@react-pdf/reconciler@2.0.0(react@19.1.0)':
     dependencies:
       object-assign: 4.1.1
-      react: 19.2.8
+      react: 19.1.0
       scheduler: 0.25.0-rc-603e6108-20241029
 
   '@react-pdf/render@4.7.0':
@@ -7095,14 +7094,14 @@ snapshots:
       parse-svg-path: 0.1.2
       svg-arc-to-cubic-bezier: 3.2.0
 
-  '@react-pdf/renderer@4.9.0(react@19.2.8)':
+  '@react-pdf/renderer@4.9.0(react@19.1.0)':
     dependencies:
       '@babel/runtime': 7.29.7
       '@react-pdf/fns': 3.1.3
       '@react-pdf/font': 4.1.2
       '@react-pdf/layout': 5.2.0
       '@react-pdf/primitives': 4.4.0
-      '@react-pdf/reconciler': 2.0.0(react@19.2.8)
+      '@react-pdf/reconciler': 2.0.0(react@19.1.0)
       '@react-pdf/render': 4.7.0
       '@react-pdf/types': 2.14.0
       events: 3.3.0
@@ -7110,7 +7109,7 @@ snapshots:
       pdfkit: 0.20.1
       prop-types: 15.8.1
       queue: 6.0.2
-      react: 19.2.8
+      react: 19.1.0
 
   '@react-pdf/stylesheet@6.3.2':
     dependencies:
@@ -9723,11 +9722,6 @@ snapshots:
       react: 19.1.0
       scheduler: 0.26.0
 
-  react-dom@19.2.8(react@19.2.8):
-    dependencies:
-      react: 19.2.8
-      scheduler: 0.27.0
-
   react-hook-form@7.87.0(react@19.1.0):
     dependencies:
       react: 19.1.0
@@ -9918,8 +9912,6 @@ snapshots:
   scheduler@0.25.0-rc-603e6108-20241029: {}
 
   scheduler@0.26.0: {}
-
-  scheduler@0.27.0: {}
 
   secure-json-parse@4.1.0: {}
 
