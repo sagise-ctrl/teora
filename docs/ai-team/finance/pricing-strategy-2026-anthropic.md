@@ -366,7 +366,7 @@ Tanpa cost logging real:
 - https://platform.claude.com/docs/id/about-claude/pricing (snapshot 2026-09-08)
 - `docs/ai-team/finance/ai-provider-pricing.md` (OUTDATED — reference Claude 3.5)
 - `docs/ai-team/finance/pricing.md` (OUTDATED — USD-based)
-- `docs/ai-team/finance/token-economy.md` (OUTDATED — OpenAI-centric)
+- `docs/ai-team/finance/token-economy.md` (UPDATED 2026-09-13 — Groq/GPT removed, keep Anthropic Haiku 4.5 + Sonnet 5 per DECISION 017)
 - `docs/ai-team/finance/financial-rules.md` (immutable rules, masih relevan)
 - `.ai/decisions.md` (no specific pricing decision for IDR Anthropic strategy)
 - `.ai/master-audit-20260905.md` (P1 cost logging tracked)

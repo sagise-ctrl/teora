@@ -17,7 +17,7 @@
 | Scispace | Flat rate | $9.99/mo | Unlimited AI chat |
 | Scholarcy | Flat rate | $9.99/mo | Article summarization |
 | Wordtune | Token-based | $9.99-24.99/mo | AI writing |
-| ChatGPT Plus | Flat rate | $20/mo | Unlimited GPT-4 |
+| ~~ChatGPT Plus~~ | ~~Flat rate~~ | ~~$20/mo~~ | ~~Unlimited GPT-4~~ | ❌ OBSOLETE — tidak pakai OpenAI
 | Teora (target) | Token-based | $9.99-79.99/mo | AI Academic Workspace |
 
 **Positioning:** Jenni AI competitor, tapi dengan full academic workspace (bukan sekadar AI writing).
@@ -28,7 +28,7 @@
 - **Price:** $0/month
 - **Tokens:** 1,000/month
 - **Features:** Basic AI chat, max 1 project, no export, Teora branding
-- **Margin:** NEGATIVE (disubsidi ~$0.375 cost to owner)
+- **Margin:** NEGATIVE (disubsidi — Haiku 4.5 tier cost to owner per DECISION 017)
 - **Purpose:** Lead generation, user acquisition funnel
 - **Limit:** 1 active project, no document export
 
@@ -37,7 +37,7 @@
 - **Tokens:** 10,000/month
 - **Features:** All free features + 10 projects, document export, email support
 - **Margin:** $0.625/1K tokens (62.5%)
-- **Break-even at:** ~3,600 tokens used ($9.99 / ($1.00 - $0.375))
+- **Break-even at:** Tergantung pricing aktual provider — lihat `ai-provider-pricing.md`
 - **Target user:** Mahasiswa semester project
 
 ### Tier 3: Pro (Academic)

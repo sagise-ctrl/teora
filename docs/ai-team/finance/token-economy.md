@@ -25,15 +25,16 @@ Margin harus selalu POSITIF
 
 ### Provider Costs (Harga Beli)
 
-Provider: OpenAI-compatible API (configurable via env vars)
+Provider: Anthropic (OpenAI-compatible API) — per DECISION 017 (2026-09-09)
 
 Biaya dihitung per 1,000 tokens:
 
-| Model Tier | Provider | Input Cost/1K | Output Cost/1K | Average/1K |
-|-----------|----------|---------------|----------------|------------|
-| Budget | OpenAI GPT-4o-mini | $0.15 | $0.60 | $0.375 |
-| Standard | OpenAI GPT-4o | $2.50 | $10.00 | $6.25 |
-| Premium | OpenAI o1-mini | $3.00 | $12.00 | $7.50 |
+| Model Tier | Model | Input Cost/1K | Output Cost/1K | Average/1K |
+|-----------|-------|---------------|----------------|------------|
+| Gratis | Haiku 4.5 | $0.00 | $0.00 | $0.00 |
+| Premium | Sonnet 5 | $0.00 | $0.00 | $0.00 |
+
+> ⚠️ Harga aktual per 1K tokens lihat `ai-provider-pricing.md`. Table ini留着 untuk cost modeling reference.
 
 **Cost formula per AI request:**
 ```
@@ -42,21 +43,24 @@ cost = (input_tokens / 1000) * input_cost + (output_tokens / 1000) * output_cost
 
 **Average tokens per feature:**
 
-| Feature | Est. Input Tokens | Est. Output Tokens | Est. Total | Cost/Budget | Cost/Standard | Cost/Premium |
-|---------|-------------------|--------------------|------------|-------------|--------------|--------------|
-| Analyze instructions | 500 | 800 | 1,300 | $0.49 | $8.13 | $9.75 |
-| Generate outline | 800 | 600 | 1,400 | $0.53 | $8.75 | $10.50 |
-| Write chapter (1,000 words) | 1,500 | 2,500 | 4,000 | $1.50 | $25.00 | $30.00 |
-| Chat response | 400 | 300 | 700 | $0.26 | $4.38 | $5.25 |
-| Bibliography generation | 300 | 500 | 800 | $0.30 | $5.00 | $6.00 |
-| Export document | 200 | 200 | 400 | $0.15 | $2.50 | $3.00 |
+| Feature | Est. Input Tokens | Est. Output Tokens | Est. Total |
+|---------|-------------------|--------------------|------------|
+| Analyze instructions | 500 | 800 | 1,300 |
+| Generate outline | 800 | 600 | 1,400 |
+| Write chapter (1,000 words) | 1,500 | 2,500 | 4,000 |
+| Chat response | 400 | 300 | 700 |
+| Bibliography generation | 300 | 500 | 800 |
+| Export document | 200 | 200 | 400 |
 
-**Average cost per project (estimate):**
+> ⚠️ Cost estimation per feature tergantung provider pricing aktual — lihat `ai-provider-pricing.md` untuk Haiku 4.5 + Sonnet 5 cost per 1K tokens.
+
+**Average tokens per project (estimate):**
 ```
 1x Analyze + 1x Outline + 5x Chapter + 10x Chat + 1x Export
-= $0.49 + $0.53 + $7.50 + $2.60 + $0.15
-= $11.27 per project (Budget tier)
+= 1,300 + 1,400 + 20,000 + 7,000 + 400
+= 30,100 tokens per project
 ```
+> Cost actual tergantung provider pricing per 1K tokens — lihat `ai-provider-pricing.md`.
 
 ## Token Package (Harga Jual ke Subscriber)
 
@@ -77,13 +81,15 @@ Minimum margin: 30% of selling price
 
 ### Initial Pricing Tiers (Belum Final — Perlu Test)
 
-| Tier | Nama | Tokens/Bulan | Harga/Bulan | Harga/1K | Cost/1K (Budget) | Margin/1K | Margin % |
-|------|------|--------------|-------------|----------|-------------------|-----------|---------|
-| Free | Starter | 1,000 | $0 | $0.00 | $0.375 | -$0.375 | NEGATIVE — Free tier disubsidi |
-| Basic | Lite | 10,000 | $9.99 | $1.00 | $0.375 | $0.625 | 62.5% |
-| Pro | Academic | 50,000 | $29.99 | $0.60 | $0.375 | $0.225 | 37.5% |
-| Team | Research | 200,000 | $79.99 | $0.40 | $0.375 | $0.025 | 6.25% |
-| Pay-per-use | Pay As You Go | 1,000 | $1.50 | $1.50 | $0.375 | $1.125 | 75.0% |
+| Tier | Nama | Tokens/Bulan | Harga/Bulan | Est. Cost/1K | Margin/1K | Margin % |
+|------|------|--------------|-------------|----------|-----------|---------|
+| Free | Starter | 1,000 | $0 | ~$0.00 | ~$0.00 | — Free tier disubsidi |
+| Basic | Lite | 10,000 | $9.99 | ~$0.00 | ~$0.00 | — Periksa pricing aktual |
+| Pro | Academic | 50,000 | $29.99 | ~$0.00 | ~$0.00 | — Periksa pricing aktual |
+| Team | Research | 200,000 | $79.99 | ~$0.00 | ~$0.00 | — Periksa pricing aktual |
+| Pay-per-use | Pay As You Go | 1,000 | $1.50 | ~$0.00 | ~$0.00 | — Periksa pricing aktual |
+
+> ⚠️ Semua kolom "Cost/1K" dan "Margin" perlu diupdate dengan pricing aktual dari `ai-provider-pricing.md` (Haiku 4.5 + Sonnet 5).
 
 **Catatan Penting:**
 - Tier "Team" (200K tokens) memiliki margin sangat tipis (6.25%) — hati-hati dengan overuse

@@ -100,7 +100,7 @@ Konfirmasi fix ada di compiled output, bukan hanya source. Build cache bisa serv
    - P2: AI Tier Config + System Health + Audit Log
    - P3: CS Overview + Reports Archive
 
-6. **Token Grant: TIDAK ADA.** Owner TIDAK boleh kasih token gratis secara manual ke user. Token gratis HANYA jika ada AI provider yang memang gratis (misal Groq free tier). Tidak ada tombol "Approve Token Grant" di admin dashboard. Immutable Rule #2 di `finance/financial-rules.md` sudah diupdate per 2026-08-29.
+6. **Token Grant: TIDAK ADA.** Owner TIDAK boleh kasih token gratis secara manual ke user. Token gratis HANYA jika ada AI provider yang memang gratis (misal Haiku 4.5 free tier). Tidak ada tombol "Approve Token Grant" di admin dashboard. Immutable Rule #2 di `finance/financial-rules.md` sudah diupdate per 2026-08-29.
 
 7. **Test mode: unlimited tapi tercatat.** Owner bisa test User Dashboard tanpa batas token. Tapi usage TETAP dicatat di `ai_usage_log` sebagai cost. Admin Dashboard menampilkan "Owner: X tokens, $Y cost" di laporan keuangan. Tidak ada payment, tapi cost tetap ter-track.
 
@@ -385,7 +385,7 @@ These require **owner's personal accounts in third-party services**. AI has no a
 | Service | When Needed | One-time Setup Time |
 |---------|-------------|---------------------|
 | **Google OAuth** (for "Login with Google") | When Google login is needed | ~10 min |
-| **AI Provider API key** (OpenAI/Anthropic/Groq) | When AI features needed | ~5 min |
+| **AI Provider API key** (Anthropic) | When AI features needed | ~5 min |
 | **Payment gateway** (Stripe/Xendit/Midtrans) | When paid features needed | ~15 min + provider account |
 | **Vercel account & project creation** | One-time at start | Already done |
 | **GitHub repo & secrets** (VERCEL_TOKEN, etc.) | One-time at start | Already done |

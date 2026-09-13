@@ -472,7 +472,7 @@ CHECK (markup_multiplier >= 1.000 AND markup_multiplier <= 9.999);
 - ✅ 4 existing rows backfilled dengan 1.400
 - ✅ Typecheck pass
 - ⏸️ Schema diff needs commit
-- ⏸️ Existing rows masih pakai model lama (Llama/Claude 3.5 Sonnet/GPT-4o) — perlu di-update ke Haiku 4.5 + Sonnet 5 saat spec final (separate inisiatif)
+- ⏸️ Existing rows perlu di-update ke Haiku 4.5 + Sonnet 5 — ⚠️ CATATAN: per DECISION 017 (2026-09-09), ini SUDAH diimplementasi. Entri ini historical.
 
 ---
 
@@ -498,7 +498,7 @@ Owner mau lihat skenario fee untuk subscription packages. Koreksi penting ditemu
    - AI cost = per7d quota × jumlah windows × blended rate
 
 3. **Model cost** (dari pricing-strategy-2026-anthropic.md):
-   - lama = Haiku 4.5 (Anthropic), bukan Groq
+   - lama = Haiku 4.5 (Anthropic), bukan Groq — ✅ SUDAH BENAR per DECISION 017
    - baru = Sonnet 5 (Anthropic)
    - campuran = Haiku + Sonnet mix
    - USD/IDR = Rp 16.000, rasio 65:35
@@ -686,7 +686,7 @@ Owner: tampilkan pricing display untuk verifikasi. Backend deferred.
 |---|----------|-----|-----------|
 | 1 | Positioning option (A/B/C/D) | Landing + go-to-market depend on this | YES |
 | 2 | Payment gateway (Midtrans/Stripe) | Indonesia market | YES |
-| 3 | AI provider (Groq free/paid) | Free tier shared limits problem | YES |
+| 3 | ~~AI provider (Groq free/paid)~~ → Anthropic (DECISION 017) | ~~Free tier shared limits~~ ✅ RESOLVED | ~~YES~~ |
 | 4 | Free tier limits | Revenue protection | YES |
 | 5 | UU PDP compliance approach | Legal requirement | YES |
 | 6 | Custom domain | Branding | YES |
@@ -762,7 +762,7 @@ Owner directive: "clear all non-payment/non-AI-provider features — audit every
 ### Owner Remaining Actions (ONLY these 2)
 
 1. **Payment Gateway**: Setup Midtrans or Stripe
-2. **AI API Provider**: Setup Groq or OpenAI API key
+2. **AI API Provider**: ~~Setup Groq or OpenAI API key~~ ✅ RESOLVED — Anthropic API key per DECISION 017
 
 ---
 
@@ -964,7 +964,7 @@ All AI routes verified with `logAIUsage` + `deductCredit`:
 | Usage stats API | ✅ |
 | Balance API | ✅ |
 | Export PPTX/DOCX/MD | N/A — pure data transformation, no AI |
-| AI provider fallback | ❌ No fallback if Groq/OpenAI down |
+| AI provider fallback | ❌ ~~No fallback if Groq/OpenAI down~~ — ⚠️ Need implementation for Anthropic fallback per DECISION 017 |
 | Rate limit UX | ❌ No user-facing message |
 
 ### Remaining Modified Files — ✅ COMMITTED + PUSHED

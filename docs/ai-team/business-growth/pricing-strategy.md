@@ -105,15 +105,19 @@ B2C as user acquisition funnel, B2B as revenue engine.
 
 ## AI Cost Analysis
 
-Using Budget tier model (GPT-4o-mini):
+> ⚠️ OUTDATED — per DECISION 017 (2026-09-09), hanya Haiku 4.5 (Gratis) + Sonnet 5 (Premium) yang aktif. Tabel di bawah berdasarkan GPT-4o-mini pricing (obsolete).
 
-| Action | Est. Cost | At Rp 59K/mo (50K tokens) |
+~~Using Budget tier model (GPT-4o-mini):~~
+
+| Action | ~~Est. Cost~~ | ~~At Rp 59K/mo (50K tokens)~~ |
 |--------|-----------|--------------------------|
-| 1x Analyze | Rp 0.40 | 147,500 actions |
-| 1x Generate outline | Rp 0.43 | 137,000 actions |
-| 1x Chapter (1,000 words) | Rp 1.23 | 48,000 actions |
-| 1x Chat response | Rp 0.22 | 268,000 actions |
-| 1x Bibliography | Rp 0.25 | 236,000 actions |
+| ~~1x Analyze~~ | ~~Rp 0.40~~ | ~~147,500 actions~~ |
+| ~~1x Generate outline~~ | ~~Rp 0.43~~ | ~~137,000 actions~~ |
+| ~~1x Chapter (1,000 words)~~ | ~~Rp 1.23~~ | ~~48,000 actions~~ |
+| ~~1x Chat response~~ | ~~Rp 0.22~~ | ~~268,000 actions~~ |
+| ~~1x Bibliography~~ | ~~Rp 0.25~~ | ~~236,000 actions~~ |
+
+> Update dengan pricing actual Haiku 4.5 + Sonnet 5 dari `ai-provider-pricing.md`.
 
 **Full thesis estimate:** 1 analyze + 1 outline + 5 chapters + 20 chats + 1 export = ~Rp 18 = 3,270x markup ✅
 

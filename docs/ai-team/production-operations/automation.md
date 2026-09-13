@@ -118,7 +118,7 @@ AI Production Admin boleh membuat dan menjalankan automation internal:
 | Payment reconciliation | Compare Stripe + DB records |
 | Log rotation | Clean old logs automatically |
 | Backup verification | Verify backups exist |
-| Dependency health check | Check Supabase, Stripe, OpenAI status |
+| Dependency health check | Check Supabase, Stripe, Anthropic status |
 
 ### Not Allowed (Needs Owner)
 

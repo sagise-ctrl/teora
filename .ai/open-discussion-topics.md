@@ -84,18 +84,17 @@ Teora punya banyak fitur AI:
 ### Yang Perlu Dicek
 Semua fitur AI tersebut:
 1. **Sudah jalan di production?** — test setiap fitur
-2. **AI provider integration?** — Groq / OpenAI / Anthropic / Gemini?
+2. **AI provider integration?** — Anthropic Haiku 4.5 (Gratis) + Sonnet 5 (Premium) per DECISION 017
 3. **Credit/token deduction?** — apakah biaya tercatat per user?
 4. **Error handling?** — apa yang terjadi kalau AI API error?
 
-### Tech Stack AI (yang sudah ada)
+### Tech Stack AI (yang aktif — per DECISION 017)
 ```
 AI_TIERS:
-├─ Gratis: Groq Llama 3.1 8B
-├─ Standar: Groq Llama 3.3 70B
-├─ Premium: Anthropic Claude 3.5 Sonnet
-└─ Ultra: OpenAI GPT-4o
+├─ Gratis: Anthropic Haiku 4.5
+└─ Premium: Anthropic Sonnet 5
 ```
+> ⚠️ Groq Llama dan OpenAI GPT sudah dihapus — hanya Haiku 4.5 + Sonnet 5 yang aktif.
 
 ### Yang Perlu Dibangun/Dicek
 - [ ] AI usage logging per user per request

@@ -19,7 +19,7 @@ Sebelum mulai, pastikan Anda punya:
 | `SUPABASE_JWT_SECRET` | Supabase Dashboard → Settings → API → JWT Settings → JWT Secret |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase Dashboard → Settings → API → `service_role` key |
 | `DATABASE_POOLER_URL` | Supabase Dashboard → Database → Connection Pooling → Connection string |
-| `AI_API_KEY` | OpenAI Dashboard → API Keys |
+| `AI_API_KEY` | Anthropic Dashboard → API Keys |
 
 ---
 
@@ -83,9 +83,9 @@ Langsung pakai `DATABASE_URL` saja. Untuk awal-awal deploy, ini sudah cukup — 
 | `SUPABASE_URL` | `https://[REF].supabase.co` | Production, Preview, Development |
 | `SUPABASE_JWT_SECRET` | `[JWT-SECRET]` | Production, Preview, Development |
 | `SUPABASE_SERVICE_ROLE_KEY` | `[SERVICE_ROLE_KEY]` | Production, Preview, Development |
-| `AI_PROVIDER` | `openai` | Production, Preview, Development |
-| `AI_API_KEY` | `[OPENAI-API-KEY]` | Production, Preview, Development |
-| `AI_MODEL` | `gpt-4o-mini` | Production, Preview, Development |
+| `AI_PROVIDER` | `anthropic` | Production, Preview, Development |
+| `AI_API_KEY` | `[ANTHROPIC-API-KEY]` | Production, Preview, Development |
+| `AI_MODEL` | `haiku-4.5` | Production, Preview, Development |
 | `NODE_ENV` | `production` | Production |
 
 4. Klik **Save**
