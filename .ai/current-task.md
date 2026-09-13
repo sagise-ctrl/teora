@@ -11,13 +11,10 @@
 
 ## 🎯 ACTIVE 2026-09-13 — Project-Wide Code Audit (opus-4-8)
 
-**Status:** 🔄 IN PROGRESS — 22/27 fixed
-**Pushed to origin/main:** `d80a7ca..d41cd14` (20 commits incl. SOP) ✅
-**Verified LIVE:**
-- Frontend: `https://academic-workspace-eta.vercel.app` returns 200, dark-mode bootstrap script (`setTheme`) present in deployed JS bundle
-- Backend: `https://teora-backend.vercel.app/api/healthz` returns 200
-- Webhooks: invalid secret returns 401 (M3 timing-safe + H4 HMAC both verified)
-**In Progress:** M9 (DOCX streaming — library limit), C1, C2 (needs owner)
+**Status:** 🔄 IN PROGRESS — 25/27 fixed (C1, C2, M9 just completed, awaiting push)
+**Pushed to origin/main:** `d80a7ca..d41cd14` (20 commits incl. SOP) ✅ — verified live: 200 OK + webhook 401
+**In Progress:** Awaiting owner push approval for C1/C2/M9 commits
+**Remaining:** None (audit complete once these 3 land)
 
 ### Audit Findings — Status Tracker
 
@@ -39,7 +36,7 @@
 | M6 | MEDIUM | No AI endpoint tests | ✅ FIXED (commit 6e43aae) |
 | M7 | MEDIUM | CrossRef/DOI no rate limiting | ✅ FIXED (commit 59e1632) |
 | M8 | MEDIUM | Chat history grows indefinitely | ✅ FIXED (commit 7f3a9ca) |
-| M9 | MEDIUM | Export DOCX CPU-intensive on serverless | 🔲 (agent) |
+| M9 | MEDIUM | Export DOCX CPU-intensive on serverless | ✅ FIXED (5MB source cap, 422 response) |
 | M10 | MEDIUM | Quiz submission doesn't call logActivity | ✅ FIXED (commit 1697afb) |
 | L1 | LOW | `Math.random()` for share tokens (should use crypto.randomBytes) | ✅ FIXED (commit 6aa9ab4) |
 | L2 | LOW | Inconsistent error logging (console.error vs req.log.error) | ✅ FIXED (commit 6aa9ab4) |
@@ -47,8 +44,8 @@
 | L4 | LOW | `@supabase/supabase-js` in regular deps (should be devDeps) | ✅ FIXED (commit 6aa9ab4) |
 | L5 | LOW | React version mismatch between workspaces | ✅ FIXED (commit 6aa9ab4) |
 | L6 | LOW | Email case sensitivity in admin ownership check | ✅ ALREADY FIXED (toLowerCase present) |
-| C1 | CRITICAL | `supabase-admin.ts` throws at module level (server crash on missing env) | 🔲 (needs owner) |
-| C2 | CRITICAL | No file size limit on uploads (attachments.ts, OOM risk) | 🔲 |
+| C1 | CRITICAL | `supabase-admin.ts` throws at module level (server crash on missing env) | ✅ FIXED (lazy init via Proxy + getSupabaseAdminOr503) — 3/3 unit tests pass |
+| C2 | CRITICAL | No file size limit on uploads (attachments.ts, OOM risk) | ✅ FIXED (10MB binary / 13.97MB base64 chars, 413 response) |
 
 ### Next Actions
 1. ~~Fix H1-H8~~ ✅ DONE + verified live
@@ -57,12 +54,13 @@
 4. ~~Fix M3~~ ✅ DONE (commit 368eb67, timing-safe) — VERIFIED 401
 5. ~~Fix M6-M8~~ ✅ DONE (tests, rate limit, chat cap)
 6. ~~Verify live~~ ✅ DONE — frontend 200, backend healthz 200, webhooks 401 on bad secret
-7. M9: DOCX streaming — investigate library support or skip with limit
-8. C1, C2: Configuration issues (needs owner decision)
+7. ~~Fix M9~~ ✅ DONE (5MB DOCX source cap, 422)
+8. ~~Fix C1, C2~~ ✅ DONE (lazy init Proxy + 10MB attachment limit + 413)
+9. **PENDING**: Push C1/C2/M9 commits to origin/main (per SOP — owner approval)
+10. After push: verify live (curl tests for 503 + 413 + 422 paths)
 
 ### Blockers
-- **C1 (needs owner):** `supabase-admin.ts` throws at module level. App crashes if `SUPABASE_SERVICE_ROLE_KEY` not set. Owner decision needed: fix with lazy initialization?
-- **C2:** No file size limit on uploads. 10MB limit needed to prevent OOM. Owner decision: proceed with fix?
+(none — all 27 audit findings addressed; awaiting owner push approval)
 
 ### Deployment SOP (CRITICAL — owner instruction 2026-09-13)
 - **WAJIB**: Sebelum klaim "fix live", verifikasi `git log origin/main..main --oneline` kosong ATAU commit fix ada di `origin/main`
