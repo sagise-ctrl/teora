@@ -212,7 +212,7 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks, no explanation.`;
       return;
     }
 
-    const usageLog = await logAIUsage({
+    await logAIUsage({
       userId: project.userId,
       projectId,
       requestType: "quiz",
@@ -220,7 +220,7 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks, no explanation.`;
       tierConfig: aiResult.tierConfig,
     });
 
-    // Expose method + saldoUsedCents in response for UX transparency
+    // Only consume quota after successful parse (M5 fix)
     let quotaInfo: { method: string; saldoUsedCents: number } | undefined;
     if (!selectedTier.isFree && aiResult.usage.costCents > 0) {
       const consumeResult = await consumeQuotaForAIRequest({
