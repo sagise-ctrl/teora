@@ -22,6 +22,13 @@ import {
 
 const EXPORT_DIR = process.env.EXPORT_DIR ?? "/tmp/academic-workspace-exports";
 
+// M9 fix: cap DOCX text content size before synchronous markdown → docx
+// conversion. Packer.toBuffer() and markdownToParagraphs() are blocking
+// CPU-bound work; a 10MB text file would blow the serverless function
+// CPU budget (Active CPU pricing) and could hit the 300s function
+// timeout. 5MB text covers a ~1000-page academic manuscript at 5KB/page.
+const MAX_DOCX_SOURCE_BYTES = 5 * 1024 * 1024; // 5 MB of UTF-8 text
+
 const router: IRouter = Router();
 
 /**
@@ -250,6 +257,18 @@ router.post("/projects/:projectId/exports", async (req, res): Promise<void> => {
   const content = doc.content ?? "";
 
   if (parsed.data.format === "docx") {
+    // M9 fix: bound synchronous work before invoking markdown→docx.
+    // Buffer.byteLength measures UTF-8 bytes (cheap, no allocation).
+    const contentBytes = Buffer.byteLength(content, "utf8");
+    if (contentBytes > MAX_DOCX_SOURCE_BYTES) {
+      res.status(422).json({
+        error: `Document too large to export as DOCX (${(contentBytes / 1024 / 1024).toFixed(1)} MB). Maximum is ${(MAX_DOCX_SOURCE_BYTES / 1024 / 1024).toFixed(0)} MB. Split into smaller documents or export as Markdown instead.`,
+        code: "DOCX_CONTENT_TOO_LARGE",
+        sizeBytes: contentBytes,
+        maxBytes: MAX_DOCX_SOURCE_BYTES,
+      });
+      return;
+    }
     // Real DOCX generation
     const paragraphs = markdownToParagraphs(content);
     const doc = new Document({

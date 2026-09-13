@@ -15,6 +15,15 @@ import path from "path";
 
 const BUCKET_ID = "attachments";
 
+// C2 fix: enforce binary upload size limit at the route layer.
+// 10MB binary ≈ 13.33MB base64 (base64 expands 4:3). We measure the decoded
+// buffer length so attackers cannot bypass by sending base64-of-base64 or
+// padded garbage. Vercel Functions default to 4.5MB request body on Pro
+// and 100MB on Enterprise, but uploading large attachments crashes the
+// runtime with OOM and triggers Active CPU billing abuse vectors.
+const MAX_BINARY_BYTES = 10 * 1024 * 1024; // 10 MB
+const MAX_BASE64_CHARS = Math.ceil((MAX_BINARY_BYTES * 4) / 3); // ~13.97M chars
+
 const router: IRouter = Router();
 
 // GET /projects/:projectId/attachments
@@ -70,7 +79,23 @@ router.post("/projects/:projectId/attachments", async (req, res): Promise<void> 
     return;
   }
 
+  // C2 fix: reject oversized uploads BEFORE allocating the decoded buffer.
+  // base64 length is a fast proxy; we re-check decoded length after to
+  // prevent padded-base64 bypass.
+  if (parsed.data.base64Content.length > MAX_BASE64_CHARS) {
+    res.status(413).json({
+      error: `File too large. Maximum size is ${MAX_BINARY_BYTES} bytes (${(MAX_BINARY_BYTES / 1024 / 1024).toFixed(0)} MB).`,
+    });
+    return;
+  }
+
   const buffer = Buffer.from(parsed.data.base64Content, "base64");
+  if (buffer.length > MAX_BINARY_BYTES) {
+    res.status(413).json({
+      error: `File too large. Maximum size is ${MAX_BINARY_BYTES} bytes (${(MAX_BINARY_BYTES / 1024 / 1024).toFixed(0)} MB).`,
+    });
+    return;
+  }
   const safeFilename = `${Date.now()}-${path.basename(parsed.data.filename)}`;
   const storagePath = `${params.data.projectId}/${req.user!.id}/${safeFilename}`;
 
