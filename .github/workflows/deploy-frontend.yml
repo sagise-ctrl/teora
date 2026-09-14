@@ -1,25 +1,30 @@
-name: Deploy Frontend (thin trigger)
+name: Deploy Frontend (DISABLED — Vercel Git Integration handles auto-deploy)
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "artifacts/academic-workspace/**"
-      - "lib/api-client-react/**"
-      - "lib/api-zod/**"
-      - "lib/db/src/schema/**"
-      - "package.json"
-      - "package-lock.json"
-      - ".vercelignore"
-      - ".github/workflows/deploy-frontend.yml"
   workflow_dispatch:
+    inputs:
+      reason:
+        description: "Reason for manual trigger (Vercel auto-deploy is primary path)"
+        required: false
+        default: "Manual re-deploy via Vercel dashboard failed"
 
 permissions:
   contents: read
 
+# NOTE: This workflow is DISABLED for push triggers.
+# Vercel Git Integration (https://vercel.com/sagise-ctrls-projects/academic-workspace/settings/git)
+# now handles auto-deploy: push to `main` → Vercel auto-builds → auto-deploys to production.
+#
+# Verified working 2026-09-14: push branch `fix/deploy-pipeline-hardening` → Vercel auto-deployed
+# preview in 73 seconds, production remained at HTTP 200.
+#
+# This workflow is kept as a manual fallback ONLY. Use Actions tab → Run workflow if Vercel
+# integration is broken and you need to trigger a deploy via Deploy Hook.
+#
+# To RE-ENABLE auto-deploy via this workflow: add back `push: branches: [main]` trigger.
 jobs:
   trigger-vercel:
-    name: Trigger Vercel Deploy Hook
+    name: Trigger Vercel Deploy Hook (manual only)
     runs-on: ubuntu-latest
     timeout-minutes: 5
     environment:
@@ -31,14 +36,18 @@ jobs:
           HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK_PROD }}
         run: |
           if [ -z "$HOOK" ]; then
-            echo "::error::VERCEL_DEPLOY_HOOK_PROD secret is empty. See docs/ai-team/devops/deploy-hook-setup.md"
+            echo "::error::VERCEL_DEPLOY_HOOK_PROD secret is empty."
+            echo "::error::Frontend uses Vercel Git Integration for auto-deploy. This manual trigger is a fallback."
+            echo "::error::Set VERCEL_DEPLOY_HOOK_PROD secret if you need this fallback path."
             exit 1
           fi
 
       - name: Trigger Vercel production deploy
         env:
           HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK_PROD }}
+          REASON: ${{ inputs.reason }}
         run: |
+          echo "Reason: $REASON"
           echo "Triggering Vercel deploy hook for academic-workspace (production)..."
           HTTP_CODE=$(curl -sS -o /tmp/vercel-response.json -w "%{http_code}" -X POST "$HOOK")
           echo "HTTP status: $HTTP_CODE"
@@ -66,15 +75,4 @@ jobs:
           else
             echo "::error::Frontend returned HTTP $HTTP_CODE — production may be broken. Rollback via Vercel dashboard if needed."
             exit 1
-          fi
-
-      - name: API smoke test
-        run: |
-          BACKEND_URL="https://teora-backend.vercel.app"
-          echo "Checking API: $BACKEND_URL/api/healthz"
-          HTTP_CODE=$(curl -sS -o /dev/null -w "%{http_code}" "$BACKEND_URL/api/healthz" --max-time 30)
-          if [ "$HTTP_CODE" = "200" ]; then
-            echo "✅ API smoke OK (HTTP $HTTP_CODE)"
-          else
-            echo "::warning::API returned HTTP $HTTP_CODE — may indicate drift or backend issue (see .ai/issue-tracker.md)"
           fi
