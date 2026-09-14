@@ -1224,9 +1224,7 @@ ${candidateReferences
   .join("\n")}`;
 
   let aiResponse: string;
-  let usage: { inputTokens: number; outputTokens: number; estimatedCostUsd: number; costCents: number; tierId: string } = {
-    inputTokens: 0, outputTokens: 0, estimatedCostUsd: 0, costCents: 0, tierId: selectedTier.id,
-  };
+  let usage: { inputTokens: number; outputTokens: number; estimatedCostUsd: number; costCents: number; tierId: string };
   let tierConfig: typeof selectedTier;
 
   try {
