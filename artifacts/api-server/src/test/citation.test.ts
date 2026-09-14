@@ -181,7 +181,7 @@ describe("SUPPORTED_FORMATS", () => {
     expect(names).toContain("Vancouver");
     expect(names).toContain("Chicago");
     expect(names).toContain("MLA");
-    expect(names).toContain("Haravard");
+    expect(names).toContain("Harvard");
     expect(names).toContain("APA7");
   });
 

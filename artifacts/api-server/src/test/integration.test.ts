@@ -371,7 +371,7 @@ describe("Projects: POST /projects (create)", () => {
   it("returns 201 when title is provided", async () => {
     const app = buildApp();
     const token = await generateTestToken();
-    const res = await request(app).post("/projects").set("Authorization", `Bearer ${token}`).send({ title: "New Project" });
+    const res = await request(app).post("/projects").set("Authorization", `Bearer ${token}`).send({ title: "New Project", instructionText: "Write about AI" });
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty("id");
     expect(res.body).toHaveProperty("title");
@@ -382,7 +382,7 @@ describe("Projects: POST /projects (create)", () => {
     const token = await generateTestToken();
     const res = await request(app).post("/projects").set("Authorization", `Bearer ${token}`).send({
       title: "Full Project", instructionText: "Write a report on AI",
-      outputFormat: "markdown", minRefYear: 2020, minRefCount: 5,
+      outputFormat: "docx", minRefYear: 2020, minRefCount: 5,
     });
     expect(res.status).toBe(201);
   });
