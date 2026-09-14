@@ -9,6 +9,86 @@
 
 ---
 
+## 🎯 ACTIVE 2026-09-14 — Deploy Strategy Decision + AI Team Knowledge Base Consultation (opus-4-8)
+
+**Status:** 🟢 DECISION 019 recorded ✅ | 🟢 Cleanup duplicate doc ✅ | 🟢 Lessons-learned entry added ✅ | 🟡 Branch pushed, awaiting merge to main
+**Branch:** `fix/deploy-pipeline-hardening` (vs `main`) — 11 commits ahead
+**Authoritative doc:** `.ai/decisions.md` DECISION 019
+
+### Owner Directive (2026-09-14)
+
+> "saya ingin jadikan alur yg benar, baik, bagus, aman sebagai parameter... kalau cara itu ternyata kurang bagus ya ganti saja. adapun nanti ada error ya harusnya kan bisa diperbaiki. paham maksud saya?"
+
+Owner grants full technical autonomy: "AI Engineering decide, fix errors as they come, don't blindly follow past directions if there's a better path."
+
+### Summary of Decision
+
+**Layered deploy strategy** (DECISION 019):
+
+| Layer | Approach | Status | Reliability |
+|-------|----------|--------|-------------|
+| **Layer 1** (TODAY) | CLI deploy via GH Actions (DECISION 003 retained) | ✅ ACTIVE | Battle-tested |
+| **Layer 2** (SHORT-TERM) | Vercel Deploy Hook trigger + prebuild step | ⏳ Planned | Needs verification |
+| **Layer 3** (TARGET) | Full Vercel Git Integration | ⏳ Future | Needs Layer 2 stable ≥ 2 weeks |
+
+### Why Not Vercel-Native (Layer 3) Immediately
+
+DECISION 003's rejection rationale is **technically valid**: `esbuild-workspace-plugin.mjs` (132 lines) is a custom resolver that Vercel auto-build cannot inject. Fixable via `prebuild` script integration, but requires verification without breaking production.
+
+### Self-Correction (Process Improvement)
+
+Per Session Start Protocol WAJIB 7 steps (per CLAUDE.md):
+1. `.ai/current-task.md` ✅
+2. `.ai/lessons-learned.md` ✅
+3. `.ai/error-index.md` ✅
+4. `.ai/progress.md` ✅
+5. `.ai/blockers.md` ✅
+6. `.ai/decisions.md` ✅
+7. `git log` ✅
+
+Owner caught gap: "apa ini sudah didiskusikan dengan ai team?" — saya harus selalu jawab informed. Lessons-learned entry baru: `[ERR-018] WAJIB consult AI team knowledge base BEFORE executing technical decisions`
+
+### Files Changed This Session (2026-09-14)
+
+| File | Action | Rationale |
+|------|--------|-----------|
+| `.github/VERCEL_SETUP.md` | **DELETED** | Duplicate dari `docs/ai-team/production-operations/vendor-deployment-guide.md` (240 lines, canonical) |
+| `.ai/decisions.md` | DECISION 019 added | Layered deploy strategy + transition plan |
+| `.ai/lessons-learned.md` | ERR-018 added | Process self-correction |
+| `.ai/current-task.md` | This section added | Session tracking |
+
+### What Owner Should Know
+
+1. **Production SAFE ✅** — Last successful deploy: commit `2f88046` 2026-09-13, live web 200 OK
+2. **No deploy mechanism changed** — DECISION 003 (CLI deploy via GH Actions) tetap ACTIVE
+3. **Path forward documented** — DECISION 019 layer 2 → 3 dengan exit criteria
+4. **No code push to main yet** — branch `fix/deploy-pipeline-hardening` ready, push to main needs owner approval (per CLAUDE.md Git Rules)
+
+### Out of Scope This Session
+
+- Layer 2 implementation (prebuild script integration)
+- Layer 3 implementation (Vercel Git Integration enable)
+- Vercel dashboard configuration (rootDirectory, env vars) — owner manual
+- 7 remaining auth.test.ts mock infrastructure fixes (deferred 2026-09-13)
+- 3 ai-gate.test.ts business logic failures (deferred 2026-09-13)
+- Branch protection manual setup (MEDIUM gap from 2026-09-13 audit)
+
+### Handoff to Next Session
+
+**State:**
+- Branch `fix/deploy-pipeline-hardening`: 11 commits ahead of main
+- DECISION 019 documented (transition plan)
+- Production live, no changes pushed to main
+- Self-correction lesson recorded
+
+**Next steps (when ready):**
+1. Verify production still 200 OK ✅ (should be unchanged since DECISION 003 unchanged)
+2. When owner ready for Layer 2: implement prebuild script in `artifacts/api-server/package.json`
+3. When Layer 2 stable: enable Vercel Git Integration (Layer 3)
+4. Continue with deferred items: 7 auth.test.ts fixes + branch protection setup
+
+---
+
 ## 🎯 ACTIVE 2026-09-13 — Deploy Pipeline Hardening: CI/CD Enforcement (opus-4-8)
 
 **Status:** 🟡 ESLint FIXED ✅ | 🟡 5 of 14 tests fixed ✅ | 🟡 9 tests deferred — owner decision needed
