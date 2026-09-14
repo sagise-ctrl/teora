@@ -1,4 +1,4 @@
-name: Deploy Frontend
+name: Deploy Frontend (thin trigger)
 
 on:
   push:
@@ -13,93 +13,68 @@ on:
       - ".vercelignore"
       - ".github/workflows/deploy-frontend.yml"
   workflow_dispatch:
-    inputs:
-      branch:
-        description: "Branch to deploy"
-        required: true
-        default: "feat/daftar-task"
 
 permissions:
   contents: read
 
 jobs:
-  build-and-deploy:
-    name: Build & Deploy
+  trigger-vercel:
+    name: Trigger Vercel Deploy Hook
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     environment:
       name: production
       url: https://academic-workspace-eta.vercel.app
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          # No cache — lightningcss optional binary must be freshly installed on Linux runner
-
-      - name: Install dependencies (repo root — has lockfile + workspace config)
-        run: |
-          # npm has a bug where optional native binaries corrupt across CI runs
-          # (npm/cli#4828). Fix: nuke node_modules and reinstall fresh.
-          rm -rf node_modules
-          npm install --legacy-peer-deps --include=dev --include=optional
-
-      - name: Build & Deploy to Vercel
-        working-directory: artifacts/academic-workspace
+      - name: Verify secret present
         env:
-          VITE_SUPABASE_URL: ${{ secrets.FRONTEND_VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.FRONTEND_VITE_SUPABASE_ANON_KEY }}
-          VITE_MOCK: "false"
-          VITE_API_URL: "/api"
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK_PROD }}
         run: |
-          npm install -g vercel@latest
-          echo "=== Verifying deps are installed ==="
-          ls ../../node_modules/@vitejs/plugin-react/package.json 2>&1
-          ls ../../node_modules/vite/package.json 2>&1
-          echo "=== Building ==="
-          npx vite build 2>&1 | tail -15
-          echo "=== Verifying dist/ ==="
-          ls dist/ 2>&1 | tail -3
-          echo "=== Checking Vercel CLI version ==="
-          npx vercel --version 2>&1
-          echo "=== Checking token format ==="
-          echo "Token prefix: ${VERCEL_TOKEN:0:4}..."
-          echo "Token length: ${#VERCEL_TOKEN}"
-          echo "=== Deploying ==="
-          # Use vercel deploy with --debug for more output
-          npx vercel deploy \
-            --token="$VERCEL_TOKEN" \
-            --prod --yes \
-            --project=academic-workspace 2>&1 || echo "DEPLOY_FAILED=$?"
-          echo "=== Deployment complete ==="
+          if [ -z "$HOOK" ]; then
+            echo "::error::VERCEL_DEPLOY_HOOK_PROD secret is empty. See docs/ai-team/devops/deploy-hook-setup.md"
+            exit 1
+          fi
 
-      - name: Deployment summary
+      - name: Trigger Vercel production deploy
+        env:
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK_PROD }}
         run: |
-          echo "Frontend deployed to Vercel production."
-          echo "Verify at: https://academic-workspace-eta.vercel.app"
+          echo "Triggering Vercel deploy hook for academic-workspace (production)..."
+          HTTP_CODE=$(curl -sS -o /tmp/vercel-response.json -w "%{http_code}" -X POST "$HOOK")
+          echo "HTTP status: $HTTP_CODE"
+          echo "Response:"
+          cat /tmp/vercel-response.json
+          echo ""
+          if [ "$HTTP_CODE" != "201" ]; then
+            echo "::error::Vercel deploy hook failed (expected HTTP 201, got $HTTP_CODE)"
+            exit 1
+          fi
+          echo "✅ Vercel deploy triggered. Monitor at: https://vercel.com/dashboard"
+
+      - name: Wait for Vercel propagation
+        run: |
+          echo "Waiting 60 seconds for Vercel build + propagation..."
+          sleep 60
 
       - name: Post-deploy health check
         run: |
-          echo "Waiting for Vercel to propagate..."
-          sleep 10
           FRONTEND_URL="https://academic-workspace-eta.vercel.app"
           echo "Checking: $FRONTEND_URL"
-          HTTP_CODE=$(curl -sS -o /dev/null -w "%{http_code}" "$FRONTEND_URL")
+          HTTP_CODE=$(curl -sS -o /dev/null -w "%{http_code}" "$FRONTEND_URL" --max-time 30)
           if [ "$HTTP_CODE" = "200" ]; then
             echo "✅ Frontend health OK (HTTP $HTTP_CODE)"
           else
-            echo "::warning::Frontend returned HTTP $HTTP_CODE — verify manually"
+            echo "::error::Frontend returned HTTP $HTTP_CODE — production may be broken. Rollback via Vercel dashboard if needed."
+            exit 1
           fi
 
       - name: API smoke test
         run: |
           BACKEND_URL="https://teora-backend.vercel.app"
           echo "Checking API: $BACKEND_URL/api/healthz"
-          HTTP_CODE=$(curl -sS -o /dev/null -w "%{http_code}" "$BACKEND_URL/api/healthz")
+          HTTP_CODE=$(curl -sS -o /dev/null -w "%{http_code}" "$BACKEND_URL/api/healthz" --max-time 30)
           if [ "$HTTP_CODE" = "200" ]; then
             echo "✅ API smoke OK (HTTP $HTTP_CODE)"
           else
-            echo "::warning::API returned HTTP $HTTP_CODE — may indicate drift or backend issue"
+            echo "::warning::API returned HTTP $HTTP_CODE — may indicate drift or backend issue (see .ai/issue-tracker.md)"
           fi

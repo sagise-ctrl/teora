@@ -1,0 +1,79 @@
+name: Preview Deploy + Verify
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  trigger-preview:
+    name: Trigger Vercel Preview Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify secret present
+        env:
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK_PREVIEW }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "::error::VERCEL_DEPLOY_HOOK_PREVIEW secret is empty. See docs/ai-team/devops/deploy-hook-setup.md"
+            exit 1
+          fi
+
+      - name: Trigger Vercel preview deploy
+        env:
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK_PREVIEW }}
+          PR_BRANCH: ${{ github.head_ref }}
+        run: |
+          echo "Triggering Vercel preview deploy hook for branch: $PR_BRANCH"
+          HTTP_CODE=$(curl -sS -o /tmp/vercel-response.json -w "%{http_code}" -X POST "$HOOK")
+          echo "HTTP status: $HTTP_CODE"
+          echo "Response:"
+          cat /tmp/vercel-response.json
+          echo ""
+          if [ "$HTTP_CODE" != "201" ]; then
+            echo "::warning::Vercel preview hook failed (expected HTTP 201, got $HTTP_CODE). Preview URL will not be posted."
+            exit 0
+          fi
+          echo "✅ Vercel preview deploy triggered."
+
+      - name: Wait for preview build
+        run: |
+          echo "Waiting 90 seconds for preview build (Vercel cold start)..."
+          sleep 90
+
+      - name: Comment PR with preview instructions
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branch = context.payload.pull_request?.head?.ref || 'unknown';
+            const comment = [
+              '## 🚀 Preview Deploy Triggered',
+              '',
+              `Branch: \`${branch}\``,
+              '',
+              '**Preview URL will be available shortly:**',
+              `- Frontend: https://academic-workspace-git-${branch}-sagise-ctrls-projects.vercel.app (or check Vercel dashboard)`,
+              `- Backend: https://teora-backend-git-${branch}-sagise-ctrls-projects.vercel.app (or check Vercel dashboard)`,
+              '',
+              '**Verify before merging to main:**',
+              '- [ ] Preview URL returns HTTP 200',
+              '- [ ] Critical endpoints respond correctly',
+              '- [ ] No console errors in browser DevTools',
+              '- [ ] CI checks pass (typecheck + lint + tests)',
+              '',
+              '⚠️ Preview URLs follow the pattern: `https://<project>-git-<branch>-<team-suffix>.vercel.app`.',
+              'Check Vercel dashboard for the actual URL if pattern guessing fails.',
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: comment,
+            });
+            console.log('Posted preview URL comment to PR');
