@@ -193,7 +193,7 @@
 - `_calc_fees_opsi_b.js` — script simulasi fee minimum (271 lines)
 
 **Pending cleanup:**
-- Existing `ai_tiers` rows masih pakai model lama (Llama 3.1, Claude 3.5 Sonnet, GPT-4o) — perlu di-update ke Haiku 4.5 + Sonnet 5 saat pivot ke Anthropic primary (separate inisiatif)
+- Existing `ai_tiers` rows perlu di-update ke Haiku 4.5 + Sonnet 5 saat pivot ke Anthropic primary — ⚠️ CATATAN: per DECISION 017 (2026-09-09), ini SUDAH diimplementasi. Entri ini historical.
 - Schema change belum di-commit
 - Pricing doc belum di-commit
 
@@ -338,7 +338,7 @@
 
 **Owner remaining (ONLY 2):**
 1. Payment Gateway (Midtrans/Stripe)
-2. AI API Provider (Groq/OpenAI)
+2. AI API Provider (Anthropic) — ⚠️ CATATAN: per DECISION 017 (2026-09-09), Anthropic Haiku 4.5 + Sonnet 5 adalah satu-satunya provider. Groq/OpenAI sudah dihapus.
 
 ## 2026-09-05 | Google OAuth Login Fix
 

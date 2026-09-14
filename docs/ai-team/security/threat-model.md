@@ -14,7 +14,7 @@
                                                   ▼
                                            ┌─────────────┐
                                            │  AI API     │
-                                           │  (OpenAI)   │
+                                           │  (Anthropic) │
                                            └─────────────┘
 ```
 
@@ -26,7 +26,7 @@
 | Vercel CDN | Static asset delivery | Semi-trusted |
 | API Server (Vercel Function) | Business logic, auth, data access | Trusted |
 | Supabase PostgreSQL | Data storage, RLS | Trusted |
-| AI API (OpenAI-compatible) | AI generation | External |
+| AI API (Anthropic, OpenAI-compatible) | AI generation | External |
 
 ---
 

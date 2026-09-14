@@ -51,7 +51,7 @@ https://api.teora.com/api/health
 1. **Express errors** — pino logs, look for `level: 50` (error)
 2. **Auth errors** — JWT validation failures, missing headers
 3. **Database errors** — Drizzle ORM errors, connection issues
-4. **AI provider errors** — OpenAI API failures, rate limits
+4. **AI provider errors** — Anthropic API failures, rate limits (Haiku 4.5 + Sonnet 5 per DECISION 017)
 5. **Payment errors** — Stripe webhook failures, signature validation
 
 ### Database Issues (Supabase)

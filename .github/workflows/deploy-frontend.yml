@@ -1,81 +1,78 @@
-name: Deploy Frontend
+name: Deploy Frontend (DISABLED — Vercel Git Integration handles auto-deploy)
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "artifacts/academic-workspace/**"
-      - "lib/api-client-react/**"
-      - "lib/api-zod/**"
-      - "lib/db/src/schema/**"
-      - "package.json"
-      - "package-lock.json"
-      - ".vercelignore"
-      - ".github/workflows/deploy-frontend.yml"
   workflow_dispatch:
     inputs:
-      branch:
-        description: "Branch to deploy"
-        required: true
-        default: "feat/daftar-task"
+      reason:
+        description: "Reason for manual trigger (Vercel auto-deploy is primary path)"
+        required: false
+        default: "Manual re-deploy via Vercel dashboard failed"
 
 permissions:
   contents: read
 
+# NOTE: This workflow is DISABLED for push triggers.
+# Vercel Git Integration (https://vercel.com/sagise-ctrls-projects/academic-workspace/settings/git)
+# now handles auto-deploy: push to `main` → Vercel auto-builds → auto-deploys to production.
+#
+# Verified working 2026-09-14: push branch `fix/deploy-pipeline-hardening` → Vercel auto-deployed
+# preview in 73 seconds, production remained at HTTP 200.
+#
+# This workflow is kept as a manual fallback ONLY. Use Actions tab → Run workflow if Vercel
+# integration is broken and you need to trigger a deploy via Deploy Hook.
+#
+# To RE-ENABLE auto-deploy via this workflow: add back `push: branches: [main]` trigger.
 jobs:
-  build-and-deploy:
-    name: Build & Deploy
+  trigger-vercel:
+    name: Trigger Vercel Deploy Hook (manual only)
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     environment:
       name: production
       url: https://academic-workspace-eta.vercel.app
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          # No cache — lightningcss optional binary must be freshly installed on Linux runner
-
-      - name: Install dependencies (repo root — has lockfile + workspace config)
-        run: |
-          # npm has a bug where optional native binaries corrupt across CI runs
-          # (npm/cli#4828). Fix: nuke node_modules and reinstall fresh.
-          rm -rf node_modules
-          npm install --legacy-peer-deps --include=dev --include=optional
-
-      - name: Build & Deploy to Vercel
-        working-directory: artifacts/academic-workspace
+      - name: Verify secret present
         env:
-          VITE_SUPABASE_URL: ${{ secrets.FRONTEND_VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.FRONTEND_VITE_SUPABASE_ANON_KEY }}
-          VITE_MOCK: "false"
-          VITE_API_URL: "/api"
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK_PROD }}
         run: |
-          npm install -g vercel@latest
-          echo "=== Verifying deps are installed ==="
-          ls ../../node_modules/@vitejs/plugin-react/package.json 2>&1
-          ls ../../node_modules/vite/package.json 2>&1
-          echo "=== Building ==="
-          npx vite build 2>&1 | tail -15
-          echo "=== Verifying dist/ ==="
-          ls dist/ 2>&1 | tail -3
-          echo "=== Checking Vercel CLI version ==="
-          npx vercel --version 2>&1
-          echo "=== Checking token format ==="
-          echo "Token prefix: ${VERCEL_TOKEN:0:4}..."
-          echo "Token length: ${#VERCEL_TOKEN}"
-          echo "=== Deploying ==="
-          # Use vercel deploy with --debug for more output
-          npx vercel deploy \
-            --token="$VERCEL_TOKEN" \
-            --prod --yes \
-            --project=academic-workspace 2>&1 || echo "DEPLOY_FAILED=$?"
-          echo "=== Deployment complete ==="
+          if [ -z "$HOOK" ]; then
+            echo "::error::VERCEL_DEPLOY_HOOK_PROD secret is empty."
+            echo "::error::Frontend uses Vercel Git Integration for auto-deploy. This manual trigger is a fallback."
+            echo "::error::Set VERCEL_DEPLOY_HOOK_PROD secret if you need this fallback path."
+            exit 1
+          fi
 
-      - name: Deployment summary
+      - name: Trigger Vercel production deploy
+        env:
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK_PROD }}
+          REASON: ${{ inputs.reason }}
         run: |
-          echo "Frontend deployed to Vercel production."
-          echo "Verify at: https://academic-workspace-eta.vercel.app"
+          echo "Reason: $REASON"
+          echo "Triggering Vercel deploy hook for academic-workspace (production)..."
+          HTTP_CODE=$(curl -sS -o /tmp/vercel-response.json -w "%{http_code}" -X POST "$HOOK")
+          echo "HTTP status: $HTTP_CODE"
+          echo "Response:"
+          cat /tmp/vercel-response.json
+          echo ""
+          if [ "$HTTP_CODE" != "201" ]; then
+            echo "::error::Vercel deploy hook failed (expected HTTP 201, got $HTTP_CODE)"
+            exit 1
+          fi
+          echo "✅ Vercel deploy triggered. Monitor at: https://vercel.com/dashboard"
+
+      - name: Wait for Vercel propagation
+        run: |
+          echo "Waiting 60 seconds for Vercel build + propagation..."
+          sleep 60
+
+      - name: Post-deploy health check
+        run: |
+          FRONTEND_URL="https://academic-workspace-eta.vercel.app"
+          echo "Checking: $FRONTEND_URL"
+          HTTP_CODE=$(curl -sS -o /dev/null -w "%{http_code}" "$FRONTEND_URL" --max-time 30)
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "✅ Frontend health OK (HTTP $HTTP_CODE)"
+          else
+            echo "::error::Frontend returned HTTP $HTTP_CODE — production may be broken. Rollback via Vercel dashboard if needed."
+            exit 1
+          fi

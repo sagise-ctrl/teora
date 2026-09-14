@@ -31,6 +31,7 @@ module.exports = [
       "artifacts/api-server/api/*.mjs",
       "eslint.config.cjs",
       "**/eslint.config.cjs",
+      "commitlint.config.js",
       "check-runs.js",
       "check-workflow.js",
       "**/ecosystem.config.cjs", // VPS backup config — kept per ADR-007, ignored until VPS migration (see docs/ai-team/production-operations/vps-migration-guide.md)

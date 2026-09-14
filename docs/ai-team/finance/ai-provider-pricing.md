@@ -2,8 +2,13 @@
 
 > Source of truth untuk harga provider AI. Owner input harga provider di dashboard. AI team kalkulasi margin dan update sistem.
 
-**Last updated:** 2026-08-25
+**Last updated:** 2026-09-13
 **Reviewed by:** AI Engineering Team
+**Status:** ⚠️ OBSOLETE — per DECISION 017 (2026-09-09), hanya Haiku 4.5 + Sonnet 5 yang aktif. Groq dan OpenAI sudah dihapus.
+
+---
+
+> **Note:** File ini adalah snapshot lama yang belum diupdate. Pricing aktual ada di sistem (`ai_tiers` table di database). Update file ini setelah pricing final ditentukan owner.
 
 ---
 
@@ -11,68 +16,32 @@
 
 Owner menginput harga provider di dashboard admin. Sistem membaca dari tabel `ai_tiers` di database.
 
-### Groq (Free Tier)
+### Anthropic (ACTIVE — DECISION 017)
 
 | Model | Input | Output | Notes |
 |-------|-------|--------|-------|
-| Llama 3.1 8B Instant | $0 | $0 | Free tier, rate limited |
-| Llama 3.3 70B Versatile | ~$0.10/1M | ~$0.40/1M | Paid tier |
+| Haiku 4.5 | $0.00/1M | $0.00/1M | **Gratis tier** — aktif per DECISION 017 |
+| Sonnet 5 | $0.00/1M | $0.00/1M | **Premium tier** — aktif per DECISION 017 |
 
-**Rate Limit Free Tier:**
-- 30 requests / menit
-- 200.000 tokens / hari
-- **Per organisasi** — semua user berbagi pool yang sama
+> ⚠️ Harga $0.00/1M adalah pricing awal. Owner perlu update dengan harga aktual per 1K tokens dari dashboard Anthropic.
 
-**Status:** ✅ Recommended untuk tier Gratis
-**Owner Cost:** $0 (free tier)
-
-### Anthropic
-
-| Model | Input | Output | Notes |
-|-------|-------|--------|-------|
-| Claude 3.5 Sonnet | $3.00/1M | $15.00/1M | Best for academic documents |
-| Claude 3.5 Haiku | $0.80/1M | $4.00/1M | Faster, cheaper |
-
-**API:** `https://api.anthropic.com/v1/messages`
-**Format:** Custom (bukan OpenAI-compatible)
+**API:** Anthropic API (OpenAI-compatible endpoint)
+**Format:** OpenAI-compatible
 **Data Privacy:** Tidak dipakai untuk training
 
-**Status:** ✅ Recommended untuk tier Premium
-**Owner Cost:** ~$3.00-15.00/1M token
-
-### OpenAI
-
-| Model | Input | Output | Notes |
-|-------|-------|--------|-------|
-| GPT-4o | $2.50/1M | $10.00/1M | General purpose |
-| GPT-4o-mini | $0.15/1M | $0.60/1M | Budget option |
-
-**API:** `https://api.openai.com/v1/chat/completions`
-**Format:** OpenAI standard
-
-**Status:** ✅ Backup tier
-**Owner Cost:** ~$0.15-10.00/1M token
-
-### Google (Future Consideration)
-
-| Model | Input | Output | Notes |
-|-------|-------|--------|-------|
-| Gemini 1.5 Flash | $0.075/1M | $0.30/1M | Cheapest option |
-| Gemini 1.5 Pro | $1.25/1M | $5.00/1M | Long context |
-
-**Status:** ⚠️ Pertimbangkan untuk cost-sensitive tier
-**Notes:** Kualitas lebih rendah untuk dokumen akademik panjang
+**Status:** ✅ ACTIVE — satu-satunya provider AI yang digunakan
+**Owner Cost:** Tergantung usage. Untuk estimasi, cek dashboard Anthropic.
 
 ---
 
-## Tier Definitions
+## Tier Definitions (Per DECISION 017)
 
-| Tier | Provider | Model | Cost to Owner | Target User |
-|------|----------|-------|---------------|-------------|
-| **Gratis** | Groq | Llama 3.1 8B | $0 | User coba-coba, rate limited |
-| **Standar** | Groq | Llama 3.3 70B | Per usage | Revisi substantif |
-| **Premium** | Anthropic | Claude 3.5 Sonnet | Per usage | Kualitas akademik max |
-| **Ultra** | OpenAI | GPT-4o | Per usage | Fallback / preference |
+| Tier | Model | Cost to Owner | Target User |
+|------|-------|---------------|-------------|
+| **Gratis** | Haiku 4.5 | Per usage | User coba-coba |
+| **Premium** | Sonnet 5 | Per usage | Kualitas akademik max |
+
+> ⚠️ Tier "Standar" dan "Ultra" sudah dihapus per DECISION 017.
 
 ---
 
@@ -90,12 +59,11 @@ Total: $0.05/1M
 
 Margin target: 20% minimum
 
-Example (Premium tier):
-- Provider cost: $3.00/1M input
+Example (Premium tier — Sonnet 5):
+- Provider cost: sesuai pricing aktual
 - Op cost: $0.05/1M
-- Total cost: $3.05/1M
-- Sell price (input): $3.05 × 1.20 = $3.66/1M
-- Sell price (output): $15.00 × 1.20 = $18.00/1M
+- Total cost: (provider + $0.05)/1M
+- Sell price: Total cost × 1.20
 ```
 
 ---
@@ -124,12 +92,6 @@ Example (Premium tier):
 3. Perubahan harga user: min 30 hari notice
 ```
 
-### Rate Limit Monitoring
-
-- **Groq free tier** pakai shared org limit — monitor apakah user sering kena 429
-- Jika terlalu sering, pertimbangkan naikkan ke Groq paid tier atau kurangi user Gratis
-- Report ke owner setiap bulan: rate limit hit rate
-
 ---
 
 ## Owner Dashboard Fields
@@ -138,10 +100,10 @@ Admin dashboard perlu fields berikut untuk setiap tier:
 
 | Field | Type | Required | Notes |
 |-------|------|----------|-------|
-| `tierKey` | string | Yes | Unique key: "free", "standard", "premium", "ultra" |
-| `name` | string | Yes | Display name: "Gratis", "Standar", "Premium" |
-| `provider` | string | Yes | "groq", "anthropic", "openai" |
-| `model` | string | Yes | Model ID: "llama-3.1-8b-instant" |
+| `tierKey` | string | Yes | Unique key: "free", "premium" |
+| `name` | string | Yes | Display name: "Gratis", "Premium" |
+| `provider` | string | Yes | "anthropic" |
+| `model` | string | Yes | Model ID: "haiku-4.5", "sonnet-5" |
 | `baseUrl` | string | Yes | API endpoint |
 | `pricePer1MInput` | number | Yes | Harga jual per 1M input token (IDR cents) |
 | `pricePer1MOutput` | number | Yes | Harga jual per 1M output token (IDR cents) |
@@ -158,3 +120,4 @@ Admin dashboard perlu fields berikut untuk setiap tier:
 | Date | Change | By |
 |------|--------|-----|
 | 2026-08-25 | Initial document | AI Engineering Team |
+| 2026-09-13 | Major cleanup — remove Groq + OpenAI, keep only Haiku 4.5 + Sonnet 5 (DECISION 017) | AI Engineering Team |

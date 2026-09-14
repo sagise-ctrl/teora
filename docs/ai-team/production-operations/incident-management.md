@@ -80,7 +80,7 @@ AI Production Admin boleh fix autonomous **tanpa tanya owner** jika:
 - [ ] Check recent deployments (last 24h)
 - [ ] Check recent code changes
 - [ ] Check environment variables
-- [ ] Check external dependencies (Supabase, Stripe, OpenAI)
+- [ ] Check external dependencies (Supabase, Stripe, Anthropic)
 - [ ] Check database state
 - [ ] Check authentication/authorization
 - [ ] Check rate limits

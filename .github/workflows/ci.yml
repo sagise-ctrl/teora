@@ -11,6 +11,47 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  commitlint:
+    name: Commit message lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install commitlint
+        run: npm install -g @commitlint/cli @commitlint/config-conventional
+
+      - name: Lint commit messages
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            # PR: check commits between base+1 and head (exclude base itself)
+            # commitlint --from/--to is inclusive on both ends, so use parent of base
+            BASE="${{ github.event.pull_request.base.sha }}"
+            HEAD="${{ github.event.pull_request.head.sha }}"
+            # git rev-parse BASE^1 handles both merge-base case and edge case
+            FROM=$(git rev-parse "$BASE"^1 2>/dev/null || echo "$BASE")
+            npx commitlint --from="$FROM" --to="$HEAD" --verbose || {
+              echo "::error::Commit message(s) don't follow conventional commit format"
+              echo "Allowed types: feat, fix, refactor, test, docs, chore, perf, security, ci, build"
+              echo "Format: <type>(<scope>): <description>"
+              exit 1
+            }
+          else
+            # Push: check the latest commit only
+            npx commitlint --from="${{ github.sha }}~1" --to="${{ github.sha }}" --verbose || {
+              echo "::error::Commit message(s) don't follow conventional commit format"
+              echo "Allowed types: feat, fix, refactor, test, docs, chore, perf, security, ci, build"
+              echo "Format: <type>(<scope>): <description>"
+              exit 1
+            }
+          fi
+
   ci:
     name: CI
     runs-on: ubuntu-latest

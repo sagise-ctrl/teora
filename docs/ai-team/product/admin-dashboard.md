@@ -99,14 +99,14 @@ Owner butuh lihat 7 area ini. Disusun dari yang paling kritikal (P1) ke future (
 | Sub-fitur | Deskripsi | Sumber Data |
 |-----------|-----------|-------------|
 | Revenue today/week/month | Total pembayaran masuk | `ai_usage_log` + Stripe (future) |
-| AI cost breakdown per model | Groq / Anthropic / OpenAI per request | `ai_usage_log.cost_usd` |
+| AI cost breakdown per model | Haiku 4.5 / Sonnet 5 per request | `ai_usage_log.cost_usd` |
 | Gross margin % | (Revenue - Cost) / Revenue | Calculated |
 | Cost anomaly alerts | User/feature dengan lonjakan biaya | Real-time threshold |
 | Tier distribution | Berapa user di Free/Lite/Pro/Team | `users.tier` |
 | Pay-per-use purchases | Token bundle sales | DB |
 
 **Compliance:**
-- Immutable Rule #2 (`financial-rules.md`): owner TIDAK boleh kasih token gratis manual. Token gratis HANYA dari AI provider yang memang gratis (misal Groq free tier).
+- Immutable Rule #2 (`financial-rules.md`): owner TIDAK boleh kasih token gratis manual. Token gratis HANYA dari AI provider yang memang gratis (Haiku 4.5 per DECISION 017).
 - Immutable Rule #5: setiap AI request di-track cost-nya
 
 ---
@@ -120,7 +120,7 @@ Owner butuh lihat 7 area ini. Disusun dari yang paling kritikal (P1) ke future (
 | All users list (search/filter by email/tier/status) | Tabel dengan pagination | ✅ Backend ada |
 | Detail per user | Project count, AI usage, referrals, login history | ✅ Aggregate |
 | Manual tier upgrade/downgrade | Owner override tier (audit-logged) | ⚠️ Perlu endpoint |
-| ~~Manual token grant~~ | ~~Form: pilih user, jumlah, alasan → audit log~~ | ❌ **TIDAK ADA** — token gratis HANYA dari AI provider yang memang gratis (Groq free tier). Owner tidak kasih token manual. |
+| ~~Manual token grant~~ | ~~Form: pilih user, jumlah, alasan → audit log~~ | ❌ **TIDAK ADA** — token gratis HANYA dari AI provider yang memang gratis (Haiku 4.5). Owner tidak kasih token manual per DECISION 017. |
 | Suspend/ban user | Untuk fraud/abuse (audit-logged) | ⚠️ Perlu endpoint |
 | Referral status per user | pending/verified/qualified/rewarded | ✅ Backend ada |
 

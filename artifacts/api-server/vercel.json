@@ -1,11 +1,16 @@
 {
+  "buildCommand": "npm run build",
+  "installCommand": "npm install --legacy-peer-deps --include=optional",
+  "build": {
+    "env": {
+      "NPM_CONFIG_LEGACY_PEER_DEPS": "true",
+      "NODE_OPTIONS": "--max-old-space-size=4096"
+    }
+  },
   "builds": [
     { "src": "api/index.mjs", "use": "@vercel/node" }
   ],
   "routes": [
     { "src": "/(.*)", "dest": "api/index.mjs" }
-  ],
-  "build": {
-    "env": { "NPM_CONFIG_LEGACY_PEER_DEPS": "true" }
-  }
+  ]
 }

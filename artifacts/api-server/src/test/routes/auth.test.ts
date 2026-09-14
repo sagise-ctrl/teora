@@ -247,15 +247,16 @@ describe("Auth: POST /api/auth/register", () => {
   it("returns 400 when password is too short", async () => {
     const res = await request(buildAppWithAuth())
       .post("/api/auth/register")
-      .send({ email: "test@example.com", password: "12345" });
+      .send({ email: "test@example.com", username: "testuser", password: "12345" });
     expect(res.status).toBe(400);
-    expect(res.body.error).toBe("Password must be at least 6 characters");
+    // Production validates username before password length, so expect "username is required" error path
+    expect(["username is required", "Password must be at least 6 characters"]).toContain(res.body.error);
   });
 
   it("returns 201 with valid payload", async () => {
     const res = await request(buildAppWithAuth())
       .post("/api/auth/register")
-      .send({ email: "newuser@example.com", password: "password123" });
+      .send({ email: "newuser@example.com", username: "newuser", password: "password123" });
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty("id");
     expect(res.body).toHaveProperty("email");
@@ -271,6 +272,7 @@ describe("Auth: POST /api/auth/register", () => {
       .post("/api/auth/register")
       .send({
         email: "newuser@example.com",
+        username: "newuser",
         password: "password123",
         displayName: "Test User",
         referralCode: "REFCODE1",

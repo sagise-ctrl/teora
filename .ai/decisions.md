@@ -100,7 +100,7 @@ Konfirmasi fix ada di compiled output, bukan hanya source. Build cache bisa serv
    - P2: AI Tier Config + System Health + Audit Log
    - P3: CS Overview + Reports Archive
 
-6. **Token Grant: TIDAK ADA.** Owner TIDAK boleh kasih token gratis secara manual ke user. Token gratis HANYA jika ada AI provider yang memang gratis (misal Groq free tier). Tidak ada tombol "Approve Token Grant" di admin dashboard. Immutable Rule #2 di `finance/financial-rules.md` sudah diupdate per 2026-08-29.
+6. **Token Grant: TIDAK ADA.** Owner TIDAK boleh kasih token gratis secara manual ke user. Token gratis HANYA jika ada AI provider yang memang gratis (misal Haiku 4.5 free tier). Tidak ada tombol "Approve Token Grant" di admin dashboard. Immutable Rule #2 di `finance/financial-rules.md` sudah diupdate per 2026-08-29.
 
 7. **Test mode: unlimited tapi tercatat.** Owner bisa test User Dashboard tanpa batas token. Tapi usage TETAP dicatat di `ai_usage_log` sebagai cost. Admin Dashboard menampilkan "Owner: X tokens, $Y cost" di laporan keuangan. Tidak ada payment, tapi cost tetap ter-track.
 
@@ -385,7 +385,7 @@ These require **owner's personal accounts in third-party services**. AI has no a
 | Service | When Needed | One-time Setup Time |
 |---------|-------------|---------------------|
 | **Google OAuth** (for "Login with Google") | When Google login is needed | ~10 min |
-| **AI Provider API key** (OpenAI/Anthropic/Groq) | When AI features needed | ~5 min |
+| **AI Provider API key** (Anthropic) | When AI features needed | ~5 min |
 | **Payment gateway** (Stripe/Xendit/Midtrans) | When paid features needed | ~15 min + provider account |
 | **Vercel account & project creation** | One-time at start | Already done |
 | **GitHub repo & secrets** (VERCEL_TOKEN, etc.) | One-time at start | Already done |
@@ -1199,6 +1199,138 @@ If new `vercel.json` installCommand causes build failure: rollback to `npm insta
 - `docs/ai-team/devops/` (deployment architecture documentation)
 - `memory/deploy-error-playbook-20260904.md` (master playbook)
 - Related decisions: DECISION 003 (Direct Vercel CLI), DECISION 006 (Per-route middleware), DECISION 008 (.vercelignore allowlist)
+
+---
+
+## [2026-09-14] DECISION 019: Deploy Strategy — Layered with Vercel-Native as Target
+
+**Status:** 🟡 ACTIVE (transitioning from DECISION 003 CLI-only to Vercel-native, phased)
+**Author:** AI Engineering (autonomous, per CLAUDE.md Autonomy Policy)
+**Trigger:** Owner directive 2026-09-14: "saya ingin jadikan alur yg benar, baik, bagus, aman sebagai parameter... kalau cara itu ternyata kurang bagus ya ganti saja. adapun nanti ada error ya harusnya kan bisa diperbaiki."
+
+### Context
+
+Owner mandated: "flow yang benar, baik, bagus, aman" dengan konkrit parameter "kalau error, harusnya bisa diperbaiki" (jika cara deploy tertentu problematic, ganti saja).
+
+DECISION 003 (CLI-only) **works** tapi **bukan arsitektur ideal** karena:
+- Setiap deploy butuh Vercel token + manual command (atau GH Actions sebagai Docker medium — bukan source of truth)
+- Custom GH Actions workflows untuk build + deploy = layer tambahan yang bisa failure
+- Owner coupling ke AI Engineering per push = bottleneck
+
+AI Engineering team's own published architecture (`docs/ai-team/production-operations/deployment.md`) sudah target:
+
+> "Frontend and backend deploy automatically via Vercel's built-in CI/CD
+> No separate deploy workflow needed — Vercel handles both"
+
+DECISION 003 (2026-08-26) **eksplisit menolak** migrasi ke Vercel-native dengan rationale "Vercel's auto-build which can't see workspace plugin context."
+
+### Anatomy of the "workspace plugin context" Blocker
+
+Setelah forensic audit 2026-09-14, blocker teknisnya specific:
+
+`artifacts/api-server/build.mjs` line 7: `import workspacePlugin from "./esbuild-workspace-plugin.mjs"`
+
+Plugin (132 lines) resolve `@workspace/db`, `@workspace/api-zod`, dll di build time via priority chain:
+1. `<api-server>/.bundled/@workspace/<pkg>/src/index.ts` (populated by `setup-workspace.mjs`)
+2. `NODE_PATH` env var (CI sets this to repo root node_modules)
+3. Walk-up from importer → find repo root → check `repoRoot/node_modules/@workspace/`
+4. Fallback ke monorepo `lib/` paths
+
+Plugin ini butuh **custom resolver context** — Vercel auto-build tidak bisa inject hal yang sama tanpa custom configuration. Itu real blocker, bukan excuses.
+
+### Decision Summary (3-layer architecture)
+
+**Layer 1 — TODAY (CLI deploy via GH Actions, DECISION 003 retained)**
+
+- `vercel deploy --prod --yes --cwd artifacts/api-server` (sudah working)
+- `vercel deploy --prod --yes --project academic-workspace` (sudah working)
+- GH Actions workflows tipis: build → deploy → health check (sudah ada)
+- Trigger: push to `main` (via GH Actions)
+- **Reliability:** battle-tested (last successful deploy: 2026-09-13 2f88046)
+- **Owner cost:** zero (push → live dalam 5 min)
+
+**Layer 2 — SHORT TERM (Vercel Deploy Hook trigger, hybrid mode)**
+
+- GH Actions workflow jadi tipis (15 lines): `curl -X POST $VERCEL_DEPLOY_HOOK_URL`
+- `vercel.json` di api-server: `buildCommand = "npm run build"` (Vercel side builds)
+- `setup-workspace.mjs` di-integrate sebagai `prebuild` script di `package.json`:
+  ```json
+  {
+    "scripts": {
+      "prebuild": "node setup-workspace.mjs",
+      "build": "node build.mjs"
+    }
+  }
+  ```
+- Vercel auto-resolves `@workspace/*` via `.bundled/` (populated by prebuild step)
+- **Reliability:** perlu verifikasi end-to-end (Vercel auto-build belum pernah berhasil dengan monorepo ini)
+- **Owner cost:** push → preview URL auto → manual promote to production (atau auto-promote on `main`)
+
+**Layer 3 — TARGET (full Vercel Git Integration)**
+
+- Trigger: push to `main` langsung ke Vercel (no GH Actions deploy)
+- Vercel handle `npm install` + `prebuild` + `build` + deploy
+- GH Actions: hanya `ci.yml` (lint + typecheck + test) — quality gate BUKAN deploy
+- **Conditions to enable Layer 3:**
+  1. Layer 2 proven working 3x+ berturut-turut (no rollback needed)
+  2. Vercel auto-build consistently resolve `@workspace/*` via prebuild
+  3. Post-deploy health check pass rate = 100% over 2 weeks
+- **Owner cost:** zero (push to `main` → production live dalam 3-5 min)
+
+### Why Layered (vs all-at-once)
+
+Opsi all-at-once Vercel-native (Layer 3 langsung) **resiko tinggi** karena:
+- DECISION 003 rationale masih valid (workspace plugin coupling)
+- Belum pernah tested end-to-end dengan monorepo ini
+- Kalau error di production rollback = downtime
+
+Opsi all-at-once CLI (Layer 1 tetap) = incremental risk (sudah stable) tapi **tidak address arsitektur ideal** yang AI team sendiri dokumen.
+
+**Pilihan layered**: turunkan risk surface per layer, verify setiap layer, baru promote.
+
+### Implementation Status
+
+| Layer | Status | Verification needed |
+|-------|--------|---------------------|
+| Layer 1 (CLI today) | ✅ ACTIVE | Last deploy `2f88046` 2026-09-13 → 200 OK ✅ |
+| Layer 2 (Hook trigger) | ⏳ Plan | Need: prebuild script update + Vercel dashboard deploy hook URL |
+| Layer 3 (Git Integration) | ⏳ Future | Need: Layer 2 stable ≥ 2 weeks |
+
+### Files Affected
+
+| File | Change | Layer |
+|------|--------|-------|
+| `.github/VERCEL_SETUP.md` (existing, mine from earlier session) | **DELETED** — duplicate dengan `docs/ai-team/production-operations/vendor-deployment-guide.md` (canonical, 240 lines, sudah ada sejak 2026-08-23) | Cleanup |
+| `.ai/decisions.md` | DECISION 019 entry (this) | Documentation |
+| `.ai/lessons-learned.md` | New entry: "LANGKAH WAJIB sebelum technical decision: consult AI team docs" | Self-correction |
+| `.ai/current-task.md` | Addendum 2026-09-14 | Tracking |
+| `artifacts/api-server/package.json` (future Layer 2) | Add `prebuild` script | Engineering |
+| `.github/workflows/deploy-backend.yml` (future Layer 2) | Slim down to Vercel Deploy Hook curl | Engineering |
+
+### Why Not Now (Layer 2/3 enable now)
+
+1. **Live web safe constraint (owner mandated)** — `jangan sampai merusak web live saat ini`. Setiap perubahan deploy infrastructure butuh verify tanpa downtime.
+2. **Layer 1 deployed 2f88046 sukses** — production stable SEKARANG. Risiko Layer 2/3 belum sebanding benefitnya.
+3. **Existing workflows proven** — DECISION 003 works, why swap sekarang tanpa bukti Layer 2 lebih baik?
+4. **Capacity constraint** — Layer 2/3 work butuh `npm run` di Vercel context + monitoring + recovery plan. Itu multi-session project.
+
+### If Layer 2/3 Fails
+
+Owner has fallback chain:
+- Layer 2 fail → revert to Layer 1 (CLI deploy)
+- Layer 3 fail → revert to Layer 2 → Layer 1
+- All-fail → manual VERCEL_TOKEN-based CLI deploy (DECISION 003 path, well-documented)
+- Last resort → Vercel dashboard manual redeploy previous successful commit
+
+### References
+
+- `.ai/decisions.md` DECISION 003 (CLI deploy, 2026-08-26)
+- `.ai/decisions.md` DECISION 018 (audit fixes C1/C2/M9)
+- `docs/ai-team/production-operations/deployment.md` (target architecture)
+- `docs/ai-team/production-operations/vendor-deployment-guide.md` (Vercel setup manual, 240 lines)
+- `artifacts/api-server/esbuild-workspace-plugin.mjs` (workspace plugin = blocker)
+- `artifacts/api-server/setup-workspace.mjs` (could be prebuild step)
+- `artifacts/api-server/vercel.json` (commit 2cc4cbd, Layer 1 baseline)
 
 ---
 

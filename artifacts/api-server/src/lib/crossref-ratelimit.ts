@@ -18,7 +18,7 @@ const CROSSREF_ANON_MS = 200;   // 5 req/sec (anonymous / polite pool)
 const CROSSREF_AUTH_MS = 100;   // 10 req/sec (with API key)
 
 let _lastRequest = 0;
-let _queue: Array<{
+const _queue: Array<{
   resolve: () => void;
   timestamp: number;
 }> = [];
