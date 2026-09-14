@@ -1,0 +1,64 @@
+name: Auto-merge PR
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, labeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+# This workflow enables auto-merge on PRs that:
+# 1. Have the "auto-merge" label
+# 2. Are targeting main
+# 3. Have all required CI checks passing
+#
+# Required branch protection setup (Owner action, see docs/ai-team/devops/DEPLOY_FLOW.md):
+# - Require status checks: "CI / CI" job from .github/workflows/ci.yml
+# - Allow auto-merge enabled
+# - Require branches to be up to date
+#
+# Auto-merge is automatically canceled by GitHub if CI fails after enable.
+
+jobs:
+  auto-merge:
+    name: Enable auto-merge
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Only run if PR has auto-merge label AND CI has passed
+    if: github.event.pull_request.base.ref == 'main' && contains(github.event.pull_request.labels.*.name, 'auto-merge')
+    steps:
+      - name: Enable auto-merge
+        uses: peter-evans/enable-pull-request-automerge@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pull-request-number: ${{ github.event.pull_request.number }}
+          merge-method: squash
+          # Wait for all required status checks (configured in branch protection)
+          # GitHub will auto-cancel if checks fail after enabling
+
+      - name: Post comment if auto-merge enabled
+        if: steps.auto-merge.outputs.auto-merge-enabled == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const comment = [
+              '## ✅ Auto-merge Enabled',
+              '',
+              `PR #${pr.number} will automatically merge once all required CI checks pass.`,
+              '',
+              '**Next steps:**',
+              '- Wait for CI to complete (~3-5 minutes)',
+              '- Vercel will auto-deploy production after merge',
+              '- Verify at: https://academic-workspace-eta.vercel.app',
+              '',
+              'If CI fails, auto-merge will be automatically canceled and you\'ll be notified.',
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              body: comment,
+            });
