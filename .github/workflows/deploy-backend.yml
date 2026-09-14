@@ -1,23 +1,25 @@
-name: Deploy Backend (thin trigger)
+name: Deploy Backend (manual trigger — Vercel-native)
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "artifacts/api-server/**"
-      - "lib/api-zod/**"
-      - "lib/db/**"
-      - "package.json"
-      - "package-lock.json"
-      - ".github/workflows/deploy-backend.yml"
   workflow_dispatch:
+    inputs:
+      reason:
+        description: "Reason for manual trigger (logged in audit)"
+        required: false
+        default: "Manual re-deploy"
 
 permissions:
   contents: read
 
+# NOTE: This workflow is a MANUAL fallback for backend deploys.
+# Backend auto-deploy uses the legacy Layer 1 CLI workflow (.github/workflows/deploy-backend.legacy.yml
+# or current main branch behavior — see DECISION 019).
+# Vercel Deploy Hook for backend is NOT configured yet because teora-backend project
+# is not linked to GitHub and Vercel cannot auto-build the workspace plugin.
+# Use this workflow only if Layer 1 fails and you need a different deployment path.
 jobs:
   trigger-vercel:
-    name: Trigger Vercel Deploy Hook
+    name: Trigger Vercel Deploy Hook (if configured)
     runs-on: ubuntu-latest
     timeout-minutes: 5
     environment:
@@ -29,14 +31,18 @@ jobs:
           HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK_PROD_BACKEND }}
         run: |
           if [ -z "$HOOK" ]; then
-            echo "::error::VERCEL_DEPLOY_HOOK_PROD_BACKEND secret is empty. See docs/ai-team/devops/deploy-hook-setup.md"
+            echo "::error::VERCEL_DEPLOY_HOOK_PROD_BACKEND secret is empty."
+            echo "::error::Backend Vercel project is not GitHub-linked yet. Use Layer 1 CLI deploy instead."
+            echo "::error::See docs/ai-team/devops/deploy-hook-setup.md for full setup."
             exit 1
           fi
 
       - name: Trigger Vercel production deploy
         env:
           HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK_PROD_BACKEND }}
+          REASON: ${{ inputs.reason }}
         run: |
+          echo "Reason: $REASON"
           echo "Triggering Vercel deploy hook for teora-backend (production)..."
           HTTP_CODE=$(curl -sS -o /tmp/vercel-response.json -w "%{http_code}" -X POST "$HOOK")
           echo "HTTP status: $HTTP_CODE"
