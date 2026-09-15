@@ -174,6 +174,88 @@ export async function resolveAuthorizedTier(
   return getTierConfig(requestedTierId);
 }
 
+/**
+ * DECISION 019 (Owner 2026-09-15) — User email + provider preference resolver.
+ *
+ * Returns both the project owner's email AND their AI provider preference
+ * in one DB call (avoids N+1 when routes need both).
+ *
+ * Caches email via the existing resolveUserEmail() cache.
+ * Preference lookup is not cached (it's a cheap SELECT by PK).
+ * Returns `{ email, aiProvider }` — never throws.
+ */
+export async function resolveOwnerEmailAndProvider(
+  userId: string,
+): Promise<{ email: string | null; aiProvider: "anthropic" | "olagon" }> {
+  try {
+    // Lazy import to avoid circular dependency
+    const { usersTable, userPreferencesTable } = await import("@workspace/db");
+
+    const [user, pref] = await Promise.all([
+      db
+        .select({ email: usersTable.email })
+        .from(usersTable)
+        .where(eq(usersTable.id, userId))
+        .limit(1),
+      db
+        .select({ aiProvider: userPreferencesTable.aiProvider })
+        .from(userPreferencesTable)
+        .where(eq(userPreferencesTable.userId, userId))
+        .limit(1),
+    ]);
+
+    return {
+      email: user[0]?.email ?? null,
+      aiProvider: (pref[0]?.aiProvider as "anthropic" | "olagon") ?? "anthropic",
+    };
+  } catch (err) {
+    logger.warn(
+      { userId, err: err instanceof Error ? err.message : String(err) },
+      "resolveOwnerEmailAndProvider failed — defaulting to anthropic"
+    );
+    return { email: null, aiProvider: "anthropic" };
+  }
+}
+
+/**
+ * DECISION 019 (Owner 2026-09-15) — Olagon tier resolution.
+ *
+ * Returns the correct tier for a user, applying the Olagon provider preference:
+ *   - If `aiProvider === 'olagon'` AND `preferredTierId` is not explicitly set
+ *     by the caller → return `opus-4-8-olagon` (owner-only tier).
+ *   - Otherwise → fall through to `getTierForUser` with the email propagated
+ *     so owner-only checks in `getTierConfig` work correctly.
+ *
+ * Use this INSTEAD OF `getTierForUser` directly in AI routes.
+ */
+export async function resolveOlagonTierOrFallback(
+  userId: string,
+  preferredTierId?: string | null,
+  userEmail?: string,
+): Promise<AITierConfig | null> {
+  // Olagon preference overrides default tier only when caller didn't specify a tier
+  if (preferredTierId == null) {
+    try {
+      const { usersTable, userPreferencesTable } = await import("@workspace/db");
+      const [pref] = await db
+        .select({ aiProvider: userPreferencesTable.aiProvider })
+        .from(userPreferencesTable)
+        .where(eq(userPreferencesTable.userId, userId))
+        .limit(1);
+
+      if (pref?.aiProvider === "olagon") {
+        const olagonTier = await getTierConfig("opus-4-8-olagon", userEmail);
+        if (olagonTier) return olagonTier;
+        // Olagon tier not found / not authorized — fall through to default
+      }
+    } catch {
+      // Pref lookup failed — fall through to default
+    }
+  }
+
+  return getTierForUser(userId, preferredTierId, userEmail);
+}
+
 export async function getTierForUser(
   userId: string,
   preferredTierId?: string | null
@@ -274,6 +356,105 @@ function getApiKey(envVarName: string): string {
   }
 }
 
+/**
+ * DECISION 019 (Owner 2026-09-15) — Olagon provider detection.
+ *
+ * Olagon gateway (https://gateway.olagon.site/anthropic) is Anthropic-
+ * protocol-compatible but is owner-only and lives behind its own quota
+ * (5h/7d rolling window). Detection is by baseUrl substring, NOT a new
+ * provider value, so `provider` stays as "anthropic" in the DB and
+ * `callAnthropic` handles the wire format.
+ */
+function isOlagonTier(tier: AITierConfig): boolean {
+  return tier.baseUrl.includes("olagon.site");
+}
+
+/**
+ * DECISION 019 (Owner 2026-09-15) — Olagon auto-cascade map.
+ *
+ * Mirrors Section 12.3 (cascade by design). When the higher-priority Olagon
+ * tier returns a quota / rate-limit error, transparently retry the request
+ * with the fallback tier. If the terminal tier (`opus-4-6-olagon`) is also
+ * exhausted, surface a typed error that the route layer maps to HTTP 402.
+ *
+ * Keys are tier IDs that route through the cascade; values are the next
+ * tier to try, or `null` if this is the final tier (further errors = 402).
+ */
+const OLAGON_CASCADE: Record<string, string | null> = {
+  "opus-4-8-olagon": "opus-4-6-olagon",
+  "opus-4-6-olagon": null, // terminal — quota exhausted = 402
+};
+
+/**
+ * Sentinel error thrown when Olagon quota is exhausted at the terminal
+ * cascade tier. Route handlers should catch this and return 402.
+ */
+export const OLAGON_QUOTA_EXHAUSTED = "OLAGON_QUOTA_EXHAUSTED";
+
+/**
+ * HTTP status codes from Olagon gateway that indicate quota / rate-limit
+ * exhaustion (5h window or 7d window). Mirrors Anthropic protocol error
+ * semantics. 529 = overloaded (transient), 429 = rate-limit.
+ */
+const OLAGON_QUOTA_STATUS = new Set([429, 529]);
+
+/**
+ * Calls the Anthropic-compatible endpoint with auto-cascade for Olagon
+ * tiers. Only triggered when the tier is detected as Olagon (via baseUrl).
+ *
+ * Flow:
+ *   1. callAnthropic(tier)
+ *   2. On quota error AND tier has cascade target → retry with target
+ *   3. On quota error AND tier is terminal → throw OLAGON_QUOTA_EXHAUSTED
+ *   4. On any other error → rethrow as-is
+ */
+async function callAnthropicWithOlagonCascade(
+  messages: ChatMessage[],
+  tier: AITierConfig,
+  mode?: ChatMode,
+  userEmail?: string,
+): Promise<AIResponse> {
+  try {
+    return await callAnthropic(messages, tier, mode);
+  } catch (err) {
+    // Match error message pattern: "Anthropic API error 429: {...}" or 529.
+    const errMsg = err instanceof Error ? err.message : String(err);
+    const statusMatch = errMsg.match(/Anthropic API error (\d{3})/);
+    const status = statusMatch ? parseInt(statusMatch[1], 10) : null;
+    const quotaExhausted = status !== null && OLAGON_QUOTA_STATUS.has(status);
+
+    const cascadeTarget = OLAGON_CASCADE[tier.id] ?? null;
+
+    if (cascadeTarget && quotaExhausted) {
+      logger.warn(
+        {
+          fromTier: tier.id,
+          toTier: cascadeTarget,
+          status,
+        },
+        "Olagon tier quota exhausted — cascading to fallback tier"
+      );
+      // Forward userEmail so owner-only check on the fallback tier also passes
+      // (the fallback is also an owner-only Olagon tier).
+      const fallbackTier = await getTierConfig(cascadeTarget, userEmail);
+      if (fallbackTier) {
+        return await callAnthropicWithOlagonCascade(messages, fallbackTier, mode, userEmail);
+      }
+    }
+
+    if (cascadeTarget === null && quotaExhausted) {
+      logger.error(
+        { terminalTier: tier.id, status },
+        "Olagon quota exhausted at terminal tier — no further cascade"
+      );
+      throw new Error(OLAGON_QUOTA_EXHAUSTED, { cause: err });
+    }
+
+    throw err;
+  }
+}
+
+(fix(ai): attach cause to thrown OLAGON_QUOTA_EXHAUSTED)
 export async function callAI(
   messages: ChatMessage[],
   tierId: string,
