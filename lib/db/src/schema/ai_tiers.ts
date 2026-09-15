@@ -56,6 +56,10 @@ export const aiTiersTable = pgTable(
     isActive: boolean("is_active").notNull().default(true),
     displayOrder: integer("display_order").notNull().default(0),
 
+    // DECISION 019 (Owner 2026-09-15): Olagon provider khusus owner
+    // If TRUE, tier hanya bisa diakses user dengan email = OWNER_EMAIL
+    isOwnerOnly: boolean("is_owner_only").notNull().default(false),
+
     description: text("description").notNull().default(""),
     usageTips: text("usage_tips"), // Tips shown to users
 
