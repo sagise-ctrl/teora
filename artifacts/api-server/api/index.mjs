@@ -27,11 +27,11 @@ var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
 };
-var __copyProps = (to, from, except, desc21) => {
+var __copyProps = (to, from, except, desc20) => {
   if (from && typeof from === "object" || typeof from === "function") {
     for (let key of __getOwnPropNames(from))
       if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc21 = __getOwnPropDesc(from, key)) || desc21.enumerable });
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc20 = __getOwnPropDesc(from, key)) || desc20.enumerable });
   }
   return to;
 };
@@ -593,10 +593,10 @@ var require_supports_color = __commonJS({
         return 3;
       }
       if ("TERM_PROGRAM" in env) {
-        const version3 = parseInt((env.TERM_PROGRAM_VERSION || "").split(".")[0], 10);
+        const version4 = parseInt((env.TERM_PROGRAM_VERSION || "").split(".")[0], 10);
         switch (env.TERM_PROGRAM) {
           case "iTerm.app":
-            return version3 >= 3 ? 3 : 2;
+            return version4 >= 3 ? 3 : 2;
           case "Apple_Terminal":
             return 2;
         }
@@ -977,8 +977,8 @@ var require_depd = __commonJS({
       return typeName && callSite.getMethodName() ? typeName + "." + funcName : funcName;
     }
     function formatPlain(msg, caller, stack) {
-      var timestamp36 = (/* @__PURE__ */ new Date()).toUTCString();
-      var formatted = timestamp36 + " " + this._namespace + " deprecated " + msg;
+      var timestamp37 = (/* @__PURE__ */ new Date()).toUTCString();
+      var formatted = timestamp37 + " " + this._namespace + " deprecated " + msg;
       if (this._traced) {
         for (var i2 = 0; i2 < stack.length; i2++) {
           formatted += "\n    at " + stack[i2].toString();
@@ -1470,10 +1470,10 @@ var require_http_errors = __commonJS({
       return ServerError;
     }
     function nameFunc(func, name) {
-      var desc21 = Object.getOwnPropertyDescriptor(func, "name");
-      if (desc21 && desc21.configurable) {
-        desc21.value = name;
-        Object.defineProperty(func, "name", desc21);
+      var desc20 = Object.getOwnPropertyDescriptor(func, "name");
+      if (desc20 && desc20.configurable) {
+        desc20.value = name;
+        Object.defineProperty(func, "name", desc20);
       }
     }
     function populateConstructorExports(exports2, codes, HttpError) {
@@ -5328,7 +5328,7 @@ var require_lib = __commonJS({
     module.exports._canonicalizeEncoding = function(encoding) {
       return ("" + encoding).toLowerCase().replace(/:\d{4}$|[^0-9a-z]/g, "");
     };
-    module.exports.getEncoder = function getEncoder2(encoding, options) {
+    module.exports.getEncoder = function getEncoder(encoding, options) {
       var codec = module.exports.getCodec(encoding);
       var encoder2 = new codec.encoder(options, codec);
       if (codec.bomAware && options && options.addBOM) {
@@ -15901,8 +15901,8 @@ var require_text = __commonJS({
     var debug = require_src()("body-parser:text");
     var read = require_read();
     var { normalizeOptions, passthrough } = require_utils();
-    module.exports = text36;
-    function text36(options) {
+    module.exports = text37;
+    function text37(options) {
       const normalizedOptions = normalizeOptions(options, "text/plain");
       return function textParser(req, res, next) {
         read(req, res, next, passthrough, debug, normalizedOptions);
@@ -16967,14 +16967,14 @@ var require_get = __commonJS({
         throw e2;
       }
     }
-    var desc21 = !!hasProtoAccessor && gOPD && gOPD(
+    var desc20 = !!hasProtoAccessor && gOPD && gOPD(
       Object.prototype,
       /** @type {keyof typeof Object.prototype} */
       "__proto__"
     );
     var $Object = Object;
     var $getPrototypeOf = $Object.getPrototypeOf;
-    module.exports = desc21 && typeof desc21.get === "function" ? callBind([desc21.get]) : typeof $getPrototypeOf === "function" ? (
+    module.exports = desc20 && typeof desc20.get === "function" ? callBind([desc20.get]) : typeof $getPrototypeOf === "function" ? (
       /** @type {import('./get')} */
       function getDunder(value) {
         return $getPrototypeOf(value == null ? value : $Object(value));
@@ -17324,10 +17324,10 @@ var require_get_intrinsic = __commonJS({
             return void undefined2;
           }
           if ($gOPD && i2 + 1 >= parts.length) {
-            var desc21 = $gOPD(value, part);
-            isOwn = !!desc21;
-            if (isOwn && "get" in desc21 && !("originalValue" in desc21.get)) {
-              value = desc21.get;
+            var desc20 = $gOPD(value, part);
+            isOwn = !!desc20;
+            if (isOwn && "get" in desc20 && !("originalValue" in desc20.get)) {
+              value = desc20.get;
             } else {
               value = value[part];
             }
@@ -20205,11 +20205,11 @@ var require_dist2 = __commonJS({
     exports.TokenData = TokenData;
     var PathError = class extends TypeError {
       constructor(message2, originalPath) {
-        let text36 = message2;
+        let text37 = message2;
         if (originalPath)
-          text36 += `: ${originalPath}`;
-        text36 += `; visit https://git.new/pathToRegexpError for info`;
-        super(text36);
+          text37 += `: ${originalPath}`;
+        text37 += `; visit https://git.new/pathToRegexpError for info`;
+        super(text37);
         this.originalPath = originalPath;
       }
     };
@@ -20827,27 +20827,27 @@ var require_router = __commonJS({
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var methods = METHODS.map((method) => method.toLowerCase());
-    module.exports = Router36;
+    module.exports = Router37;
     module.exports.Route = Route;
-    function Router36(options) {
-      if (!(this instanceof Router36)) {
-        return new Router36(options);
+    function Router37(options) {
+      if (!(this instanceof Router37)) {
+        return new Router37(options);
       }
       const opts = options || {};
-      function router36(req, res, next) {
-        router36.handle(req, res, next);
+      function router37(req, res, next) {
+        router37.handle(req, res, next);
       }
-      Object.setPrototypeOf(router36, this);
-      router36.caseSensitive = opts.caseSensitive;
-      router36.mergeParams = opts.mergeParams;
-      router36.params = {};
-      router36.strict = opts.strict;
-      router36.stack = [];
-      return router36;
+      Object.setPrototypeOf(router37, this);
+      router37.caseSensitive = opts.caseSensitive;
+      router37.mergeParams = opts.mergeParams;
+      router37.params = {};
+      router37.strict = opts.strict;
+      router37.stack = [];
+      return router37;
     }
-    Router36.prototype = function() {
+    Router37.prototype = function() {
     };
-    Router36.prototype.param = function param(name, fn) {
+    Router37.prototype.param = function param(name, fn) {
       if (!name) {
         throw new TypeError("argument name is required");
       }
@@ -20867,7 +20867,7 @@ var require_router = __commonJS({
       params.push(fn);
       return this;
     };
-    Router36.prototype.handle = function handle(req, res, callback) {
+    Router37.prototype.handle = function handle(req, res, callback) {
       if (!callback) {
         throw new TypeError("argument callback is required");
       }
@@ -20994,7 +20994,7 @@ var require_router = __commonJS({
         }
       }
     };
-    Router36.prototype.use = function use(handler) {
+    Router37.prototype.use = function use(handler) {
       let offset = 0;
       let path3 = "/";
       if (typeof handler !== "function") {
@@ -21027,7 +21027,7 @@ var require_router = __commonJS({
       }
       return this;
     };
-    Router36.prototype.route = function route(path3) {
+    Router37.prototype.route = function route(path3) {
       const route2 = new Route(path3);
       const layer = new Layer(path3, {
         sensitive: this.caseSensitive,
@@ -21042,7 +21042,7 @@ var require_router = __commonJS({
       return route2;
     };
     methods.concat("all").forEach(function(method) {
-      Router36.prototype[method] = function(path3) {
+      Router37.prototype[method] = function(path3) {
         const route = this.route(path3);
         route[method].apply(route, slice.call(arguments, 1));
         return this;
@@ -21225,13 +21225,13 @@ var require_application = __commonJS({
     var compileTrust = require_utils3().compileTrust;
     var resolve = __require("node:path").resolve;
     var once = require_once();
-    var Router36 = require_router();
+    var Router37 = require_router();
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var app2 = exports = module.exports = {};
     var trustProxyDefaultSymbol = "@@symbol:trust_proxy_default";
     app2.init = function init() {
-      var router36 = null;
+      var router37 = null;
       this.cache = /* @__PURE__ */ Object.create(null);
       this.engines = /* @__PURE__ */ Object.create(null);
       this.settings = /* @__PURE__ */ Object.create(null);
@@ -21240,13 +21240,13 @@ var require_application = __commonJS({
         configurable: true,
         enumerable: true,
         get: function getrouter() {
-          if (router36 === null) {
-            router36 = new Router36({
+          if (router37 === null) {
+            router37 = new Router37({
               caseSensitive: this.enabled("case sensitive routing"),
               strict: this.enabled("strict routing")
             });
           }
-          return router36;
+          return router37;
         }
       });
     };
@@ -21317,15 +21317,15 @@ var require_application = __commonJS({
       if (fns.length === 0) {
         throw new TypeError("app.use() requires a middleware function");
       }
-      var router36 = this.router;
+      var router37 = this.router;
       fns.forEach(function(fn2) {
         if (!fn2 || !fn2.handle || !fn2.set) {
-          return router36.use(path3, fn2);
+          return router37.use(path3, fn2);
         }
         debug(".use app under %s", path3);
         fn2.mountpath = path3;
         fn2.parent = this;
-        router36.use(path3, function mounted_app(req, res, next) {
+        router37.use(path3, function mounted_app(req, res, next) {
           var orig = req.app;
           fn2.handle(req, res, function(err) {
             Object.setPrototypeOf(req, orig.request);
@@ -22033,8 +22033,8 @@ var require_fresh = __commonJS({
       return true;
     }
     function parseHttpDate(date2) {
-      var timestamp36 = date2 && Date.parse(date2);
-      return typeof timestamp36 === "number" ? timestamp36 : NaN;
+      var timestamp37 = date2 && Date.parse(date2);
+      return typeof timestamp37 === "number" ? timestamp37 : NaN;
     }
     function parseTokenList(str) {
       var end = 0;
@@ -23139,8 +23139,8 @@ var require_send = __commonJS({
       return list;
     }
     function parseHttpDate(date2) {
-      var timestamp36 = date2 && Date.parse(date2);
-      return typeof timestamp36 === "number" ? timestamp36 : NaN;
+      var timestamp37 = date2 && Date.parse(date2);
+      return typeof timestamp37 === "number" ? timestamp37 : NaN;
     }
     function parseTokenList(str) {
       var end = 0;
@@ -23834,7 +23834,7 @@ var require_express = __commonJS({
     var EventEmitter2 = __require("node:events").EventEmitter;
     var mixin2 = require_merge_descriptors();
     var proto = require_application();
-    var Router36 = require_router();
+    var Router37 = require_router();
     var req = require_request();
     var res = require_response();
     exports = module.exports = createApplication;
@@ -23856,8 +23856,8 @@ var require_express = __commonJS({
     exports.application = proto;
     exports.request = req;
     exports.response = res;
-    exports.Route = Router36.Route;
-    exports.Router = Router36;
+    exports.Route = Router37.Route;
+    exports.Router = Router37;
     exports.json = bodyParser.json;
     exports.raw = bodyParser.raw;
     exports.static = require_serve_static();
@@ -26142,7 +26142,7 @@ var require_indexes = __commonJS({
 var require_thread_stream = __commonJS({
   "../../node_modules/.pnpm/thread-stream@3.1.0/node_modules/thread-stream/index.js"(exports, module) {
     "use strict";
-    var { version: version3 } = require_package();
+    var { version: version4 } = require_package();
     var { EventEmitter: EventEmitter2 } = __require("events");
     var { Worker: Worker2 } = __require("worker_threads");
     var { join } = __require("path");
@@ -26191,7 +26191,7 @@ var require_thread_stream = __commonJS({
           stateBuf: stream2[kImpl].stateBuf,
           workerData: {
             $context: {
-              threadStreamVersion: version3
+              threadStreamVersion: version4
             },
             ...workerData
           }
@@ -27301,7 +27301,7 @@ var require_proto = __commonJS({
       noop: noop3
     } = require_tools();
     var {
-      version: version3
+      version: version4
     } = require_meta();
     var redaction = require_redaction();
     var constructor = class Pino {
@@ -27313,7 +27313,7 @@ var require_proto = __commonJS({
       setBindings,
       flush,
       isLevelEnabled,
-      version: version3,
+      version: version4,
       get level() {
         return this[getLevelSym]();
       },
@@ -28270,7 +28270,7 @@ var require_pino = __commonJS({
       normalizeDestFileDescriptor,
       noop: noop3
     } = require_tools();
-    var { version: version3 } = require_meta();
+    var { version: version4 } = require_meta();
     var {
       chindingsSym,
       redactFmtSym,
@@ -28342,7 +28342,7 @@ var require_pino = __commonJS({
         redact,
         crlf,
         serializers: serializers2,
-        timestamp: timestamp36,
+        timestamp: timestamp37,
         messageKey,
         errorKey,
         nestedKey,
@@ -28392,7 +28392,7 @@ var require_pino = __commonJS({
           chindings = coreChindings(Object.assign({}, base, { name }));
         }
       }
-      const time2 = timestamp36 instanceof Function ? timestamp36 : timestamp36 ? epochTime : nullTime;
+      const time2 = timestamp37 instanceof Function ? timestamp37 : timestamp37 ? epochTime : nullTime;
       const timeSliceIndex = time2().indexOf(":") + 1;
       if (useOnlyCustomLevels && !customLevels) throw Error("customLevels is required if useOnlyCustomLevels is set true");
       if (mixin2 && typeof mixin2 !== "function") throw Error(`Unknown mixin type "${typeof mixin2}" - expected "function"`);
@@ -28451,7 +28451,7 @@ var require_pino = __commonJS({
     module.exports.stdSerializers = serializers;
     module.exports.stdTimeFunctions = Object.assign({}, time);
     module.exports.symbols = symbols;
-    module.exports.version = version3;
+    module.exports.version = version4;
     module.exports.default = pino2;
     module.exports.pino = pino2;
   }
@@ -28547,18 +28547,18 @@ var require_logger = __commonJS({
       delete opts.customErroredMessage;
       const quietReqLogger = !!opts.quietReqLogger;
       const quietResLogger = !!opts.quietResLogger;
-      const logger2 = wrapChild(opts, theStream);
-      const validLogLevels = Object.keys(logger2.levels.values).concat("silent");
+      const logger3 = wrapChild(opts, theStream);
+      const validLogLevels = Object.keys(logger3.levels.values).concat("silent");
       const useLevel = getValidLogLevel(opts.useLevel);
       delete opts.useLevel;
       const genReqId = reqIdGenFactory(opts.genReqId);
       const result = (req, res, next) => {
-        return loggingMiddleware(logger2, req, res, next);
+        return loggingMiddleware(logger3, req, res, next);
       };
-      result.logger = logger2;
+      result.logger = logger3;
       return result;
-      function onResFinished(res, logger3, err) {
-        let log = logger3;
+      function onResFinished(res, logger4, err) {
+        let log = logger4;
         const responseTime = Date.now() - res[startTime];
         const req = res[reqObject];
         const level = getLogLevelFromCustomLogLevel(customLogLevel, useLevel, res, err, req);
@@ -28567,10 +28567,10 @@ var require_logger = __commonJS({
         }
         const customPropBindings = typeof customProps === "function" ? customProps(req, res) : customProps;
         if (customPropBindings) {
-          const customPropBindingStr = logger3[stringifySym](customPropBindings).replace(/[{}]/g, "");
-          const customPropBindingsStr = logger3[chindingsSym];
+          const customPropBindingStr = logger4[stringifySym](customPropBindings).replace(/[{}]/g, "");
+          const customPropBindingsStr = logger4[chindingsSym];
           if (!customPropBindingsStr.includes(customPropBindingStr)) {
-            log = logger3.child(customPropBindings);
+            log = logger4.child(customPropBindings);
           }
         }
         if (err || res.err || res.statusCode >= 500) {
@@ -28593,10 +28593,10 @@ var require_logger = __commonJS({
           successMessage(req, res, responseTime)
         );
       }
-      function loggingMiddleware(logger3, req, res, next) {
+      function loggingMiddleware(logger4, req, res, next) {
         let shouldLogSuccess = true;
         req.id = req.id || genReqId(req, res);
-        const log = quietReqLogger ? logger3.child({ [requestIdKey]: req.id }) : logger3;
+        const log = quietReqLogger ? logger4.child({ [requestIdKey]: req.id }) : logger4;
         let fullReqLogger = log.child({ [reqKey]: req });
         const customPropBindings = typeof customProps === "function" ? customProps(req, res) : customProps;
         if (customPropBindings) {
@@ -28652,20 +28652,20 @@ var require_logger = __commonJS({
     function wrapChild(opts, stream2) {
       const prevLogger = opts.logger;
       const prevGenReqId = opts.genReqId;
-      let logger2 = null;
+      let logger3 = null;
       if (prevLogger) {
         opts.logger = void 0;
         opts.genReqId = void 0;
-        logger2 = prevLogger.child({}, opts);
+        logger3 = prevLogger.child({}, opts);
         opts.logger = prevLogger;
         opts.genReqId = prevGenReqId;
       } else {
         if (opts.transport && !opts.transport.caller) {
           opts.transport.caller = getCallerFile();
         }
-        logger2 = pino2(opts, stream2);
+        logger3 = pino2(opts, stream2);
       }
-      return logger2;
+      return logger3;
     }
     function reqIdGenFactory(func) {
       if (typeof func === "function") return func;
@@ -28762,9 +28762,9 @@ function __rest(s2, e2) {
     }
   return t2;
 }
-function __decorate(decorators, target, key, desc21) {
-  var c = arguments.length, r2 = c < 3 ? target : desc21 === null ? desc21 = Object.getOwnPropertyDescriptor(target, key) : desc21, d;
-  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r2 = Reflect.decorate(decorators, target, key, desc21);
+function __decorate(decorators, target, key, desc20) {
+  var c = arguments.length, r2 = c < 3 ? target : desc20 === null ? desc20 = Object.getOwnPropertyDescriptor(target, key) : desc20, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r2 = Reflect.decorate(decorators, target, key, desc20);
   else for (var i2 = decorators.length - 1; i2 >= 0; i2--) if (d = decorators[i2]) r2 = (c < 3 ? d(r2) : c > 3 ? d(target, key, r2) : d(target, key)) || r2;
   return c > 3 && r2 && Object.defineProperty(target, key, r2), r2;
 }
@@ -29165,13 +29165,13 @@ var init_tslib_es6 = __esm({
     };
     __createBinding = Object.create ? (function(o, m2, k, k2) {
       if (k2 === void 0) k2 = k;
-      var desc21 = Object.getOwnPropertyDescriptor(m2, k);
-      if (!desc21 || ("get" in desc21 ? !m2.__esModule : desc21.writable || desc21.configurable)) {
-        desc21 = { enumerable: true, get: function() {
+      var desc20 = Object.getOwnPropertyDescriptor(m2, k);
+      if (!desc20 || ("get" in desc20 ? !m2.__esModule : desc20.writable || desc20.configurable)) {
+        desc20 = { enumerable: true, get: function() {
           return m2[k];
         } };
       }
-      Object.defineProperty(o, k2, desc21);
+      Object.defineProperty(o, k2, desc20);
     }) : (function(o, m2, k, k2) {
       if (k2 === void 0) k2 = k;
       o[k2] = m2[k];
@@ -29638,22 +29638,22 @@ var require_websocket_factory = __commonJS({
         if (typeof WebSocket !== "undefined") {
           return { type: "native", wsConstructor: WebSocket };
         }
-        const gt = globalThis;
-        if (typeof globalThis !== "undefined" && typeof gt.WebSocket !== "undefined") {
-          return { type: "native", wsConstructor: gt.WebSocket };
+        const gt2 = globalThis;
+        if (typeof globalThis !== "undefined" && typeof gt2.WebSocket !== "undefined") {
+          return { type: "native", wsConstructor: gt2.WebSocket };
         }
         const gl = typeof global !== "undefined" ? global : void 0;
         if (gl && typeof gl.WebSocket !== "undefined") {
           return { type: "native", wsConstructor: gl.WebSocket };
         }
-        if (typeof globalThis !== "undefined" && typeof gt.WebSocketPair !== "undefined" && typeof globalThis.WebSocket === "undefined") {
+        if (typeof globalThis !== "undefined" && typeof gt2.WebSocketPair !== "undefined" && typeof globalThis.WebSocket === "undefined") {
           return {
             type: "cloudflare",
             error: "Cloudflare Workers detected. WebSocket clients are not supported in Cloudflare Workers.",
             workaround: "Use Cloudflare Workers WebSocket API for server-side WebSocket handling, or deploy to a different runtime."
           };
         }
-        if (typeof globalThis !== "undefined" && gt.EdgeRuntime || typeof navigator !== "undefined" && ((_a = navigator.userAgent) === null || _a === void 0 ? void 0 : _a.includes("Vercel-Edge"))) {
+        if (typeof globalThis !== "undefined" && gt2.EdgeRuntime || typeof navigator !== "undefined" && ((_a = navigator.userAgent) === null || _a === void 0 ? void 0 : _a.includes("Vercel-Edge"))) {
           return {
             type: "unsupported",
             error: "Edge runtime detected (Vercel Edge/Netlify Edge). WebSockets are not supported in edge functions.",
@@ -30135,11 +30135,11 @@ var require_phoenix_cjs = __commonJS({
       for (var name in all)
         __defProp3(target, name, { get: all[name], enumerable: true });
     };
-    var __copyProps3 = (to, from, except, desc21) => {
+    var __copyProps3 = (to, from, except, desc20) => {
       if (from && typeof from === "object" || typeof from === "function") {
         for (let key of __getOwnPropNames3(from))
           if (!__hasOwnProp3.call(to, key) && key !== except)
-            __defProp3(to, key, { get: () => from[key], enumerable: !(desc21 = __getOwnPropDesc3(from, key)) || desc21.enumerable });
+            __defProp3(to, key, { get: () => from[key], enumerable: !(desc20 = __getOwnPropDesc3(from, key)) || desc20.enumerable });
       }
       return to;
     };
@@ -36312,7 +36312,7 @@ var require_ethereum = __commonJS({
     }
     function createSiweMessage(parameters2) {
       var _a;
-      const { chainId, domain, expirationTime, issuedAt = /* @__PURE__ */ new Date(), nonce, notBefore, requestId, resources, scheme, uri, version: version3 } = parameters2;
+      const { chainId, domain, expirationTime, issuedAt = /* @__PURE__ */ new Date(), nonce, notBefore, requestId, resources, scheme, uri, version: version4 } = parameters2;
       {
         if (!Number.isInteger(chainId))
           throw new Error(`@supabase/auth-js: Invalid SIWE message field "chainId". Chain ID must be a EIP-155 chain ID. Provided value: ${chainId}`);
@@ -36322,8 +36322,8 @@ var require_ethereum = __commonJS({
           throw new Error(`@supabase/auth-js: Invalid SIWE message field "nonce". Nonce must be at least 8 characters. Provided value: ${nonce}`);
         if (!uri)
           throw new Error(`@supabase/auth-js: Invalid SIWE message field "uri". URI must be provided.`);
-        if (version3 !== "1")
-          throw new Error(`@supabase/auth-js: Invalid SIWE message field "version". Version must be '1'. Provided value: ${version3}`);
+        if (version4 !== "1")
+          throw new Error(`@supabase/auth-js: Invalid SIWE message field "version". Version must be '1'. Provided value: ${version4}`);
         if ((_a = parameters2.statement) === null || _a === void 0 ? void 0 : _a.includes("\n"))
           throw new Error(`@supabase/auth-js: Invalid SIWE message field "statement". Statement must not include '\\n'. Provided value: ${parameters2.statement}`);
       }
@@ -36336,7 +36336,7 @@ ${address}
 
 ${statement}`;
       let suffix = `URI: ${uri}
-Version: ${version3}
+Version: ${version4}
 Chain ID: ${chainId}${nonce ? `
 Nonce: ${nonce}` : ""}
 Issued At: ${issuedAt.toISOString()}`;
@@ -42388,462 +42388,1662 @@ var require_main3 = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/tiktoken@1.0.22/node_modules/tiktoken/tiktoken_bg.cjs
-var require_tiktoken_bg = __commonJS({
-  "../../node_modules/.pnpm/tiktoken@1.0.22/node_modules/tiktoken/tiktoken_bg.cjs"(exports, module) {
-    var wasm;
-    module.exports.__wbg_set_wasm = function(val) {
-      wasm = val;
-    };
-    var lTextDecoder = typeof TextDecoder === "undefined" ? (0, module.require)("util").TextDecoder : TextDecoder;
-    var cachedTextDecoder = new lTextDecoder("utf-8", { ignoreBOM: true, fatal: true });
-    cachedTextDecoder.decode();
-    var cachedUint8ArrayMemory0 = null;
-    function getUint8ArrayMemory0() {
-      if (cachedUint8ArrayMemory0 === null || cachedUint8ArrayMemory0.byteLength === 0) {
-        cachedUint8ArrayMemory0 = new Uint8Array(wasm.memory.buffer);
-      }
-      return cachedUint8ArrayMemory0;
-    }
-    function getStringFromWasm0(ptr, len) {
-      ptr = ptr >>> 0;
-      return cachedTextDecoder.decode(getUint8ArrayMemory0().subarray(ptr, ptr + len));
-    }
-    var heap = new Array(128).fill(void 0);
-    heap.push(void 0, null, true, false);
-    var heap_next = heap.length;
-    function addHeapObject(obj) {
-      if (heap_next === heap.length) heap.push(heap.length + 1);
-      const idx = heap_next;
-      heap_next = heap[idx];
-      heap[idx] = obj;
-      return idx;
-    }
-    function handleError2(f3, args) {
-      try {
-        return f3.apply(this, args);
-      } catch (e2) {
-        wasm.__wbindgen_export_0(addHeapObject(e2));
-      }
-    }
-    function getObject(idx) {
-      return heap[idx];
-    }
-    function dropObject(idx) {
-      if (idx < 132) return;
-      heap[idx] = heap_next;
-      heap_next = idx;
-    }
-    function takeObject(idx) {
-      const ret = getObject(idx);
-      dropObject(idx);
-      return ret;
-    }
-    var WASM_VECTOR_LEN = 0;
-    var lTextEncoder = typeof TextEncoder === "undefined" ? (0, module.require)("util").TextEncoder : TextEncoder;
-    var cachedTextEncoder = new lTextEncoder("utf-8");
-    var encodeString = typeof cachedTextEncoder.encodeInto === "function" ? function(arg, view) {
-      return cachedTextEncoder.encodeInto(arg, view);
-    } : function(arg, view) {
-      const buf = cachedTextEncoder.encode(arg);
-      view.set(buf);
-      return {
-        read: arg.length,
-        written: buf.length
-      };
-    };
-    function passStringToWasm0(arg, malloc, realloc) {
-      if (realloc === void 0) {
-        const buf = cachedTextEncoder.encode(arg);
-        const ptr2 = malloc(buf.length, 1) >>> 0;
-        getUint8ArrayMemory0().subarray(ptr2, ptr2 + buf.length).set(buf);
-        WASM_VECTOR_LEN = buf.length;
-        return ptr2;
-      }
-      let len = arg.length;
-      let ptr = malloc(len, 1) >>> 0;
-      const mem = getUint8ArrayMemory0();
-      let offset = 0;
-      for (; offset < len; offset++) {
-        const code = arg.charCodeAt(offset);
-        if (code > 127) break;
-        mem[ptr + offset] = code;
-      }
-      if (offset !== len) {
-        if (offset !== 0) {
-          arg = arg.slice(offset);
-        }
-        ptr = realloc(ptr, len, len = offset + arg.length * 3, 1) >>> 0;
-        const view = getUint8ArrayMemory0().subarray(ptr + offset, ptr + len);
-        const ret = encodeString(arg, view);
-        offset += ret.written;
-        ptr = realloc(ptr, len, offset, 1) >>> 0;
-      }
-      WASM_VECTOR_LEN = offset;
-      return ptr;
-    }
-    function isLikeNone(x2) {
-      return x2 === void 0 || x2 === null;
-    }
-    var cachedDataViewMemory0 = null;
-    function getDataViewMemory0() {
-      if (cachedDataViewMemory0 === null || cachedDataViewMemory0.buffer.detached === true || cachedDataViewMemory0.buffer.detached === void 0 && cachedDataViewMemory0.buffer !== wasm.memory.buffer) {
-        cachedDataViewMemory0 = new DataView(wasm.memory.buffer);
-      }
-      return cachedDataViewMemory0;
-    }
-    var cachedUint32ArrayMemory0 = null;
-    function getUint32ArrayMemory0() {
-      if (cachedUint32ArrayMemory0 === null || cachedUint32ArrayMemory0.byteLength === 0) {
-        cachedUint32ArrayMemory0 = new Uint32Array(wasm.memory.buffer);
-      }
-      return cachedUint32ArrayMemory0;
-    }
-    function getArrayU32FromWasm0(ptr, len) {
-      ptr = ptr >>> 0;
-      return getUint32ArrayMemory0().subarray(ptr / 4, ptr / 4 + len);
-    }
-    function passArray8ToWasm0(arg, malloc) {
-      const ptr = malloc(arg.length * 1, 1) >>> 0;
-      getUint8ArrayMemory0().set(arg, ptr / 1);
-      WASM_VECTOR_LEN = arg.length;
-      return ptr;
-    }
-    function passArray32ToWasm0(arg, malloc) {
-      const ptr = malloc(arg.length * 4, 4) >>> 0;
-      getUint32ArrayMemory0().set(arg, ptr / 4);
-      WASM_VECTOR_LEN = arg.length;
-      return ptr;
-    }
-    function getArrayU8FromWasm0(ptr, len) {
-      ptr = ptr >>> 0;
-      return getUint8ArrayMemory0().subarray(ptr / 1, ptr / 1 + len);
-    }
-    module.exports.get_encoding = function(encoding, extend_special_tokens) {
-      if (wasm == null) throw new Error("tiktoken: WASM binary has not been propery initialized.");
-      try {
-        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        const ptr0 = passStringToWasm0(encoding, wasm.__wbindgen_export_1, wasm.__wbindgen_export_2);
-        const len0 = WASM_VECTOR_LEN;
-        wasm.get_encoding(retptr, ptr0, len0, addHeapObject(extend_special_tokens));
-        var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
-        var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
-        var r2 = getDataViewMemory0().getInt32(retptr + 4 * 2, true);
-        if (r2) {
-          throw takeObject(r1);
-        }
-        return Tiktoken.__wrap(r0);
-      } finally {
-        wasm.__wbindgen_add_to_stack_pointer(16);
-      }
-    };
-    module.exports.encoding_for_model = function(model, extend_special_tokens) {
-      if (wasm == null) throw new Error("tiktoken: WASM binary has not been propery initialized.");
-      try {
-        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        const ptr0 = passStringToWasm0(model, wasm.__wbindgen_export_1, wasm.__wbindgen_export_2);
-        const len0 = WASM_VECTOR_LEN;
-        wasm.encoding_for_model(retptr, ptr0, len0, addHeapObject(extend_special_tokens));
-        var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
-        var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
-        var r2 = getDataViewMemory0().getInt32(retptr + 4 * 2, true);
-        if (r2) {
-          throw takeObject(r1);
-        }
-        return Tiktoken.__wrap(r0);
-      } finally {
-        wasm.__wbindgen_add_to_stack_pointer(16);
-      }
-    };
-    module.exports.get_encoding_name_for_model = function(model) {
-      if (wasm == null) throw new Error("tiktoken: WASM binary has not been propery initialized.");
-      let deferred3_0;
-      let deferred3_1;
-      try {
-        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        const ptr0 = passStringToWasm0(model, wasm.__wbindgen_export_1, wasm.__wbindgen_export_2);
-        const len0 = WASM_VECTOR_LEN;
-        wasm.get_encoding_name_for_model(retptr, ptr0, len0);
-        var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
-        var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
-        var r2 = getDataViewMemory0().getInt32(retptr + 4 * 2, true);
-        var r3 = getDataViewMemory0().getInt32(retptr + 4 * 3, true);
-        var ptr2 = r0;
-        var len2 = r1;
-        if (r3) {
-          ptr2 = 0;
-          len2 = 0;
-          throw takeObject(r2);
-        }
-        deferred3_0 = ptr2;
-        deferred3_1 = len2;
-        return getStringFromWasm0(ptr2, len2);
-      } finally {
-        wasm.__wbindgen_add_to_stack_pointer(16);
-        wasm.__wbindgen_export_3(deferred3_0, deferred3_1, 1);
-      }
-    };
-    var TiktokenFinalization = typeof FinalizationRegistry === "undefined" ? { register: () => {
-    }, unregister: () => {
-    } } : new FinalizationRegistry((ptr) => wasm.__wbg_tiktoken_free(ptr >>> 0, 1));
-    var Tiktoken = class _Tiktoken {
-      /**
-       * @param {string} tiktoken_bfe
-       * @param {any} special_tokens
-       * @param {string} pat_str
-       */
-      constructor(tiktoken_bfe, special_tokens, pat_str) {
-        if (wasm == null) throw new Error("tiktoken: WASM binary has not been propery initialized.");
-        const ptr0 = passStringToWasm0(tiktoken_bfe, wasm.__wbindgen_export_1, wasm.__wbindgen_export_2);
-        const len0 = WASM_VECTOR_LEN;
-        const ptr1 = passStringToWasm0(pat_str, wasm.__wbindgen_export_1, wasm.__wbindgen_export_2);
-        const len1 = WASM_VECTOR_LEN;
-        const ret = wasm.tiktoken_new(ptr0, len0, addHeapObject(special_tokens), ptr1, len1);
-        this.__wbg_ptr = ret >>> 0;
-        TiktokenFinalization.register(this, this.__wbg_ptr, this);
-        return this;
-      }
-      /** @returns {string | undefined} */
-      get name() {
-        try {
-          const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-          wasm.tiktoken_name(retptr, this.__wbg_ptr);
-          var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
-          var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
-          let v1;
-          if (r0 !== 0) {
-            v1 = getStringFromWasm0(r0, r1).slice();
-            wasm.__wbindgen_export_3(r0, r1 * 1, 1);
-          }
-          return v1;
-        } finally {
-          wasm.__wbindgen_add_to_stack_pointer(16);
-        }
-      }
-      static __wrap(ptr) {
-        ptr = ptr >>> 0;
-        const obj = Object.create(_Tiktoken.prototype);
-        obj.__wbg_ptr = ptr;
-        TiktokenFinalization.register(obj, obj.__wbg_ptr, obj);
-        return obj;
-      }
-      __destroy_into_raw() {
-        const ptr = this.__wbg_ptr;
-        this.__wbg_ptr = 0;
-        TiktokenFinalization.unregister(this);
-        return ptr;
-      }
-      free() {
-        if (wasm == null) throw new Error("tiktoken: WASM binary has not been propery initialized.");
-        const ptr = this.__destroy_into_raw();
-        wasm.__wbg_tiktoken_free(ptr, 0);
-      }
-      /**
-       * @param {string} text
-       * @param {any} allowed_special
-       * @param {any} disallowed_special
-       * @returns {Uint32Array}
-       */
-      encode(text36, allowed_special, disallowed_special) {
-        if (wasm == null) throw new Error("tiktoken: WASM binary has not been propery initialized.");
-        try {
-          const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-          const ptr0 = passStringToWasm0(text36, wasm.__wbindgen_export_1, wasm.__wbindgen_export_2);
-          const len0 = WASM_VECTOR_LEN;
-          wasm.tiktoken_encode(retptr, this.__wbg_ptr, ptr0, len0, addHeapObject(allowed_special), addHeapObject(disallowed_special));
-          var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
-          var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
-          var r2 = getDataViewMemory0().getInt32(retptr + 4 * 2, true);
-          var r3 = getDataViewMemory0().getInt32(retptr + 4 * 3, true);
-          if (r3) {
-            throw takeObject(r2);
-          }
-          var v2 = getArrayU32FromWasm0(r0, r1).slice();
-          wasm.__wbindgen_export_3(r0, r1 * 4, 4);
-          return v2;
-        } finally {
-          wasm.__wbindgen_add_to_stack_pointer(16);
-        }
-      }
-      /**
-       * @param {string} text
-       * @returns {Uint32Array}
-       */
-      encode_ordinary(text36) {
-        if (wasm == null) throw new Error("tiktoken: WASM binary has not been propery initialized.");
-        try {
-          const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-          const ptr0 = passStringToWasm0(text36, wasm.__wbindgen_export_1, wasm.__wbindgen_export_2);
-          const len0 = WASM_VECTOR_LEN;
-          wasm.tiktoken_encode_ordinary(retptr, this.__wbg_ptr, ptr0, len0);
-          var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
-          var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
-          var v2 = getArrayU32FromWasm0(r0, r1).slice();
-          wasm.__wbindgen_export_3(r0, r1 * 4, 4);
-          return v2;
-        } finally {
-          wasm.__wbindgen_add_to_stack_pointer(16);
-        }
-      }
-      /**
-       * @param {string} text
-       * @param {any} allowed_special
-       * @param {any} disallowed_special
-       * @returns {any}
-       */
-      encode_with_unstable(text36, allowed_special, disallowed_special) {
-        if (wasm == null) throw new Error("tiktoken: WASM binary has not been propery initialized.");
-        try {
-          const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-          const ptr0 = passStringToWasm0(text36, wasm.__wbindgen_export_1, wasm.__wbindgen_export_2);
-          const len0 = WASM_VECTOR_LEN;
-          wasm.tiktoken_encode_with_unstable(retptr, this.__wbg_ptr, ptr0, len0, addHeapObject(allowed_special), addHeapObject(disallowed_special));
-          var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
-          var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
-          var r2 = getDataViewMemory0().getInt32(retptr + 4 * 2, true);
-          if (r2) {
-            throw takeObject(r1);
-          }
-          return takeObject(r0);
-        } finally {
-          wasm.__wbindgen_add_to_stack_pointer(16);
-        }
-      }
-      /**
-       * @param {Uint8Array} bytes
-       * @returns {number}
-       */
-      encode_single_token(bytes) {
-        if (wasm == null) throw new Error("tiktoken: WASM binary has not been propery initialized.");
-        const ptr0 = passArray8ToWasm0(bytes, wasm.__wbindgen_export_1);
-        const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.tiktoken_encode_single_token(this.__wbg_ptr, ptr0, len0);
-        return ret >>> 0;
-      }
-      /**
-       * @param {Uint32Array} tokens
-       * @returns {Uint8Array}
-       */
-      decode(tokens) {
-        if (wasm == null) throw new Error("tiktoken: WASM binary has not been propery initialized.");
-        try {
-          const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-          const ptr0 = passArray32ToWasm0(tokens, wasm.__wbindgen_export_1);
-          const len0 = WASM_VECTOR_LEN;
-          wasm.tiktoken_decode(retptr, this.__wbg_ptr, ptr0, len0);
-          var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
-          var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
-          var v2 = getArrayU8FromWasm0(r0, r1).slice();
-          wasm.__wbindgen_export_3(r0, r1 * 1, 1);
-          return v2;
-        } finally {
-          wasm.__wbindgen_add_to_stack_pointer(16);
-        }
-      }
-      /**
-       * @param {number} token
-       * @returns {Uint8Array}
-       */
-      decode_single_token_bytes(token) {
-        if (wasm == null) throw new Error("tiktoken: WASM binary has not been propery initialized.");
-        try {
-          const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-          wasm.tiktoken_decode_single_token_bytes(retptr, this.__wbg_ptr, token);
-          var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
-          var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
-          var v1 = getArrayU8FromWasm0(r0, r1).slice();
-          wasm.__wbindgen_export_3(r0, r1 * 1, 1);
-          return v1;
-        } finally {
-          wasm.__wbindgen_add_to_stack_pointer(16);
-        }
-      }
-      /** @returns {any} */
-      token_byte_values() {
-        if (wasm == null) throw new Error("tiktoken: WASM binary has not been propery initialized.");
-        const ret = wasm.tiktoken_token_byte_values(this.__wbg_ptr);
-        return takeObject(ret);
-      }
-    };
-    module.exports.Tiktoken = Tiktoken;
-    module.exports.__wbg_parse_def2e24ef1252aff = function() {
-      return handleError2(function(arg0, arg1) {
-        const ret = JSON.parse(getStringFromWasm0(arg0, arg1));
-        return addHeapObject(ret);
-      }, arguments);
-    };
-    module.exports.__wbg_stringify_f7ed6987935b4a24 = function() {
-      return handleError2(function(arg0) {
-        const ret = JSON.stringify(getObject(arg0));
-        return addHeapObject(ret);
-      }, arguments);
-    };
-    module.exports.__wbindgen_error_new = function(arg0, arg1) {
-      const ret = new Error(getStringFromWasm0(arg0, arg1));
-      return addHeapObject(ret);
-    };
-    module.exports.__wbindgen_is_undefined = function(arg0) {
-      const ret = getObject(arg0) === void 0;
-      return ret;
-    };
-    module.exports.__wbindgen_object_drop_ref = function(arg0) {
-      takeObject(arg0);
-    };
-    module.exports.__wbindgen_string_get = function(arg0, arg1) {
-      if (wasm == null) throw new Error("tiktoken: WASM binary has not been propery initialized.");
-      const obj = getObject(arg1);
-      const ret = typeof obj === "string" ? obj : void 0;
-      var ptr1 = isLikeNone(ret) ? 0 : passStringToWasm0(ret, wasm.__wbindgen_export_1, wasm.__wbindgen_export_2);
-      var len1 = WASM_VECTOR_LEN;
-      getDataViewMemory0().setInt32(arg0 + 4 * 1, len1, true);
-      getDataViewMemory0().setInt32(arg0 + 4 * 0, ptr1, true);
-    };
-    module.exports.__wbindgen_throw = function(arg0, arg1) {
-      throw new Error(getStringFromWasm0(arg0, arg1));
-    };
+// ../../lib/db/src/schema/projects.ts
+import { pgTable, text, serial, integer, timestamp, boolean as boolean2 } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
+var projectsTable, insertProjectSchema;
+var init_projects = __esm({
+  "../../lib/db/src/schema/projects.ts"() {
+    "use strict";
+    projectsTable = pgTable("projects", {
+      id: serial("id").primaryKey(),
+      userId: text("user_id").notNull(),
+      // FK to Supabase auth user ID
+      title: text("title").notNull(),
+      status: text("status").notNull().default("draft"),
+      progress: integer("progress").notNull().default(0),
+      instructionText: text("instruction_text"),
+      subject: text("subject"),
+      taskType: text("task_type"),
+      citationFormat: text("citation_format"),
+      outputFormat: text("output_format"),
+      minRefYear: integer("min_ref_year"),
+      minRefCount: integer("min_ref_count"),
+      /** Toggle AI disclosure labels — default true (ON) */
+      aiDisclosure: boolean2("ai_disclosure").notNull().default(true),
+      createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+      updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => /* @__PURE__ */ new Date())
+    });
+    insertProjectSchema = createInsertSchema(projectsTable).omit({
+      id: true,
+      createdAt: true,
+      updatedAt: true
+    });
   }
 });
 
-// ../../node_modules/.pnpm/tiktoken@1.0.22/node_modules/tiktoken/tiktoken.cjs
-var require_tiktoken = __commonJS({
-  "../../node_modules/.pnpm/tiktoken@1.0.22/node_modules/tiktoken/tiktoken.cjs"(exports) {
-    var wasm = require_tiktoken_bg();
-    var imports = {};
-    imports["./tiktoken_bg.js"] = wasm;
-    var path3 = __require("path");
-    var fs5 = __require("fs");
-    var candidates = __dirname.split(path3.sep).reduce((memo, _, index14, array2) => {
-      const prefix = array2.slice(0, index14 + 1).join(path3.sep) + path3.sep;
-      if (!prefix.includes("node_modules" + path3.sep)) {
-        memo.unshift(
-          path3.join(
-            prefix,
-            "node_modules",
-            "tiktoken",
-            "",
-            "./tiktoken_bg.wasm"
-          )
-        );
+// ../../lib/db/src/schema/messages.ts
+import { pgTable as pgTable2, text as text2, serial as serial2, integer as integer2, timestamp as timestamp2 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema2 } from "drizzle-zod";
+var messagesTable, insertMessageSchema;
+var init_messages = __esm({
+  "../../lib/db/src/schema/messages.ts"() {
+    "use strict";
+    messagesTable = pgTable2("messages", {
+      id: serial2("id").primaryKey(),
+      projectId: integer2("project_id").notNull(),
+      role: text2("role").notNull(),
+      content: text2("content").notNull(),
+      createdAt: timestamp2("created_at", { withTimezone: true }).notNull().defaultNow()
+    });
+    insertMessageSchema = createInsertSchema2(messagesTable).omit({
+      id: true,
+      createdAt: true
+    });
+  }
+});
+
+// ../../lib/db/src/schema/documents.ts
+import { pgTable as pgTable3, text as text3, serial as serial3, integer as integer3, timestamp as timestamp3 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema3 } from "drizzle-zod";
+var documentVersionsTable, insertDocumentVersionSchema;
+var init_documents = __esm({
+  "../../lib/db/src/schema/documents.ts"() {
+    "use strict";
+    documentVersionsTable = pgTable3("document_versions", {
+      id: serial3("id").primaryKey(),
+      projectId: integer3("project_id").notNull(),
+      // Multi-document: each version belongs to a document (nullable for backward compat)
+      documentId: integer3("document_id"),
+      versionNumber: integer3("version_number").notNull().default(1),
+      content: text3("content").notNull(),
+      outline: text3("outline"),
+      changeDescription: text3("change_description"),
+      createdAt: timestamp3("created_at", { withTimezone: true }).notNull().defaultNow()
+    });
+    insertDocumentVersionSchema = createInsertSchema3(documentVersionsTable).omit({
+      id: true,
+      createdAt: true
+    });
+  }
+});
+
+// ../../lib/db/src/schema/multi-documents.ts
+import { pgTable as pgTable4, text as text4, serial as serial4, integer as integer4, timestamp as timestamp4, boolean as boolean3 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema4 } from "drizzle-zod";
+var documentsTable, insertDocumentSchema;
+var init_multi_documents = __esm({
+  "../../lib/db/src/schema/multi-documents.ts"() {
+    "use strict";
+    documentsTable = pgTable4("documents", {
+      id: serial4("id").primaryKey(),
+      projectId: integer4("project_id").notNull(),
+      title: text4("title").notNull().default("Document 1"),
+      orderIndex: integer4("order_index").notNull().default(0),
+      isActive: boolean3("is_active").notNull().default(true),
+      createdAt: timestamp4("created_at", { withTimezone: true }).notNull().defaultNow(),
+      updatedAt: timestamp4("updated_at", { withTimezone: true }).notNull().defaultNow()
+    });
+    insertDocumentSchema = createInsertSchema4(documentsTable).omit({
+      id: true,
+      createdAt: true,
+      updatedAt: true
+    });
+  }
+});
+
+// ../../lib/db/src/schema/references.ts
+import { pgTable as pgTable5, text as text5, serial as serial5, integer as integer5, timestamp as timestamp5, boolean as boolean4 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema5 } from "drizzle-zod";
+var referencesTable, insertReferenceSchema;
+var init_references = __esm({
+  "../../lib/db/src/schema/references.ts"() {
+    "use strict";
+    referencesTable = pgTable5("references", {
+      id: serial5("id").primaryKey(),
+      projectId: integer5("project_id").notNull(),
+      title: text5("title").notNull(),
+      authors: text5("authors"),
+      year: integer5("year"),
+      journal: text5("journal"),
+      volume: text5("volume"),
+      issue: text5("issue"),
+      doi: text5("doi"),
+      url: text5("url"),
+      validationStatus: text5("validation_status").notNull().default("unverified"),
+      usedInChapters: text5("used_in_chapters"),
+      createdAt: timestamp5("created_at", { withTimezone: true }).notNull().defaultNow(),
+      // Track whether this reference was auto-suggested by CrossRef or confirmed by user
+      isSuggested: boolean4("is_suggested").notNull().default(false),
+      // Source of the reference
+      source: text5("source").notNull().default("manual"),
+      // DECISION 014 — ceklist status: true if included in bibliography + eligible for AI auto-cite
+      isSelected: boolean4("is_selected").notNull().default(false)
+    });
+    insertReferenceSchema = createInsertSchema5(referencesTable).omit({
+      id: true,
+      createdAt: true
+    });
+  }
+});
+
+// ../../lib/db/src/schema/account-references.ts
+import { pgTable as pgTable6, text as text6, serial as serial6, integer as integer6, timestamp as timestamp6, boolean as boolean5 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema6 } from "drizzle-zod";
+var accountReferencesTable, insertAccountReferenceSchema;
+var init_account_references = __esm({
+  "../../lib/db/src/schema/account-references.ts"() {
+    "use strict";
+    accountReferencesTable = pgTable6("account_references", {
+      id: serial6("id").primaryKey(),
+      userId: text6("user_id").notNull(),
+      title: text6("title").notNull(),
+      authors: text6("authors"),
+      year: integer6("year"),
+      journal: text6("journal"),
+      volume: text6("volume"),
+      issue: text6("issue"),
+      doi: text6("doi"),
+      url: text6("url"),
+      createdAt: timestamp6("created_at", { withTimezone: true }).notNull().defaultNow(),
+      // Track whether this reference was auto-suggested by CrossRef or confirmed by user
+      isSuggested: boolean5("is_suggested").notNull().default(false),
+      // Source of the reference
+      source: text6("source").notNull().default("manual")
+    });
+    insertAccountReferenceSchema = createInsertSchema6(accountReferencesTable).omit({
+      id: true,
+      createdAt: true
+    });
+  }
+});
+
+// ../../lib/db/src/schema/reference_citations.ts
+import { pgTable as pgTable7, text as text7, serial as serial7, integer as integer7, timestamp as timestamp7 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema7 } from "drizzle-zod";
+var referenceCitationsTable, insertReferenceCitationSchema;
+var init_reference_citations = __esm({
+  "../../lib/db/src/schema/reference_citations.ts"() {
+    "use strict";
+    init_projects();
+    init_references();
+    referenceCitationsTable = pgTable7("reference_citations", {
+      id: serial7("id").primaryKey(),
+      projectId: integer7("project_id").notNull().references(() => projectsTable.id, { onDelete: "cascade" }),
+      referenceId: integer7("reference_id").notNull().references(() => referencesTable.id, { onDelete: "cascade" }),
+      // 0-based paragraph index in the document text
+      paragraphIndex: integer7("paragraph_index").notNull(),
+      // Character offset within the paragraph (where the citation marker starts)
+      offsetInParagraph: integer7("offset_in_paragraph").notNull().default(0),
+      // Pre-rendered citation marker (e.g., "(Smith & Jones, 2023)" or "[1]")
+      // Re-rendered when citationFormat changes
+      formatMarker: text7("format_marker").notNull(),
+      // Optional AI explanation for why this citation was placed here
+      // Useful for the auto-cite preview UI
+      placementReason: text7("placement_reason"),
+      createdAt: timestamp7("created_at", { withTimezone: true }).notNull().defaultNow(),
+      updatedAt: timestamp7("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => /* @__PURE__ */ new Date())
+    });
+    insertReferenceCitationSchema = createInsertSchema7(referenceCitationsTable).omit({
+      id: true,
+      createdAt: true,
+      updatedAt: true
+    });
+  }
+});
+
+// ../../lib/db/src/schema/attachments.ts
+import { pgTable as pgTable8, text as text8, serial as serial8, integer as integer8, timestamp as timestamp8 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema8 } from "drizzle-zod";
+var attachmentsTable, insertAttachmentSchema;
+var init_attachments = __esm({
+  "../../lib/db/src/schema/attachments.ts"() {
+    "use strict";
+    attachmentsTable = pgTable8("attachments", {
+      id: serial8("id").primaryKey(),
+      projectId: integer8("project_id").notNull(),
+      filename: text8("filename").notNull(),
+      originalName: text8("original_name").notNull(),
+      mimeType: text8("mime_type"),
+      sizeBytes: integer8("size_bytes"),
+      attachmentType: text8("attachment_type").notNull().default("supplement"),
+      extractedText: text8("extracted_text"),
+      createdAt: timestamp8("created_at", { withTimezone: true }).notNull().defaultNow()
+    });
+    insertAttachmentSchema = createInsertSchema8(attachmentsTable).omit({
+      id: true,
+      createdAt: true
+    });
+  }
+});
+
+// ../../lib/db/src/schema/activities.ts
+import { pgTable as pgTable9, text as text9, serial as serial9, integer as integer9, timestamp as timestamp9 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema9 } from "drizzle-zod";
+var activitiesTable, insertActivitySchema;
+var init_activities = __esm({
+  "../../lib/db/src/schema/activities.ts"() {
+    "use strict";
+    activitiesTable = pgTable9("activities", {
+      id: serial9("id").primaryKey(),
+      projectId: integer9("project_id").notNull(),
+      eventType: text9("event_type").notNull(),
+      description: text9("description").notNull(),
+      createdAt: timestamp9("created_at", { withTimezone: true }).notNull().defaultNow()
+    });
+    insertActivitySchema = createInsertSchema9(activitiesTable).omit({
+      id: true,
+      createdAt: true
+    });
+  }
+});
+
+// ../../lib/db/src/schema/jobs.ts
+import { pgTable as pgTable10, text as text10, serial as serial10, integer as integer10, timestamp as timestamp10 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema10 } from "drizzle-zod";
+var jobsTable, insertJobSchema;
+var init_jobs = __esm({
+  "../../lib/db/src/schema/jobs.ts"() {
+    "use strict";
+    jobsTable = pgTable10("jobs", {
+      id: serial10("id").primaryKey(),
+      projectId: integer10("project_id").notNull(),
+      jobType: text10("job_type").notNull(),
+      status: text10("status").notNull().default("pending"),
+      result: text10("result"),
+      errorMessage: text10("error_message"),
+      createdAt: timestamp10("created_at", { withTimezone: true }).notNull().defaultNow(),
+      updatedAt: timestamp10("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => /* @__PURE__ */ new Date())
+    });
+    insertJobSchema = createInsertSchema10(jobsTable).omit({
+      id: true,
+      createdAt: true,
+      updatedAt: true
+    });
+  }
+});
+
+// ../../lib/db/src/schema/project_metadata.ts
+import { pgTable as pgTable11, text as text11, serial as serial11, integer as integer11, timestamp as timestamp11 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema11 } from "drizzle-zod";
+var projectMetadataTable, insertProjectMetadataSchema;
+var init_project_metadata = __esm({
+  "../../lib/db/src/schema/project_metadata.ts"() {
+    "use strict";
+    projectMetadataTable = pgTable11("project_metadata", {
+      id: serial11("id").primaryKey(),
+      projectId: integer11("project_id").notNull().unique(),
+      detectedTitle: text11("detected_title"),
+      subject: text11("subject"),
+      taskType: text11("task_type"),
+      citationFormat: text11("citation_format"),
+      language: text11("language"),
+      outline: text11("outline"),
+      contextSummary: text11("context_summary"),
+      createdAt: timestamp11("created_at", { withTimezone: true }).notNull().defaultNow(),
+      updatedAt: timestamp11("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => /* @__PURE__ */ new Date())
+    });
+    insertProjectMetadataSchema = createInsertSchema11(projectMetadataTable).omit({
+      id: true,
+      createdAt: true,
+      updatedAt: true
+    });
+  }
+});
+
+// ../../lib/db/src/schema/exports.ts
+import { pgTable as pgTable12, text as text12, serial as serial12, integer as integer12, timestamp as timestamp12 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema12 } from "drizzle-zod";
+var exportsTable, insertExportSchema;
+var init_exports = __esm({
+  "../../lib/db/src/schema/exports.ts"() {
+    "use strict";
+    exportsTable = pgTable12("exports", {
+      id: serial12("id").primaryKey(),
+      projectId: integer12("project_id").notNull(),
+      format: text12("format").notNull(),
+      status: text12("status").notNull().default("pending"),
+      filePath: text12("file_path"),
+      createdAt: timestamp12("created_at", { withTimezone: true }).notNull().defaultNow()
+    });
+    insertExportSchema = createInsertSchema12(exportsTable).omit({
+      id: true,
+      createdAt: true
+    });
+  }
+});
+
+// ../../lib/db/src/schema/users.ts
+import { pgTable as pgTable13, text as text13, timestamp as timestamp13, boolean as boolean6 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema13 } from "drizzle-zod";
+var usersTable, insertUserSchema;
+var init_users = __esm({
+  "../../lib/db/src/schema/users.ts"() {
+    "use strict";
+    usersTable = pgTable13("users", {
+      // Supabase auth user ID (UUID from Supabase)
+      id: text13("id").primaryKey(),
+      email: text13("email").notNull(),
+      // Username: unique, used for sharing URLs (e.g., /u/budi)
+      username: text13("username").unique().notNull(),
+      // Owner flag: owner doesn't need subscription
+      isOwner: boolean6("is_owner").notNull().default(false),
+      // Optional display info
+      displayName: text13("display_name"),
+      avatarUrl: text13("avatar_url"),
+      // Unique referral code this user can share
+      referralCode: text13("referral_code").unique(),
+      // Timestamp when username was last changed (for 30-day rate limit)
+      usernameChangedAt: timestamp13("username_changed_at", { withTimezone: true }),
+      createdAt: timestamp13("created_at", { withTimezone: true }).notNull().defaultNow(),
+      updatedAt: timestamp13("updated_at", { withTimezone: true }).notNull().defaultNow()
+    });
+    insertUserSchema = createInsertSchema13(usersTable).omit({
+      createdAt: true,
+      updatedAt: true
+    });
+  }
+});
+
+// ../../lib/db/src/schema/referrals.ts
+import {
+  pgTable as pgTable14,
+  serial as serial13,
+  text as text14,
+  timestamp as timestamp14,
+  boolean as boolean7,
+  integer as integer13,
+  index
+} from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema14 } from "drizzle-zod";
+var referralsTable, referralStatuses, insertReferralSchema;
+var init_referrals = __esm({
+  "../../lib/db/src/schema/referrals.ts"() {
+    "use strict";
+    init_users();
+    referralsTable = pgTable14(
+      "referrals",
+      {
+        id: serial13("id").primaryKey(),
+        // Who invited
+        referrerId: text14("referrer_id").notNull().references(() => usersTable.id, { onDelete: "set null" }),
+        // Who was invited (exactly one referrer per user)
+        referredId: text14("referred_id").notNull().unique().references(() => usersTable.id, { onDelete: "set null" }),
+        // Email at time of registration (denormalized for audit trail)
+        referredEmail: text14("referred_email").notNull(),
+        // Referral code used at time of registration
+        referralCode: text14("referral_code").notNull(),
+        // Lifecycle status
+        status: text14("status").notNull().default("pending"),
+        // pending   = newly registered, awaiting email verification
+        // verified  = email confirmed
+        // qualified = email confirmed + first payment (future)
+        // rewarded  = commission/reward paid out (future)
+        // rejected  = abuse detected
+        // ----- Reward program tracking (finalized 2026-09-09) -----
+        // First successful payment timestamp (any method: subscription or topup)
+        firstPaymentAt: timestamp14("first_payment_at", { withTimezone: true }),
+        // First-payment payment event ID (for idempotency)
+        firstPaymentEventId: text14("first_payment_event_id"),
+        // Referee cashback Rp 5,000 — claimed exactly once per user lifetime
+        refereeCashbackClaimed: boolean7("referee_cashback_claimed").notNull().default(false),
+        // Count of paid transactions used for referrer reward (capped at 5)
+        referrerRewardTxCount: integer13("referrer_reward_tx_count").notNull().default(0),
+        // Total referrer reward paid (denormalized for fast display)
+        referrerRewardPaidCents: integer13("referrer_reward_paid_cents").notNull().default(0),
+        createdAt: timestamp14("created_at", { withTimezone: true }).notNull().defaultNow(),
+        updatedAt: timestamp14("updated_at", { withTimezone: true }).notNull().defaultNow()
+      },
+      (table2) => [
+        index("idx_referrals_referrer").on(table2.referrerId),
+        index("idx_referrals_referred").on(table2.referredId),
+        index("idx_referrals_code").on(table2.referralCode),
+        index("idx_referrals_status").on(table2.status),
+        index("idx_referrals_first_payment").on(table2.firstPaymentAt)
+      ]
+    );
+    referralStatuses = [
+      "pending",
+      "verified",
+      "qualified",
+      "rewarded",
+      "rejected"
+    ];
+    insertReferralSchema = createInsertSchema14(referralsTable).omit({
+      id: true,
+      createdAt: true,
+      updatedAt: true,
+      firstPaymentAt: true,
+      firstPaymentEventId: true,
+      refereeCashbackClaimed: true,
+      referrerRewardTxCount: true,
+      referrerRewardPaidCents: true
+    });
+  }
+});
+
+// ../../lib/db/src/schema/referral_events.ts
+import {
+  pgTable as pgTable15,
+  serial as serial14,
+  text as text15,
+  timestamp as timestamp15,
+  jsonb,
+  index as index2,
+  integer as integer14
+} from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema15 } from "drizzle-zod";
+var referralEventsTable, insertReferralEventSchema;
+var init_referral_events = __esm({
+  "../../lib/db/src/schema/referral_events.ts"() {
+    "use strict";
+    init_referrals();
+    init_users();
+    referralEventsTable = pgTable15(
+      "referral_events",
+      {
+        id: serial14("id").primaryKey(),
+        // Which referral this event belongs to
+        referralId: integer14("referral_id").notNull().references(() => referralsTable.id, { onDelete: "cascade" }),
+        // Who or what triggered this event
+        actorId: text15("actor_id").references(() => usersTable.id, {
+          onDelete: "set null"
+        }),
+        actorType: text15("actor_type").notNull(),
+        // 'system' = automated process (email verified, payment confirmed)
+        // 'user'   = user-initiated action
+        // 'admin'  = manual admin override
+        // State transition
+        fromStatus: text15("from_status"),
+        toStatus: text15("to_status").notNull(),
+        // Human-readable reason
+        reason: text15("reason"),
+        // e.g. "user_registered", "email_verified", "payment_confirmed",
+        //       "abuse_detected", "manual_approval"
+        // Additional context (IP address, payment ID, etc.)
+        metadata: jsonb("metadata").$type(),
+        createdAt: timestamp15("created_at", { withTimezone: true }).notNull().defaultNow()
+      },
+      (table2) => [
+        index2("idx_referral_events_referral").on(table2.referralId),
+        index2("idx_referral_events_created").on(table2.createdAt)
+      ]
+    );
+    insertReferralEventSchema = createInsertSchema15(referralEventsTable).omit(
+      {
+        id: true,
+        createdAt: true
       }
-      return memo;
-    }, []);
-    candidates.unshift(path3.join(__dirname, "./tiktoken_bg.wasm"));
-    var bytes = null;
-    for (const candidate of candidates) {
-      try {
-        bytes = fs5.readFileSync(candidate);
-        break;
-      } catch {
-      }
+    );
+  }
+});
+
+// ../../lib/db/src/schema/ai_tiers.ts
+import {
+  pgTable as pgTable16,
+  text as text16,
+  boolean as boolean8,
+  integer as integer15,
+  numeric,
+  timestamp as timestamp16,
+  index as index3
+} from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema16 } from "drizzle-zod";
+var aiTiersTable, insertAiTierSchema;
+var init_ai_tiers = __esm({
+  "../../lib/db/src/schema/ai_tiers.ts"() {
+    "use strict";
+    aiTiersTable = pgTable16(
+      "ai_tiers",
+      {
+        id: text16("id").primaryKey(),
+        // e.g. "free", "standard", "premium", "ultra"
+        name: text16("name").notNull(),
+        // e.g. "Gratis", "Standar", "Premium"
+        provider: text16("provider").notNull(),
+        // "groq", "anthropic", "openai"
+        model: text16("model").notNull(),
+        // Model ID, e.g. "llama-3.1-8b-instant"
+        baseUrl: text16("base_url").notNull(),
+        // API base URL
+        apiKeyEnvVar: text16("api_key_env_var").notNull(),
+        // ENV var name for API key
+        // Prices are stored in IDR cents per 1M tokens
+        // e.g. 500 = Rp 5 per 1M tokens
+        pricePer1MInputCents: integer15("price_per_1m_input_cents").notNull().default(0),
+        pricePer1MOutputCents: integer15("price_per_1m_output_cents").notNull().default(0),
+        // Provider cost in USD cents per 1M tokens (for margin calculation)
+        providerCostPer1MInputCents: integer15("provider_cost_per_1m_input_cents").notNull().default(0),
+        providerCostPer1MOutputCents: integer15("provider_cost_per_1m_output_cents").notNull().default(0),
+        // Markup multiplier for topup charges (Opsi B — Owner 2026-09-09)
+        // 1.40 = 40% markup above cost. Applied ONLY to topup, NOT subscription.
+        // numeric(5,3) allows values 0.001 to 9.999 with 3 decimal precision.
+        markupMultiplier: numeric("markup_multiplier", { precision: 5, scale: 3 }).notNull().default("1.400"),
+        // Rate limits
+        rateLimitRpm: integer15("rate_limit_rpm"),
+        rateLimitTpd: integer15("rate_limit_tpd"),
+        isFree: boolean8("is_free").notNull().default(false),
+        isActive: boolean8("is_active").notNull().default(true),
+        displayOrder: integer15("display_order").notNull().default(0),
+        // DECISION 019 (Owner 2026-09-15): Olagon provider khusus owner
+        // If TRUE, tier hanya bisa diakses user dengan email = OWNER_EMAIL
+        isOwnerOnly: boolean8("is_owner_only").notNull().default(false),
+        description: text16("description").notNull().default(""),
+        usageTips: text16("usage_tips"),
+        // Tips shown to users
+        createdAt: timestamp16("created_at", { withTimezone: true }).notNull().defaultNow(),
+        updatedAt: timestamp16("updated_at", { withTimezone: true }).notNull().defaultNow()
+      },
+      (table2) => [
+        index3("idx_ai_tiers_active").on(table2.isActive, table2.displayOrder)
+      ]
+    );
+    insertAiTierSchema = createInsertSchema16(aiTiersTable).omit({
+      createdAt: true,
+      updatedAt: true
+    });
+  }
+});
+
+// ../../lib/db/src/schema/ai_usage_log.ts
+import {
+  pgTable as pgTable17,
+  serial as serial15,
+  text as text17,
+  integer as integer16,
+  real,
+  timestamp as timestamp17,
+  index as index4,
+  jsonb as jsonb2
+} from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema17 } from "drizzle-zod";
+import { z } from "zod/v4";
+var aiUsageLogTable, requestTypes, insertAIUsageLogSchema, aiUsageStatsSchema;
+var init_ai_usage_log = __esm({
+  "../../lib/db/src/schema/ai_usage_log.ts"() {
+    "use strict";
+    init_users();
+    init_projects();
+    init_ai_tiers();
+    aiUsageLogTable = pgTable17(
+      "ai_usage_log",
+      {
+        id: serial15("id").primaryKey(),
+        userId: text17("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
+        projectId: integer16("project_id").references(() => projectsTable.id, {
+          onDelete: "set null"
+        }),
+        tierId: text17("tier_id").references(() => aiTiersTable.id, { onDelete: "set null" }),
+        model: text17("model").notNull(),
+        provider: text17("provider").notNull(),
+        inputTokens: integer16("input_tokens").notNull().default(0),
+        outputTokens: integer16("output_tokens").notNull().default(0),
+        estimatedCostUsd: real("estimated_cost_usd").notNull().default(0),
+        // Cost charged to user in IDR cents
+        costCents: integer16("cost_cents").notNull().default(0),
+        requestType: text17("request_type").notNull(),
+        metadata: jsonb2("metadata"),
+        createdAt: timestamp17("created_at", { withTimezone: true }).notNull().defaultNow()
+      },
+      (table2) => [
+        index4("idx_ai_usage_user_created").on(table2.userId, table2.createdAt),
+        index4("idx_ai_usage_project").on(table2.projectId),
+        index4("idx_ai_usage_type").on(table2.requestType),
+        index4("idx_ai_usage_tier").on(table2.tierId)
+      ]
+    );
+    requestTypes = [
+      "chat",
+      "analyze",
+      "write",
+      "bibliography",
+      "export"
+    ];
+    insertAIUsageLogSchema = createInsertSchema17(aiUsageLogTable).omit({
+      id: true,
+      createdAt: true
+    });
+    aiUsageStatsSchema = z.object({
+      totalRequests: z.number(),
+      totalInputTokens: z.number(),
+      totalOutputTokens: z.number(),
+      totalCostUsd: z.number(),
+      byRequestType: z.record(
+        z.string(),
+        z.object({
+          requests: z.number(),
+          inputTokens: z.number(),
+          outputTokens: z.number(),
+          costUsd: z.number()
+        })
+      )
+    });
+  }
+});
+
+// ../../lib/db/src/schema/user_balances.ts
+import {
+  pgTable as pgTable18,
+  text as text18,
+  integer as integer17,
+  boolean as boolean9,
+  timestamp as timestamp18,
+  index as index5
+} from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+import { createInsertSchema as createInsertSchema18 } from "drizzle-zod";
+var saldoStatuses, userBalancesTable, insertUserBalanceSchema;
+var init_user_balances = __esm({
+  "../../lib/db/src/schema/user_balances.ts"() {
+    "use strict";
+    init_users();
+    init_ai_tiers();
+    saldoStatuses = ["active", "held", "closed"];
+    userBalancesTable = pgTable18(
+      "user_balances",
+      {
+        id: text18("id").primaryKey().default(sql`gen_random_uuid()`),
+        userId: text18("user_id").notNull().unique().references(() => usersTable.id, { onDelete: "cascade" }),
+        // Saldo IDR cents (from topup, refund, bonus). Withdrawable in concept.
+        balanceCents: integer17("balance_cents").notNull().default(0),
+        // Reward balance cents (non-withdrawable). Earned by being a referrer.
+        rewardBalanceCents: integer17("reward_balance_cents").notNull().default(0),
+        // Saldo status: active (normal), held (12mo inactivity), closed
+        saldoStatus: text18("saldo_status").notNull().default("active").$type(),
+        // Hybrid autofallback: automatically use saldo when subscription quota is exhausted.
+        // Default TRUE is intentional — owner decision 2026-09-11. New users get seamless
+        // saldo fallback out of the box; they can opt out via settings if desired.
+        autofallbackEnabled: boolean9("autofallback_enabled").notNull().default(true),
+        // When the user last had any AI activity
+        lastActiveAt: timestamp18("last_active_at", { withTimezone: true }),
+        // When the saldo was put on hold (12-month inactivity)
+        heldAt: timestamp18("held_at", { withTimezone: true }),
+        // Default tier preference for this user
+        preferredTierId: text18("preferred_tier_id").references(() => aiTiersTable.id, { onDelete: "set null" }),
+        createdAt: timestamp18("created_at", { withTimezone: true }).notNull().defaultNow(),
+        updatedAt: timestamp18("updated_at", { withTimezone: true }).notNull().defaultNow()
+      },
+      (table2) => [
+        index5("idx_user_balances_user").on(table2.userId),
+        index5("idx_user_balances_status").on(table2.saldoStatus)
+      ]
+    );
+    insertUserBalanceSchema = createInsertSchema18(userBalancesTable).omit({
+      id: true,
+      createdAt: true,
+      updatedAt: true
+    });
+  }
+});
+
+// ../../lib/db/src/schema/subscription_packages.ts
+import {
+  pgTable as pgTable19,
+  text as text19,
+  varchar,
+  integer as integer18,
+  boolean as boolean10,
+  timestamp as timestamp19,
+  index as index6
+} from "drizzle-orm/pg-core";
+var packagesTable;
+var init_subscription_packages = __esm({
+  "../../lib/db/src/schema/subscription_packages.ts"() {
+    "use strict";
+    packagesTable = pgTable19(
+      "subscription_packages",
+      {
+        id: text19("id").primaryKey(),
+        // e.g. "starter-lama-15d"
+        tier: varchar("tier", { length: 20 }).notNull(),
+        // starter|standar|premium|pro|ultra
+        tierName: text19("tier_name").notNull(),
+        // "Starter", "Standar", dst
+        tierDisplayOrder: integer18("tier_display_order").notNull().default(0),
+        modelType: varchar("model_type", { length: 20 }).notNull(),
+        // lama|campuran|baru
+        modelTypeName: text19("model_type_name").notNull(),
+        // "Lama (Haiku)", "Campuran", "Baru (Sonnet)"
+        periodDays: integer18("period_days").notNull(),
+        // 15 | 30
+        periodName: text19("period_name").notNull(),
+        // "15 Hari", "30 Hari"
+        // Quota caps per window (in tokens), per model
+        // Haiku quotas (in tokens)
+        quota7dHaikuTokens: integer18("quota_7d_haiku_tokens").notNull(),
+        quota5hHaikuTokens: integer18("quota_5h_haiku_tokens").notNull(),
+        // Sonnet quotas (in tokens)
+        quota7dSonnetTokens: integer18("quota_7d_sonnet_tokens").notNull(),
+        quota5hSonnetTokens: integer18("quota_5h_sonnet_tokens").notNull(),
+        // Price in IDR cents
+        priceCents: integer18("price_cents").notNull(),
+        // Feature flags
+        isHighlighted: boolean10("is_highlighted").notNull().default(false),
+        // "Pilihan Terbaik"
+        isDefault: boolean10("is_default").notNull().default(false),
+        // default pick
+        isActive: boolean10("is_active").notNull().default(true),
+        createdAt: timestamp19("created_at", { withTimezone: true }).notNull().defaultNow(),
+        updatedAt: timestamp19("updated_at", { withTimezone: true }).notNull().defaultNow()
+      },
+      (table2) => [
+        index6("idx_packages_tier").on(table2.tier, table2.tierDisplayOrder),
+        index6("idx_packages_active").on(table2.isActive),
+        index6("idx_packages_tier_model_period").on(
+          table2.tier,
+          table2.modelType,
+          table2.periodDays
+        )
+      ]
+    );
+  }
+});
+
+// ../../lib/db/src/schema/subscriptions.ts
+import {
+  pgTable as pgTable20,
+  text as text20,
+  integer as integer19,
+  varchar as varchar2,
+  timestamp as timestamp20,
+  boolean as boolean11,
+  index as index7
+} from "drizzle-orm/pg-core";
+import { sql as sql2 } from "drizzle-orm";
+var subscriptionStatuses, subscriptionsTable;
+var init_subscriptions = __esm({
+  "../../lib/db/src/schema/subscriptions.ts"() {
+    "use strict";
+    init_subscription_packages();
+    init_users();
+    subscriptionStatuses = [
+      "active",
+      "expired",
+      "cancelled",
+      "queued"
+    ];
+    subscriptionsTable = pgTable20(
+      "subscriptions",
+      {
+        id: text20("id").primaryKey().default(sql2`gen_random_uuid()`),
+        userId: text20("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
+        packageId: text20("package_id").notNull().references(() => packagesTable.id),
+        status: varchar2("status", { length: 20 }).notNull().default("active").$type(),
+        // Subscription period
+        startsAt: timestamp20("starts_at", { withTimezone: true }).notNull().defaultNow(),
+        expiresAt: timestamp20("expires_at", { withTimezone: true }).notNull(),
+        // Price paid (IDR cents) — for record keeping
+        pricePaidCents: integer19("price_paid_cents").notNull(),
+        // Payment reference (filled when payment gateway is wired)
+        paymentId: text20("payment_id"),
+        // Queue: when this subscription is queued to start
+        queuedForStartAt: timestamp20("queued_for_start_at", { withTimezone: true }),
+        // Auto-renew toggle
+        autoRenew: boolean11("auto_renew").notNull().default(false),
+        // Cancelled at
+        cancelledAt: timestamp20("cancelled_at", { withTimezone: true }),
+        // Anchor timestamp: when the user first used the subscription.
+        // Used for anchored rolling window calculation.
+        usageAnchorAt: timestamp20("usage_anchor_at", { withTimezone: true }),
+        createdAt: timestamp20("created_at", { withTimezone: true }).notNull().defaultNow(),
+        updatedAt: timestamp20("updated_at", { withTimezone: true }).notNull().defaultNow()
+      },
+      (table2) => [
+        index7("idx_subs_user").on(table2.userId),
+        index7("idx_subs_user_status").on(table2.userId, table2.status),
+        index7("idx_subs_expires").on(table2.expiresAt),
+        index7("idx_subs_queued").on(table2.queuedForStartAt)
+      ]
+    );
+  }
+});
+
+// ../../lib/db/src/schema/token_transactions.ts
+import {
+  pgTable as pgTable21,
+  text as text21,
+  integer as integer20,
+  timestamp as timestamp21,
+  index as index8
+} from "drizzle-orm/pg-core";
+import { sql as sql3 } from "drizzle-orm";
+import { createInsertSchema as createInsertSchema19 } from "drizzle-zod";
+var transactionTypes, tokenTransactionsTable, insertTokenTransactionSchema;
+var init_token_transactions = __esm({
+  "../../lib/db/src/schema/token_transactions.ts"() {
+    "use strict";
+    init_users();
+    init_subscriptions();
+    transactionTypes = [
+      "topup",
+      "ai_usage",
+      "refund",
+      "bonus",
+      "adjustment",
+      "subscription_payment"
+    ];
+    tokenTransactionsTable = pgTable21(
+      "token_transactions",
+      {
+        id: text21("id").primaryKey().default(sql3`gen_random_uuid()`),
+        userId: text21("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
+        type: text21("type").notNull(),
+        // Amount in IDR cents. Positive = credit (incoming), Negative = debit (outgoing)
+        amountCents: integer20("amount_cents").notNull(),
+        // Balance snapshot after this transaction
+        balanceAfterCents: integer20("balance_after_cents").notNull(),
+        // For AI usage: reference to ai_usage_log
+        aiUsageLogId: integer20("ai_usage_log_id"),
+        // For subscription payment: reference to subscription
+        subscriptionId: text21("subscription_id").references(() => subscriptionsTable.id, { onDelete: "set null" }),
+        // For topup: Stripe/Midtrans payment reference
+        paymentId: text21("payment_id"),
+        // For topup: amount paid in cents (may differ from amountCents due to bonus)
+        paidAmountCents: integer20("paid_amount_cents"),
+        // Human-readable description
+        description: text21("description").notNull(),
+        createdAt: timestamp21("created_at", { withTimezone: true }).notNull().defaultNow()
+      },
+      (table2) => [
+        index8("idx_token_trans_user_created").on(table2.userId, table2.createdAt),
+        index8("idx_token_trans_type").on(table2.type),
+        index8("idx_token_trans_stripe").on(table2.paymentId),
+        index8("idx_token_trans_subscription").on(table2.subscriptionId)
+      ]
+    );
+    insertTokenTransactionSchema = createInsertSchema19(tokenTransactionsTable).omit({
+      id: true,
+      createdAt: true
+    });
+  }
+});
+
+// ../../lib/db/src/schema/usage_windows.ts
+import {
+  pgTable as pgTable22,
+  text as text22,
+  integer as integer21,
+  varchar as varchar3,
+  timestamp as timestamp22,
+  boolean as boolean12,
+  index as index9
+} from "drizzle-orm/pg-core";
+import { sql as sql4 } from "drizzle-orm";
+var windowTypes, usageWindowsTable;
+var init_usage_windows = __esm({
+  "../../lib/db/src/schema/usage_windows.ts"() {
+    "use strict";
+    init_subscriptions();
+    windowTypes = ["5h", "7d"];
+    usageWindowsTable = pgTable22(
+      "usage_windows",
+      {
+        id: text22("id").primaryKey().default(sql4`gen_random_uuid()`),
+        subscriptionId: text22("subscription_id").notNull().references(() => subscriptionsTable.id, { onDelete: "cascade" }),
+        userId: text22("user_id").notNull(),
+        // Model type: lama | campuran | baru
+        modelType: varchar3("model_type", { length: 20 }).notNull(),
+        // Window type: 5h | 7d
+        windowType: varchar3("window_type", { length: 5 }).notNull().$type(),
+        // Which window number this is (1-indexed)
+        // e.g., for a 30-day subscription: windows 1-4 for 7d
+        windowNumber: integer21("window_number").notNull(),
+        // Window boundary
+        windowStartAt: timestamp22("window_start_at", { withTimezone: true }).notNull(),
+        windowEndAt: timestamp22("window_end_at", { withTimezone: true }).notNull(),
+        // Usage accumulated (in tokens)
+        haikuTokensUsed: integer21("haiku_tokens_used").notNull().default(0),
+        sonnetTokensUsed: integer21("sonnet_tokens_used").notNull().default(0),
+        // Cost accumulated (in IDR cents) — computed from tokens × rate
+        costCents: integer21("cost_cents").notNull().default(0),
+        // Is this window exhausted (cannot be used further)?
+        isExhausted: boolean12("is_exhausted").notNull().default(false),
+        // Did user exceed the window cap?
+        isOverLimit: boolean12("is_over_limit").notNull().default(false),
+        createdAt: timestamp22("created_at", { withTimezone: true }).notNull().defaultNow(),
+        updatedAt: timestamp22("updated_at", { withTimezone: true }).notNull().defaultNow()
+      },
+      (table2) => [
+        index9("idx_usage_win_sub_model_type").on(
+          table2.subscriptionId,
+          table2.modelType,
+          table2.windowType
+        ),
+        index9("idx_usage_win_user").on(table2.userId, table2.windowEndAt),
+        index9("idx_usage_win_active").on(
+          table2.isExhausted,
+          table2.windowEndAt
+        )
+      ]
+    );
+  }
+});
+
+// ../../lib/db/src/schema/share_tokens.ts
+import { pgTable as pgTable23, text as text23, serial as serial16, integer as integer22, timestamp as timestamp23 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema20 } from "drizzle-zod";
+var shareTokensTable, insertShareTokenSchema;
+var init_share_tokens = __esm({
+  "../../lib/db/src/schema/share_tokens.ts"() {
+    "use strict";
+    init_projects();
+    shareTokensTable = pgTable23("share_tokens", {
+      id: serial16("id").primaryKey(),
+      projectId: integer22("project_id").notNull().references(() => projectsTable.id, { onDelete: "cascade" }),
+      token: text23("token").notNull().unique(),
+      /** view = read-only, comment = view + annotations, edit = view + modify */
+      accessMode: text23("access_mode").notNull().default("view"),
+      /** Optional label to help owner remember what the link is for */
+      label: text23("label"),
+      /** Null = never expires */
+      expiresAt: timestamp23("expires_at", { withTimezone: true }),
+      createdAt: timestamp23("created_at", { withTimezone: true }).notNull().defaultNow()
+    });
+    insertShareTokenSchema = createInsertSchema20(shareTokensTable).omit({
+      id: true,
+      createdAt: true
+    });
+  }
+});
+
+// ../../lib/db/src/schema/comments.ts
+import { pgTable as pgTable24, text as text24, serial as serial17, integer as integer23, timestamp as timestamp24, boolean as boolean13 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema21 } from "drizzle-zod";
+var commentsTable, insertCommentSchema;
+var init_comments = __esm({
+  "../../lib/db/src/schema/comments.ts"() {
+    "use strict";
+    commentsTable = pgTable24("comments", {
+      id: serial17("id").primaryKey(),
+      projectId: integer23("project_id").notNull(),
+      documentId: integer23("document_id").notNull(),
+      userId: text24("user_id").notNull(),
+      /** Display name of commenter (denormalized for query convenience) */
+      userName: text24("user_name").notNull(),
+      /** The comment text */
+      content: text24("content").notNull(),
+      /**
+       * Text selection this comment refers to.
+       * Stores the selected text so we can re-attach comments
+       * if content changes.
+       */
+      quoteText: text24("quote_text"),
+      /**
+       * Start offset of selection in the document content.
+       * Null for comments not anchored to specific text.
+       */
+      offsetStart: integer23("offset_start"),
+      /**
+       * End offset of selection.
+       * Null for comments not anchored to specific text.
+       */
+      offsetEnd: integer23("offset_end"),
+      /** Parent comment ID for threaded replies */
+      parentId: integer23("parent_id"),
+      /** Whether the comment has been resolved/dismissed */
+      resolved: boolean13("resolved").notNull().default(false),
+      resolvedBy: text24("resolved_by"),
+      resolvedAt: timestamp24("resolved_at", { withTimezone: true }),
+      createdAt: timestamp24("created_at", { withTimezone: true }).notNull().defaultNow(),
+      updatedAt: timestamp24("updated_at", { withTimezone: true }).notNull().defaultNow()
+    });
+    insertCommentSchema = createInsertSchema21(commentsTable).omit({
+      id: true,
+      createdAt: true,
+      updatedAt: true
+    });
+  }
+});
+
+// ../../lib/db/src/schema/project_members.ts
+import {
+  pgTable as pgTable25,
+  text as text25,
+  serial as serial18,
+  integer as integer24,
+  timestamp as timestamp25,
+  uniqueIndex
+} from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema22 } from "drizzle-zod";
+var projectMembersRoles, projectMembersTable, insertProjectMemberSchema;
+var init_project_members = __esm({
+  "../../lib/db/src/schema/project_members.ts"() {
+    "use strict";
+    projectMembersRoles = ["owner", "collaborator", "viewer"];
+    projectMembersTable = pgTable25("project_members", {
+      id: serial18("id").primaryKey(),
+      projectId: integer24("project_id").notNull(),
+      userId: text25("user_id").notNull(),
+      role: text25("role", { enum: projectMembersRoles }).notNull().default("collaborator"),
+      createdAt: timestamp25("created_at", { withTimezone: true }).notNull().defaultNow(),
+      updatedAt: timestamp25("updated_at", { withTimezone: true }).notNull().defaultNow()
+    }, (table2) => ({
+      projectUserIdx: uniqueIndex("project_members_project_user_idx").on(
+        table2.projectId,
+        table2.userId
+      )
+    }));
+    insertProjectMemberSchema = createInsertSchema22(
+      projectMembersTable
+    ).omit({ id: true, createdAt: true, updatedAt: true });
+  }
+});
+
+// ../../lib/db/src/schema/quizzes.ts
+import {
+  pgTable as pgTable26,
+  text as text26,
+  serial as serial19,
+  integer as integer25,
+  timestamp as timestamp26,
+  jsonb as jsonb3
+} from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema23 } from "drizzle-zod";
+import { z as z2 } from "zod/v4";
+var questionSchema, quizzesTable, insertQuizSchema;
+var init_quizzes = __esm({
+  "../../lib/db/src/schema/quizzes.ts"() {
+    "use strict";
+    questionSchema = z2.object({
+      id: z2.string(),
+      text: z2.string(),
+      type: z2.enum(["multiple_choice", "short_answer", "essay"]),
+      options: z2.array(
+        z2.object({
+          id: z2.string(),
+          text: z2.string()
+        })
+      ).optional(),
+      points: z2.number().int().positive().default(1)
+    });
+    quizzesTable = pgTable26("quizzes", {
+      id: serial19("id").primaryKey(),
+      projectId: integer25("project_id").notNull(),
+      title: text26("title").notNull(),
+      description: text26("description"),
+      /** Array of question definitions */
+      questions: jsonb3("questions").$type().notNull(),
+      /** Extra metadata (difficulty, topic, estimatedTime, etc.) */
+      metadata: jsonb3("metadata").$type(),
+      createdBy: text26("created_by").notNull(),
+      createdAt: timestamp26("created_at", { withTimezone: true }).notNull().defaultNow(),
+      updatedAt: timestamp26("updated_at", { withTimezone: true }).notNull().defaultNow()
+    });
+    insertQuizSchema = createInsertSchema23(quizzesTable).omit({
+      id: true,
+      createdAt: true,
+      updatedAt: true
+    });
+  }
+});
+
+// ../../lib/db/src/schema/quiz_submissions.ts
+import {
+  pgTable as pgTable27,
+  text as text27,
+  serial as serial20,
+  integer as integer26,
+  timestamp as timestamp27,
+  jsonb as jsonb4
+} from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema24 } from "drizzle-zod";
+import { z as z3 } from "zod/v4";
+var quizResponseSchema, quizSubmissionsTable, insertQuizSubmissionSchema;
+var init_quiz_submissions = __esm({
+  "../../lib/db/src/schema/quiz_submissions.ts"() {
+    "use strict";
+    quizResponseSchema = z3.object({
+      questionId: z3.string(),
+      answer: z3.string()
+    });
+    quizSubmissionsTable = pgTable27("quiz_submissions", {
+      id: serial20("id").primaryKey(),
+      quizId: integer26("quiz_id").notNull(),
+      studentId: text27("student_id").notNull(),
+      /** Array of student responses {questionId, answer} */
+      responses: jsonb4("responses").$type().notNull(),
+      /** Total score (null = not yet graded) */
+      score: integer26("score"),
+      /** Max possible score for this quiz */
+      maxScore: integer26("max_score"),
+      /** Individual question scores {questionId, score, maxScore} */
+      gradingDetails: jsonb4("grading_details").$type(),
+      gradedAt: timestamp27("graded_at", { withTimezone: true }),
+      submittedAt: timestamp27("submitted_at", { withTimezone: true }).notNull().defaultNow(),
+      updatedAt: timestamp27("updated_at", { withTimezone: true }).notNull().defaultNow()
+    });
+    insertQuizSubmissionSchema = createInsertSchema24(
+      quizSubmissionsTable
+    ).omit({
+      id: true,
+      score: true,
+      gradingDetails: true,
+      gradedAt: true,
+      submittedAt: true,
+      updatedAt: true
+    });
+  }
+});
+
+// ../../lib/db/src/schema/rubrics.ts
+import {
+  pgTable as pgTable28,
+  text as text28,
+  serial as serial21,
+  integer as integer27,
+  timestamp as timestamp28,
+  jsonb as jsonb5
+} from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema25 } from "drizzle-zod";
+import { z as z4 } from "zod/v4";
+var rubricCriterionSchema, rubricsTable, insertRubricSchema;
+var init_rubrics = __esm({
+  "../../lib/db/src/schema/rubrics.ts"() {
+    "use strict";
+    rubricCriterionSchema = z4.object({
+      questionId: z4.string(),
+      maxPoints: z4.number().int().nonnegative(),
+      /** Correct answer (for auto-grading multiple choice) */
+      correctAnswer: z4.string().optional(),
+      /** Keywords to check for short-answer auto-grading */
+      keywords: z4.array(z4.string()).optional(),
+      /** Min keyword matches required (0-1 = percentage) */
+      keywordThreshold: z4.number().min(0).max(1).optional()
+    });
+    rubricsTable = pgTable28("rubrics", {
+      id: serial21("id").primaryKey(),
+      quizId: integer27("quiz_id").notNull(),
+      /** Array of per-question grading criteria */
+      criteria: jsonb5("criteria").$type().notNull(),
+      /** Manual grading notes for essay questions */
+      manualNotes: text28("manual_notes"),
+      createdBy: text28("created_by").notNull(),
+      createdAt: timestamp28("created_at", { withTimezone: true }).notNull().defaultNow(),
+      updatedAt: timestamp28("updated_at", { withTimezone: true }).notNull().defaultNow()
+    });
+    insertRubricSchema = createInsertSchema25(rubricsTable).omit({
+      id: true,
+      createdAt: true,
+      updatedAt: true
+    });
+  }
+});
+
+// ../../lib/db/src/schema/writing_style_profiles.ts
+import {
+  pgTable as pgTable29,
+  text as text29,
+  serial as serial22,
+  integer as integer28,
+  timestamp as timestamp29,
+  jsonb as jsonb6
+} from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema26 } from "drizzle-zod";
+import { z as z5 } from "zod/v4";
+var styleCharacteristicsSchema, writingStyleProfilesTable, insertWritingStyleProfileSchema;
+var init_writing_style_profiles = __esm({
+  "../../lib/db/src/schema/writing_style_profiles.ts"() {
+    "use strict";
+    styleCharacteristicsSchema = z5.object({
+      formality: z5.number().min(0).max(1).describe("0=informal, 1=formal"),
+      vocabularyLevel: z5.number().min(0).max(1).describe("0=simple/common, 1=academic/specialized"),
+      avgSentenceLength: z5.number().positive(),
+      avgParagraphLength: z5.number().positive(),
+      passiveVoiceRatio: z5.number().min(0).max(1),
+      readabilityScore: z5.number().min(0).max(100),
+      dominantTone: z5.enum(["neutral", "persuasive", "analytical", "descriptive", "critical"]),
+      commonPhrases: z5.array(z5.string()),
+      structuralPatterns: z5.array(z5.string())
+    });
+    writingStyleProfilesTable = pgTable29("writing_style_profiles", {
+      id: serial22("id").primaryKey(),
+      userId: text29("user_id").notNull(),
+      projectId: integer28("project_id"),
+      /** AI-extracted style characteristics */
+      styleCharacteristics: jsonb6("style_characteristics").$type().notNull(),
+      /** Number of documents analyzed to build this profile */
+      sampleSize: integer28("sample_size").notNull().default(1),
+      analyzedAt: timestamp29("analyzed_at", { withTimezone: true }).notNull().defaultNow(),
+      updatedAt: timestamp29("updated_at", { withTimezone: true }).notNull().defaultNow()
+    });
+    insertWritingStyleProfileSchema = createInsertSchema26(
+      writingStyleProfilesTable
+    ).omit({
+      id: true,
+      analyzedAt: true,
+      updatedAt: true
+    });
+  }
+});
+
+// ../../lib/db/src/schema/document-templates.ts
+import { pgTable as pgTable30, text as text30, serial as serial23, integer as integer29, boolean as boolean14, timestamp as timestamp30 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema27 } from "drizzle-zod";
+var documentTemplatesTable, insertDocumentTemplateSchema;
+var init_document_templates = __esm({
+  "../../lib/db/src/schema/document-templates.ts"() {
+    "use strict";
+    documentTemplatesTable = pgTable30("document_templates", {
+      id: serial23("id").primaryKey(),
+      userId: text30("user_id"),
+      name: text30("name").notNull(),
+      category: text30("category").notNull().default("custom"),
+      outline: text30("outline").notNull(),
+      citationFormat: text30("citation_format"),
+      minRefCount: integer29("min_ref_count").notNull().default(5),
+      description: text30("description"),
+      tags: text30("tags"),
+      isPublic: boolean14("is_public").notNull().default(false),
+      createdAt: timestamp30("created_at", { withTimezone: true }).notNull().defaultNow(),
+      updatedAt: timestamp30("updated_at", { withTimezone: true }).notNull().defaultNow()
+    });
+    insertDocumentTemplateSchema = createInsertSchema27(documentTemplatesTable).omit({
+      id: true,
+      createdAt: true,
+      updatedAt: true
+    });
+  }
+});
+
+// ../../lib/db/src/schema/admin-audit-log.ts
+import {
+  pgTable as pgTable31,
+  serial as serial24,
+  text as text31,
+  timestamp as timestamp31,
+  index as index10,
+  jsonb as jsonb7
+} from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema28 } from "drizzle-zod";
+var adminAuditLogTable, adminActionTypes, insertAdminAuditLogSchema;
+var init_admin_audit_log = __esm({
+  "../../lib/db/src/schema/admin-audit-log.ts"() {
+    "use strict";
+    adminAuditLogTable = pgTable31(
+      "admin_audit_log",
+      {
+        id: serial24("id").primaryKey(),
+        // Admin user who performed the action (owner email)
+        adminEmail: text31("admin_email").notNull(),
+        // Action type
+        action: text31("action").notNull(),
+        // Target resource
+        targetType: text31("target_type").notNull(),
+        // user, tier, pricing, system
+        targetId: text31("target_id"),
+        // user_id, tier_id, etc.
+        // Details as JSON
+        details: jsonb7("details"),
+        // IP address of admin
+        ipAddress: text31("ip_address"),
+        createdAt: timestamp31("created_at", { withTimezone: true }).notNull().defaultNow()
+      },
+      (table2) => [
+        index10("idx_admin_audit_admin_created").on(table2.adminEmail, table2.createdAt),
+        index10("idx_admin_audit_action").on(table2.action),
+        index10("idx_admin_audit_target").on(table2.targetType, table2.targetId)
+      ]
+    );
+    adminActionTypes = [
+      "tier_override",
+      "user_suspend",
+      "user_unsuspend",
+      "pricing_change",
+      "tier_change",
+      "system_config"
+    ];
+    insertAdminAuditLogSchema = createInsertSchema28(adminAuditLogTable).omit({
+      id: true,
+      createdAt: true
+    });
+  }
+});
+
+// ../../lib/db/src/schema/learning-activities.ts
+import { pgTable as pgTable32, text as text32, serial as serial25, timestamp as timestamp32, integer as integer30, uniqueIndex as uniqueIndex2 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema29 } from "drizzle-zod";
+var learningActivitiesTable, insertLearningActivitySchema;
+var init_learning_activities = __esm({
+  "../../lib/db/src/schema/learning-activities.ts"() {
+    "use strict";
+    learningActivitiesTable = pgTable32(
+      "learning_activities",
+      {
+        id: serial25("id").primaryKey(),
+        userId: text32("user_id").notNull(),
+        /** JSONB array of topic strings, e.g. ["Perubahan Iklim", "Food Security"] */
+        topics: text32("topics").notNull(),
+        // stored as JSON string
+        subject: text32("subject"),
+        /** Link to the source project in Task Mentor */
+        sourceProjectId: integer30("source_project_id"),
+        /** Where the topics were extracted from */
+        extractedFrom: text32("extracted_from").notNull().default("instruction"),
+        // 'instruction' | 'reference' | 'chat'
+        createdAt: timestamp32("created_at", { withTimezone: true }).notNull().defaultNow(),
+        updatedAt: timestamp32("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => /* @__PURE__ */ new Date())
+      },
+      (table2) => ({
+        userIdIdx: uniqueIndex2("learning_activities_user_id_idx").on(table2.userId, table2.sourceProjectId)
+      })
+    );
+    insertLearningActivitySchema = createInsertSchema29(learningActivitiesTable).omit({
+      id: true,
+      createdAt: true,
+      updatedAt: true
+    });
+  }
+});
+
+// ../../lib/db/src/schema/user_preferences.ts
+import {
+  pgTable as pgTable33,
+  text as text33,
+  timestamp as timestamp33
+} from "drizzle-orm/pg-core";
+var userPreferencesTable, AI_PROVIDERS;
+var init_user_preferences = __esm({
+  "../../lib/db/src/schema/user_preferences.ts"() {
+    "use strict";
+    userPreferencesTable = pgTable33("user_preferences", {
+      userId: text33("user_id").primaryKey(),
+      // 'anthropic' (production, Haiku/Sonnet) | 'olagon' (owner-only Opus)
+      aiProvider: text33("ai_provider").notNull().default("anthropic"),
+      createdAt: timestamp33("created_at", { withTimezone: true }).notNull().defaultNow(),
+      updatedAt: timestamp33("updated_at", { withTimezone: true }).notNull().defaultNow()
+    });
+    AI_PROVIDERS = ["anthropic", "olagon"];
+  }
+});
+
+// ../../lib/db/src/schema/simulation_sessions.ts
+import { pgTable as pgTable34, text as text34, serial as serial26, integer as integer31, timestamp as timestamp34, jsonb as jsonb8, index as index11 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema30 } from "drizzle-zod";
+var simulationStatuses, simulationPersonas, simulationSessionsTable, insertSimulationSessionSchema;
+var init_simulation_sessions = __esm({
+  "../../lib/db/src/schema/simulation_sessions.ts"() {
+    "use strict";
+    init_users();
+    init_projects();
+    simulationStatuses = ["active", "completed", "abandoned", "failed"];
+    simulationPersonas = [
+      "dosen_strict",
+      "dosen_friendly",
+      "audience_awam",
+      "audience_expert"
+    ];
+    simulationSessionsTable = pgTable34(
+      "simulation_sessions",
+      {
+        id: serial26("id").primaryKey(),
+        userId: text34("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
+        projectId: integer31("project_id").notNull().references(() => projectsTable.id, { onDelete: "cascade" }),
+        persona: text34("persona").notNull().$type(),
+        status: text34("status").notNull().default("active").$type(),
+        projectContextSnapshot: jsonb8("project_context_snapshot").$type(),
+        questionsAsked: integer31("questions_asked").notNull().default(0),
+        totalInputTokens: integer31("total_input_tokens").notNull().default(0),
+        totalOutputTokens: integer31("total_output_tokens").notNull().default(0),
+        totalCostCents: integer31("total_cost_cents").notNull().default(0),
+        tierId: text34("tier_id"),
+        startedAt: timestamp34("started_at", { withTimezone: true }).notNull().defaultNow(),
+        endedAt: timestamp34("ended_at", { withTimezone: true }),
+        createdAt: timestamp34("created_at", { withTimezone: true }).notNull().defaultNow(),
+        updatedAt: timestamp34("updated_at", { withTimezone: true }).notNull().defaultNow()
+      },
+      (table2) => [
+        index11("idx_sim_sessions_user").on(table2.userId),
+        index11("idx_sim_sessions_project").on(table2.projectId),
+        index11("idx_sim_sessions_user_status").on(table2.userId, table2.status),
+        index11("idx_sim_sessions_started").on(table2.startedAt)
+      ]
+    );
+    insertSimulationSessionSchema = createInsertSchema30(simulationSessionsTable).omit({
+      id: true,
+      createdAt: true,
+      updatedAt: true,
+      startedAt: true,
+      questionsAsked: true,
+      totalInputTokens: true,
+      totalOutputTokens: true,
+      totalCostCents: true
+    });
+  }
+});
+
+// ../../lib/db/src/schema/simulation_messages.ts
+import { pgTable as pgTable35, text as text35, serial as serial27, integer as integer32, timestamp as timestamp35, index as index12 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema31 } from "drizzle-zod";
+var simulationRoles, simulationMessagesTable, insertSimulationMessageSchema;
+var init_simulation_messages = __esm({
+  "../../lib/db/src/schema/simulation_messages.ts"() {
+    "use strict";
+    init_simulation_sessions();
+    simulationRoles = ["user", "assistant", "system"];
+    simulationMessagesTable = pgTable35(
+      "simulation_messages",
+      {
+        id: serial27("id").primaryKey(),
+        sessionId: integer32("session_id").notNull().references(() => simulationSessionsTable.id, { onDelete: "cascade" }),
+        role: text35("role").notNull().$type(),
+        content: text35("content").notNull(),
+        inputTokens: integer32("input_tokens").notNull().default(0),
+        outputTokens: integer32("output_tokens").notNull().default(0),
+        costCents: integer32("cost_cents").notNull().default(0),
+        sequenceIndex: integer32("sequence_index").notNull(),
+        createdAt: timestamp35("created_at", { withTimezone: true }).notNull().defaultNow()
+      },
+      (table2) => [
+        index12("idx_sim_messages_session").on(table2.sessionId, table2.sequenceIndex)
+      ]
+    );
+    insertSimulationMessageSchema = createInsertSchema31(simulationMessagesTable).omit({
+      id: true,
+      createdAt: true
+    });
+  }
+});
+
+// ../../lib/db/src/schema/simulation_reports.ts
+import { pgTable as pgTable36, text as text36, serial as serial28, integer as integer33, timestamp as timestamp36, jsonb as jsonb9, index as index13, boolean as boolean15 } from "drizzle-orm/pg-core";
+import { createInsertSchema as createInsertSchema32 } from "drizzle-zod";
+import { z as z6 } from "zod/v4";
+var simulationScoreSchema, simulationReportsTable, insertSimulationReportSchema;
+var init_simulation_reports = __esm({
+  "../../lib/db/src/schema/simulation_reports.ts"() {
+    "use strict";
+    init_simulation_sessions();
+    init_users();
+    init_projects();
+    simulationScoreSchema = z6.object({
+      criterion: z6.string(),
+      score: z6.number().int().min(0).max(100),
+      notes: z6.string()
+    });
+    simulationReportsTable = pgTable36(
+      "simulation_reports",
+      {
+        id: serial28("id").primaryKey(),
+        sessionId: integer33("session_id").notNull().references(() => simulationSessionsTable.id, { onDelete: "cascade" }).unique(),
+        projectId: integer33("project_id").notNull().references(() => projectsTable.id, { onDelete: "cascade" }),
+        userId: text36("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
+        overallScore: integer33("overall_score").notNull(),
+        summary: text36("summary").notNull(),
+        strengths: text36("strengths").notNull(),
+        weaknesses: text36("weaknesses").notNull(),
+        recommendations: text36("recommendations").notNull(),
+        scores: jsonb9("scores").$type().notNull(),
+        isLatestForProject: boolean15("is_latest_for_project").notNull().default(true),
+        createdAt: timestamp36("created_at", { withTimezone: true }).notNull().defaultNow()
+      },
+      (table2) => [
+        index13("idx_sim_reports_session").on(table2.sessionId),
+        index13("idx_sim_reports_user_created").on(table2.userId, table2.createdAt),
+        index13("idx_sim_reports_project_latest").on(table2.projectId, table2.isLatestForProject)
+      ]
+    );
+    insertSimulationReportSchema = createInsertSchema32(simulationReportsTable).omit({
+      id: true,
+      createdAt: true
+    });
+  }
+});
+
+// ../../lib/db/src/schema/index.ts
+var schema_exports = {};
+__export(schema_exports, {
+  AI_PROVIDERS: () => AI_PROVIDERS,
+  accountReferencesTable: () => accountReferencesTable,
+  activitiesTable: () => activitiesTable,
+  adminActionTypes: () => adminActionTypes,
+  adminAuditLogTable: () => adminAuditLogTable,
+  aiTiersTable: () => aiTiersTable,
+  aiUsageLogTable: () => aiUsageLogTable,
+  aiUsageStatsSchema: () => aiUsageStatsSchema,
+  attachmentsTable: () => attachmentsTable,
+  commentsTable: () => commentsTable,
+  documentTemplatesTable: () => documentTemplatesTable,
+  documentVersionsTable: () => documentVersionsTable,
+  documentsTable: () => documentsTable,
+  exportsTable: () => exportsTable,
+  insertAIUsageLogSchema: () => insertAIUsageLogSchema,
+  insertAccountReferenceSchema: () => insertAccountReferenceSchema,
+  insertActivitySchema: () => insertActivitySchema,
+  insertAdminAuditLogSchema: () => insertAdminAuditLogSchema,
+  insertAiTierSchema: () => insertAiTierSchema,
+  insertAttachmentSchema: () => insertAttachmentSchema,
+  insertCommentSchema: () => insertCommentSchema,
+  insertDocumentSchema: () => insertDocumentSchema,
+  insertDocumentTemplateSchema: () => insertDocumentTemplateSchema,
+  insertDocumentVersionSchema: () => insertDocumentVersionSchema,
+  insertExportSchema: () => insertExportSchema,
+  insertJobSchema: () => insertJobSchema,
+  insertLearningActivitySchema: () => insertLearningActivitySchema,
+  insertMessageSchema: () => insertMessageSchema,
+  insertProjectMemberSchema: () => insertProjectMemberSchema,
+  insertProjectMetadataSchema: () => insertProjectMetadataSchema,
+  insertProjectSchema: () => insertProjectSchema,
+  insertQuizSchema: () => insertQuizSchema,
+  insertQuizSubmissionSchema: () => insertQuizSubmissionSchema,
+  insertReferenceCitationSchema: () => insertReferenceCitationSchema,
+  insertReferenceSchema: () => insertReferenceSchema,
+  insertReferralEventSchema: () => insertReferralEventSchema,
+  insertReferralSchema: () => insertReferralSchema,
+  insertRubricSchema: () => insertRubricSchema,
+  insertShareTokenSchema: () => insertShareTokenSchema,
+  insertSimulationMessageSchema: () => insertSimulationMessageSchema,
+  insertSimulationReportSchema: () => insertSimulationReportSchema,
+  insertSimulationSessionSchema: () => insertSimulationSessionSchema,
+  insertTokenTransactionSchema: () => insertTokenTransactionSchema,
+  insertUserBalanceSchema: () => insertUserBalanceSchema,
+  insertUserSchema: () => insertUserSchema,
+  insertWritingStyleProfileSchema: () => insertWritingStyleProfileSchema,
+  jobsTable: () => jobsTable,
+  learningActivitiesTable: () => learningActivitiesTable,
+  messagesTable: () => messagesTable,
+  packagesTable: () => packagesTable,
+  projectMembersRoles: () => projectMembersRoles,
+  projectMembersTable: () => projectMembersTable,
+  projectMetadataTable: () => projectMetadataTable,
+  projectsTable: () => projectsTable,
+  questionSchema: () => questionSchema,
+  quizResponseSchema: () => quizResponseSchema,
+  quizSubmissionsTable: () => quizSubmissionsTable,
+  quizzesTable: () => quizzesTable,
+  referenceCitationsTable: () => referenceCitationsTable,
+  referencesTable: () => referencesTable,
+  referralEventsTable: () => referralEventsTable,
+  referralStatuses: () => referralStatuses,
+  referralsTable: () => referralsTable,
+  requestTypes: () => requestTypes,
+  rubricCriterionSchema: () => rubricCriterionSchema,
+  rubricsTable: () => rubricsTable,
+  saldoStatuses: () => saldoStatuses,
+  shareTokensTable: () => shareTokensTable,
+  simulationMessagesTable: () => simulationMessagesTable,
+  simulationPersonas: () => simulationPersonas,
+  simulationReportsTable: () => simulationReportsTable,
+  simulationRoles: () => simulationRoles,
+  simulationScoreSchema: () => simulationScoreSchema,
+  simulationSessionsTable: () => simulationSessionsTable,
+  simulationStatuses: () => simulationStatuses,
+  styleCharacteristicsSchema: () => styleCharacteristicsSchema,
+  subscriptionStatuses: () => subscriptionStatuses,
+  subscriptionsTable: () => subscriptionsTable,
+  tokenTransactionsTable: () => tokenTransactionsTable,
+  transactionTypes: () => transactionTypes,
+  usageWindowsTable: () => usageWindowsTable,
+  userBalancesTable: () => userBalancesTable,
+  userPreferencesTable: () => userPreferencesTable,
+  usersTable: () => usersTable,
+  windowTypes: () => windowTypes,
+  writingStyleProfilesTable: () => writingStyleProfilesTable
+});
+var init_schema = __esm({
+  "../../lib/db/src/schema/index.ts"() {
+    "use strict";
+    init_projects();
+    init_messages();
+    init_documents();
+    init_multi_documents();
+    init_references();
+    init_account_references();
+    init_reference_citations();
+    init_attachments();
+    init_activities();
+    init_jobs();
+    init_project_metadata();
+    init_exports();
+    init_users();
+    init_referrals();
+    init_referral_events();
+    init_ai_usage_log();
+    init_ai_tiers();
+    init_user_balances();
+    init_token_transactions();
+    init_subscription_packages();
+    init_subscriptions();
+    init_usage_windows();
+    init_share_tokens();
+    init_comments();
+    init_project_members();
+    init_quizzes();
+    init_quiz_submissions();
+    init_rubrics();
+    init_writing_style_profiles();
+    init_document_templates();
+    init_admin_audit_log();
+    init_learning_activities();
+    init_user_preferences();
+    init_simulation_sessions();
+    init_simulation_messages();
+    init_simulation_reports();
+  }
+});
+
+// node_modules/@workspace/db/src/index.ts
+import { drizzle } from "drizzle-orm/node-postgres";
+import pg from "pg";
+var connectionString, pool2, db;
+var init_src = __esm({
+  "node_modules/@workspace/db/src/index.ts"() {
+    init_schema();
+    init_schema();
+    connectionString = process.env.DATABASE_POOLER_URL ?? process.env.DATABASE_URL;
+    if (!connectionString) {
+      console.warn(
+        "DATABASE_URL / DATABASE_POOLER_URL not set. Database queries will fail."
+      );
+      pool2 = null;
+      db = null;
+    } else {
+      pool2 = new pg.Pool({
+        connectionString,
+        max: process.env.VERCEL === "1" ? 1 : 10,
+        ssl: connectionString.includes("pooler.supabase.com") || process.env.VERCEL === "1" ? { rejectUnauthorized: false } : void 0
+      });
+      db = drizzle(pool2, { schema: schema_exports });
     }
-    if (bytes == null) throw new Error("Missing tiktoken_bg.wasm");
-    var wasmModule = new WebAssembly.Module(bytes);
-    var wasmInstance = new WebAssembly.Instance(wasmModule, imports);
-    wasm.__wbg_set_wasm(wasmInstance.exports);
-    exports["get_encoding"] = wasm["get_encoding"];
-    exports["encoding_for_model"] = wasm["encoding_for_model"];
-    exports["get_encoding_name_for_model"] = wasm["get_encoding_name_for_model"];
-    exports["Tiktoken"] = wasm["Tiktoken"];
   }
 });
 
@@ -173923,14 +175123,14 @@ var require_trees = __commonJS({
         s2.bi_valid -= 8;
       }
     }
-    function gen_bitlen(s2, desc21) {
-      var tree = desc21.dyn_tree;
-      var max_code = desc21.max_code;
-      var stree = desc21.stat_desc.static_tree;
-      var has_stree = desc21.stat_desc.has_stree;
-      var extra = desc21.stat_desc.extra_bits;
-      var base = desc21.stat_desc.extra_base;
-      var max_length = desc21.stat_desc.max_length;
+    function gen_bitlen(s2, desc20) {
+      var tree = desc20.dyn_tree;
+      var max_code = desc20.max_code;
+      var stree = desc20.stat_desc.static_tree;
+      var has_stree = desc20.stat_desc.has_stree;
+      var extra = desc20.stat_desc.extra_bits;
+      var base = desc20.stat_desc.extra_base;
+      var max_length = desc20.stat_desc.max_length;
       var h2;
       var n, m2;
       var bits;
@@ -174157,11 +175357,11 @@ var require_trees = __commonJS({
       }
       send_code(s2, END_BLOCK, ltree);
     }
-    function build_tree(s2, desc21) {
-      var tree = desc21.dyn_tree;
-      var stree = desc21.stat_desc.static_tree;
-      var has_stree = desc21.stat_desc.has_stree;
-      var elems = desc21.stat_desc.elems;
+    function build_tree(s2, desc20) {
+      var tree = desc20.dyn_tree;
+      var stree = desc20.stat_desc.static_tree;
+      var has_stree = desc20.stat_desc.has_stree;
+      var elems = desc20.stat_desc.elems;
       var n, m2;
       var max_code = -1;
       var node;
@@ -174184,7 +175384,7 @@ var require_trees = __commonJS({
           s2.static_len -= stree[node * 2 + 1];
         }
       }
-      desc21.max_code = max_code;
+      desc20.max_code = max_code;
       for (n = s2.heap_len >> 1; n >= 1; n--) {
         pqdownheap(s2, tree, n);
       }
@@ -174228,7 +175428,7 @@ var require_trees = __commonJS({
         1
         /*SMALLEST*/
       ];
-      gen_bitlen(s2, desc21);
+      gen_bitlen(s2, desc20);
       gen_codes(tree, max_code, s2.bl_count);
     }
     function scan_tree(s2, tree, max_code) {
@@ -179681,7 +180881,7 @@ var require_logger2 = __commonJS({
       value: true
     });
     exports.default = void 0;
-    var logger2 = {
+    var logger3 = {
       _output(level, scope, msg) {
         this._log.push(scope, msg);
         if (this._levels.indexOf(level) < this._levels.indexOf(this.level)) {
@@ -179694,15 +180894,15 @@ var require_logger2 = __commonJS({
       _levels: ["http", "debug", "unmapped", "info", "warn", "error", "silent"],
       level: "silent"
     };
-    for (const level of logger2._levels) {
-      logger2[level] = (scope, ...msg) => logger2._output(level, scope, msg);
+    for (const level of logger3._levels) {
+      logger3[level] = (scope, ...msg) => logger3._output(level, scope, msg);
     }
     if (typeof console.Console === "function") {
-      logger2._console = new console.Console(process.stderr);
+      logger3._console = new console.Console(process.stderr);
     } else {
-      logger2._console = console;
+      logger3._console = console;
     }
-    var _default = exports.default = logger2;
+    var _default = exports.default = logger3;
   }
 });
 
@@ -181308,9 +182508,9 @@ var require_body = __commonJS({
           if (name === "constructor") {
             continue;
           }
-          const desc21 = Object.getOwnPropertyDescriptor(_Body.prototype, name);
+          const desc20 = Object.getOwnPropertyDescriptor(_Body.prototype, name);
           Object.defineProperty(proto, name, {
-            ...desc21,
+            ...desc20,
             enumerable: true
           });
         }
@@ -187114,8 +188314,8 @@ var init_body = __esm({
        * @return  Promise
        */
       async json() {
-        const text36 = await this.text();
-        return JSON.parse(text36);
+        const text37 = await this.text();
+        return JSON.parse(text37);
       }
       /**
        * Decode response as text
@@ -188216,7 +189416,7 @@ function fixResponseChunkedTransferBadEnding(request, errorCallback) {
   });
 }
 var supportedSchemas;
-var init_src = __esm({
+var init_src2 = __esm({
   "../../node_modules/.pnpm/node-fetch@3.3.2/node_modules/node-fetch/src/index.js"() {
     init_dist2();
     init_body();
@@ -188298,7 +189498,7 @@ var require_fetchFile = __commonJS({
     exports.fetchFileAsync = fetchFileAsync;
     exports.setUserAgent = setUserAgent;
     var _syncFetch = _interopRequireDefault(require_sync_fetch());
-    var _nodeFetch = _interopRequireWildcard((init_src(), __toCommonJS(src_exports)));
+    var _nodeFetch = _interopRequireWildcard((init_src2(), __toCommonJS(src_exports)));
     var _logger = _interopRequireDefault(require_logger2());
     var _package = _interopRequireDefault(require_package2());
     function _interopRequireWildcard(e2, t2) {
@@ -189815,9 +191015,9 @@ var require_json3 = __commonJS({
       data(data, {
         type,
         format = type || "text",
-        version: version3 = "1.0.2"
+        version: version4 = "1.0.2"
       } = {}) {
-        if (version3 < "1.0.2") {
+        if (version4 < "1.0.2") {
           data = util.downgradeCsl(data);
         }
         if (format === "object") {
@@ -189830,9 +191030,9 @@ var require_json3 = __commonJS({
         }
       },
       ndjson(data, {
-        version: version3 = "1.0.2"
+        version: version4 = "1.0.2"
       } = {}) {
-        if (version3 < "1.0.2") {
+        if (version4 < "1.0.2") {
           data = util.downgradeCsl(data);
         }
         return data.map((entry) => JSON.stringify(entry)).join("\n");
@@ -189934,7 +191134,7 @@ var require_lib8 = __commonJS({
     function _interopRequireDefault(e2) {
       return e2 && e2.__esModule ? e2 : { default: e2 };
     }
-    var version3 = exports.version = _package.default.version;
+    var version4 = exports.version = _package.default.version;
   }
 });
 
@@ -190463,9 +191663,9 @@ var require_google_books = __commonJS({
       var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor;
       for (var key in obj) {
         if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) {
-          var desc21 = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null;
-          if (desc21 && (desc21.get || desc21.set)) {
-            Object.defineProperty(newObj, key, desc21);
+          var desc20 = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null;
+          if (desc20 && (desc20.get || desc20.set)) {
+            Object.defineProperty(newObj, key, desc20);
           } else {
             newObj[key] = obj[key];
           }
@@ -190627,9 +191827,9 @@ var require_open_library = __commonJS({
       var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor;
       for (var key in obj) {
         if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) {
-          var desc21 = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null;
-          if (desc21 && (desc21.get || desc21.set)) {
-            Object.defineProperty(newObj, key, desc21);
+          var desc20 = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null;
+          if (desc20 && (desc20.get || desc20.set)) {
+            Object.defineProperty(newObj, key, desc20);
           } else {
             newObj[key] = obj[key];
           }
@@ -190829,9 +192029,9 @@ var require_input5 = __commonJS({
       var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor;
       for (var key in obj) {
         if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) {
-          var desc21 = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null;
-          if (desc21 && (desc21.get || desc21.set)) {
-            Object.defineProperty(newObj, key, desc21);
+          var desc20 = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null;
+          if (desc20 && (desc20.get || desc20.set)) {
+            Object.defineProperty(newObj, key, desc20);
           } else {
             newObj[key] = obj[key];
           }
@@ -191076,7 +192276,7 @@ var require_input5 = __commonJS({
 });
 
 // src/app.ts
-var import_express36 = __toESM(require_express2(), 1);
+var import_express37 = __toESM(require_express2(), 1);
 var import_cors = __toESM(require_lib3(), 1);
 var import_pino_http = __toESM(require_logger(), 1);
 
@@ -191351,9 +192551,9 @@ var validations = {
    *
    * @returns {void}
    */
-  headersDraftVersion(version3) {
-    if (typeof version3 !== "string" || // @ts-expect-error This is fine. If version is not in the array, it will just return false.
-    !SUPPORTED_DRAFT_VERSIONS.includes(version3)) {
+  headersDraftVersion(version4) {
+    if (typeof version4 !== "string" || // @ts-expect-error This is fine. If version is not in the array, it will just return false.
+    !SUPPORTED_DRAFT_VERSIONS.includes(version4)) {
       const versionString = SUPPORTED_DRAFT_VERSIONS.join(", ");
       throw new ValidationError(
         "ERR_ERL_HEADERS_UNSUPPORTED_DRAFT_VERSION",
@@ -192730,8 +193930,8 @@ async function fetchJwks(url2, headers, signal, fetchImpl = fetch) {
   }
 }
 var jwksCache = Symbol();
-function isFreshFor(timestamp36, duration) {
-  return Number.isFinite(timestamp36) && Date.now() < timestamp36 + duration;
+function isFreshFor(timestamp37, duration) {
+  return Number.isFinite(timestamp37) && Date.now() < timestamp37 + duration;
 }
 function validateDuration(value, fallback, option) {
   if (Number.isNaN(value)) {
@@ -194067,6 +195267,48 @@ var GetMyProjectUsageStatsResponse = zod.object({
     "costCents": zod.number().optional()
   }))
 });
+var getMyUsageDailyHistoryQueryDaysDefault = 7;
+var getMyUsageDailyHistoryQueryDaysMax = 30;
+var GetMyUsageDailyHistoryQueryParams = zod.object({
+  "days": zod.coerce.number().min(1).max(getMyUsageDailyHistoryQueryDaysMax).default(getMyUsageDailyHistoryQueryDaysDefault).describe("Number of days to include (1-30)")
+});
+var GetMyUsageDailyHistoryResponse = zod.object({
+  "days": zod.number().optional(),
+  "history": zod.array(zod.object({
+    "date": zod.string().optional().describe("Date string (YYYY-MM-DD)"),
+    "tokens": zod.number().optional(),
+    "hours": zod.number().optional(),
+    "costCents": zod.number().optional(),
+    "requestCount": zod.number().optional()
+  })).optional()
+});
+var GetMyUsageWindowsResponse = zod.object({
+  "subscription": zod.object({
+    "id": zod.string().optional(),
+    "packageName": zod.string().nullish(),
+    "packageTier": zod.string().nullish(),
+    "expiresAt": zod.coerce.date().optional(),
+    "modelType": zod.string().nullish()
+  }).nullish(),
+  "windows5h": zod.object({
+    "usedTokens": zod.number().describe("Total tokens used in this window (Haiku + Sonnet combined)"),
+    "limitTokens": zod.number().describe("Total token limit for this window"),
+    "usedHours": zod.number().describe("Approximate hours used (tokens / 100 tokens-per-message / 12 msg/h)"),
+    "limitHours": zod.number().describe("Approximate hourly limit"),
+    "costCents": zod.number().optional(),
+    "pct": zod.number().describe("Percentage of quota used (0-100)"),
+    "resetAt": zod.coerce.date().describe("When the current window resets")
+  }).optional(),
+  "windows7d": zod.object({
+    "usedTokens": zod.number().describe("Total tokens used in this window (Haiku + Sonnet combined)"),
+    "limitTokens": zod.number().describe("Total token limit for this window"),
+    "usedHours": zod.number().describe("Approximate hours used (tokens / 100 tokens-per-message / 12 msg/h)"),
+    "limitHours": zod.number().describe("Approximate hourly limit"),
+    "costCents": zod.number().optional(),
+    "pct": zod.number().describe("Percentage of quota used (0-100)"),
+    "resetAt": zod.coerce.date().describe("When the current window resets")
+  }).optional()
+});
 var getAdminUsageStatsQueryPeriodDefault = `all`;
 var GetAdminUsageStatsQueryParams = zod.object({
   "period": zod.enum(["7d", "30d", "all"]).default(getAdminUsageStatsQueryPeriodDefault).describe("Time period filter")
@@ -194718,6 +195960,19 @@ var SetAITierPreferenceBody = zod.object({
 });
 var SetAITierPreferenceResponse = zod.object({
   "preferredTierId": zod.string().optional()
+});
+var GetMyPreferencesResponse = zod.object({
+  "aiProvider": zod.enum(["anthropic", "olagon"]).optional().describe("AI provider selection (DECISION 019/020)"),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+});
+var UpdateMyPreferencesBody = zod.object({
+  "aiProvider": zod.enum(["anthropic", "olagon"]).describe("AI provider toggle. Setting 'olagon' requires OWNER_EMAIL.\n")
+});
+var UpdateMyPreferencesResponse = zod.object({
+  "aiProvider": zod.enum(["anthropic", "olagon"]).optional().describe("AI provider selection (DECISION 019/020)"),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
 });
 var GetAdminAITiersResponse = zod.object({
   "tiers": zod.array(zod.object({
@@ -199165,9 +200420,9 @@ function createFetchClient(options) {
         },
         body: body ? JSON.stringify(body) : void 0
       });
-      const text36 = await res.text();
+      const text37 = await res.text();
       const isJson = (res.headers.get("content-type") || "").includes("application/json");
-      const data = isJson && text36 ? JSON.parse(text36) : text36;
+      const data = isJson && text37 ? JSON.parse(text37) : text37;
       if (!res.ok) {
         const errBody = isJson ? data : void 0;
         const errorDetail = errBody?.error;
@@ -201013,8 +202268,8 @@ var StorageFileApi = class extends BaseApiClient {
     return query;
   }
 };
-var version = "2.112.4";
-var DEFAULT_HEADERS = { "X-Client-Info": `storage-js/${version}` };
+var version2 = "2.112.4";
+var DEFAULT_HEADERS = { "X-Client-Info": `storage-js/${version2}` };
 var StorageBucketApi = class extends BaseApiClient {
   constructor(url2, headers = {}, fetch$1, opts) {
     const baseUrl = new URL(url2);
@@ -202418,7 +203673,7 @@ var StorageClient = class extends StorageBucketApi {
 var import_auth_js = __toESM(require_main3(), 1);
 __reExport(dist_exports, __toESM(require_main2(), 1));
 __reExport(dist_exports, __toESM(require_main3(), 1));
-var version2 = "2.112.4";
+var version3 = "2.112.4";
 var JS_ENV = "";
 var JS_RUNTIME_VERSION;
 if (typeof Deno !== "undefined") {
@@ -202435,7 +203690,7 @@ var _Deno$version;
 var _process$version;
 var _runtimeMeta = [`runtime=${JS_ENV}`];
 if (JS_RUNTIME_VERSION) _runtimeMeta.push(`runtime-version=${JS_RUNTIME_VERSION}`);
-var DEFAULT_HEADERS2 = { "X-Client-Info": `supabase-js/${version2}; ${_runtimeMeta.join("; ")}` };
+var DEFAULT_HEADERS2 = { "X-Client-Info": `supabase-js/${version3}; ${_runtimeMeta.join("; ")}` };
 var DEFAULT_GLOBAL_OPTIONS = { headers: DEFAULT_HEADERS2 };
 var DEFAULT_DB_OPTIONS = { schema: "public" };
 var DEFAULT_AUTH_OPTIONS = {
@@ -203197,1368 +204452,26 @@ function customAlphabet(alphabet, size = 21) {
   return customRandom(alphabet, size, random);
 }
 
-// ../../node_modules/@workspace/db/src/index.ts
-import { drizzle } from "drizzle-orm/node-postgres";
-import pg from "pg";
+// src/routes/auth.ts
+init_src();
 
-// ../../lib/db/src/schema/index.ts
-var schema_exports = {};
-__export(schema_exports, {
-  accountReferencesTable: () => accountReferencesTable,
-  activitiesTable: () => activitiesTable,
-  adminActionTypes: () => adminActionTypes,
-  adminAuditLogTable: () => adminAuditLogTable,
-  aiTiersTable: () => aiTiersTable,
-  aiUsageLogTable: () => aiUsageLogTable,
-  aiUsageStatsSchema: () => aiUsageStatsSchema,
-  attachmentsTable: () => attachmentsTable,
-  commentsTable: () => commentsTable,
-  documentTemplatesTable: () => documentTemplatesTable,
-  documentVersionsTable: () => documentVersionsTable,
-  documentsTable: () => documentsTable,
-  exportsTable: () => exportsTable,
-  insertAIUsageLogSchema: () => insertAIUsageLogSchema,
-  insertAccountReferenceSchema: () => insertAccountReferenceSchema,
-  insertActivitySchema: () => insertActivitySchema,
-  insertAdminAuditLogSchema: () => insertAdminAuditLogSchema,
-  insertAiTierSchema: () => insertAiTierSchema,
-  insertAttachmentSchema: () => insertAttachmentSchema,
-  insertCommentSchema: () => insertCommentSchema,
-  insertDocumentSchema: () => insertDocumentSchema,
-  insertDocumentTemplateSchema: () => insertDocumentTemplateSchema,
-  insertDocumentVersionSchema: () => insertDocumentVersionSchema,
-  insertExportSchema: () => insertExportSchema,
-  insertJobSchema: () => insertJobSchema,
-  insertLearningActivitySchema: () => insertLearningActivitySchema,
-  insertMessageSchema: () => insertMessageSchema,
-  insertProjectMemberSchema: () => insertProjectMemberSchema,
-  insertProjectMetadataSchema: () => insertProjectMetadataSchema,
-  insertProjectSchema: () => insertProjectSchema,
-  insertQuizSchema: () => insertQuizSchema,
-  insertQuizSubmissionSchema: () => insertQuizSubmissionSchema,
-  insertReferenceCitationSchema: () => insertReferenceCitationSchema,
-  insertReferenceSchema: () => insertReferenceSchema,
-  insertReferralEventSchema: () => insertReferralEventSchema,
-  insertReferralSchema: () => insertReferralSchema,
-  insertRubricSchema: () => insertRubricSchema,
-  insertShareTokenSchema: () => insertShareTokenSchema,
-  insertSimulationMessageSchema: () => insertSimulationMessageSchema,
-  insertSimulationReportSchema: () => insertSimulationReportSchema,
-  insertSimulationSessionSchema: () => insertSimulationSessionSchema,
-  insertTokenTransactionSchema: () => insertTokenTransactionSchema,
-  insertUserBalanceSchema: () => insertUserBalanceSchema,
-  insertUserSchema: () => insertUserSchema,
-  insertWritingStyleProfileSchema: () => insertWritingStyleProfileSchema,
-  jobsTable: () => jobsTable,
-  learningActivitiesTable: () => learningActivitiesTable,
-  messagesTable: () => messagesTable,
-  packagesTable: () => packagesTable,
-  projectMembersRoles: () => projectMembersRoles,
-  projectMembersTable: () => projectMembersTable,
-  projectMetadataTable: () => projectMetadataTable,
-  projectsTable: () => projectsTable,
-  questionSchema: () => questionSchema,
-  quizResponseSchema: () => quizResponseSchema,
-  quizSubmissionsTable: () => quizSubmissionsTable,
-  quizzesTable: () => quizzesTable,
-  referenceCitationsTable: () => referenceCitationsTable,
-  referencesTable: () => referencesTable,
-  referralEventsTable: () => referralEventsTable,
-  referralStatuses: () => referralStatuses,
-  referralsTable: () => referralsTable,
-  requestTypes: () => requestTypes,
-  rubricCriterionSchema: () => rubricCriterionSchema,
-  rubricsTable: () => rubricsTable,
-  saldoStatuses: () => saldoStatuses,
-  shareTokensTable: () => shareTokensTable,
-  simulationMessagesTable: () => simulationMessagesTable,
-  simulationPersonas: () => simulationPersonas,
-  simulationReportsTable: () => simulationReportsTable,
-  simulationRoles: () => simulationRoles,
-  simulationScoreSchema: () => simulationScoreSchema,
-  simulationSessionsTable: () => simulationSessionsTable,
-  simulationStatuses: () => simulationStatuses,
-  styleCharacteristicsSchema: () => styleCharacteristicsSchema,
-  subscriptionStatuses: () => subscriptionStatuses,
-  subscriptionsTable: () => subscriptionsTable,
-  tokenTransactionsTable: () => tokenTransactionsTable,
-  transactionTypes: () => transactionTypes,
-  usageWindowsTable: () => usageWindowsTable,
-  userBalancesTable: () => userBalancesTable,
-  usersTable: () => usersTable,
-  windowTypes: () => windowTypes,
-  writingStyleProfilesTable: () => writingStyleProfilesTable
-});
-
-// ../../lib/db/src/schema/projects.ts
-import { pgTable, text, serial, integer, timestamp, boolean as boolean2 } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-var projectsTable = pgTable("projects", {
-  id: serial("id").primaryKey(),
-  userId: text("user_id").notNull(),
-  // FK to Supabase auth user ID
-  title: text("title").notNull(),
-  status: text("status").notNull().default("draft"),
-  progress: integer("progress").notNull().default(0),
-  instructionText: text("instruction_text"),
-  subject: text("subject"),
-  taskType: text("task_type"),
-  citationFormat: text("citation_format"),
-  outputFormat: text("output_format"),
-  minRefYear: integer("min_ref_year"),
-  minRefCount: integer("min_ref_count"),
-  /** Toggle AI disclosure labels — default true (ON) */
-  aiDisclosure: boolean2("ai_disclosure").notNull().default(true),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => /* @__PURE__ */ new Date())
-});
-var insertProjectSchema = createInsertSchema(projectsTable).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true
-});
-
-// ../../lib/db/src/schema/messages.ts
-import { pgTable as pgTable2, text as text2, serial as serial2, integer as integer2, timestamp as timestamp2 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema2 } from "drizzle-zod";
-var messagesTable = pgTable2("messages", {
-  id: serial2("id").primaryKey(),
-  projectId: integer2("project_id").notNull(),
-  role: text2("role").notNull(),
-  content: text2("content").notNull(),
-  createdAt: timestamp2("created_at", { withTimezone: true }).notNull().defaultNow()
-});
-var insertMessageSchema = createInsertSchema2(messagesTable).omit({
-  id: true,
-  createdAt: true
-});
-
-// ../../lib/db/src/schema/documents.ts
-import { pgTable as pgTable3, text as text3, serial as serial3, integer as integer3, timestamp as timestamp3 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema3 } from "drizzle-zod";
-var documentVersionsTable = pgTable3("document_versions", {
-  id: serial3("id").primaryKey(),
-  projectId: integer3("project_id").notNull(),
-  // Multi-document: each version belongs to a document (nullable for backward compat)
-  documentId: integer3("document_id"),
-  versionNumber: integer3("version_number").notNull().default(1),
-  content: text3("content").notNull(),
-  outline: text3("outline"),
-  changeDescription: text3("change_description"),
-  createdAt: timestamp3("created_at", { withTimezone: true }).notNull().defaultNow()
-});
-var insertDocumentVersionSchema = createInsertSchema3(documentVersionsTable).omit({
-  id: true,
-  createdAt: true
-});
-
-// ../../lib/db/src/schema/multi-documents.ts
-import { pgTable as pgTable4, text as text4, serial as serial4, integer as integer4, timestamp as timestamp4, boolean as boolean3 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema4 } from "drizzle-zod";
-var documentsTable = pgTable4("documents", {
-  id: serial4("id").primaryKey(),
-  projectId: integer4("project_id").notNull(),
-  title: text4("title").notNull().default("Document 1"),
-  orderIndex: integer4("order_index").notNull().default(0),
-  isActive: boolean3("is_active").notNull().default(true),
-  createdAt: timestamp4("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp4("updated_at", { withTimezone: true }).notNull().defaultNow()
-});
-var insertDocumentSchema = createInsertSchema4(documentsTable).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true
-});
-
-// ../../lib/db/src/schema/references.ts
-import { pgTable as pgTable5, text as text5, serial as serial5, integer as integer5, timestamp as timestamp5, boolean as boolean4 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema5 } from "drizzle-zod";
-var referencesTable = pgTable5("references", {
-  id: serial5("id").primaryKey(),
-  projectId: integer5("project_id").notNull(),
-  title: text5("title").notNull(),
-  authors: text5("authors"),
-  year: integer5("year"),
-  journal: text5("journal"),
-  volume: text5("volume"),
-  issue: text5("issue"),
-  doi: text5("doi"),
-  url: text5("url"),
-  validationStatus: text5("validation_status").notNull().default("unverified"),
-  usedInChapters: text5("used_in_chapters"),
-  createdAt: timestamp5("created_at", { withTimezone: true }).notNull().defaultNow(),
-  // Track whether this reference was auto-suggested by CrossRef or confirmed by user
-  isSuggested: boolean4("is_suggested").notNull().default(false),
-  // Source of the reference
-  source: text5("source").notNull().default("manual"),
-  // DECISION 014 — ceklist status: true if included in bibliography + eligible for AI auto-cite
-  isSelected: boolean4("is_selected").notNull().default(false)
-});
-var insertReferenceSchema = createInsertSchema5(referencesTable).omit({
-  id: true,
-  createdAt: true
-});
-
-// ../../lib/db/src/schema/account-references.ts
-import { pgTable as pgTable6, text as text6, serial as serial6, integer as integer6, timestamp as timestamp6, boolean as boolean5 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema6 } from "drizzle-zod";
-var accountReferencesTable = pgTable6("account_references", {
-  id: serial6("id").primaryKey(),
-  userId: text6("user_id").notNull(),
-  title: text6("title").notNull(),
-  authors: text6("authors"),
-  year: integer6("year"),
-  journal: text6("journal"),
-  volume: text6("volume"),
-  issue: text6("issue"),
-  doi: text6("doi"),
-  url: text6("url"),
-  createdAt: timestamp6("created_at", { withTimezone: true }).notNull().defaultNow(),
-  // Track whether this reference was auto-suggested by CrossRef or confirmed by user
-  isSuggested: boolean5("is_suggested").notNull().default(false),
-  // Source of the reference
-  source: text6("source").notNull().default("manual")
-});
-var insertAccountReferenceSchema = createInsertSchema6(accountReferencesTable).omit({
-  id: true,
-  createdAt: true
-});
-
-// ../../lib/db/src/schema/reference_citations.ts
-import { pgTable as pgTable7, text as text7, serial as serial7, integer as integer7, timestamp as timestamp7 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema7 } from "drizzle-zod";
-var referenceCitationsTable = pgTable7("reference_citations", {
-  id: serial7("id").primaryKey(),
-  projectId: integer7("project_id").notNull().references(() => projectsTable.id, { onDelete: "cascade" }),
-  referenceId: integer7("reference_id").notNull().references(() => referencesTable.id, { onDelete: "cascade" }),
-  // 0-based paragraph index in the document text
-  paragraphIndex: integer7("paragraph_index").notNull(),
-  // Character offset within the paragraph (where the citation marker starts)
-  offsetInParagraph: integer7("offset_in_paragraph").notNull().default(0),
-  // Pre-rendered citation marker (e.g., "(Smith & Jones, 2023)" or "[1]")
-  // Re-rendered when citationFormat changes
-  formatMarker: text7("format_marker").notNull(),
-  // Optional AI explanation for why this citation was placed here
-  // Useful for the auto-cite preview UI
-  placementReason: text7("placement_reason"),
-  createdAt: timestamp7("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp7("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => /* @__PURE__ */ new Date())
-});
-var insertReferenceCitationSchema = createInsertSchema7(referenceCitationsTable).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true
-});
-
-// ../../lib/db/src/schema/attachments.ts
-import { pgTable as pgTable8, text as text8, serial as serial8, integer as integer8, timestamp as timestamp8 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema8 } from "drizzle-zod";
-var attachmentsTable = pgTable8("attachments", {
-  id: serial8("id").primaryKey(),
-  projectId: integer8("project_id").notNull(),
-  filename: text8("filename").notNull(),
-  originalName: text8("original_name").notNull(),
-  mimeType: text8("mime_type"),
-  sizeBytes: integer8("size_bytes"),
-  attachmentType: text8("attachment_type").notNull().default("supplement"),
-  extractedText: text8("extracted_text"),
-  createdAt: timestamp8("created_at", { withTimezone: true }).notNull().defaultNow()
-});
-var insertAttachmentSchema = createInsertSchema8(attachmentsTable).omit({
-  id: true,
-  createdAt: true
-});
-
-// ../../lib/db/src/schema/activities.ts
-import { pgTable as pgTable9, text as text9, serial as serial9, integer as integer9, timestamp as timestamp9 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema9 } from "drizzle-zod";
-var activitiesTable = pgTable9("activities", {
-  id: serial9("id").primaryKey(),
-  projectId: integer9("project_id").notNull(),
-  eventType: text9("event_type").notNull(),
-  description: text9("description").notNull(),
-  createdAt: timestamp9("created_at", { withTimezone: true }).notNull().defaultNow()
-});
-var insertActivitySchema = createInsertSchema9(activitiesTable).omit({
-  id: true,
-  createdAt: true
-});
-
-// ../../lib/db/src/schema/jobs.ts
-import { pgTable as pgTable10, text as text10, serial as serial10, integer as integer10, timestamp as timestamp10 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema10 } from "drizzle-zod";
-var jobsTable = pgTable10("jobs", {
-  id: serial10("id").primaryKey(),
-  projectId: integer10("project_id").notNull(),
-  jobType: text10("job_type").notNull(),
-  status: text10("status").notNull().default("pending"),
-  result: text10("result"),
-  errorMessage: text10("error_message"),
-  createdAt: timestamp10("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp10("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => /* @__PURE__ */ new Date())
-});
-var insertJobSchema = createInsertSchema10(jobsTable).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true
-});
-
-// ../../lib/db/src/schema/project_metadata.ts
-import { pgTable as pgTable11, text as text11, serial as serial11, integer as integer11, timestamp as timestamp11 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema11 } from "drizzle-zod";
-var projectMetadataTable = pgTable11("project_metadata", {
-  id: serial11("id").primaryKey(),
-  projectId: integer11("project_id").notNull().unique(),
-  detectedTitle: text11("detected_title"),
-  subject: text11("subject"),
-  taskType: text11("task_type"),
-  citationFormat: text11("citation_format"),
-  language: text11("language"),
-  outline: text11("outline"),
-  contextSummary: text11("context_summary"),
-  createdAt: timestamp11("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp11("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => /* @__PURE__ */ new Date())
-});
-var insertProjectMetadataSchema = createInsertSchema11(projectMetadataTable).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true
-});
-
-// ../../lib/db/src/schema/exports.ts
-import { pgTable as pgTable12, text as text12, serial as serial12, integer as integer12, timestamp as timestamp12 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema12 } from "drizzle-zod";
-var exportsTable = pgTable12("exports", {
-  id: serial12("id").primaryKey(),
-  projectId: integer12("project_id").notNull(),
-  format: text12("format").notNull(),
-  status: text12("status").notNull().default("pending"),
-  filePath: text12("file_path"),
-  createdAt: timestamp12("created_at", { withTimezone: true }).notNull().defaultNow()
-});
-var insertExportSchema = createInsertSchema12(exportsTable).omit({
-  id: true,
-  createdAt: true
-});
-
-// ../../lib/db/src/schema/users.ts
-import { pgTable as pgTable13, text as text13, timestamp as timestamp13, boolean as boolean6 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema13 } from "drizzle-zod";
-var usersTable = pgTable13("users", {
-  // Supabase auth user ID (UUID from Supabase)
-  id: text13("id").primaryKey(),
-  email: text13("email").notNull(),
-  // Username: unique, used for sharing URLs (e.g., /u/budi)
-  username: text13("username").unique().notNull(),
-  // Owner flag: owner doesn't need subscription
-  isOwner: boolean6("is_owner").notNull().default(false),
-  // Optional display info
-  displayName: text13("display_name"),
-  avatarUrl: text13("avatar_url"),
-  // Unique referral code this user can share
-  referralCode: text13("referral_code").unique(),
-  // Timestamp when username was last changed (for 30-day rate limit)
-  usernameChangedAt: timestamp13("username_changed_at", { withTimezone: true }),
-  createdAt: timestamp13("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp13("updated_at", { withTimezone: true }).notNull().defaultNow()
-});
-var insertUserSchema = createInsertSchema13(usersTable).omit({
-  createdAt: true,
-  updatedAt: true
-});
-
-// ../../lib/db/src/schema/referrals.ts
-import {
-  pgTable as pgTable14,
-  serial as serial13,
-  text as text14,
-  timestamp as timestamp14,
-  boolean as boolean7,
-  integer as integer13,
-  index
-} from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema14 } from "drizzle-zod";
-var referralsTable = pgTable14(
-  "referrals",
-  {
-    id: serial13("id").primaryKey(),
-    // Who invited
-    referrerId: text14("referrer_id").notNull().references(() => usersTable.id, { onDelete: "set null" }),
-    // Who was invited (exactly one referrer per user)
-    referredId: text14("referred_id").notNull().unique().references(() => usersTable.id, { onDelete: "set null" }),
-    // Email at time of registration (denormalized for audit trail)
-    referredEmail: text14("referred_email").notNull(),
-    // Referral code used at time of registration
-    referralCode: text14("referral_code").notNull(),
-    // Lifecycle status
-    status: text14("status").notNull().default("pending"),
-    // pending   = newly registered, awaiting email verification
-    // verified  = email confirmed
-    // qualified = email confirmed + first payment (future)
-    // rewarded  = commission/reward paid out (future)
-    // rejected  = abuse detected
-    // ----- Reward program tracking (finalized 2026-09-09) -----
-    // First successful payment timestamp (any method: subscription or topup)
-    firstPaymentAt: timestamp14("first_payment_at", { withTimezone: true }),
-    // First-payment payment event ID (for idempotency)
-    firstPaymentEventId: text14("first_payment_event_id"),
-    // Referee cashback Rp 5,000 — claimed exactly once per user lifetime
-    refereeCashbackClaimed: boolean7("referee_cashback_claimed").notNull().default(false),
-    // Count of paid transactions used for referrer reward (capped at 5)
-    referrerRewardTxCount: integer13("referrer_reward_tx_count").notNull().default(0),
-    // Total referrer reward paid (denormalized for fast display)
-    referrerRewardPaidCents: integer13("referrer_reward_paid_cents").notNull().default(0),
-    createdAt: timestamp14("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp14("updated_at", { withTimezone: true }).notNull().defaultNow()
-  },
-  (table2) => [
-    index("idx_referrals_referrer").on(table2.referrerId),
-    index("idx_referrals_referred").on(table2.referredId),
-    index("idx_referrals_code").on(table2.referralCode),
-    index("idx_referrals_status").on(table2.status),
-    index("idx_referrals_first_payment").on(table2.firstPaymentAt)
-  ]
-);
-var referralStatuses = [
-  "pending",
-  "verified",
-  "qualified",
-  "rewarded",
-  "rejected"
-];
-var insertReferralSchema = createInsertSchema14(referralsTable).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-  firstPaymentAt: true,
-  firstPaymentEventId: true,
-  refereeCashbackClaimed: true,
-  referrerRewardTxCount: true,
-  referrerRewardPaidCents: true
-});
-
-// ../../lib/db/src/schema/referral_events.ts
-import {
-  pgTable as pgTable15,
-  serial as serial14,
-  text as text15,
-  timestamp as timestamp15,
-  jsonb,
-  index as index2,
-  integer as integer14
-} from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema15 } from "drizzle-zod";
-var referralEventsTable = pgTable15(
-  "referral_events",
-  {
-    id: serial14("id").primaryKey(),
-    // Which referral this event belongs to
-    referralId: integer14("referral_id").notNull().references(() => referralsTable.id, { onDelete: "cascade" }),
-    // Who or what triggered this event
-    actorId: text15("actor_id").references(() => usersTable.id, {
-      onDelete: "set null"
-    }),
-    actorType: text15("actor_type").notNull(),
-    // 'system' = automated process (email verified, payment confirmed)
-    // 'user'   = user-initiated action
-    // 'admin'  = manual admin override
-    // State transition
-    fromStatus: text15("from_status"),
-    toStatus: text15("to_status").notNull(),
-    // Human-readable reason
-    reason: text15("reason"),
-    // e.g. "user_registered", "email_verified", "payment_confirmed",
-    //       "abuse_detected", "manual_approval"
-    // Additional context (IP address, payment ID, etc.)
-    metadata: jsonb("metadata").$type(),
-    createdAt: timestamp15("created_at", { withTimezone: true }).notNull().defaultNow()
-  },
-  (table2) => [
-    index2("idx_referral_events_referral").on(table2.referralId),
-    index2("idx_referral_events_created").on(table2.createdAt)
-  ]
-);
-var insertReferralEventSchema = createInsertSchema15(referralEventsTable).omit(
-  {
-    id: true,
-    createdAt: true
+// src/lib/logger.ts
+var import_pino = __toESM(require_pino(), 1);
+var isProduction = process.env.NODE_ENV === "production";
+var logger2 = (0, import_pino.default)({
+  level: process.env.LOG_LEVEL ?? "info",
+  redact: [
+    "req.headers.authorization",
+    "req.headers.cookie",
+    "res.headers['set-cookie']"
+  ],
+  ...isProduction ? {} : {
+    transport: {
+      target: "pino-pretty",
+      options: { colorize: true }
+    }
   }
-);
-
-// ../../lib/db/src/schema/ai_usage_log.ts
-import {
-  pgTable as pgTable17,
-  serial as serial15,
-  text as text17,
-  integer as integer16,
-  real,
-  timestamp as timestamp17,
-  index as index4,
-  jsonb as jsonb2
-} from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema17 } from "drizzle-zod";
-import { z } from "zod/v4";
-
-// ../../lib/db/src/schema/ai_tiers.ts
-import {
-  pgTable as pgTable16,
-  text as text16,
-  boolean as boolean8,
-  integer as integer15,
-  numeric,
-  timestamp as timestamp16,
-  index as index3
-} from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema16 } from "drizzle-zod";
-var aiTiersTable = pgTable16(
-  "ai_tiers",
-  {
-    id: text16("id").primaryKey(),
-    // e.g. "free", "standard", "premium", "ultra"
-    name: text16("name").notNull(),
-    // e.g. "Gratis", "Standar", "Premium"
-    provider: text16("provider").notNull(),
-    // "groq", "anthropic", "openai"
-    model: text16("model").notNull(),
-    // Model ID, e.g. "llama-3.1-8b-instant"
-    baseUrl: text16("base_url").notNull(),
-    // API base URL
-    apiKeyEnvVar: text16("api_key_env_var").notNull(),
-    // ENV var name for API key
-    // Prices are stored in IDR cents per 1M tokens
-    // e.g. 500 = Rp 5 per 1M tokens
-    pricePer1MInputCents: integer15("price_per_1m_input_cents").notNull().default(0),
-    pricePer1MOutputCents: integer15("price_per_1m_output_cents").notNull().default(0),
-    // Provider cost in USD cents per 1M tokens (for margin calculation)
-    providerCostPer1MInputCents: integer15("provider_cost_per_1m_input_cents").notNull().default(0),
-    providerCostPer1MOutputCents: integer15("provider_cost_per_1m_output_cents").notNull().default(0),
-    // Markup multiplier for topup charges (Opsi B — Owner 2026-09-09)
-    // 1.40 = 40% markup above cost. Applied ONLY to topup, NOT subscription.
-    // numeric(5,3) allows values 0.001 to 9.999 with 3 decimal precision.
-    markupMultiplier: numeric("markup_multiplier", { precision: 5, scale: 3 }).notNull().default("1.400"),
-    // Rate limits
-    rateLimitRpm: integer15("rate_limit_rpm"),
-    rateLimitTpd: integer15("rate_limit_tpd"),
-    isFree: boolean8("is_free").notNull().default(false),
-    isActive: boolean8("is_active").notNull().default(true),
-    displayOrder: integer15("display_order").notNull().default(0),
-    description: text16("description").notNull().default(""),
-    usageTips: text16("usage_tips"),
-    // Tips shown to users
-    createdAt: timestamp16("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp16("updated_at", { withTimezone: true }).notNull().defaultNow()
-  },
-  (table2) => [
-    index3("idx_ai_tiers_active").on(table2.isActive, table2.displayOrder)
-  ]
-);
-var insertAiTierSchema = createInsertSchema16(aiTiersTable).omit({
-  createdAt: true,
-  updatedAt: true
 });
-
-// ../../lib/db/src/schema/ai_usage_log.ts
-var aiUsageLogTable = pgTable17(
-  "ai_usage_log",
-  {
-    id: serial15("id").primaryKey(),
-    userId: text17("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
-    projectId: integer16("project_id").references(() => projectsTable.id, {
-      onDelete: "set null"
-    }),
-    tierId: text17("tier_id").references(() => aiTiersTable.id, { onDelete: "set null" }),
-    model: text17("model").notNull(),
-    provider: text17("provider").notNull(),
-    inputTokens: integer16("input_tokens").notNull().default(0),
-    outputTokens: integer16("output_tokens").notNull().default(0),
-    estimatedCostUsd: real("estimated_cost_usd").notNull().default(0),
-    // Cost charged to user in IDR cents
-    costCents: integer16("cost_cents").notNull().default(0),
-    requestType: text17("request_type").notNull(),
-    metadata: jsonb2("metadata"),
-    createdAt: timestamp17("created_at", { withTimezone: true }).notNull().defaultNow()
-  },
-  (table2) => [
-    index4("idx_ai_usage_user_created").on(table2.userId, table2.createdAt),
-    index4("idx_ai_usage_project").on(table2.projectId),
-    index4("idx_ai_usage_type").on(table2.requestType),
-    index4("idx_ai_usage_tier").on(table2.tierId)
-  ]
-);
-var requestTypes = [
-  "chat",
-  "analyze",
-  "write",
-  "bibliography",
-  "export"
-];
-var insertAIUsageLogSchema = createInsertSchema17(aiUsageLogTable).omit({
-  id: true,
-  createdAt: true
-});
-var aiUsageStatsSchema = z.object({
-  totalRequests: z.number(),
-  totalInputTokens: z.number(),
-  totalOutputTokens: z.number(),
-  totalCostUsd: z.number(),
-  byRequestType: z.record(
-    z.string(),
-    z.object({
-      requests: z.number(),
-      inputTokens: z.number(),
-      outputTokens: z.number(),
-      costUsd: z.number()
-    })
-  )
-});
-
-// ../../lib/db/src/schema/user_balances.ts
-import {
-  pgTable as pgTable18,
-  text as text18,
-  integer as integer17,
-  boolean as boolean9,
-  timestamp as timestamp18,
-  index as index5
-} from "drizzle-orm/pg-core";
-import { sql } from "drizzle-orm";
-import { createInsertSchema as createInsertSchema18 } from "drizzle-zod";
-var saldoStatuses = ["active", "held", "closed"];
-var userBalancesTable = pgTable18(
-  "user_balances",
-  {
-    id: text18("id").primaryKey().default(sql`gen_random_uuid()`),
-    userId: text18("user_id").notNull().unique().references(() => usersTable.id, { onDelete: "cascade" }),
-    // Saldo IDR cents (from topup, refund, bonus). Withdrawable in concept.
-    balanceCents: integer17("balance_cents").notNull().default(0),
-    // Reward balance cents (non-withdrawable). Earned by being a referrer.
-    rewardBalanceCents: integer17("reward_balance_cents").notNull().default(0),
-    // Saldo status: active (normal), held (12mo inactivity), closed
-    saldoStatus: text18("saldo_status").notNull().default("active").$type(),
-    // Hybrid autofallback: automatically use saldo when subscription quota is exhausted.
-    // Default TRUE is intentional — owner decision 2026-09-11. New users get seamless
-    // saldo fallback out of the box; they can opt out via settings if desired.
-    autofallbackEnabled: boolean9("autofallback_enabled").notNull().default(true),
-    // When the user last had any AI activity
-    lastActiveAt: timestamp18("last_active_at", { withTimezone: true }),
-    // When the saldo was put on hold (12-month inactivity)
-    heldAt: timestamp18("held_at", { withTimezone: true }),
-    // Default tier preference for this user
-    preferredTierId: text18("preferred_tier_id").references(() => aiTiersTable.id, { onDelete: "set null" }),
-    createdAt: timestamp18("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp18("updated_at", { withTimezone: true }).notNull().defaultNow()
-  },
-  (table2) => [
-    index5("idx_user_balances_user").on(table2.userId),
-    index5("idx_user_balances_status").on(table2.saldoStatus)
-  ]
-);
-var insertUserBalanceSchema = createInsertSchema18(userBalancesTable).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true
-});
-
-// ../../lib/db/src/schema/token_transactions.ts
-import {
-  pgTable as pgTable21,
-  text as text21,
-  integer as integer20,
-  timestamp as timestamp21,
-  index as index8
-} from "drizzle-orm/pg-core";
-import { sql as sql3 } from "drizzle-orm";
-import { createInsertSchema as createInsertSchema19 } from "drizzle-zod";
-
-// ../../lib/db/src/schema/subscriptions.ts
-import {
-  pgTable as pgTable20,
-  text as text20,
-  integer as integer19,
-  varchar as varchar2,
-  timestamp as timestamp20,
-  boolean as boolean11,
-  index as index7
-} from "drizzle-orm/pg-core";
-import { sql as sql2 } from "drizzle-orm";
-
-// ../../lib/db/src/schema/subscription_packages.ts
-import {
-  pgTable as pgTable19,
-  text as text19,
-  varchar,
-  integer as integer18,
-  boolean as boolean10,
-  timestamp as timestamp19,
-  index as index6
-} from "drizzle-orm/pg-core";
-var packagesTable = pgTable19(
-  "subscription_packages",
-  {
-    id: text19("id").primaryKey(),
-    // e.g. "starter-lama-15d"
-    tier: varchar("tier", { length: 20 }).notNull(),
-    // starter|standar|premium|pro|ultra
-    tierName: text19("tier_name").notNull(),
-    // "Starter", "Standar", dst
-    tierDisplayOrder: integer18("tier_display_order").notNull().default(0),
-    modelType: varchar("model_type", { length: 20 }).notNull(),
-    // lama|campuran|baru
-    modelTypeName: text19("model_type_name").notNull(),
-    // "Lama (Haiku)", "Campuran", "Baru (Sonnet)"
-    periodDays: integer18("period_days").notNull(),
-    // 15 | 30
-    periodName: text19("period_name").notNull(),
-    // "15 Hari", "30 Hari"
-    // Quota caps per window (in tokens), per model
-    // Haiku quotas (in tokens)
-    quota7dHaikuTokens: integer18("quota_7d_haiku_tokens").notNull(),
-    quota5hHaikuTokens: integer18("quota_5h_haiku_tokens").notNull(),
-    // Sonnet quotas (in tokens)
-    quota7dSonnetTokens: integer18("quota_7d_sonnet_tokens").notNull(),
-    quota5hSonnetTokens: integer18("quota_5h_sonnet_tokens").notNull(),
-    // Price in IDR cents
-    priceCents: integer18("price_cents").notNull(),
-    // Feature flags
-    isHighlighted: boolean10("is_highlighted").notNull().default(false),
-    // "Pilihan Terbaik"
-    isDefault: boolean10("is_default").notNull().default(false),
-    // default pick
-    isActive: boolean10("is_active").notNull().default(true),
-    createdAt: timestamp19("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp19("updated_at", { withTimezone: true }).notNull().defaultNow()
-  },
-  (table2) => [
-    index6("idx_packages_tier").on(table2.tier, table2.tierDisplayOrder),
-    index6("idx_packages_active").on(table2.isActive),
-    index6("idx_packages_tier_model_period").on(
-      table2.tier,
-      table2.modelType,
-      table2.periodDays
-    )
-  ]
-);
-
-// ../../lib/db/src/schema/subscriptions.ts
-var subscriptionStatuses = [
-  "active",
-  "expired",
-  "cancelled",
-  "queued"
-];
-var subscriptionsTable = pgTable20(
-  "subscriptions",
-  {
-    id: text20("id").primaryKey().default(sql2`gen_random_uuid()`),
-    userId: text20("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
-    packageId: text20("package_id").notNull().references(() => packagesTable.id),
-    status: varchar2("status", { length: 20 }).notNull().default("active").$type(),
-    // Subscription period
-    startsAt: timestamp20("starts_at", { withTimezone: true }).notNull().defaultNow(),
-    expiresAt: timestamp20("expires_at", { withTimezone: true }).notNull(),
-    // Price paid (IDR cents) — for record keeping
-    pricePaidCents: integer19("price_paid_cents").notNull(),
-    // Payment reference (filled when payment gateway is wired)
-    paymentId: text20("payment_id"),
-    // Queue: when this subscription is queued to start
-    queuedForStartAt: timestamp20("queued_for_start_at", { withTimezone: true }),
-    // Auto-renew toggle
-    autoRenew: boolean11("auto_renew").notNull().default(false),
-    // Cancelled at
-    cancelledAt: timestamp20("cancelled_at", { withTimezone: true }),
-    // Anchor timestamp: when the user first used the subscription.
-    // Used for anchored rolling window calculation.
-    usageAnchorAt: timestamp20("usage_anchor_at", { withTimezone: true }),
-    createdAt: timestamp20("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp20("updated_at", { withTimezone: true }).notNull().defaultNow()
-  },
-  (table2) => [
-    index7("idx_subs_user").on(table2.userId),
-    index7("idx_subs_user_status").on(table2.userId, table2.status),
-    index7("idx_subs_expires").on(table2.expiresAt),
-    index7("idx_subs_queued").on(table2.queuedForStartAt)
-  ]
-);
-
-// ../../lib/db/src/schema/token_transactions.ts
-var transactionTypes = [
-  "topup",
-  "ai_usage",
-  "refund",
-  "bonus",
-  "adjustment",
-  "subscription_payment"
-];
-var tokenTransactionsTable = pgTable21(
-  "token_transactions",
-  {
-    id: text21("id").primaryKey().default(sql3`gen_random_uuid()`),
-    userId: text21("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
-    type: text21("type").notNull(),
-    // Amount in IDR cents. Positive = credit (incoming), Negative = debit (outgoing)
-    amountCents: integer20("amount_cents").notNull(),
-    // Balance snapshot after this transaction
-    balanceAfterCents: integer20("balance_after_cents").notNull(),
-    // For AI usage: reference to ai_usage_log
-    aiUsageLogId: integer20("ai_usage_log_id"),
-    // For subscription payment: reference to subscription
-    subscriptionId: text21("subscription_id").references(() => subscriptionsTable.id, { onDelete: "set null" }),
-    // For topup: Stripe/Midtrans payment reference
-    paymentId: text21("payment_id"),
-    // For topup: amount paid in cents (may differ from amountCents due to bonus)
-    paidAmountCents: integer20("paid_amount_cents"),
-    // Human-readable description
-    description: text21("description").notNull(),
-    createdAt: timestamp21("created_at", { withTimezone: true }).notNull().defaultNow()
-  },
-  (table2) => [
-    index8("idx_token_trans_user_created").on(table2.userId, table2.createdAt),
-    index8("idx_token_trans_type").on(table2.type),
-    index8("idx_token_trans_stripe").on(table2.paymentId),
-    index8("idx_token_trans_subscription").on(table2.subscriptionId)
-  ]
-);
-var insertTokenTransactionSchema = createInsertSchema19(tokenTransactionsTable).omit({
-  id: true,
-  createdAt: true
-});
-
-// ../../lib/db/src/schema/usage_windows.ts
-import {
-  pgTable as pgTable22,
-  text as text22,
-  integer as integer21,
-  varchar as varchar3,
-  timestamp as timestamp22,
-  boolean as boolean12,
-  index as index9
-} from "drizzle-orm/pg-core";
-import { sql as sql4 } from "drizzle-orm";
-var windowTypes = ["5h", "7d"];
-var usageWindowsTable = pgTable22(
-  "usage_windows",
-  {
-    id: text22("id").primaryKey().default(sql4`gen_random_uuid()`),
-    subscriptionId: text22("subscription_id").notNull().references(() => subscriptionsTable.id, { onDelete: "cascade" }),
-    userId: text22("user_id").notNull(),
-    // Model type: lama | campuran | baru
-    modelType: varchar3("model_type", { length: 20 }).notNull(),
-    // Window type: 5h | 7d
-    windowType: varchar3("window_type", { length: 5 }).notNull().$type(),
-    // Which window number this is (1-indexed)
-    // e.g., for a 30-day subscription: windows 1-4 for 7d
-    windowNumber: integer21("window_number").notNull(),
-    // Window boundary
-    windowStartAt: timestamp22("window_start_at", { withTimezone: true }).notNull(),
-    windowEndAt: timestamp22("window_end_at", { withTimezone: true }).notNull(),
-    // Usage accumulated (in tokens)
-    haikuTokensUsed: integer21("haiku_tokens_used").notNull().default(0),
-    sonnetTokensUsed: integer21("sonnet_tokens_used").notNull().default(0),
-    // Cost accumulated (in IDR cents) — computed from tokens × rate
-    costCents: integer21("cost_cents").notNull().default(0),
-    // Is this window exhausted (cannot be used further)?
-    isExhausted: boolean12("is_exhausted").notNull().default(false),
-    // Did user exceed the window cap?
-    isOverLimit: boolean12("is_over_limit").notNull().default(false),
-    createdAt: timestamp22("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp22("updated_at", { withTimezone: true }).notNull().defaultNow()
-  },
-  (table2) => [
-    index9("idx_usage_win_sub_model_type").on(
-      table2.subscriptionId,
-      table2.modelType,
-      table2.windowType
-    ),
-    index9("idx_usage_win_user").on(table2.userId, table2.windowEndAt),
-    index9("idx_usage_win_active").on(
-      table2.isExhausted,
-      table2.windowEndAt
-    )
-  ]
-);
-
-// ../../lib/db/src/schema/share_tokens.ts
-import { pgTable as pgTable23, text as text23, serial as serial16, integer as integer22, timestamp as timestamp23 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema20 } from "drizzle-zod";
-var shareTokensTable = pgTable23("share_tokens", {
-  id: serial16("id").primaryKey(),
-  projectId: integer22("project_id").notNull().references(() => projectsTable.id, { onDelete: "cascade" }),
-  token: text23("token").notNull().unique(),
-  /** view = read-only, comment = view + annotations, edit = view + modify */
-  accessMode: text23("access_mode").notNull().default("view"),
-  /** Optional label to help owner remember what the link is for */
-  label: text23("label"),
-  /** Null = never expires */
-  expiresAt: timestamp23("expires_at", { withTimezone: true }),
-  createdAt: timestamp23("created_at", { withTimezone: true }).notNull().defaultNow()
-});
-var insertShareTokenSchema = createInsertSchema20(shareTokensTable).omit({
-  id: true,
-  createdAt: true
-});
-
-// ../../lib/db/src/schema/comments.ts
-import { pgTable as pgTable24, text as text24, serial as serial17, integer as integer23, timestamp as timestamp24, boolean as boolean13 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema21 } from "drizzle-zod";
-var commentsTable = pgTable24("comments", {
-  id: serial17("id").primaryKey(),
-  projectId: integer23("project_id").notNull(),
-  documentId: integer23("document_id").notNull(),
-  userId: text24("user_id").notNull(),
-  /** Display name of commenter (denormalized for query convenience) */
-  userName: text24("user_name").notNull(),
-  /** The comment text */
-  content: text24("content").notNull(),
-  /**
-   * Text selection this comment refers to.
-   * Stores the selected text so we can re-attach comments
-   * if content changes.
-   */
-  quoteText: text24("quote_text"),
-  /**
-   * Start offset of selection in the document content.
-   * Null for comments not anchored to specific text.
-   */
-  offsetStart: integer23("offset_start"),
-  /**
-   * End offset of selection.
-   * Null for comments not anchored to specific text.
-   */
-  offsetEnd: integer23("offset_end"),
-  /** Parent comment ID for threaded replies */
-  parentId: integer23("parent_id"),
-  /** Whether the comment has been resolved/dismissed */
-  resolved: boolean13("resolved").notNull().default(false),
-  resolvedBy: text24("resolved_by"),
-  resolvedAt: timestamp24("resolved_at", { withTimezone: true }),
-  createdAt: timestamp24("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp24("updated_at", { withTimezone: true }).notNull().defaultNow()
-});
-var insertCommentSchema = createInsertSchema21(commentsTable).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true
-});
-
-// ../../lib/db/src/schema/project_members.ts
-import {
-  pgTable as pgTable25,
-  text as text25,
-  serial as serial18,
-  integer as integer24,
-  timestamp as timestamp25,
-  uniqueIndex
-} from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema22 } from "drizzle-zod";
-var projectMembersRoles = ["owner", "collaborator", "viewer"];
-var projectMembersTable = pgTable25("project_members", {
-  id: serial18("id").primaryKey(),
-  projectId: integer24("project_id").notNull(),
-  userId: text25("user_id").notNull(),
-  role: text25("role", { enum: projectMembersRoles }).notNull().default("collaborator"),
-  createdAt: timestamp25("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp25("updated_at", { withTimezone: true }).notNull().defaultNow()
-}, (table2) => ({
-  projectUserIdx: uniqueIndex("project_members_project_user_idx").on(
-    table2.projectId,
-    table2.userId
-  )
-}));
-var insertProjectMemberSchema = createInsertSchema22(
-  projectMembersTable
-).omit({ id: true, createdAt: true, updatedAt: true });
-
-// ../../lib/db/src/schema/quizzes.ts
-import {
-  pgTable as pgTable26,
-  text as text26,
-  serial as serial19,
-  integer as integer25,
-  timestamp as timestamp26,
-  jsonb as jsonb3
-} from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema23 } from "drizzle-zod";
-import { z as z2 } from "zod/v4";
-var questionSchema = z2.object({
-  id: z2.string(),
-  text: z2.string(),
-  type: z2.enum(["multiple_choice", "short_answer", "essay"]),
-  options: z2.array(
-    z2.object({
-      id: z2.string(),
-      text: z2.string()
-    })
-  ).optional(),
-  points: z2.number().int().positive().default(1)
-});
-var quizzesTable = pgTable26("quizzes", {
-  id: serial19("id").primaryKey(),
-  projectId: integer25("project_id").notNull(),
-  title: text26("title").notNull(),
-  description: text26("description"),
-  /** Array of question definitions */
-  questions: jsonb3("questions").$type().notNull(),
-  /** Extra metadata (difficulty, topic, estimatedTime, etc.) */
-  metadata: jsonb3("metadata").$type(),
-  createdBy: text26("created_by").notNull(),
-  createdAt: timestamp26("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp26("updated_at", { withTimezone: true }).notNull().defaultNow()
-});
-var insertQuizSchema = createInsertSchema23(quizzesTable).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true
-});
-
-// ../../lib/db/src/schema/quiz_submissions.ts
-import {
-  pgTable as pgTable27,
-  text as text27,
-  serial as serial20,
-  integer as integer26,
-  timestamp as timestamp27,
-  jsonb as jsonb4
-} from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema24 } from "drizzle-zod";
-import { z as z3 } from "zod/v4";
-var quizResponseSchema = z3.object({
-  questionId: z3.string(),
-  answer: z3.string()
-});
-var quizSubmissionsTable = pgTable27("quiz_submissions", {
-  id: serial20("id").primaryKey(),
-  quizId: integer26("quiz_id").notNull(),
-  studentId: text27("student_id").notNull(),
-  /** Array of student responses {questionId, answer} */
-  responses: jsonb4("responses").$type().notNull(),
-  /** Total score (null = not yet graded) */
-  score: integer26("score"),
-  /** Max possible score for this quiz */
-  maxScore: integer26("max_score"),
-  /** Individual question scores {questionId, score, maxScore} */
-  gradingDetails: jsonb4("grading_details").$type(),
-  gradedAt: timestamp27("graded_at", { withTimezone: true }),
-  submittedAt: timestamp27("submitted_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp27("updated_at", { withTimezone: true }).notNull().defaultNow()
-});
-var insertQuizSubmissionSchema = createInsertSchema24(
-  quizSubmissionsTable
-).omit({
-  id: true,
-  score: true,
-  gradingDetails: true,
-  gradedAt: true,
-  submittedAt: true,
-  updatedAt: true
-});
-
-// ../../lib/db/src/schema/rubrics.ts
-import {
-  pgTable as pgTable28,
-  text as text28,
-  serial as serial21,
-  integer as integer27,
-  timestamp as timestamp28,
-  jsonb as jsonb5
-} from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema25 } from "drizzle-zod";
-import { z as z4 } from "zod/v4";
-var rubricCriterionSchema = z4.object({
-  questionId: z4.string(),
-  maxPoints: z4.number().int().nonnegative(),
-  /** Correct answer (for auto-grading multiple choice) */
-  correctAnswer: z4.string().optional(),
-  /** Keywords to check for short-answer auto-grading */
-  keywords: z4.array(z4.string()).optional(),
-  /** Min keyword matches required (0-1 = percentage) */
-  keywordThreshold: z4.number().min(0).max(1).optional()
-});
-var rubricsTable = pgTable28("rubrics", {
-  id: serial21("id").primaryKey(),
-  quizId: integer27("quiz_id").notNull(),
-  /** Array of per-question grading criteria */
-  criteria: jsonb5("criteria").$type().notNull(),
-  /** Manual grading notes for essay questions */
-  manualNotes: text28("manual_notes"),
-  createdBy: text28("created_by").notNull(),
-  createdAt: timestamp28("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp28("updated_at", { withTimezone: true }).notNull().defaultNow()
-});
-var insertRubricSchema = createInsertSchema25(rubricsTable).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true
-});
-
-// ../../lib/db/src/schema/writing_style_profiles.ts
-import {
-  pgTable as pgTable29,
-  text as text29,
-  serial as serial22,
-  integer as integer28,
-  timestamp as timestamp29,
-  jsonb as jsonb6
-} from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema26 } from "drizzle-zod";
-import { z as z5 } from "zod/v4";
-var styleCharacteristicsSchema = z5.object({
-  formality: z5.number().min(0).max(1).describe("0=informal, 1=formal"),
-  vocabularyLevel: z5.number().min(0).max(1).describe("0=simple/common, 1=academic/specialized"),
-  avgSentenceLength: z5.number().positive(),
-  avgParagraphLength: z5.number().positive(),
-  passiveVoiceRatio: z5.number().min(0).max(1),
-  readabilityScore: z5.number().min(0).max(100),
-  dominantTone: z5.enum(["neutral", "persuasive", "analytical", "descriptive", "critical"]),
-  commonPhrases: z5.array(z5.string()),
-  structuralPatterns: z5.array(z5.string())
-});
-var writingStyleProfilesTable = pgTable29("writing_style_profiles", {
-  id: serial22("id").primaryKey(),
-  userId: text29("user_id").notNull(),
-  projectId: integer28("project_id"),
-  /** AI-extracted style characteristics */
-  styleCharacteristics: jsonb6("style_characteristics").$type().notNull(),
-  /** Number of documents analyzed to build this profile */
-  sampleSize: integer28("sample_size").notNull().default(1),
-  analyzedAt: timestamp29("analyzed_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp29("updated_at", { withTimezone: true }).notNull().defaultNow()
-});
-var insertWritingStyleProfileSchema = createInsertSchema26(
-  writingStyleProfilesTable
-).omit({
-  id: true,
-  analyzedAt: true,
-  updatedAt: true
-});
-
-// ../../lib/db/src/schema/document-templates.ts
-import { pgTable as pgTable30, text as text30, serial as serial23, integer as integer29, boolean as boolean14, timestamp as timestamp30 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema27 } from "drizzle-zod";
-var documentTemplatesTable = pgTable30("document_templates", {
-  id: serial23("id").primaryKey(),
-  userId: text30("user_id"),
-  name: text30("name").notNull(),
-  category: text30("category").notNull().default("custom"),
-  outline: text30("outline").notNull(),
-  citationFormat: text30("citation_format"),
-  minRefCount: integer29("min_ref_count").notNull().default(5),
-  description: text30("description"),
-  tags: text30("tags"),
-  isPublic: boolean14("is_public").notNull().default(false),
-  createdAt: timestamp30("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp30("updated_at", { withTimezone: true }).notNull().defaultNow()
-});
-var insertDocumentTemplateSchema = createInsertSchema27(documentTemplatesTable).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true
-});
-
-// ../../lib/db/src/schema/admin-audit-log.ts
-import {
-  pgTable as pgTable31,
-  serial as serial24,
-  text as text31,
-  timestamp as timestamp31,
-  index as index10,
-  jsonb as jsonb7
-} from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema28 } from "drizzle-zod";
-var adminAuditLogTable = pgTable31(
-  "admin_audit_log",
-  {
-    id: serial24("id").primaryKey(),
-    // Admin user who performed the action (owner email)
-    adminEmail: text31("admin_email").notNull(),
-    // Action type
-    action: text31("action").notNull(),
-    // Target resource
-    targetType: text31("target_type").notNull(),
-    // user, tier, pricing, system
-    targetId: text31("target_id"),
-    // user_id, tier_id, etc.
-    // Details as JSON
-    details: jsonb7("details"),
-    // IP address of admin
-    ipAddress: text31("ip_address"),
-    createdAt: timestamp31("created_at", { withTimezone: true }).notNull().defaultNow()
-  },
-  (table2) => [
-    index10("idx_admin_audit_admin_created").on(table2.adminEmail, table2.createdAt),
-    index10("idx_admin_audit_action").on(table2.action),
-    index10("idx_admin_audit_target").on(table2.targetType, table2.targetId)
-  ]
-);
-var adminActionTypes = [
-  "tier_override",
-  "user_suspend",
-  "user_unsuspend",
-  "pricing_change",
-  "tier_change",
-  "system_config"
-];
-var insertAdminAuditLogSchema = createInsertSchema28(adminAuditLogTable).omit({
-  id: true,
-  createdAt: true
-});
-
-// ../../lib/db/src/schema/learning-activities.ts
-import { pgTable as pgTable32, text as text32, serial as serial25, timestamp as timestamp32, integer as integer30, uniqueIndex as uniqueIndex2 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema29 } from "drizzle-zod";
-var learningActivitiesTable = pgTable32(
-  "learning_activities",
-  {
-    id: serial25("id").primaryKey(),
-    userId: text32("user_id").notNull(),
-    /** JSONB array of topic strings, e.g. ["Perubahan Iklim", "Food Security"] */
-    topics: text32("topics").notNull(),
-    // stored as JSON string
-    subject: text32("subject"),
-    /** Link to the source project in Task Mentor */
-    sourceProjectId: integer30("source_project_id"),
-    /** Where the topics were extracted from */
-    extractedFrom: text32("extracted_from").notNull().default("instruction"),
-    // 'instruction' | 'reference' | 'chat'
-    createdAt: timestamp32("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp32("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => /* @__PURE__ */ new Date())
-  },
-  (table2) => ({
-    userIdIdx: uniqueIndex2("learning_activities_user_id_idx").on(table2.userId, table2.sourceProjectId)
-  })
-);
-var insertLearningActivitySchema = createInsertSchema29(learningActivitiesTable).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true
-});
-
-// ../../lib/db/src/schema/simulation_sessions.ts
-import { pgTable as pgTable33, text as text33, serial as serial26, integer as integer31, timestamp as timestamp33, jsonb as jsonb8, index as index11 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema30 } from "drizzle-zod";
-var simulationStatuses = ["active", "completed", "abandoned", "failed"];
-var simulationPersonas = [
-  "dosen_strict",
-  "dosen_friendly",
-  "audience_awam",
-  "audience_expert"
-];
-var simulationSessionsTable = pgTable33(
-  "simulation_sessions",
-  {
-    id: serial26("id").primaryKey(),
-    userId: text33("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
-    projectId: integer31("project_id").notNull().references(() => projectsTable.id, { onDelete: "cascade" }),
-    persona: text33("persona").notNull().$type(),
-    status: text33("status").notNull().default("active").$type(),
-    projectContextSnapshot: jsonb8("project_context_snapshot").$type(),
-    questionsAsked: integer31("questions_asked").notNull().default(0),
-    totalInputTokens: integer31("total_input_tokens").notNull().default(0),
-    totalOutputTokens: integer31("total_output_tokens").notNull().default(0),
-    totalCostCents: integer31("total_cost_cents").notNull().default(0),
-    tierId: text33("tier_id"),
-    startedAt: timestamp33("started_at", { withTimezone: true }).notNull().defaultNow(),
-    endedAt: timestamp33("ended_at", { withTimezone: true }),
-    createdAt: timestamp33("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp33("updated_at", { withTimezone: true }).notNull().defaultNow()
-  },
-  (table2) => [
-    index11("idx_sim_sessions_user").on(table2.userId),
-    index11("idx_sim_sessions_project").on(table2.projectId),
-    index11("idx_sim_sessions_user_status").on(table2.userId, table2.status),
-    index11("idx_sim_sessions_started").on(table2.startedAt)
-  ]
-);
-var insertSimulationSessionSchema = createInsertSchema30(simulationSessionsTable).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-  startedAt: true,
-  questionsAsked: true,
-  totalInputTokens: true,
-  totalOutputTokens: true,
-  totalCostCents: true
-});
-
-// ../../lib/db/src/schema/simulation_messages.ts
-import { pgTable as pgTable34, text as text34, serial as serial27, integer as integer32, timestamp as timestamp34, index as index12 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema31 } from "drizzle-zod";
-var simulationRoles = ["user", "assistant", "system"];
-var simulationMessagesTable = pgTable34(
-  "simulation_messages",
-  {
-    id: serial27("id").primaryKey(),
-    sessionId: integer32("session_id").notNull().references(() => simulationSessionsTable.id, { onDelete: "cascade" }),
-    role: text34("role").notNull().$type(),
-    content: text34("content").notNull(),
-    inputTokens: integer32("input_tokens").notNull().default(0),
-    outputTokens: integer32("output_tokens").notNull().default(0),
-    costCents: integer32("cost_cents").notNull().default(0),
-    sequenceIndex: integer32("sequence_index").notNull(),
-    createdAt: timestamp34("created_at", { withTimezone: true }).notNull().defaultNow()
-  },
-  (table2) => [
-    index12("idx_sim_messages_session").on(table2.sessionId, table2.sequenceIndex)
-  ]
-);
-var insertSimulationMessageSchema = createInsertSchema31(simulationMessagesTable).omit({
-  id: true,
-  createdAt: true
-});
-
-// ../../lib/db/src/schema/simulation_reports.ts
-import { pgTable as pgTable35, text as text35, serial as serial28, integer as integer33, timestamp as timestamp35, jsonb as jsonb9, index as index13, boolean as boolean15 } from "drizzle-orm/pg-core";
-import { createInsertSchema as createInsertSchema32 } from "drizzle-zod";
-import { z as z6 } from "zod/v4";
-var simulationScoreSchema = z6.object({
-  criterion: z6.string(),
-  score: z6.number().int().min(0).max(100),
-  notes: z6.string()
-});
-var simulationReportsTable = pgTable35(
-  "simulation_reports",
-  {
-    id: serial28("id").primaryKey(),
-    sessionId: integer33("session_id").notNull().references(() => simulationSessionsTable.id, { onDelete: "cascade" }).unique(),
-    projectId: integer33("project_id").notNull().references(() => projectsTable.id, { onDelete: "cascade" }),
-    userId: text35("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
-    overallScore: integer33("overall_score").notNull(),
-    summary: text35("summary").notNull(),
-    strengths: text35("strengths").notNull(),
-    weaknesses: text35("weaknesses").notNull(),
-    recommendations: text35("recommendations").notNull(),
-    scores: jsonb9("scores").$type().notNull(),
-    isLatestForProject: boolean15("is_latest_for_project").notNull().default(true),
-    createdAt: timestamp35("created_at", { withTimezone: true }).notNull().defaultNow()
-  },
-  (table2) => [
-    index13("idx_sim_reports_session").on(table2.sessionId),
-    index13("idx_sim_reports_user_created").on(table2.userId, table2.createdAt),
-    index13("idx_sim_reports_project_latest").on(table2.projectId, table2.isLatestForProject)
-  ]
-);
-var insertSimulationReportSchema = createInsertSchema32(simulationReportsTable).omit({
-  id: true,
-  createdAt: true
-});
-
-// ../../node_modules/@workspace/db/src/index.ts
-var connectionString = process.env.DATABASE_POOLER_URL ?? process.env.DATABASE_URL;
-var pool2;
-var db;
-if (!connectionString) {
-  console.warn(
-    "DATABASE_URL / DATABASE_POOLER_URL not set. Database queries will fail."
-  );
-  pool2 = null;
-  db = null;
-} else {
-  pool2 = new pg.Pool({
-    connectionString,
-    max: process.env.VERCEL === "1" ? 1 : 10,
-    ssl: connectionString.includes("pooler.supabase.com") || process.env.VERCEL === "1" ? { rejectUnauthorized: false } : void 0
-  });
-  db = drizzle(pool2, { schema: schema_exports });
-}
 
 // src/routes/auth.ts
 var router2 = (0, import_express2.Router)();
@@ -204655,7 +204568,7 @@ router2.post("/auth/login", async (req, res) => {
       }
     }).returning();
     if (!localUser.username) {
-      let candidate = deriveUsername();
+      const candidate = deriveUsername();
       for (let i2 = 0; i2 < 10; i2++) {
         const suffix = i2 === 0 ? "" : String(i2 + 1);
         const [existing] = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.username, candidate + suffix));
@@ -204683,7 +204596,7 @@ router2.post("/auth/login", async (req, res) => {
     }
     res.json(toUserJson(localUser));
   } catch (err) {
-    console.error("[auth/login] unhandled error", err);
+    logger2.error({ err }, "[auth/login] unhandled error");
     if (!res.headersSent) {
       res.status(500).json({ error: "Login gagal. Silakan coba lagi." });
     }
@@ -204882,6 +204795,7 @@ var auth_default = router2;
 
 // src/routes/shared.ts
 var import_express3 = __toESM(require_express2(), 1);
+init_src();
 import { eq as eq2, desc, and, isNull } from "drizzle-orm";
 var router3 = (0, import_express3.Router)();
 router3.get("/shared/:token", async (req, res) => {
@@ -204941,14 +204855,18 @@ var shared_default = router3;
 
 // src/routes/projects.ts
 var import_express4 = __toESM(require_express2(), 1);
-import { eq as eq6, desc as desc3, sql as sql6, and as and4, isNull as isNull2 } from "drizzle-orm";
+init_src();
+import { eq as eq6, desc as desc3, sql as sql7, and as and5, isNull as isNull2 } from "drizzle-orm";
+import { randomBytes as randomBytes2 } from "crypto";
 
 // src/lib/activity.ts
+init_src();
 async function logActivity(projectId, eventType, description) {
   await db.insert(activitiesTable).values({ projectId, eventType, description });
 }
 
 // src/lib/ownership.ts
+init_src();
 import { eq as eq3, and as and2 } from "drizzle-orm";
 async function requireProjectOwnership(projectId, userId, res) {
   const [project] = await db.select().from(projectsTable).where(eq3(projectsTable.id, projectId));
@@ -204989,96 +204907,77 @@ async function requireProjectWriteAccess(projectId, userId, res) {
 }
 
 // src/lib/ai.ts
-import { eq as eq4 } from "drizzle-orm";
-
-// src/lib/logger.ts
-var import_pino = __toESM(require_pino(), 1);
-var isProduction = process.env.NODE_ENV === "production";
-var logger = (0, import_pino.default)({
-  level: process.env.LOG_LEVEL ?? "info",
-  redact: [
-    "req.headers.authorization",
-    "req.headers.cookie",
-    "res.headers['set-cookie']"
-  ],
-  ...isProduction ? {} : {
-    transport: {
-      target: "pino-pretty",
-      options: { colorize: true }
-    }
-  }
-});
+init_src();
+init_src();
+import { eq as eq4, and as and3, gt } from "drizzle-orm";
 
 // src/lib/tokenizer.ts
-var import_tiktoken = __toESM(require_tiktoken(), 1);
-var MODEL_CONTEXT_WINDOWS = {
-  // Anthropic Claude 3.5
-  "claude-3-5-sonnet-20241022": 2e5,
-  "claude-3-5-haiku-20241022": 2e5,
-  // Anthropic Claude 3
-  "claude-3-opus-20240229": 2e5,
-  "claude-3-sonnet-20240229": 2e5,
-  "claude-3-haiku-20240307": 2e5,
-  // Groq
-  "llama-3.1-8b-instant": 128e3,
-  "llama-3.3-70b-versatile": 128e3,
-  // OpenAI
-  "gpt-4o": 128e3,
-  "gpt-4o-mini": 128e3,
-  // Default
-  default: 1e5
-};
-var _encoder = null;
-function getEncoder() {
-  if (!_encoder) {
-    _encoder = (0, import_tiktoken.get_encoding)("cl100k_base");
+var CHARS_PER_TOKEN = 3.5;
+function countTokens(text37) {
+  if (!text37 || typeof text37 !== "string") return 0;
+  return Math.ceil(text37.length / CHARS_PER_TOKEN);
+}
+function estimateAnthropicInputTokens(systemPrompt, messages, model, reserveTokens = 4096) {
+  const systemTokens = countTokens(systemPrompt);
+  const messageTokens = messages.reduce((sum, m2) => {
+    return sum + countTokens(m2.content) + 5;
+  }, 0);
+  const inputTokens = systemTokens + messageTokens;
+  const CONTEXT_WINDOWS = {
+    "claude-sonnet-4-5-20250514": 2e5,
+    "claude-sonnet-4-20250514": 2e5,
+    "claude-3-5-sonnet": 2e5,
+    "claude-3-5-haiku": 2e5,
+    "claude-3-5-sonnet-20240620": 2e5,
+    "claude-3-5-haiku-20240307": 2e5,
+    "claude-3-opus": 2e5,
+    "claude-3-sonnet": 2e5,
+    "claude-3-haiku": 2e5
+  };
+  const contextWindow = CONTEXT_WINDOWS[model] ?? 2e5;
+  const effectiveWindow = Math.floor(contextWindow * 0.8);
+  const safeMaxOutputTokens = Math.min(reserveTokens, Math.max(512, effectiveWindow - inputTokens - 100));
+  return { inputTokens, safeMaxOutputTokens: Math.max(512, safeMaxOutputTokens) };
+}
+
+// src/middlewares/owner.ts
+var OWNER_EMAIL = process.env.OWNER_EMAIL ?? "";
+function requireOwner(req, res, next) {
+  if (!req.user) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
   }
-  return _encoder;
-}
-function countTokens(text36) {
-  if (!text36) return 0;
-  const enc = getEncoder();
-  return enc.encode(text36).length;
-}
-function getContextWindow(model) {
-  return MODEL_CONTEXT_WINDOWS[model] ?? MODEL_CONTEXT_WINDOWS.default;
-}
-function estimateTokensFromChars(charCount) {
-  return Math.ceil(charCount / 4);
-}
-function truncateToTokenLimit(text36, model, maxInputTokens) {
-  if (!text36) return text36;
-  const contextWindow = getContextWindow(model);
-  const reserved = maxInputTokens ?? Math.floor(contextWindow * 0.75);
-  const maxTokens = Math.min(reserved, contextWindow - 4096);
-  const tokens = countTokens(text36);
-  if (tokens <= maxTokens) return text36;
-  let low = 0;
-  let high = text36.length;
-  while (low < high) {
-    const mid = Math.floor((low + high + 1) / 2);
-    const slice = text36.substring(0, mid);
-    if (countTokens(slice) <= maxTokens) {
-      low = mid;
-    } else {
-      high = mid - 1;
-    }
-    if (low === high) break;
+  if (req.user.email?.toLowerCase() !== OWNER_EMAIL.toLowerCase()) {
+    res.status(403).json({ error: "Forbidden \u2014 admin access required" });
+    return;
   }
-  return text36.substring(0, low);
+  next();
+}
+function isOwnerEmail(email) {
+  if (!email || !OWNER_EMAIL) return false;
+  return email.toLowerCase() === OWNER_EMAIL.toLowerCase();
 }
 
 // src/lib/ai.ts
 var _tierCache = /* @__PURE__ */ new Map();
 var _tierCacheTime = 0;
 var CACHE_TTL_MS = 6e4;
-async function getTierConfig(tierId) {
+async function getTierConfig(tierId, userEmail) {
   const now = Date.now();
   if (now - _tierCacheTime < CACHE_TTL_MS && _tierCache.has(tierId)) {
-    return _tierCache.get(tierId) ?? null;
+    const cached2 = _tierCache.get(tierId) ?? null;
+    if (cached2?.isOwnerOnly && !isOwnerEmail(userEmail)) return null;
+    return cached2;
   }
   const [tier] = await db.select().from(aiTiersTable).where(eq4(aiTiersTable.id, tierId));
   if (!tier) return null;
+  if (tier.isOwnerOnly && !isOwnerEmail(userEmail)) {
+    logger2.warn(
+      { tierId, userEmail: userEmail ?? "<none>" },
+      "Blocked non-owner access to owner-only AI tier"
+    );
+    return null;
+  }
   const config = {
     id: tier.id,
     name: tier.name,
@@ -205094,6 +204993,7 @@ async function getTierConfig(tierId) {
     rateLimitRpm: tier.rateLimitRpm,
     rateLimitTpd: tier.rateLimitTpd,
     isFree: tier.isFree,
+    isOwnerOnly: tier.isOwnerOnly,
     description: tier.description,
     usageTips: tier.usageTips
   };
@@ -205101,10 +205001,44 @@ async function getTierConfig(tierId) {
   _tierCacheTime = now;
   return config;
 }
-async function getTierForUser(userId, preferredTierId) {
+function getTierIdsForPackageTier(packageTier) {
+  switch (packageTier) {
+    case "ultra":
+      return ["sonnet-5", "haiku-4.5"];
+    case "pro":
+      return ["sonnet-5", "haiku-4.5"];
+    case "premium":
+      return ["sonnet-5", "haiku-4.5"];
+    case "standar":
+      return ["haiku-4.5"];
+    case "starter":
+      return ["haiku-4.5"];
+    default:
+      return ["haiku-4.5"];
+  }
+}
+async function getAllowedTierIdsForUser(userId) {
+  const [sub] = await db.select().from(subscriptionsTable).where(
+    and3(
+      eq4(subscriptionsTable.userId, userId),
+      gt(subscriptionsTable.expiresAt, /* @__PURE__ */ new Date())
+    )
+  );
+  if (!sub?.packageId) return ["haiku-4.5"];
+  const [pkg] = await db.select({ tier: packagesTable.tier }).from(packagesTable).where(eq4(packagesTable.id, sub.packageId));
+  return getTierIdsForPackageTier(pkg?.tier ?? null);
+}
+async function checkTierAccess(userId, tierId) {
+  const allowed = await getAllowedTierIdsForUser(userId);
+  return allowed.includes(tierId);
+}
+async function getTierForUser(userId, preferredTierId, userEmail) {
   if (preferredTierId) {
-    const tier = await getTierConfig(preferredTierId);
-    if (tier) return tier;
+    const authorized = await checkTierAccess(userId, preferredTierId);
+    if (authorized) {
+      const tier = await getTierConfig(preferredTierId, userEmail);
+      if (tier) return tier;
+    }
   }
   return getTierConfig("haiku-4.5");
 }
@@ -205147,7 +205081,7 @@ function getApiKey(envVarName) {
 async function callAI(messages, tierId, mode) {
   const tier = await getTierConfig(tierId);
   if (!tier) {
-    logger.warn({ tierId }, "AI tier not found \u2014 falling back to haiku-4.5");
+    logger2.warn({ tierId }, "AI tier not found \u2014 falling back to haiku-4.5");
     const haikuTier = await getTierConfig("haiku-4.5");
     if (!haikuTier) {
       throw new Error("Haiku 4.5 tier not configured");
@@ -205156,7 +205090,7 @@ async function callAI(messages, tierId, mode) {
   }
   const apiKey = getApiKey(tier.apiKeyEnvVar);
   if (!apiKey) {
-    logger.warn({ tierId, envVar: tier.apiKeyEnvVar }, "AI API key not set \u2014 returning placeholder");
+    logger2.warn({ tierId, envVar: tier.apiKeyEnvVar }, "AI API key not set \u2014 returning placeholder");
     return {
       content: `AI belum dikonfigurasi. Tier "${tier.name}" memerlukan ${tier.apiKeyEnvVar} di environment variables.`,
       usage: { inputTokens: 0, outputTokens: 0, estimatedCostUsd: 0, costCents: 0, tierId },
@@ -205185,7 +205119,7 @@ async function callOpenAICompatible(messages, tier, mode) {
   });
   if (!response.ok) {
     const errorBody = await response.text();
-    logger.error({ status: response.status, body: errorBody, tier: tier.id }, "AI API error");
+    logger2.error({ status: response.status, body: errorBody, tier: tier.id }, "AI API error");
     throw new Error(`AI API error ${response.status}: ${errorBody}`);
   }
   const data = await response.json();
@@ -205204,6 +205138,13 @@ async function callAnthropic(messages, tier, mode) {
   const apiKey = getApiKey(tier.apiKeyEnvVar);
   const systemMsg = messages.find((m2) => m2.role === "system");
   const conversationMessages = messages.filter((m2) => m2.role !== "system");
+  const { safeMaxOutputTokens } = estimateAnthropicInputTokens(
+    systemMsg?.content ?? "",
+    conversationMessages,
+    tier.model,
+    8192
+    // reserve 8192 tokens for output (supports ~6000 word responses)
+  );
   const response = await fetch(`${tier.baseUrl}/messages`, {
     method: "POST",
     headers: {
@@ -205219,7 +205160,7 @@ async function callAnthropic(messages, tier, mode) {
         content: m2.content
       })),
       temperature: 0.7,
-      max_tokens: 4096
+      max_tokens: safeMaxOutputTokens
     })
   });
   if (!response.ok) {
@@ -205234,11 +205175,14 @@ async function callAnthropic(messages, tier, mode) {
       const errDetail = errorObj?.error;
       const innerType = errDetail?.type;
       if (innerType === "overload_input" || response.status === 400) {
-        logger.warn({ status: response.status, body: errorBody, tier: tier.id }, "Anthropic context window exceeded");
+        logger2.warn(
+          { status: response.status, body: errorBody, tier: tier.id },
+          "Anthropic context window exceeded"
+        );
         throw new Error("KONTEKS_TERLALU_PANJANG");
       }
     }
-    logger.error({ status: response.status, body: errorBody, tier: tier.id }, "Anthropic API error");
+    logger2.error({ status: response.status, body: errorBody, tier: tier.id }, "Anthropic API error");
     throw new Error(`Anthropic API error ${response.status}: ${errorBody}`);
   }
   const data = await response.json();
@@ -205313,7 +205257,7 @@ OUTLINE DOKUMEN:
 ${projectContext.outline}` : ""}
 ${projectContext.latestDocument ? `
 DOKUMEN TERBARU (untuk referensi revisi):
-${truncateToTokenLimit(projectContext.latestDocument, "claude-3-5-sonnet-20241022", 2e3)}${countTokens(projectContext.latestDocument) > 2e3 ? "\n...[dipotong]" : ""}` : ""}
+${projectContext.latestDocument.substring(0, 3e3)}${projectContext.latestDocument.length > 3e3 ? "\n...[dipotong]" : ""}` : ""}
 ${projectContext.contextSummary ? `
 RINGKASAN KONTEKS:
 ${projectContext.contextSummary}` : ""}
@@ -205323,6 +205267,8 @@ ${modeInstructions[mode]}`;
 }
 
 // src/lib/ai-usage-log.ts
+init_src();
+init_src();
 async function logAIUsage(opts) {
   try {
     const [log] = await db.insert(aiUsageLogTable).values({
@@ -205339,13 +205285,15 @@ async function logAIUsage(opts) {
     }).returning({ id: aiUsageLogTable.id });
     return log ?? null;
   } catch (err) {
-    logger.error({ err, userId: opts.userId, projectId: opts.projectId }, "Failed to write AI usage log");
+    logger2.error({ err, userId: opts.userId, projectId: opts.projectId }, "Failed to write AI usage log");
     return null;
   }
 }
 
 // src/lib/subscription.ts
-import { eq as eq5, and as and3, desc as desc2 } from "drizzle-orm";
+init_src();
+init_src();
+import { eq as eq5, and as and4, desc as desc2, gte, sql as sql6 } from "drizzle-orm";
 
 // ../../node_modules/date-fns/toDate.mjs
 function toDate(argument) {
@@ -205381,8 +205329,8 @@ function addDays(date2, amount) {
 
 // ../../node_modules/date-fns/addMilliseconds.mjs
 function addMilliseconds(date2, amount) {
-  const timestamp36 = +toDate(date2);
-  return constructFrom(date2, timestamp36 + amount);
+  const timestamp37 = +toDate(date2);
+  return constructFrom(date2, timestamp37 + amount);
 }
 
 // ../../node_modules/date-fns/constants.mjs
@@ -205430,7 +205378,7 @@ async function getUserActiveSubscription(userId) {
     packagesTable,
     eq5(subscriptionsTable.packageId, packagesTable.id)
   ).where(
-    and3(
+    and4(
       eq5(subscriptionsTable.userId, userId),
       eq5(subscriptionsTable.status, "active")
     )
@@ -205453,7 +205401,7 @@ async function getActiveUsageWindow(userId, subscriptionId, modelType, windowTyp
   }
   const anchorAt = sub.usageAnchorAt ?? sub.startsAt;
   const now = /* @__PURE__ */ new Date();
-  let windowNumber = 1;
+  let windowNumber;
   if (windowType === "5h") {
     const elapsedMs = now.getTime() - anchorAt.getTime();
     const elapsed5hSlots = elapsedMs / (5 * 60 * 60 * 1e3);
@@ -205464,7 +205412,7 @@ async function getActiveUsageWindow(userId, subscriptionId, modelType, windowTyp
     windowNumber = Math.max(1, Math.floor(elapsed7dSlots) + 1);
   }
   const [existing] = await db.select().from(usageWindowsTable).where(
-    and3(
+    and4(
       eq5(usageWindowsTable.subscriptionId, subscriptionId),
       eq5(usageWindowsTable.modelType, modelType),
       eq5(usageWindowsTable.windowType, windowType),
@@ -205509,7 +205457,7 @@ async function getActiveUsageWindow(userId, subscriptionId, modelType, windowTyp
 async function checkQuotaAndAccumulate(params) {
   const { userId, subscriptionId, packageId, modelType, haikuTokensUsed, sonnetTokensUsed, costCents } = params;
   const [sub] = await db.select().from(subscriptionsTable).where(
-    and3(
+    and4(
       eq5(subscriptionsTable.id, subscriptionId),
       eq5(subscriptionsTable.userId, userId),
       eq5(subscriptionsTable.status, "active")
@@ -205534,9 +205482,9 @@ async function checkQuotaAndAccumulate(params) {
       modelType,
       "5h"
     );
-    let newHaiku5h = window5h.haikuTokensUsed + (haikuTokensUsed > 0 ? haikuTokensUsed : 0);
-    let newSonnet5h = window5h.sonnetTokensUsed + (sonnetTokensUsed > 0 ? sonnetTokensUsed : 0);
-    let newCost5h = window5h.costCents + costCents;
+    const newHaiku5h = window5h.haikuTokensUsed + (haikuTokensUsed > 0 ? haikuTokensUsed : 0);
+    const newSonnet5h = window5h.sonnetTokensUsed + (sonnetTokensUsed > 0 ? sonnetTokensUsed : 0);
+    const newCost5h = window5h.costCents + costCents;
     let isOverLimit5h = false;
     if (modelType === "lama" && newHaiku5h > capHaiku) isOverLimit5h = true;
     if (modelType === "campuran" && (newHaiku5h > capHaiku || newSonnet5h > capSonnet)) isOverLimit5h = true;
@@ -205560,9 +205508,9 @@ async function checkQuotaAndAccumulate(params) {
       modelType,
       "7d"
     );
-    let newHaiku7d = window7d.haikuTokensUsed + (haikuTokensUsed > 0 ? haikuTokensUsed : 0);
-    let newSonnet7d = window7d.sonnetTokensUsed + (sonnetTokensUsed > 0 ? sonnetTokensUsed : 0);
-    let newCost7d = window7d.costCents + costCents;
+    const newHaiku7d = window7d.haikuTokensUsed + (haikuTokensUsed > 0 ? haikuTokensUsed : 0);
+    const newSonnet7d = window7d.sonnetTokensUsed + (sonnetTokensUsed > 0 ? sonnetTokensUsed : 0);
+    const newCost7d = window7d.costCents + costCents;
     let capHaiku7d = 0;
     let capSonnet7d = 0;
     if (modelType === "lama") {
@@ -205594,33 +205542,37 @@ async function checkQuotaAndAccumulate(params) {
   const [balance] = await db.select().from(userBalancesTable).where(eq5(userBalancesTable.userId, userId));
   const balanceCents = balance?.balanceCents ?? 0;
   const autofallbackEnabled = balance?.autofallbackEnabled ?? false;
-  if (autofallbackEnabled && balanceCents >= costCents && costCents > 0) {
-    const newBalance = balanceCents - costCents;
-    await db.transaction(async (tx) => {
-      await tx.update(userBalancesTable).set({ balanceCents: newBalance, updatedAt: /* @__PURE__ */ new Date() }).where(eq5(userBalancesTable.userId, userId));
-      await tx.insert(tokenTransactionsTable).values({
-        userId,
-        type: "ai_usage",
-        amountCents: -costCents,
-        balanceAfterCents: newBalance,
-        description: `AI usage (autofallback from subscription quota)`
-      });
-    });
-    return { allowed: true, method: "saldo", deductCents: costCents };
+  const [updatedBalance] = await db.transaction(async (tx) => {
+    return tx.update(userBalancesTable).set({ balanceCents: sql6`balance_cents - ${costCents}`, updatedAt: /* @__PURE__ */ new Date() }).where(
+      and4(
+        eq5(userBalancesTable.userId, userId),
+        gte(userBalancesTable.balanceCents, costCents),
+        eq5(userBalancesTable.autofallbackEnabled, true)
+      )
+    ).returning({ balanceCents: userBalancesTable.balanceCents });
+  });
+  if (!updatedBalance) {
+    const [balance2] = await db.select().from(userBalancesTable).where(eq5(userBalancesTable.userId, userId));
+    const currentBalance = balance2?.balanceCents ?? 0;
+    const autofallbackOff = !(balance2?.autofallbackEnabled ?? false);
+    if (autofallbackOff || currentBalance < costCents) {
+      return {
+        allowed: false,
+        reason: "saldo_insufficient",
+        balanceCents: currentBalance,
+        requiredCents: costCents
+      };
+    }
+    return { allowed: false, reason: "quota_exhausted", subscriptionActive: false };
   }
-  if (balanceCents < costCents && costCents > 0) {
-    return {
-      allowed: false,
-      reason: "saldo_insufficient",
-      balanceCents,
-      requiredCents: costCents
-    };
-  }
-  return {
-    allowed: false,
-    reason: "quota_exhausted",
-    subscriptionActive: false
-  };
+  await db.insert(tokenTransactionsTable).values({
+    userId,
+    type: "ai_usage",
+    amountCents: -costCents,
+    balanceAfterCents: updatedBalance.balanceCents,
+    description: `AI usage (autofallback from subscription quota)`
+  });
+  return { allowed: true, method: "saldo", deductCents: costCents };
 }
 async function checkAIAccess(params) {
   const { userId, tierId, estimatedCostCents } = params;
@@ -205674,36 +205626,37 @@ async function consumeQuotaForAIRequest(params) {
     }
     return result;
   }
-  const [balance] = await db.select().from(userBalancesTable).where(eq5(userBalancesTable.userId, userId));
-  const balanceCents = balance?.balanceCents ?? 0;
-  const autofallbackEnabled = balance?.autofallbackEnabled ?? false;
-  if (autofallbackEnabled && balanceCents >= costCents && costCents > 0) {
-    const newBalance = balanceCents - costCents;
-    await db.transaction(async (tx) => {
-      await tx.update(userBalancesTable).set({ balanceCents: newBalance, updatedAt: /* @__PURE__ */ new Date() }).where(eq5(userBalancesTable.userId, userId));
-      await tx.insert(tokenTransactionsTable).values({
-        userId,
-        type: "ai_usage",
-        amountCents: -costCents,
-        balanceAfterCents: newBalance,
-        description: `AI usage (saldo only)`
-      });
-    });
-    return { allowed: true, method: "saldo", deductCents: costCents };
+  const [updatedBalance] = await db.transaction(async (tx) => {
+    return tx.update(userBalancesTable).set({ balanceCents: sql6`balance_cents - ${costCents}`, updatedAt: /* @__PURE__ */ new Date() }).where(
+      and4(
+        eq5(userBalancesTable.userId, userId),
+        gte(userBalancesTable.balanceCents, costCents),
+        eq5(userBalancesTable.autofallbackEnabled, true)
+      )
+    ).returning({ balanceCents: userBalancesTable.balanceCents });
+  });
+  if (!updatedBalance) {
+    const [balance] = await db.select().from(userBalancesTable).where(eq5(userBalancesTable.userId, userId));
+    const currentBalance = balance?.balanceCents ?? 0;
+    const autofallbackOff = !(balance?.autofallbackEnabled ?? false);
+    if (autofallbackOff || currentBalance < costCents) {
+      return {
+        allowed: false,
+        reason: "saldo_insufficient",
+        balanceCents: currentBalance,
+        requiredCents: costCents
+      };
+    }
+    return { allowed: false, reason: "quota_exhausted", subscriptionActive: false };
   }
-  if (balanceCents < costCents && costCents > 0) {
-    return {
-      allowed: false,
-      reason: "saldo_insufficient",
-      balanceCents,
-      requiredCents: costCents
-    };
-  }
-  return {
-    allowed: false,
-    reason: "quota_exhausted",
-    subscriptionActive: false
-  };
+  await db.insert(tokenTransactionsTable).values({
+    userId,
+    type: "ai_usage",
+    amountCents: -costCents,
+    balanceAfterCents: updatedBalance.balanceCents,
+    description: `AI usage (saldo only)`
+  });
+  return { allowed: true, method: "saldo", deductCents: costCents };
 }
 
 // src/lib/prompt-injection.ts
@@ -205772,10 +205725,10 @@ function sanitizePromptInjection(content, options) {
   }
   if (sanitized.length > 1e5) {
     sanitized = sanitized.substring(0, 1e5);
-    logger.warn({ label: options.label, originalLength, truncatedTo: 1e5 }, "User content truncated \u2014 excessive length");
+    logger2.warn({ label: options.label, originalLength, truncatedTo: 1e5 }, "User content truncated \u2014 excessive length");
   }
   if (detected.length > 0) {
-    logger.info({ label: options.label, patterns: detected, originalLength, sanitizedLength: sanitized.length }, "Prompt injection pattern detected and neutralized");
+    logger2.info({ label: options.label, patterns: detected, originalLength, sanitizedLength: sanitized.length }, "Prompt injection pattern detected and neutralized");
   }
   return sanitized;
 }
@@ -205807,12 +205760,12 @@ var __getProtoOf2 = Object.getPrototypeOf;
 var __hasOwnProp2 = Object.prototype.hasOwnProperty;
 var __esmMin = (fn, res) => () => (fn && (res = fn(fn = 0)), res);
 var __commonJSMin = (cb, mod) => () => (mod || (cb((mod = { exports: {} }).exports, mod), cb = null), mod.exports);
-var __copyProps2 = (to, from, except, desc21) => {
+var __copyProps2 = (to, from, except, desc20) => {
   if (from && typeof from === "object" || typeof from === "function") for (var keys = __getOwnPropNames2(from), i2 = 0, n = keys.length, key; i2 < n; i2++) {
     key = keys[i2];
     if (!__hasOwnProp2.call(to, key) && key !== except) __defProp2(to, key, {
       get: ((k) => from[k]).bind(null, key),
-      enumerable: !(desc21 = __getOwnPropDesc2(from, key)) || desc21.enumerable
+      enumerable: !(desc20 = __getOwnPropDesc2(from, key)) || desc20.enumerable
     });
   }
   return to;
@@ -207968,10 +207921,10 @@ var require_get2 = /* @__PURE__ */ __commonJSMin(((exports, module) => {
   } catch (e2) {
     if (!e2 || typeof e2 !== "object" || !("code" in e2) || e2.code !== "ERR_PROTO_ACCESS") throw e2;
   }
-  var desc21 = !!hasProtoAccessor && gOPD && gOPD(Object.prototype, "__proto__");
+  var desc20 = !!hasProtoAccessor && gOPD && gOPD(Object.prototype, "__proto__");
   var $Object = Object;
   var $getPrototypeOf = $Object.getPrototypeOf;
-  module.exports = desc21 && typeof desc21.get === "function" ? callBind([desc21.get]) : typeof $getPrototypeOf === "function" ? function getDunder(value) {
+  module.exports = desc20 && typeof desc20.get === "function" ? callBind([desc20.get]) : typeof $getPrototypeOf === "function" ? function getDunder(value) {
     return $getPrototypeOf(value == null ? value : $Object(value));
   } : false;
 }));
@@ -208304,9 +208257,9 @@ var require_get_intrinsic2 = /* @__PURE__ */ __commonJSMin(((exports, module) =>
           return;
         }
         if ($gOPD && i2 + 1 >= parts.length) {
-          var desc21 = $gOPD(value, part);
-          isOwn = !!desc21;
-          if (isOwn && "get" in desc21 && !("originalValue" in desc21.get)) value = desc21.get;
+          var desc20 = $gOPD(value, part);
+          isOwn = !!desc20;
+          if (isOwn && "get" in desc20 && !("originalValue" in desc20.get)) value = desc20.get;
           else value = value[part];
         } else {
           isOwn = hasOwn(value, part);
@@ -208519,12 +208472,12 @@ var require_define_data_property = /* @__PURE__ */ __commonJSMin(((exports, modu
     var nonWritable = arguments.length > 4 ? arguments[4] : null;
     var nonConfigurable = arguments.length > 5 ? arguments[5] : null;
     var loose = arguments.length > 6 ? arguments[6] : false;
-    var desc21 = !!gopd && gopd(obj, property);
+    var desc20 = !!gopd && gopd(obj, property);
     if ($defineProperty) $defineProperty(obj, property, {
-      configurable: nonConfigurable === null && desc21 ? desc21.configurable : !nonConfigurable,
-      enumerable: nonEnumerable === null && desc21 ? desc21.enumerable : !nonEnumerable,
+      configurable: nonConfigurable === null && desc20 ? desc20.configurable : !nonConfigurable,
+      enumerable: nonEnumerable === null && desc20 ? desc20.enumerable : !nonEnumerable,
       value,
-      writable: nonWritable === null && desc21 ? desc21.writable : !nonWritable
+      writable: nonWritable === null && desc20 ? desc20.writable : !nonWritable
     });
     else if (loose || !nonEnumerable && !nonWritable && !nonConfigurable) obj[property] = value;
     else throw new $SyntaxError("This environment does not support defining a property as non-configurable, non-writable, or non-enumerable.");
@@ -208559,9 +208512,9 @@ var require_set_function_length = /* @__PURE__ */ __commonJSMin(((exports, modul
     var functionLengthIsConfigurable = true;
     var functionLengthIsWritable = true;
     if ("length" in fn && gOPD) {
-      var desc21 = gOPD(fn, "length");
-      if (desc21 && !desc21.configurable) functionLengthIsConfigurable = false;
-      if (desc21 && !desc21.writable) functionLengthIsWritable = false;
+      var desc20 = gOPD(fn, "length");
+      if (desc20 && !desc20.configurable) functionLengthIsConfigurable = false;
+      if (desc20 && !desc20.writable) functionLengthIsWritable = false;
     }
     if (functionLengthIsConfigurable || functionLengthIsWritable || !loose) if (hasDescriptors) define2(fn, "length", length, true, true);
     else define2(fn, "length", length);
@@ -209076,14 +209029,14 @@ var require_util = /* @__PURE__ */ __commonJSMin(((exports) => {
     return output;
   }
   function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array2) {
-    var name, str, desc21 = Object.getOwnPropertyDescriptor(value, key) || { value: value[key] };
-    if (desc21.get) if (desc21.set) str = ctx.stylize("[Getter/Setter]", "special");
+    var name, str, desc20 = Object.getOwnPropertyDescriptor(value, key) || { value: value[key] };
+    if (desc20.get) if (desc20.set) str = ctx.stylize("[Getter/Setter]", "special");
     else str = ctx.stylize("[Getter]", "special");
-    else if (desc21.set) str = ctx.stylize("[Setter]", "special");
+    else if (desc20.set) str = ctx.stylize("[Setter]", "special");
     if (!hasOwnProperty(visibleKeys, key)) name = "[" + key + "]";
-    if (!str) if (ctx.seen.indexOf(desc21.value) < 0) {
-      if (isNull7(recurseTimes)) str = formatValue(ctx, desc21.value, null);
-      else str = formatValue(ctx, desc21.value, recurseTimes - 1);
+    if (!str) if (ctx.seen.indexOf(desc20.value) < 0) {
+      if (isNull7(recurseTimes)) str = formatValue(ctx, desc20.value, null);
+      else str = formatValue(ctx, desc20.value, recurseTimes - 1);
       if (str.indexOf("\n") > -1) if (array2) str = str.split("\n").map(function(line) {
         return "  " + line;
       }).join("\n").slice(2);
@@ -209194,7 +209147,7 @@ var require_util = /* @__PURE__ */ __commonJSMin(((exports) => {
     "Nov",
     "Dec"
   ];
-  function timestamp36() {
+  function timestamp37() {
     var d = /* @__PURE__ */ new Date();
     var time = [
       pad2(d.getHours()),
@@ -209208,7 +209161,7 @@ var require_util = /* @__PURE__ */ __commonJSMin(((exports) => {
     ].join(" ");
   }
   exports.log = function() {
-    console.log("%s - %s", timestamp36(), exports.format.apply(exports, arguments));
+    console.log("%s - %s", timestamp37(), exports.format.apply(exports, arguments));
   };
   exports.inherits = require_inherits_browser2();
   exports._extend = function(origin, add2) {
@@ -212173,10 +212126,10 @@ var require_sax = /* @__PURE__ */ __commonJSMin(((exports) => {
       if (parser.textNode) emit(parser, "ontext", parser.textNode);
       parser.textNode = "";
     }
-    function textopts(opt, text36) {
-      if (opt.trim) text36 = text36.trim();
-      if (opt.normalize) text36 = text36.replace(/\s+/g, " ");
-      return text36;
+    function textopts(opt, text37) {
+      if (opt.trim) text37 = text37.trim();
+      if (opt.normalize) text37 = text37.replace(/\s+/g, " ");
+      return text37;
     }
     function error(parser, er) {
       closeText(parser);
@@ -213028,13 +212981,13 @@ var require_xml2js = /* @__PURE__ */ __commonJSMin(((exports, module) => {
     element[options.parentKey] = currentElement;
     currentElement = element;
   }
-  function onText(text36) {
+  function onText(text37) {
     if (options.ignoreText) return;
-    if (!text36.trim() && !options.captureSpacesBetweenElements) return;
-    if (options.trim) text36 = text36.trim();
-    if (options.nativeType) text36 = nativeType(text36);
-    if (options.sanitize) text36 = text36.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    addField("text", text36);
+    if (!text37.trim() && !options.captureSpacesBetweenElements) return;
+    if (options.trim) text37 = text37.trim();
+    if (options.nativeType) text37 = nativeType(text37);
+    if (options.sanitize) text37 = text37.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    addField("text", text37);
   }
   function onComment(comment) {
     if (options.ignoreComment) return;
@@ -213202,12 +213155,12 @@ var require_js2xml = /* @__PURE__ */ __commonJSMin(((exports, module) => {
   function writeDoctype(doctype, options) {
     return options.ignoreDoctype ? "" : "<!DOCTYPE " + ("doctypeFn" in options ? options.doctypeFn(doctype, currentElementName, currentElement) : doctype) + ">";
   }
-  function writeText(text36, options) {
+  function writeText(text37, options) {
     if (options.ignoreText) return "";
-    text36 = "" + text36;
-    text36 = text36.replace(/&amp;/g, "&");
-    text36 = text36.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    return "textFn" in options ? options.textFn(text36, currentElementName, currentElement) : text36;
+    text37 = "" + text37;
+    text37 = text37.replace(/&amp;/g, "&");
+    text37 = text37.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    return "textFn" in options ? options.textFn(text37, currentElementName, currentElement) : text37;
   }
   function hasContent(element, options) {
     var i2;
@@ -214469,22 +214422,22 @@ var require_common$1 = /* @__PURE__ */ __commonJSMin(((exports) => {
 }));
 var require_common2 = /* @__PURE__ */ __commonJSMin(((exports) => {
   var rotr32 = require_utils4().rotr32;
-  function ft_1(s2, x2, y, z13) {
-    if (s2 === 0) return ch32(x2, y, z13);
-    if (s2 === 1 || s2 === 3) return p322(x2, y, z13);
-    if (s2 === 2) return maj32(x2, y, z13);
+  function ft_1(s2, x2, y, z14) {
+    if (s2 === 0) return ch32(x2, y, z14);
+    if (s2 === 1 || s2 === 3) return p322(x2, y, z14);
+    if (s2 === 2) return maj32(x2, y, z14);
   }
   exports.ft_1 = ft_1;
-  function ch32(x2, y, z13) {
-    return x2 & y ^ ~x2 & z13;
+  function ch32(x2, y, z14) {
+    return x2 & y ^ ~x2 & z14;
   }
   exports.ch32 = ch32;
-  function maj32(x2, y, z13) {
-    return x2 & y ^ x2 & z13 ^ y & z13;
+  function maj32(x2, y, z14) {
+    return x2 & y ^ x2 & z14 ^ y & z14;
   }
   exports.maj32 = maj32;
-  function p322(x2, y, z13) {
-    return x2 ^ y ^ z13;
+  function p322(x2, y, z14) {
+    return x2 ^ y ^ z14;
   }
   exports.p32 = p322;
   function s0_256(x2) {
@@ -215219,12 +215172,12 @@ var require_ripemd = /* @__PURE__ */ __commonJSMin(((exports) => {
     if (enc === "hex") return utils.toHex32(this.h, "little");
     else return utils.split32(this.h, "little");
   };
-  function f3(j, x2, y, z13) {
-    if (j <= 15) return x2 ^ y ^ z13;
-    else if (j <= 31) return x2 & y | ~x2 & z13;
-    else if (j <= 47) return (x2 | ~y) ^ z13;
-    else if (j <= 63) return x2 & z13 | y & ~z13;
-    else return x2 ^ (y | ~z13);
+  function f3(j, x2, y, z14) {
+    if (j <= 15) return x2 ^ y ^ z14;
+    else if (j <= 31) return x2 & y | ~x2 & z14;
+    else if (j <= 47) return (x2 | ~y) ^ z14;
+    else if (j <= 63) return x2 & z14 | y & ~z14;
+    else return x2 ^ (y | ~z14);
   }
   function K2(j) {
     if (j <= 15) return 0;
@@ -217869,7 +217822,7 @@ var LevelBase = class extends XmlComponent {
   * @param options - Level configuration options
   * @throws Error if level is greater than 9 (Word limitation)
   */
-  constructor({ level, format, text: text36, alignment = AlignmentType.START, start = 1, style, suffix, isLegalNumberingStyle }) {
+  constructor({ level, format, text: text37, alignment = AlignmentType.START, start = 1, style, suffix, isLegalNumberingStyle }) {
     super("w:lvl");
     _defineProperty4(this, "paragraphProperties", void 0);
     _defineProperty4(this, "runProperties", void 0);
@@ -217877,7 +217830,7 @@ var LevelBase = class extends XmlComponent {
     if (format) this.root.push(new NumberFormat$1(format));
     if (suffix) this.root.push(new Suffix(suffix));
     if (isLegalNumberingStyle) this.root.push(new IsLegalNumberingStyle());
-    if (text36) this.root.push(new LevelText(text36));
+    if (text37) this.root.push(new LevelText(text37));
     this.root.push(new LevelJc(alignment));
     if (style === null || style === void 0 ? void 0 : style.style) this.root.push(createParagraphStyle(style.style));
     this.paragraphProperties = new ParagraphProperties(style && style.paragraph);
@@ -218223,12 +218176,12 @@ var Numbering = class extends XmlComponent {
     return Array.from(this.referenceConfigMap.values());
   }
 };
-var createCompatibilitySetting = (version3) => new BuilderElement({
+var createCompatibilitySetting = (version4) => new BuilderElement({
   name: "w:compatSetting",
   attributes: {
     version: {
       key: "w:val",
-      value: version3
+      value: version4
     },
     name: {
       key: "w:name",
@@ -219094,17 +219047,17 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
           t3 && !r3 || (x2.crc32 = e3.crc32, x2.compressedSize = e3.compressedSize, x2.uncompressedSize = e3.uncompressedSize);
           var S2 = 0;
           t3 && (S2 |= 8), l || !_ && !g || (S2 |= 2048);
-          var z13 = 0, C = 0;
-          w && (z13 |= 16), "UNIX" === i3 ? (C = 798, z13 |= (function(e4, t4) {
+          var z14 = 0, C = 0;
+          w && (z14 |= 16), "UNIX" === i3 ? (C = 798, z14 |= (function(e4, t4) {
             var r4 = e4;
             return e4 || (r4 = t4 ? 16893 : 33204), (65535 & r4) << 16;
-          })(h2.unixPermissions, w)) : (C = 20, z13 |= (function(e4) {
+          })(h2.unixPermissions, w)) : (C = 20, z14 |= (function(e4) {
             return 63 & (e4 || 0);
           })(h2.dosPermissions)), a = k.getUTCHours(), a <<= 6, a |= k.getUTCMinutes(), a <<= 5, a |= k.getUTCSeconds() / 2, o = k.getUTCFullYear() - 1980, o <<= 4, o |= k.getUTCMonth() + 1, o <<= 5, o |= k.getUTCDate(), _ && (v = A2(1, 1) + A2(B(f3), 4) + c, b += "up" + A2(v.length, 2) + v), g && (y = A2(1, 1) + A2(B(p), 4) + m2, b += "uc" + A2(y.length, 2) + y);
           var E = "";
           return E += "\n\0", E += A2(S2, 2), E += u.magic, E += A2(a, 2), E += A2(o, 2), E += A2(x2.crc32, 4), E += A2(x2.compressedSize, 4), E += A2(x2.uncompressedSize, 4), E += A2(f3.length, 2), E += A2(b.length, 2), {
             fileRecord: R.LOCAL_FILE_HEADER + E + f3 + b,
-            dirRecord: R.CENTRAL_FILE_HEADER + A2(C, 2) + E + A2(p.length, 2) + "\0\0\0\0" + A2(z13, 4) + A2(n2, 4) + f3 + b + p
+            dirRecord: R.CENTRAL_FILE_HEADER + A2(C, 2) + E + A2(p.length, 2) + "\0\0\0\0" + A2(z14, 4) + A2(n2, 4) + f3 + b + p
           };
         }
         var I = e2("../utils"), i2 = e2("../stream/GenericWorker"), O = e2("../utf8"), B = e2("../crc32"), R = e2("../signature");
@@ -220792,7 +220745,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
       }, {}],
       46: [function(e2, t2, r2) {
         "use strict";
-        var h2, c = e2("../utils/common"), u = e2("./trees"), d = e2("./adler32"), p = e2("./crc32"), n = e2("./messages"), l = 0, f3 = 4, m2 = 0, _ = -2, g = -1, b = 4, i2 = 2, v = 8, y = 9, s2 = 286, a = 30, o = 19, w = 2 * s2 + 1, k = 15, x2 = 3, S2 = 258, z13 = S2 + x2 + 1, C = 42, E = 113, A2 = 1, I = 2, O = 3, B = 4;
+        var h2, c = e2("../utils/common"), u = e2("./trees"), d = e2("./adler32"), p = e2("./crc32"), n = e2("./messages"), l = 0, f3 = 4, m2 = 0, _ = -2, g = -1, b = 4, i2 = 2, v = 8, y = 9, s2 = 286, a = 30, o = 19, w = 2 * s2 + 1, k = 15, x2 = 3, S2 = 258, z14 = S2 + x2 + 1, C = 42, E = 113, A2 = 1, I = 2, O = 3, B = 4;
         function R(e3, t3) {
           return e3.msg = n[t3], t3;
         }
@@ -220816,7 +220769,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
           e3.pending_buf[e3.pending++] = t3 >>> 8 & 255, e3.pending_buf[e3.pending++] = 255 & t3;
         }
         function L(e3, t3) {
-          var r3, n2, i3 = e3.max_chain_length, s3 = e3.strstart, a2 = e3.prev_length, o2 = e3.nice_match, h3 = e3.strstart > e3.w_size - z13 ? e3.strstart - (e3.w_size - z13) : 0, u2 = e3.window, l2 = e3.w_mask, f4 = e3.prev, c2 = e3.strstart + S2, d2 = u2[s3 + a2 - 1], p2 = u2[s3 + a2];
+          var r3, n2, i3 = e3.max_chain_length, s3 = e3.strstart, a2 = e3.prev_length, o2 = e3.nice_match, h3 = e3.strstart > e3.w_size - z14 ? e3.strstart - (e3.w_size - z14) : 0, u2 = e3.window, l2 = e3.w_mask, f4 = e3.prev, c2 = e3.strstart + S2, d2 = u2[s3 + a2 - 1], p2 = u2[s3 + a2];
           e3.prev_length >= e3.good_match && (i3 >>= 2), o2 > e3.lookahead && (o2 = e3.lookahead);
           do
             if (u2[(r3 = t3) + a2] === p2 && u2[r3 + a2 - 1] === d2 && u2[r3] === u2[s3] && u2[++r3] === u2[s3 + 1]) {
@@ -220835,22 +220788,22 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
         function j(e3) {
           var t3, r3, n2, i3, s3, a2, o2, h3, u2, l2, f4 = e3.w_size;
           do {
-            if (i3 = e3.window_size - e3.lookahead - e3.strstart, e3.strstart >= f4 + (f4 - z13)) {
+            if (i3 = e3.window_size - e3.lookahead - e3.strstart, e3.strstart >= f4 + (f4 - z14)) {
               for (c.arraySet(e3.window, e3.window, f4, f4, 0), e3.match_start -= f4, e3.strstart -= f4, e3.block_start -= f4, t3 = r3 = e3.hash_size; n2 = e3.head[--t3], e3.head[t3] = f4 <= n2 ? n2 - f4 : 0, --r3; ) ;
               for (t3 = r3 = f4; n2 = e3.prev[--t3], e3.prev[t3] = f4 <= n2 ? n2 - f4 : 0, --r3; ) ;
               i3 += f4;
             }
             if (0 === e3.strm.avail_in) break;
             if (a2 = e3.strm, o2 = e3.window, h3 = e3.strstart + e3.lookahead, u2 = i3, l2 = void 0, l2 = a2.avail_in, u2 < l2 && (l2 = u2), r3 = 0 === l2 ? 0 : (a2.avail_in -= l2, c.arraySet(o2, a2.input, a2.next_in, l2, h3), 1 === a2.state.wrap ? a2.adler = d(a2.adler, o2, l2, h3) : 2 === a2.state.wrap && (a2.adler = p(a2.adler, o2, l2, h3)), a2.next_in += l2, a2.total_in += l2, l2), e3.lookahead += r3, e3.lookahead + e3.insert >= x2) for (s3 = e3.strstart - e3.insert, e3.ins_h = e3.window[s3], e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[s3 + 1]) & e3.hash_mask; e3.insert && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[s3 + x2 - 1]) & e3.hash_mask, e3.prev[s3 & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = s3, s3++, e3.insert--, !(e3.lookahead + e3.insert < x2)); ) ;
-          } while (e3.lookahead < z13 && 0 !== e3.strm.avail_in);
+          } while (e3.lookahead < z14 && 0 !== e3.strm.avail_in);
         }
         function Z2(e3, t3) {
           for (var r3, n2; ; ) {
-            if (e3.lookahead < z13) {
-              if (j(e3), e3.lookahead < z13 && t3 === l) return A2;
+            if (e3.lookahead < z14) {
+              if (j(e3), e3.lookahead < z14 && t3 === l) return A2;
               if (0 === e3.lookahead) break;
             }
-            if (r3 = 0, e3.lookahead >= x2 && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart), 0 !== r3 && e3.strstart - r3 <= e3.w_size - z13 && (e3.match_length = L(e3, r3)), e3.match_length >= x2) if (n2 = u._tr_tally(e3, e3.strstart - e3.match_start, e3.match_length - x2), e3.lookahead -= e3.match_length, e3.match_length <= e3.max_lazy_match && e3.lookahead >= x2) {
+            if (r3 = 0, e3.lookahead >= x2 && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart), 0 !== r3 && e3.strstart - r3 <= e3.w_size - z14 && (e3.match_length = L(e3, r3)), e3.match_length >= x2) if (n2 = u._tr_tally(e3, e3.strstart - e3.match_start, e3.match_length - x2), e3.lookahead -= e3.match_length, e3.match_length <= e3.max_lazy_match && e3.lookahead >= x2) {
               for (e3.match_length--; e3.strstart++, e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart, 0 != --e3.match_length; ) ;
               e3.strstart++;
             } else e3.strstart += e3.match_length, e3.match_length = 0, e3.ins_h = e3.window[e3.strstart], e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + 1]) & e3.hash_mask;
@@ -220861,11 +220814,11 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
         }
         function W(e3, t3) {
           for (var r3, n2, i3; ; ) {
-            if (e3.lookahead < z13) {
-              if (j(e3), e3.lookahead < z13 && t3 === l) return A2;
+            if (e3.lookahead < z14) {
+              if (j(e3), e3.lookahead < z14 && t3 === l) return A2;
               if (0 === e3.lookahead) break;
             }
-            if (r3 = 0, e3.lookahead >= x2 && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart), e3.prev_length = e3.match_length, e3.prev_match = e3.match_start, e3.match_length = x2 - 1, 0 !== r3 && e3.prev_length < e3.max_lazy_match && e3.strstart - r3 <= e3.w_size - z13 && (e3.match_length = L(e3, r3), e3.match_length <= 5 && (1 === e3.strategy || e3.match_length === x2 && 4096 < e3.strstart - e3.match_start) && (e3.match_length = x2 - 1)), e3.prev_length >= x2 && e3.match_length <= e3.prev_length) {
+            if (r3 = 0, e3.lookahead >= x2 && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart), e3.prev_length = e3.match_length, e3.prev_match = e3.match_start, e3.match_length = x2 - 1, 0 !== r3 && e3.prev_length < e3.max_lazy_match && e3.strstart - r3 <= e3.w_size - z14 && (e3.match_length = L(e3, r3), e3.match_length <= 5 && (1 === e3.strategy || e3.match_length === x2 && 4096 < e3.strstart - e3.match_start) && (e3.match_length = x2 - 1)), e3.prev_length >= x2 && e3.match_length <= e3.prev_length) {
               for (i3 = e3.strstart + e3.lookahead - x2, n2 = u._tr_tally(e3, e3.strstart - 1 - e3.prev_match, e3.prev_length - x2), e3.lookahead -= e3.prev_length - 1, e3.prev_length -= 2; ++e3.strstart <= i3 && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart), 0 != --e3.prev_length; ) ;
               if (e3.match_available = 0, e3.match_length = x2 - 1, e3.strstart++, n2 && (N(e3, false), 0 === e3.strm.avail_out)) return A2;
             } else if (e3.match_available) {
@@ -220909,7 +220862,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
               e3.strstart += e3.lookahead, e3.lookahead = 0;
               var n2 = e3.block_start + r3;
               if ((0 === e3.strstart || e3.strstart >= n2) && (e3.lookahead = e3.strstart - n2, e3.strstart = n2, N(e3, false), 0 === e3.strm.avail_out)) return A2;
-              if (e3.strstart - e3.block_start >= e3.w_size - z13 && (N(e3, false), 0 === e3.strm.avail_out)) return A2;
+              if (e3.strstart - e3.block_start >= e3.w_size - z14 && (N(e3, false), 0 === e3.strm.avail_out)) return A2;
             }
             return e3.insert = 0, t3 === f3 ? (N(e3, true), 0 === e3.strm.avail_out ? O : B) : (e3.strstart > e3.block_start && (N(e3, false), e3.strm.avail_out), A2);
           }),
@@ -221025,10 +220978,10 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
       48: [function(e2, t2, r2) {
         "use strict";
         t2.exports = function(e3, t3) {
-          var r3 = e3.state, n = e3.next_in, i2, s2, a, o, h2, u, l, f3, c, d, p, m2, _, g, b, v, y, w, k, x2, S2, z13 = e3.input, C;
+          var r3 = e3.state, n = e3.next_in, i2, s2, a, o, h2, u, l, f3, c, d, p, m2, _, g, b, v, y, w, k, x2, S2, z14 = e3.input, C;
           i2 = n + (e3.avail_in - 5), s2 = e3.next_out, C = e3.output, a = s2 - (t3 - e3.avail_out), o = s2 + (e3.avail_out - 257), h2 = r3.dmax, u = r3.wsize, l = r3.whave, f3 = r3.wnext, c = r3.window, d = r3.hold, p = r3.bits, m2 = r3.lencode, _ = r3.distcode, g = (1 << r3.lenbits) - 1, b = (1 << r3.distbits) - 1;
           e: do {
-            p < 15 && (d += z13[n++] << p, p += 8, d += z13[n++] << p, p += 8), v = m2[d & g];
+            p < 15 && (d += z14[n++] << p, p += 8, d += z14[n++] << p, p += 8), v = m2[d & g];
             t: for (; ; ) {
               if (d >>>= y = v >>> 24, p -= y, 0 === (y = v >>> 16 & 255)) C[s2++] = 65535 & v;
               else {
@@ -221044,7 +220997,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
                   e3.msg = "invalid literal/length code", r3.mode = 30;
                   break e;
                 }
-                w = 65535 & v, (y &= 15) && (p < y && (d += z13[n++] << p, p += 8), w += d & (1 << y) - 1, d >>>= y, p -= y), p < 15 && (d += z13[n++] << p, p += 8, d += z13[n++] << p, p += 8), v = _[d & b];
+                w = 65535 & v, (y &= 15) && (p < y && (d += z14[n++] << p, p += 8), w += d & (1 << y) - 1, d >>>= y, p -= y), p < 15 && (d += z14[n++] << p, p += 8, d += z14[n++] << p, p += 8), v = _[d & b];
                 r: for (; ; ) {
                   if (d >>>= y = v >>> 24, p -= y, !(16 & (y = v >>> 16 & 255))) {
                     if (0 == (64 & y)) {
@@ -221054,7 +221007,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
                     e3.msg = "invalid distance code", r3.mode = 30;
                     break e;
                   }
-                  if (k = 65535 & v, p < (y &= 15) && (d += z13[n++] << p, (p += 8) < y && (d += z13[n++] << p, p += 8)), h2 < (k += d & (1 << y) - 1)) {
+                  if (k = 65535 & v, p < (y &= 15) && (d += z14[n++] << p, (p += 8) < y && (d += z14[n++] << p, p += 8)), h2 < (k += d & (1 << y) - 1)) {
                     e3.msg = "invalid distance too far back", r3.mode = 30;
                     break e;
                   }
@@ -221140,7 +221093,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
         r2.inflateReset = o, r2.inflateReset2 = h2, r2.inflateResetKeep = a, r2.inflateInit = function(e3) {
           return u(e3, 15);
         }, r2.inflateInit2 = u, r2.inflate = function(e3, t3) {
-          var r3, n2, i3, s3, a2, o2, h3, u2, l2, f4, c2, d, p, m2, _, g, b, v, y, w, k, x2, S2, z13, C = 0, E = new I.Buf8(4), A2 = [
+          var r3, n2, i3, s3, a2, o2, h3, u2, l2, f4, c2, d, p, m2, _, g, b, v, y, w, k, x2, S2, z14, C = 0, E = new I.Buf8(4), A2 = [
             16,
             17,
             18,
@@ -221347,7 +221300,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
                 if (b < 16) u2 >>>= _, l2 -= _, r3.lens[r3.have++] = b;
                 else {
                   if (16 === b) {
-                    for (z13 = _ + 2; l2 < z13; ) {
+                    for (z14 = _ + 2; l2 < z14; ) {
                       if (0 === o2) break e;
                       o2--, u2 += n2[s3++] << l2, l2 += 8;
                     }
@@ -221357,13 +221310,13 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
                     }
                     k = r3.lens[r3.have - 1], d = 3 + (3 & u2), u2 >>>= 2, l2 -= 2;
                   } else if (17 === b) {
-                    for (z13 = _ + 3; l2 < z13; ) {
+                    for (z14 = _ + 3; l2 < z14; ) {
                       if (0 === o2) break e;
                       o2--, u2 += n2[s3++] << l2, l2 += 8;
                     }
                     l2 -= _, k = 0, d = 3 + (7 & (u2 >>>= _)), u2 >>>= 3, l2 -= 3;
                   } else {
-                    for (z13 = _ + 7; l2 < z13; ) {
+                    for (z14 = _ + 7; l2 < z14; ) {
                       if (0 === o2) break e;
                       o2--, u2 += n2[s3++] << l2, l2 += 8;
                     }
@@ -221423,7 +221376,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
               r3.extra = 15 & g, r3.mode = 22;
             case 22:
               if (r3.extra) {
-                for (z13 = r3.extra; l2 < z13; ) {
+                for (z14 = r3.extra; l2 < z14; ) {
                   if (0 === o2) break e;
                   o2--, u2 += n2[s3++] << l2, l2 += 8;
                 }
@@ -221449,7 +221402,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
               r3.offset = b, r3.extra = 15 & g, r3.mode = 24;
             case 24:
               if (r3.extra) {
-                for (z13 = r3.extra; l2 < z13; ) {
+                for (z14 = r3.extra; l2 < z14; ) {
                   if (0 === o2) break e;
                   o2--, u2 += n2[s3++] << l2, l2 += 8;
                 }
@@ -221667,14 +221620,14 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
           64
         ];
         t2.exports = function(e3, t3, r3, n, i2, s2, a, o) {
-          var h2, u, l, f3, c, d, p, m2, _, g = o.bits, b = 0, v = 0, y = 0, w = 0, k = 0, x2 = 0, S2 = 0, z13 = 0, C = 0, E = 0, A2 = null, I = 0, O = new D.Buf16(16), B = new D.Buf16(16), R = null, T = 0;
+          var h2, u, l, f3, c, d, p, m2, _, g = o.bits, b = 0, v = 0, y = 0, w = 0, k = 0, x2 = 0, S2 = 0, z14 = 0, C = 0, E = 0, A2 = null, I = 0, O = new D.Buf16(16), B = new D.Buf16(16), R = null, T = 0;
           for (b = 0; b <= 15; b++) O[b] = 0;
           for (v = 0; v < n; v++) O[t3[r3 + v]]++;
           for (k = g, w = 15; 1 <= w && 0 === O[w]; w--) ;
           if (w < k && (k = w), 0 === w) return i2[s2++] = 20971520, i2[s2++] = 20971520, o.bits = 1, 0;
           for (y = 1; y < w && 0 === O[y]; y++) ;
-          for (k < y && (k = y), b = z13 = 1; b <= 15; b++) if (z13 <<= 1, (z13 -= O[b]) < 0) return -1;
-          if (0 < z13 && (0 === e3 || 1 !== w)) return -1;
+          for (k < y && (k = y), b = z14 = 1; b <= 15; b++) if (z14 <<= 1, (z14 -= O[b]) < 0) return -1;
+          if (0 < z14 && (0 === e3 || 1 !== w)) return -1;
           for (B[1] = 0, b = 1; b < 15; b++) B[b + 1] = B[b] + O[b];
           for (v = 0; v < n; v++) 0 !== t3[r3 + v] && (a[B[t3[r3 + v]]++] = v);
           if (d = 0 === e3 ? (A2 = R = a, 19) : 1 === e3 ? (A2 = F2, I -= 257, R = N, T -= 257, 256) : (A2 = U, R = P, -1), b = y, c = s2, S2 = v = E = 0, l = -1, f3 = (C = 1 << (x2 = k)) - 1, 1 === e3 && 852 < C || 2 === e3 && 592 < C) return 1;
@@ -221686,7 +221639,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
               b = t3[r3 + a[v]];
             }
             if (k < b && (E & f3) !== l) {
-              for (0 === S2 && (S2 = k), c += y, z13 = 1 << (x2 = b - S2); x2 + S2 < w && !((z13 -= O[x2 + S2]) <= 0); ) x2++, z13 <<= 1;
+              for (0 === S2 && (S2 = k), c += y, z14 = 1 << (x2 = b - S2); x2 + S2 < w && !((z14 -= O[x2 + S2]) <= 0); ) x2++, z14 <<= 1;
               if (C += 1 << x2, 1 === e3 && 852 < C || 2 === e3 && 592 < C) return 1;
               i2[l = E & f3] = k << 24 | x2 << 16 | c - s2 | 0;
             }
@@ -221815,8 +221768,8 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
           14,
           1,
           15
-        ], z13 = new Array(2 * (l + 2));
-        n(z13);
+        ], z14 = new Array(2 * (l + 2));
+        n(z14);
         var C = new Array(2 * f3);
         n(C);
         var E = new Array(512);
@@ -221924,12 +221877,12 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
             for (A2[r3 - 1] = n2, n2 = i3 = 0; n2 < 16; n2++) for (T[n2] = i3, e4 = 0; e4 < 1 << k[n2]; e4++) E[i3++] = n2;
             for (i3 >>= 7; n2 < f3; n2++) for (T[n2] = i3 << 7, e4 = 0; e4 < 1 << k[n2] - 7; e4++) E[256 + i3++] = n2;
             for (t3 = 0; t3 <= g; t3++) s3[t3] = 0;
-            for (e4 = 0; e4 <= 143; ) z13[2 * e4 + 1] = 8, e4++, s3[8]++;
-            for (; e4 <= 255; ) z13[2 * e4 + 1] = 9, e4++, s3[9]++;
-            for (; e4 <= 279; ) z13[2 * e4 + 1] = 7, e4++, s3[7]++;
-            for (; e4 <= 287; ) z13[2 * e4 + 1] = 8, e4++, s3[8]++;
-            for (Z2(z13, l + 1, s3), e4 = 0; e4 < f3; e4++) C[2 * e4 + 1] = 5, C[2 * e4] = j(e4, 5);
-            O = new D(z13, w, u + 1, l, g), B = new D(C, k, 0, f3, g), R = new D(new Array(0), x2, 0, c, p);
+            for (e4 = 0; e4 <= 143; ) z14[2 * e4 + 1] = 8, e4++, s3[8]++;
+            for (; e4 <= 255; ) z14[2 * e4 + 1] = 9, e4++, s3[9]++;
+            for (; e4 <= 279; ) z14[2 * e4 + 1] = 7, e4++, s3[7]++;
+            for (; e4 <= 287; ) z14[2 * e4 + 1] = 8, e4++, s3[8]++;
+            for (Z2(z14, l + 1, s3), e4 = 0; e4 < f3; e4++) C[2 * e4 + 1] = 5, C[2 * e4] = j(e4, 5);
+            O = new D(z14, w, u + 1, l, g), B = new D(C, k, 0, f3, g), R = new D(new Array(0), x2, 0, c, p);
           })(), q = true), e3.l_desc = new F2(e3.dyn_ltree, O), e3.d_desc = new F2(e3.dyn_dtree, B), e3.bl_desc = new F2(e3.bl_tree, R), e3.bi_buf = 0, e3.bi_valid = 0, W(e3);
         }, r2._tr_stored_block = J, r2._tr_flush_block = function(e3, t3, r3, n2) {
           var i3, s3, a2 = 0;
@@ -221943,7 +221896,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
             var t4;
             for (X(e4, e4.dyn_ltree, e4.l_desc.max_code), X(e4, e4.dyn_dtree, e4.d_desc.max_code), Y(e4, e4.bl_desc), t4 = c - 1; 3 <= t4 && 0 === e4.bl_tree[2 * S2[t4] + 1]; t4--) ;
             return e4.opt_len += 3 * (t4 + 1) + 5 + 5 + 4, t4;
-          })(e3), i3 = e3.opt_len + 3 + 7 >>> 3, (s3 = e3.static_len + 3 + 7 >>> 3) <= i3 && (i3 = s3)) : i3 = s3 = r3 + 5, r3 + 4 <= i3 && -1 !== t3 ? J(e3, t3, r3, n2) : 4 === e3.strategy || s3 === i3 ? (P(e3, 2 + (n2 ? 1 : 0), 3), K2(e3, z13, C)) : (P(e3, 4 + (n2 ? 1 : 0), 3), (function(e4, t4, r4, n3) {
+          })(e3), i3 = e3.opt_len + 3 + 7 >>> 3, (s3 = e3.static_len + 3 + 7 >>> 3) <= i3 && (i3 = s3)) : i3 = s3 = r3 + 5, r3 + 4 <= i3 && -1 !== t3 ? J(e3, t3, r3, n2) : 4 === e3.strategy || s3 === i3 ? (P(e3, 2 + (n2 ? 1 : 0), 3), K2(e3, z14, C)) : (P(e3, 4 + (n2 ? 1 : 0), 3), (function(e4, t4, r4, n3) {
             var i4;
             for (P(e4, t4 - 257, 5), P(e4, r4 - 1, 5), P(e4, n3 - 4, 4), i4 = 0; i4 < n3; i4++) P(e4, e4.bl_tree[2 * S2[i4] + 1], 3);
             V(e4, e4.dyn_ltree, t4 - 1), V(e4, e4.dyn_dtree, r4 - 1);
@@ -221951,7 +221904,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
         }, r2._tr_tally = function(e3, t3, r3) {
           return e3.pending_buf[e3.d_buf + 2 * e3.last_lit] = t3 >>> 8 & 255, e3.pending_buf[e3.d_buf + 2 * e3.last_lit + 1] = 255 & t3, e3.pending_buf[e3.l_buf + e3.last_lit] = 255 & r3, e3.last_lit++, 0 === t3 ? e3.dyn_ltree[2 * r3]++ : (e3.matches++, t3--, e3.dyn_ltree[2 * (A2[r3] + u + 1)]++, e3.dyn_dtree[2 * N(t3)]++), e3.last_lit === e3.lit_bufsize - 1;
         }, r2._tr_align = function(e3) {
-          P(e3, 2, 3), L(e3, m2, z13), (function(e4) {
+          P(e3, 2, 3), L(e3, m2, z14), (function(e4) {
             16 === e4.bi_valid ? (U(e4, e4.bi_buf), e4.bi_buf = 0, e4.bi_valid = 0) : 8 <= e4.bi_valid && (e4.pending_buf[e4.pending++] = 255 & e4.bi_buf, e4.bi_buf >>= 8, e4.bi_valid -= 8);
           })(e3);
         };
@@ -222853,8 +222806,8 @@ var Packer = class Packer2 {
       type: "nodebuffer",
       mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       compression: "DEFLATE"
-    }).then((z13) => {
-      stream2.emit("data", z13);
+    }).then((z14) => {
+      stream2.emit("data", z14);
       stream2.emit("end");
     });
     return stream2;
@@ -222868,9 +222821,9 @@ var toJson = (xmlData) => {
     captureSpacesBetweenElements: true
   });
 };
-var createTextElementContents = (text36) => {
+var createTextElementContents = (text37) => {
   var _textJson$elements$0$;
-  return (_textJson$elements$0$ = toJson((0, import_xml.default)(formatter$1.format(new Text({ text: text36 })))).elements[0].elements) !== null && _textJson$elements$0$ !== void 0 ? _textJson$elements$0$ : [];
+  return (_textJson$elements$0$ = toJson((0, import_xml.default)(formatter$1.format(new Text({ text: text37 })))).elements[0].elements) !== null && _textJson$elements$0$ !== void 0 ? _textJson$elements$0$ : [];
 };
 var patchSpaceAttribute = (element) => _objectSpread24(_objectSpread24({}, element), {}, { attributes: { "xml:space": "preserve" } });
 var getFirstLevelElements = (relationships, id) => {
@@ -222929,10 +222882,10 @@ var findRunElementIndexWithToken = (paragraphElement, token) => {
     if (element.type === "element" && element.name === "w:r") {
       var _element$elements;
       const textElement = ((_element$elements = element.elements) !== null && _element$elements !== void 0 ? _element$elements : []).filter((e2) => e2.type === "element" && e2.name === "w:t");
-      for (const text36 of textElement) {
+      for (const text37 of textElement) {
         var _text$elements, _text$elements$0$text;
-        if (!((_text$elements = text36.elements) === null || _text$elements === void 0 ? void 0 : _text$elements[0])) continue;
-        if ((_text$elements$0$text = text36.elements[0].text) === null || _text$elements$0$text === void 0 ? void 0 : _text$elements$0$text.includes(token)) return i2;
+        if (!((_text$elements = text37.elements) === null || _text$elements === void 0 ? void 0 : _text$elements[0])) continue;
+        if ((_text$elements$0$text = text37.elements[0].text) === null || _text$elements$0$text === void 0 ? void 0 : _text$elements$0$text.includes(token)) return i2;
       }
     }
   }
@@ -222968,14 +222921,14 @@ var replaceTokenInParagraphElement = ({ paragraphElement, renderedParagraph, ori
   const startIndex = renderedParagraph.text.indexOf(originalText);
   const endIndex = startIndex + originalText.length - 1;
   let replaceMode = ReplaceMode.START;
-  for (const run of renderedParagraph.runs) for (const { text: text36, index: index14, start, end } of run.parts) switch (replaceMode) {
+  for (const run of renderedParagraph.runs) for (const { text: text37, index: index14, start, end } of run.parts) switch (replaceMode) {
     case ReplaceMode.START:
       if (startIndex >= start && startIndex <= end) {
         const offsetStartIndex = startIndex - start;
         const offsetEndIndex = Math.min(endIndex, end) - start;
         const partToReplace = run.text.substring(offsetStartIndex, offsetEndIndex + 1);
         if (partToReplace === "") continue;
-        const firstPart = text36.replace(partToReplace, replacementText);
+        const firstPart = text37.replace(partToReplace, replacementText);
         patchTextElement(paragraphElement.elements[run.index].elements[index14], firstPart);
         replaceMode = ReplaceMode.MIDDLE;
         continue;
@@ -222983,7 +222936,7 @@ var replaceTokenInParagraphElement = ({ paragraphElement, renderedParagraph, ori
       break;
     case ReplaceMode.MIDDLE:
       if (endIndex <= end) {
-        const lastPart = text36.substring(endIndex - start + 1);
+        const lastPart = text37.substring(endIndex - start + 1);
         patchTextElement(paragraphElement.elements[run.index].elements[index14], lastPart);
         const currentElement = paragraphElement.elements[run.index].elements[index14];
         paragraphElement.elements[run.index].elements[index14] = patchSpaceAttribute(currentElement);
@@ -222994,8 +222947,8 @@ var replaceTokenInParagraphElement = ({ paragraphElement, renderedParagraph, ori
   }
   return paragraphElement;
 };
-var patchTextElement = (element, text36) => {
-  element.elements = createTextElementContents(text36);
+var patchTextElement = (element, text37) => {
+  element.elements = createTextElementContents(text37);
   return element;
 };
 var renderParagraphNode = (node) => {
@@ -223076,7 +223029,7 @@ var traverse = (node) => {
   }
   return renderedParagraphs;
 };
-var findLocationOfText = (node, text36) => traverse(node).filter((p) => p.text.includes(text36));
+var findLocationOfText = (node, text37) => traverse(node).filter((p) => p.text.includes(text37));
 var formatter = new Formatter();
 var SPLIT_TOKEN = "\u0275";
 var replacer = ({ json, patch, patchText, context, keepOriginalStyles = true }) => {
@@ -223319,10 +223272,10 @@ var patchDetector = (function() {
     return _ref.apply(this, arguments);
   };
 })();
-var findPatchKeys = (text36) => {
+var findPatchKeys = (text37) => {
   var _text$match;
   const pattern2 = /* @__PURE__ */ new RegExp("(?<=\\{\\{).+?(?=\\}\\})", "gs");
-  return (_text$match = text36.match(pattern2)) !== null && _text$match !== void 0 ? _text$match : [];
+  return (_text$match = text37.match(pattern2)) !== null && _text$match !== void 0 ? _text$match : [];
 };
 
 // src/lib/docx-export.ts
@@ -223383,7 +223336,7 @@ function parseOutlineToHeadings(outline) {
   }
   return headings;
 }
-function makeHeading(text36, level) {
+function makeHeading(text37, level) {
   const headingLevel = [
     HeadingLevel.HEADING_1,
     HeadingLevel.HEADING_2,
@@ -223393,14 +223346,14 @@ function makeHeading(text36, level) {
     HeadingLevel.HEADING_6
   ][Math.min(level - 1, 5)];
   return new Paragraph({
-    text: text36,
+    text: text37,
     heading: headingLevel,
     spacing: { before: 240, after: 120 }
   });
 }
-function makeParagraph(text36) {
+function makeParagraph(text37) {
   return new Paragraph({
-    children: [new TextRun({ text: text36, size: 24 })],
+    children: [new TextRun({ text: text37, size: 24 })],
     spacing: { before: 0, after: 120 }
   });
 }
@@ -223443,7 +223396,7 @@ async function generateDocx(projectTitle, documents, references, options) {
       spacing: { before: 480, after: 240 }
     })
   );
-  for (const { document: document2, version: version3 } of documents) {
+  for (const { document: document2, version: version4 } of documents) {
     sections.push(
       new Paragraph({
         children: [new TextRun({ text: document2.title, size: 24 })],
@@ -223451,8 +223404,8 @@ async function generateDocx(projectTitle, documents, references, options) {
         spacing: { before: 60, after: 60 }
       })
     );
-    if (version3?.outline) {
-      const headings = parseOutlineToHeadings(version3.outline);
+    if (version4?.outline) {
+      const headings = parseOutlineToHeadings(version4.outline);
       for (const h2 of headings.slice(0, 10)) {
         sections.push(
           new Paragraph({
@@ -223464,7 +223417,7 @@ async function generateDocx(projectTitle, documents, references, options) {
       }
     }
   }
-  for (const { document: document2, version: version3 } of documents) {
+  for (const { document: document2, version: version4 } of documents) {
     sections.push(
       new Paragraph({
         children: [new TextRun({ text: document2.title, bold: true, size: 32 })],
@@ -223473,14 +223426,14 @@ async function generateDocx(projectTitle, documents, references, options) {
         spacing: { before: 240, after: 240 }
       })
     );
-    if (version3?.outline) {
-      const headings = parseOutlineToHeadings(version3.outline);
+    if (version4?.outline) {
+      const headings = parseOutlineToHeadings(version4.outline);
       for (const h2 of headings) {
         sections.push(makeHeading(h2.text, h2.level));
       }
     }
-    if (version3?.content) {
-      const blocks = version3.content.split(/\n\n+/).map((b) => b.trim()).filter(Boolean);
+    if (version4?.content) {
+      const blocks = version4.content.split(/\n\n+/).map((b) => b.trim()).filter(Boolean);
       for (const block of blocks) {
         if (block.startsWith("#")) {
           const match = block.match(/^(#{1,6})\s+(.+)/);
@@ -223492,11 +223445,11 @@ async function generateDocx(projectTitle, documents, references, options) {
         if (block.match(/^[-*]\s+/m)) {
           const items = block.split(/\n/).filter((l) => l.match(/^[-*]\s+/));
           for (const item of items) {
-            const text36 = item.replace(/^[-*]\s+/, "").trim();
+            const text37 = item.replace(/^[-*]\s+/, "").trim();
             sections.push(
               new Paragraph({
                 children: [
-                  new TextRun({ text: `\u2022 ${text36}`, size: 24 })
+                  new TextRun({ text: `\u2022 ${text37}`, size: 24 })
                 ],
                 indent: { left: convertInchesToTwip(0.25) },
                 spacing: { before: 60, after: 60 }
@@ -225031,9 +224984,9 @@ function _define_property(obj, key, value) {
 }
 
 // ../../node_modules/tslib/tslib.es6.mjs
-function __decorate2(decorators, target, key, desc21) {
-  var c = arguments.length, r2 = c < 3 ? target : desc21 === null ? desc21 = Object.getOwnPropertyDescriptor(target, key) : desc21, d;
-  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r2 = Reflect.decorate(decorators, target, key, desc21);
+function __decorate2(decorators, target, key, desc20) {
+  var c = arguments.length, r2 = c < 3 ? target : desc20 === null ? desc20 = Object.getOwnPropertyDescriptor(target, key) : desc20, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r2 = Reflect.decorate(decorators, target, key, desc20);
   else for (var i2 = decorators.length - 1; i2 >= 0; i2--) if (d = decorators[i2]) r2 = (c < 3 ? d(r2) : c > 3 ? d(target, key, r2) : d(target, key)) || r2;
   return c > 3 && r2 && Object.defineProperty(target, key, r2), r2;
 }
@@ -226088,8 +226041,8 @@ var $43e9821ef3717eec$export$2e2bcd8739ae039 = class {
     return ctx ? ctx.version : -1;
   }
   decode(stream2, parent) {
-    let version3 = this.getCFFVersion(parent);
-    let count3 = version3 >= 2 ? stream2.readUInt32BE() : stream2.readUInt16BE();
+    let version4 = this.getCFFVersion(parent);
+    let count3 = version4 >= 2 ? stream2.readUInt32BE() : stream2.readUInt16BE();
     if (count3 === 0) return [];
     let offSize = stream2.readUInt8();
     let offsetType;
@@ -238792,12 +238745,12 @@ var PNG = class _PNG {
           }
           break;
         case "tEXt":
-          var text36 = this.read(chunkSize);
-          var index14 = text36.indexOf(0);
-          var key = String.fromCharCode.apply(String, text36.slice(0, index14));
+          var text37 = this.read(chunkSize);
+          var index14 = text37.indexOf(0);
+          var key = String.fromCharCode.apply(String, text37.slice(0, index14));
           this.text[key] = String.fromCharCode.apply(
             String,
-            text36.slice(index14 + 1)
+            text37.slice(index14 + 1)
           );
           break;
         case "IEND":
@@ -239861,12 +239814,12 @@ var shiftsL160 = idxL.map((idx, i2) => idx.map((j) => shifts160[i2][j]));
 var shiftsR160 = idxR.map((idx, i2) => idx.map((j) => shifts160[i2][j]));
 var Kl160 = Uint32Array.from([0, 1518500249, 1859775393, 2400959708, 2840853838]);
 var Kr160 = Uint32Array.from([1352829926, 1548603684, 1836072691, 2053994217, 0]);
-function ripemd_f(group, x2, y, z13) {
-  if (group === 0) return x2 ^ y ^ z13;
-  if (group === 1) return x2 & y | ~x2 & z13;
-  if (group === 2) return (x2 | ~y) ^ z13;
-  if (group === 3) return x2 & z13 | y & ~z13;
-  return x2 ^ (y | ~z13);
+function ripemd_f(group, x2, y, z14) {
+  if (group === 0) return x2 ^ y ^ z14;
+  if (group === 1) return x2 & y | ~x2 & z14;
+  if (group === 2) return (x2 | ~y) ^ z14;
+  if (group === 3) return x2 & z14 | y & ~z14;
+  return x2 ^ (y | ~z14);
 }
 var BUF_160 = new Uint32Array(16);
 var RIPEMD160 = class extends HashMD {
@@ -242209,10 +242162,10 @@ var AFMFont = class {
       }
     }
   }
-  encodeText(text36) {
+  encodeText(text37) {
     const res = [];
-    for (let i2 = 0, len = text36.length; i2 < len; i2++) {
-      let char = text36.charCodeAt(i2);
+    for (let i2 = 0, len = text37.length; i2 < len; i2++) {
+      let char = text37.charCodeAt(i2);
       char = WIN_ANSI_MAP[char] || char;
       res.push(char.toString(16));
     }
@@ -242297,9 +242250,9 @@ var StandardFont = class extends PDFFont {
     };
     return this.dictionary.end();
   }
-  encode(text36) {
-    const encoded = this.font.encodeText(text36);
-    const glyphs = this.font.glyphsForString(`${text36}`);
+  encode(text37) {
+    const encoded = this.font.encodeText(text37);
+    const glyphs = this.font.glyphsForString(`${text37}`);
     const advances = this.font.advancesForGlyphs(glyphs);
     const positions = [];
     for (let i2 = 0; i2 < glyphs.length; i2++) {
@@ -242349,8 +242302,8 @@ var EmbeddedFont = class extends PDFFont {
       this.layoutCache = /* @__PURE__ */ Object.create(null);
     }
   }
-  layoutRun(text36, features) {
-    const run = this.font.layout(text36, features);
+  layoutRun(text37, features) {
+    const run = this.font.layout(text37, features);
     for (let i2 = 0; i2 < run.positions.length; i2++) {
       const position = run.positions[i2];
       for (let key in position) {
@@ -242360,31 +242313,31 @@ var EmbeddedFont = class extends PDFFont {
     }
     return run;
   }
-  layoutCached(text36) {
+  layoutCached(text37) {
     if (!this.layoutCache) {
-      return this.layoutRun(text36);
+      return this.layoutRun(text37);
     }
     let cached2;
-    if (cached2 = this.layoutCache[text36]) {
+    if (cached2 = this.layoutCache[text37]) {
       return cached2;
     }
-    const run = this.layoutRun(text36);
-    this.layoutCache[text36] = run;
+    const run = this.layoutRun(text37);
+    this.layoutCache[text37] = run;
     return run;
   }
-  layout(text36, features, onlyWidth) {
+  layout(text37, features, onlyWidth) {
     if (features) {
-      return this.layoutRun(text36, features);
+      return this.layoutRun(text37, features);
     }
     let glyphs = onlyWidth ? null : [];
     let positions = onlyWidth ? null : [];
     let advanceWidth = 0;
     let last2 = 0;
     let index14 = 0;
-    while (index14 <= text36.length) {
+    while (index14 <= text37.length) {
       var needle;
-      if (index14 === text36.length && last2 < index14 || (needle = text36.charAt(index14), [" ", "	"].includes(needle))) {
-        const run = this.layoutCached(text36.slice(last2, ++index14));
+      if (index14 === text37.length && last2 < index14 || (needle = text37.charAt(index14), [" ", "	"].includes(needle))) {
+        const run = this.layoutCached(text37.slice(last2, ++index14));
         if (!onlyWidth) {
           glyphs = glyphs.concat(run.glyphs);
           positions = positions.concat(run.positions);
@@ -242401,11 +242354,11 @@ var EmbeddedFont = class extends PDFFont {
       advanceWidth
     };
   }
-  encode(text36, features) {
+  encode(text37, features) {
     const {
       glyphs,
       positions
-    } = this.layout(text36, features);
+    } = this.layout(text37, features);
     const res = [];
     for (let i2 = 0; i2 < glyphs.length; i2++) {
       const glyph = glyphs[i2];
@@ -242863,14 +242816,14 @@ var LineWrapper = class extends EventEmitter {
     }
     return w + this.wordWidth(HYPHEN) <= this.spaceLeft;
   }
-  eachWord(text36, fn) {
+  eachWord(text37, fn) {
     let bk;
-    const breaker = new $557adaaeb0c7885f$exports(text36);
+    const breaker = new $557adaaeb0c7885f$exports(text37);
     let last2 = null;
     const wordWidths = /* @__PURE__ */ Object.create(null);
     while (bk = breaker.nextBreak()) {
       var shouldContinue;
-      let word = text36.slice((last2 != null ? last2.position : void 0) || 0, bk.position);
+      let word = text37.slice((last2 != null ? last2.position : void 0) || 0, bk.position);
       let w = wordWidths[word] != null ? wordWidths[word] : wordWidths[word] = this.wordWidth(word);
       if (w > this.lineWidth + this.continuedX) {
         let lbk = last2;
@@ -242918,7 +242871,7 @@ var LineWrapper = class extends EventEmitter {
       last2 = bk;
     }
   }
-  wrap(text36, options) {
+  wrap(text37, options) {
     const {
       document: document2
     } = this;
@@ -242953,7 +242906,7 @@ var LineWrapper = class extends EventEmitter {
       return lc++;
     };
     this.emit("sectionStart", options, this);
-    this.eachWord(text36, (word, w, bk, last2) => {
+    this.eachWord(text37, (word, w, bk, last2) => {
       if (last2 == null || last2.required) {
         this.emit("firstLine", options, this);
         this.spaceLeft = this.lineWidth;
@@ -243071,8 +243024,8 @@ function formatListLabel(n, listType) {
   }
   var letter = String.fromCharCode((n - 1) % 26 + 65);
   var times = Math.floor((n - 1) / 26 + 1);
-  var text36 = Array(times + 1).join(letter);
-  return `${text36}.`;
+  var text37 = Array(times + 1).join(letter);
+  return `${text37}.`;
 }
 var TextMixin = {
   initText() {
@@ -243099,11 +243052,11 @@ var TextMixin = {
     this.y -= this.currentLineHeight(true) * lines + this._lineGap;
     return this;
   },
-  _text(text36, x2, y, options, lineCallback) {
+  _text(text37, x2, y, options, lineCallback) {
     options = this._initOptions(x2, y, options);
-    text36 = text36 == null ? "" : `${text36}`;
+    text37 = text37 == null ? "" : `${text37}`;
     if (options.wordSpacing) {
-      text36 = text36.replace(/\s{2,}/g, " ");
+      text37 = text37.replace(/\s{2,}/g, " ");
     }
     const addStructure = () => {
       if (options.structParent) {
@@ -243125,9 +243078,9 @@ var TextMixin = {
       }
       this._wrapper = options.continued ? wrapper : null;
       this._textOptions = options.continued ? options : null;
-      wrapper.wrap(text36, options);
+      wrapper.wrap(text37, options);
     } else {
-      for (let line of text36.split("\n")) {
+      for (let line of text37.split("\n")) {
         addStructure();
         lineCallback(line, options);
       }
@@ -243135,8 +243088,8 @@ var TextMixin = {
     if (options.rotation !== 0) this.restore();
     return this;
   },
-  text(text36, x2, y, options) {
-    return this._text(text36, x2, y, options, this._line);
+  text(text37, x2, y, options) {
+    return this._text(text37, x2, y, options, this._line);
   },
   widthOfString(string2, options = {}) {
     const horizontalScaling = options.horizontalScaling || 100;
@@ -243157,19 +243110,19 @@ var TextMixin = {
     }
     if (options.width) {
       let wrapper = new LineWrapper(this, options);
-      wrapper.on("line", (text36, options2) => {
+      wrapper.on("line", (text37, options2) => {
         this.y += lineHeight;
-        text36 = text36.replace(/\n/g, "");
-        if (text36.length) {
+        text37 = text37.replace(/\n/g, "");
+        if (text37.length) {
           let wordSpacing = options2.wordSpacing ?? 0;
           const characterSpacing = options2.characterSpacing ?? 0;
           if (options2.width && options2.align === "justify") {
-            const words = text36.trim().split(/\s+/);
-            const textWidth = this.widthOfString(text36.replace(/\s+/g, ""), options2);
+            const words = text37.trim().split(/\s+/);
+            const textWidth = this.widthOfString(text37.replace(/\s+/g, ""), options2);
             const spaceWidth = this.widthOfString(" ") + characterSpacing;
             wordSpacing = Math.max(0, (options2.lineWidth - textWidth) / Math.max(1, words.length - 1) - spaceWidth);
           }
-          contentWidth = Math.max(contentWidth, options2.textWidth + wordSpacing * (options2.wordCount - 1) + characterSpacing * (text36.length - 1));
+          contentWidth = Math.max(contentWidth, options2.textWidth + wordSpacing * (options2.wordCount - 1) + characterSpacing * (text37.length - 1));
         }
       });
       wrapper.wrap(string2, options);
@@ -243234,7 +243187,7 @@ var TextMixin = {
       height: yMax - yMin
     };
   },
-  heightOfString(text36, options) {
+  heightOfString(text37, options) {
     const {
       x: x2,
       y
@@ -243242,7 +243195,7 @@ var TextMixin = {
     options = this._initOptions(options);
     options.height = Infinity;
     const lineGap = options.lineGap || this._lineGap || 0;
-    this._text(text36, this.x, this.y, options, () => {
+    this._text(text37, this.x, this.y, options, () => {
       this.y += this.currentLineHeight(true) + lineGap;
     });
     const height = this.y - y;
@@ -243316,8 +243269,8 @@ var TextMixin = {
             break;
           case "numbered":
           case "lettered":
-            var text36 = formatListLabel(numbers[i2 - 1], listType);
-            this._fragment(text36, this.x - indent, this.y, options);
+            var text37 = formatListLabel(numbers[i2 - 1], listType);
+            this._fragment(text37, this.x - indent, this.y, options);
             break;
         }
         if (item && labelType && bodyType) {
@@ -243382,19 +243335,19 @@ var TextMixin = {
     if (result.rotation < 0) result.rotation += 360;
     return result;
   },
-  _line(text36, options = {}, wrapper) {
-    this._fragment(text36, this.x, this.y, options);
+  _line(text37, options = {}, wrapper) {
+    this._fragment(text37, this.x, this.y, options);
     if (wrapper) {
       const lineGap = options.lineGap || this._lineGap || 0;
       this.y += this.currentLineHeight(true) + lineGap;
     } else {
-      this.x += this.widthOfString(text36, options);
+      this.x += this.widthOfString(text37, options);
     }
   },
-  _fragment(text36, x2, y, options) {
+  _fragment(text37, x2, y, options) {
     let dy, encoded, i2, positions, textWidth, words;
-    text36 = `${text36}`.replace(/\n/g, "");
-    if (text36.length === 0) {
+    text37 = `${text37}`.replace(/\n/g, "");
+    if (text37.length === 0) {
       return;
     }
     const align = options.align || "left";
@@ -243404,15 +243357,15 @@ var TextMixin = {
     if (options.width) {
       switch (align) {
         case "right":
-          textWidth = this.widthOfString(text36.replace(/\s+$/, ""), options);
+          textWidth = this.widthOfString(text37.replace(/\s+$/, ""), options);
           x2 += options.lineWidth - textWidth;
           break;
         case "center":
           x2 += options.lineWidth / 2 - options.textWidth / 2;
           break;
         case "justify":
-          words = text36.trim().split(/\s+/);
-          textWidth = this.widthOfString(text36.replace(/\s+/g, ""), options);
+          words = text37.trim().split(/\s+/);
+          textWidth = this.widthOfString(text37.replace(/\s+/g, ""), options);
           var spaceWidth = this.widthOfString(" ") + characterSpacing;
           wordSpacing = Math.max(0, (options.lineWidth - textWidth) / Math.max(1, words.length - 1) - spaceWidth);
           break;
@@ -243450,7 +243403,7 @@ var TextMixin = {
       }
       dy = dy / 1e3 * this._fontSize;
     }
-    const renderedWidth = options.textWidth + wordSpacing * (options.wordCount - 1) + characterSpacing * (text36.length - 1);
+    const renderedWidth = options.textWidth + wordSpacing * (options.wordCount - 1) + characterSpacing * (text37.length - 1);
     if (options.link != null) {
       const linkOptions = {};
       if (this._currentStructureElement && this._currentStructureElement.dictionary.data.S === "Link") {
@@ -243521,7 +243474,7 @@ var TextMixin = {
       this.addContent(`${horizontalScaling} Tz`);
     }
     if (wordSpacing) {
-      words = text36.trim().split(/\s+/);
+      words = text37.trim().split(/\s+/);
       wordSpacing += this.widthOfString(" ") + characterSpacing;
       wordSpacing *= 1e3 / this._fontSize;
       encoded = [];
@@ -243540,7 +243493,7 @@ var TextMixin = {
         positions[positions.length - 1] = space;
       }
     } else {
-      [encoded, positions] = this._font.encode(text36, options.features);
+      [encoded, positions] = this._font.encode(text37, options.features);
     }
     const scale = this._fontSize / 1e3;
     const commands = [];
@@ -244180,11 +244133,11 @@ var AnnotationsMixin = {
     };
     return this.annotate(x2, y, w, h2, annotationOptions);
   },
-  textAnnotation(x2, y, w, h2, text36, options) {
+  textAnnotation(x2, y, w, h2, text37, options) {
     const annotationOptions = {
       ...options,
       Subtype: "FreeText",
-      Contents: new String(text36),
+      Contents: new String(text37),
       DA: new String()
     };
     return this.annotate(x2, y, w, h2, annotationOptions);
@@ -245288,9 +245241,9 @@ function normalizeTable() {
   if (!rowStyle) rowStyle = () => ({});
   this._rowStyle = normalizedRowStyle.bind(this, defaultRowStyle, rowStyle);
 }
-function normalizeText(text36) {
-  if (text36 != null) text36 = `${text36}`;
-  return text36;
+function normalizeText(text37) {
+  if (text37 != null) text37 = `${text37}`;
+  return text37;
 }
 function normalizeCell(cell, rowIndex, colIndex) {
   const colStyle = this._colStyle(colIndex);
@@ -248183,11 +248136,11 @@ function addTableDefinition(target, tableRows, options, slideLayout, presLayout,
   }
   return newAutoPagedSlides;
 }
-function addTextDefinition(target, text36, opts, isPlaceholder) {
+function addTextDefinition(target, text37, opts, isPlaceholder) {
   const newObject = {
     _type: isPlaceholder ? SLIDE_OBJECT_TYPES.placeholder : SLIDE_OBJECT_TYPES.text,
     shape: (opts === null || opts === void 0 ? void 0 : opts.shape) || SHAPE_TYPE.RECTANGLE,
-    text: !text36 || text36.length === 0 ? [{ text: "", options: null }] : text36,
+    text: !text37 || text37.length === 0 ? [{ text: "", options: null }] : text37,
     options: opts || {}
   };
   function cleanOpts(itemOpts) {
@@ -248317,49 +248270,49 @@ function addBackgroundDefinition(props, target) {
     target._bkgdImgRid = intRels;
   }
 }
-function createHyperlinkRels(target, text36, options) {
+function createHyperlinkRels(target, text37, options) {
   let textObjs = [];
-  if (typeof text36 === "string" || typeof text36 === "number")
+  if (typeof text37 === "string" || typeof text37 === "number")
     return;
-  else if (Array.isArray(text36))
-    textObjs = text36;
-  else if (typeof text36 === "object")
-    textObjs = [text36];
-  textObjs.forEach((text37, idx) => {
+  else if (Array.isArray(text37))
+    textObjs = text37;
+  else if (typeof text37 === "object")
+    textObjs = [text37];
+  textObjs.forEach((text38, idx) => {
     if (options && options[idx] && options[idx].hyperlink)
-      text37.options = Object.assign(Object.assign({}, text37.options), options[idx]);
-    if (Array.isArray(text37)) {
+      text38.options = Object.assign(Object.assign({}, text38.options), options[idx]);
+    if (Array.isArray(text38)) {
       const cellOpts = [];
-      text37.forEach((tablecell) => {
+      text38.forEach((tablecell) => {
         if (tablecell.options && !tablecell.text.options) {
           cellOpts.push(tablecell.options);
         }
       });
-      createHyperlinkRels(target, text37, cellOpts);
-    } else if (Array.isArray(text37.text)) {
-      createHyperlinkRels(target, text37.text, options && options[idx] ? [options[idx]] : void 0);
-    } else if (text37 && typeof text37 === "object" && text37.options && text37.options.hyperlink && !text37.options.hyperlink._rId) {
-      if (typeof text37.options.hyperlink !== "object") {
+      createHyperlinkRels(target, text38, cellOpts);
+    } else if (Array.isArray(text38.text)) {
+      createHyperlinkRels(target, text38.text, options && options[idx] ? [options[idx]] : void 0);
+    } else if (text38 && typeof text38 === "object" && text38.options && text38.options.hyperlink && !text38.options.hyperlink._rId) {
+      if (typeof text38.options.hyperlink !== "object") {
         console.log("ERROR: text `hyperlink` option should be an object. Ex: `hyperlink: {url:'https://github.com'}` ");
-      } else if (!text37.options.hyperlink.url && !text37.options.hyperlink.slide) {
+      } else if (!text38.options.hyperlink.url && !text38.options.hyperlink.slide) {
         console.log("ERROR: 'hyperlink requires either: `url` or `slide`'");
       } else {
         const relId = getNewRelId(target);
         target._rels.push({
           type: SLIDE_OBJECT_TYPES.hyperlink,
-          data: text37.options.hyperlink.slide ? "slide" : "dummy",
+          data: text38.options.hyperlink.slide ? "slide" : "dummy",
           rId: relId,
-          Target: encodeXmlEntities(text37.options.hyperlink.url) || text37.options.hyperlink.slide.toString()
+          Target: encodeXmlEntities(text38.options.hyperlink.url) || text38.options.hyperlink.slide.toString()
         });
-        text37.options.hyperlink._rId = relId;
+        text38.options.hyperlink._rId = relId;
       }
-    } else if (text37 && typeof text37 === "object" && text37.options && text37.options.hyperlink && text37.options.hyperlink._rId) {
-      if (target._rels.filter((rel) => rel.rId === text37.options.hyperlink._rId).length === 0) {
+    } else if (text38 && typeof text38 === "object" && text38.options && text38.options.hyperlink && text38.options.hyperlink._rId) {
+      if (target._rels.filter((rel) => rel.rId === text38.options.hyperlink._rId).length === 0) {
         target._rels.push({
           type: SLIDE_OBJECT_TYPES.hyperlink,
-          data: text37.options.hyperlink.slide ? "slide" : "dummy",
-          rId: text37.options.hyperlink._rId,
-          Target: encodeXmlEntities(text37.options.hyperlink.url) || text37.options.hyperlink.slide.toString()
+          data: text38.options.hyperlink.slide ? "slide" : "dummy",
+          rId: text38.options.hyperlink._rId,
+          Target: encodeXmlEntities(text38.options.hyperlink.url) || text38.options.hyperlink.slide.toString()
         });
       }
     }
@@ -248495,8 +248448,8 @@ var Slide = class {
    * @param {TextPropsOptions} options - text options
    * @return {Slide} this Slide
    */
-  addText(text36, options) {
-    const textParam = typeof text36 === "string" || typeof text36 === "number" ? [{ text: text36, options }] : text36;
+  addText(text37, options) {
+    const textParam = typeof text37 === "string" || typeof text37 === "number" ? [{ text: text37, options }] : text37;
     addTextDefinition(this, textParam, options, false);
     return this;
   }
@@ -251647,17 +251600,17 @@ function parseContentToSlides(documents) {
     bullets: [],
     notes: "Title slide"
   });
-  for (const { document: document2, version: version3 } of documents) {
+  for (const { document: document2, version: version4 } of documents) {
     const title = document2.title;
-    if (version3?.outline) {
-      const lines = version3.outline.split("\n").map((l) => l.trim()).filter(Boolean);
+    if (version4?.outline) {
+      const lines = version4.outline.split("\n").map((l) => l.trim()).filter(Boolean);
       let currentSlide = null;
       for (const line of lines) {
         const h1Match = line.match(/^#\s+(.+)/);
         const h2Match = line.match(/^##\s+(.+)/);
         const boldMatch = line.match(/^\*\*(.+)\*\*$/);
         const dashMatch = line.match(/^[-*]\s+(.+)/);
-        const numMatch = line.match(/^\d+(?:\.\d+)*[\.)]\s+(.+)/);
+        const numMatch = line.match(/^\d+(?:\.\d+)*[.)]\s+(.+)/);
         const heading = h1Match?.[1] ?? h2Match?.[1] ?? boldMatch?.[1];
         const bullet = dashMatch?.[1] ?? numMatch?.[1];
         if (heading) {
@@ -251677,8 +251630,8 @@ function parseContentToSlides(documents) {
       if (currentSlide && currentSlide.bullets.length > 0) {
         slides.push(currentSlide);
       }
-    } else if (version3?.content) {
-      const paragraphs = version3.content.split(/\n\n+/).map((b) => b.trim()).filter(Boolean).slice(0, 20);
+    } else if (version4?.content) {
+      const paragraphs = version4.content.split(/\n\n+/).map((b) => b.trim()).filter(Boolean).slice(0, 20);
       if (paragraphs.length === 0) {
         slides.push({ title, bullets: ["(Tidak ada konten)"], notes: `Slide: ${title}` });
       } else {
@@ -251892,13 +251845,13 @@ router4.get("/projects", async (req, res) => {
   }
   if (query.data.search) {
     conditions.push(
-      sql6`lower(${projectsTable.title}) like lower(${`%${query.data.search}%`})`
+      sql7`lower(${projectsTable.title}) like lower(${`%${query.data.search}%`})`
     );
   }
   if (query.data.type) {
     conditions.push(eq6(projectsTable.taskType, query.data.type));
   }
-  const results = await db.select().from(projectsTable).where(sql6.join(conditions.map((c, i2) => i2 === 0 ? c : sql6` and ${c}`)));
+  const results = await db.select().from(projectsTable).where(sql7.join(conditions.map((c, i2) => i2 === 0 ? c : sql7` and ${c}`)));
   res.json(
     results.map((p) => ({
       ...p,
@@ -251924,7 +251877,7 @@ router4.get("/projects/stats", async (req, res) => {
     byType[typeKey] = (byType[typeKey] ?? 0) + 1;
   }
   const projectIds = all.map((p) => p.id);
-  const recent = projectIds.length > 0 ? await db.select().from(activitiesTable).where(sql6`${activitiesTable.projectId} in (${sql6.join(projectIds.map((id) => sql6`${id}`), sql6`, `)})`).orderBy(desc3(activitiesTable.createdAt)).limit(5) : [];
+  const recent = projectIds.length > 0 ? await db.select().from(activitiesTable).where(sql7`${activitiesTable.projectId} in (${sql7.join(projectIds.map((id) => sql7`${id}`), sql7`, `)})`).orderBy(desc3(activitiesTable.createdAt)).limit(5) : [];
   res.json({ total, byStatus, byType, recentActivity: recent });
 });
 router4.get("/projects/:projectId", async (req, res) => {
@@ -252061,9 +252014,14 @@ router4.post("/projects/:projectId/analyze", async (req, res) => {
     return;
   }
   const requestedTier = typeof req.body?.tier === "string" ? req.body.tier : null;
-  const selectedTier = requestedTier ? await getTierConfig(requestedTier) : await getTierForUser(project.userId, null);
+  const selectedTier = requestedTier ? await (async () => {
+    const tier = await getTierConfig(requestedTier);
+    if (!tier) return null;
+    const authorized = await checkTierAccess(project.userId, requestedTier);
+    return authorized ? tier : null;
+  })() : await getTierForUser(project.userId, null);
   if (!selectedTier) {
-    res.status(400).json({ error: "Tier tidak valid" });
+    res.status(requestedTier ? 403 : 400).json({ error: requestedTier ? "Tier tidak diizinkan untuk paket Anda" : "Tier tidak valid" });
     return;
   }
   if (!selectedTier.isFree) {
@@ -252103,6 +252061,17 @@ router4.post("/projects/:projectId/analyze", async (req, res) => {
   try {
     await runAnalysisPipeline(project.id, job.id, selectedTier);
   } catch (err) {
+    const message2 = err instanceof Error ? err.message : String(err);
+    if (message2 === "KONTEKS_TERLALU_PANJANG") {
+      await db.update(jobsTable).set({ status: "failed", errorMessage: "Konteks terlalu panjang." }).where(eq6(jobsTable.id, job.id));
+      await db.update(projectsTable).set({ status: "draft" }).where(eq6(projectsTable.id, project.id));
+      res.status(422).json({
+        error: "Konteks terlalu panjang.",
+        detail: "Dokumen atau instruksi terlalu panjang untuk diproses.",
+        code: "KONTEKS_TERLALU_PANJANG"
+      });
+      return;
+    }
     req.log.error({ err, projectId: project.id }, "Analysis pipeline failed");
     quotaInfo = { method: "subscription", saldoUsedCents: 0 };
   }
@@ -252115,16 +252084,14 @@ router4.post("/projects/:projectId/analyze", async (req, res) => {
 });
 async function runAnalysisPipeline(projectId, jobId, selectedTier) {
   if (!selectedTier) throw new Error("Tier required");
-  try {
-    await db.update(jobsTable).set({ status: "running" }).where(eq6(jobsTable.id, jobId));
-    const [project] = await db.select().from(projectsTable).where(eq6(projectsTable.id, projectId));
-    if (!project) throw new Error("Project not found");
-    const safeInstructionText = sanitizeInstructionText(project.instructionText ?? "");
-    const systemPrompt = buildSystemPrompt({
-      title: project.title,
-      instructionText: safeInstructionText
-    });
-    const analysisPrompt = `Analisis instruksi tugas berikut dan berikan respons dalam format JSON:
+  const [project] = await db.select().from(projectsTable).where(eq6(projectsTable.id, projectId));
+  if (!project) throw new Error("Project not found");
+  const safeInstructionText = sanitizeInstructionText(project.instructionText ?? "");
+  const systemPrompt = buildSystemPrompt({ title: project.title, instructionText: safeInstructionText });
+  const { content: aiResponse, usage: analysisUsage, tierConfig: analysisTier } = await callAI(
+    [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: `Analisis instruksi tugas berikut dan berikan respons dalam format JSON:
 
 INSTRUKSI TUGAS:
 ${safeInstructionText || project.title}
@@ -252138,46 +252105,58 @@ Hasilkan JSON dengan struktur berikut (HANYA JSON, tanpa teks lain):
   "language": "bahasa utama (Indonesia/Inggris)",
   "outline": "outline lengkap dalam format:\\nBAB I: ...\\nA. ...\\nB. ...\\n\\nBAB II: ...\\ndll",
   "contextSummary": "ringkasan konteks tugas dalam 2-3 kalimat"
-}`;
-    const { content: aiResponse, usage: analysisUsage, tierConfig: analysisTier } = await callAI(
-      [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: analysisPrompt }
-      ],
-      selectedTier.id
-    );
-    const analyzeUsageLog = await logAIUsage({
+}` }
+    ],
+    selectedTier.id
+  );
+  const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+  let metadata = {};
+  if (jsonMatch) {
+    try {
+      metadata = JSON.parse(jsonMatch[0]);
+    } catch {
+      metadata = {};
+    }
+  }
+  const { content: documentContent, usage: writeUsage, tierConfig: writeTier } = await callAI(
+    [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: `Berdasarkan outline berikut, tulis dokumen akademik lengkap dalam Bahasa Indonesia:
+
+${metadata.outline ?? "Tulis dokumen berdasarkan instruksi dosen."}
+
+Tulis dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan bahasa akademik yang natural dan mengalir.` }
+    ],
+    selectedTier.id
+  );
+  if (!selectedTier.isFree && analysisUsage.costCents > 0) {
+    const consumeResult = await consumeQuotaForAIRequest({
       userId: project.userId,
-      projectId,
-      requestType: "analyze",
-      usage: analysisUsage,
-      tierConfig: analysisTier
+      tierId: selectedTier.id,
+      inputTokens: analysisUsage.inputTokens,
+      outputTokens: analysisUsage.outputTokens,
+      costCents: analysisUsage.costCents
     });
-    if (!selectedTier.isFree && analysisUsage.costCents > 0) {
-      const consumeResult = await consumeQuotaForAIRequest({
-        userId: project.userId,
-        tierId: selectedTier.id,
-        inputTokens: analysisUsage.inputTokens,
-        outputTokens: analysisUsage.outputTokens,
-        costCents: analysisUsage.costCents
-      });
-      if (!consumeResult.allowed) {
-        logger.warn(
-          { userId: project.userId, reason: consumeResult.reason },
-          "Quota/saldo exhausted during analyze"
-        );
-      }
+    if (!consumeResult.allowed) {
+      logger2.warn({ userId: project.userId, reason: consumeResult.reason }, "Quota/saldo exhausted during analyze");
     }
-    const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
-    let metadata = {};
-    if (jsonMatch) {
-      try {
-        metadata = JSON.parse(jsonMatch[0]);
-      } catch {
-        metadata = {};
-      }
+  }
+  let writeQuota = null;
+  if (!selectedTier.isFree && writeUsage.costCents > 0) {
+    writeQuota = await consumeQuotaForAIRequest({
+      userId: project.userId,
+      tierId: selectedTier.id,
+      inputTokens: writeUsage.inputTokens,
+      outputTokens: writeUsage.outputTokens,
+      costCents: writeUsage.costCents
+    });
+    if (!writeQuota.allowed) {
+      logger2.warn({ userId: project.userId, reason: writeQuota.reason }, "Quota/saldo exhausted during write");
     }
-    await db.insert(projectMetadataTable).values({
+  }
+  await db.transaction(async (tx) => {
+    await tx.update(jobsTable).set({ status: "running" }).where(eq6(jobsTable.id, jobId));
+    await tx.insert(projectMetadataTable).values({
       projectId,
       detectedTitle: metadata.detectedTitle ?? null,
       subject: metadata.subject ?? null,
@@ -252198,7 +252177,7 @@ Hasilkan JSON dengan struktur berikut (HANYA JSON, tanpa teks lain):
         contextSummary: metadata.contextSummary ?? null
       }
     });
-    await db.update(projectsTable).set({
+    await tx.update(projectsTable).set({
       subject: metadata.subject ?? null,
       taskType: metadata.taskType ?? null,
       citationFormat: metadata.citationFormat ?? null,
@@ -252206,7 +252185,7 @@ Hasilkan JSON dengan struktur berikut (HANYA JSON, tanpa teks lain):
       progress: 25
     }).where(eq6(projectsTable.id, projectId));
     if (metadata.outline) {
-      await db.insert(messagesTable).values({
+      await tx.insert(messagesTable).values({
         projectId,
         role: "system",
         content: `Analisis selesai. Outline:
@@ -252214,72 +252193,41 @@ Hasilkan JSON dengan struktur berikut (HANYA JSON, tanpa teks lain):
 ${metadata.outline}`
       });
     }
-    const writeJob = await db.insert(jobsTable).values({ projectId, jobType: "write_chapter", status: "running" }).returning();
-    await logActivity(projectId, "analysis_complete", "Analisis instruksi selesai, outline dibuat");
-    await logActivity(projectId, "writing_started", "Penulisan dokumen dimulai");
-    const writePrompt = `Berdasarkan outline berikut, tulis dokumen akademik lengkap dalam Bahasa Indonesia:
-
-${metadata.outline ?? "Tulis dokumen berdasarkan instruksi dosen."}
-
-Tulis dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan bahasa akademik yang natural dan mengalir.`;
-    const { content: documentContent, usage: writeUsage, tierConfig: writeTier } = await callAI(
-      [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: writePrompt }
-      ],
-      selectedTier.id
-    );
-    const writeUsageLog = await logAIUsage({
-      userId: project.userId,
-      projectId,
-      requestType: "write",
-      usage: writeUsage,
-      tierConfig: writeTier
-    });
-    let writeQuota = null;
-    if (!selectedTier.isFree && writeUsage.costCents > 0) {
-      writeQuota = await consumeQuotaForAIRequest({
-        userId: project.userId,
-        tierId: selectedTier.id,
-        inputTokens: writeUsage.inputTokens,
-        outputTokens: writeUsage.outputTokens,
-        costCents: writeUsage.costCents
-      });
-      if (!writeQuota.allowed) {
-        logger.warn(
-          { userId: project.userId, reason: writeQuota.reason },
-          "Quota/saldo exhausted during write"
-        );
-      }
-    }
-    const versions = await db.select().from(documentVersionsTable).where(
-      and4(
+    const [writeJob] = await tx.insert(jobsTable).values({ projectId, jobType: "write_chapter", status: "running" }).returning();
+    const [version4] = await tx.select().from(documentVersionsTable).where(
+      and5(
         eq6(documentVersionsTable.projectId, projectId),
         isNull2(documentVersionsTable.documentId)
       )
     );
-    const newVersion = versions.length + 1;
-    await db.insert(documentVersionsTable).values({
+    const newVersion = (version4?.versionNumber ?? 0) + 1;
+    await tx.insert(documentVersionsTable).values({
       projectId,
       versionNumber: newVersion,
       content: documentContent,
       outline: metadata.outline ?? null,
       changeDescription: "Dokumen awal dihasilkan dari analisis instruksi"
     });
-    await db.update(projectsTable).set({ status: "waiting_revision", progress: 80 }).where(eq6(projectsTable.id, projectId));
-    await db.update(jobsTable).set({ status: "completed", result: "Dokumen berhasil ditulis" }).where(eq6(jobsTable.id, writeJob[0].id));
-    await db.update(jobsTable).set({ status: "completed", result: "Analisis dan penulisan selesai" }).where(eq6(jobsTable.id, jobId));
-    await logActivity(projectId, "document_written", `Versi ${newVersion} dokumen selesai ditulis`);
-    return {
-      method: writeQuota?.allowed ? writeQuota.method ?? "subscription" : "subscription",
-      saldoUsedCents: writeQuota?.allowed && writeQuota.method === "saldo" ? writeQuota.deductCents ?? 0 : 0
-    };
-  } catch (err) {
-    await db.update(jobsTable).set({ status: "failed", errorMessage: String(err) }).where(eq6(jobsTable.id, jobId));
-    await db.update(projectsTable).set({ status: "draft" }).where(eq6(projectsTable.id, projectId));
-    await logActivity(projectId, "analysis_failed", `Analisis gagal: ${String(err)}`);
-    throw err;
-  }
+    const [doc] = await tx.insert(documentsTable).values({ projectId, versionNumber: newVersion }).returning();
+    await tx.insert(documentVersionsTable).values({
+      projectId,
+      versionNumber: newVersion,
+      documentId: doc.id,
+      content: documentContent,
+      outline: metadata.outline ?? null,
+      changeDescription: "Versi terkelola"
+    });
+    await tx.update(projectsTable).set({ status: "waiting_revision", progress: 80 }).where(eq6(projectsTable.id, projectId));
+    await tx.update(jobsTable).set({ status: "completed", result: "Dokumen berhasil ditulis" }).where(eq6(jobsTable.id, writeJob.id));
+    await tx.update(jobsTable).set({ status: "completed", result: "Analisis dan penulisan selesai" }).where(eq6(jobsTable.id, jobId));
+  });
+  logActivity(projectId, "analysis_complete", "Analisis instruksi selesai, outline dibuat");
+  logActivity(projectId, "writing_started", "Penulisan dokumen dimulai");
+  logActivity(projectId, "document_written", `Versi ${(version?.versionNumber ?? 0) + 1} dokumen selesai ditulis`);
+  return {
+    method: writeQuota?.allowed ? writeQuota.method ?? "subscription" : "subscription",
+    saldoUsedCents: writeQuota?.allowed && writeQuota.method === "saldo" ? writeQuota.deductCents ?? 0 : 0
+  };
 }
 router4.post("/projects/:projectId/outline", async (req, res) => {
   const userId = getUserId(req);
@@ -252298,9 +252246,14 @@ router4.post("/projects/:projectId/outline", async (req, res) => {
     return;
   }
   const requestedTier = typeof req.body?.tier === "string" ? req.body.tier : null;
-  const selectedTier = requestedTier ? await getTierConfig(requestedTier) : await getTierForUser(project.userId, null);
+  const selectedTier = requestedTier ? await (async () => {
+    const tier = await getTierConfig(requestedTier);
+    if (!tier) return null;
+    const authorized = await checkTierAccess(project.userId, requestedTier);
+    return authorized ? tier : null;
+  })() : await getTierForUser(project.userId, null);
   if (!selectedTier) {
-    res.status(400).json({ error: "Tier tidak valid" });
+    res.status(requestedTier ? 403 : 400).json({ error: requestedTier ? "Tier tidak diizinkan untuk paket Anda" : "Tier tidak valid" });
     return;
   }
   if (!selectedTier.isFree) {
@@ -252353,13 +252306,34 @@ INSTRUKSI DOSEN:
 ${project.instructionText}` : ""}
 
 Format: outline lengkap dalam format markdown dengan bab dan sub-bab.`;
-  const { content: outlineContent, usage, tierConfig } = await callAI(
-    [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: outlinePrompt }
-    ],
-    selectedTier.id
-  );
+  let outlineContent;
+  let usage;
+  let tierConfig;
+  try {
+    const result = await callAI(
+      [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: outlinePrompt }
+      ],
+      selectedTier.id
+    );
+    outlineContent = result.content;
+    usage = result.usage;
+    tierConfig = result.tierConfig;
+  } catch (err) {
+    const message2 = err instanceof Error ? err.message : String(err);
+    if (message2 === "KONTEKS_TERLALU_PANJANG") {
+      res.status(422).json({
+        error: "Konteks terlalu panjang.",
+        detail: "Instruksi tugas terlalu panjang. Coba singkatkan instruksi.",
+        code: "KONTEKS_TERLALU_PANJANG"
+      });
+      return;
+    }
+    req.log.error({ err, projectId: params.data.projectId }, "Outline generation failed");
+    res.status(500).json({ error: "Gagal menghasilkan outline. Silakan coba lagi." });
+    return;
+  }
   const usageLog = await logAIUsage({
     userId: project.userId,
     projectId: params.data.projectId,
@@ -252377,7 +252351,7 @@ Format: outline lengkap dalam format markdown dengan bab dan sub-bab.`;
       costCents: usage.costCents
     });
     if (!consumeResult.allowed) {
-      logger.warn(
+      logger2.warn(
         { userId: project.userId, reason: consumeResult.reason },
         "Quota/saldo exhausted during outline"
       );
@@ -252416,9 +252390,14 @@ router4.post("/projects/:projectId/documents/generate", async (req, res) => {
     return;
   }
   const requestedTier = typeof req.body?.tier === "string" ? req.body.tier : null;
-  const selectedTier = requestedTier ? await getTierConfig(requestedTier) : await getTierForUser(project.userId, null);
+  const selectedTier = requestedTier ? await (async () => {
+    const tier = await getTierConfig(requestedTier);
+    if (!tier) return null;
+    const authorized = await checkTierAccess(project.userId, requestedTier);
+    return authorized ? tier : null;
+  })() : await getTierForUser(project.userId, null);
   if (!selectedTier) {
-    res.status(400).json({ error: "Tier tidak valid" });
+    res.status(requestedTier ? 403 : 400).json({ error: requestedTier ? "Tier tidak diizinkan untuk paket Anda" : "Tier tidak valid" });
     return;
   }
   if (!selectedTier.isFree) {
@@ -252476,91 +252455,95 @@ router4.post("/projects/:projectId/documents/generate", async (req, res) => {
   try {
     await runDocumentGeneration(project.id, job.id, outline, selectedTier);
   } catch (err) {
+    const message2 = err instanceof Error ? err.message : String(err);
+    if (message2 === "KONTEKS_TERLALU_PANJANG") {
+      await db.update(jobsTable).set({ status: "failed", errorMessage: "Konteks terlalu panjang." }).where(eq6(jobsTable.id, job.id));
+      res.status(422).json({
+        error: "Konteks terlalu panjang.",
+        detail: "Outline atau dokumen terlalu panjang untuk diproses.",
+        code: "KONTEKS_TERLALU_PANJANG"
+      });
+      return;
+    }
     req.log.error({ err, projectId: project.id }, "Document generation failed");
     quotaInfo = { method: "subscription", saldoUsedCents: 0 };
   }
   res.status(202).json({ jobId: job.id, status: "started", ...quotaInfo });
 });
 async function runDocumentGeneration(projectId, jobId, outline, selectedTier) {
-  try {
-    await db.update(jobsTable).set({ status: "running" }).where(eq6(jobsTable.id, jobId));
-    const [project] = await db.select().from(projectsTable).where(eq6(projectsTable.id, projectId));
-    if (!project) throw new Error("Project not found");
-    const systemPrompt = buildSystemPrompt({
-      title: project.title,
-      instructionText: project.instructionText ?? void 0,
-      citationFormat: project.citationFormat ?? void 0
-    });
-    const [metadata] = await db.select().from(projectMetadataTable).where(eq6(projectMetadataTable.projectId, projectId));
-    const refs = await db.select().from(referencesTable).where(eq6(referencesTable.projectId, projectId));
-    const refList = refs.length > 0 ? `
+  const [project] = await db.select().from(projectsTable).where(eq6(projectsTable.id, projectId));
+  if (!project) throw new Error("Project not found");
+  const systemPrompt = buildSystemPrompt({
+    title: project.title,
+    instructionText: project.instructionText ?? void 0,
+    citationFormat: project.citationFormat ?? void 0
+  });
+  const [metadata] = await db.select().from(projectMetadataTable).where(eq6(projectMetadataTable.projectId, projectId));
+  const refs = await db.select().from(referencesTable).where(eq6(referencesTable.projectId, projectId));
+  const refList = refs.length > 0 ? `
 REFERENSI YANG DAPAT DIGUNAKAN:
 ${refs.map(
-      (r2, i2) => `${i2 + 1}. ${r2.authors ?? "Penulis"} (${r2.year ?? "n.d."}). ${r2.title}.`
-    ).join("\n")}` : "";
-    const writePrompt = `Tulis dokumen akademik lengkap dalam Bahasa Indonesia berdasarkan outline berikut:
+    (r2, i2) => `${i2 + 1}. ${r2.authors ?? "Penulis"} (${r2.year ?? "n.d."}). ${r2.title}.`
+  ).join("\n")}` : "";
+  const { content: documentContent, usage, tierConfig } = await callAI(
+    [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: `Tulis dokumen akademik lengkap dalam Bahasa Indonesia berdasarkan outline berikut:
 
 OUTLINE:
 ${outline}${refList}
 
-TULIS dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan bahasa akademik yang natural dan mengalir. Panjang dokumen: minimal 2000 kata.`;
-    const { content: documentContent, usage, tierConfig } = await callAI(
-      [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: writePrompt }
-      ],
-      selectedTier.id
-    );
-    const usageLog = await logAIUsage({
+TULIS dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan bahasa akademik yang natural dan mengalir. Panjang dokumen: minimal 2000 kata.` }
+    ],
+    selectedTier.id
+  );
+  await logAIUsage({
+    userId: project.userId,
+    projectId,
+    requestType: "write",
+    usage,
+    tierConfig
+  });
+  let quotaResult = null;
+  if (!selectedTier.isFree && usage.costCents > 0) {
+    quotaResult = await consumeQuotaForAIRequest({
       userId: project.userId,
-      projectId,
-      requestType: "write",
-      usage,
-      tierConfig
+      tierId: selectedTier.id,
+      inputTokens: usage.inputTokens,
+      outputTokens: usage.outputTokens,
+      costCents: usage.costCents
     });
-    let quotaResult = null;
-    if (!selectedTier.isFree && usage.costCents > 0) {
-      quotaResult = await consumeQuotaForAIRequest({
-        userId: project.userId,
-        tierId: selectedTier.id,
-        inputTokens: usage.inputTokens,
-        outputTokens: usage.outputTokens,
-        costCents: usage.costCents
-      });
-      if (!quotaResult.allowed) {
-        logger.warn(
-          { userId: project.userId, reason: quotaResult.reason },
-          "Quota/saldo exhausted during generate document"
-        );
-      }
+    if (!quotaResult.allowed) {
+      logger2.warn(
+        { userId: project.userId, reason: quotaResult.reason },
+        "Quota/saldo exhausted during generate document"
+      );
     }
-    const versions = await db.select().from(documentVersionsTable).where(
-      and4(
-        eq6(documentVersionsTable.projectId, projectId),
-        isNull2(documentVersionsTable.documentId)
-      )
-    );
-    const newVersion = versions.length + 1;
-    await db.insert(documentVersionsTable).values({
+  }
+  const [version4] = await db.select().from(documentVersionsTable).where(
+    and5(
+      eq6(documentVersionsTable.projectId, projectId),
+      isNull2(documentVersionsTable.documentId)
+    )
+  );
+  const newVersion = (version4?.versionNumber ?? 0) + 1;
+  await db.transaction(async (tx) => {
+    await tx.update(jobsTable).set({ status: "running" }).where(eq6(jobsTable.id, jobId));
+    await tx.insert(documentVersionsTable).values({
       projectId,
       versionNumber: newVersion,
       content: documentContent,
       outline,
       changeDescription: `Dokumen versi ${newVersion} \u2014 Generated from outline`
     });
-    await db.update(projectsTable).set({ status: "waiting_revision", progress: 80 }).where(eq6(projectsTable.id, projectId));
-    await db.update(jobsTable).set({ status: "completed", result: `Dokumen versi ${newVersion} berhasil ditulis` }).where(eq6(jobsTable.id, jobId));
-    await logActivity(projectId, "document_generated", `Versi ${newVersion} dokumen berhasil ditulis`);
-    return {
-      method: quotaResult?.allowed ? quotaResult.method ?? "subscription" : "subscription",
-      saldoUsedCents: quotaResult?.allowed && quotaResult.method === "saldo" ? quotaResult.deductCents ?? 0 : 0
-    };
-  } catch (err) {
-    await db.update(jobsTable).set({ status: "failed", errorMessage: String(err) }).where(eq6(jobsTable.id, jobId));
-    await db.update(projectsTable).set({ status: "draft" }).where(eq6(projectsTable.id, projectId));
-    await logActivity(projectId, "document_generation_failed", `Penulisan gagal: ${String(err)}`);
-    throw err;
-  }
+    await tx.update(projectsTable).set({ status: "waiting_revision", progress: 80 }).where(eq6(projectsTable.id, projectId));
+    await tx.update(jobsTable).set({ status: "completed", result: `Dokumen versi ${newVersion} berhasil ditulis` }).where(eq6(jobsTable.id, jobId));
+  });
+  logActivity(projectId, "document_generated", `Versi ${newVersion} dokumen berhasil ditulis`);
+  return {
+    method: quotaResult?.allowed ? quotaResult.method ?? "subscription" : "subscription",
+    saldoUsedCents: quotaResult?.allowed && quotaResult.method === "saldo" ? quotaResult.deductCents ?? 0 : 0
+  };
 }
 router4.get("/projects/:projectId/export/docx", async (req, res) => {
   const projectId = Number(req.params.projectId);
@@ -252582,7 +252565,7 @@ router4.get("/projects/:projectId/export/docx", async (req, res) => {
       return { document: doc, version: versions[0] ?? null };
     })
   );
-  const standaloneVersions = await db.select().from(documentVersionsTable).where(and4(eq6(documentVersionsTable.projectId, projectId), isNull2(documentVersionsTable.documentId))).orderBy(desc3(documentVersionsTable.versionNumber));
+  const standaloneVersions = await db.select().from(documentVersionsTable).where(and5(eq6(documentVersionsTable.projectId, projectId), isNull2(documentVersionsTable.documentId))).orderBy(desc3(documentVersionsTable.versionNumber));
   const allDocuments = docs.length > 0 ? documentsWithContent : standaloneVersions.map((v) => ({
     document: {
       id: 0,
@@ -252690,7 +252673,7 @@ router4.get("/projects/:projectId/export/pptx", async (req, res) => {
       return { document: doc, version: versions[0] ?? null };
     })
   );
-  const standaloneVersions = await db.select().from(documentVersionsTable).where(and4(eq6(documentVersionsTable.projectId, projectId), isNull2(documentVersionsTable.documentId))).orderBy(desc3(documentVersionsTable.versionNumber));
+  const standaloneVersions = await db.select().from(documentVersionsTable).where(and5(eq6(documentVersionsTable.projectId, projectId), isNull2(documentVersionsTable.documentId))).orderBy(desc3(documentVersionsTable.versionNumber));
   const allDocuments = docs.length > 0 ? documentsWithContent : standaloneVersions.map((v) => ({
     document: {
       id: 0,
@@ -252732,12 +252715,7 @@ router4.get("/projects/:projectId/export/pptx", async (req, res) => {
   }
 });
 function generateToken() {
-  const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let token = "";
-  for (let i2 = 0; i2 < 32; i2++) {
-    token += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return token;
+  return randomBytes2(32).toString("base64url");
 }
 router4.get("/projects/:projectId/share", async (req, res) => {
   const projectId = Number(req.params.projectId);
@@ -252806,7 +252784,8 @@ var projects_default = router4;
 
 // src/routes/messages.ts
 var import_express5 = __toESM(require_express2(), 1);
-import { eq as eq7, asc, desc as desc4, and as and5, isNull as isNull3 } from "drizzle-orm";
+init_src();
+import { eq as eq7, asc, desc as desc4, and as and6, isNull as isNull3, sql as sql8 } from "drizzle-orm";
 var router5 = (0, import_express5.Router)();
 router5.get("/projects/:projectId/messages", async (req, res) => {
   const params = ListMessagesParams.safeParse(req.params);
@@ -252834,9 +252813,14 @@ router5.post("/projects/:projectId/messages", async (req, res) => {
     res.status(404).json({ error: "Project not found" });
     return;
   }
-  const selectedTier = tierId ? await getTierConfig(tierId) : await getTierForUser(project.userId, null);
+  const selectedTier = tierId ? await (async () => {
+    const tier = await getTierConfig(tierId);
+    if (!tier) return null;
+    const authorized = await checkTierAccess(project.userId, tierId);
+    return authorized ? tier : null;
+  })() : await getTierForUser(project.userId, null);
   if (!selectedTier) {
-    res.status(400).json({ error: "Tier tidak valid" });
+    res.status(tierId ? 403 : 400).json({ error: tierId ? "Tier tidak diizinkan untuk paket Anda" : "Tier tidak valid" });
     return;
   }
   const estimatedCostCents = selectedTier.pricePer1MInputCents > 0 || selectedTier.pricePer1MOutputCents > 0 ? Math.max(100, selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents) : 0;
@@ -252871,18 +252855,7 @@ router5.post("/projects/:projectId/messages", async (req, res) => {
   }).returning();
   const [metadata] = await db.select().from(projectMetadataTable).where(eq7(projectMetadataTable.projectId, params.data.projectId));
   const [latestDoc] = await db.select().from(documentVersionsTable).where(eq7(documentVersionsTable.projectId, params.data.projectId)).orderBy(desc4(documentVersionsTable.versionNumber)).limit(1);
-  const MAX_TOTAL_INPUT_TOKENS = 14e4;
-  const SYSTEM_PROMPT_ESTIMATE = 1500;
-  const allRecentMessages = await db.select().from(messagesTable).where(eq7(messagesTable.projectId, params.data.projectId)).orderBy(desc4(messagesTable.createdAt));
-  const candidates = allRecentMessages.slice(1);
-  let usedTokens = SYSTEM_PROMPT_ESTIMATE;
-  const recentMessages = [];
-  for (const msg of candidates) {
-    const msgTokens = estimateTokensFromChars(msg.content.length);
-    if (usedTokens + msgTokens > MAX_TOTAL_INPUT_TOKENS) break;
-    usedTokens += msgTokens;
-    recentMessages.push(msg);
-  }
+  const recentMessages = await db.select().from(messagesTable).where(eq7(messagesTable.projectId, params.data.projectId)).orderBy(desc4(messagesTable.createdAt)).limit(10);
   const systemPrompt = buildSystemPrompt({
     title: project.title,
     instructionText: project.instructionText,
@@ -252906,15 +252879,17 @@ router5.post("/projects/:projectId/messages", async (req, res) => {
   try {
     usageResult = await callAI(aiMessages, selectedTier.id, mode);
   } catch (err) {
-    const errMsg = err instanceof Error ? err.message : String(err);
-    if (errMsg === "KONTEKS_TERLALU_PANJANG") {
-      res.status(413).json({
-        error: "Konteks terlalu panjang. Coba hapus chat history atau mulai project baru.",
-        code: "CONTEXT_EXCEEDED"
+    const message2 = err instanceof Error ? err.message : String(err);
+    if (message2 === "KONTEKS_TERLALU_PANJANG") {
+      logger2.warn({ tierId: selectedTier.id, projectId: params.data.projectId }, "Context window exceeded \u2014 suggest truncating document");
+      res.status(422).json({
+        error: "Konteks terlalu panjang.",
+        detail: "Dokumen atau percakapan terlalu panjang untuk diproses. Coba singkatkan dokumen atau hapus beberapa pesan chat terakhir.",
+        code: "KONTEKS_TERLALU_PANJANG"
       });
       return;
     }
-    logger.error({ err, tierId: selectedTier.id }, "AI call failed");
+    logger2.error({ err, tierId: selectedTier.id }, "AI call failed");
     res.status(500).json({ error: "AI request failed. Silakan coba lagi." });
     return;
   }
@@ -252941,7 +252916,7 @@ router5.post("/projects/:projectId/messages", async (req, res) => {
       costCents: usage.costCents
     });
     if (!finalConsume.allowed) {
-      logger.warn(
+      logger2.warn(
         { userId: project.userId, costCents: usage.costCents, reason: finalConsume.reason },
         "Quota/saldo exhausted mid-flight"
       );
@@ -252952,12 +252927,26 @@ router5.post("/projects/:projectId/messages", async (req, res) => {
     role: "assistant",
     content: aiContent
   }).returning();
+  const MAX_MESSAGES_PER_PROJECT = 100;
+  await db.delete(messagesTable).where(
+    and6(
+      eq7(messagesTable.projectId, params.data.projectId),
+      sql8`${messagesTable.id} NOT IN (
+          SELECT id FROM (
+            SELECT id FROM messages
+            WHERE project_id = ${params.data.projectId}
+            ORDER BY created_at DESC
+            LIMIT ${MAX_MESSAGES_PER_PROJECT}
+          ) AS recent_messages
+        )`
+    )
+  );
   await logActivity(params.data.projectId, "chat_message", `User bertanya: ${sanitizedContent.substring(0, 60)}...`);
   if (aiContent.includes("# ") && aiContent.length > 500 && (sanitizedContent.toLowerCase().includes("tulis") || sanitizedContent.toLowerCase().includes("perbaiki") || sanitizedContent.toLowerCase().includes("revisi"))) {
     const projectId = params.data.projectId;
-    const [activeDoc] = await db.select().from(documentsTable).where(and5(eq7(documentsTable.projectId, projectId), eq7(documentsTable.isActive, true)));
+    const [activeDoc] = await db.select().from(documentsTable).where(and6(eq7(documentsTable.projectId, projectId), eq7(documentsTable.isActive, true)));
     const existingVersions = await db.select().from(documentVersionsTable).where(
-      activeDoc ? eq7(documentVersionsTable.documentId, activeDoc.id) : and5(eq7(documentVersionsTable.projectId, projectId), isNull3(documentVersionsTable.documentId))
+      activeDoc ? eq7(documentVersionsTable.documentId, activeDoc.id) : and6(eq7(documentVersionsTable.projectId, projectId), isNull3(documentVersionsTable.documentId))
     );
     const newVersion = existingVersions.length + 1;
     await db.insert(documentVersionsTable).values({
@@ -252996,7 +252985,8 @@ var messages_default = router5;
 
 // src/routes/documents.ts
 var import_express6 = __toESM(require_express2(), 1);
-import { eq as eq8, desc as desc5, and as and6, isNull as isNull4, sql as sql7, count } from "drizzle-orm";
+init_src();
+import { eq as eq8, desc as desc5, and as and7, isNull as isNull4, sql as sql9, count } from "drizzle-orm";
 
 // src/lib/citation-rendering.ts
 var NUMBERED_FORMATS = /* @__PURE__ */ new Set([
@@ -253004,8 +252994,8 @@ var NUMBERED_FORMATS = /* @__PURE__ */ new Set([
   "Vancouver",
   "Chicago"
 ]);
-function escapeHtml(text36) {
-  return text36.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+function escapeHtml(text37) {
+  return text37.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 function splitParagraphs(content) {
   return content.split(/\n\s*\n/).map((p) => p.trim()).filter((p) => p.length > 0);
@@ -253053,8 +253043,8 @@ function renderMarkerHtml(citation, marker, format) {
   const tooltipEscaped = escapeHtml(tooltip).replace(/\n/g, "&#10;");
   return `<sup class="cite-marker" data-citation-id="${citation.id}" title="${tooltipEscaped}">${escapeHtml(marker)}</sup>`;
 }
-function renderMarkdownLight(text36) {
-  const lines = text36.split("\n");
+function renderMarkdownLight(text37) {
+  const lines = text37.split("\n");
   const blocks = [];
   let currentList = [];
   let paragraphBuffer = [];
@@ -253103,26 +253093,26 @@ function renderParagraph(paragraphText, paragraphIndex, citationsForParagraph, f
     (a, b) => b.offsetInParagraph - a.offsetInParagraph
   );
   const maxOffset = paragraphText.length;
-  const text36 = paragraphText;
+  const text37 = paragraphText;
   const segments = [];
-  let cursor = text36.length;
+  let cursor = text37.length;
   for (const c of sorted) {
     const safeOffset = Math.min(Math.max(c.offsetInParagraph, 0), maxOffset);
     const marker = getMarkerForCitation(c, format, sequentialNumbers);
     const markerHtml = renderMarkerHtml(c, marker, format);
-    const afterText = escapeHtml(text36.slice(safeOffset, cursor));
+    const afterText = escapeHtml(text37.slice(safeOffset, cursor));
     segments.push(afterText, markerHtml);
     cursor = safeOffset;
   }
-  segments.push(escapeHtml(text36.slice(0, cursor)));
+  segments.push(escapeHtml(text37.slice(0, cursor)));
   const htmlWithCitations = segments.reverse().join("");
-  const isStructured = /^(#{1,6}\s|[-*]\s)/m.test(text36);
+  const isStructured = /^(#{1,6}\s|[-*]\s)/m.test(text37);
   if (isStructured) {
-    logger.debug(
+    logger2.debug(
       { paragraphIndex },
       "Paragraph has markdown structure \u2014 using simplified render"
     );
-    const mdHtml = renderMarkdownLight(text36);
+    const mdHtml = renderMarkdownLight(text37);
     const markers = sorted.map((c) => {
       const marker = getMarkerForCitation(c, format, sequentialNumbers);
       return renderMarkerHtml(c, marker, format);
@@ -253135,14 +253125,14 @@ function renderDocument(params) {
   const { content, citations, format, formatBibliographyFn } = params;
   const paragraphs = splitParagraphs(content);
   const sequentialNumbers = computeSequentialNumbers(citations);
-  const rendered = paragraphs.map((text36, index14) => {
+  const rendered = paragraphs.map((text37, index14) => {
     const citationsForParagraph = citations.filter(
       (c) => c.paragraphIndex === index14
     );
     return {
       index: index14,
       html: renderParagraph(
-        text36,
+        text37,
         index14,
         citationsForParagraph,
         format,
@@ -253395,7 +253385,7 @@ function formatBibliography(refs, format) {
     });
     return output;
   } catch (err) {
-    logger.warn({ err, format }, "CSL formatting failed, using fallback");
+    logger2.warn({ err, format }, "CSL formatting failed, using fallback");
     return formatFallback(refs, format);
   }
 }
@@ -253499,7 +253489,7 @@ router6.get("/projects/:projectId/documents", async (req, res) => {
   );
   if (docsWithVersions.length === 0) {
     const legacyVersions = await db.select().from(documentVersionsTable).where(
-      and6(
+      and7(
         eq8(documentVersionsTable.projectId, projectId),
         isNull4(documentVersionsTable.documentId)
       )
@@ -253546,7 +253536,7 @@ router6.post("/projects/:projectId/documents", async (req, res) => {
   const projectId = params.data.projectId;
   let orderIndex = body.data.orderIndex;
   if (orderIndex === void 0) {
-    const [{ maxIdx }] = await db.select({ maxIdx: sql7`COALESCE(MAX(${documentsTable.orderIndex}), -1)` }).from(documentsTable).where(eq8(documentsTable.projectId, projectId));
+    const [{ maxIdx }] = await db.select({ maxIdx: sql9`COALESCE(MAX(${documentsTable.orderIndex}), -1)` }).from(documentsTable).where(eq8(documentsTable.projectId, projectId));
     orderIndex = (maxIdx ?? -1) + 1;
   }
   const [doc] = await db.insert(documentsTable).values({
@@ -253572,32 +253562,32 @@ router6.get("/projects/:projectId/documents/latest", async (req, res) => {
   const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
   if (!ok) return;
   const projectId = params.data.projectId;
-  const [activeDoc] = await db.select().from(documentsTable).where(and6(eq8(documentsTable.projectId, projectId), eq8(documentsTable.isActive, true)));
+  const [activeDoc] = await db.select().from(documentsTable).where(and7(eq8(documentsTable.projectId, projectId), eq8(documentsTable.isActive, true)));
   if (activeDoc) {
-    const [version3] = await db.select().from(documentVersionsTable).where(eq8(documentVersionsTable.documentId, activeDoc.id)).orderBy(desc5(documentVersionsTable.versionNumber)).limit(1);
-    if (version3) {
+    const [version4] = await db.select().from(documentVersionsTable).where(eq8(documentVersionsTable.documentId, activeDoc.id)).orderBy(desc5(documentVersionsTable.versionNumber)).limit(1);
+    if (version4) {
       res.json({
-        ...version3,
-        outline: version3.outline ?? null,
-        changeDescription: version3.changeDescription ?? null
+        ...version4,
+        outline: version4.outline ?? null,
+        changeDescription: version4.changeDescription ?? null
       });
       return;
     }
   }
   const [anyDoc] = await db.select().from(documentsTable).where(eq8(documentsTable.projectId, projectId)).orderBy(documentsTable.orderIndex).limit(1);
   if (anyDoc) {
-    const [version3] = await db.select().from(documentVersionsTable).where(eq8(documentVersionsTable.documentId, anyDoc.id)).orderBy(desc5(documentVersionsTable.versionNumber)).limit(1);
-    if (version3) {
+    const [version4] = await db.select().from(documentVersionsTable).where(eq8(documentVersionsTable.documentId, anyDoc.id)).orderBy(desc5(documentVersionsTable.versionNumber)).limit(1);
+    if (version4) {
       res.json({
-        ...version3,
-        outline: version3.outline ?? null,
-        changeDescription: version3.changeDescription ?? null
+        ...version4,
+        outline: version4.outline ?? null,
+        changeDescription: version4.changeDescription ?? null
       });
       return;
     }
   }
   const [legacyVersion] = await db.select().from(documentVersionsTable).where(
-    and6(
+    and7(
       eq8(documentVersionsTable.projectId, projectId),
       isNull4(documentVersionsTable.documentId)
     )
@@ -253625,7 +253615,7 @@ router6.get("/projects/:projectId/documents/:documentId", async (req, res) => {
   const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
   if (!ok) return;
   const [doc] = await db.select().from(documentsTable).where(
-    and6(
+    and7(
       eq8(documentsTable.id, params.data.documentId),
       eq8(documentsTable.projectId, params.data.projectId)
     )
@@ -253662,7 +253652,7 @@ router6.patch("/projects/:projectId/documents/:documentId", async (req, res) => 
   const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
   if (!ok) return;
   const [doc] = await db.select().from(documentsTable).where(
-    and6(
+    and7(
       eq8(documentsTable.id, params.data.documentId),
       eq8(documentsTable.projectId, params.data.projectId)
     )
@@ -253678,9 +253668,9 @@ router6.patch("/projects/:projectId/documents/:documentId", async (req, res) => 
     updates.isActive = body.data.isActive;
     if (body.data.isActive) {
       await db.update(documentsTable).set({ isActive: false, updatedAt: /* @__PURE__ */ new Date() }).where(
-        and6(
+        and7(
           eq8(documentsTable.projectId, params.data.projectId),
-          sql7`${documentsTable.id} != ${params.data.documentId}`
+          sql9`${documentsTable.id} != ${params.data.documentId}`
         )
       );
     }
@@ -253703,7 +253693,7 @@ router6.delete("/projects/:projectId/documents/:documentId", async (req, res) =>
   const projectId = params.data.projectId;
   const documentId = params.data.documentId;
   const [doc] = await db.select().from(documentsTable).where(
-    and6(
+    and7(
       eq8(documentsTable.id, documentId),
       eq8(documentsTable.projectId, projectId)
     )
@@ -253839,7 +253829,8 @@ var documents_default = router6;
 
 // src/routes/references.ts
 var import_express7 = __toESM(require_express2(), 1);
-import { eq as eq9, and as and7, desc as desc6, inArray } from "drizzle-orm";
+init_src();
+import { eq as eq9, and as and8, desc as desc6, inArray } from "drizzle-orm";
 
 // src/lib/fetch-reference-metadata.ts
 function detectIdentifierType(input) {
@@ -253950,6 +253941,59 @@ async function fetchMetadata(identifier) {
   return null;
 }
 
+// src/lib/crossref-ratelimit.ts
+var CROSSREF_ANON_MS = 200;
+var CROSSREF_AUTH_MS = 100;
+var _lastRequest = 0;
+var _queue = [];
+var _processing = false;
+function getDelay() {
+  const hasApiKey = !!process.env.CROSSREF_API_KEY;
+  return hasApiKey ? CROSSREF_AUTH_MS : CROSSREF_ANON_MS;
+}
+async function acquire() {
+  const delay = getDelay();
+  const now = Date.now();
+  const elapsed = now - _lastRequest;
+  if (elapsed >= delay) {
+    _lastRequest = now;
+    return;
+  }
+  return new Promise((resolve) => {
+    _queue.push({ resolve, timestamp: now + delay });
+    if (_queue.length === 1) {
+      setTimeout(() => processQueue, delay);
+    }
+  });
+}
+function processQueue() {
+  if (_queue.length === 0) {
+    _processing = false;
+    return;
+  }
+  _processing = true;
+  const now = Date.now();
+  const delay = getDelay();
+  const next = _queue[0];
+  const waitTime = next.timestamp - now;
+  if (waitTime <= 0) {
+    _queue.shift();
+    _lastRequest = Date.now();
+    next.resolve();
+    if (_queue.length > 0) {
+      setTimeout(processQueue, 0);
+    } else {
+      _processing = false;
+    }
+  } else {
+    setTimeout(processQueue, waitTime);
+  }
+}
+async function withCrossRefRateLimit(fn) {
+  await acquire();
+  return fn();
+}
+
 // src/lib/crossref-search.ts
 var CROSSREF_BASE = "https://api.crossref.org/works";
 var POLITE_EMAIL = "admin@teora.app";
@@ -253987,12 +254031,14 @@ async function searchCrossRef(query, options = {}) {
     params.set("offset", String(options.offset));
   }
   const url2 = `${CROSSREF_BASE}?${params.toString()}`;
-  const response = await fetch(url2, {
-    headers: {
-      "User-Agent": `Teora/1.0 (mailto:${POLITE_EMAIL})`,
-      "Accept": "application/json"
-    }
-  });
+  const response = await withCrossRefRateLimit(
+    () => fetch(url2, {
+      headers: {
+        "User-Agent": `Teora/1.0 (mailto:${POLITE_EMAIL})`,
+        "Accept": "application/json"
+      }
+    })
+  );
   if (!response.ok) {
     if (response.status === 429) {
       throw new Error("CrossRef rate limit exceeded. Please wait a moment and try again.");
@@ -254302,9 +254348,14 @@ router7.post("/projects/:projectId/references/regenerate", async (req, res) => {
     return;
   }
   const requestedTier = typeof req.body?.tier === "string" ? req.body.tier : null;
-  const selectedTier = requestedTier ? await getTierConfig(requestedTier) : await getTierForUser(project.userId, null);
+  const selectedTier = requestedTier ? await (async () => {
+    const tier = await getTierConfig(requestedTier);
+    if (!tier) return null;
+    const authorized = await checkTierAccess(project.userId, requestedTier);
+    return authorized ? tier : null;
+  })() : await getTierForUser(project.userId, null);
   if (!selectedTier) {
-    res.status(400).json({ error: "Tier tidak valid" });
+    res.status(requestedTier ? 403 : 400).json({ error: requestedTier ? "Tier tidak diizinkan untuk paket Anda" : "Tier tidak valid" });
     return;
   }
   if (!selectedTier.isFree) {
@@ -254381,7 +254432,7 @@ Format output: daftar pustaka siap pakai dalam format ${citationFormat} yang ben
       costCents: usage.costCents
     });
     if (!consumeResult.allowed) {
-      logger.warn(
+      logger2.warn(
         { userId: project.userId, reason: consumeResult.reason },
         "Quota/saldo exhausted during bibliography"
       );
@@ -254410,7 +254461,7 @@ router7.get("/references/search", async (req, res) => {
     const data = await searchCrossRef(q, { rows, offset });
     res.json(data);
   } catch (err) {
-    console.error("[CrossRef Search]", err);
+    logger2.error({ err }, "[CrossRef Search]");
     const message2 = err instanceof Error ? err.message : "Search failed";
     res.status(502).json({ error: message2 });
   }
@@ -254455,7 +254506,7 @@ router7.patch("/projects/:projectId/references/:referenceId/select", async (req,
     return;
   }
   const [ref] = await db.update(referencesTable).set({ isSelected: body.data.isSelected }).where(
-    and7(
+    and8(
       eq9(referencesTable.id, params.data.referenceId),
       eq9(referencesTable.projectId, params.data.projectId)
     )
@@ -254529,7 +254580,7 @@ router7.post("/projects/:projectId/citations", async (req, res) => {
     return;
   }
   const [ref] = await db.select().from(referencesTable).where(
-    and7(
+    and8(
       eq9(referencesTable.id, body.data.referenceId),
       eq9(referencesTable.projectId, params.data.projectId)
     )
@@ -254581,7 +254632,7 @@ router7.patch("/projects/:projectId/citations/:citationId", async (req, res) => 
     return;
   }
   const [existing] = await db.select().from(referenceCitationsTable).where(
-    and7(
+    and8(
       eq9(referenceCitationsTable.id, params.data.citationId),
       eq9(referenceCitationsTable.projectId, params.data.projectId)
     )
@@ -254621,7 +254672,7 @@ router7.delete("/projects/:projectId/citations/:citationId", async (req, res) =>
   const ok = await requireProjectOwnership(params.data.projectId, req.user.id, res);
   if (!ok) return;
   const [deleted] = await db.delete(referenceCitationsTable).where(
-    and7(
+    and8(
       eq9(referenceCitationsTable.id, params.data.citationId),
       eq9(referenceCitationsTable.projectId, params.data.projectId)
     )
@@ -254763,14 +254814,14 @@ router7.post("/projects/:projectId/references/auto-cite", async (req, res) => {
   let candidateReferences;
   if (body.data.referenceIds && body.data.referenceIds.length > 0) {
     candidateReferences = await db.select().from(referencesTable).where(
-      and7(
+      and8(
         eq9(referencesTable.projectId, params.data.projectId),
         inArray(referencesTable.id, body.data.referenceIds)
       )
     );
   } else {
     candidateReferences = await db.select().from(referencesTable).where(
-      and7(
+      and8(
         eq9(referencesTable.projectId, params.data.projectId),
         eq9(referencesTable.isSelected, true)
       )
@@ -254797,9 +254848,14 @@ router7.post("/projects/:projectId/references/auto-cite", async (req, res) => {
     return;
   }
   const requestedTier = body.data.tier;
-  const selectedTier = requestedTier ? await getTierConfig(requestedTier) : await getTierForUser(project.userId, null);
+  const selectedTier = requestedTier ? await (async () => {
+    const tier = await getTierConfig(requestedTier);
+    if (!tier) return null;
+    const authorized = await checkTierAccess(project.userId, requestedTier);
+    return authorized ? tier : null;
+  })() : await getTierForUser(project.userId, null);
   if (!selectedTier) {
-    res.status(400).json({ error: "Tier tidak valid" });
+    res.status(requestedTier ? 403 : 400).json({ error: requestedTier ? "Tier tidak diizinkan untuk paket Anda" : "Tier tidak valid" });
     return;
   }
   if (!selectedTier.isFree) {
@@ -254883,13 +254939,18 @@ ${candidateReferences.map(
     usage = result.usage;
     tierConfig = result.tierConfig;
   } catch (err) {
-    const errMsg = err instanceof Error ? err.message : String(err);
-    if (errMsg === "KONTEKS_TERLALU_PANJANG") {
-      res.status(413).json({ error: "Konteks terlalu panjang. Coba kurangi jumlah paragraf atau referensi.", code: "CONTEXT_EXCEEDED" });
+    const message2 = err instanceof Error ? err.message : String(err);
+    if (message2 === "KONTEKS_TERLALU_PANJANG") {
+      logger2.warn({ projectId: params.data.projectId }, "Context window exceeded during auto-cite");
+      res.status(422).json({
+        error: "Konteks terlalu panjang.",
+        detail: "Daftar pustaka terlalu banyak atau dokumen terlalu panjang. Coba kurangi jumlah pustaka atau singkat dokumen.",
+        code: "KONTEKS_TERLALU_PANJANG"
+      });
       return;
     }
-    console.error("[auto-cite] AI call failed:", err);
-    res.status(502).json({ error: "AI provider error", detail: errMsg });
+    logger2.error({ err }, "[auto-cite] AI call failed");
+    res.status(502).json({ error: "AI provider error", detail: message2 });
     return;
   }
   const usageLog = await logAIUsage({
@@ -254909,7 +254970,7 @@ ${candidateReferences.map(
       costCents: usage.costCents
     });
     if (!consumeResult.allowed) {
-      logger.warn(
+      logger2.warn(
         { userId: project.userId, reason: consumeResult.reason },
         "Quota/saldo exhausted during auto-cite"
       );
@@ -254989,24 +255050,44 @@ var references_default = router7;
 
 // src/routes/attachments.ts
 var import_express8 = __toESM(require_express2(), 1);
+init_src();
 import { eq as eq10 } from "drizzle-orm";
 
 // src/lib/supabase-admin.ts
 var supabaseUrl = process.env.SUPABASE_URL ?? "";
 var serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
-if (!supabaseUrl || !serviceRoleKey) {
-  throw new Error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY");
+var _client = null;
+var _initialized = false;
+function buildClient() {
+  if (!_initialized) {
+    if (!supabaseUrl || !serviceRoleKey) {
+      throw new Error(
+        "SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is not configured. Set both environment variables in .env (see api-server/.env.example)."
+      );
+    }
+    _client = createClient(supabaseUrl, serviceRoleKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    });
+    _initialized = true;
+  }
+  return _client;
 }
-var supabaseAdmin2 = createClient(supabaseUrl, serviceRoleKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
+var supabaseAdmin2 = new Proxy({}, {
+  get(_target, prop, _receiver) {
+    const client = buildClient();
+    const value = Reflect.get(client, prop, client);
+    return typeof value === "function" ? value.bind(client) : value;
   }
 });
 
 // src/routes/attachments.ts
 import path from "path";
 var BUCKET_ID = "attachments";
+var MAX_BINARY_BYTES = 10 * 1024 * 1024;
+var MAX_BASE64_CHARS = Math.ceil(MAX_BINARY_BYTES * 4 / 3);
 var router8 = (0, import_express8.Router)();
 router8.get("/projects/:projectId/attachments", async (req, res) => {
   const params = ListAttachmentsParams.safeParse(req.params);
@@ -255047,7 +255128,19 @@ router8.post("/projects/:projectId/attachments", async (req, res) => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
+  if (parsed.data.base64Content.length > MAX_BASE64_CHARS) {
+    res.status(413).json({
+      error: `File too large. Maximum size is ${MAX_BINARY_BYTES} bytes (${(MAX_BINARY_BYTES / 1024 / 1024).toFixed(0)} MB).`
+    });
+    return;
+  }
   const buffer = Buffer.from(parsed.data.base64Content, "base64");
+  if (buffer.length > MAX_BINARY_BYTES) {
+    res.status(413).json({
+      error: `File too large. Maximum size is ${MAX_BINARY_BYTES} bytes (${(MAX_BINARY_BYTES / 1024 / 1024).toFixed(0)} MB).`
+    });
+    return;
+  }
   const safeFilename = `${Date.now()}-${path.basename(parsed.data.filename)}`;
   const storagePath = `${params.data.projectId}/${req.user.id}/${safeFilename}`;
   const { error: uploadError } = await supabaseAdmin2.storage.from(BUCKET_ID).upload(storagePath, buffer, {
@@ -255144,6 +255237,7 @@ var attachments_default = router8;
 
 // src/routes/activities.ts
 var import_express9 = __toESM(require_express2(), 1);
+init_src();
 import { eq as eq11, desc as desc7 } from "drizzle-orm";
 var router9 = (0, import_express9.Router)();
 router9.get("/projects/:projectId/activities", async (req, res) => {
@@ -255165,6 +255259,7 @@ var activities_default = router9;
 
 // src/routes/jobs.ts
 var import_express10 = __toESM(require_express2(), 1);
+init_src();
 import { eq as eq12, desc as desc8 } from "drizzle-orm";
 var router10 = (0, import_express10.Router)();
 router10.get("/projects/:projectId/jobs", async (req, res) => {
@@ -255192,6 +255287,7 @@ var jobs_default = router10;
 
 // src/routes/metadata.ts
 var import_express11 = __toESM(require_express2(), 1);
+init_src();
 import { eq as eq13 } from "drizzle-orm";
 var router11 = (0, import_express11.Router)();
 router11.get("/projects/:projectId/metadata", async (req, res) => {
@@ -255226,10 +255322,12 @@ var metadata_default = router11;
 
 // src/routes/exports.ts
 var import_express12 = __toESM(require_express2(), 1);
-import { eq as eq14, desc as desc9, and as and8, isNull as isNull5 } from "drizzle-orm";
+init_src();
+import { eq as eq14, desc as desc9, and as and9, isNull as isNull5 } from "drizzle-orm";
 import path2 from "path";
 import fs4 from "fs/promises";
 var EXPORT_DIR = process.env.EXPORT_DIR ?? "/tmp/academic-workspace-exports";
+var MAX_DOCX_SOURCE_BYTES = 5 * 1024 * 1024;
 var router12 = (0, import_express12.Router)();
 function markdownToParagraphs(markdown) {
   const lines = markdown.split(/\r?\n/);
@@ -255271,10 +255369,10 @@ function markdownToParagraphs(markdown) {
       continue;
     }
     if (line.startsWith("- ") || line.startsWith("* ")) {
-      const text36 = line.substring(2).replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1");
+      const text37 = line.substring(2).replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1");
       paragraphs.push(
         new Paragraph({
-          text: text36,
+          text: text37,
           bullet: { level: 0 },
           spacing: { before: 60, after: 60 }
         })
@@ -255282,10 +255380,10 @@ function markdownToParagraphs(markdown) {
       continue;
     }
     if (/^\d+\.\s/.test(line)) {
-      const text36 = line.replace(/^\d+\.\s/, "").replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1");
+      const text37 = line.replace(/^\d+\.\s/, "").replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1");
       paragraphs.push(
         new Paragraph({
-          text: text36,
+          text: text37,
           spacing: { before: 60, after: 60 }
         })
       );
@@ -255301,14 +255399,14 @@ function markdownToParagraphs(markdown) {
   }
   return paragraphs;
 }
-function parseInlineRuns(text36) {
+function parseInlineRuns(text37) {
   const runs = [];
   const regex = /\*\*(.+?)\*\*|\*(.+?)\*|__(.+?)__|_(.+?)_/g;
   let lastIndex = 0;
   let match;
-  while ((match = regex.exec(text36)) !== null) {
+  while ((match = regex.exec(text37)) !== null) {
     if (match.index > lastIndex) {
-      runs.push(new TextRun({ text: text36.substring(lastIndex, match.index) }));
+      runs.push(new TextRun({ text: text37.substring(lastIndex, match.index) }));
     }
     if (match[1]) {
       runs.push(new TextRun({ text: match[1], bold: true }));
@@ -255321,11 +255419,11 @@ function parseInlineRuns(text36) {
     }
     lastIndex = regex.lastIndex;
   }
-  if (lastIndex < text36.length) {
-    runs.push(new TextRun({ text: text36.substring(lastIndex) }));
+  if (lastIndex < text37.length) {
+    runs.push(new TextRun({ text: text37.substring(lastIndex) }));
   }
   if (runs.length === 0) {
-    runs.push(new TextRun({ text: text36 }));
+    runs.push(new TextRun({ text: text37 }));
   }
   return runs;
 }
@@ -255371,12 +255469,12 @@ router12.post("/projects/:projectId/exports", async (req, res) => {
     [doc] = await db.select().from(documentVersionsTable).where(eq14(documentVersionsTable.id, parsed.data.documentVersionId));
   } else {
     const projectId = params.data.projectId;
-    const [activeDoc] = await db.select().from(documentsTable).where(and8(eq14(documentsTable.projectId, projectId), eq14(documentsTable.isActive, true)));
+    const [activeDoc] = await db.select().from(documentsTable).where(and9(eq14(documentsTable.projectId, projectId), eq14(documentsTable.isActive, true)));
     if (activeDoc) {
       [doc] = await db.select().from(documentVersionsTable).where(eq14(documentVersionsTable.documentId, activeDoc.id)).orderBy(desc9(documentVersionsTable.versionNumber)).limit(1);
     }
     if (!doc) {
-      [doc] = await db.select().from(documentVersionsTable).where(and8(eq14(documentVersionsTable.projectId, projectId), isNull5(documentVersionsTable.documentId))).orderBy(desc9(documentVersionsTable.versionNumber)).limit(1);
+      [doc] = await db.select().from(documentVersionsTable).where(and9(eq14(documentVersionsTable.projectId, projectId), isNull5(documentVersionsTable.documentId))).orderBy(desc9(documentVersionsTable.versionNumber)).limit(1);
     }
   }
   if (!doc) {
@@ -255384,10 +255482,20 @@ router12.post("/projects/:projectId/exports", async (req, res) => {
     return;
   }
   await fs4.mkdir(EXPORT_DIR, { recursive: true });
-  const timestamp36 = Date.now();
-  const filename = `export-${params.data.projectId}-v${doc.versionNumber}-${timestamp36}`;
+  const timestamp37 = Date.now();
+  const filename = `export-${params.data.projectId}-v${doc.versionNumber}-${timestamp37}`;
   const content = doc.content ?? "";
   if (parsed.data.format === "docx") {
+    const contentBytes = Buffer.byteLength(content, "utf8");
+    if (contentBytes > MAX_DOCX_SOURCE_BYTES) {
+      res.status(422).json({
+        error: `Document too large to export as DOCX (${(contentBytes / 1024 / 1024).toFixed(1)} MB). Maximum is ${(MAX_DOCX_SOURCE_BYTES / 1024 / 1024).toFixed(0)} MB. Split into smaller documents or export as Markdown instead.`,
+        code: "DOCX_CONTENT_TOO_LARGE",
+        sizeBytes: contentBytes,
+        maxBytes: MAX_DOCX_SOURCE_BYTES
+      });
+      return;
+    }
     const paragraphs = markdownToParagraphs(content);
     const doc2 = new File({
       sections: [
@@ -255465,7 +255573,8 @@ var exports_default = router12;
 
 // src/routes/ai-usage.ts
 var import_express13 = __toESM(require_express2(), 1);
-import { eq as eq15, and as and9, gte, lte, sql as sql8 } from "drizzle-orm";
+init_src();
+import { eq as eq15, and as and10, gte as gte2, lte, sql as sql10 } from "drizzle-orm";
 var router13 = (0, import_express13.Router)();
 function getUserId2(req) {
   if (!req.user?.id) throw new Error("User not authenticated");
@@ -255483,14 +255592,14 @@ router13.get("/ai-usage", async (req, res) => {
     conditions.push(eq15(aiUsageLogTable.projectId, projectId));
   }
   if (startDate) {
-    conditions.push(gte(aiUsageLogTable.createdAt, startDate));
+    conditions.push(gte2(aiUsageLogTable.createdAt, startDate));
   }
   if (endDate) {
     conditions.push(lte(aiUsageLogTable.createdAt, endDate));
   }
-  const whereClause = conditions.length === 1 ? conditions[0] : and9(...conditions);
-  const [totalResult] = await db.select({ count: sql8`count(*)` }).from(aiUsageLogTable).where(whereClause);
-  const records = await db.select().from(aiUsageLogTable).where(whereClause).orderBy(sql8`created_at desc`).limit(limit).offset(offset);
+  const whereClause = conditions.length === 1 ? conditions[0] : and10(...conditions);
+  const [totalResult] = await db.select({ count: sql10`count(*)` }).from(aiUsageLogTable).where(whereClause);
+  const records = await db.select().from(aiUsageLogTable).where(whereClause).orderBy(sql10`created_at desc`).limit(limit).offset(offset);
   res.json({
     data: records.map((r2) => ({
       ...r2,
@@ -255506,7 +255615,7 @@ router13.get("/ai-usage/stats", async (req, res) => {
   if (projectId !== void 0) {
     conditions.push(eq15(aiUsageLogTable.projectId, projectId));
   }
-  const whereClause = conditions.length === 1 ? conditions[0] : and9(...conditions);
+  const whereClause = conditions.length === 1 ? conditions[0] : and10(...conditions);
   const records = await db.select({
     requestType: aiUsageLogTable.requestType,
     inputTokens: aiUsageLogTable.inputTokens,
@@ -255544,7 +255653,8 @@ var ai_usage_default = router13;
 
 // src/routes/comments.ts
 var import_express14 = __toESM(require_express2(), 1);
-import { eq as eq16, and as and10, desc as desc10 } from "drizzle-orm";
+init_src();
+import { eq as eq16, and as and11, desc as desc10 } from "drizzle-orm";
 var router14 = (0, import_express14.Router)();
 router14.get("/projects/:projectId/documents/:documentId/comments", async (req, res) => {
   const projectId = Number(req.params.projectId);
@@ -255559,7 +255669,7 @@ router14.get("/projects/:projectId/documents/:documentId/comments", async (req, 
   }
   const ok = await requireProjectWriteAccess(projectId, req.user.id, res);
   if (!ok) return;
-  const comments = await db.select().from(commentsTable).where(and10(eq16(commentsTable.projectId, projectId), eq16(commentsTable.documentId, documentId))).orderBy(desc10(commentsTable.createdAt));
+  const comments = await db.select().from(commentsTable).where(and11(eq16(commentsTable.projectId, projectId), eq16(commentsTable.documentId, documentId))).orderBy(desc10(commentsTable.createdAt));
   res.json(comments);
 });
 router14.post("/projects/:projectId/documents/:documentId/comments", async (req, res) => {
@@ -255609,7 +255719,7 @@ router14.patch("/projects/:projectId/comments/:commentId", async (req, res) => {
   }
   const ok = await requireProjectWriteAccess(projectId, req.user.id, res);
   if (!ok) return;
-  const [existing] = await db.select().from(commentsTable).where(and10(eq16(commentsTable.id, commentId), eq16(commentsTable.projectId, projectId)));
+  const [existing] = await db.select().from(commentsTable).where(and11(eq16(commentsTable.id, commentId), eq16(commentsTable.projectId, projectId)));
   if (!existing) {
     res.status(404).json({ error: "Comment not found" });
     return;
@@ -255631,13 +255741,13 @@ router14.patch("/projects/:projectId/comments/:commentId", async (req, res) => {
       resolvedBy: resolved ? req.user.id : null,
       resolvedAt: resolved ? /* @__PURE__ */ new Date() : null,
       updatedAt: /* @__PURE__ */ new Date()
-    }).where(and10(eq16(commentsTable.id, commentId), eq16(commentsTable.projectId, projectId))).returning();
+    }).where(and11(eq16(commentsTable.id, commentId), eq16(commentsTable.projectId, projectId))).returning();
     res.json(updated);
     return;
   }
   if (content !== void 0) {
     const sanitizedContent = sanitizeInstructionText(content.trim());
-    const [updated] = await db.update(commentsTable).set({ content: sanitizedContent, updatedAt: /* @__PURE__ */ new Date() }).where(and10(eq16(commentsTable.id, commentId), eq16(commentsTable.projectId, projectId))).returning();
+    const [updated] = await db.update(commentsTable).set({ content: sanitizedContent, updatedAt: /* @__PURE__ */ new Date() }).where(and11(eq16(commentsTable.id, commentId), eq16(commentsTable.projectId, projectId))).returning();
     res.json(updated);
     return;
   }
@@ -255656,7 +255766,7 @@ router14.delete("/projects/:projectId/comments/:commentId", async (req, res) => 
   }
   const ok = await requireProjectWriteAccess(projectId, req.user.id, res);
   if (!ok) return;
-  const [existing] = await db.select().from(commentsTable).where(and10(eq16(commentsTable.id, commentId), eq16(commentsTable.projectId, projectId)));
+  const [existing] = await db.select().from(commentsTable).where(and11(eq16(commentsTable.id, commentId), eq16(commentsTable.projectId, projectId)));
   if (!existing) {
     res.status(404).json({ error: "Comment not found" });
     return;
@@ -255665,14 +255775,15 @@ router14.delete("/projects/:projectId/comments/:commentId", async (req, res) => 
     res.status(403).json({ error: "You can only delete your own comments" });
     return;
   }
-  await db.delete(commentsTable).where(and10(eq16(commentsTable.id, commentId), eq16(commentsTable.projectId, projectId)));
+  await db.delete(commentsTable).where(and11(eq16(commentsTable.id, commentId), eq16(commentsTable.projectId, projectId)));
   res.status(204).send();
 });
 var comments_default = router14;
 
 // src/routes/project-members.ts
 var import_express15 = __toESM(require_express2(), 1);
-import { eq as eq17, and as and11 } from "drizzle-orm";
+init_src();
+import { eq as eq17, and as and12 } from "drizzle-orm";
 var router15 = (0, import_express15.Router)();
 router15.get("/projects/:projectId/members", async (req, res) => {
   const projectId = Number(req.params.projectId);
@@ -255728,7 +255839,7 @@ router15.patch("/projects/:projectId/members/:memberId", async (req, res) => {
   }
   const ok = await requireProjectOwnership(projectId, req.user.id, res);
   if (!ok) return;
-  const [existing] = await db.select().from(projectMembersTable).where(and11(eq17(projectMembersTable.id, memberId), eq17(projectMembersTable.projectId, projectId)));
+  const [existing] = await db.select().from(projectMembersTable).where(and12(eq17(projectMembersTable.id, memberId), eq17(projectMembersTable.projectId, projectId)));
   if (!existing) {
     res.status(404).json({ error: "Member not found" });
     return;
@@ -255740,7 +255851,7 @@ router15.patch("/projects/:projectId/members/:memberId", async (req, res) => {
     return;
   }
   const updatedRole = role;
-  const [updated] = await db.update(projectMembersTable).set({ role: updatedRole, updatedAt: /* @__PURE__ */ new Date() }).where(and11(eq17(projectMembersTable.id, memberId), eq17(projectMembersTable.projectId, projectId))).returning();
+  const [updated] = await db.update(projectMembersTable).set({ role: updatedRole, updatedAt: /* @__PURE__ */ new Date() }).where(and12(eq17(projectMembersTable.id, memberId), eq17(projectMembersTable.projectId, projectId))).returning();
   res.json(updated);
 });
 router15.delete("/projects/:projectId/members/:memberId", async (req, res) => {
@@ -255756,19 +255867,22 @@ router15.delete("/projects/:projectId/members/:memberId", async (req, res) => {
   }
   const ok = await requireProjectOwnership(projectId, req.user.id, res);
   if (!ok) return;
-  const [member] = await db.select().from(projectMembersTable).where(and11(eq17(projectMembersTable.id, memberId), eq17(projectMembersTable.projectId, projectId)));
+  const [member] = await db.select().from(projectMembersTable).where(and12(eq17(projectMembersTable.id, memberId), eq17(projectMembersTable.projectId, projectId)));
   if (!member) {
     res.status(404).json({ error: "Member not found" });
     return;
   }
-  await db.delete(projectMembersTable).where(and11(eq17(projectMembersTable.id, memberId), eq17(projectMembersTable.projectId, projectId)));
+  await db.delete(projectMembersTable).where(and12(eq17(projectMembersTable.id, memberId), eq17(projectMembersTable.projectId, projectId)));
   res.status(204).send();
 });
 var project_members_default = router15;
 
 // src/routes/quizzes.ts
 var import_express16 = __toESM(require_express2(), 1);
+init_src();
 import { eq as eq18, desc as desc11 } from "drizzle-orm";
+init_src();
+init_src();
 var router16 = (0, import_express16.Router)();
 router16.get("/projects/:projectId/quizzes", async (req, res) => {
   const projectId = Number(req.params.projectId);
@@ -255827,9 +255941,14 @@ router16.post("/projects/:projectId/quizzes", async (req, res) => {
     res.status(404).json({ error: "Project not found" });
     return;
   }
-  const selectedTier = requestedTier ? await getTierConfig(requestedTier) : await getTierForUser(project.userId, null);
+  const selectedTier = requestedTier ? await (async () => {
+    const tier = await getTierConfig(requestedTier);
+    if (!tier) return null;
+    const authorized = await checkTierAccess(project.userId, requestedTier);
+    return authorized ? tier : null;
+  })() : await getTierForUser(project.userId, null);
   if (!selectedTier) {
-    res.status(400).json({ error: "Tier tidak valid" });
+    res.status(requestedTier ? 403 : 400).json({ error: requestedTier ? "Tier tidak diizinkan untuk paket Anda" : "Tier tidak valid" });
     return;
   }
   if (!selectedTier.isFree) {
@@ -255911,7 +256030,7 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks, no explanation.`;
       res.status(500).json({ error: "Failed to parse AI response as JSON" });
       return;
     }
-    const usageLog = await logAIUsage({
+    await logAIUsage({
       userId: project.userId,
       projectId,
       requestType: "quiz",
@@ -255928,7 +256047,7 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks, no explanation.`;
         costCents: aiResult.usage.costCents
       });
       if (!consumeResult.allowed) {
-        logger.warn(
+        logger2.warn(
           { userId: project.userId, reason: consumeResult.reason },
           "Quota/saldo exhausted during quiz generation"
         );
@@ -255953,7 +256072,16 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks, no explanation.`;
     await logActivity(projectId, "quiz_generated", `Quiz "${sanitizedTitle}" dibuat dengan ${count3} soal`);
     res.status(201).json({ ...quiz, ...quotaInfo ?? {} });
   } catch (err) {
-    console.error("Quiz generation error:", err);
+    const message2 = err instanceof Error ? err.message : String(err);
+    if (message2 === "KONTEKS_TERLALU_PANJANG") {
+      res.status(422).json({
+        error: "Konteks terlalu panjang.",
+        detail: "Dokumen terlalu panjang untuk menghasilkan soal.",
+        code: "KONTEKS_TERLALU_PANJANG"
+      });
+      return;
+    }
+    logger2.error({ err }, "Quiz generation error");
     res.status(500).json({ error: "Failed to generate quiz" });
   }
 });
@@ -256002,6 +256130,7 @@ router16.post("/quizzes/:quizId/submissions", async (req, res) => {
     studentId: req.user.id,
     responses: validatedResponses
   }).returning();
+  await logActivity(quiz.projectId, "quiz_submitted", `Submission untuk quiz #${quizId} oleh ${req.user.id}`);
   res.status(201).json(submission);
 });
 router16.get("/quizzes/:quizId/submissions/me", async (req, res) => {
@@ -256025,7 +256154,9 @@ var quizzes_default = router16;
 
 // src/routes/rubrics.ts
 var import_express17 = __toESM(require_express2(), 1);
+init_src();
 import { eq as eq19, desc as desc12 } from "drizzle-orm";
+init_src();
 var router17 = (0, import_express17.Router)();
 router17.get("/projects/:projectId/quizzes/:quizId/rubric", async (req, res) => {
   const quizId = Number(req.params.quizId);
@@ -256067,9 +256198,14 @@ router17.post("/projects/:projectId/quizzes/:quizId/rubric", async (req, res) =>
     res.status(404).json({ error: "Project not found" });
     return;
   }
-  const selectedTier = requestedTier ? await getTierConfig(requestedTier) : await getTierForUser(project.userId, null);
+  const selectedTier = requestedTier ? await (async () => {
+    const tier = await getTierConfig(requestedTier);
+    if (!tier) return null;
+    const authorized = await checkTierAccess(project.userId, requestedTier);
+    return authorized ? tier : null;
+  })() : await getTierForUser(project.userId, null);
   if (!selectedTier) {
-    res.status(400).json({ error: "Tier tidak valid" });
+    res.status(requestedTier ? 403 : 400).json({ error: requestedTier ? "Tier tidak diizinkan untuk paket Anda" : "Tier tidak valid" });
     return;
   }
   if (!selectedTier.isFree) {
@@ -256148,7 +256284,7 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks.`;
         costCents: aiResult.usage.costCents
       });
       if (!consumeResult.allowed) {
-        logger.warn(
+        logger2.warn(
           { userId: project.userId, reason: consumeResult.reason },
           "Quota/saldo exhausted during rubric generation"
         );
@@ -256166,7 +256302,16 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks.`;
     }).returning();
     res.status(201).json({ ...rubric, ...quotaInfo ?? {} });
   } catch (err) {
-    console.error("Rubric generation error:", err);
+    const message2 = err instanceof Error ? err.message : String(err);
+    if (message2 === "KONTEKS_TERLALU_PANJANG") {
+      res.status(422).json({
+        error: "Konteks terlalu panjang.",
+        detail: "Dokumen terlalu panjang untuk menghasilkan rubrik.",
+        code: "KONTEKS_TERLALU_PANJANG"
+      });
+      return;
+    }
+    logger2.error({ err }, "Rubric generation error");
     res.status(500).json({ error: "Failed to generate rubric" });
   }
 });
@@ -256218,7 +256363,9 @@ var rubrics_default = router17;
 
 // src/routes/writing-style.ts
 var import_express18 = __toESM(require_express2(), 1);
+init_src();
 import { eq as eq20, desc as desc13 } from "drizzle-orm";
+init_src();
 var router18 = (0, import_express18.Router)();
 router18.get("/users/me/writing-style", async (req, res) => {
   if (!req.user?.id) {
@@ -256242,9 +256389,14 @@ router18.post("/users/me/writing-style/analyze", async (req, res) => {
     res.status(400).json({ error: "documents array is required with at least one document" });
     return;
   }
-  const selectedTier = requestedTier ? await getTierConfig(requestedTier) : await getTierForUser(req.user.id, null);
+  const selectedTier = requestedTier ? await (async () => {
+    const tier = await getTierConfig(requestedTier);
+    if (!tier) return null;
+    const authorized = await checkTierAccess(req.user.id, requestedTier);
+    return authorized ? tier : null;
+  })() : await getTierForUser(req.user.id, null);
   if (!selectedTier) {
-    res.status(400).json({ error: "Tier tidak valid" });
+    res.status(requestedTier ? 403 : 400).json({ error: requestedTier ? "Tier tidak diizinkan untuk paket Anda" : "Tier tidak valid" });
     return;
   }
   if (!selectedTier.isFree) {
@@ -256317,7 +256469,7 @@ IMPORTANT: Return ONLY the JSON object, no markdown code blocks.`;
         costCents: aiResult.usage.costCents
       });
       if (!consumeResult.allowed) {
-        logger.warn(
+        logger2.warn(
           { userId: req.user.id, reason: consumeResult.reason },
           "Quota/saldo exhausted during writing style analysis"
         );
@@ -256335,7 +256487,16 @@ IMPORTANT: Return ONLY the JSON object, no markdown code blocks.`;
     }).returning();
     res.status(201).json({ ...profile, ...quotaInfo ?? {} });
   } catch (err) {
-    console.error("Writing style analysis error:", err);
+    const message2 = err instanceof Error ? err.message : String(err);
+    if (message2 === "KONTEKS_TERLALU_PANJANG") {
+      res.status(422).json({
+        error: "Konteks terlalu panjang.",
+        detail: "Dokumen terlalu panjang untuk menganalisis gaya penulisan.",
+        code: "KONTEKS_TERLALU_PANJANG"
+      });
+      return;
+    }
+    logger2.error({ err }, "Writing style analysis error");
     res.status(500).json({ error: "Failed to analyze writing style" });
   }
 });
@@ -256364,9 +256525,12 @@ var writing_style_default = router18;
 
 // src/routes/ai-tiers.ts
 var import_express19 = __toESM(require_express2(), 1);
-import { eq as eq21 } from "drizzle-orm";
+init_src();
+import { eq as eq21, and as and13 } from "drizzle-orm";
 var router19 = (0, import_express19.Router)();
-router19.get("/ai-tiers", async (_req, res) => {
+router19.get("/ai-tiers", async (req, res) => {
+  const userEmail = req.user?.email;
+  const isOwner = isOwnerEmail(userEmail);
   const tiers = await db.select({
     id: aiTiersTable.id,
     name: aiTiersTable.name,
@@ -256380,8 +256544,11 @@ router19.get("/ai-tiers", async (_req, res) => {
     rateLimitTpd: aiTiersTable.rateLimitTpd,
     isFree: aiTiersTable.isFree,
     description: aiTiersTable.description,
-    usageTips: aiTiersTable.usageTips
-  }).from(aiTiersTable).where(eq21(aiTiersTable.isActive, true)).orderBy(aiTiersTable.displayOrder);
+    usageTips: aiTiersTable.usageTips,
+    isOwnerOnly: aiTiersTable.isOwnerOnly
+  }).from(aiTiersTable).where(
+    isOwner ? eq21(aiTiersTable.isActive, true) : and13(eq21(aiTiersTable.isActive, true), eq21(aiTiersTable.isOwnerOnly, false))
+  ).orderBy(aiTiersTable.displayOrder);
   res.json({
     tiers: tiers.map((t2) => ({
       ...t2,
@@ -256394,6 +256561,7 @@ var ai_tiers_default = router19;
 
 // src/routes/packages.ts
 var import_express20 = __toESM(require_express2(), 1);
+init_src();
 import { eq as eq22, asc as asc2 } from "drizzle-orm";
 var router20 = (0, import_express20.Router)();
 router20.get("/packages", async (_req, res) => {
@@ -256435,10 +256603,13 @@ var packages_default = router20;
 
 // src/routes/balance.ts
 var import_express21 = __toESM(require_express2(), 1);
+init_src();
 import { eq as eq24 } from "drizzle-orm";
 
 // src/lib/credit.ts
-import { eq as eq23 } from "drizzle-orm";
+init_src();
+init_src();
+import { eq as eq23, and as and14, gte as gte3, sql as sql11 } from "drizzle-orm";
 async function getUserBalance(userId) {
   const [balance] = await db.select().from(userBalancesTable).where(eq23(userBalancesTable.userId, userId));
   const transactions = await db.select({
@@ -256523,6 +256694,7 @@ var balance_default = router21;
 
 // src/routes/autofallback.ts
 var import_express22 = __toESM(require_express2(), 1);
+init_src();
 import { z as z7 } from "zod/v4";
 import { eq as eq25 } from "drizzle-orm";
 var router22 = (0, import_express22.Router)();
@@ -256561,8 +256733,9 @@ var autofallback_default = router22;
 
 // src/routes/subscriptions.ts
 var import_express23 = __toESM(require_express2(), 1);
+init_src();
 import { z as z8 } from "zod/v4";
-import { eq as eq26, and as and13, lte as lte2, gte as gte2 } from "drizzle-orm";
+import { eq as eq26, and as and15, lte as lte2, gte as gte4 } from "drizzle-orm";
 var router23 = (0, import_express23.Router)();
 var createSubscriptionSchema = z8.object({
   packageId: z8.string().min(1),
@@ -256600,11 +256773,11 @@ router23.get("/users/me/subscription", async (req, res) => {
   const userId = req.user.id;
   const now = /* @__PURE__ */ new Date();
   const [sub] = await db.select().from(subscriptionsTable).where(
-    and13(
+    and15(
       eq26(subscriptionsTable.userId, userId),
       eq26(subscriptionsTable.status, "active"),
       lte2(subscriptionsTable.startsAt, now),
-      gte2(subscriptionsTable.expiresAt, now)
+      gte4(subscriptionsTable.expiresAt, now)
     )
   ).limit(1);
   if (!sub) {
@@ -256664,18 +256837,18 @@ router23.post("/users/me/subscription", async (req, res) => {
     return;
   }
   const { packageId, autoRenew } = parsed.data;
-  const [pkg] = await db.select().from(packagesTable).where(and13(eq26(packagesTable.id, packageId), eq26(packagesTable.isActive, true))).limit(1);
+  const [pkg] = await db.select().from(packagesTable).where(and15(eq26(packagesTable.id, packageId), eq26(packagesTable.isActive, true))).limit(1);
   if (!pkg) {
     res.status(400).json({ error: "Invalid or inactive packageId" });
     return;
   }
   const now = /* @__PURE__ */ new Date();
   const [existing] = await db.select({ id: subscriptionsTable.id }).from(subscriptionsTable).where(
-    and13(
+    and15(
       eq26(subscriptionsTable.userId, userId),
       eq26(subscriptionsTable.status, "active"),
       lte2(subscriptionsTable.startsAt, now),
-      gte2(subscriptionsTable.expiresAt, now)
+      gte4(subscriptionsTable.expiresAt, now)
     )
   ).limit(1);
   if (existing) {
@@ -256692,14 +256865,15 @@ var subscriptions_default = router23;
 
 // src/routes/account-references.ts
 var import_express24 = __toESM(require_express2(), 1);
-import { eq as eq27, desc as desc16, and as and14 } from "drizzle-orm";
+init_src();
+import { eq as eq27, desc as desc15, and as and16 } from "drizzle-orm";
 var router24 = (0, import_express24.Router)();
 router24.get("/account/references", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const refs = await db.select().from(accountReferencesTable).where(eq27(accountReferencesTable.userId, req.user.id)).orderBy(desc16(accountReferencesTable.createdAt));
+  const refs = await db.select().from(accountReferencesTable).where(eq27(accountReferencesTable.userId, req.user.id)).orderBy(desc15(accountReferencesTable.createdAt));
   res.json(
     refs.map((r2) => ({
       ...r2,
@@ -256725,7 +256899,7 @@ router24.post("/account/references", async (req, res) => {
   }
   if (doi && typeof doi === "string") {
     const existing = await db.select({ id: accountReferencesTable.id }).from(accountReferencesTable).where(
-      and14(
+      and16(
         eq27(accountReferencesTable.userId, req.user.id),
         eq27(accountReferencesTable.doi, doi)
       )
@@ -256770,7 +256944,7 @@ router24.put("/account/references/:id", async (req, res) => {
     return;
   }
   const [existing] = await db.select().from(accountReferencesTable).where(
-    and14(
+    and16(
       eq27(accountReferencesTable.id, id),
       eq27(accountReferencesTable.userId, req.user.id)
     )
@@ -256782,7 +256956,7 @@ router24.put("/account/references/:id", async (req, res) => {
   const { title, authors, year, journal, volume, issue, doi, url: url2, isSuggested, source } = req.body;
   if (doi && doi !== existing.doi) {
     const duplicate = await db.select({ id: accountReferencesTable.id }).from(accountReferencesTable).where(
-      and14(
+      and16(
         eq27(accountReferencesTable.userId, req.user.id),
         eq27(accountReferencesTable.doi, doi)
       )
@@ -256804,7 +256978,7 @@ router24.put("/account/references/:id", async (req, res) => {
   if (isSuggested !== void 0) updates.isSuggested = isSuggested;
   if (source !== void 0) updates.source = source;
   const [updated] = await db.update(accountReferencesTable).set(updates).where(
-    and14(
+    and16(
       eq27(accountReferencesTable.id, id),
       eq27(accountReferencesTable.userId, req.user.id)
     )
@@ -256831,7 +257005,7 @@ router24.delete("/account/references/:id", async (req, res) => {
     return;
   }
   const [deleted] = await db.delete(accountReferencesTable).where(
-    and14(
+    and16(
       eq27(accountReferencesTable.id, id),
       eq27(accountReferencesTable.userId, req.user.id)
     )
@@ -256858,7 +257032,7 @@ router24.post("/account/references/:id/assign", async (req, res) => {
     return;
   }
   const [accountRef] = await db.select().from(accountReferencesTable).where(
-    and14(
+    and16(
       eq27(accountReferencesTable.id, accountRefId),
       eq27(accountReferencesTable.userId, req.user.id)
     )
@@ -256869,7 +257043,7 @@ router24.post("/account/references/:id/assign", async (req, res) => {
   }
   if (accountRef.doi) {
     const existingInProject = await db.select({ id: referencesTable.id }).from(referencesTable).where(
-      and14(
+      and16(
         eq27(referencesTable.projectId, projectId),
         eq27(referencesTable.doi, accountRef.doi)
       )
@@ -256986,33 +257160,16 @@ var account_references_default = router24;
 
 // src/routes/learning-activities.ts
 var import_express25 = __toESM(require_express2(), 1);
-import { eq as eq28, desc as desc17, and as and15, sql as sql9 } from "drizzle-orm";
+init_src();
+import { eq as eq28, desc as desc16, and as and17 } from "drizzle-orm";
 var router25 = (0, import_express25.Router)();
 router25.get("/learning-activities", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const activities = await db.select().from(learningActivitiesTable).where(eq28(learningActivitiesTable.userId, req.user.id)).orderBy(desc17(learningActivitiesTable.createdAt));
-  const projectIds = [...new Set(activities.map((a) => a.sourceProjectId).filter(Boolean))];
-  const projectMap = {};
-  if (projectIds.length > 0) {
-    const projects = await db.select({ id: projectsTable.id, title: projectsTable.title }).from(projectsTable).where(sql9`${projectsTable.id} = ANY(${projectIds})`);
-    for (const p of projects) {
-      if (p.id) projectMap[p.id] = p.title ?? "";
-    }
-  }
-  const formatted = activities.map((a) => ({
-    id: a.id,
-    userId: a.userId,
-    topics: JSON.parse(a.topics || "[]"),
-    subject: a.subject,
-    sourceProjectId: a.sourceProjectId,
-    sourceProjectTitle: a.sourceProjectId ? projectMap[a.sourceProjectId] ?? null : null,
-    extractedFrom: a.extractedFrom,
-    createdAt: a.createdAt.toISOString()
-  }));
-  res.json(formatted);
+  const activities = await db.select().from(learningActivitiesTable).where(eq28(learningActivitiesTable.userId, req.user.id)).orderBy(desc16(learningActivitiesTable.createdAt));
+  res.json(activities);
 });
 router25.post("/learning-activities", async (req, res) => {
   if (!req.user?.id) {
@@ -257026,7 +257183,7 @@ router25.post("/learning-activities", async (req, res) => {
   }
   if (body.sourceProjectId) {
     const existing = await db.select().from(learningActivitiesTable).where(
-      and15(
+      and17(
         eq28(learningActivitiesTable.userId, req.user.id),
         eq28(learningActivitiesTable.sourceProjectId, body.sourceProjectId)
       )
@@ -257056,33 +257213,16 @@ router25.get("/learning-activities/recommendations", async (req, res) => {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const rawActivities = await db.select().from(learningActivitiesTable).where(eq28(learningActivitiesTable.userId, req.user.id)).orderBy(desc17(learningActivitiesTable.createdAt));
-  if (rawActivities.length === 0) {
+  const activities = await db.select().from(learningActivitiesTable).where(eq28(learningActivitiesTable.userId, req.user.id)).orderBy(desc16(learningActivitiesTable.createdAt));
+  if (activities.length === 0) {
     res.json([]);
     return;
   }
-  const projectIds = [...new Set(rawActivities.map((a) => a.sourceProjectId).filter(Boolean))];
-  const projectMap = {};
-  if (projectIds.length > 0) {
-    const projects = await db.select({ id: projectsTable.id, title: projectsTable.title }).from(projectsTable).where(sql9`${projectsTable.id} = ANY(${projectIds})`);
-    for (const p of projects) {
-      if (p.id) projectMap[p.id] = p.title ?? "";
-    }
-  }
-  const activities = rawActivities.map((a) => ({
-    id: a.id,
-    userId: a.userId,
-    topics: JSON.parse(a.topics || "[]"),
-    subject: a.subject,
-    sourceProjectId: a.sourceProjectId,
-    sourceProjectTitle: a.sourceProjectId ? projectMap[a.sourceProjectId] ?? null : null,
-    extractedFrom: a.extractedFrom,
-    createdAt: a.createdAt.toISOString()
-  }));
   const recommendations = [];
   const recentActivity = activities[0];
   if (recentActivity) {
-    const topicLabel = recentActivity.topics[0] || "topik terbaru";
+    const parsedTopics = JSON.parse(recentActivity.topics || "[]");
+    const topicLabel = parsedTopics[0] || "topik terbaru";
     recommendations.push({
       learningActivity: recentActivity,
       reason: `Dari tugas terbaru Anda: "${topicLabel}"`,
@@ -257091,15 +257231,22 @@ router25.get("/learning-activities/recommendations", async (req, res) => {
   }
   const topicCount = {};
   for (const activity of activities) {
-    for (const topic of activity.topics) {
+    const topics = JSON.parse(activity.topics || "[]");
+    for (const topic of topics) {
       if (!topicCount[topic]) {
         topicCount[topic] = activity;
       }
     }
   }
   const sortedTopics = Object.entries(topicCount).sort((a, b) => {
-    const countA = activities.filter((act) => act.topics.includes(a[0])).length;
-    const countB = activities.filter((act) => act.topics.includes(b[0])).length;
+    const countA = activities.filter((act) => {
+      const tops = JSON.parse(act.topics || "[]");
+      return tops.includes(a[0]);
+    }).length;
+    const countB = activities.filter((act) => {
+      const tops = JSON.parse(act.topics || "[]");
+      return tops.includes(b[0]);
+    }).length;
     return countB - countA;
   });
   if (sortedTopics.length > 1) {
@@ -257113,7 +257260,7 @@ router25.get("/learning-activities/recommendations", async (req, res) => {
       });
     }
   }
-  const recentProjects = await db.select({ id: projectsTable.id, title: projectsTable.title }).from(projectsTable).where(eq28(projectsTable.userId, req.user.id)).orderBy(desc17(projectsTable.createdAt)).limit(5);
+  const recentProjects = await db.select({ id: projectsTable.id, title: projectsTable.title }).from(projectsTable).where(eq28(projectsTable.userId, req.user.id)).orderBy(desc16(projectsTable.createdAt)).limit(5);
   const existingProjectIds = new Set(
     activities.map((a) => a.sourceProjectId).filter(Boolean)
   );
@@ -257121,14 +257268,10 @@ router25.get("/learning-activities/recommendations", async (req, res) => {
     if (project.id && !existingProjectIds.has(project.id)) {
       recommendations.push({
         learningActivity: {
+          ...activities[0],
           id: 0,
-          userId: req.user.id,
-          topics: [project.title ?? ""],
-          subject: null,
-          sourceProjectId: project.id,
-          sourceProjectTitle: project.title ?? "",
-          extractedFrom: "instruction",
-          createdAt: (/* @__PURE__ */ new Date()).toISOString()
+          topics: JSON.stringify([project.title]),
+          sourceProjectId: project.id
         },
         reason: `Project "${project.title}" belum di-extract`,
         type: "recent_task"
@@ -257149,7 +257292,8 @@ var learning_activities_default = router25;
 
 // src/routes/usage.ts
 var import_express26 = __toESM(require_express2(), 1);
-import { eq as eq29, and as and16, gte as gte3, sql as sql10, desc as desc18 } from "drizzle-orm";
+init_src();
+import { eq as eq29, and as and18, gte as gte5, sql as sql13, desc as desc17, lte as lte3 } from "drizzle-orm";
 import { z as z9 } from "zod/v4";
 var router26 = (0, import_express26.Router)();
 router26.use(authMiddleware);
@@ -257159,7 +257303,7 @@ function buildPeriodCondition(period) {
   const days = period === "7d" ? 7 : 30;
   const cutoff = /* @__PURE__ */ new Date();
   cutoff.setDate(cutoff.getDate() - days);
-  return gte3(aiUsageLogTable.createdAt, cutoff);
+  return gte5(aiUsageLogTable.createdAt, cutoff);
 }
 function emptyBreakdown() {
   return { requests: 0, inputTokens: 0, outputTokens: 0, costUsd: 0, costCents: 0 };
@@ -257230,7 +257374,7 @@ router26.get("/users/me/usage", async (req, res) => {
     outputTokens: aiUsageLogTable.outputTokens,
     estimatedCostUsd: aiUsageLogTable.estimatedCostUsd,
     costCents: aiUsageLogTable.costCents
-  }).from(aiUsageLogTable).where(and16(...conditions));
+  }).from(aiUsageLogTable).where(and18(...conditions));
   const aggregated = aggregateRecords(records, true);
   res.json({
     ...aggregated,
@@ -257254,7 +257398,7 @@ router26.get("/users/me/usage/projects/:projectId", async (req, res) => {
     estimatedCostUsd: aiUsageLogTable.estimatedCostUsd,
     costCents: aiUsageLogTable.costCents
   }).from(aiUsageLogTable).where(
-    and16(
+    and18(
       eq29(aiUsageLogTable.userId, req.user.id),
       eq29(aiUsageLogTable.projectId, projectId)
     )
@@ -257311,15 +257455,15 @@ router26.get("/admin/usage", async (req, res) => {
   const conditions = [];
   const periodCond = buildPeriodCondition(period);
   if (periodCond) conditions.push(periodCond);
-  const whereClause = conditions.length > 0 ? and16(...conditions) : void 0;
+  const whereClause = conditions.length > 0 ? and18(...conditions) : void 0;
   const perUserRaw = await db.select({
     userId: aiUsageLogTable.userId,
     email: usersTable.email,
-    totalRequests: sql10`count(*)`,
-    totalInputTokens: sql10`sum(${aiUsageLogTable.inputTokens})`,
-    totalOutputTokens: sql10`sum(${aiUsageLogTable.outputTokens})`,
-    totalCostUsd: sql10`sum(${aiUsageLogTable.estimatedCostUsd})`
-  }).from(aiUsageLogTable).leftJoin(usersTable, eq29(aiUsageLogTable.userId, usersTable.id)).where(whereClause).groupBy(aiUsageLogTable.userId, usersTable.email).orderBy(desc18(sql10`sum(${aiUsageLogTable.estimatedCostUsd})`));
+    totalRequests: sql13`count(*)`,
+    totalInputTokens: sql13`sum(${aiUsageLogTable.inputTokens})`,
+    totalOutputTokens: sql13`sum(${aiUsageLogTable.outputTokens})`,
+    totalCostUsd: sql13`sum(${aiUsageLogTable.estimatedCostUsd})`
+  }).from(aiUsageLogTable).leftJoin(usersTable, eq29(aiUsageLogTable.userId, usersTable.id)).where(whereClause).groupBy(aiUsageLogTable.userId, usersTable.email).orderBy(desc17(sql13`sum(${aiUsageLogTable.estimatedCostUsd})`));
   const perUser = perUserRaw.map((r2) => ({
     userId: r2.userId,
     email: r2.email ?? "unknown",
@@ -257330,10 +257474,10 @@ router26.get("/admin/usage", async (req, res) => {
   }));
   const perProviderRaw = await db.select({
     provider: aiUsageLogTable.provider,
-    totalRequests: sql10`count(*)`,
-    totalInputTokens: sql10`sum(${aiUsageLogTable.inputTokens})`,
-    totalOutputTokens: sql10`sum(${aiUsageLogTable.outputTokens})`,
-    totalCostUsd: sql10`sum(${aiUsageLogTable.estimatedCostUsd})`
+    totalRequests: sql13`count(*)`,
+    totalInputTokens: sql13`sum(${aiUsageLogTable.inputTokens})`,
+    totalOutputTokens: sql13`sum(${aiUsageLogTable.outputTokens})`,
+    totalCostUsd: sql13`sum(${aiUsageLogTable.estimatedCostUsd})`
   }).from(aiUsageLogTable).where(whereClause).groupBy(aiUsageLogTable.provider);
   const perProvider = perProviderRaw.map((r2) => ({
     provider: r2.provider,
@@ -257344,12 +257488,12 @@ router26.get("/admin/usage", async (req, res) => {
   }));
   const topUsersBySpend = [...perUser].sort((a, b) => b.totalCostUsd - a.totalCostUsd).slice(0, 10).map((r2) => ({ userId: r2.userId, email: r2.email, totalCostUsd: r2.totalCostUsd }));
   const dailyTotalsRaw = await db.select({
-    date: sql10`date(${aiUsageLogTable.createdAt})`,
-    totalRequests: sql10`count(*)`,
-    totalInputTokens: sql10`sum(${aiUsageLogTable.inputTokens})`,
-    totalOutputTokens: sql10`sum(${aiUsageLogTable.outputTokens})`,
-    totalCostUsd: sql10`sum(${aiUsageLogTable.estimatedCostUsd})`
-  }).from(aiUsageLogTable).where(whereClause).groupBy(sql10`date(${aiUsageLogTable.createdAt})`).orderBy(desc18(sql10`date(${aiUsageLogTable.createdAt})`));
+    date: sql13`date(${aiUsageLogTable.createdAt})`,
+    totalRequests: sql13`count(*)`,
+    totalInputTokens: sql13`sum(${aiUsageLogTable.inputTokens})`,
+    totalOutputTokens: sql13`sum(${aiUsageLogTable.outputTokens})`,
+    totalCostUsd: sql13`sum(${aiUsageLogTable.estimatedCostUsd})`
+  }).from(aiUsageLogTable).where(whereClause).groupBy(sql13`date(${aiUsageLogTable.createdAt})`).orderBy(desc17(sql13`date(${aiUsageLogTable.createdAt})`));
   const dailyTotals = dailyTotalsRaw.map((r2) => ({
     date: String(r2.date),
     totalRequests: Number(r2.totalRequests),
@@ -257358,10 +257502,10 @@ router26.get("/admin/usage", async (req, res) => {
     totalCostUsd: Math.round(Number(r2.totalCostUsd) * 1e6) / 1e6
   }));
   const [grandTotals] = await db.select({
-    totalRequests: sql10`count(*)`,
-    totalInputTokens: sql10`sum(${aiUsageLogTable.inputTokens})`,
-    totalOutputTokens: sql10`sum(${aiUsageLogTable.outputTokens})`,
-    totalCostUsd: sql10`sum(${aiUsageLogTable.estimatedCostUsd})`
+    totalRequests: sql13`count(*)`,
+    totalInputTokens: sql13`sum(${aiUsageLogTable.inputTokens})`,
+    totalOutputTokens: sql13`sum(${aiUsageLogTable.outputTokens})`,
+    totalCostUsd: sql13`sum(${aiUsageLogTable.estimatedCostUsd})`
   }).from(aiUsageLogTable).where(whereClause);
   res.json({
     period,
@@ -257375,11 +257519,107 @@ router26.get("/admin/usage", async (req, res) => {
     dailyTotals
   });
 });
+router26.get("/users/me/usage/daily", async (req, res) => {
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const days = Math.min(Math.max(Number(req.query.days ?? "7"), 1), 30);
+  const cutoff = /* @__PURE__ */ new Date();
+  cutoff.setDate(cutoff.getDate() - days);
+  const TOKENS_PER_HOUR = 12 * 100;
+  const dailyRaw = await db.select({
+    date: sql13`date(${aiUsageLogTable.createdAt})`,
+    totalTokens: sql13`sum(${aiUsageLogTable.inputTokens} + ${aiUsageLogTable.outputTokens})`,
+    totalCostCents: sql13`coalesce(sum(${aiUsageLogTable.costCents}), 0)`,
+    requestCount: sql13`count(*)`
+  }).from(aiUsageLogTable).where(
+    and18(
+      eq29(aiUsageLogTable.userId, req.user.id),
+      gte5(aiUsageLogTable.createdAt, cutoff)
+    )
+  ).groupBy(sql13`date(${aiUsageLogTable.createdAt})`).orderBy(desc17(sql13`date(${aiUsageLogTable.createdAt})`));
+  const history = dailyRaw.map((r2) => ({
+    date: String(r2.date),
+    tokens: Number(r2.totalTokens) || 0,
+    hours: Math.round((Number(r2.totalTokens) || 0) / TOKENS_PER_HOUR * 10) / 10,
+    costCents: Number(r2.totalCostCents) || 0,
+    requestCount: Number(r2.requestCount) || 0
+  }));
+  res.json({ days, history });
+});
+router26.get("/users/me/usage/windows", async (req, res) => {
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const userId = req.user.id;
+  const now = /* @__PURE__ */ new Date();
+  const [sub] = await db.select().from(subscriptionsTable).where(
+    and18(
+      eq29(subscriptionsTable.userId, userId),
+      eq29(subscriptionsTable.status, "active"),
+      lte3(subscriptionsTable.startsAt, now),
+      gte5(subscriptionsTable.expiresAt, now)
+    )
+  ).limit(1);
+  if (!sub) {
+    res.json({ subscription: null, windows5h: null, windows7d: null });
+    return;
+  }
+  const [pkg] = await db.select().from(packagesTable).where(eq29(packagesTable.id, sub.packageId)).limit(1);
+  const windows = await db.select().from(usageWindowsTable).where(eq29(usageWindowsTable.subscriptionId, sub.id));
+  const windows5h = windows.filter((w) => w.windowType === "5h");
+  const totalHaiku5h = windows5h.reduce((sum, w) => sum + Number(w.haikuTokensUsed), 0);
+  const totalSonnet5h = windows5h.reduce((sum, w) => sum + Number(w.sonnetTokensUsed), 0);
+  const capHaiku5h = pkg?.quota5hHaikuTokens ?? 0;
+  const capSonnet5h = pkg?.quota5hSonnetTokens ?? 0;
+  const usedTokens5h = totalHaiku5h + totalSonnet5h;
+  const limitTokens5h = capHaiku5h + capSonnet5h;
+  const windows7d = windows.filter((w) => w.windowType === "7d");
+  const totalHaiku7d = windows7d.reduce((sum, w) => sum + Number(w.haikuTokensUsed), 0);
+  const totalSonnet7d = windows7d.reduce((sum, w) => sum + Number(w.sonnetTokensUsed), 0);
+  const capHaiku7d = pkg?.quota7dHaikuTokens ?? 0;
+  const capSonnet7d = pkg?.quota7dSonnetTokens ?? 0;
+  const usedTokens7d = totalHaiku7d + totalSonnet7d;
+  const limitTokens7d = capHaiku7d + capSonnet7d;
+  const RP_PER_HOUR = 600;
+  const nextReset5h = windows5h[0] ? windows5h[0].windowEndAt : new Date(Date.now() + 5 * 60 * 60 * 1e3).toISOString();
+  const nextReset7d = windows7d[0] ? windows7d[0].windowEndAt : new Date(Date.now() + 7 * 24 * 60 * 60 * 1e3).toISOString();
+  res.json({
+    subscription: sub ? {
+      id: sub.id,
+      packageName: pkg?.tierName ?? null,
+      packageTier: pkg?.tier ?? null,
+      expiresAt: sub.expiresAt,
+      modelType: pkg?.modelType ?? null
+    } : null,
+    windows5h: {
+      usedTokens: usedTokens5h,
+      limitTokens: limitTokens5h,
+      usedHours: Math.round(usedTokens5h / 100 / 12 * 10) / 10,
+      limitHours: Math.round(limitTokens5h / 100 / 12 * 10) / 10,
+      costCents: windows5h.reduce((sum, w) => sum + Number(w.costCents), 0),
+      pct: limitTokens5h > 0 ? Math.min(100, Math.round(usedTokens5h / limitTokens5h * 100)) : 0,
+      resetAt: nextReset5h
+    },
+    windows7d: {
+      usedTokens: usedTokens7d,
+      limitTokens: limitTokens7d,
+      usedHours: Math.round(usedTokens7d / 100 / 12 * 10) / 10,
+      limitHours: Math.round(limitTokens7d / 100 / 12 * 10) / 10,
+      costCents: windows7d.reduce((sum, w) => sum + Number(w.costCents), 0),
+      pct: limitTokens7d > 0 ? Math.min(100, Math.round(usedTokens7d / limitTokens7d * 100)) : 0,
+      resetAt: nextReset7d
+    }
+  });
+});
 var usage_default = router26;
 
 // src/routes/document-templates.ts
 var import_express27 = __toESM(require_express2(), 1);
-import { eq as eq30, or, isNull as isNull6, desc as desc19 } from "drizzle-orm";
+init_src();
+import { eq as eq30, or, isNull as isNull6, desc as desc18 } from "drizzle-orm";
 import { z as z10 } from "zod/v4";
 var router27 = (0, import_express27.Router)();
 var createTemplateSchema = z10.object({
@@ -257419,7 +257659,7 @@ router27.get("/templates", async (req, res) => {
       eq30(documentTemplatesTable.userId, req.user.id),
       isNull6(documentTemplatesTable.userId)
     )
-  ).orderBy(desc19(documentTemplatesTable.createdAt));
+  ).orderBy(desc18(documentTemplatesTable.createdAt));
   res.json(templates.map(toTemplateJson));
 });
 router27.get("/templates/categories", async (req, res) => {
@@ -257561,10 +257801,11 @@ var document_templates_default = router27;
 
 // src/routes/admin-ai-tiers.ts
 var import_express28 = __toESM(require_express2(), 1);
+init_src();
 import { eq as eq31 } from "drizzle-orm";
 import { z as z11 } from "zod/v4";
 var router28 = (0, import_express28.Router)();
-async function requireOwner(req, res, next) {
+async function requireOwner2(req, res, next) {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -257589,11 +257830,11 @@ var updateTierSchema = z11.object({
   description: z11.string().max(500).optional(),
   usageTips: z11.string().max(500).nullable().optional()
 });
-router28.get("/admin/ai-tiers", requireOwner, async (_req, res) => {
+router28.get("/admin/ai-tiers", requireOwner2, async (_req, res) => {
   const tiers = await db.select().from(aiTiersTable).orderBy(aiTiersTable.displayOrder);
   res.json({ tiers });
 });
-router28.put("/admin/ai-tiers/:id", requireOwner, async (req, res) => {
+router28.put("/admin/ai-tiers/:id", requireOwner2, async (req, res) => {
   const parsed = updateTierSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -257619,38 +257860,29 @@ var admin_ai_tiers_default = router28;
 
 // src/routes/admin.ts
 var import_express29 = __toESM(require_express2(), 1);
-
-// src/middlewares/owner.ts
-var OWNER_EMAIL = process.env.OWNER_EMAIL ?? "";
-function requireOwner2(req, res, next) {
-  if (!req.user) {
-    res.status(401).json({ error: "Unauthorized" });
-    return;
-  }
-  if (req.user.email?.toLowerCase() !== OWNER_EMAIL.toLowerCase()) {
-    res.status(403).json({ error: "Forbidden \u2014 admin access required" });
-    return;
-  }
-  next();
-}
-
-// src/routes/admin.ts
-import { sql as sql11, eq as eq32, count as count2, or as or2, and as and17, gte as gte4 } from "drizzle-orm";
+init_src();
+init_src();
+init_src();
+init_src();
+init_src();
+init_src();
+init_src();
+import { sql as sql14, eq as eq32, count as count2, or as or2, and as and19, gte as gte6 } from "drizzle-orm";
 var router29 = (0, import_express29.Router)();
 router29.get("/me", authMiddleware, (req, res) => {
   const OWNER_EMAIL2 = process.env.OWNER_EMAIL ?? "";
   const isOwner = req.user?.email?.toLowerCase() === OWNER_EMAIL2.toLowerCase();
   res.json({ isOwner, email: req.user?.email });
 });
-router29.get("/users", authMiddleware, requireOwner2, async (req, res) => {
+router29.get("/users", authMiddleware, requireOwner, async (req, res) => {
   try {
     const search = req.query.search;
     const page = Math.max(1, parseInt(req.query.page) || 1);
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
     const offset = (page - 1) * limit;
     const searchCondition = search ? or2(
-      sql11`LOWER(${usersTable.email}) LIKE ${"%" + search.toLowerCase() + "%"}`,
-      sql11`LOWER(COALESCE(${usersTable.displayName}, '')) LIKE ${"%" + search.toLowerCase() + "%"}`
+      sql14`LOWER(${usersTable.email}) LIKE ${"%" + search.toLowerCase() + "%"}`,
+      sql14`LOWER(COALESCE(${usersTable.displayName}, '')) LIKE ${"%" + search.toLowerCase() + "%"}`
     ) : void 0;
     const [users, totalResult] = await Promise.all([
       db.select({
@@ -257667,13 +257899,13 @@ router29.get("/users", authMiddleware, requireOwner2, async (req, res) => {
     const projectCounts = userIds.length ? await db.select({
       userId: projectsTable.userId,
       count: count2()
-    }).from(projectsTable).where(sql11`${projectsTable.userId} IN (${sql11.join(userIds.map((id) => sql11`${id}`), sql11`, `)})`).groupBy(projectsTable.userId) : [];
+    }).from(projectsTable).where(sql14`${projectsTable.userId} IN (${sql14.join(userIds.map((id) => sql14`${id}`), sql14`, `)})`).groupBy(projectsTable.userId) : [];
     const projectCountMap = new Map(projectCounts.map((p) => [p.userId, p.count]));
     const usageStats = userIds.length ? await db.select({
       userId: aiUsageLogTable.userId,
       totalRequests: count2(),
-      totalCostUsd: sql11`SUM(${aiUsageLogTable.estimatedCostUsd})`
-    }).from(aiUsageLogTable).where(sql11`${aiUsageLogTable.userId} IN (${sql11.join(userIds.map((id) => sql11`${id}`), sql11`, `)})`).groupBy(aiUsageLogTable.userId) : [];
+      totalCostUsd: sql14`SUM(${aiUsageLogTable.estimatedCostUsd})`
+    }).from(aiUsageLogTable).where(sql14`${aiUsageLogTable.userId} IN (${sql14.join(userIds.map((id) => sql14`${id}`), sql14`, `)})`).groupBy(aiUsageLogTable.userId) : [];
     const usageMap = new Map(usageStats.map((u) => [u.userId, u]));
     const enriched = users.map((u) => ({
       ...u,
@@ -257691,11 +257923,11 @@ router29.get("/users", authMiddleware, requireOwner2, async (req, res) => {
       }
     });
   } catch (err) {
-    console.error("[admin/users] error", err);
+    logger2.error({ err }, "[admin/users] error");
     res.status(500).json({ error: "Internal server error" });
   }
 });
-router29.get("/stats", authMiddleware, requireOwner2, async (req, res) => {
+router29.get("/stats", authMiddleware, requireOwner, async (req, res) => {
   try {
     const period = req.query.period || "month";
     const now = /* @__PURE__ */ new Date();
@@ -257717,32 +257949,32 @@ router29.get("/stats", authMiddleware, requireOwner2, async (req, res) => {
       db.select({ count: count2() }).from(projectsTable),
       db.select({
         totalRequests: count2(),
-        totalCostUsd: sql11`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`,
-        totalInputTokens: sql11`COALESCE(SUM(${aiUsageLogTable.inputTokens}), 0)`,
-        totalOutputTokens: sql11`COALESCE(SUM(${aiUsageLogTable.outputTokens}), 0)`
-      }).from(aiUsageLogTable).where(gte4(aiUsageLogTable.createdAt, startDate)),
+        totalCostUsd: sql14`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`,
+        totalInputTokens: sql14`COALESCE(SUM(${aiUsageLogTable.inputTokens}), 0)`,
+        totalOutputTokens: sql14`COALESCE(SUM(${aiUsageLogTable.outputTokens}), 0)`
+      }).from(aiUsageLogTable).where(gte6(aiUsageLogTable.createdAt, startDate)),
       db.select({
-        totalTopup: sql11`COALESCE(SUM(CASE WHEN ${tokenTransactionsTable.type} = 'topup' THEN ${tokenTransactionsTable.amountCents} ELSE 0 END), 0)`,
-        totalRefund: sql11`COALESCE(SUM(CASE WHEN ${tokenTransactionsTable.type} = 'refund' THEN ${tokenTransactionsTable.amountCents} ELSE 0 END), 0)`,
+        totalTopup: sql14`COALESCE(SUM(CASE WHEN ${tokenTransactionsTable.type} = 'topup' THEN ${tokenTransactionsTable.amountCents} ELSE 0 END), 0)`,
+        totalRefund: sql14`COALESCE(SUM(CASE WHEN ${tokenTransactionsTable.type} = 'refund' THEN ${tokenTransactionsTable.amountCents} ELSE 0 END), 0)`,
         transactionCount: count2()
-      }).from(tokenTransactionsTable).where(gte4(tokenTransactionsTable.createdAt, startDate)),
+      }).from(tokenTransactionsTable).where(gte6(tokenTransactionsTable.createdAt, startDate)),
       db.select({
         userId: aiUsageLogTable.userId,
-        totalCostUsd: sql11`SUM(${aiUsageLogTable.estimatedCostUsd})`,
+        totalCostUsd: sql14`SUM(${aiUsageLogTable.estimatedCostUsd})`,
         totalRequests: count2()
-      }).from(aiUsageLogTable).where(gte4(aiUsageLogTable.createdAt, startDate)).groupBy(aiUsageLogTable.userId).orderBy(sql11`SUM(${aiUsageLogTable.estimatedCostUsd}) DESC`).limit(10)
+      }).from(aiUsageLogTable).where(gte6(aiUsageLogTable.createdAt, startDate)).groupBy(aiUsageLogTable.userId).orderBy(sql14`SUM(${aiUsageLogTable.estimatedCostUsd}) DESC`).limit(10)
     ]);
     const OWNER_EMAIL2 = process.env.OWNER_EMAIL ?? "";
-    const ownerUser = await db.select({ id: usersTable.id }).from(usersTable).where(sql11`LOWER(${usersTable.email}) = ${OWNER_EMAIL2.toLowerCase()}`).limit(1);
+    const ownerUser = await db.select({ id: usersTable.id }).from(usersTable).where(sql14`LOWER(${usersTable.email}) = ${OWNER_EMAIL2.toLowerCase()}`).limit(1);
     let ownerUsage = { totalRequests: 0, totalCostUsd: 0 };
     if (ownerUser[0]) {
       const [ownerStats] = await db.select({
         totalRequests: count2(),
-        totalCostUsd: sql11`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`
+        totalCostUsd: sql14`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`
       }).from(aiUsageLogTable).where(
-        and17(
+        and19(
           eq32(aiUsageLogTable.userId, ownerUser[0].id),
-          gte4(aiUsageLogTable.createdAt, startDate)
+          gte6(aiUsageLogTable.createdAt, startDate)
         )
       );
       ownerUsage = {
@@ -257776,11 +258008,11 @@ router29.get("/stats", authMiddleware, requireOwner2, async (req, res) => {
       }))
     });
   } catch (err) {
-    console.error("[admin/stats] error", err);
+    logger2.error({ err }, "[admin/stats] error");
     res.status(500).json({ error: "Internal server error" });
   }
 });
-router29.get("/usage-breakdown", authMiddleware, requireOwner2, async (req, res) => {
+router29.get("/usage-breakdown", authMiddleware, requireOwner, async (req, res) => {
   try {
     const period = req.query.period || "month";
     const now = /* @__PURE__ */ new Date();
@@ -257800,25 +258032,25 @@ router29.get("/usage-breakdown", authMiddleware, requireOwner2, async (req, res)
     const byProvider = await db.select({
       provider: aiUsageLogTable.provider,
       totalRequests: count2(),
-      totalCostUsd: sql11`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`,
-      totalInputTokens: sql11`COALESCE(SUM(${aiUsageLogTable.inputTokens}), 0)`,
-      totalOutputTokens: sql11`COALESCE(SUM(${aiUsageLogTable.outputTokens}), 0)`
-    }).from(aiUsageLogTable).where(gte4(aiUsageLogTable.createdAt, startDate)).groupBy(aiUsageLogTable.provider);
+      totalCostUsd: sql14`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`,
+      totalInputTokens: sql14`COALESCE(SUM(${aiUsageLogTable.inputTokens}), 0)`,
+      totalOutputTokens: sql14`COALESCE(SUM(${aiUsageLogTable.outputTokens}), 0)`
+    }).from(aiUsageLogTable).where(gte6(aiUsageLogTable.createdAt, startDate)).groupBy(aiUsageLogTable.provider);
     const byModel = await db.select({
       model: aiUsageLogTable.model,
       provider: aiUsageLogTable.provider,
       totalRequests: count2(),
-      totalCostUsd: sql11`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`,
-      totalInputTokens: sql11`COALESCE(SUM(${aiUsageLogTable.inputTokens}), 0)`,
-      totalOutputTokens: sql11`COALESCE(SUM(${aiUsageLogTable.outputTokens}), 0)`
-    }).from(aiUsageLogTable).where(gte4(aiUsageLogTable.createdAt, startDate)).groupBy(aiUsageLogTable.model, aiUsageLogTable.provider).orderBy(sql11`SUM(${aiUsageLogTable.estimatedCostUsd}) DESC`);
+      totalCostUsd: sql14`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`,
+      totalInputTokens: sql14`COALESCE(SUM(${aiUsageLogTable.inputTokens}), 0)`,
+      totalOutputTokens: sql14`COALESCE(SUM(${aiUsageLogTable.outputTokens}), 0)`
+    }).from(aiUsageLogTable).where(gte6(aiUsageLogTable.createdAt, startDate)).groupBy(aiUsageLogTable.model, aiUsageLogTable.provider).orderBy(sql14`SUM(${aiUsageLogTable.estimatedCostUsd}) DESC`);
     const byRequestType = await db.select({
       requestType: aiUsageLogTable.requestType,
       totalRequests: count2(),
-      totalCostUsd: sql11`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`,
-      totalInputTokens: sql11`COALESCE(SUM(${aiUsageLogTable.inputTokens}), 0)`,
-      totalOutputTokens: sql11`COALESCE(SUM(${aiUsageLogTable.outputTokens}), 0)`
-    }).from(aiUsageLogTable).where(gte4(aiUsageLogTable.createdAt, startDate)).groupBy(aiUsageLogTable.requestType);
+      totalCostUsd: sql14`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`,
+      totalInputTokens: sql14`COALESCE(SUM(${aiUsageLogTable.inputTokens}), 0)`,
+      totalOutputTokens: sql14`COALESCE(SUM(${aiUsageLogTable.outputTokens}), 0)`
+    }).from(aiUsageLogTable).where(gte6(aiUsageLogTable.createdAt, startDate)).groupBy(aiUsageLogTable.requestType);
     res.json({
       period,
       byProvider: byProvider.map((r2) => ({
@@ -257841,11 +258073,11 @@ router29.get("/usage-breakdown", authMiddleware, requireOwner2, async (req, res)
       }))
     });
   } catch (err) {
-    console.error("[admin/usage-breakdown] error", err);
+    logger2.error({ err }, "[admin/usage-breakdown] error");
     res.status(500).json({ error: "Internal server error" });
   }
 });
-router29.get("/audit-log", authMiddleware, requireOwner2, async (req, res) => {
+router29.get("/audit-log", authMiddleware, requireOwner, async (req, res) => {
   try {
     const page = Math.max(1, parseInt(req.query.page) || 1);
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 50));
@@ -257853,7 +258085,7 @@ router29.get("/audit-log", authMiddleware, requireOwner2, async (req, res) => {
     const action = req.query.action;
     const actionCondition = action ? eq32(adminAuditLogTable.action, action) : void 0;
     const [logs, totalResult] = await Promise.all([
-      db.select().from(adminAuditLogTable).where(actionCondition).orderBy(sql11`${adminAuditLogTable.createdAt} DESC`).limit(limit).offset(offset),
+      db.select().from(adminAuditLogTable).where(actionCondition).orderBy(sql14`${adminAuditLogTable.createdAt} DESC`).limit(limit).offset(offset),
       db.select({ count: count2() }).from(adminAuditLogTable).where(actionCondition)
     ]);
     res.json({
@@ -257866,11 +258098,11 @@ router29.get("/audit-log", authMiddleware, requireOwner2, async (req, res) => {
       }
     });
   } catch (err) {
-    console.error("[admin/audit-log] error", err);
+    logger2.error({ err }, "[admin/audit-log] error");
     res.status(500).json({ error: "Internal server error" });
   }
 });
-router29.post("/users/:userId/tier", authMiddleware, requireOwner2, async (req, res) => {
+router29.post("/users/:userId/tier", authMiddleware, requireOwner, async (req, res) => {
   try {
     const { userId } = req.params;
     const { tierId } = req.body;
@@ -257885,11 +258117,11 @@ router29.post("/users/:userId/tier", authMiddleware, requireOwner2, async (req, 
     });
     res.json({ success: true });
   } catch (err) {
-    console.error("[admin/tier-override] error", err);
+    logger2.error({ err }, "[admin/tier-override] error");
     res.status(500).json({ error: "Internal server error" });
   }
 });
-router29.post("/users/:userId/suspend", authMiddleware, requireOwner2, async (req, res) => {
+router29.post("/users/:userId/suspend", authMiddleware, requireOwner, async (req, res) => {
   try {
     const { userId } = req.params;
     const { suspend } = req.body;
@@ -257903,7 +258135,7 @@ router29.post("/users/:userId/suspend", authMiddleware, requireOwner2, async (re
     });
     res.json({ success: true, message: suspend ? "User suspended" : "User unsuspended" });
   } catch (err) {
-    console.error("[admin/suspend] error", err);
+    logger2.error({ err }, "[admin/suspend] error");
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -257911,10 +258143,13 @@ var admin_default = router29;
 
 // src/routes/referral.ts
 var import_express30 = __toESM(require_express2(), 1);
+init_src();
 import { eq as eq34 } from "drizzle-orm";
 
 // src/lib/referral-rewards.ts
-import { eq as eq33, and as and18, sql as sql12 } from "drizzle-orm";
+init_src();
+init_src();
+import { eq as eq33, and as and20, sql as sql15 } from "drizzle-orm";
 var REFEREE_CASHBACK_CENTS = 5e5;
 var REFERRER_REWARD_PERCENT = 0.03;
 var REFERRER_REWARD_TX_CAP = 5;
@@ -257934,7 +258169,7 @@ async function processReferralPayment(event) {
   };
   const [referral] = await db.select().from(referralsTable).where(eq33(referralsTable.referredId, event.userId));
   if (!referral) {
-    logger.info(
+    logger2.info(
       { userId: event.userId, paymentEventId: event.paymentEventId },
       "[referral] no referral relationship for user \u2014 skip"
     );
@@ -257957,7 +258192,7 @@ async function creditRefereeCashback(referral, event) {
     status: referral.status === "verified" ? "qualified" : referral.status,
     updatedAt: /* @__PURE__ */ new Date()
   }).where(
-    and18(
+    and20(
       eq33(referralsTable.id, referral.id),
       eq33(referralsTable.refereeCashbackClaimed, false)
     )
@@ -258005,7 +258240,7 @@ async function creditRefereeCashback(referral, event) {
       amountCents: REFEREE_CASHBACK_CENTS
     }
   });
-  logger.info(
+  logger2.info(
     {
       referralId: referral.id,
       userId: event.userId,
@@ -258022,10 +258257,10 @@ async function creditRefereeCashback(referral, event) {
 }
 async function creditReferrerReward(referral, event) {
   const existing = await db.select({ id: referralEventsTable.id }).from(referralEventsTable).where(
-    and18(
+    and20(
       eq33(referralEventsTable.referralId, referral.id),
       eq33(
-        sql12`${referralEventsTable.metadata}->>'paymentEventId'`,
+        sql15`${referralEventsTable.metadata}->>'paymentEventId'`,
         event.paymentEventId
       )
     )
@@ -258039,7 +258274,7 @@ async function creditReferrerReward(referral, event) {
     };
   }
   if (referral.referrerRewardTxCount >= REFERRER_REWARD_TX_CAP) {
-    logger.info(
+    logger2.info(
       {
         referralId: referral.id,
         txCount: referral.referrerRewardTxCount,
@@ -258104,7 +258339,7 @@ async function creditReferrerReward(referral, event) {
       txCount: newTxCount
     }
   });
-  logger.info(
+  logger2.info(
     {
       referralId: referral.id,
       referrerId: referral.referrerId,
@@ -258184,7 +258419,7 @@ router30.get("/users/me/referral-info", async (req, res) => {
       // 5 transactions
     });
   } catch (err) {
-    console.error("[referral-info] unhandled", err);
+    logger.error({ err }, "[referral-info] unhandled");
     if (!res.headersSent) {
       res.status(500).json({ error: "Gagal memuat informasi referral." });
     }
@@ -258192,95 +258427,12 @@ router30.get("/users/me/referral-info", async (req, res) => {
 });
 var referral_default = router30;
 
-// src/routes/referral-webhook.ts
-var import_express31 = __toESM(require_express2(), 1);
-import { createHmac, timingSafeEqual } from "crypto";
-import { z as z12 } from "zod/v4";
-var router31 = (0, import_express31.Router)();
-var WEBHOOK_SECRET = process.env.REFERRAL_WEBHOOK_SECRET ?? "";
-function verifyWebhookSignature(req) {
-  if (!WEBHOOK_SECRET) {
-    logger.warn(
-      "[webhook] REFERRAL_WEBHOOK_SECRET not set \u2014 rejecting webhook"
-    );
-    return false;
-  }
-  const sigHeader = req.headers["x-webhook-signature"];
-  if (typeof sigHeader !== "string") return false;
-  const expected = sigHeader.startsWith("sha256=") ? sigHeader.slice(7) : sigHeader;
-  const rawBody = typeof req.rawBody === "string" ? req.rawBody : JSON.stringify(req.body);
-  const computed = createHmac("sha256", WEBHOOK_SECRET).update(rawBody).digest("hex");
-  try {
-    const a = Buffer.from(expected, "hex");
-    const b = Buffer.from(computed, "hex");
-    return a.length === b.length && timingSafeEqual(a, b);
-  } catch {
-    return false;
-  }
-}
-var WebhookPayloadSchema = z12.object({
-  paymentEventId: z12.string().min(1),
-  userId: z12.string().min(1),
-  paidAmountCents: z12.number().int().positive(),
-  method: z12.enum(["subscription", "topup"]),
-  paidAt: z12.string().datetime().transform((s2) => new Date(s2)),
-  metadata: z12.record(z12.string(), z12.unknown()).optional()
-});
-router31.post("/webhooks/payment-success", async (req, res) => {
-  if (!verifyWebhookSignature(req)) {
-    res.status(401).json({ error: "Invalid signature" });
-    return;
-  }
-  const parseResult = WebhookPayloadSchema.safeParse(req.body);
-  if (!parseResult.success) {
-    logger.warn(
-      { issues: parseResult.error.issues },
-      "[webhook] invalid payload"
-    );
-    res.status(400).json({ error: "Invalid payload" });
-    return;
-  }
-  const payload = parseResult.data;
-  const event = {
-    paymentEventId: payload.paymentEventId,
-    userId: payload.userId,
-    paidAmountCents: payload.paidAmountCents,
-    method: payload.method,
-    paidAt: payload.paidAt,
-    metadata: payload.metadata
-  };
-  try {
-    const result = await processReferralPayment(event);
-    logger.info(
-      {
-        paymentEventId: event.paymentEventId,
-        userId: event.userId,
-        refereeCashback: result.refereeCashback,
-        referrerReward: result.referrerReward
-      },
-      "[webhook] payment processed"
-    );
-    res.status(200).json({
-      ok: true,
-      refereeCashback: result.refereeCashback,
-      referrerReward: result.referrerReward
-    });
-  } catch (err) {
-    logger.error(
-      { err, paymentEventId: event.paymentEventId, userId: event.userId },
-      "[webhook] failed to process payment"
-    );
-    if (!res.headersSent) {
-      res.status(500).json({ error: "Failed to process payment" });
-    }
-  }
-});
-var referral_webhook_default = router31;
-
 // src/routes/simulasi.ts
-var import_express32 = __toESM(require_express2(), 1);
-import { eq as eq35, asc as asc3, and as and19, desc as desc20 } from "drizzle-orm";
-var router32 = (0, import_express32.Router)();
+var import_express31 = __toESM(require_express2(), 1);
+init_src();
+import { eq as eq35, asc as asc3, and as and21, desc as desc19 } from "drizzle-orm";
+import { randomBytes as randomBytes3 } from "crypto";
+var router31 = (0, import_express31.Router)();
 var PERSONA_PROMPTS = {
   dosen_strict: {
     persona: "Dosen pembimbing yang ketat dan kritis",
@@ -258352,23 +258504,23 @@ Setelah bertanya, AKHIRI pesanmu dengan tepat di sini \u2014 tanpa penjelasan ta
 async function buildProjectContextSnapshot(projectId) {
   const [project] = await db.select().from(projectsTable).where(eq35(projectsTable.id, projectId));
   if (!project) return null;
-  const [latestDoc] = await db.select({ content: documentsTable.content }).from(documentsTable).where(and19(
+  const [latestDoc] = await db.select({ content: documentsTable.content }).from(documentsTable).where(and21(
     eq35(documentsTable.projectId, projectId),
     eq35(documentsTable.isDeleted, false)
-  )).orderBy(desc20(documentsTable.updatedAt)).limit(1);
-  const [metaSubject] = await db.select({ value: projectMetadataTable.value }).from(projectMetadataTable).where(and19(
+  )).orderBy(desc19(documentsTable.updatedAt)).limit(1);
+  const [metaSubject] = await db.select({ value: projectMetadataTable.value }).from(projectMetadataTable).where(and21(
     eq35(projectMetadataTable.projectId, projectId),
     eq35(projectMetadataTable.key, "subject")
   )).limit(1);
-  const [metaTaskType] = await db.select({ value: projectMetadataTable.value }).from(projectMetadataTable).where(and19(
+  const [metaTaskType] = await db.select({ value: projectMetadataTable.value }).from(projectMetadataTable).where(and21(
     eq35(projectMetadataTable.projectId, projectId),
     eq35(projectMetadataTable.key, "taskType")
   )).limit(1);
-  const [metaOutline] = await db.select({ value: projectMetadataTable.value }).from(projectMetadataTable).where(and19(
+  const [metaOutline] = await db.select({ value: projectMetadataTable.value }).from(projectMetadataTable).where(and21(
     eq35(projectMetadataTable.projectId, projectId),
     eq35(projectMetadataTable.key, "outline")
   )).limit(1);
-  const [metaInstruction] = await db.select({ value: projectMetadataTable.value }).from(projectMetadataTable).where(and19(
+  const [metaInstruction] = await db.select({ value: projectMetadataTable.value }).from(projectMetadataTable).where(and21(
     eq35(projectMetadataTable.projectId, projectId),
     eq35(projectMetadataTable.key, "instructionText")
   )).limit(1);
@@ -258422,7 +258574,7 @@ HANYA KELUARKAN JSON. TANPA markdown, TANPA penjelasan, TANPA penutup.`;
     if (!jsonMatch) throw new Error("No JSON found in response");
     report = JSON.parse(jsonMatch[0]);
   } catch {
-    logger.warn({ sessionId }, "Failed to parse simulation report JSON, using defaults");
+    logger2.warn({ sessionId }, "Failed to parse simulation report JSON, using defaults");
     report = {
       overallScore: 70,
       summary: "Evaluasi otomatis tidak tersedia. Presenter menunjukkan pemahaman dasar yang cukup.",
@@ -258443,7 +258595,7 @@ HANYA KELUARKAN JSON. TANPA markdown, TANPA penjelasan, TANPA penutup.`;
 function getQuotaInfo(session) {
   return { saldoUsedCents: session.totalCostCents };
 }
-router32.post("/projects/:projectId/simulasi/sessions", async (req, res) => {
+router31.post("/projects/:projectId/simulasi/sessions", async (req, res) => {
   const params = CreateSimulationSessionParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -258542,7 +258694,7 @@ Anda siap?`;
     quotaInfo: getQuotaInfo(session)
   });
 });
-router32.get("/projects/:projectId/simulasi/sessions", async (req, res) => {
+router31.get("/projects/:projectId/simulasi/sessions", async (req, res) => {
   const params = CreateSimulationSessionParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -258550,13 +258702,13 @@ router32.get("/projects/:projectId/simulasi/sessions", async (req, res) => {
   }
   const ok = await requireProjectOwnership(params.data.projectId, req.user?.id ?? "", res);
   if (!ok) return;
-  const sessions = await db.select().from(simulationSessionsTable).where(eq35(simulationSessionsTable.projectId, params.data.projectId)).orderBy(desc20(simulationSessionsTable.startedAt));
+  const sessions = await db.select().from(simulationSessionsTable).where(eq35(simulationSessionsTable.projectId, params.data.projectId)).orderBy(desc19(simulationSessionsTable.startedAt));
   res.json(sessions.map((s2) => ({
     ...s2,
     quotaInfo: getQuotaInfo(s2)
   })));
 });
-router32.get("/projects/:projectId/simulasi/sessions/:sessionId/messages", async (req, res) => {
+router31.get("/projects/:projectId/simulasi/sessions/:sessionId/messages", async (req, res) => {
   const params = ListSimulationMessagesParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -258586,7 +258738,7 @@ router32.get("/projects/:projectId/simulasi/sessions/:sessionId/messages", async
     quotaInfo: getQuotaInfo(session)
   });
 });
-router32.post("/projects/:projectId/simulasi/sessions/:sessionId/messages", async (req, res) => {
+router31.post("/projects/:projectId/simulasi/sessions/:sessionId/messages", async (req, res) => {
   const params = SendSimulationMessageParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -258717,7 +258869,17 @@ Berdasarkan simulasi ini, berikut evaluasi singkat saya:
   try {
     aiResponse = await callAI(chatMessages, selectedTier.id, "socratic");
   } catch (err) {
-    logger.error({ err, sessionId: params.data.sessionId }, "AI call failed in simulation");
+    const message2 = err instanceof Error ? err.message : String(err);
+    if (message2 === "KONTEKS_TERLALU_PANJANG") {
+      await db.delete(simulationMessagesTable).where(eq35(simulationMessagesTable.id, userMsg.id));
+      res.status(422).json({
+        error: "Konteks terlalu panjang.",
+        detail: "Percakapan terlalu panjang. Coba mulai sesi baru.",
+        code: "KONTEKS_TERLALU_PANJANG"
+      });
+      return;
+    }
+    logger2.error({ err, sessionId: params.data.sessionId }, "AI call failed in simulation");
     await db.delete(simulationMessagesTable).where(eq35(simulationMessagesTable.id, userMsg.id));
     res.status(500).json({ error: "Gagal memproses respons AI. Silakan coba lagi." });
     return;
@@ -258790,7 +258952,7 @@ Berdasarkan simulasi ini, berikut evaluasi singkat saya:
     quotaInfo: getQuotaInfo(updatedSession[0])
   });
 });
-router32.post("/projects/:projectId/simulasi/sessions/:sessionId/complete", async (req, res) => {
+router31.post("/projects/:projectId/simulasi/sessions/:sessionId/complete", async (req, res) => {
   const params = CompleteSimulationSessionParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -258808,25 +258970,41 @@ router32.post("/projects/:projectId/simulasi/sessions/:sessionId/complete", asyn
   const ok = await requireProjectOwnership(session.projectId, req.user?.id ?? "", res);
   if (!ok) return;
   const messages = await db.select().from(simulationMessagesTable).where(eq35(simulationMessagesTable.sessionId, params.data.sessionId)).orderBy(asc3(simulationMessagesTable.sequenceIndex));
-  const reportData = await generateSimulationReport({
-    sessionId: session.id,
-    projectId: session.projectId,
-    userId: session.userId,
-    persona: session.persona,
-    messages: messages.map((m2) => ({
-      id: m2.id,
-      sessionId: m2.sessionId,
-      role: m2.role,
-      content: m2.content,
-      inputTokens: m2.inputTokens,
-      outputTokens: m2.outputTokens,
-      costCents: m2.costCents,
-      sequenceIndex: m2.sequenceIndex,
-      createdAt: m2.createdAt
-    })),
-    tierId: session.tierId ?? "haiku-4.5"
-  });
-  await db.update(simulationReportsTable).set({ isLatestForProject: false }).where(and19(
+  let reportData;
+  try {
+    reportData = await generateSimulationReport({
+      sessionId: session.id,
+      projectId: session.projectId,
+      userId: session.userId,
+      persona: session.persona,
+      messages: messages.map((m2) => ({
+        id: m2.id,
+        sessionId: m2.sessionId,
+        role: m2.role,
+        content: m2.content,
+        inputTokens: m2.inputTokens,
+        outputTokens: m2.outputTokens,
+        costCents: m2.costCents,
+        sequenceIndex: m2.sequenceIndex,
+        createdAt: m2.createdAt
+      })),
+      tierId: session.tierId ?? "haiku-4.5"
+    });
+  } catch (err) {
+    const message2 = err instanceof Error ? err.message : String(err);
+    if (message2 === "KONTEKS_TERLALU_PANJANG") {
+      res.status(422).json({
+        error: "Konteks terlalu panjang.",
+        detail: "Sesi simulasi terlalu panjang untuk dievaluasi. Coba mulai sesi baru.",
+        code: "KONTEKS_TERLALU_PANJANG"
+      });
+      return;
+    }
+    logger2.error({ err, sessionId: session.id }, "Simulation report generation failed");
+    res.status(500).json({ error: "Gagal menghasilkan evaluasi. Silakan coba lagi." });
+    return;
+  }
+  await db.update(simulationReportsTable).set({ isLatestForProject: false }).where(and21(
     eq35(simulationReportsTable.projectId, session.projectId),
     eq35(simulationReportsTable.isLatestForProject, true)
   ));
@@ -258858,7 +259036,7 @@ router32.post("/projects/:projectId/simulasi/sessions/:sessionId/complete", asyn
     quotaInfo: getQuotaInfo(updatedSession[0])
   });
 });
-router32.get("/projects/:projectId/simulasi/latest-report", async (req, res) => {
+router31.get("/projects/:projectId/simulasi/latest-report", async (req, res) => {
   const params = GetLatestSimulationReportParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -258866,7 +259044,7 @@ router32.get("/projects/:projectId/simulasi/latest-report", async (req, res) => 
   }
   const ok = await requireProjectOwnership(params.data.projectId, req.user?.id ?? "", res);
   if (!ok) return;
-  const [report] = await db.select().from(simulationReportsTable).where(and19(
+  const [report] = await db.select().from(simulationReportsTable).where(and21(
     eq35(simulationReportsTable.projectId, params.data.projectId),
     eq35(simulationReportsTable.isLatestForProject, true)
   )).limit(1);
@@ -258876,7 +259054,7 @@ router32.get("/projects/:projectId/simulasi/latest-report", async (req, res) => 
   }
   res.json(report);
 });
-router32.post("/projects/:projectId/simulasi/sessions/:sessionId/share", async (req, res) => {
+router31.post("/projects/:projectId/simulasi/sessions/:sessionId/share", async (req, res) => {
   const { sessionId, projectId } = req.params;
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
@@ -258893,11 +259071,7 @@ router32.post("/projects/:projectId/simulasi/sessions/:sessionId/share", async (
   if (!ok) return;
   const expiresInDays = req.body?.expiresInDays ?? 7;
   const expiresAt = new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1e3);
-  const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let token = "";
-  for (let i2 = 0; i2 < 32; i2++) {
-    token += chars[Math.floor(Math.random() * chars.length)];
-  }
+  const token = randomBytes3(32).toString("base64url");
   const [shareToken] = await db.insert(shareTokensTable).values({
     projectId: projectPk,
     resourceId: sessionPk,
@@ -258908,20 +259082,21 @@ router32.post("/projects/:projectId/simulasi/sessions/:sessionId/share", async (
   }).returning();
   res.status(201).json({ tokenId: token, expiresAt });
 });
-var simulasi_default = router32;
+var simulasi_default = router31;
 
 // src/routes/simulasi-shared.ts
-var import_express33 = __toESM(require_express2(), 1);
-import { eq as eq36, and as and20 } from "drizzle-orm";
-var router33 = (0, import_express33.Router)();
-router33.get("/shared/simulasi/:tokenId", async (req, res) => {
+var import_express32 = __toESM(require_express2(), 1);
+init_src();
+import { eq as eq36, and as and22 } from "drizzle-orm";
+var router32 = (0, import_express32.Router)();
+router32.get("/shared/simulasi/:tokenId", async (req, res) => {
   const params = GetSharedSimulationReportParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
     return;
   }
   const { tokenId } = params.data;
-  const [token] = await db.select().from(shareTokensTable).where(and20(
+  const [token] = await db.select().from(shareTokensTable).where(and22(
     eq36(shareTokensTable.token, tokenId),
     eq36(shareTokensTable.type, "simulation_report"),
     eq36(shareTokensTable.isRevoked, false)
@@ -258941,7 +259116,7 @@ router33.get("/shared/simulasi/:tokenId", async (req, res) => {
   }
   const messages = await db.select().from(simulationMessagesTable).where(eq36(simulationMessagesTable.sessionId, session.id)).orderBy(simulationMessagesTable.sequenceIndex);
   const [report] = await db.select().from(simulationReportsTable).where(eq36(simulationReportsTable.sessionId, session.id)).limit(1);
-  logger.info({ tokenId, sessionId: session.id }, "Shared simulation report accessed");
+  logger2.info({ tokenId, sessionId: session.id }, "Shared simulation report accessed");
   res.json({
     session: {
       id: session.id,
@@ -258962,17 +259137,76 @@ router33.get("/shared/simulasi/:tokenId", async (req, res) => {
     sharedAt: token.createdAt
   });
 });
-var simulasi_shared_default = router33;
+var simulasi_shared_default = router32;
+
+// src/routes/preferences.ts
+var import_express33 = __toESM(require_express2(), 1);
+init_src();
+import { eq as eq37 } from "drizzle-orm";
+import { z as z12 } from "zod/v4";
+var router33 = (0, import_express33.Router)();
+var updatePreferencesSchema = z12.object({
+  aiProvider: z12.enum(["anthropic", "olagon"])
+});
+router33.get("/users/me/preferences", async (req, res) => {
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const userId = req.user.id;
+  const [pref] = await db.select().from(userPreferencesTable).where(eq37(userPreferencesTable.userId, userId)).limit(1);
+  if (!pref) {
+    const [created] = await db.insert(userPreferencesTable).values({ userId, aiProvider: "anthropic" }).returning();
+    res.json(created);
+    return;
+  }
+  res.json(pref);
+});
+router33.patch("/users/me/preferences", async (req, res) => {
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const parsed = updatePreferencesSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({
+      error: "Invalid payload",
+      details: parsed.error.issues
+    });
+    return;
+  }
+  const { aiProvider } = parsed.data;
+  const userEmail = req.user.email;
+  if (aiProvider === "olagon" && !isOwnerEmail(userEmail)) {
+    res.status(403).json({
+      error: "Forbidden",
+      message: "Olagon provider is owner-only"
+    });
+    return;
+  }
+  const userId = req.user.id;
+  const [existing] = await db.select().from(userPreferencesTable).where(eq37(userPreferencesTable.userId, userId)).limit(1);
+  if (existing) {
+    const [updated] = await db.update(userPreferencesTable).set({
+      aiProvider,
+      updatedAt: /* @__PURE__ */ new Date()
+    }).where(eq37(userPreferencesTable.userId, userId)).returning();
+    res.json(updated);
+  } else {
+    const [created] = await db.insert(userPreferencesTable).values({ userId, aiProvider }).returning();
+    res.json(created);
+  }
+});
+var preferences_default = router33;
 
 // src/routes/index.ts
 var router34 = (0, import_express34.Router)();
 router34.use(health_default);
 router34.use(auth_default);
 router34.use(shared_default);
+router34.use(authMiddleware);
 router34.use(ai_tiers_default);
 router34.use(packages_default);
-router34.use(referral_webhook_default);
-router34.use(authMiddleware);
 router34.use("/projects/:projectId/messages", aiLimiter);
 router34.use("/projects/:projectId/quizzes", aiLimiter);
 router34.use("/projects/:projectId/references", aiLimiter);
@@ -259008,15 +259242,23 @@ router34.use(admin_default);
 router34.use(referral_default);
 router34.use(simulasi_default);
 router34.use(simulasi_shared_default);
+router34.use(preferences_default);
 var routes_default = router34;
 
 // src/routes/webhooks.ts
 var import_express35 = __toESM(require_express2(), 1);
-import { eq as eq37 } from "drizzle-orm";
+init_src();
+import { eq as eq38 } from "drizzle-orm";
+import { timingSafeEqual } from "crypto";
 var router35 = (0, import_express35.Router)();
-var WEBHOOK_SECRET2 = process.env.WEBHOOK_SECRET ?? "";
+var WEBHOOK_SECRET = process.env.WEBHOOK_SECRET ?? "";
 router35.post("/webhooks/email-verified", async (req, res) => {
-  if (WEBHOOK_SECRET2 && req.headers["x-webhook-secret"] !== WEBHOOK_SECRET2) {
+  if (!WEBHOOK_SECRET) {
+    res.status(500).json({ error: "Webhook not configured" });
+    return;
+  }
+  const providedSecret = req.headers["x-webhook-secret"];
+  if (typeof providedSecret !== "string" || !timingSafeEqual(Buffer.from(WEBHOOK_SECRET), Buffer.from(providedSecret))) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
@@ -259031,7 +259273,7 @@ router35.post("/webhooks/email-verified", async (req, res) => {
     res.sendStatus(200);
     return;
   }
-  const [referral] = await db.select().from(referralsTable).where(eq37(referralsTable.referredId, userId));
+  const [referral] = await db.select().from(referralsTable).where(eq38(referralsTable.referredId, userId));
   if (!referral) {
     res.sendStatus(200);
     return;
@@ -259040,7 +259282,7 @@ router35.post("/webhooks/email-verified", async (req, res) => {
     res.sendStatus(200);
     return;
   }
-  await db.update(referralsTable).set({ status: "verified", updatedAt: /* @__PURE__ */ new Date() }).where(eq37(referralsTable.id, referral.id));
+  await db.update(referralsTable).set({ status: "verified", updatedAt: /* @__PURE__ */ new Date() }).where(eq38(referralsTable.id, referral.id));
   await db.insert(referralEventsTable).values({
     referralId: referral.id,
     actorId: null,
@@ -259054,8 +259296,104 @@ router35.post("/webhooks/email-verified", async (req, res) => {
 });
 var webhooks_default = router35;
 
+// src/routes/referral-webhook.ts
+var import_express36 = __toESM(require_express2(), 1);
+import { createHmac, timingSafeEqual as timingSafeEqual2 } from "crypto";
+import { z as z13 } from "zod/v4";
+var router36 = (0, import_express36.Router)();
+var WEBHOOK_SECRET2 = process.env.REFERRAL_WEBHOOK_SECRET ?? "";
+function verifyWebhookSignature(req) {
+  if (!WEBHOOK_SECRET2) {
+    logger2.warn(
+      "[webhook] REFERRAL_WEBHOOK_SECRET not set \u2014 rejecting webhook"
+    );
+    return false;
+  }
+  const sigHeader = req.headers["x-webhook-signature"];
+  if (typeof sigHeader !== "string") return false;
+  const expected = sigHeader.startsWith("sha256=") ? sigHeader.slice(7) : sigHeader;
+  const bodyBuffer = req.body;
+  if (!bodyBuffer || !Buffer.isBuffer(bodyBuffer)) {
+    logger2.warn("[webhook] body is not a Buffer \u2014 express.raw() middleware missing?");
+    return false;
+  }
+  const computed = createHmac("sha256", WEBHOOK_SECRET2).update(bodyBuffer).digest("hex");
+  try {
+    const a = Buffer.from(expected, "hex");
+    const b = Buffer.from(computed, "hex");
+    return a.length === b.length && timingSafeEqual2(a, b);
+  } catch {
+    return false;
+  }
+}
+var WebhookPayloadSchema = z13.object({
+  paymentEventId: z13.string().min(1),
+  userId: z13.string().min(1),
+  paidAmountCents: z13.number().int().positive(),
+  method: z13.enum(["subscription", "topup"]),
+  paidAt: z13.string().datetime().transform((s2) => new Date(s2)),
+  metadata: z13.record(z13.string(), z13.unknown()).optional()
+});
+router36.post("/webhooks/payment-success", async (req, res) => {
+  if (!verifyWebhookSignature(req)) {
+    res.status(401).json({ error: "Invalid signature" });
+    return;
+  }
+  let rawBody;
+  try {
+    rawBody = JSON.parse(req.body.toString());
+  } catch {
+    res.status(400).json({ error: "Invalid JSON payload" });
+    return;
+  }
+  const parseResult = WebhookPayloadSchema.safeParse(rawBody);
+  if (!parseResult.success) {
+    logger2.warn(
+      { issues: parseResult.error.issues },
+      "[webhook] invalid payload"
+    );
+    res.status(400).json({ error: "Invalid payload" });
+    return;
+  }
+  const payload = parseResult.data;
+  const event = {
+    paymentEventId: payload.paymentEventId,
+    userId: payload.userId,
+    paidAmountCents: payload.paidAmountCents,
+    method: payload.method,
+    paidAt: payload.paidAt,
+    metadata: payload.metadata
+  };
+  try {
+    const result = await processReferralPayment(event);
+    logger2.info(
+      {
+        paymentEventId: event.paymentEventId,
+        userId: event.userId,
+        refereeCashback: result.refereeCashback,
+        referrerReward: result.referrerReward
+      },
+      "[webhook] payment processed"
+    );
+    res.status(200).json({
+      ok: true,
+      refereeCashback: result.refereeCashback,
+      referrerReward: result.referrerReward
+    });
+  } catch (err) {
+    logger2.error(
+      { err, paymentEventId: event.paymentEventId, userId: event.userId },
+      "[webhook] failed to process payment"
+    );
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Failed to process payment" });
+    }
+  }
+});
+var referral_webhook_default = router36;
+
 // src/app.ts
-var app = (0, import_express36.default)();
+var app = (0, import_express37.default)();
 app.set("trust proxy", 1);
 app.get("/test", (_req, res) => {
   res.json({ ok: true, ts: Date.now() });
@@ -259063,7 +259401,7 @@ app.get("/test", (_req, res) => {
 var allowedOrigins = (process.env.ALLOWED_ORIGINS ?? "http://localhost:5173,http://localhost:18543").split(",").map((o) => o.trim()).filter(Boolean);
 app.use(
   (0, import_pino_http.pinoHttp)({
-    logger,
+    logger: logger2,
     serializers: {
       req(req) {
         return {
@@ -259085,14 +259423,15 @@ app.use(
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) return callback(null, true);
-      logger.warn({ origin, allowedOrigins }, "CORS: origin not allowed");
+      logger2.warn({ origin, allowedOrigins }, "CORS: origin not allowed");
       return callback(null, false);
     },
     credentials: true
   })
 );
-app.use(import_express36.default.json());
-app.use(import_express36.default.urlencoded({ extended: true }));
+app.use(import_express37.default.json());
+app.use(import_express37.default.urlencoded({ extended: true }));
+app.use("/webhooks/payment-success", import_express37.default.raw({ type: "application/json" }), referral_webhook_default);
 app.use("/webhooks", webhooks_default);
 var authLimiter = lib_default({
   windowMs: 60 * 1e3,
