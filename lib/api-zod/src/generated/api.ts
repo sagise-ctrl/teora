@@ -1555,8 +1555,8 @@ export const listAIUsageQueryOffsetDefault = 0;
 export const ListAIUsageQueryParams = zod.object({
   "userId": zod.coerce.string().optional().describe('Filter by user (admin only, defaults to current user)'),
   "projectId": zod.coerce.number().optional().describe('Filter by project'),
-  "startDate": zod.coerce.date().optional(),
-  "endDate": zod.coerce.date().optional(),
+  "startDate": zod.date().optional(),
+  "endDate": zod.date().optional(),
   "limit": zod.coerce.number().default(listAIUsageQueryLimitDefault),
   "offset": zod.coerce.number().default(listAIUsageQueryOffsetDefault)
 })
@@ -2617,6 +2617,33 @@ export const SetAITierPreferenceBody = zod.object({
 
 export const SetAITierPreferenceResponse = zod.object({
   "preferredTierId": zod.string().optional()
+})
+
+
+/**
+ * @summary Get current user preferences (AI provider, etc.)
+ */
+export const GetMyPreferencesResponse = zod.object({
+  "aiProvider": zod.enum(['anthropic', 'olagon']).optional().describe('AI provider selection (DECISION 019\/020)'),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+})
+
+
+/**
+ * PATCH /users/me/preferences — Update user preferences.
+ * Setting `aiProvider: 'olagon'` requires user email = OWNER_EMAIL (DECISION 020).
+ * Non-owners attempting to set olagon will receive 403.
+ * @summary Update user preferences (AI provider toggle)
+ */
+export const UpdateMyPreferencesBody = zod.object({
+  "aiProvider": zod.enum(['anthropic', 'olagon']).describe('AI provider toggle. Setting \'olagon\' requires OWNER_EMAIL.\n')
+})
+
+export const UpdateMyPreferencesResponse = zod.object({
+  "aiProvider": zod.enum(['anthropic', 'olagon']).optional().describe('AI provider selection (DECISION 019\/020)'),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
 })
 
 

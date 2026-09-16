@@ -1851,6 +1851,40 @@ export interface TierPreferenceResponse {
   preferredTierId?: string;
 }
 
+/**
+ * AI provider selection (DECISION 019/020)
+ */
+export type UserPreferencesAiProvider = typeof UserPreferencesAiProvider[keyof typeof UserPreferencesAiProvider];
+
+
+export const UserPreferencesAiProvider = {
+  anthropic: 'anthropic',
+  olagon: 'olagon',
+} as const;
+
+export interface UserPreferences {
+  /** AI provider selection (DECISION 019/020) */
+  aiProvider?: UserPreferencesAiProvider;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+/**
+ * AI provider toggle. Setting 'olagon' requires OWNER_EMAIL.
+ */
+export type UpdatePreferencesRequestAiProvider = typeof UpdatePreferencesRequestAiProvider[keyof typeof UpdatePreferencesRequestAiProvider];
+
+
+export const UpdatePreferencesRequestAiProvider = {
+  anthropic: 'anthropic',
+  olagon: 'olagon',
+} as const;
+
+export interface UpdatePreferencesRequest {
+  /** AI provider toggle. Setting 'olagon' requires OWNER_EMAIL. */
+  aiProvider: UpdatePreferencesRequestAiProvider;
+}
+
 export interface AITierAdmin {
   id?: string;
   name?: string;

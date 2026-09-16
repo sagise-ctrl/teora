@@ -34,6 +34,7 @@ import adminRouter from "./admin.js";
 import referralRouter from "./referral.js";
 import simulasiRouter from "./simulasi.js";
 import simulasiSharedRouter from "./simulasi-shared.js";
+import preferencesRouter from "./preferences.js";
 
 const router: IRouter = Router();
 
@@ -90,5 +91,6 @@ router.use(adminRouter);
 router.use(referralRouter);
 router.use(simulasiRouter);
 router.use(simulasiSharedRouter);
+router.use(preferencesRouter);
 
 export default router;

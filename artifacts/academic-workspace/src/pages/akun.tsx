@@ -85,7 +85,7 @@ export default function Akun() {
   const handleProviderChange = (value: string) => {
     const provider = value as "anthropic" | "olagon";
     updatePrefs.mutate(
-      { aiProvider: provider },
+      { data: { aiProvider: provider } },
       {
         onSuccess: () => {
           toast({

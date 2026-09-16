@@ -151,11 +151,13 @@ import type {
   UpdateMemberRequest,
   UpdateMyProfile429,
   UpdateMyWritingStyleBody,
+  UpdatePreferencesRequest,
   UpdateProfileRequest,
   UpdateRubricBody,
   UsageDailyHistory,
   UsageWindowsSummary,
   UserBalance,
+  UserPreferences,
   UserProfile,
   UserReferralInfo,
   WritingStyleProfile
@@ -7909,6 +7911,166 @@ export const useSetAITierPreference = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getSetAITierPreferenceMutationOptions(options));
+    }
+
+export const getGetMyPreferencesUrl = () => {
+
+
+
+
+  return `/api/users/me/preferences`
+}
+
+/**
+ * @summary Get current user preferences (AI provider, etc.)
+ */
+export const getMyPreferences = async ( options?: Parameters<typeof customFetch>[1]): Promise<UserPreferences> => {
+
+  return customFetch<UserPreferences>(getGetMyPreferencesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMyPreferencesQueryKey = () => {
+    return [
+    `/api/users/me/preferences`
+    ] as const;
+    }
+
+
+export const getGetMyPreferencesQueryOptions = <TData = Awaited<ReturnType<typeof getMyPreferences>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyPreferences>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMyPreferencesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyPreferences>>> = ({ signal }) => getMyPreferences({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMyPreferences>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMyPreferencesQueryResult = NonNullable<Awaited<ReturnType<typeof getMyPreferences>>>
+export type GetMyPreferencesQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get current user preferences (AI provider, etc.)
+ */
+
+export function useGetMyPreferences<TData = Awaited<ReturnType<typeof getMyPreferences>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyPreferences>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMyPreferencesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateMyPreferencesUrl = () => {
+
+
+
+
+  return `/api/users/me/preferences`
+}
+
+/**
+ * PATCH /users/me/preferences — Update user preferences.
+ * Setting `aiProvider: 'olagon'` requires user email = OWNER_EMAIL (DECISION 020).
+ * Non-owners attempting to set olagon will receive 403.
+ * @summary Update user preferences (AI provider toggle)
+ */
+export const updateMyPreferences = async (updatePreferencesRequest: UpdatePreferencesRequest, options?: Parameters<typeof customFetch>[1]): Promise<UserPreferences> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<UserPreferences>(getUpdateMyPreferencesUrl(),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(updatePreferencesRequest)
+  }
+);}
+
+
+
+
+
+export const getUpdateMyPreferencesMutationKey = () => ['updateMyPreferences'] as const;
+
+export const getUpdateMyPreferencesMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMyPreferences>>, TError,UpdateMyPreferencesMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateMyPreferences>>, TError,UpdateMyPreferencesMutationVariables, TContext> => {
+
+const mutationKey = getUpdateMyPreferencesMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateMyPreferences>>, UpdateMyPreferencesMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateMyPreferences(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateMyPreferencesMutationResult = NonNullable<Awaited<ReturnType<typeof updateMyPreferences>>>
+    export type UpdateMyPreferencesMutationBody = BodyType<UpdatePreferencesRequest>
+    export type UpdateMyPreferencesMutationError = ErrorType<void>
+    export type UpdateMyPreferencesMutationVariables = {data: BodyType<UpdatePreferencesRequest>}
+
+    /**
+ * @summary Update user preferences (AI provider toggle)
+ */
+export const useUpdateMyPreferences = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMyPreferences>>, TError,UpdateMyPreferencesMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateMyPreferences>>,
+        TError,
+        UpdateMyPreferencesMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateMyPreferencesMutationOptions(options));
     }
 
 export const getGetAdminAITiersUrl = () => {
