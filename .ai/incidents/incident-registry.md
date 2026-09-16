@@ -4,6 +4,7 @@
 
 | ID | Date | Severity | Title | Status | Post-mortem |
 |----|------|----------|-------|--------|-------------|
+| INC-006 | 2026-09-15 | **P0 Critical** | RLS gap: 10 user-facing tables RLS enabled but no policies + `rls_auto_enable()` SECURITY DEFINER anon-callable + leaked password protection disabled | **OPEN — awaiting owner authorization** | [20260915-001](20260915-001.md) |
 | INC-005 | 2026-09-13 | P1 High | feat/daftar-task tiktoken persists; latest prod-target deploy 500 (no user impact, alias healthy) | Resolved (commit 66b1cab, deploy dpl_3862xm4zRniQPnduqCyuJZnEpMRg) | [20260913-002](../../.ai/current-task.md) |
 | INC-004 | 2026-09-12 | P1 High | ERR-017 cherry-pick broke production (tiktoken WASM not bundleable) | Resolved (refactor deployed + production VERIFIED 200 OK) | [20260912-001](../../docs/ai-team/incidents/20260912-001.md) |
 | INC-003 | 2026-08-29 | P2 Medium | Production stale — 159ac0b never deployed, owner caught UI discrepancy | Resolved (revert pushed) | [20260829-002](20260829-002.md) |

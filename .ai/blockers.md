@@ -12,6 +12,57 @@
 | **Maintenance model discussion** | P2 | Owner perlu pastikan AI team berjalan sesuai keinginan sebelum go-live | Discuss SETELAH semua fitur clear/selesai |
 | **AUDIT 2026-09-05 — UU PDP Compliance** | P1 | Consent banner, data retention policy, right to deletion | Legal risk |
 | **AUDIT 2026-09-05 — Free tier limits** | P1 | Definisi free tier: max projects, max tokens/day, max references | Token economy |
+| **AUDIT 2026-09-15 — RLS Security Gap (CRITICAL, NEW)** | **P0** | 10 tables punya RLS enabled tapi **NO policies** — artinya semua authenticated user bisa baca/tulis data user lain. Plus `rls_auto_enable()` SECURITY DEFINER bisa dipanggil anon. Plus leaked password protection OFF. | **Pre-launch blocker** — bukan risiko "mungkin kena", tapi CONFIRMED bocor. Owner perlu decision (lihat section Security Incidents di bawah). |
+| **AUDIT 2026-09-15 — Max spend cap per user (was P2 → now P1)** | **P1** | Owner feedback 2026-09-15: ini mekanisme inti margin guarantee. Saat ini tidak ada. Tanpa cap, user dengan saldo besar bisa boros tanpa batas. | Margin guarantee — coupled dengan autofallback decision di bawah |
+| **AUDIT 2026-09-15 — Autofallback design mismatch** | **P0** | Owner feedback 2026-09-15: saat subscription quota habis, sistem harus BERHENTI (circuit breaker), bukan autofall ke saldo. Tapi `pricing-strategy.md` Section 12.3 set autofallback = **ON by default**, dan `subscription.ts` line 408 implementasinya cascade ke saldo. **Ini DELTA dari owner expectation** — perlu klarifikasi + design change sebelum launch. | Margin guarantee — see new section "Design Mismatch — Autofallback vs Circuit Breaker" di bawah |
+| **AUDIT 2026-09-15 — Olagon token (NEW)** | **P1 (revised dari P0)** | Olagon sudah diputuskan TIDAK dipakai untuk Teora (instruksi owner 2026-09-15) — risiko ToS Anthropic + data privacy. Token ada di `~/.claude/settings.json` (`rk_live_...` + `ANTHROPIC_BASE_URL: gateway.olagon.site/anthropic`). Verified TIDAK ada di codebase Teora (grep 0 matches). **Owner confirm 2026-09-15: Olagon adalah satu-satunya akses untuk Claude Code CLI sesi development Teora sekarang. Cabut = hentikan pembangunan.** | **Owner decision — bukan technical only**. Tunda sampai owner punya direct Anthropic API key sebagai fallback, BARU rotate. Sampai saat itu, risiko yang ada: ToS Anthropic untuk sesi development owner (TIDAK untuk user Teora — production code aman) |
+
+## 🚨 Security Incidents (NEW section — Audit 2026-09-15)
+
+Hasil `get_advisors` terhadap Supabase project (`pftseqzpzweqnwgtckoj`):
+
+| # | Issue | Severity | Status |
+|---|-------|----------|--------|
+| **S1** | **10 tables RLS enabled tapi 0 policy**: `account_references`, `ai_tiers`, `document_templates`, `learning_activities`, `reference_citations`, `simulation_messages`, `simulation_reports`, `simulation_sessions`, `token_transactions`, `user_balances` | **CRITICAL** | **Pre-launch blocker — bocor confirmed** |
+| **S2** | `rls_auto_enable()` SECURITY DEFINER function executable by `anon` role via `/rest/v1/rpc/rls_auto_enable` | HIGH | Attacker tanpa login bisa invoke |
+| **S3** | `rls_auto_enable()` SECURITY DEFINER function executable by `authenticated` role | MEDIUM | Same function, signed-in escalation path |
+| **S4** | `update_reference_citations_updated_at()` function has mutable search_path | LOW | Standard Supabase function, fix dengan `SET search_path = public` |
+| **S5** | Leaked password protection disabled (HaveIBeenPwned check off) | MEDIUM | Enable di Supabase Auth settings |
+
+**AI stance:** Ini **bukan "perlu diskusi"** — S1 + S2 + S5 adalah hole yang harus ditutup sebelum user nyata masuk. Tunggu owner go-ahead untuk eksekusi (sub-bagian ini), karena S1+S2 menyentuh authorization layer, sementara AI biasanya fokus pada technical execution.
+
+**Tindakan yang AI bisa eksekusi sendiri setelah owner approve:**
+- S4: Migration `SET search_path = public, pg_temp` untuk semua functions tanpa search_path
+- S5: Tidak bisa dari API — owner harus toggle di Supabase Dashboard → Auth → Password
+
+**Tindakan yang butuh diskusi teknis (owner authorize pattern):**
+- S1: Write RLS policies untuk 10 tables — touch authorization layer untuk semua user data
+- S2+S3: Audit apakah `rls_auto_enable()` perlu di-keep, atau apakah itu leftover dari migration script. Kalau perlu di-keep: revoke `EXECUTE` dari `anon` + `authenticated`. Kalau leftover: DROP.
+
+## ⚠️ Design Mismatch — Autofallback vs Circuit Breaker (NEW — Audit 2026-09-15)
+
+**Owner instruction (2026-09-15):** "saat kuota habis, sistem harus BERHENTI (circuit breaker), bukan lanjut mengalir ke pool lain tanpa batas atas"
+
+**Spec yang ada (`docs/ai-team/finance/pricing-strategy-2026-anthropic.md`, APPROVED 2026-09-08):**
+- Section 12.3 line 593-608: Hybrid autofallback cascade. Subscription quota habis → cek saldo (kalau autofallback ON) → pakai saldo. Default autofallback = ON.
+- Section 10.7 Anti-Gaming #10: "Auto-stop circuit breaker saat cap tercapai" — wording ambiguous, interpretasi saat ini = cascade ke saldo
+
+**Code aktual (`artifacts/api-server/src/lib/subscription.ts`):**
+- Line 407: `// Both windows exhausted → fall through to autofallback check`
+- Line 409+: Cek `user_balances.autofallbackEnabled`, kalau true & balance cukup, deduct
+
+**Konflik:** Owner expectation BERBEDA dari spec. AI asumsi saat persetujuan 2026-09-08 bahwa "circuit breaker" = lanjut ke saldo. Owner klarifikasi 2026-09-15 bahwa "circuit breaker" = STOP total, return 402.
+
+**Status:** Pre-launch blocker. **Tidak bisa fix sekali jalan** — perubahan desain ini menyentuh:
+1. Default UI toggle autofallback (currently ON, perlu OFF)
+2. Backend `consumeQuotaForAIRequest` flow (currently cascade, perlu stop)
+3. UI copywriting di billing page
+4. `pricing-strategy.md` doc — perlu update Section 12.3
+5. `.ai/decisions.md` DECISION baru untuk reframe autofallback
+
+**Owner instruction needed sebelum AI mulai:** Konfirmasi bahwa spec 2026-09-08 perlu di-amend. Owner authorize refactor + keputusan spec final.
+
+**Plus max spend cap (coupled):** Sekalipun autofallback off, user dengan saldo besar bisa boros di window SEBELUM quota subscription habis. Tetap perlu "max spend per user per period" sebagai hard ceiling.
 
 ## 📝 Documented-Deferred (Owner Decision 2026-09-13)
 

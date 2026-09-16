@@ -56,12 +56,11 @@ const scaleIn = {
 
 // ─── Data ───────────────────────────────────────────────────────────────────
 
-const stats = [
-  { value: "12.000+", label: "Mahasiswa & Pengajar aktif" },
-  { value: "4.9", label: "Rating rata-rata", suffix: "/5" },
-  { value: "98%", label: "Tingkat pemahaman setelah pakai" },
-  { value: "50.000+", label: "Tugas dikerjakan" },
-];
+// Honest framing — early access. Ganti klaim angka & testimoni fiktif
+// (audit 2026-09-15): tidak ada user nyata, jadi tidak ada angka riil.
+// Section StatsSection dan TestimonialsSection di bawah render
+// placeholder Early Access sampai ada data produksi yang bisa ditampilkan.
+const stats: { value: string; label: string; suffix?: string }[] = [];
 
 const problems = [
   {
@@ -233,38 +232,19 @@ const steps = [
   },
 ];
 
-const testimonials = [
-  {
-    name: "Rina Wijaya",
-    role: "Mahasiswa S1 Pendidikan Bahasa",
-    university: "Universitas Indonesia",
-    avatar: "R",
-    color: "from-blue-500 to-purple-500",
-    quote:
-      "Sebelum pakai Teora, saya butuh 3 hari untuk satu tugas karena harus belajar duluan dari nol. Sekarang 1 hari cukup. Teora bantu saya fokuskan waktu ke HAL YANG PENTING.",
-    rating: 5,
-  },
-  {
-    name: "Dr. Budi Santoso",
-    role: "Dosen Teknik Elektro",
-    university: "Institut Teknologi Bandung",
-    avatar: "B",
-    color: "from-purple-500 to-pink-500",
-    quote:
-      "Untuk saya yang juga ngajar, Teora menghemat waktu prepping soal dan rubrik sampai 60%. Fitur Assessment untuk pengajar sangat membantu.",
-    rating: 5,
-  },
-  {
-    name: "Siti Nurhaliza",
-    role: "Mahasiswa S2 Linguistik",
-    university: "Universitas Gadjah Mada",
-    avatar: "S",
-    color: "from-emerald-500 to-teal-500",
-    quote:
-      "Fitur Auto-Cite-nya akurat banget. Dulu saya spent 2 jam manually formatting sitasi. Sekarang tinggal click. Fitur Pustaka Saya sangat lengkap.",
-    rating: 5,
-  },
-];
+// Honest framing — testimoni FIKTIF atas nama institusi nyata (UI/ITB/UGM)
+// dihapus (audit 2026-09-15). Section TestimonialsSection di bawah render
+// placeholder Early Access. Testimoni asli akan ditambahkan setelah ada
+// izin eksplisit dari pengguna beta.
+const testimonials: {
+  name: string;
+  role: string;
+  university: string;
+  avatar: string;
+  color: string;
+  quote: string;
+  rating: number;
+}[] = [];
 
 // ─── Sections ────────────────────────────────────────────────────────────────
 
@@ -510,25 +490,34 @@ function StatsSection() {
   return (
     <section className="py-12 border-y border-white/5 bg-white/[0.02]">
       <div className="max-w-6xl mx-auto px-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          {stats.map((stat, i) => (
-            <motion.div
-              key={stat.label}
-              variants={fadeUp}
-              custom={i * 0.1}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              className="text-center"
+        <motion.div
+          variants={fadeUp}
+          custom={0}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="text-center"
+        >
+          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs text-blue-400 font-medium">
+            <Sparkles className="w-3.5 h-3.5" />
+            Early Access — Baru Diluncurkan
+          </span>
+          <p className="text-white/50 mt-4 max-w-2xl mx-auto leading-relaxed">
+            Teora sedang dalam tahap awal pengembangan. Angka pengguna, rating,
+            dan testimoni akan ditambahkan setelah ada data produksi yang jujur
+            — kami tidak memajang klaim yang belum terbukti.
+          </p>
+          <Link href="/register">
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-5 border-white/20 text-white/70 hover:text-white hover:bg-white/5"
             >
-              <div className="text-2xl md:text-3xl font-bold text-white">
-                {stat.value}
-                {stat.suffix && <span className="text-lg text-white/40">{stat.suffix}</span>}
-              </div>
-              <div className="text-sm text-white/40 mt-1">{stat.label}</div>
-            </motion.div>
-          ))}
-        </div>
+              Jadi yang pertama mencoba
+              <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+            </Button>
+          </Link>
+        </motion.div>
       </div>
     </section>
   );
@@ -731,57 +720,20 @@ function TestimonialsSection() {
             Testimoni
           </span>
           <h2 className="text-3xl md:text-4xl font-serif font-bold mt-3">
-            Digunakan oleh mahasiswa dan pengajar
+            Testimoni akan datang setelah peluncuran publik
           </h2>
-        </motion.div>
-
-        <motion.div
-          variants={stagger}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="grid md:grid-cols-3 gap-6"
-        >
-          {testimonials.map((t) => (
-            <motion.div key={t.name} variants={fadeUp}>
-              <Card className="h-full bg-white/[0.02] border-white/10 hover:border-white/20 transition-colors">
-                <CardContent className="p-6 space-y-4">
-                  {/* Stars */}
-                  <div className="flex items-center gap-1">
-                    {Array.from({ length: t.rating }).map((_, j) => (
-                      <Star key={j} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                    ))}
-                  </div>
-
-                  {/* Quote */}
-                  <div className="relative">
-                    <Quote className="absolute -top-1 -left-1 w-4 h-4 text-[#2D79FF]/30" />
-                    <p className="text-sm text-white/60 leading-relaxed pl-4 italic">
-                      "{t.quote}"
-                    </p>
-                  </div>
-
-                  {/* Author */}
-                  <div className="flex items-center gap-3 pt-2 border-t border-white/5">
-                    <div
-                      className={cn(
-                        "w-10 h-10 rounded-full bg-gradient-to-br flex items-center justify-center text-white font-semibold text-sm",
-                        t.color
-                      )}
-                    >
-                      {t.avatar}
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-white">{t.name}</p>
-                      <p className="text-xs text-white/40">
-                        {t.role}, {t.university}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
+          <p className="text-white/50 mt-4 max-w-xl mx-auto">
+            Kami tidak memajang testimoni atas nama orang atau institusi tanpa
+            izin tertulis. Setelah Teora dipakai oleh pengguna beta publik,
+            kutipan asli — dengan persetujuan mereka — akan tampil di sini.
+          </p>
+          <p className="text-white/30 text-sm mt-6">
+            Ingin menjadi beta tester?{" "}
+            <Link href="/register" className="text-[#2D79FF] hover:underline">
+              Daftar gratis
+            </Link>
+            .
+          </p>
         </motion.div>
       </div>
     </section>
@@ -946,7 +898,8 @@ function CTASection() {
               Siap menemani proses belajar Anda?
             </h2>
             <p className="text-white/50 mt-4 max-w-xl mx-auto">
-              Bergabung dengan 12.000+ mahasiswa dan pengajar yang sudah menggunakan Teora untuk memahami tugas dan menyelesaikannya.
+              Bantu kami membentuk Teora dari awal — daftar gratis, coba fitur intinya,
+              dan beri tahu kami apa yang bisa diperbaiki.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
               <Link href="/register">

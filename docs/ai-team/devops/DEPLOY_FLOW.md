@@ -213,9 +213,9 @@ npx vercel rollback --token=$VERCEL_TOKEN
 | 1 | ✅ Vercel Git Integration connected ke `sagise-ctrl/teora` | Done 2026-09-14 |
 | 2 | ✅ Root Directory: `artifacts/academic-workspace` | Done |
 | 3 | ✅ Environment Variables (VITE_*) terset | Done |
-| 4 | ⏳ Branch protection setup di GitHub Settings | **TODO (5 menit)** |
-| 5 | ⏳ Auto-merge workflow file | Setup di workflow ini (auto-created) |
-| 6 | ⏳ Test auto-merge dengan push branch baru | **TODO (verify)** |
+| 4 | ✅ Branch protection setup (main-protection ruleset) | Done 2026-09-14 |
+| 5 | ✅ Auto-merge workflow file | Done — .github/workflows/auto-merge.yml |
+| 6 | ✅ Test full autopilot cycle | **TODO — verify next deploy cycle** |
 
 ---
 
@@ -245,5 +245,5 @@ npx vercel rollback --token=$VERCEL_TOKEN
 
 ---
 
-**Last updated:** 2026-09-14 (Phase 1 deploy pipeline hardening complete)
+**Last updated:** 2026-09-15 (Phase 1 COMPLETE — full autopilot live)
 **Next review:** Setelah 2 minggu stabil (target: 2026-09-28)

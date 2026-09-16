@@ -42,6 +42,7 @@ describe("Zod Schemas - Auth", () => {
       const result = RegisterBody.safeParse({
         email: "test@example.com",
         password: "password123",
+        username: "testuser",
         displayName: "Test User",
         referralCode: "ABC12345",
       });
@@ -52,17 +53,32 @@ describe("Zod Schemas - Auth", () => {
       const result = RegisterBody.safeParse({
         email: "test@example.com",
         password: "password123",
+        username: "testuser",
       });
       expect(result.success).toBe(true);
     });
 
     it("rejects missing email", () => {
-      const result = RegisterBody.safeParse({ password: "password123" });
+      const result = RegisterBody.safeParse({
+        password: "password123",
+        username: "testuser",
+      });
       expect(result.success).toBe(false);
     });
 
     it("rejects missing password", () => {
-      const result = RegisterBody.safeParse({ email: "test@example.com" });
+      const result = RegisterBody.safeParse({
+        email: "test@example.com",
+        username: "testuser",
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it("rejects missing username", () => {
+      const result = RegisterBody.safeParse({
+        email: "test@example.com",
+        password: "password123",
+      });
       expect(result.success).toBe(false);
     });
 
@@ -70,6 +86,7 @@ describe("Zod Schemas - Auth", () => {
       const result = RegisterBody.safeParse({
         email: "not-an-email",
         password: "password123",
+        username: "testuser",
       });
       expect(result.success).toBe(false);
     });
@@ -78,6 +95,7 @@ describe("Zod Schemas - Auth", () => {
       const result = RegisterBody.safeParse({
         email: "test@example.com",
         password: "12345",
+        username: "testuser",
       });
       expect(result.success).toBe(false);
     });
