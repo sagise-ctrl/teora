@@ -1,11 +1,16 @@
 import { Router, type IRouter } from "express";
 import { db, aiTiersTable } from "@workspace/db";
-import { eq, desc } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
+import { isOwnerEmail } from "../middlewares/owner.js";
 
 const router: IRouter = Router();
 
 // GET /ai-tiers — List all active tiers (for price list page)
-router.get("/ai-tiers", async (_req, res): Promise<void> => {
+// DECISION 019: filters out owner-only tiers unless caller is the owner.
+router.get("/ai-tiers", async (req, res): Promise<void> => {
+  const userEmail = req.user?.email;
+  const isOwner = isOwnerEmail(userEmail);
+
   const tiers = await db
     .select({
       id: aiTiersTable.id,
@@ -21,9 +26,14 @@ router.get("/ai-tiers", async (_req, res): Promise<void> => {
       isFree: aiTiersTable.isFree,
       description: aiTiersTable.description,
       usageTips: aiTiersTable.usageTips,
+      isOwnerOnly: aiTiersTable.isOwnerOnly,
     })
     .from(aiTiersTable)
-    .where(eq(aiTiersTable.isActive, true))
+    .where(
+      isOwner
+        ? eq(aiTiersTable.isActive, true)
+        : and(eq(aiTiersTable.isActive, true), eq(aiTiersTable.isOwnerOnly, false))
+    )
     .orderBy(aiTiersTable.displayOrder);
 
   res.json({

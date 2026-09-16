@@ -2461,6 +2461,48 @@ paths:
         "400":
           description: Invalid tier ID
 
+  /users/me/preferences:
+    get:
+      operationId: getMyPreferences
+      tags: [ai-usage]
+      summary: Get current user preferences (AI provider, etc.)
+      responses:
+        "200":
+          description: User preferences
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserPreferences"
+        "401":
+          description: Unauthorized
+    patch:
+      operationId: updateMyPreferences
+      tags: [ai-usage]
+      summary: Update user preferences (AI provider toggle)
+      description: |
+        PATCH /users/me/preferences — Update user preferences.
+        Setting `aiProvider: 'olagon'` requires user email = OWNER_EMAIL (DECISION 020).
+        Non-owners attempting to set olagon will receive 403.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePreferencesRequest"
+      responses:
+        "200":
+          description: Preferences updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserPreferences"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden (e.g., non-owner attempting to set aiProvider=olagon)
+        "400":
+          description: Invalid payload
+
   # ── Admin: AI Tier Management ────────────────────────────────────────────
   /admin/ai-tiers:
     get:
@@ -5424,6 +5466,30 @@ components:
       properties:
         preferredTierId:
           type: string
+
+    UserPreferences:
+      type: object
+      properties:
+        aiProvider:
+          type: string
+          enum: [anthropic, olagon]
+          description: AI provider selection (DECISION 019/020)
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    UpdatePreferencesRequest:
+      type: object
+      required: [aiProvider]
+      properties:
+        aiProvider:
+          type: string
+          enum: [anthropic, olagon]
+          description: |
+            AI provider toggle. Setting 'olagon' requires OWNER_EMAIL.
 
     AITierAdmin:
       type: object

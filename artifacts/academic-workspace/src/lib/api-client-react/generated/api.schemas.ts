@@ -5,3427 +5,2696 @@
  * AI Academic Workspace API
  * OpenAPI spec version: 0.1.0
  */
-import * as zod from 'zod';
+export interface UserReferralInfo {
+  /**
+     * User's unique referral code to share
+     * @nullable
+     */
+  referralCode: string | null;
+  /** @nullable */
+  email?: string | null;
+  /** @nullable */
+  displayName?: string | null;
+  /** Total users who signed up with this user's referral code */
+  referredCount: number;
+  /** Referees who completed their first payment (qualify for referrer reward) */
+  refereesWithFirstPayment: number;
+  /** Lifetime reward earned (IDR cents), non-withdrawable */
+  totalRewardEarnedCents: number;
+  /** Current reward balance (IDR cents), usable for AI services */
+  rewardBalanceCents: number;
+  /** Whether THIS user claimed their referee cashback of IDR 5000 */
+  refereeCashbackClaimed: boolean;
+  /** Program constant: 500000 equals IDR 5000 */
+  refereeCashbackAmountCents: number;
+  /** Program constant: 0.03 means 3 percent */
+  referrerRewardPercent: number;
+  /** Program constant: 5 transactions per referrer and referee pair */
+  referrerRewardTxCap: number;
+}
+
+/**
+ * Stub — full schema to be added when backend subscription stabilizes
+ */
+export interface Subscription {
+  id?: string;
+  userId?: string;
+  packageId?: string;
+  status?: string;
+  startsAt?: string;
+  expiresAt?: string;
+}
+
+/**
+ * Stub — full schema pending
+ */
+export interface SubscriptionResponse {
+  subscription?: Subscription;
+}
+
+/**
+ * Stub — full schema pending
+ */
+export interface CreateSubscriptionRequest {
+  packageId?: string;
+}
+
+export type PackagesResponsePackagesItem = { [key: string]: unknown };
+
+/**
+ * Stub — full schema pending
+ */
+export interface PackagesResponse {
+  packages?: PackagesResponsePackagesItem[];
+}
+
+export type PaymentWebhookPayloadMethod = typeof PaymentWebhookPayloadMethod[keyof typeof PaymentWebhookPayloadMethod];
+
+
+export const PaymentWebhookPayloadMethod = {
+  subscription: 'subscription',
+  topup: 'topup',
+} as const;
+
+export type PaymentWebhookPayloadMetadata = { [key: string]: unknown };
+
+export interface PaymentWebhookPayload {
+  /** Unique payment event ID from gateway (used for idempotency) */
+  paymentEventId: string;
+  /** Supabase user ID of the payer */
+  userId: string;
+  /** Amount paid in IDR cents (gross, before any deductions) */
+  paidAmountCents: number;
+  method: PaymentWebhookPayloadMethod;
+  paidAt: string;
+  metadata?: PaymentWebhookPayloadMetadata;
+}
+
+export type PaymentWebhookResponseRefereeCashbackReason = typeof PaymentWebhookResponseRefereeCashbackReason[keyof typeof PaymentWebhookResponseRefereeCashbackReason];
+
+
+export const PaymentWebhookResponseRefereeCashbackReason = {
+  credited: 'credited',
+  already_claimed: 'already_claimed',
+  no_referrer: 'no_referrer',
+  no_user: 'no_user',
+} as const;
+
+export type PaymentWebhookResponseRefereeCashback = {
+  credited?: boolean;
+  reason?: PaymentWebhookResponseRefereeCashbackReason;
+  amountCents?: number;
+};
+
+export type PaymentWebhookResponseReferrerRewardReason = typeof PaymentWebhookResponseReferrerRewardReason[keyof typeof PaymentWebhookResponseReferrerRewardReason];
+
+
+export const PaymentWebhookResponseReferrerRewardReason = {
+  credited: 'credited',
+  cap_reached: 'cap_reached',
+  no_referrer: 'no_referrer',
+  amount_too_small: 'amount_too_small',
+  duplicate_event: 'duplicate_event',
+} as const;
+
+export type PaymentWebhookResponseReferrerReward = {
+  credited?: boolean;
+  reason?: PaymentWebhookResponseReferrerRewardReason;
+  amountCents?: number;
+  txCount?: number;
+};
+
+export interface PaymentWebhookResponse {
+  ok?: boolean;
+  refereeCashback?: PaymentWebhookResponseRefereeCashback;
+  referrerReward?: PaymentWebhookResponseReferrerReward;
+}
+
+export interface AdminStatus {
+  isOwner: boolean;
+  email: string;
+}
+
+export interface AdminUser {
+  id?: string;
+  email?: string;
+  /** @nullable */
+  displayName?: string | null;
+  /** @nullable */
+  avatarUrl?: string | null;
+  /** @nullable */
+  referralCode?: string | null;
+  createdAt?: string;
+  projectCount?: number;
+  totalRequests?: number;
+  totalCostUsd?: number;
+}
+
+export interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+}
+
+export interface AdminUserList {
+  users: AdminUser[];
+  pagination: Pagination;
+}
+
+export type AdminStatsTotals = {
+  users?: number;
+  projects?: number;
+  aiRequests?: number;
+  aiCostUsd?: number;
+  inputTokens?: number;
+  outputTokens?: number;
+};
+
+export type AdminStatsRevenue = {
+  totalTopupCents?: number;
+  totalRefundCents?: number;
+  transactionCount?: number;
+  grossMargin?: number;
+};
+
+export type AdminStatsOwnerUsage = {
+  totalRequests?: number;
+  totalCostUsd?: number;
+};
+
+export type AdminStatsTopConsumersItem = {
+  userId?: string;
+  requests?: number;
+  costUsd?: number;
+};
+
+export interface AdminStats {
+  period?: string;
+  totals?: AdminStatsTotals;
+  revenue?: AdminStatsRevenue;
+  ownerUsage?: AdminStatsOwnerUsage;
+  topConsumers?: AdminStatsTopConsumersItem[];
+}
+
+export interface AdminUsageByProvider {
+  provider?: string;
+  totalRequests?: number;
+  totalCostUsd?: number;
+  totalInputTokens?: number;
+  totalOutputTokens?: number;
+}
+
+export interface AdminUsageByModel {
+  model?: string;
+  provider?: string;
+  totalRequests?: number;
+  totalCostUsd?: number;
+  totalInputTokens?: number;
+  totalOutputTokens?: number;
+}
+
+export interface AdminUsageByRequestType {
+  requestType?: string;
+  totalRequests?: number;
+  totalCostUsd?: number;
+  totalInputTokens?: number;
+  totalOutputTokens?: number;
+}
+
+export interface AdminUsage {
+  period?: string;
+  byProvider?: AdminUsageByProvider[];
+  byModel?: AdminUsageByModel[];
+  byRequestType?: AdminUsageByRequestType[];
+}
+
+/**
+ * @nullable
+ */
+export type AdminAuditLogDetails = { [key: string]: unknown } | null;
+
+export interface AdminAuditLog {
+  id?: number;
+  adminEmail?: string;
+  action?: string;
+  targetType?: string;
+  /** @nullable */
+  targetId?: string | null;
+  /** @nullable */
+  details?: AdminAuditLogDetails;
+  /** @nullable */
+  ipAddress?: string | null;
+  createdAt?: string;
+}
+
+export interface AdminAuditLogList {
+  logs: AdminAuditLog[];
+  pagination: Pagination;
+}
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  /** Unique username for sharing URLs */
+  username: string;
+  /** @nullable */
+  displayName?: string | null;
+  /** @nullable */
+  avatarUrl?: string | null;
+  isOwner: boolean;
+  /**
+     * Unique referral code this user can share
+     * @nullable
+     */
+  referralCode?: string | null;
+  /**
+     * When username was last changed (for 30-day rate limit)
+     * @nullable
+     */
+  usernameChangedAt?: string | null;
+  createdAt: string;
+}
+
+export interface LoginRequest {
+  access_token: string;
+  refresh_token?: string;
+}
+
+export interface RegisterRequest {
+  /** @pattern ^[^@]+@[^@]+\.[^@]+$ */
+  email: string;
+  /** @minLength 6 */
+  password: string;
+  /**
+     * Unique username for sharing (3-30 chars, alphanumeric + underscore)
+     * @minLength 3
+     * @maxLength 30
+     * @pattern ^[a-zA-Z0-9_]+$
+     */
+  username: string;
+  displayName?: string;
+  /** Optional referral code used during registration */
+  referralCode?: string;
+}
+
+export interface HealthStatus {
+  status: string;
+}
+
+export type ProjectStatus = typeof ProjectStatus[keyof typeof ProjectStatus];
+
+
+export const ProjectStatus = {
+  draft: 'draft',
+  analyzing: 'analyzing',
+  writing: 'writing',
+  waiting_revision: 'waiting_revision',
+  completed: 'completed',
+  archived: 'archived',
+} as const;
+
+/**
+ * @nullable
+ */
+export type ProjectTaskType = typeof ProjectTaskType[keyof typeof ProjectTaskType] | null;
+
+
+export const ProjectTaskType = {
+  general: 'general',
+  academic: 'academic',
+} as const;
+
+/**
+ * Citation format used for in-text/footnote markers and bibliography. Default = APA.
+ * @nullable
+ */
+export type ProjectCitationFormat = typeof ProjectCitationFormat[keyof typeof ProjectCitationFormat] | null;
+
+
+export const ProjectCitationFormat = {
+  APA: 'APA',
+  APA7: 'APA7',
+  IEEE: 'IEEE',
+  Vancouver: 'Vancouver',
+  Chicago: 'Chicago',
+  MLA: 'MLA',
+  Harvard: 'Harvard',
+} as const;
+
+export interface Project {
+  id: number;
+  title: string;
+  status: ProjectStatus;
+  /** 0-100 percent */
+  progress: number;
+  /** @nullable */
+  instructionText?: string | null;
+  /** @nullable */
+  subject?: string | null;
+  /** @nullable */
+  taskType?: ProjectTaskType;
+  /**
+     * Citation format used for in-text/footnote markers and bibliography. Default = APA.
+     * @nullable
+     */
+  citationFormat?: ProjectCitationFormat;
+  /** @nullable */
+  outputFormat?: string | null;
+  /** @nullable */
+  minRefYear?: number | null;
+  /** @nullable */
+  minRefCount?: number | null;
+  /** Toggle AI disclosure labels (default true) */
+  aiDisclosure?: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type ProjectInputOutputFormat = typeof ProjectInputOutputFormat[keyof typeof ProjectInputOutputFormat];
+
+
+export const ProjectInputOutputFormat = {
+  docx: 'docx',
+  pdf: 'pdf',
+  pptx: 'pptx',
+} as const;
+
+/**
+ * Project type — "general" for short tasks, "academic" for multi-section works
+ */
+export type ProjectInputTaskType = typeof ProjectInputTaskType[keyof typeof ProjectInputTaskType];
+
+
+export const ProjectInputTaskType = {
+  general: 'general',
+  academic: 'academic',
+} as const;
+
+/**
+ * DECISION 014. Citation format used for in-text/footnote markers and bibliography.
+ * Defaults to APA if omitted (workspace will create the project with APA and the
+ * user can change via PATCH /projects/:id/citation-format).
+ */
+export type ProjectInputCitationFormat = typeof ProjectInputCitationFormat[keyof typeof ProjectInputCitationFormat];
+
+
+export const ProjectInputCitationFormat = {
+  APA: 'APA',
+  APA7: 'APA7',
+  IEEE: 'IEEE',
+  Vancouver: 'Vancouver',
+  Chicago: 'Chicago',
+  MLA: 'MLA',
+  Harvard: 'Harvard',
+} as const;
+
+export interface ProjectInput {
+  /**
+     * Optional. Project display name (used in document list, not in exported file).
+     * If omitted, the workspace will auto-generate a title via AI from instructionText.
+     */
+  title?: string;
+  /**
+     * REQUIRED for both General Task and Academic Work. The instructions or idea/gagasan
+     * that AI uses to generate the title (if missing), analyze the task, and produce
+     * the document.
+     * @minLength 1
+     */
+  instructionText: string;
+  outputFormat?: ProjectInputOutputFormat;
+  minRefYear?: number;
+  minRefCount?: number;
+  aiDisclosure?: boolean;
+  /** Project type — "general" for short tasks, "academic" for multi-section works */
+  taskType?: ProjectInputTaskType;
+  /**
+     * DECISION 014. Citation format used for in-text/footnote markers and bibliography.
+     * Defaults to APA if omitted (workspace will create the project with APA and the
+     * user can change via PATCH /projects/:id/citation-format).
+     */
+  citationFormat?: ProjectInputCitationFormat;
+}
+
+export type ProjectUpdateStatus = typeof ProjectUpdateStatus[keyof typeof ProjectUpdateStatus];
+
+
+export const ProjectUpdateStatus = {
+  draft: 'draft',
+  analyzing: 'analyzing',
+  writing: 'writing',
+  waiting_revision: 'waiting_revision',
+  completed: 'completed',
+  archived: 'archived',
+} as const;
+
+export type ProjectUpdateOutputFormat = typeof ProjectUpdateOutputFormat[keyof typeof ProjectUpdateOutputFormat];
+
+
+export const ProjectUpdateOutputFormat = {
+  docx: 'docx',
+  pdf: 'pdf',
+  pptx: 'pptx',
+} as const;
+
+export interface ProjectUpdate {
+  /** @minLength 1 */
+  title?: string;
+  status?: ProjectUpdateStatus;
+  instructionText?: string;
+  outputFormat?: ProjectUpdateOutputFormat;
+  minRefYear?: number;
+  minRefCount?: number;
+  progress?: number;
+  aiDisclosure?: boolean;
+}
+
+export type ProjectStatsByStatus = {[key: string]: number};
+
+/**
+ * Counts grouped by taskType (general, academic, null)
+ */
+export type ProjectStatsByType = {[key: string]: number};
+
+export interface Activity {
+  id: number;
+  projectId: number;
+  eventType: string;
+  description: string;
+  createdAt: string;
+}
+
+export interface ProjectStats {
+  total: number;
+  byStatus: ProjectStatsByStatus;
+  /** Counts grouped by taskType (general, academic, null) */
+  byType?: ProjectStatsByType;
+  recentActivity: Activity[];
+}
+
+export type MessageRole = typeof MessageRole[keyof typeof MessageRole];
+
+
+export const MessageRole = {
+  user: 'user',
+  assistant: 'assistant',
+  system: 'system',
+} as const;
+
+export interface Message {
+  id: number;
+  projectId: number;
+  role: MessageRole;
+  content: string;
+  createdAt: string;
+}
+
+/**
+ * AI writing assistant mode
+ */
+export type ChatMode = typeof ChatMode[keyof typeof ChatMode];
+
+
+export const ChatMode = {
+  generate: 'generate',
+  revise: 'revise',
+  reflect: 'reflect',
+  socratic: 'socratic',
+  quiz: 'quiz',
+  summary: 'summary',
+} as const;
+
+export interface MessageInput {
+  /** @minLength 1 */
+  content: string;
+  mode?: ChatMode;
+  /** AI tier to use (e.g. "free", "standard", "premium"). Defaults to user's preferred tier. */
+  tier?: string;
+}
+
+export interface Document {
+  id: number;
+  projectId: number;
+  title: string;
+  orderIndex: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DocumentTemplate {
+  id?: number;
+  projectId?: number;
+  title?: string;
+  description?: string;
+  content?: string;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface DocumentTemplateInput {
+  /** @minLength 1 */
+  title: string;
+  description?: string;
+  content?: string;
+}
+
+export interface DocumentTemplateUpdate {
+  /** @minLength 1 */
+  title?: string;
+  description?: string;
+  content?: string;
+  isActive?: boolean;
+}
+
+export interface DocumentInput {
+  /**
+     * Document title (e.g., "Bab 1 Pendahuluan")
+     * @minLength 1
+     */
+  title: string;
+  /** Sort order (optional, defaults to end) */
+  orderIndex?: number;
+}
+
+export interface DocumentUpdate {
+  /** @minLength 1 */
+  title?: string;
+  orderIndex?: number;
+  isActive?: boolean;
+}
+
+export interface DocumentVersion {
+  id: number;
+  projectId: number;
+  /**
+     * Scoped to specific document (null = legacy/project-level)
+     * @nullable
+     */
+  documentId?: number | null;
+  versionNumber: number;
+  content: string;
+  /** @nullable */
+  outline?: string | null;
+  /** @nullable */
+  changeDescription?: string | null;
+  createdAt: string;
+}
+
+export type DocumentWithVersions = Document & {
+  versions?: DocumentVersion[];
+};
+
+export type ReferenceValidationStatus = typeof ReferenceValidationStatus[keyof typeof ReferenceValidationStatus];
+
+
+export const ReferenceValidationStatus = {
+  unverified: 'unverified',
+  verified: 'verified',
+  invalid: 'invalid',
+} as const;
+
+/**
+ * Source of the reference
+ */
+export type ReferenceSource = typeof ReferenceSource[keyof typeof ReferenceSource];
+
+
+export const ReferenceSource = {
+  manual: 'manual',
+  crossref: 'crossref',
+  file: 'file',
+} as const;
+
+export interface Reference {
+  id: number;
+  projectId: number;
+  title: string;
+  /** @nullable */
+  authors?: string | null;
+  /** @nullable */
+  year?: number | null;
+  /** @nullable */
+  journal?: string | null;
+  /** @nullable */
+  volume?: string | null;
+  /** @nullable */
+  issue?: string | null;
+  /** @nullable */
+  doi?: string | null;
+  /** @nullable */
+  url?: string | null;
+  validationStatus: ReferenceValidationStatus;
+  /** @nullable */
+  usedInChapters?: string | null;
+  createdAt: string;
+  /** Whether this reference was auto-suggested by CrossRef */
+  isSuggested?: boolean;
+  /** Source of the reference */
+  source?: ReferenceSource;
+  /**
+     * Ceklist status — true means reference is included in bibliography and
+     * eligible for AI auto-cite. (DECISION 014)
+     */
+  isSelected?: boolean;
+}
+
+/**
+ * Source of the reference
+ */
+export type ReferenceInputSource = typeof ReferenceInputSource[keyof typeof ReferenceInputSource];
+
+
+export const ReferenceInputSource = {
+  manual: 'manual',
+  crossref: 'crossref',
+  file: 'file',
+} as const;
+
+export interface ReferenceInput {
+  /** @minLength 1 */
+  title: string;
+  authors?: string;
+  year?: number;
+  journal?: string;
+  volume?: string;
+  issue?: string;
+  doi?: string;
+  url?: string;
+  /** Whether this reference was auto-suggested by CrossRef search */
+  isSuggested?: boolean;
+  /** Source of the reference */
+  source?: ReferenceInputSource;
+}
+
+export interface BulkAddReferencesRequest {
+  /** @maxItems 100 */
+  references: ReferenceInput[];
+}
+
+export interface BibliographyResult {
+  bibliography: string;
+  format?: string;
+}
+
+export interface DocumentPreviewParagraph {
+  /** Zero-based paragraph index matching original content split */
+  index: number;
+  /**
+     * Rendered HTML for this paragraph with citation markers injected
+     * as `<sup class="cite-marker" data-citation-id="N">marker</sup>`.
+     * Marker text reflects the project's current citation format.
+     */
+  html: string;
+}
+
+export type DocumentPreviewResultCitationFormat = typeof DocumentPreviewResultCitationFormat[keyof typeof DocumentPreviewResultCitationFormat];
+
+
+export const DocumentPreviewResultCitationFormat = {
+  APA: 'APA',
+  APA7: 'APA7',
+  IEEE: 'IEEE',
+  Vancouver: 'Vancouver',
+  Chicago: 'Chicago',
+  MLA: 'MLA',
+  Harvard: 'Harvard',
+} as const;
+
+export interface DocumentPreviewResult {
+  paragraphs: DocumentPreviewParagraph[];
+  /** Auto-generated bibliography (CSL-formatted) */
+  bibliography?: string;
+  citationFormat: DocumentPreviewResultCitationFormat;
+  /** Total citation markers in this preview */
+  citationCount: number;
+}
+
+/**
+ * AI model tier to use for the suggestion
+ */
+export type AutoCiteRequestTier = typeof AutoCiteRequestTier[keyof typeof AutoCiteRequestTier];
+
+
+export const AutoCiteRequestTier = {
+  low: 'low',
+  mid: 'mid',
+  high: 'high',
+} as const;
+
+export interface AutoCiteRequest {
+  /**
+     * IDs of references to auto-cite. Only ceklist-selected references are used
+     * in practice; this list lets user override (e.g. force a specific reference).
+     * @minItems 1
+     * @maxItems 50
+     */
+  referenceIds: number[];
+  /**
+     * Cap on how many distinct paragraphs the same reference can be cited in.
+     * Default = 3 (Level C smart placement).
+     * @minimum 1
+     * @maximum 20
+     */
+  maxCitationsPerReference?: number;
+  /** AI model tier to use for the suggestion */
+  tier?: AutoCiteRequestTier;
+}
+
+export interface AutoCiteSuggestion {
+  referenceId: number;
+  /** 0-based paragraph index in the document text */
+  paragraphIndex: number;
+  /** Character offset within the paragraph (where the citation marker starts) */
+  offsetInParagraph: number;
+  /**
+     * Pre-rendered citation marker for the project's citationFormat
+     * (e.g. "(Smith & Jones, 2023)" for APA, "[1]" for IEEE)
+     */
+  formatMarker: string;
+  /** AI's explanation for why this citation belongs here */
+  placementReason: string;
+}
+
+export interface AutoCiteResponse {
+  suggestions: AutoCiteSuggestion[];
+  totalTokensUsed: number;
+  /** How many ceklist-selected references were considered */
+  referencesAnalyzed: number;
+}
+
+export interface ReferenceCitation {
+  id: number;
+  projectId: number;
+  referenceId: number;
+  paragraphIndex: number;
+  offsetInParagraph: number;
+  formatMarker: string;
+  /** @nullable */
+  placementReason?: string | null;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface CreateCitationRequest {
+  referenceId: number;
+  paragraphIndex: number;
+  offsetInParagraph?: number;
+  /** Pre-rendered marker (frontend computes from current citationFormat) */
+  formatMarker: string;
+  placementReason?: string;
+}
+
+export interface UpdateCitationRequest {
+  /** New paragraph index (for drag between paragraphs) */
+  paragraphIndex?: number;
+  /** New character offset within the paragraph */
+  offsetInParagraph?: number;
+  /** New pre-rendered marker (after citationFormat change) */
+  formatMarker?: string;
+  placementReason?: string;
+}
+
+/**
+ * Citation format for the project
+ */
+export type SetCitationFormatRequestCitationFormat = typeof SetCitationFormatRequestCitationFormat[keyof typeof SetCitationFormatRequestCitationFormat];
+
+
+export const SetCitationFormatRequestCitationFormat = {
+  APA: 'APA',
+  APA7: 'APA7',
+  IEEE: 'IEEE',
+  Vancouver: 'Vancouver',
+  Chicago: 'Chicago',
+  MLA: 'MLA',
+  Harvard: 'Harvard',
+} as const;
+
+export interface SetCitationFormatRequest {
+  /** Citation format for the project */
+  citationFormat: SetCitationFormatRequestCitationFormat;
+}
+
+export type ValidationIssueSeverity = typeof ValidationIssueSeverity[keyof typeof ValidationIssueSeverity];
+
+
+export const ValidationIssueSeverity = {
+  error: 'error',
+  warning: 'warning',
+} as const;
+
+export interface ValidationIssue {
+  severity: ValidationIssueSeverity;
+  message: string;
+  field: string;
+}
+
+export type ReferenceValidationValidation = {
+  valid?: boolean;
+  issues?: ValidationIssue[];
+};
+
+export interface ReferenceValidation {
+  id: number;
+  title: string;
+  validation: ReferenceValidationValidation;
+}
+
+export interface ReferenceValidationResult {
+  format: string;
+  totalReferences: number;
+  totalErrors?: number;
+  totalWarnings?: number;
+  results: ReferenceValidation[];
+}
+
+export type AttachmentAttachmentType = typeof AttachmentAttachmentType[keyof typeof AttachmentAttachmentType];
+
+
+export const AttachmentAttachmentType = {
+  instruction: 'instruction',
+  supplement: 'supplement',
+} as const;
+
+export interface Attachment {
+  id: number;
+  projectId: number;
+  filename: string;
+  originalName?: string;
+  /** @nullable */
+  mimeType?: string | null;
+  /** @nullable */
+  sizeBytes?: number | null;
+  attachmentType: AttachmentAttachmentType;
+  /** @nullable */
+  extractedText?: string | null;
+  createdAt: string;
+}
+
+export type AttachmentUploadAttachmentType = typeof AttachmentUploadAttachmentType[keyof typeof AttachmentUploadAttachmentType];
+
+
+export const AttachmentUploadAttachmentType = {
+  instruction: 'instruction',
+  supplement: 'supplement',
+} as const;
+
+export interface AttachmentUpload {
+  filename: string;
+  base64Content: string;
+  mimeType?: string;
+  attachmentType: AttachmentUploadAttachmentType;
+}
+
+export type JobJobType = typeof JobJobType[keyof typeof JobJobType];
+
+
+export const JobJobType = {
+  analyze: 'analyze',
+  outline: 'outline',
+  references: 'references',
+  write_chapter: 'write_chapter',
+  citations: 'citations',
+  bibliography: 'bibliography',
+  export: 'export',
+  generate_quiz: 'generate_quiz',
+  analyze_style: 'analyze_style',
+} as const;
+
+export type JobStatus = typeof JobStatus[keyof typeof JobStatus];
+
+
+export const JobStatus = {
+  pending: 'pending',
+  running: 'running',
+  completed: 'completed',
+  failed: 'failed',
+} as const;
+
+export interface Job {
+  id: number;
+  projectId: number;
+  jobType: JobJobType;
+  status: JobStatus;
+  /** @nullable */
+  result?: string | null;
+  /** @nullable */
+  errorMessage?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * @nullable
+ */
+export type ProjectMetadataTaskType = typeof ProjectMetadataTaskType[keyof typeof ProjectMetadataTaskType] | null;
+
+
+export const ProjectMetadataTaskType = {
+  general: 'general',
+  academic: 'academic',
+} as const;
+
+/**
+ * Citation format used for in-text/footnote markers and bibliography. Default = APA.
+ * @nullable
+ */
+export type ProjectMetadataCitationFormat = typeof ProjectMetadataCitationFormat[keyof typeof ProjectMetadataCitationFormat] | null;
+
+
+export const ProjectMetadataCitationFormat = {
+  APA: 'APA',
+  APA7: 'APA7',
+  IEEE: 'IEEE',
+  Vancouver: 'Vancouver',
+  Chicago: 'Chicago',
+  MLA: 'MLA',
+  Harvard: 'Harvard',
+} as const;
+
+export interface ProjectMetadata {
+  id: number;
+  projectId: number;
+  /** @nullable */
+  detectedTitle?: string | null;
+  /** @nullable */
+  subject?: string | null;
+  /** @nullable */
+  taskType?: ProjectMetadataTaskType;
+  /**
+     * Citation format used for in-text/footnote markers and bibliography. Default = APA.
+     * @nullable
+     */
+  citationFormat?: ProjectMetadataCitationFormat;
+  /** @nullable */
+  language?: string | null;
+  /** @nullable */
+  outline?: string | null;
+  /** @nullable */
+  contextSummary?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type ExportFormat = typeof ExportFormat[keyof typeof ExportFormat];
+
+
+export const ExportFormat = {
+  docx: 'docx',
+  pdf: 'pdf',
+  pptx: 'pptx',
+} as const;
+
+export type ExportStatus = typeof ExportStatus[keyof typeof ExportStatus];
+
+
+export const ExportStatus = {
+  pending: 'pending',
+  completed: 'completed',
+  failed: 'failed',
+} as const;
+
+export interface Export {
+  id: number;
+  projectId: number;
+  format: ExportFormat;
+  status: ExportStatus;
+  /** @nullable */
+  filePath?: string | null;
+  createdAt: string;
+}
+
+export type ExportInputFormat = typeof ExportInputFormat[keyof typeof ExportInputFormat];
+
+
+export const ExportInputFormat = {
+  docx: 'docx',
+  pdf: 'pdf',
+  pptx: 'pptx',
+} as const;
+
+export interface ExportInput {
+  format: ExportInputFormat;
+  documentVersionId?: number;
+}
+
+export type ReferralStatus = typeof ReferralStatus[keyof typeof ReferralStatus];
+
+
+export const ReferralStatus = {
+  pending: 'pending',
+  verified: 'verified',
+  qualified: 'qualified',
+  rewarded: 'rewarded',
+  rejected: 'rejected',
+} as const;
+
+export interface Referral {
+  id: number;
+  referrerId: string;
+  referredId: string;
+  referredEmail?: string;
+  referralCode: string;
+  status: ReferralStatus;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export type ReferralEventActorType = typeof ReferralEventActorType[keyof typeof ReferralEventActorType];
+
+
+export const ReferralEventActorType = {
+  system: 'system',
+  user: 'user',
+  admin: 'admin',
+} as const;
+
+export type ReferralEventMetadata = { [key: string]: unknown } | null;
+
+export interface ReferralEvent {
+  id: number;
+  referralId: number;
+  /** @nullable */
+  actorId?: string | null;
+  actorType: ReferralEventActorType;
+  /** @nullable */
+  fromStatus?: string | null;
+  toStatus: string;
+  /** @nullable */
+  reason?: string | null;
+  metadata?: ReferralEventMetadata;
+  createdAt: string;
+}
+
+export interface ReferralStats {
+  total?: number;
+  pending?: number;
+  verified?: number;
+  qualified?: number;
+  rewarded?: number;
+  rejected?: number;
+}
+
+export interface ReferralListResponse {
+  stats?: ReferralStats;
+  referrals?: Referral[];
+}
+
+export type AIUsageLogRequestType = typeof AIUsageLogRequestType[keyof typeof AIUsageLogRequestType];
+
+
+export const AIUsageLogRequestType = {
+  chat: 'chat',
+  analyze: 'analyze',
+  outline: 'outline',
+  write: 'write',
+  export: 'export',
+  bibliography: 'bibliography',
+  quiz: 'quiz',
+  style: 'style',
+} as const;
+
+export type AIUsageLogMetadata = { [key: string]: unknown } | null;
+
+export interface AIUsageLog {
+  id: number;
+  userId: string;
+  /** @nullable */
+  projectId?: number | null;
+  /** @nullable */
+  tierId?: string | null;
+  model: string;
+  provider: string;
+  inputTokens: number;
+  outputTokens: number;
+  estimatedCostUsd: number;
+  /** Cost charged to user in IDR cents */
+  costCents: number;
+  requestType: AIUsageLogRequestType;
+  metadata?: AIUsageLogMetadata;
+  createdAt: string;
+}
+
+export type AIUsageStatsByRequestType = {[key: string]: {
+  requests?: number;
+  inputTokens?: number;
+  outputTokens?: number;
+  costUsd?: number;
+}};
+
+export interface AIUsageStats {
+  totalRequests: number;
+  totalInputTokens: number;
+  totalOutputTokens: number;
+  totalCostUsd: number;
+  byRequestType: AIUsageStatsByRequestType;
+}
+
+export type FinOpsUserUsageStatsByRequestType = {[key: string]: {
+  requests?: number;
+  inputTokens?: number;
+  outputTokens?: number;
+  costUsd?: number;
+  costCents?: number;
+}};
+
+export type FinOpsUserUsageStatsByProject = {[key: string]: {
+  requests?: number;
+  inputTokens?: number;
+  outputTokens?: number;
+  costUsd?: number;
+  costCents?: number;
+}};
+
+export type FinOpsUserUsageStatsPeriod = typeof FinOpsUserUsageStatsPeriod[keyof typeof FinOpsUserUsageStatsPeriod];
+
+
+export const FinOpsUserUsageStatsPeriod = {
+  '7d': '7d',
+  '30d': '30d',
+  all: 'all',
+} as const;
+
+export interface FinOpsUserUsageStats {
+  totalRequests: number;
+  totalInputTokens: number;
+  totalOutputTokens: number;
+  totalCostUsd: number;
+  /** Total saldo terpakai dalam IDR cents. Ini angka yang dilihat user. */
+  totalCostCents?: number;
+  byRequestType: FinOpsUserUsageStatsByRequestType;
+  byProject: FinOpsUserUsageStatsByProject;
+  period: FinOpsUserUsageStatsPeriod;
+}
+
+export type FinOpsProjectUsageStatsByRequestType = {[key: string]: {
+  requests?: number;
+  inputTokens?: number;
+  outputTokens?: number;
+  costUsd?: number;
+  costCents?: number;
+}};
+
+export interface FinOpsProjectUsageStats {
+  projectId: number;
+  totalRequests: number;
+  totalInputTokens: number;
+  totalOutputTokens: number;
+  totalCostUsd: number;
+  /** Total saldo terpakai dalam IDR cents (project scope). */
+  totalCostCents?: number;
+  byRequestType: FinOpsProjectUsageStatsByRequestType;
+}
+
+export type FinOpsAdminUsageStatsPeriod = typeof FinOpsAdminUsageStatsPeriod[keyof typeof FinOpsAdminUsageStatsPeriod];
+
+
+export const FinOpsAdminUsageStatsPeriod = {
+  '7d': '7d',
+  '30d': '30d',
+  all: 'all',
+} as const;
+
+export type FinOpsAdminUsageStatsPerUserItem = {
+  userId?: string;
+  email?: string;
+  totalRequests?: number;
+  totalInputTokens?: number;
+  totalOutputTokens?: number;
+  totalCostUsd?: number;
+};
+
+export type FinOpsAdminUsageStatsPerProviderItem = {
+  provider?: string;
+  totalRequests?: number;
+  totalInputTokens?: number;
+  totalOutputTokens?: number;
+  totalCostUsd?: number;
+};
+
+export type FinOpsAdminUsageStatsTopUsersBySpendItem = {
+  userId?: string;
+  email?: string;
+  totalCostUsd?: number;
+};
+
+export type FinOpsAdminUsageStatsDailyTotalsItem = {
+  date?: string;
+  totalRequests?: number;
+  totalInputTokens?: number;
+  totalOutputTokens?: number;
+  totalCostUsd?: number;
+};
+
+export interface FinOpsAdminUsageStats {
+  period: FinOpsAdminUsageStatsPeriod;
+  totalRequests?: number;
+  totalInputTokens?: number;
+  totalOutputTokens?: number;
+  totalCostUsd?: number;
+  perUser: FinOpsAdminUsageStatsPerUserItem[];
+  perProvider: FinOpsAdminUsageStatsPerProviderItem[];
+  topUsersBySpend: FinOpsAdminUsageStatsTopUsersBySpendItem[];
+  dailyTotals: FinOpsAdminUsageStatsDailyTotalsItem[];
+}
+
+export interface UsageWindowStatus {
+  /** Total tokens used in this window (Haiku + Sonnet combined) */
+  usedTokens: number;
+  /** Total token limit for this window */
+  limitTokens: number;
+  /** Approximate hours used (tokens / 100 tokens-per-message / 12 msg/h) */
+  usedHours: number;
+  /** Approximate hourly limit */
+  limitHours: number;
+  costCents?: number;
+  /** Percentage of quota used (0-100) */
+  pct: number;
+  /** When the current window resets */
+  resetAt: string;
+}
+
+export type UsageWindowsSummarySubscription = {
+  id?: string;
+  /** @nullable */
+  packageName?: string | null;
+  /** @nullable */
+  packageTier?: string | null;
+  expiresAt?: string;
+  /** @nullable */
+  modelType?: string | null;
+} | null;
+
+export interface UsageWindowsSummary {
+  subscription?: UsageWindowsSummarySubscription;
+  windows5h?: UsageWindowStatus;
+  windows7d?: UsageWindowStatus;
+}
+
+export type UsageDailyHistoryHistoryItem = {
+  /** Date string (YYYY-MM-DD) */
+  date?: string;
+  tokens?: number;
+  hours?: number;
+  costCents?: number;
+  requestCount?: number;
+};
+
+export interface UsageDailyHistory {
+  days?: number;
+  history?: UsageDailyHistoryHistoryItem[];
+}
+
+export interface FetchReferenceMetadataRequest {
+  /** DOI (e.g. 10.1000/xyz123) or ISBN-10/ISBN-13 */
+  identifier: string;
+}
+
+export type FetchedReferenceMetadataSource = typeof FetchedReferenceMetadataSource[keyof typeof FetchedReferenceMetadataSource];
+
+
+export const FetchedReferenceMetadataSource = {
+  crossref: 'crossref',
+  openlibrary: 'openlibrary',
+  manual: 'manual',
+} as const;
+
+export interface FetchedReferenceMetadata {
+  title: string;
+  /** @nullable */
+  authors?: string | null;
+  /** @nullable */
+  year?: number | null;
+  /** @nullable */
+  journal?: string | null;
+  /** @nullable */
+  volume?: string | null;
+  /** @nullable */
+  issue?: string | null;
+  /** @nullable */
+  doi?: string | null;
+  /** @nullable */
+  url?: string | null;
+  /** @nullable */
+  publisher?: string | null;
+  source: FetchedReferenceMetadataSource;
+}
+
+export interface CrossRefSearchResult {
+  /**
+     * Digital Object Identifier
+     * @nullable
+     */
+  doi?: string | null;
+  title?: string;
+  /** Formatted author string (e.g., "John Doe, Jane Smith") */
+  authors?: string;
+  /** @nullable */
+  year?: number | null;
+  /**
+     * Journal or publication name
+     * @nullable
+     */
+  journal?: string | null;
+  /** @nullable */
+  volume?: string | null;
+  /** @nullable */
+  issue?: string | null;
+  /** @nullable */
+  url?: string | null;
+  /**
+     * Publication type (e.g., journal-article, book, proceedings-paper)
+     * @nullable
+     */
+  type?: string | null;
+  /** @nullable */
+  publisher?: string | null;
+  /**
+     * Page range (e.g., "123-145")
+     * @nullable
+     */
+  page?: string | null;
+  /** @nullable */
+  abstract?: string | null;
+}
+
+export interface CrossRefSearchResponse {
+  results: CrossRefSearchResult[];
+  /** Total number of results matching the query */
+  totalResults: number;
+  /** The original search query */
+  query: string;
+}
+
+export type ShareLinkAccessMode = typeof ShareLinkAccessMode[keyof typeof ShareLinkAccessMode];
+
+
+export const ShareLinkAccessMode = {
+  view: 'view',
+  comment: 'comment',
+  edit: 'edit',
+} as const;
+
+export interface ShareLink {
+  id: number;
+  projectId: number;
+  /** Unique share token */
+  token: string;
+  accessMode: ShareLinkAccessMode;
+  /**
+     * Optional label/nickname for this share link
+     * @nullable
+     */
+  label?: string | null;
+  /** @nullable */
+  expiresAt?: string | null;
+  createdAt: string;
+}
+
+export type CreateShareLinkRequestAccessMode = typeof CreateShareLinkRequestAccessMode[keyof typeof CreateShareLinkRequestAccessMode];
+
+
+export const CreateShareLinkRequestAccessMode = {
+  view: 'view',
+  comment: 'comment',
+  edit: 'edit',
+} as const;
+
+export interface CreateShareLinkRequest {
+  accessMode: CreateShareLinkRequestAccessMode;
+  label?: string;
+  /** Days until link expires (optional, null = never) */
+  expiresInDays?: number;
+}
+
+export type SharedProjectStatus = typeof SharedProjectStatus[keyof typeof SharedProjectStatus];
+
+
+export const SharedProjectStatus = {
+  draft: 'draft',
+  analyzing: 'analyzing',
+  writing: 'writing',
+  waiting_revision: 'waiting_revision',
+  completed: 'completed',
+  archived: 'archived',
+} as const;
+
+/**
+ * @nullable
+ */
+export type SharedProjectTaskType = typeof SharedProjectTaskType[keyof typeof SharedProjectTaskType] | null;
+
+
+export const SharedProjectTaskType = {
+  general: 'general',
+  academic: 'academic',
+} as const;
+
+export type SharedProjectAccessMode = typeof SharedProjectAccessMode[keyof typeof SharedProjectAccessMode];
+
+
+export const SharedProjectAccessMode = {
+  view: 'view',
+  comment: 'comment',
+  edit: 'edit',
+} as const;
+
+export interface SharedProject {
+  id: number;
+  title: string;
+  status: SharedProjectStatus;
+  /** @nullable */
+  subject?: string | null;
+  /** @nullable */
+  taskType?: SharedProjectTaskType;
+  /**
+     * Latest document content (if accessMode is view or edit)
+     * @nullable
+     */
+  latestDocument?: string | null;
+  accessMode: SharedProjectAccessMode;
+  /** Owner email (for display purposes only) */
+  ownerEmail?: string;
+  createdAt: string;
+}
+
+export interface Comment {
+  id: number;
+  projectId: number;
+  documentId: number;
+  userId: string;
+  userName: string;
+  content: string;
+  /**
+     * Selected text this comment refers to
+     * @nullable
+     */
+  quoteText?: string | null;
+  /** @nullable */
+  offsetStart?: number | null;
+  /** @nullable */
+  offsetEnd?: number | null;
+  /**
+     * Parent comment ID for threaded replies
+     * @nullable
+     */
+  parentId?: number | null;
+  resolved: boolean;
+  /** @nullable */
+  resolvedBy?: string | null;
+  /** @nullable */
+  resolvedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CommentInput {
+  /** @minLength 1 */
+  content: string;
+  quoteText?: string;
+  offsetStart?: number;
+  offsetEnd?: number;
+  /** Parent comment ID for threaded replies */
+  parentId?: number;
+}
+
+export interface CommentUpdate {
+  /** @minLength 1 */
+  content?: string;
+  resolved?: boolean;
+}
+
+export type ProjectMemberRole = typeof ProjectMemberRole[keyof typeof ProjectMemberRole];
+
+
+export const ProjectMemberRole = {
+  owner: 'owner',
+  collaborator: 'collaborator',
+  viewer: 'viewer',
+} as const;
+
+export interface ProjectMember {
+  id: number;
+  projectId: number;
+  userId: string;
+  role: ProjectMemberRole;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type AddMemberRequestRole = typeof AddMemberRequestRole[keyof typeof AddMemberRequestRole];
+
+
+export const AddMemberRequestRole = {
+  collaborator: 'collaborator',
+  viewer: 'viewer',
+} as const;
+
+export interface AddMemberRequest {
+  /** User ID (Supabase user ID) */
+  userId: string;
+  role: AddMemberRequestRole;
+}
+
+export type UpdateMemberRequestRole = typeof UpdateMemberRequestRole[keyof typeof UpdateMemberRequestRole];
+
+
+export const UpdateMemberRequestRole = {
+  collaborator: 'collaborator',
+  viewer: 'viewer',
+} as const;
+
+export interface UpdateMemberRequest {
+  role: UpdateMemberRequestRole;
+}
+
+/**
+ * @nullable
+ */
+export type QuizMetadata = { [key: string]: unknown } | null;
+
+export type QuizQuestionType = typeof QuizQuestionType[keyof typeof QuizQuestionType];
+
+
+export const QuizQuestionType = {
+  multiple_choice: 'multiple_choice',
+  short_answer: 'short_answer',
+  essay: 'essay',
+} as const;
+
+export type QuizQuestionOptionsItem = {
+  id?: string;
+  text?: string;
+};
+
+export interface QuizQuestion {
+  id: string;
+  text: string;
+  type: QuizQuestionType;
+  /** Available options (for multiple_choice) */
+  options?: QuizQuestionOptionsItem[];
+  points: number;
+}
+
+export interface Quiz {
+  id: number;
+  projectId: number;
+  title: string;
+  /** @nullable */
+  description?: string | null;
+  questions: QuizQuestion[];
+  /** @nullable */
+  metadata?: QuizMetadata;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type GenerateQuizRequestQuestionTypesItem = typeof GenerateQuizRequestQuestionTypesItem[keyof typeof GenerateQuizRequestQuestionTypesItem];
+
+
+export const GenerateQuizRequestQuestionTypesItem = {
+  multiple_choice: 'multiple_choice',
+  short_answer: 'short_answer',
+  essay: 'essay',
+} as const;
+
+export type GenerateQuizRequestDifficulty = typeof GenerateQuizRequestDifficulty[keyof typeof GenerateQuizRequestDifficulty];
+
+
+export const GenerateQuizRequestDifficulty = {
+  easy: 'easy',
+  medium: 'medium',
+  hard: 'hard',
+} as const;
+
+export interface GenerateQuizRequest {
+  /** @minLength 1 */
+  title: string;
+  description?: string;
+  /**
+     * Topic/theme for the questions
+     * @minLength 1
+     */
+  topic: string;
+  /**
+     * @minimum 1
+     * @maximum 50
+     */
+  count: number;
+  questionTypes?: GenerateQuizRequestQuestionTypesItem[];
+  difficulty?: GenerateQuizRequestDifficulty;
+  /** Include correct answers in quiz (teachers only) */
+  includeAnswers?: boolean;
+  /** AI tier to use (e.g. "free", "standard", "premium"). Defaults to user's preferred tier. */
+  tier?: string;
+}
+
+export type QuizSubmissionResponsesItem = {
+  questionId?: string;
+  answer?: string;
+};
+
+export type QuizSubmissionGradingDetailsItem = {
+  questionId?: string;
+  score?: number;
+  maxScore?: number;
+};
+
+export interface QuizSubmission {
+  id: number;
+  quizId: number;
+  studentId: string;
+  responses: QuizSubmissionResponsesItem[];
+  /** @nullable */
+  score?: number | null;
+  /** @nullable */
+  maxScore?: number | null;
+  /** @nullable */
+  gradingDetails?: QuizSubmissionGradingDetailsItem[] | null;
+  /** @nullable */
+  gradedAt?: string | null;
+  submittedAt: string;
+  updatedAt: string;
+}
+
+export type SubmitQuizRequestResponsesItem = {
+  questionId: string;
+  answer: string;
+};
+
+export interface SubmitQuizRequest {
+  responses: SubmitQuizRequestResponsesItem[];
+}
+
+export interface RubricCriterion {
+  /** ID of the quiz question this criterion grades */
+  questionId: string;
+  /** Maximum points for this question */
+  maxPoints: number;
+  /** Correct answer for multiple choice (optional) */
+  correctAnswer?: string;
+  /** Keywords to check for short answer / essay grading */
+  keywords?: string[];
+  /**
+     * Fraction of keywords required for partial credit
+     * @minimum 0
+     * @maximum 1
+     */
+  keywordThreshold?: number;
+}
+
+export interface Rubric {
+  id: number;
+  quizId: number;
+  criteria: RubricCriterion[];
+  /** Manual grading notes for essay questions */
+  manualNotes?: string | null;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type WritingStyleProfileStyleCharacteristicsDominantTone = typeof WritingStyleProfileStyleCharacteristicsDominantTone[keyof typeof WritingStyleProfileStyleCharacteristicsDominantTone];
+
+
+export const WritingStyleProfileStyleCharacteristicsDominantTone = {
+  neutral: 'neutral',
+  persuasive: 'persuasive',
+  analytical: 'analytical',
+  descriptive: 'descriptive',
+  critical: 'critical',
+} as const;
+
+export type WritingStyleProfileStyleCharacteristics = {
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  formality?: number;
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  vocabularyLevel?: number;
+  avgSentenceLength?: number;
+  avgParagraphLength?: number;
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  passiveVoiceRatio?: number;
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  readabilityScore?: number;
+  dominantTone?: WritingStyleProfileStyleCharacteristicsDominantTone;
+  commonPhrases?: string[];
+  structuralPatterns?: string[];
+};
+
+export interface WritingStyleProfile {
+  id: number;
+  userId: string;
+  /** @nullable */
+  projectId?: number | null;
+  styleCharacteristics: WritingStyleProfileStyleCharacteristics;
+  sampleSize: number;
+  analyzedAt: string;
+  updatedAt: string;
+}
+
+export interface AnalyzeStyleRequest {
+  /**
+     * Array of text samples to analyze (min 1, max 20)
+     * @minItems 1
+     * @maxItems 20
+     */
+  texts: string[];
+  /** Optional project scope for this analysis */
+  projectId?: number;
+}
+
+export interface AITier {
+  id?: string;
+  name?: string;
+  provider?: string;
+  model?: string;
+  /** Price per 1M input tokens in IDR cents */
+  pricePer1MInputCents?: number;
+  /** Price per 1M output tokens in IDR cents */
+  pricePer1MOutputCents?: number;
+  providerCostPer1MInputCents?: number;
+  providerCostPer1MOutputCents?: number;
+  /**
+     * Requests per minute limit
+     * @nullable
+     */
+  rateLimitRpm?: number | null;
+  /**
+     * Tokens per day limit
+     * @nullable
+     */
+  rateLimitTpd?: number | null;
+  isFree?: boolean;
+  description?: string;
+  /** @nullable */
+  usageTips?: string | null;
+  /** Human-readable rate limit string */
+  rateLimit?: string;
+  /** Human-readable price */
+  priceDisplay?: string;
+}
+
+export interface AITiersResponse {
+  tiers?: AITier[];
+}
+
+export type TokenTransactionType = typeof TokenTransactionType[keyof typeof TokenTransactionType];
+
+
+export const TokenTransactionType = {
+  topup: 'topup',
+  ai_usage: 'ai_usage',
+  refund: 'refund',
+  bonus: 'bonus',
+  adjustment: 'adjustment',
+} as const;
+
+export interface TokenTransaction {
+  id?: string;
+  type?: TokenTransactionType;
+  amountCents?: number;
+  amountDisplay?: string;
+  balanceAfterCents?: number;
+  balanceAfterDisplay?: string;
+  description?: string;
+  createdAt?: string;
+}
+
+export interface UserBalance {
+  balanceCents?: number;
+  balanceDisplay?: string;
+  /** @nullable */
+  preferredTierId?: string | null;
+  recentTransactions?: TokenTransaction[];
+}
+
+export interface SetTierPreferenceRequest {
+  tierId: string;
+}
+
+export interface TierPreferenceResponse {
+  preferredTierId?: string;
+}
+
+/**
+ * AI provider selection (DECISION 019/020)
+ */
+export type UserPreferencesAiProvider = typeof UserPreferencesAiProvider[keyof typeof UserPreferencesAiProvider];
+
+
+export const UserPreferencesAiProvider = {
+  anthropic: 'anthropic',
+  olagon: 'olagon',
+} as const;
+
+export interface UserPreferences {
+  /** AI provider selection (DECISION 019/020) */
+  aiProvider?: UserPreferencesAiProvider;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+/**
+ * AI provider toggle. Setting 'olagon' requires OWNER_EMAIL.
+ */
+export type UpdatePreferencesRequestAiProvider = typeof UpdatePreferencesRequestAiProvider[keyof typeof UpdatePreferencesRequestAiProvider];
+
+
+export const UpdatePreferencesRequestAiProvider = {
+  anthropic: 'anthropic',
+  olagon: 'olagon',
+} as const;
+
+export interface UpdatePreferencesRequest {
+  /** AI provider toggle. Setting 'olagon' requires OWNER_EMAIL. */
+  aiProvider: UpdatePreferencesRequestAiProvider;
+}
+
+export interface AITierAdmin {
+  id?: string;
+  name?: string;
+  provider?: string;
+  model?: string;
+  pricePer1MInputCents?: number;
+  pricePer1MOutputCents?: number;
+  providerCostPer1MInputCents?: number;
+  providerCostPer1MOutputCents?: number;
+  /** @nullable */
+  rateLimitRpm?: number | null;
+  /** @nullable */
+  rateLimitTpd?: number | null;
+  isFree?: boolean;
+  isActive?: boolean;
+  displayOrder?: number;
+  description?: string;
+  /** @nullable */
+  usageTips?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface UpdateAITierRequest {
+  /**
+     * @minLength 1
+     * @maxLength 50
+     */
+  name?: string;
+  /** @minimum 0 */
+  pricePer1MInputCents?: number;
+  /** @minimum 0 */
+  pricePer1MOutputCents?: number;
+  /** @minimum 0 */
+  providerCostPer1MInputCents?: number;
+  /** @minimum 0 */
+  providerCostPer1MOutputCents?: number;
+  /**
+     * @minimum 1
+     * @maximum 10000
+     * @nullable
+     */
+  rateLimitRpm?: number | null;
+  /**
+     * @minimum 1
+     * @nullable
+     */
+  rateLimitTpd?: number | null;
+  isFree?: boolean;
+  isActive?: boolean;
+  /** @maxLength 500 */
+  description?: string;
+  /**
+     * @maxLength 500
+     * @nullable
+     */
+  usageTips?: string | null;
+}
+
+export interface InsufficientBalanceError {
+  error?: string;
+  balanceCents?: number;
+  costCents?: number;
+  tierName?: string;
+}
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  username: string;
+  /** @nullable */
+  displayName: string | null;
+  /** @nullable */
+  avatarUrl: string | null;
+  isOwner: boolean;
+  /** @nullable */
+  referralCode?: string | null;
+  /**
+     * When username was last changed (for 30-day rate limit)
+     * @nullable
+     */
+  usernameChangedAt?: string | null;
+  createdAt: string;
+}
+
+export interface UpdateProfileRequest {
+  /**
+     * @minLength 1
+     * @maxLength 100
+     */
+  displayName?: string;
+  avatarUrl?: string;
+  /**
+     * Unique username for sharing (3-30 chars, alphanumeric + underscore)
+     * @minLength 3
+     * @maxLength 30
+     * @pattern ^[a-zA-Z0-9_]+$
+     */
+  username?: string;
+}
+
+export interface AvatarUploadRequest {
+  /** Base64-encoded image content (max 5MB, JPEG/PNG/WebP) */
+  base64Content: string;
+  /** Original filename (e.g. "avatar.jpg") */
+  filename: string;
+}
+
+export interface AvatarUploadResponse {
+  /** Public URL of the uploaded avatar */
+  avatarUrl: string;
+}
+
+export interface DeleteAccountRequest {
+  /** User's current password to confirm deletion */
+  password: string;
+}
+
+export interface DeleteAccountResponse {
+  message: string;
+}
+
+/**
+ * Source of the reference
+ */
+export type AccountReferenceSource = typeof AccountReferenceSource[keyof typeof AccountReferenceSource];
+
+
+export const AccountReferenceSource = {
+  manual: 'manual',
+  crossref: 'crossref',
+  file: 'file',
+} as const;
+
+export interface AccountReference {
+  id: number;
+  userId: string;
+  title: string;
+  /** @nullable */
+  authors?: string | null;
+  /** @nullable */
+  year?: number | null;
+  /** @nullable */
+  journal?: string | null;
+  /** @nullable */
+  volume?: string | null;
+  /** @nullable */
+  issue?: string | null;
+  /** @nullable */
+  doi?: string | null;
+  /** @nullable */
+  url?: string | null;
+  createdAt: string;
+  /** Whether this reference was auto-suggested by CrossRef */
+  isSuggested?: boolean;
+  /** Source of the reference */
+  source?: AccountReferenceSource;
+}
+
+/**
+ * Source of the reference
+ */
+export type AccountReferenceInputSource = typeof AccountReferenceInputSource[keyof typeof AccountReferenceInputSource];
+
+
+export const AccountReferenceInputSource = {
+  manual: 'manual',
+  crossref: 'crossref',
+  file: 'file',
+} as const;
+
+export interface AccountReferenceInput {
+  /** @minLength 1 */
+  title: string;
+  authors?: string;
+  year?: number;
+  journal?: string;
+  volume?: string;
+  issue?: string;
+  doi?: string;
+  url?: string;
+  /** Whether this reference was auto-suggested by CrossRef */
+  isSuggested?: boolean;
+  /** Source of the reference */
+  source?: AccountReferenceInputSource;
+}
+
+export interface ImportAccountReferencesRequest {
+  /**
+     * Array of DOI strings to import (max 50)
+     * @minItems 1
+     * @maxItems 50
+     */
+  dois: string[];
+}
+
+export type ImportAccountReferencesResponseFailedItem = {
+  doi?: string;
+  error?: string;
+};
+
+export type ImportAccountReferencesResponseSummary = {
+  total?: number;
+  imported?: number;
+  skipped?: number;
+  failed?: number;
+};
+
+export interface ImportAccountReferencesResponse {
+  imported: AccountReference[];
+  /** DOIs that were already in the user's library */
+  skipped?: string[];
+  /** DOIs that failed to import */
+  failed?: ImportAccountReferencesResponseFailedItem[];
+  summary: ImportAccountReferencesResponseSummary;
+}
+
+/**
+ * Where the topics were extracted from
+ */
+export type LearningActivityExtractedFrom = typeof LearningActivityExtractedFrom[keyof typeof LearningActivityExtractedFrom];
+
+
+export const LearningActivityExtractedFrom = {
+  instruction: 'instruction',
+  reference: 'reference',
+  chat: 'chat',
+} as const;
+
+export interface LearningActivity {
+  id: number;
+  userId: string;
+  /** Array of topic strings extracted from the source */
+  topics: string[];
+  /**
+     * Subject or course name if detectable
+     * @nullable
+     */
+  subject?: string | null;
+  /**
+     * Link to the Task Mentor project that generated this activity
+     * @nullable
+     */
+  sourceProjectId?: number | null;
+  /**
+     * Denormalized title of the source project for display
+     * @nullable
+     */
+  sourceProjectTitle?: string | null;
+  /** Where the topics were extracted from */
+  extractedFrom: LearningActivityExtractedFrom;
+  createdAt: string;
+}
+
+export type CreateLearningActivityRequestExtractedFrom = typeof CreateLearningActivityRequestExtractedFrom[keyof typeof CreateLearningActivityRequestExtractedFrom];
+
+
+export const CreateLearningActivityRequestExtractedFrom = {
+  instruction: 'instruction',
+  reference: 'reference',
+  chat: 'chat',
+} as const;
+
+export interface CreateLearningActivityRequest {
+  /**
+     * Array of topic strings
+     * @minItems 1
+     */
+  topics: string[];
+  /** Optional subject/course name */
+  subject?: string;
+  /** ID of the Task Mentor project this activity came from */
+  sourceProjectId?: number;
+  extractedFrom: CreateLearningActivityRequestExtractedFrom;
+}
+
+/**
+ * - recent_task: from the most recently created project
+ * - frequent_topic: topics that appear most across activities
+ * - weak_topic: topics where user scored poorly in past quizzes
+ */
+export type PracticeRecommendationType = typeof PracticeRecommendationType[keyof typeof PracticeRecommendationType];
+
+
+export const PracticeRecommendationType = {
+  recent_task: 'recent_task',
+  frequent_topic: 'frequent_topic',
+  weak_topic: 'weak_topic',
+} as const;
+
+export interface PracticeRecommendation {
+  learningActivity: LearningActivity;
+  /** Human-readable reason for this recommendation */
+  reason: string;
+  /**
+     * - recent_task: from the most recently created project
+     * - frequent_topic: topics that appear most across activities
+     * - weak_topic: topics where user scored poorly in past quizzes
+     */
+  type: PracticeRecommendationType;
+}
+
+/**
+ * Persona of the AI questioner:
+ * - dosen_strict: Sharp criticism, deep probing, demanding standards
+ * - dosen_friendly: Supportive + probing, warm and encouraging
+ * - audience_awam: Simple language, asks for clarification
+ * - audience_expert: Advanced discussion, jargon OK
+ */
+export type SimulationPersona = typeof SimulationPersona[keyof typeof SimulationPersona];
+
+
+export const SimulationPersona = {
+  dosen_strict: 'dosen_strict',
+  dosen_friendly: 'dosen_friendly',
+  audience_awam: 'audience_awam',
+  audience_expert: 'audience_expert',
+} as const;
+
+export interface CreateSimulationSessionInput {
+  persona: SimulationPersona;
+  /**
+     * AI tier ID to use. Defaults to cheapest eligible.
+     * @nullable
+     */
+  tierId?: string | null;
+}
+
+export interface SendSimulationMessageInput {
+  /**
+     * User's response to the AI's question
+     * @minLength 1
+     */
+  content: string;
+  /**
+     * AI tier ID for this message. Defaults to cheapest eligible.
+     * @nullable
+     */
+  tierId?: string | null;
+}
+
+export type SimulationSessionStatus = typeof SimulationSessionStatus[keyof typeof SimulationSessionStatus];
+
+
+export const SimulationSessionStatus = {
+  active: 'active',
+  completed: 'completed',
+  abandoned: 'abandoned',
+  failed: 'failed',
+} as const;
+
+export interface SimulationSession {
+  id: number;
+  projectId: number;
+  persona: SimulationPersona;
+  status: SimulationSessionStatus;
+  /** Number of questions asked so far (safety cap 10) */
+  questionsAsked: number;
+  /** Running total input tokens used in this session */
+  totalInputTokens: number;
+  /** Running total output tokens generated in this session */
+  totalOutputTokens: number;
+  /** Running total cost in IDR cents */
+  totalCostCents: number;
+  /** @nullable */
+  tierId?: string | null;
+  startedAt: string;
+  /** @nullable */
+  endedAt?: string | null;
+  createdAt: string;
+}
+
+export interface QuotaInfo {
+  /** Total saldo deducted for this session (always 0 when subscription quota is used) */
+  saldoUsedCents?: number;
+}
+
+export type SimulationMessageRole = typeof SimulationMessageRole[keyof typeof SimulationMessageRole];
+
+
+export const SimulationMessageRole = {
+  user: 'user',
+  assistant: 'assistant',
+  system: 'system',
+} as const;
+
+export interface SimulationMessage {
+  id: number;
+  sessionId: number;
+  role: SimulationMessageRole;
+  content: string;
+  inputTokens: number;
+  outputTokens: number;
+  costCents: number;
+  /** Order index (1-based) */
+  sequenceIndex: number;
+  createdAt: string;
+}
+
+export type SimulationSessionWithMessages = SimulationSession & {
+  messages?: SimulationMessage[];
+  quotaInfo?: QuotaInfo;
+};
+
+export interface SimulationScore {
+  /** Name of the evaluation criterion */
+  criterion: string;
+  /**
+     * Score 0-100
+     * @minimum 0
+     * @maximum 100
+     */
+  score: number;
+  /** Brief note explaining the score */
+  notes: string;
+}
+
+export interface SimulationReport {
+  id: number;
+  sessionId: number;
+  projectId: number;
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  overallScore: number;
+  /** 2-3 sentence summary */
+  summary: string;
+  /** Markdown bullet list of strengths */
+  strengths: string;
+  /** Markdown bullet list of weaknesses */
+  weaknesses: string;
+  /** Markdown bullet list of actionable recommendations */
+  recommendations: string;
+  scores: SimulationScore[];
+  isLatestForProject: boolean;
+  createdAt: string;
+}
+
+export type SimulationSessionWithReport = SimulationSession & {
+  report?: SimulationReport;
+  quotaInfo?: QuotaInfo;
+};
+
+export type SimulationSessionWithMessage = SimulationSession & {
+  messages?: SimulationMessage[];
+  quotaInfo?: QuotaInfo;
+};
+
+export type SharedSimulationReportStatus = typeof SharedSimulationReportStatus[keyof typeof SharedSimulationReportStatus];
+
+
+export const SharedSimulationReportStatus = {
+  active: 'active',
+  completed: 'completed',
+  abandoned: 'abandoned',
+  failed: 'failed',
+} as const;
+
+/**
+ * Anonymized simulation report — no user information exposed
+ */
+export interface SharedSimulationReport {
+  sessionId: number;
+  persona: SimulationPersona;
+  status: SharedSimulationReportStatus;
+  overallScore: number;
+  summary: string;
+  strengths: string;
+  weaknesses: string;
+  recommendations: string;
+  scores: SimulationScore[];
+  questionsAsked?: number;
+  createdAt: string;
+}
+
+export type CheckUsernameParams = {
+username: string;
+};
+
+export type CheckUsername200 = {
+  /** Whether the username is available */
+  available?: boolean;
+  username?: string;
+};
+
+export type ListProjectsParams = {
+status?: string;
+search?: string;
+/**
+ * Filter by project type (general or academic)
+ */
+type?: ListProjectsType;
+};
+
+export type ListProjectsType = typeof ListProjectsType[keyof typeof ListProjectsType];
+
+
+export const ListProjectsType = {
+  general: 'general',
+  academic: 'academic',
+} as const;
+
+export type AnalyzeProjectBody = {
+  /** AI tier to use (e.g. "free", "standard", "premium"). Defaults to user's preferred tier. */
+  tier?: string;
+};
+
+export type ListSimulationSessions200Item = SimulationSession & {
+  quotaInfo?: QuotaInfo;
+};
+
+export type ListSimulationMessages200 = SimulationSession & {
+  messages?: SimulationMessage[];
+  quotaInfo?: QuotaInfo;
+};
+
+export type SendSimulationMessage200 = SimulationSession & {
+  messages?: SimulationMessage[];
+  report?: SimulationReport;
+  quotaInfo?: QuotaInfo;
+};
+
+export type CompleteSimulationSession200 = SimulationSession & {
+  report?: SimulationReport;
+  quotaInfo?: QuotaInfo;
+};
+
+export type CreateSimulationShareTokenBody = {
+  /** Number of days until the share link expires */
+  expiresInDays?: number;
+};
+
+export type CreateSimulationShareToken201 = {
+  /** The public share token to use in the URL */
+  tokenId?: string;
+  expiresAt?: string;
+};
+
+export type RegenerateOutlineBody = {
+  /** Target document ID (optional, uses active document) */
+  documentId?: number;
+  /** Optional user-modified outline to refine */
+  userOutline?: string;
+  /** AI tier to use (e.g. "free", "standard", "premium"). Defaults to user's preferred tier. */
+  tier?: string;
+};
+
+export type RegenerateOutline200 = {
+  outline?: string;
+};
+
+export type GenerateDocumentBody = {
+  /** Target document ID (optional, uses active document if omitted) */
+  documentId?: number;
+  /** AI tier to use (e.g. "free", "standard", "premium"). Defaults to user's preferred tier. */
+  tier?: string;
+};
+
+export type GenerateDocument202 = {
+  jobId?: number;
+  status?: string;
+};
+
+export type RegenerateBibliographyBody = {
+  /** AI tier to use (e.g. "free", "standard", "premium"). Defaults to user's preferred tier. */
+  tier?: string;
+};
+
+export type FormatCSLBibliographyParams = {
+format?: FormatCSLBibliographyFormat;
+};
+
+export type FormatCSLBibliographyFormat = typeof FormatCSLBibliographyFormat[keyof typeof FormatCSLBibliographyFormat];
+
+
+export const FormatCSLBibliographyFormat = {
+  APA: 'APA',
+  APA7: 'APA7',
+  IEEE: 'IEEE',
+  Vancouver: 'Vancouver',
+  Chicago: 'Chicago',
+  MLA: 'MLA',
+  Harvard: 'Harvard',
+} as const;
+
+export type ToggleReferenceSelectionBody = {
+  /** New ceklist state */
+  isSelected: boolean;
+};
+
+export type SearchReferencesParams = {
+/**
+ * Search query (minimum 3 characters)
+ * @minLength 3
+ */
+q: string;
+/**
+ * Number of results to return (max 50)
+ * @maximum 50
+ */
+rows?: number;
+/**
+ * Number of results to skip for pagination
+ */
+offset?: number;
+};
+
+export type ListAIUsageParams = {
+/**
+ * Filter by user (admin only, defaults to current user)
+ */
+userId?: string;
+/**
+ * Filter by project
+ */
+projectId?: number;
+startDate?: string;
+endDate?: string;
+limit?: number;
+offset?: number;
+};
+
+export type ListAIUsage200 = {
+  data?: AIUsageLog[];
+  total?: number;
+};
+
+export type GetAIUsageStatsParams = {
+/**
+ * Filter by user (admin only, defaults to current user)
+ */
+userId?: string;
+projectId?: number;
+};
+
+export type GetMyUsageStatsParams = {
+/**
+ * Time period filter
+ */
+period?: GetMyUsageStatsPeriod;
+};
+
+export type GetMyUsageStatsPeriod = typeof GetMyUsageStatsPeriod[keyof typeof GetMyUsageStatsPeriod];
+
+
+export const GetMyUsageStatsPeriod = {
+  '7d': '7d',
+  '30d': '30d',
+  all: 'all',
+} as const;
+
+export type GetMyUsageDailyHistoryParams = {
+/**
+ * Number of days to include (1-30)
+ * @minimum 1
+ * @maximum 30
+ */
+days?: number;
+};
+
+export type GetAdminUsageStatsParams = {
+/**
+ * Time period filter
+ */
+period?: GetAdminUsageStatsPeriod;
+};
+
+export type GetAdminUsageStatsPeriod = typeof GetAdminUsageStatsPeriod[keyof typeof GetAdminUsageStatsPeriod];
+
+
+export const GetAdminUsageStatsPeriod = {
+  '7d': '7d',
+  '30d': '30d',
+  all: 'all',
+} as const;
+
+export type GenerateRubricBody = {
+  manualNotes?: string;
+  /** AI tier to use (e.g. "free", "standard", "premium"). Defaults to user's preferred tier. */
+  tier?: string;
+};
+
+export type UpdateRubricBody = {
+  criteria?: RubricCriterion[];
+  manualNotes?: string;
+};
+
+export type UpdateMyWritingStyleBodyStyleCharacteristicsDominantTone = typeof UpdateMyWritingStyleBodyStyleCharacteristicsDominantTone[keyof typeof UpdateMyWritingStyleBodyStyleCharacteristicsDominantTone];
+
+
+export const UpdateMyWritingStyleBodyStyleCharacteristicsDominantTone = {
+  neutral: 'neutral',
+  persuasive: 'persuasive',
+  analytical: 'analytical',
+  descriptive: 'descriptive',
+  critical: 'critical',
+} as const;
+
+export type UpdateMyWritingStyleBodyStyleCharacteristics = {
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  formality?: number;
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  vocabularyLevel?: number;
+  avgSentenceLength?: number;
+  avgParagraphLength?: number;
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  passiveVoiceRatio?: number;
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  readabilityScore?: number;
+  dominantTone?: UpdateMyWritingStyleBodyStyleCharacteristicsDominantTone;
+  commonPhrases?: string[];
+  structuralPatterns?: string[];
+};
+
+export type UpdateMyWritingStyleBody = {
+  styleCharacteristics?: UpdateMyWritingStyleBodyStyleCharacteristics;
+};
+
+export type AnalyzeMyWritingStyleBody = AnalyzeStyleRequest & {
+  /** AI tier to use (e.g. "free", "standard", "premium"). Defaults to user's preferred tier. */
+  tier?: string;
+};
+
+export type GetAdminAITiers200 = {
+  tiers?: AITierAdmin[];
+};
+
+export type UpdateAdminAITier200 = {
+  tier?: AITierAdmin;
+};
+
+export type UpdateMyProfile429 = {
+  error?: string;
+};
+
+export type ListTemplatesParams = {
+category?: string;
+};
+
+export type AssignAccountReferenceBody = {
+  projectId: number;
+};
+
+export type ListAdminUsersParams = {
+/**
+ * Search by email or display name
+ */
+search?: string;
+page?: number;
+limit?: number;
+};
+
+export type GetAdminStatsParams = {
+period?: GetAdminStatsPeriod;
+};
+
+export type GetAdminStatsPeriod = typeof GetAdminStatsPeriod[keyof typeof GetAdminStatsPeriod];
+
+
+export const GetAdminStatsPeriod = {
+  today: 'today',
+  week: 'week',
+  month: 'month',
+} as const;
+
+export type GetAdminUsageParams = {
+period?: GetAdminUsagePeriod;
+};
+
+export type GetAdminUsagePeriod = typeof GetAdminUsagePeriod[keyof typeof GetAdminUsagePeriod];
+
+
+export const GetAdminUsagePeriod = {
+  today: 'today',
+  week: 'week',
+  month: 'month',
+} as const;
+
+export type GetAdminAuditLogParams = {
+action?: string;
+page?: number;
+limit?: number;
+};
+
+export type OverrideUserTierBody = {
+  /**
+     * Tier ID to set, or null to remove override
+     * @nullable
+     */
+  tierId?: string | null;
+};
+
+export type SuspendUserBody = {
+  suspend: boolean;
+};
+
+export type ToggleAutofallbackBody = {
+  enabled: boolean;
+};
 
-/**
- * @summary Get current authenticated user
- */
-export const GetCurrentUserResponse = zod.object({
-  "id": zod.string(),
-  "email": zod.string(),
-  "username": zod.string().describe('Unique username for sharing URLs'),
-  "displayName": zod.string().nullish(),
-  "avatarUrl": zod.string().nullish(),
-  "isOwner": zod.boolean(),
-  "referralCode": zod.string().nullish().describe('Unique referral code this user can share'),
-  "usernameChangedAt": zod.coerce.date().nullish().describe('When username was last changed (for 30-day rate limit)'),
-  "createdAt": zod.coerce.date()
-})
-
-
-/**
- * @summary Exchange Supabase token for server session
- */
-export const LoginBody = zod.object({
-  "access_token": zod.string(),
-  "refresh_token": zod.string().optional()
-})
-
-export const LoginResponse = zod.object({
-  "id": zod.string(),
-  "email": zod.string(),
-  "username": zod.string().describe('Unique username for sharing URLs'),
-  "displayName": zod.string().nullish(),
-  "avatarUrl": zod.string().nullish(),
-  "isOwner": zod.boolean(),
-  "referralCode": zod.string().nullish().describe('Unique referral code this user can share'),
-  "usernameChangedAt": zod.coerce.date().nullish().describe('When username was last changed (for 30-day rate limit)'),
-  "createdAt": zod.coerce.date()
-})
-
-
-/**
- * @summary Create a new account
- */
-export const registerBodyEmailRegExp = new RegExp('^[^@]+@[^@]+\\.[^@]+$');
-export const registerBodyPasswordMin = 6;
-
-export const registerBodyUsernameMin = 3;
-export const registerBodyUsernameMax = 30;
-
-
-export const registerBodyUsernameRegExp = new RegExp('^[a-zA-Z0-9_]+$');
-
-
-export const RegisterBody = zod.object({
-  "email": zod.string().regex(registerBodyEmailRegExp),
-  "password": zod.string().min(registerBodyPasswordMin),
-  "username": zod.string().min(registerBodyUsernameMin).max(registerBodyUsernameMax).regex(registerBodyUsernameRegExp).describe('Unique username for sharing (3-30 chars, alphanumeric + underscore)'),
-  "displayName": zod.string().optional(),
-  "referralCode": zod.string().optional().describe('Optional referral code used during registration')
-})
-
-export const RegisterResponse = zod.object({
-  "id": zod.string(),
-  "email": zod.string(),
-  "username": zod.string().describe('Unique username for sharing URLs'),
-  "displayName": zod.string().nullish(),
-  "avatarUrl": zod.string().nullish(),
-  "isOwner": zod.boolean(),
-  "referralCode": zod.string().nullish().describe('Unique referral code this user can share'),
-  "usernameChangedAt": zod.coerce.date().nullish().describe('When username was last changed (for 30-day rate limit)'),
-  "createdAt": zod.coerce.date()
-})
-
-
-/**
- * @summary Sign out and clear session
- */
-export const LogoutResponse = zod.unknown()
-
-
-/**
- * @summary Check if a username is available
- */
-export const CheckUsernameQueryParams = zod.object({
-  "username": zod.coerce.string()
-})
-
-export const CheckUsernameResponse = zod.object({
-  "available": zod.boolean().optional().describe('Whether the username is available'),
-  "username": zod.string().optional()
-})
-
-
-/**
- * @summary Refresh access token
- */
-export const RefreshTokenResponse = zod.unknown()
-
-
-/**
- * @summary Get referral stats and list for current user
- */
-export const GetReferralsResponse = zod.object({
-  "stats": zod.object({
-  "total": zod.number().optional(),
-  "pending": zod.number().optional(),
-  "verified": zod.number().optional(),
-  "qualified": zod.number().optional(),
-  "rewarded": zod.number().optional(),
-  "rejected": zod.number().optional()
-}).optional(),
-  "referrals": zod.array(zod.object({
-  "id": zod.number(),
-  "referrerId": zod.string(),
-  "referredId": zod.string(),
-  "referredEmail": zod.string().optional(),
-  "referralCode": zod.string(),
-  "status": zod.enum(['pending', 'verified', 'qualified', 'rewarded', 'rejected']),
-  "createdAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date().optional()
-})).optional()
-})
-
-
-/**
- * Returns server health status
- * @summary Health check
- */
-export const HealthCheckResponse = zod.object({
-  "status": zod.string()
-})
-
-
-/**
- * @summary List all projects
- */
-export const ListProjectsQueryParams = zod.object({
-  "status": zod.coerce.string().optional(),
-  "search": zod.coerce.string().optional(),
-  "type": zod.enum(['general', 'academic']).optional().describe('Filter by project type (general or academic)')
-})
-
-export const ListProjectsResponseItem = zod.object({
-  "id": zod.number(),
-  "title": zod.string(),
-  "status": zod.enum(['draft', 'analyzing', 'writing', 'waiting_revision', 'completed', 'archived']),
-  "progress": zod.number().describe('0-100 percent'),
-  "instructionText": zod.string().nullish(),
-  "subject": zod.string().nullish(),
-  "taskType": zod.enum(['general', 'academic']).nullish(),
-  "citationFormat": zod.union([zod.literal('APA'),zod.literal('APA7'),zod.literal('IEEE'),zod.literal('Vancouver'),zod.literal('Chicago'),zod.literal('MLA'),zod.literal('Harvard'),zod.literal(null)]).nullish().describe('Citation format used for in-text\/footnote markers and bibliography. Default = APA.'),
-  "outputFormat": zod.string().nullish(),
-  "minRefYear": zod.number().nullish(),
-  "minRefCount": zod.number().nullish(),
-  "aiDisclosure": zod.boolean().optional().describe('Toggle AI disclosure labels (default true)'),
-  "createdAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-export const ListProjectsResponse = zod.array(ListProjectsResponseItem)
-
-
-/**
- * @summary Create a new project
- */
-
-
-
-export const CreateProjectBody = zod.object({
-  "title": zod.string().optional().describe('Optional. Project display name (used in document list, not in exported file).\nIf omitted, the workspace will auto-generate a title via AI from instructionText.\n'),
-  "instructionText": zod.string().min(1).describe('REQUIRED for both General Task and Academic Work. The instructions or idea\/gagasan\nthat AI uses to generate the title (if missing), analyze the task, and produce\nthe document.\n'),
-  "outputFormat": zod.enum(['docx', 'pdf', 'pptx']).optional(),
-  "minRefYear": zod.number().optional(),
-  "minRefCount": zod.number().optional(),
-  "aiDisclosure": zod.boolean().optional(),
-  "taskType": zod.enum(['general', 'academic']).optional().describe('Project type — \"general\" for short tasks, \"academic\" for multi-section works'),
-  "citationFormat": zod.enum(['APA', 'APA7', 'IEEE', 'Vancouver', 'Chicago', 'MLA', 'Harvard']).optional().describe('DECISION 014. Citation format used for in-text\/footnote markers and bibliography.\nDefaults to APA if omitted (workspace will create the project with APA and the\nuser can change via PATCH \/projects\/:id\/citation-format).\n')
-})
-
-export const CreateProjectResponse = zod.object({
-  "id": zod.number(),
-  "title": zod.string(),
-  "status": zod.enum(['draft', 'analyzing', 'writing', 'waiting_revision', 'completed', 'archived']),
-  "progress": zod.number().describe('0-100 percent'),
-  "instructionText": zod.string().nullish(),
-  "subject": zod.string().nullish(),
-  "taskType": zod.enum(['general', 'academic']).nullish(),
-  "citationFormat": zod.union([zod.literal('APA'),zod.literal('APA7'),zod.literal('IEEE'),zod.literal('Vancouver'),zod.literal('Chicago'),zod.literal('MLA'),zod.literal('Harvard'),zod.literal(null)]).nullish().describe('Citation format used for in-text\/footnote markers and bibliography. Default = APA.'),
-  "outputFormat": zod.string().nullish(),
-  "minRefYear": zod.number().nullish(),
-  "minRefCount": zod.number().nullish(),
-  "aiDisclosure": zod.boolean().optional().describe('Toggle AI disclosure labels (default true)'),
-  "createdAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-
-
-/**
- * @summary Dashboard summary stats
- */
-export const GetProjectStatsResponse = zod.object({
-  "total": zod.number(),
-  "byStatus": zod.record(zod.string(), zod.number()),
-  "byType": zod.record(zod.string(), zod.number()).optional().describe('Counts grouped by taskType (general, academic, null)'),
-  "recentActivity": zod.array(zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "eventType": zod.string(),
-  "description": zod.string(),
-  "createdAt": zod.coerce.date()
-}))
-})
-
-
-/**
- * @summary Get a project by ID
- */
-export const GetProjectParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const GetProjectResponse = zod.object({
-  "id": zod.number(),
-  "title": zod.string(),
-  "status": zod.enum(['draft', 'analyzing', 'writing', 'waiting_revision', 'completed', 'archived']),
-  "progress": zod.number().describe('0-100 percent'),
-  "instructionText": zod.string().nullish(),
-  "subject": zod.string().nullish(),
-  "taskType": zod.enum(['general', 'academic']).nullish(),
-  "citationFormat": zod.union([zod.literal('APA'),zod.literal('APA7'),zod.literal('IEEE'),zod.literal('Vancouver'),zod.literal('Chicago'),zod.literal('MLA'),zod.literal('Harvard'),zod.literal(null)]).nullish().describe('Citation format used for in-text\/footnote markers and bibliography. Default = APA.'),
-  "outputFormat": zod.string().nullish(),
-  "minRefYear": zod.number().nullish(),
-  "minRefCount": zod.number().nullish(),
-  "aiDisclosure": zod.boolean().optional().describe('Toggle AI disclosure labels (default true)'),
-  "createdAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-
-
-/**
- * @summary Update a project
- */
-export const UpdateProjectParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-
-
-
-export const UpdateProjectBody = zod.object({
-  "title": zod.string().min(1).optional(),
-  "status": zod.enum(['draft', 'analyzing', 'writing', 'waiting_revision', 'completed', 'archived']).optional(),
-  "instructionText": zod.string().optional(),
-  "outputFormat": zod.enum(['docx', 'pdf', 'pptx']).optional(),
-  "minRefYear": zod.number().optional(),
-  "minRefCount": zod.number().optional(),
-  "progress": zod.number().optional(),
-  "aiDisclosure": zod.boolean().optional()
-})
-
-export const UpdateProjectResponse = zod.object({
-  "id": zod.number(),
-  "title": zod.string(),
-  "status": zod.enum(['draft', 'analyzing', 'writing', 'waiting_revision', 'completed', 'archived']),
-  "progress": zod.number().describe('0-100 percent'),
-  "instructionText": zod.string().nullish(),
-  "subject": zod.string().nullish(),
-  "taskType": zod.enum(['general', 'academic']).nullish(),
-  "citationFormat": zod.union([zod.literal('APA'),zod.literal('APA7'),zod.literal('IEEE'),zod.literal('Vancouver'),zod.literal('Chicago'),zod.literal('MLA'),zod.literal('Harvard'),zod.literal(null)]).nullish().describe('Citation format used for in-text\/footnote markers and bibliography. Default = APA.'),
-  "outputFormat": zod.string().nullish(),
-  "minRefYear": zod.number().nullish(),
-  "minRefCount": zod.number().nullish(),
-  "aiDisclosure": zod.boolean().optional().describe('Toggle AI disclosure labels (default true)'),
-  "createdAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-
-
-/**
- * @summary Delete a project
- */
-export const DeleteProjectParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const DeleteProjectResponse = zod.void()
-
-
-/**
- * @summary Trigger full AI analysis pipeline for a project
- */
-export const AnalyzeProjectParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const AnalyzeProjectBody = zod.object({
-  "tier": zod.string().optional().describe('AI tier to use (e.g. \"free\", \"standard\", \"premium\"). Defaults to user\'s preferred tier.')
-})
-
-export const AnalyzeProjectResponse = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "jobType": zod.enum(['analyze', 'outline', 'references', 'write_chapter', 'citations', 'bibliography', 'export', 'generate_quiz', 'analyze_style']),
-  "status": zod.enum(['pending', 'running', 'completed', 'failed']),
-  "result": zod.string().nullish(),
-  "errorMessage": zod.string().nullish(),
-  "createdAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-
-
-/**
- * @summary Get chat history for a project
- */
-export const ListMessagesParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const ListMessagesResponseItem = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "role": zod.enum(['user', 'assistant', 'system']),
-  "content": zod.string(),
-  "createdAt": zod.coerce.date()
-})
-export const ListMessagesResponse = zod.array(ListMessagesResponseItem)
-
-
-/**
- * @summary Send a message and get AI response
- */
-export const SendMessageParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-
-export const sendMessageBodyModeDefault = `revise`;
-
-export const SendMessageBody = zod.object({
-  "content": zod.string().min(1),
-  "mode": zod.enum(['generate', 'revise', 'reflect', 'socratic', 'quiz', 'summary']).default(sendMessageBodyModeDefault).describe('AI writing assistant mode'),
-  "tier": zod.string().optional().describe('AI tier to use (e.g. \"free\", \"standard\", \"premium\"). Defaults to user\'s preferred tier.')
-})
-
-export const SendMessageResponse = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "role": zod.enum(['user', 'assistant', 'system']),
-  "content": zod.string(),
-  "createdAt": zod.coerce.date()
-})
-
-
-/**
- * @summary Create a new simulation session. AI initiates with the first question.
- */
-export const CreateSimulationSessionParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const CreateSimulationSessionBody = zod.object({
-  "persona": zod.enum(['dosen_strict', 'dosen_friendly', 'audience_awam', 'audience_expert']).describe('Persona of the AI questioner:\n- dosen_strict: Sharp criticism, deep probing, demanding standards\n- dosen_friendly: Supportive + probing, warm and encouraging\n- audience_awam: Simple language, asks for clarification\n- audience_expert: Advanced discussion, jargon OK\n'),
-  "tierId": zod.string().nullish().describe('AI tier ID to use. Defaults to cheapest eligible.')
-})
-
-export const CreateSimulationSessionResponse = zod.object({
-  "id": zod.int(),
-  "projectId": zod.int(),
-  "persona": zod.enum(['dosen_strict', 'dosen_friendly', 'audience_awam', 'audience_expert']).describe('Persona of the AI questioner:\n- dosen_strict: Sharp criticism, deep probing, demanding standards\n- dosen_friendly: Supportive + probing, warm and encouraging\n- audience_awam: Simple language, asks for clarification\n- audience_expert: Advanced discussion, jargon OK\n'),
-  "status": zod.enum(['active', 'completed', 'abandoned', 'failed']),
-  "questionsAsked": zod.int().describe('Number of questions asked so far (safety cap 10)'),
-  "totalInputTokens": zod.int().describe('Running total input tokens used in this session'),
-  "totalOutputTokens": zod.int().describe('Running total output tokens generated in this session'),
-  "totalCostCents": zod.int().describe('Running total cost in IDR cents'),
-  "tierId": zod.string().nullish(),
-  "startedAt": zod.coerce.date(),
-  "endedAt": zod.coerce.date().nullish(),
-  "createdAt": zod.coerce.date()
-}).and(zod.object({
-  "messages": zod.array(zod.object({
-  "id": zod.int(),
-  "sessionId": zod.int(),
-  "role": zod.enum(['user', 'assistant', 'system']),
-  "content": zod.string(),
-  "inputTokens": zod.int(),
-  "outputTokens": zod.int(),
-  "costCents": zod.int(),
-  "sequenceIndex": zod.int().describe('Order index (1-based)'),
-  "createdAt": zod.coerce.date()
-})).optional(),
-  "quotaInfo": zod.object({
-  "saldoUsedCents": zod.int().optional().describe('Total saldo deducted for this session (always 0 when subscription quota is used)')
-}).optional()
-}))
-
-
-/**
- * @summary List all simulation sessions for a project
- */
-export const ListSimulationSessionsParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const ListSimulationSessionsResponseItem = zod.object({
-  "id": zod.int(),
-  "projectId": zod.int(),
-  "persona": zod.enum(['dosen_strict', 'dosen_friendly', 'audience_awam', 'audience_expert']).describe('Persona of the AI questioner:\n- dosen_strict: Sharp criticism, deep probing, demanding standards\n- dosen_friendly: Supportive + probing, warm and encouraging\n- audience_awam: Simple language, asks for clarification\n- audience_expert: Advanced discussion, jargon OK\n'),
-  "status": zod.enum(['active', 'completed', 'abandoned', 'failed']),
-  "questionsAsked": zod.int().describe('Number of questions asked so far (safety cap 10)'),
-  "totalInputTokens": zod.int().describe('Running total input tokens used in this session'),
-  "totalOutputTokens": zod.int().describe('Running total output tokens generated in this session'),
-  "totalCostCents": zod.int().describe('Running total cost in IDR cents'),
-  "tierId": zod.string().nullish(),
-  "startedAt": zod.coerce.date(),
-  "endedAt": zod.coerce.date().nullish(),
-  "createdAt": zod.coerce.date()
-}).and(zod.object({
-  "quotaInfo": zod.object({
-  "saldoUsedCents": zod.int().optional().describe('Total saldo deducted for this session (always 0 when subscription quota is used)')
-}).optional()
-}))
-export const ListSimulationSessionsResponse = zod.array(ListSimulationSessionsResponseItem)
-
-
-/**
- * @summary Get all messages in a simulation session
- */
-export const ListSimulationMessagesParams = zod.object({
-  "projectId": zod.coerce.number(),
-  "sessionId": zod.coerce.number()
-})
-
-export const ListSimulationMessagesResponse = zod.object({
-  "id": zod.int(),
-  "projectId": zod.int(),
-  "persona": zod.enum(['dosen_strict', 'dosen_friendly', 'audience_awam', 'audience_expert']).describe('Persona of the AI questioner:\n- dosen_strict: Sharp criticism, deep probing, demanding standards\n- dosen_friendly: Supportive + probing, warm and encouraging\n- audience_awam: Simple language, asks for clarification\n- audience_expert: Advanced discussion, jargon OK\n'),
-  "status": zod.enum(['active', 'completed', 'abandoned', 'failed']),
-  "questionsAsked": zod.int().describe('Number of questions asked so far (safety cap 10)'),
-  "totalInputTokens": zod.int().describe('Running total input tokens used in this session'),
-  "totalOutputTokens": zod.int().describe('Running total output tokens generated in this session'),
-  "totalCostCents": zod.int().describe('Running total cost in IDR cents'),
-  "tierId": zod.string().nullish(),
-  "startedAt": zod.coerce.date(),
-  "endedAt": zod.coerce.date().nullish(),
-  "createdAt": zod.coerce.date()
-}).and(zod.object({
-  "messages": zod.array(zod.object({
-  "id": zod.int(),
-  "sessionId": zod.int(),
-  "role": zod.enum(['user', 'assistant', 'system']),
-  "content": zod.string(),
-  "inputTokens": zod.int(),
-  "outputTokens": zod.int(),
-  "costCents": zod.int(),
-  "sequenceIndex": zod.int().describe('Order index (1-based)'),
-  "createdAt": zod.coerce.date()
-})).optional(),
-  "quotaInfo": zod.object({
-  "saldoUsedCents": zod.int().optional().describe('Total saldo deducted for this session (always 0 when subscription quota is used)')
-}).optional()
-}))
-
-
-/**
- * @summary User responds to AI question. Returns AI follow-up or session complete signal.
- */
-export const SendSimulationMessageParams = zod.object({
-  "projectId": zod.coerce.number(),
-  "sessionId": zod.coerce.number()
-})
-
-
-
-
-export const SendSimulationMessageBody = zod.object({
-  "content": zod.string().min(1).describe('User\'s response to the AI\'s question'),
-  "tierId": zod.string().nullish().describe('AI tier ID for this message. Defaults to cheapest eligible.')
-})
-
-export const sendSimulationMessageResponseTwoReportOverallScoreMin = 0;
-export const sendSimulationMessageResponseTwoReportOverallScoreMax = 100;
-
-export const sendSimulationMessageResponseTwoReportScoresItemScoreMin = 0;
-export const sendSimulationMessageResponseTwoReportScoresItemScoreMax = 100;
-
-
-
-export const SendSimulationMessageResponse = zod.object({
-  "id": zod.int(),
-  "projectId": zod.int(),
-  "persona": zod.enum(['dosen_strict', 'dosen_friendly', 'audience_awam', 'audience_expert']).describe('Persona of the AI questioner:\n- dosen_strict: Sharp criticism, deep probing, demanding standards\n- dosen_friendly: Supportive + probing, warm and encouraging\n- audience_awam: Simple language, asks for clarification\n- audience_expert: Advanced discussion, jargon OK\n'),
-  "status": zod.enum(['active', 'completed', 'abandoned', 'failed']),
-  "questionsAsked": zod.int().describe('Number of questions asked so far (safety cap 10)'),
-  "totalInputTokens": zod.int().describe('Running total input tokens used in this session'),
-  "totalOutputTokens": zod.int().describe('Running total output tokens generated in this session'),
-  "totalCostCents": zod.int().describe('Running total cost in IDR cents'),
-  "tierId": zod.string().nullish(),
-  "startedAt": zod.coerce.date(),
-  "endedAt": zod.coerce.date().nullish(),
-  "createdAt": zod.coerce.date()
-}).and(zod.object({
-  "messages": zod.array(zod.object({
-  "id": zod.int(),
-  "sessionId": zod.int(),
-  "role": zod.enum(['user', 'assistant', 'system']),
-  "content": zod.string(),
-  "inputTokens": zod.int(),
-  "outputTokens": zod.int(),
-  "costCents": zod.int(),
-  "sequenceIndex": zod.int().describe('Order index (1-based)'),
-  "createdAt": zod.coerce.date()
-})).optional(),
-  "report": zod.object({
-  "id": zod.int(),
-  "sessionId": zod.int(),
-  "projectId": zod.int(),
-  "overallScore": zod.int().min(sendSimulationMessageResponseTwoReportOverallScoreMin).max(sendSimulationMessageResponseTwoReportOverallScoreMax),
-  "summary": zod.string().describe('2-3 sentence summary'),
-  "strengths": zod.string().describe('Markdown bullet list of strengths'),
-  "weaknesses": zod.string().describe('Markdown bullet list of weaknesses'),
-  "recommendations": zod.string().describe('Markdown bullet list of actionable recommendations'),
-  "scores": zod.array(zod.object({
-  "criterion": zod.string().describe('Name of the evaluation criterion'),
-  "score": zod.int().min(sendSimulationMessageResponseTwoReportScoresItemScoreMin).max(sendSimulationMessageResponseTwoReportScoresItemScoreMax).describe('Score 0-100'),
-  "notes": zod.string().describe('Brief note explaining the score')
-})),
-  "isLatestForProject": zod.boolean(),
-  "createdAt": zod.coerce.date()
-}).optional(),
-  "quotaInfo": zod.object({
-  "saldoUsedCents": zod.int().optional().describe('Total saldo deducted for this session (always 0 when subscription quota is used)')
-}).optional()
-}))
-
-
-/**
- * @summary User ends session early — generate report from current state
- */
-export const CompleteSimulationSessionParams = zod.object({
-  "projectId": zod.coerce.number(),
-  "sessionId": zod.coerce.number()
-})
-
-export const completeSimulationSessionResponseTwoReportOverallScoreMin = 0;
-export const completeSimulationSessionResponseTwoReportOverallScoreMax = 100;
-
-export const completeSimulationSessionResponseTwoReportScoresItemScoreMin = 0;
-export const completeSimulationSessionResponseTwoReportScoresItemScoreMax = 100;
-
-
-
-export const CompleteSimulationSessionResponse = zod.object({
-  "id": zod.int(),
-  "projectId": zod.int(),
-  "persona": zod.enum(['dosen_strict', 'dosen_friendly', 'audience_awam', 'audience_expert']).describe('Persona of the AI questioner:\n- dosen_strict: Sharp criticism, deep probing, demanding standards\n- dosen_friendly: Supportive + probing, warm and encouraging\n- audience_awam: Simple language, asks for clarification\n- audience_expert: Advanced discussion, jargon OK\n'),
-  "status": zod.enum(['active', 'completed', 'abandoned', 'failed']),
-  "questionsAsked": zod.int().describe('Number of questions asked so far (safety cap 10)'),
-  "totalInputTokens": zod.int().describe('Running total input tokens used in this session'),
-  "totalOutputTokens": zod.int().describe('Running total output tokens generated in this session'),
-  "totalCostCents": zod.int().describe('Running total cost in IDR cents'),
-  "tierId": zod.string().nullish(),
-  "startedAt": zod.coerce.date(),
-  "endedAt": zod.coerce.date().nullish(),
-  "createdAt": zod.coerce.date()
-}).and(zod.object({
-  "report": zod.object({
-  "id": zod.int(),
-  "sessionId": zod.int(),
-  "projectId": zod.int(),
-  "overallScore": zod.int().min(completeSimulationSessionResponseTwoReportOverallScoreMin).max(completeSimulationSessionResponseTwoReportOverallScoreMax),
-  "summary": zod.string().describe('2-3 sentence summary'),
-  "strengths": zod.string().describe('Markdown bullet list of strengths'),
-  "weaknesses": zod.string().describe('Markdown bullet list of weaknesses'),
-  "recommendations": zod.string().describe('Markdown bullet list of actionable recommendations'),
-  "scores": zod.array(zod.object({
-  "criterion": zod.string().describe('Name of the evaluation criterion'),
-  "score": zod.int().min(completeSimulationSessionResponseTwoReportScoresItemScoreMin).max(completeSimulationSessionResponseTwoReportScoresItemScoreMax).describe('Score 0-100'),
-  "notes": zod.string().describe('Brief note explaining the score')
-})),
-  "isLatestForProject": zod.boolean(),
-  "createdAt": zod.coerce.date()
-}).optional(),
-  "quotaInfo": zod.object({
-  "saldoUsedCents": zod.int().optional().describe('Total saldo deducted for this session (always 0 when subscription quota is used)')
-}).optional()
-}))
-
-
-/**
- * @summary Get latest simulation report for a project
- */
-export const GetLatestSimulationReportParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const getLatestSimulationReportResponseOneOverallScoreMin = 0;
-export const getLatestSimulationReportResponseOneOverallScoreMax = 100;
-
-export const getLatestSimulationReportResponseOneScoresItemScoreMin = 0;
-export const getLatestSimulationReportResponseOneScoresItemScoreMax = 100;
-
-
-
-export const GetLatestSimulationReportResponse = zod.union([zod.object({
-  "id": zod.int(),
-  "sessionId": zod.int(),
-  "projectId": zod.int(),
-  "overallScore": zod.int().min(getLatestSimulationReportResponseOneOverallScoreMin).max(getLatestSimulationReportResponseOneOverallScoreMax),
-  "summary": zod.string().describe('2-3 sentence summary'),
-  "strengths": zod.string().describe('Markdown bullet list of strengths'),
-  "weaknesses": zod.string().describe('Markdown bullet list of weaknesses'),
-  "recommendations": zod.string().describe('Markdown bullet list of actionable recommendations'),
-  "scores": zod.array(zod.object({
-  "criterion": zod.string().describe('Name of the evaluation criterion'),
-  "score": zod.int().min(getLatestSimulationReportResponseOneScoresItemScoreMin).max(getLatestSimulationReportResponseOneScoresItemScoreMax).describe('Score 0-100'),
-  "notes": zod.string().describe('Brief note explaining the score')
-})),
-  "isLatestForProject": zod.boolean(),
-  "createdAt": zod.coerce.date()
-}),zod.null()])
-
-
-/**
- * @summary Public access to a shared simulation report
- */
-export const GetSharedSimulationReportParams = zod.object({
-  "sessionId": zod.coerce.number()
-})
-
-export const getSharedSimulationReportResponseScoresItemScoreMin = 0;
-export const getSharedSimulationReportResponseScoresItemScoreMax = 100;
-
-
-
-export const GetSharedSimulationReportResponse = zod.object({
-  "sessionId": zod.int(),
-  "persona": zod.enum(['dosen_strict', 'dosen_friendly', 'audience_awam', 'audience_expert']).describe('Persona of the AI questioner:\n- dosen_strict: Sharp criticism, deep probing, demanding standards\n- dosen_friendly: Supportive + probing, warm and encouraging\n- audience_awam: Simple language, asks for clarification\n- audience_expert: Advanced discussion, jargon OK\n'),
-  "status": zod.enum(['active', 'completed', 'abandoned', 'failed']),
-  "overallScore": zod.int(),
-  "summary": zod.string(),
-  "strengths": zod.string(),
-  "weaknesses": zod.string(),
-  "recommendations": zod.string(),
-  "scores": zod.array(zod.object({
-  "criterion": zod.string().describe('Name of the evaluation criterion'),
-  "score": zod.int().min(getSharedSimulationReportResponseScoresItemScoreMin).max(getSharedSimulationReportResponseScoresItemScoreMax).describe('Score 0-100'),
-  "notes": zod.string().describe('Brief note explaining the score')
-})),
-  "questionsAsked": zod.int().optional(),
-  "createdAt": zod.coerce.date()
-}).describe('Anonymized simulation report — no user information exposed')
-
-
-/**
- * @summary Create a public share link for a simulation session report
- */
-export const CreateSimulationShareTokenParams = zod.object({
-  "projectId": zod.coerce.number(),
-  "sessionId": zod.coerce.number()
-})
-
-export const createSimulationShareTokenBodyExpiresInDaysDefault = 7;
-
-export const CreateSimulationShareTokenBody = zod.object({
-  "expiresInDays": zod.number().default(createSimulationShareTokenBodyExpiresInDaysDefault).describe('Number of days until the share link expires')
-})
-
-export const CreateSimulationShareTokenResponse = zod.object({
-  "tokenId": zod.string().optional().describe('The public share token to use in the URL'),
-  "expiresAt": zod.coerce.date().optional()
-})
-
-
-/**
- * @summary List all documents in a project
- */
-export const ListDocumentsParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const ListDocumentsResponseItem = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "title": zod.string(),
-  "orderIndex": zod.number(),
-  "isActive": zod.boolean(),
-  "createdAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-}).and(zod.object({
-  "versions": zod.array(zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "documentId": zod.number().nullish().describe('Scoped to specific document (null = legacy\/project-level)'),
-  "versionNumber": zod.number(),
-  "content": zod.string(),
-  "outline": zod.string().nullish(),
-  "changeDescription": zod.string().nullish(),
-  "createdAt": zod.coerce.date()
-})).optional()
-}))
-export const ListDocumentsResponse = zod.array(ListDocumentsResponseItem)
-
-
-/**
- * @summary Create a new document in a project
- */
-export const CreateDocumentParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-
-
-
-export const CreateDocumentBody = zod.object({
-  "title": zod.string().min(1).describe('Document title (e.g., \"Bab 1 Pendahuluan\")'),
-  "orderIndex": zod.number().optional().describe('Sort order (optional, defaults to end)')
-})
-
-export const CreateDocumentResponse = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "title": zod.string(),
-  "orderIndex": zod.number(),
-  "isActive": zod.boolean(),
-  "createdAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-
-
-/**
- * @summary Get the latest version of the active document
- */
-export const GetLatestDocumentParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const GetLatestDocumentResponse = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "documentId": zod.number().nullish().describe('Scoped to specific document (null = legacy\/project-level)'),
-  "versionNumber": zod.number(),
-  "content": zod.string(),
-  "outline": zod.string().nullish(),
-  "changeDescription": zod.string().nullish(),
-  "createdAt": zod.coerce.date()
-})
-
-
-/**
- * @summary Get a document with all its versions
- */
-export const GetDocumentParams = zod.object({
-  "projectId": zod.coerce.number(),
-  "documentId": zod.coerce.number()
-})
-
-export const GetDocumentResponse = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "title": zod.string(),
-  "orderIndex": zod.number(),
-  "isActive": zod.boolean(),
-  "createdAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-}).and(zod.object({
-  "versions": zod.array(zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "documentId": zod.number().nullish().describe('Scoped to specific document (null = legacy\/project-level)'),
-  "versionNumber": zod.number(),
-  "content": zod.string(),
-  "outline": zod.string().nullish(),
-  "changeDescription": zod.string().nullish(),
-  "createdAt": zod.coerce.date()
-})).optional()
-}))
-
-
-/**
- * @summary Update a document
- */
-export const UpdateDocumentParams = zod.object({
-  "projectId": zod.coerce.number(),
-  "documentId": zod.coerce.number()
-})
-
-
-
-
-export const UpdateDocumentBody = zod.object({
-  "title": zod.string().min(1).optional(),
-  "orderIndex": zod.number().optional(),
-  "isActive": zod.boolean().optional()
-})
-
-export const UpdateDocumentResponse = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "title": zod.string(),
-  "orderIndex": zod.number(),
-  "isActive": zod.boolean(),
-  "createdAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-
-
-/**
- * @summary Delete a document and all its versions
- */
-export const DeleteDocumentParams = zod.object({
-  "projectId": zod.coerce.number(),
-  "documentId": zod.coerce.number()
-})
-
-export const DeleteDocumentResponse = zod.void()
-
-
-/**
- * @summary Regenerate outline for the active document
- */
-export const RegenerateOutlineParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const RegenerateOutlineBody = zod.object({
-  "documentId": zod.number().optional().describe('Target document ID (optional, uses active document)'),
-  "userOutline": zod.string().optional().describe('Optional user-modified outline to refine'),
-  "tier": zod.string().optional().describe('AI tier to use (e.g. \"free\", \"standard\", \"premium\"). Defaults to user\'s preferred tier.')
-})
-
-export const RegenerateOutlineResponse = zod.object({
-  "outline": zod.string().optional()
-})
-
-
-/**
- * @summary Generate content for a document (or active document if documentId not provided)
- */
-export const GenerateDocumentParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const GenerateDocumentBody = zod.object({
-  "documentId": zod.number().optional().describe('Target document ID (optional, uses active document if omitted)'),
-  "tier": zod.string().optional().describe('AI tier to use (e.g. \"free\", \"standard\", \"premium\"). Defaults to user\'s preferred tier.')
-})
-
-export const GenerateDocumentResponse = zod.object({
-  "jobId": zod.number().optional(),
-  "status": zod.string().optional()
-})
-
-
-/**
- * @summary List all references for a project
- */
-export const ListReferencesParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const ListReferencesResponseItem = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "title": zod.string(),
-  "authors": zod.string().nullish(),
-  "year": zod.number().nullish(),
-  "journal": zod.string().nullish(),
-  "volume": zod.string().nullish(),
-  "issue": zod.string().nullish(),
-  "doi": zod.string().nullish(),
-  "url": zod.string().nullish(),
-  "validationStatus": zod.enum(['unverified', 'verified', 'invalid']),
-  "usedInChapters": zod.string().nullish(),
-  "createdAt": zod.coerce.date(),
-  "isSuggested": zod.boolean().optional().describe('Whether this reference was auto-suggested by CrossRef'),
-  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference'),
-  "isSelected": zod.boolean().optional().describe('Ceklist status — true means reference is included in bibliography and\neligible for AI auto-cite. (DECISION 014)\n')
-})
-export const ListReferencesResponse = zod.array(ListReferencesResponseItem)
-
-
-/**
- * @summary Add a reference manually
- */
-export const CreateReferenceParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-
-export const createReferenceBodyIsSuggestedDefault = false;
-export const createReferenceBodySourceDefault = `manual`;
-
-export const CreateReferenceBody = zod.object({
-  "title": zod.string().min(1),
-  "authors": zod.string().optional(),
-  "year": zod.number().optional(),
-  "journal": zod.string().optional(),
-  "volume": zod.string().optional(),
-  "issue": zod.string().optional(),
-  "doi": zod.string().optional(),
-  "url": zod.string().optional(),
-  "isSuggested": zod.boolean().default(createReferenceBodyIsSuggestedDefault).describe('Whether this reference was auto-suggested by CrossRef search'),
-  "source": zod.enum(['manual', 'crossref', 'file']).default(createReferenceBodySourceDefault).describe('Source of the reference')
-})
-
-export const CreateReferenceResponse = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "title": zod.string(),
-  "authors": zod.string().nullish(),
-  "year": zod.number().nullish(),
-  "journal": zod.string().nullish(),
-  "volume": zod.string().nullish(),
-  "issue": zod.string().nullish(),
-  "doi": zod.string().nullish(),
-  "url": zod.string().nullish(),
-  "validationStatus": zod.enum(['unverified', 'verified', 'invalid']),
-  "usedInChapters": zod.string().nullish(),
-  "createdAt": zod.coerce.date(),
-  "isSuggested": zod.boolean().optional().describe('Whether this reference was auto-suggested by CrossRef'),
-  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference'),
-  "isSelected": zod.boolean().optional().describe('Ceklist status — true means reference is included in bibliography and\neligible for AI auto-cite. (DECISION 014)\n')
-})
-
-
-/**
- * Useful for bulk-adding auto-suggested references or batch import. Skips references with duplicate DOIs.
- * @summary Add multiple references at once
- */
-export const BulkAddReferencesParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-
-export const bulkAddReferencesBodyReferencesItemIsSuggestedDefault = false;
-export const bulkAddReferencesBodyReferencesItemSourceDefault = `manual`;
-export const bulkAddReferencesBodyReferencesMax = 100;
-
-
-
-export const BulkAddReferencesBody = zod.object({
-  "references": zod.array(zod.object({
-  "title": zod.string().min(1),
-  "authors": zod.string().optional(),
-  "year": zod.number().optional(),
-  "journal": zod.string().optional(),
-  "volume": zod.string().optional(),
-  "issue": zod.string().optional(),
-  "doi": zod.string().optional(),
-  "url": zod.string().optional(),
-  "isSuggested": zod.boolean().default(bulkAddReferencesBodyReferencesItemIsSuggestedDefault).describe('Whether this reference was auto-suggested by CrossRef search'),
-  "source": zod.enum(['manual', 'crossref', 'file']).default(bulkAddReferencesBodyReferencesItemSourceDefault).describe('Source of the reference')
-})).max(bulkAddReferencesBodyReferencesMax)
-})
-
-export const BulkAddReferencesResponseItem = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "title": zod.string(),
-  "authors": zod.string().nullish(),
-  "year": zod.number().nullish(),
-  "journal": zod.string().nullish(),
-  "volume": zod.string().nullish(),
-  "issue": zod.string().nullish(),
-  "doi": zod.string().nullish(),
-  "url": zod.string().nullish(),
-  "validationStatus": zod.enum(['unverified', 'verified', 'invalid']),
-  "usedInChapters": zod.string().nullish(),
-  "createdAt": zod.coerce.date(),
-  "isSuggested": zod.boolean().optional().describe('Whether this reference was auto-suggested by CrossRef'),
-  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference'),
-  "isSelected": zod.boolean().optional().describe('Ceklist status — true means reference is included in bibliography and\neligible for AI auto-cite. (DECISION 014)\n')
-})
-export const BulkAddReferencesResponse = zod.array(BulkAddReferencesResponseItem)
-
-
-/**
- * @summary Delete a reference
- */
-export const DeleteReferenceParams = zod.object({
-  "projectId": zod.coerce.number(),
-  "referenceId": zod.coerce.number()
-})
-
-export const DeleteReferenceResponse = zod.void()
-
-
-/**
- * @summary Regenerate bibliography for a project
- */
-export const RegenerateBibliographyParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const RegenerateBibliographyBody = zod.object({
-  "tier": zod.string().optional().describe('AI tier to use (e.g. \"free\", \"standard\", \"premium\"). Defaults to user\'s preferred tier.')
-})
-
-export const RegenerateBibliographyResponse = zod.object({
-  "bibliography": zod.string(),
-  "format": zod.string().optional()
-})
-
-
-/**
- * @summary Validate all references against the citation format
- */
-export const ValidateReferencesParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const ValidateReferencesResponse = zod.object({
-  "format": zod.string(),
-  "totalReferences": zod.number(),
-  "totalErrors": zod.number().optional(),
-  "totalWarnings": zod.number().optional(),
-  "results": zod.array(zod.object({
-  "id": zod.number(),
-  "title": zod.string(),
-  "validation": zod.object({
-  "valid": zod.boolean().optional(),
-  "issues": zod.array(zod.object({
-  "severity": zod.enum(['error', 'warning']),
-  "message": zod.string(),
-  "field": zod.string()
-})).optional()
-})
-}))
-})
-
-
-/**
- * @summary Format references as a CSL-formatted bibliography
- */
-export const FormatCSLBibliographyParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const FormatCSLBibliographyQueryParams = zod.object({
-  "format": zod.enum(['APA', 'APA7', 'IEEE', 'Vancouver', 'Chicago', 'MLA', 'Harvard']).optional()
-})
-
-export const FormatCSLBibliographyResponse = zod.object({
-  "bibliography": zod.string(),
-  "format": zod.string().optional()
-})
-
-
-/**
- * Reads the current document + the references the user has ceklist (selected = true),
- * then asks the AI to find paragraphs where each reference is relevant and insert
- * a citation marker. Supports multi-cite — one reference can be cited in multiple
- * paragraphs. User reviews the suggestions before applying them.
- * @summary AI suggests citation positions for selected references
- */
-export const AutoCiteReferencesParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const autoCiteReferencesBodyReferenceIdsMax = 50;
-
-export const autoCiteReferencesBodyMaxCitationsPerReferenceDefault = 3;
-export const autoCiteReferencesBodyMaxCitationsPerReferenceMax = 20;
-
-export const autoCiteReferencesBodyTierDefault = `mid`;
-
-export const AutoCiteReferencesBody = zod.object({
-  "referenceIds": zod.array(zod.number()).min(1).max(autoCiteReferencesBodyReferenceIdsMax).describe('IDs of references to auto-cite. Only ceklist-selected references are used\nin practice; this list lets user override (e.g. force a specific reference).\n'),
-  "maxCitationsPerReference": zod.number().min(1).max(autoCiteReferencesBodyMaxCitationsPerReferenceMax).default(autoCiteReferencesBodyMaxCitationsPerReferenceDefault).describe('Cap on how many distinct paragraphs the same reference can be cited in.\nDefault = 3 (Level C smart placement).\n'),
-  "tier": zod.enum(['low', 'mid', 'high']).default(autoCiteReferencesBodyTierDefault).describe('AI model tier to use for the suggestion')
-})
-
-export const AutoCiteReferencesResponse = zod.object({
-  "suggestions": zod.array(zod.object({
-  "referenceId": zod.number(),
-  "paragraphIndex": zod.number().describe('0-based paragraph index in the document text'),
-  "offsetInParagraph": zod.number().describe('Character offset within the paragraph (where the citation marker starts)'),
-  "formatMarker": zod.string().describe('Pre-rendered citation marker for the project\'s citationFormat\n(e.g. \"(Smith & Jones, 2023)\" for APA, \"[1]\" for IEEE)\n'),
-  "placementReason": zod.string().describe('AI\'s explanation for why this citation belongs here')
-})),
-  "totalTokensUsed": zod.number(),
-  "referencesAnalyzed": zod.number().describe('How many ceklist-selected references were considered')
-})
-
-
-/**
- * When ceklist = true, the reference is included in the bibliography and eligible
- * for AI auto-cite. When false, the reference is hidden from auto-cite but still
- * visible in the Tab Referensi list.
- * @summary Toggle the ceklist status of a reference
- */
-export const ToggleReferenceSelectionParams = zod.object({
-  "projectId": zod.coerce.number(),
-  "referenceId": zod.coerce.number()
-})
-
-export const ToggleReferenceSelectionBody = zod.object({
-  "isSelected": zod.boolean().describe('New ceklist state')
-})
-
-export const ToggleReferenceSelectionResponse = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "title": zod.string(),
-  "authors": zod.string().nullish(),
-  "year": zod.number().nullish(),
-  "journal": zod.string().nullish(),
-  "volume": zod.string().nullish(),
-  "issue": zod.string().nullish(),
-  "doi": zod.string().nullish(),
-  "url": zod.string().nullish(),
-  "validationStatus": zod.enum(['unverified', 'verified', 'invalid']),
-  "usedInChapters": zod.string().nullish(),
-  "createdAt": zod.coerce.date(),
-  "isSuggested": zod.boolean().optional().describe('Whether this reference was auto-suggested by CrossRef'),
-  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference'),
-  "isSelected": zod.boolean().optional().describe('Ceklist status — true means reference is included in bibliography and\neligible for AI auto-cite. (DECISION 014)\n')
-})
-
-
-/**
- * @summary List all citation marker positions for a project
- */
-export const ListCitationsParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const ListCitationsResponseItem = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "referenceId": zod.number(),
-  "paragraphIndex": zod.number(),
-  "offsetInParagraph": zod.number(),
-  "formatMarker": zod.string(),
-  "placementReason": zod.string().nullish(),
-  "createdAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date().optional()
-})
-export const ListCitationsResponse = zod.array(ListCitationsResponseItem)
-
-
-/**
- * Used when user inserts citation manually (not via AI auto-cite).
- * @summary Manually add a citation marker at a position
- */
-export const CreateCitationParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const createCitationBodyOffsetInParagraphDefault = 0;
-
-export const CreateCitationBody = zod.object({
-  "referenceId": zod.number(),
-  "paragraphIndex": zod.number(),
-  "offsetInParagraph": zod.number().default(createCitationBodyOffsetInParagraphDefault),
-  "formatMarker": zod.string().describe('Pre-rendered marker (frontend computes from current citationFormat)'),
-  "placementReason": zod.string().optional()
-})
-
-export const CreateCitationResponse = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "referenceId": zod.number(),
-  "paragraphIndex": zod.number(),
-  "offsetInParagraph": zod.number(),
-  "formatMarker": zod.string(),
-  "placementReason": zod.string().nullish(),
-  "createdAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date().optional()
-})
-
-
-/**
- * @summary Update citation position (drag) or format marker
- */
-export const UpdateCitationParams = zod.object({
-  "projectId": zod.coerce.number(),
-  "citationId": zod.coerce.number()
-})
-
-export const UpdateCitationBody = zod.object({
-  "paragraphIndex": zod.number().optional().describe('New paragraph index (for drag between paragraphs)'),
-  "offsetInParagraph": zod.number().optional().describe('New character offset within the paragraph'),
-  "formatMarker": zod.string().optional().describe('New pre-rendered marker (after citationFormat change)'),
-  "placementReason": zod.string().optional()
-})
-
-export const UpdateCitationResponse = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "referenceId": zod.number(),
-  "paragraphIndex": zod.number(),
-  "offsetInParagraph": zod.number(),
-  "formatMarker": zod.string(),
-  "placementReason": zod.string().nullish(),
-  "createdAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date().optional()
-})
-
-
-/**
- * @summary Remove a citation marker
- */
-export const DeleteCitationParams = zod.object({
-  "projectId": zod.coerce.number(),
-  "citationId": zod.coerce.number()
-})
-
-export const DeleteCitationResponse = zod.void()
-
-
-/**
- * Updates the citation format used to render citation markers in the document
- * and generate the bibliography section. Triggers re-render of all existing
- * citation markers.
- * @summary Set the citation format for a project
- */
-export const SetProjectCitationFormatParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const SetProjectCitationFormatBody = zod.object({
-  "citationFormat": zod.enum(['APA', 'APA7', 'IEEE', 'Vancouver', 'Chicago', 'MLA', 'Harvard']).describe('Citation format for the project')
-})
-
-export const SetProjectCitationFormatResponse = zod.object({
-  "id": zod.number(),
-  "title": zod.string(),
-  "status": zod.enum(['draft', 'analyzing', 'writing', 'waiting_revision', 'completed', 'archived']),
-  "progress": zod.number().describe('0-100 percent'),
-  "instructionText": zod.string().nullish(),
-  "subject": zod.string().nullish(),
-  "taskType": zod.enum(['general', 'academic']).nullish(),
-  "citationFormat": zod.union([zod.literal('APA'),zod.literal('APA7'),zod.literal('IEEE'),zod.literal('Vancouver'),zod.literal('Chicago'),zod.literal('MLA'),zod.literal('Harvard'),zod.literal(null)]).nullish().describe('Citation format used for in-text\/footnote markers and bibliography. Default = APA.'),
-  "outputFormat": zod.string().nullish(),
-  "minRefYear": zod.number().nullish(),
-  "minRefCount": zod.number().nullish(),
-  "aiDisclosure": zod.boolean().optional().describe('Toggle AI disclosure labels (default true)'),
-  "createdAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-
-
-/**
- * Returns the latest document version with citation markers injected inline
- * at their stored (paragraphIndex, offsetInParagraph) positions, plus a
- * formatted bibliography section. For numbered formats (IEEE, Vancouver,
- * Chicago) markers use sequential numbers based on order of appearance.
- * @summary Get rendered document preview with citation markers + bibliography
- */
-export const GetDocumentPreviewParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const GetDocumentPreviewResponse = zod.object({
-  "paragraphs": zod.array(zod.object({
-  "index": zod.number().describe('Zero-based paragraph index matching original content split'),
-  "html": zod.string().describe('Rendered HTML for this paragraph with citation markers injected\nas `<sup class=\"cite-marker\" data-citation-id=\"N\">marker<\/sup>`.\nMarker text reflects the project\'s current citation format.\n')
-})),
-  "bibliography": zod.string().optional().describe('Auto-generated bibliography (CSL-formatted)'),
-  "citationFormat": zod.enum(['APA', 'APA7', 'IEEE', 'Vancouver', 'Chicago', 'MLA', 'Harvard']),
-  "citationCount": zod.number().describe('Total citation markers in this preview')
-})
-
-
-/**
- * Returns the CSL-formatted bibliography for all references that have
- * at least one citation in the project. Cheaper than
- * POST /references/regenerate (no AI call).
- * @summary Get formatted bibliography for a project
- */
-export const GetBibliographyParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const GetBibliographyResponse = zod.object({
-  "bibliography": zod.string(),
-  "format": zod.string().optional()
-})
-
-
-/**
- * Accepts a DOI or ISBN identifier and fetches metadata from CrossRef or Open Library.
- * @summary Fetch reference metadata by DOI or ISBN
- */
-export const FetchReferenceMetadataBody = zod.object({
-  "identifier": zod.string().describe('DOI (e.g. 10.1000\/xyz123) or ISBN-10\/ISBN-13')
-})
-
-export const FetchReferenceMetadataResponse = zod.object({
-  "title": zod.string(),
-  "authors": zod.string().nullish(),
-  "year": zod.number().nullish(),
-  "journal": zod.string().nullish(),
-  "volume": zod.string().nullish(),
-  "issue": zod.string().nullish(),
-  "doi": zod.string().nullish(),
-  "url": zod.string().nullish(),
-  "publisher": zod.string().nullish(),
-  "source": zod.enum(['crossref', 'openlibrary', 'manual'])
-})
-
-
-/**
- * Search CrossRef for academic papers by topic, keyword, or title. Returns structured metadata including authors, year, journal, and DOI.
- * @summary Search academic papers from CrossRef
- */
-export const searchReferencesQueryQMin = 3;
-
-export const searchReferencesQueryRowsDefault = 20;
-export const searchReferencesQueryRowsMax = 50;
-
-export const searchReferencesQueryOffsetDefault = 0;
-
-export const SearchReferencesQueryParams = zod.object({
-  "q": zod.coerce.string().min(searchReferencesQueryQMin).describe('Search query (minimum 3 characters)'),
-  "rows": zod.coerce.number().max(searchReferencesQueryRowsMax).default(searchReferencesQueryRowsDefault).describe('Number of results to return (max 50)'),
-  "offset": zod.coerce.number().default(searchReferencesQueryOffsetDefault).describe('Number of results to skip for pagination')
-})
-
-export const SearchReferencesResponse = zod.object({
-  "results": zod.array(zod.object({
-  "doi": zod.string().nullish().describe('Digital Object Identifier'),
-  "title": zod.string().optional(),
-  "authors": zod.string().optional().describe('Formatted author string (e.g., \"John Doe, Jane Smith\")'),
-  "year": zod.number().nullish(),
-  "journal": zod.string().nullish().describe('Journal or publication name'),
-  "volume": zod.string().nullish(),
-  "issue": zod.string().nullish(),
-  "url": zod.string().nullish(),
-  "type": zod.string().nullish().describe('Publication type (e.g., journal-article, book, proceedings-paper)'),
-  "publisher": zod.string().nullish(),
-  "page": zod.string().nullish().describe('Page range (e.g., \"123-145\")'),
-  "abstract": zod.string().nullish()
-})),
-  "totalResults": zod.number().describe('Total number of results matching the query'),
-  "query": zod.string().describe('The original search query')
-})
-
-
-/**
- * @summary List all share links for a project
- */
-export const ListShareLinksParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const ListShareLinksResponseItem = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "token": zod.string().describe('Unique share token'),
-  "accessMode": zod.enum(['view', 'comment', 'edit']),
-  "label": zod.string().nullish().describe('Optional label\/nickname for this share link'),
-  "expiresAt": zod.coerce.date().nullish(),
-  "createdAt": zod.coerce.date()
-})
-export const ListShareLinksResponse = zod.array(ListShareLinksResponseItem)
-
-
-/**
- * @summary Create a share link for a project
- */
-export const CreateShareLinkParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const CreateShareLinkBody = zod.object({
-  "accessMode": zod.enum(['view', 'comment', 'edit']),
-  "label": zod.string().optional(),
-  "expiresInDays": zod.number().optional().describe('Days until link expires (optional, null = never)')
-})
-
-export const CreateShareLinkResponse = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "token": zod.string().describe('Unique share token'),
-  "accessMode": zod.enum(['view', 'comment', 'edit']),
-  "label": zod.string().nullish().describe('Optional label\/nickname for this share link'),
-  "expiresAt": zod.coerce.date().nullish(),
-  "createdAt": zod.coerce.date()
-})
-
-
-/**
- * @summary Revoke a share link
- */
-export const DeleteShareLinkParams = zod.object({
-  "projectId": zod.coerce.number(),
-  "shareId": zod.coerce.number()
-})
-
-export const DeleteShareLinkResponse = zod.void()
-
-
-/**
- * @summary Access a shared project via token
- */
-export const AccessSharedProjectParams = zod.object({
-  "token": zod.coerce.string()
-})
-
-export const AccessSharedProjectResponse = zod.object({
-  "id": zod.number(),
-  "title": zod.string(),
-  "status": zod.enum(['draft', 'analyzing', 'writing', 'waiting_revision', 'completed', 'archived']),
-  "subject": zod.string().nullish(),
-  "taskType": zod.enum(['general', 'academic']).nullish(),
-  "latestDocument": zod.string().nullish().describe('Latest document content (if accessMode is view or edit)'),
-  "accessMode": zod.enum(['view', 'comment', 'edit']),
-  "ownerEmail": zod.string().optional().describe('Owner email (for display purposes only)'),
-  "createdAt": zod.coerce.date()
-})
-
-
-/**
- * @summary List attachments for a project
- */
-export const ListAttachmentsParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const ListAttachmentsResponseItem = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "filename": zod.string(),
-  "originalName": zod.string().optional(),
-  "mimeType": zod.string().nullish(),
-  "sizeBytes": zod.number().nullish(),
-  "attachmentType": zod.enum(['instruction', 'supplement']),
-  "extractedText": zod.string().nullish(),
-  "createdAt": zod.coerce.date()
-})
-export const ListAttachmentsResponse = zod.array(ListAttachmentsResponseItem)
-
-
-/**
- * @summary Upload an attachment as base64 JSON
- */
-export const UploadAttachmentParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const UploadAttachmentBody = zod.object({
-  "filename": zod.string(),
-  "base64Content": zod.string(),
-  "mimeType": zod.string().optional(),
-  "attachmentType": zod.enum(['instruction', 'supplement'])
-})
-
-export const UploadAttachmentResponse = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "filename": zod.string(),
-  "originalName": zod.string().optional(),
-  "mimeType": zod.string().nullish(),
-  "sizeBytes": zod.number().nullish(),
-  "attachmentType": zod.enum(['instruction', 'supplement']),
-  "extractedText": zod.string().nullish(),
-  "createdAt": zod.coerce.date()
-})
-
-
-/**
- * @summary Delete an attachment
- */
-export const DeleteAttachmentParams = zod.object({
-  "projectId": zod.coerce.number(),
-  "attachmentId": zod.coerce.number()
-})
-
-export const DeleteAttachmentResponse = zod.void()
-
-
-/**
- * @summary Download an attachment file
- */
-export const DownloadAttachmentParams = zod.object({
-  "projectId": zod.coerce.number(),
-  "attachmentId": zod.coerce.number()
-})
-
-export const DownloadAttachmentResponse = zod.unknown()
-
-
-/**
- * @summary Get activity timeline for a project
- */
-export const ListActivitiesParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const ListActivitiesResponseItem = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "eventType": zod.string(),
-  "description": zod.string(),
-  "createdAt": zod.coerce.date()
-})
-export const ListActivitiesResponse = zod.array(ListActivitiesResponseItem)
-
-
-/**
- * @summary List AI jobs for a project
- */
-export const ListJobsParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const ListJobsResponseItem = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "jobType": zod.enum(['analyze', 'outline', 'references', 'write_chapter', 'citations', 'bibliography', 'export', 'generate_quiz', 'analyze_style']),
-  "status": zod.enum(['pending', 'running', 'completed', 'failed']),
-  "result": zod.string().nullish(),
-  "errorMessage": zod.string().nullish(),
-  "createdAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-export const ListJobsResponse = zod.array(ListJobsResponseItem)
-
-
-/**
- * @summary Get analyzed metadata for a project
- */
-export const GetProjectMetadataParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const GetProjectMetadataResponse = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "detectedTitle": zod.string().nullish(),
-  "subject": zod.string().nullish(),
-  "taskType": zod.enum(['general', 'academic']).nullish(),
-  "citationFormat": zod.union([zod.literal('APA'),zod.literal('APA7'),zod.literal('IEEE'),zod.literal('Vancouver'),zod.literal('Chicago'),zod.literal('MLA'),zod.literal('Harvard'),zod.literal(null)]).nullish().describe('Citation format used for in-text\/footnote markers and bibliography. Default = APA.'),
-  "language": zod.string().nullish(),
-  "outline": zod.string().nullish(),
-  "contextSummary": zod.string().nullish(),
-  "createdAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-
-
-/**
- * @summary List AI usage records
- */
-export const listAIUsageQueryLimitDefault = 50;
-export const listAIUsageQueryOffsetDefault = 0;
-
-export const ListAIUsageQueryParams = zod.object({
-  "userId": zod.coerce.string().optional().describe('Filter by user (admin only, defaults to current user)'),
-  "projectId": zod.coerce.number().optional().describe('Filter by project'),
-  "startDate": zod.date().optional(),
-  "endDate": zod.date().optional(),
-  "limit": zod.coerce.number().default(listAIUsageQueryLimitDefault),
-  "offset": zod.coerce.number().default(listAIUsageQueryOffsetDefault)
-})
-
-export const ListAIUsageResponse = zod.object({
-  "data": zod.array(zod.object({
-  "id": zod.number(),
-  "userId": zod.string(),
-  "projectId": zod.number().nullish(),
-  "tierId": zod.string().nullish(),
-  "model": zod.string(),
-  "provider": zod.string(),
-  "inputTokens": zod.number(),
-  "outputTokens": zod.number(),
-  "estimatedCostUsd": zod.number(),
-  "costCents": zod.int().describe('Cost charged to user in IDR cents'),
-  "requestType": zod.enum(['chat', 'analyze', 'outline', 'write', 'export', 'bibliography', 'quiz', 'style']),
-  "metadata": zod.record(zod.string(), zod.unknown()).nullish(),
-  "createdAt": zod.coerce.date()
-})).optional(),
-  "total": zod.number().optional()
-})
-
-
-/**
- * @summary Get aggregated AI usage statistics
- */
-export const GetAIUsageStatsQueryParams = zod.object({
-  "userId": zod.coerce.string().optional().describe('Filter by user (admin only, defaults to current user)'),
-  "projectId": zod.coerce.number().optional()
-})
-
-export const GetAIUsageStatsResponse = zod.object({
-  "totalRequests": zod.number(),
-  "totalInputTokens": zod.number(),
-  "totalOutputTokens": zod.number(),
-  "totalCostUsd": zod.number(),
-  "byRequestType": zod.record(zod.string(), zod.object({
-  "requests": zod.number().optional(),
-  "inputTokens": zod.number().optional(),
-  "outputTokens": zod.number().optional(),
-  "costUsd": zod.number().optional()
-}))
-})
-
-
-/**
- * @summary Get current user's AI usage statistics
- */
-export const getMyUsageStatsQueryPeriodDefault = `all`;
-
-export const GetMyUsageStatsQueryParams = zod.object({
-  "period": zod.enum(['7d', '30d', 'all']).default(getMyUsageStatsQueryPeriodDefault).describe('Time period filter')
-})
-
-export const GetMyUsageStatsResponse = zod.object({
-  "totalRequests": zod.number(),
-  "totalInputTokens": zod.number(),
-  "totalOutputTokens": zod.number(),
-  "totalCostUsd": zod.number(),
-  "totalCostCents": zod.number().optional().describe('Total saldo terpakai dalam IDR cents. Ini angka yang dilihat user.'),
-  "byRequestType": zod.record(zod.string(), zod.object({
-  "requests": zod.number().optional(),
-  "inputTokens": zod.number().optional(),
-  "outputTokens": zod.number().optional(),
-  "costUsd": zod.number().optional(),
-  "costCents": zod.number().optional()
-})),
-  "byProject": zod.record(zod.string(), zod.object({
-  "requests": zod.number().optional(),
-  "inputTokens": zod.number().optional(),
-  "outputTokens": zod.number().optional(),
-  "costUsd": zod.number().optional(),
-  "costCents": zod.number().optional()
-})),
-  "period": zod.enum(['7d', '30d', 'all'])
-})
-
-
-/**
- * @summary Get per-project AI usage breakdown for current user
- */
-export const GetMyProjectUsageStatsParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const GetMyProjectUsageStatsResponse = zod.object({
-  "projectId": zod.number(),
-  "totalRequests": zod.number(),
-  "totalInputTokens": zod.number(),
-  "totalOutputTokens": zod.number(),
-  "totalCostUsd": zod.number(),
-  "totalCostCents": zod.number().optional().describe('Total saldo terpakai dalam IDR cents (project scope).'),
-  "byRequestType": zod.record(zod.string(), zod.object({
-  "requests": zod.number().optional(),
-  "inputTokens": zod.number().optional(),
-  "outputTokens": zod.number().optional(),
-  "costUsd": zod.number().optional(),
-  "costCents": zod.number().optional()
-}))
-})
-
-
-/**
- * @summary Get daily aggregated AI usage history
- */
-export const getMyUsageDailyHistoryQueryDaysDefault = 7;
-export const getMyUsageDailyHistoryQueryDaysMax = 30;
-
-
-
-export const GetMyUsageDailyHistoryQueryParams = zod.object({
-  "days": zod.coerce.number().min(1).max(getMyUsageDailyHistoryQueryDaysMax).default(getMyUsageDailyHistoryQueryDaysDefault).describe('Number of days to include (1-30)')
-})
-
-export const GetMyUsageDailyHistoryResponse = zod.object({
-  "days": zod.number().optional(),
-  "history": zod.array(zod.object({
-  "date": zod.string().optional().describe('Date string (YYYY-MM-DD)'),
-  "tokens": zod.number().optional(),
-  "hours": zod.number().optional(),
-  "costCents": zod.number().optional(),
-  "requestCount": zod.number().optional()
-})).optional()
-})
-
-
-/**
- * @summary Get current 5h and 7d quota window usage with subscription info
- */
-export const GetMyUsageWindowsResponse = zod.object({
-  "subscription": zod.object({
-  "id": zod.string().optional(),
-  "packageName": zod.string().nullish(),
-  "packageTier": zod.string().nullish(),
-  "expiresAt": zod.coerce.date().optional(),
-  "modelType": zod.string().nullish()
-}).nullish(),
-  "windows5h": zod.object({
-  "usedTokens": zod.number().describe('Total tokens used in this window (Haiku + Sonnet combined)'),
-  "limitTokens": zod.number().describe('Total token limit for this window'),
-  "usedHours": zod.number().describe('Approximate hours used (tokens \/ 100 tokens-per-message \/ 12 msg\/h)'),
-  "limitHours": zod.number().describe('Approximate hourly limit'),
-  "costCents": zod.number().optional(),
-  "pct": zod.number().describe('Percentage of quota used (0-100)'),
-  "resetAt": zod.coerce.date().describe('When the current window resets')
-}).optional(),
-  "windows7d": zod.object({
-  "usedTokens": zod.number().describe('Total tokens used in this window (Haiku + Sonnet combined)'),
-  "limitTokens": zod.number().describe('Total token limit for this window'),
-  "usedHours": zod.number().describe('Approximate hours used (tokens \/ 100 tokens-per-message \/ 12 msg\/h)'),
-  "limitHours": zod.number().describe('Approximate hourly limit'),
-  "costCents": zod.number().optional(),
-  "pct": zod.number().describe('Percentage of quota used (0-100)'),
-  "resetAt": zod.coerce.date().describe('When the current window resets')
-}).optional()
-})
-
-
-/**
- * @summary Get aggregated AI usage statistics (admin only)
- */
-export const getAdminUsageStatsQueryPeriodDefault = `all`;
-
-export const GetAdminUsageStatsQueryParams = zod.object({
-  "period": zod.enum(['7d', '30d', 'all']).default(getAdminUsageStatsQueryPeriodDefault).describe('Time period filter')
-})
-
-export const GetAdminUsageStatsResponse = zod.object({
-  "period": zod.enum(['7d', '30d', 'all']),
-  "totalRequests": zod.number().optional(),
-  "totalInputTokens": zod.number().optional(),
-  "totalOutputTokens": zod.number().optional(),
-  "totalCostUsd": zod.number().optional(),
-  "perUser": zod.array(zod.object({
-  "userId": zod.string().optional(),
-  "email": zod.string().optional(),
-  "totalRequests": zod.number().optional(),
-  "totalInputTokens": zod.number().optional(),
-  "totalOutputTokens": zod.number().optional(),
-  "totalCostUsd": zod.number().optional()
-})),
-  "perProvider": zod.array(zod.object({
-  "provider": zod.string().optional(),
-  "totalRequests": zod.number().optional(),
-  "totalInputTokens": zod.number().optional(),
-  "totalOutputTokens": zod.number().optional(),
-  "totalCostUsd": zod.number().optional()
-})),
-  "topUsersBySpend": zod.array(zod.object({
-  "userId": zod.string().optional(),
-  "email": zod.string().optional(),
-  "totalCostUsd": zod.number().optional()
-})),
-  "dailyTotals": zod.array(zod.object({
-  "date": zod.coerce.date().optional(),
-  "totalRequests": zod.number().optional(),
-  "totalInputTokens": zod.number().optional(),
-  "totalOutputTokens": zod.number().optional(),
-  "totalCostUsd": zod.number().optional()
-}))
-})
-
-
-/**
- * @summary List exports for a project
- */
-export const ListExportsParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const ListExportsResponseItem = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "format": zod.enum(['docx', 'pdf', 'pptx']),
-  "status": zod.enum(['pending', 'completed', 'failed']),
-  "filePath": zod.string().nullish(),
-  "createdAt": zod.coerce.date()
-})
-export const ListExportsResponse = zod.array(ListExportsResponseItem)
-
-
-/**
- * @summary Create a new export
- */
-export const CreateExportParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const CreateExportBody = zod.object({
-  "format": zod.enum(['docx', 'pdf', 'pptx']),
-  "documentVersionId": zod.number().optional()
-})
-
-export const CreateExportResponse = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "format": zod.enum(['docx', 'pdf', 'pptx']),
-  "status": zod.enum(['pending', 'completed', 'failed']),
-  "filePath": zod.string().nullish(),
-  "createdAt": zod.coerce.date()
-})
-
-
-/**
- * @summary List comments for a document
- */
-export const ListCommentsParams = zod.object({
-  "projectId": zod.coerce.number(),
-  "documentId": zod.coerce.number()
-})
-
-export const ListCommentsResponseItem = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "documentId": zod.number(),
-  "userId": zod.string(),
-  "userName": zod.string(),
-  "content": zod.string(),
-  "quoteText": zod.string().nullish().describe('Selected text this comment refers to'),
-  "offsetStart": zod.number().nullish(),
-  "offsetEnd": zod.number().nullish(),
-  "parentId": zod.number().nullish().describe('Parent comment ID for threaded replies'),
-  "resolved": zod.boolean(),
-  "resolvedBy": zod.string().nullish(),
-  "resolvedAt": zod.coerce.date().nullish(),
-  "createdAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-export const ListCommentsResponse = zod.array(ListCommentsResponseItem)
-
-
-/**
- * @summary Add a comment to a document
- */
-export const CreateCommentParams = zod.object({
-  "projectId": zod.coerce.number(),
-  "documentId": zod.coerce.number()
-})
-
-
-
-
-export const CreateCommentBody = zod.object({
-  "content": zod.string().min(1),
-  "quoteText": zod.string().optional(),
-  "offsetStart": zod.number().optional(),
-  "offsetEnd": zod.number().optional(),
-  "parentId": zod.number().optional().describe('Parent comment ID for threaded replies')
-})
-
-export const CreateCommentResponse = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "documentId": zod.number(),
-  "userId": zod.string(),
-  "userName": zod.string(),
-  "content": zod.string(),
-  "quoteText": zod.string().nullish().describe('Selected text this comment refers to'),
-  "offsetStart": zod.number().nullish(),
-  "offsetEnd": zod.number().nullish(),
-  "parentId": zod.number().nullish().describe('Parent comment ID for threaded replies'),
-  "resolved": zod.boolean(),
-  "resolvedBy": zod.string().nullish(),
-  "resolvedAt": zod.coerce.date().nullish(),
-  "createdAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-
-
-/**
- * @summary Update a comment or resolve it
- */
-export const UpdateCommentParams = zod.object({
-  "projectId": zod.coerce.number(),
-  "commentId": zod.coerce.number()
-})
-
-
-
-
-export const UpdateCommentBody = zod.object({
-  "content": zod.string().min(1).optional(),
-  "resolved": zod.boolean().optional()
-})
-
-export const UpdateCommentResponse = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "documentId": zod.number(),
-  "userId": zod.string(),
-  "userName": zod.string(),
-  "content": zod.string(),
-  "quoteText": zod.string().nullish().describe('Selected text this comment refers to'),
-  "offsetStart": zod.number().nullish(),
-  "offsetEnd": zod.number().nullish(),
-  "parentId": zod.number().nullish().describe('Parent comment ID for threaded replies'),
-  "resolved": zod.boolean(),
-  "resolvedBy": zod.string().nullish(),
-  "resolvedAt": zod.coerce.date().nullish(),
-  "createdAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-
-
-/**
- * @summary Delete a comment
- */
-export const DeleteCommentParams = zod.object({
-  "projectId": zod.coerce.number(),
-  "commentId": zod.coerce.number()
-})
-
-export const DeleteCommentResponse = zod.void()
-
-
-/**
- * @summary List collaborators on a project
- */
-export const ListMembersParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const ListMembersResponseItem = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "userId": zod.string(),
-  "role": zod.enum(['owner', 'collaborator', 'viewer']),
-  "createdAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-export const ListMembersResponse = zod.array(ListMembersResponseItem)
-
-
-/**
- * @summary Add a collaborator to a project
- */
-export const AddMemberParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const AddMemberBody = zod.object({
-  "userId": zod.string().describe('User ID (Supabase user ID)'),
-  "role": zod.enum(['collaborator', 'viewer'])
-})
-
-export const AddMemberResponse = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "userId": zod.string(),
-  "role": zod.enum(['owner', 'collaborator', 'viewer']),
-  "createdAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-
-
-/**
- * @summary Update a member's role
- */
-export const UpdateMemberParams = zod.object({
-  "projectId": zod.coerce.number(),
-  "memberId": zod.coerce.number()
-})
-
-export const UpdateMemberBody = zod.object({
-  "role": zod.enum(['collaborator', 'viewer'])
-})
-
-export const UpdateMemberResponse = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "userId": zod.string(),
-  "role": zod.enum(['owner', 'collaborator', 'viewer']),
-  "createdAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-
-
-/**
- * @summary Remove a collaborator from a project
- */
-export const RemoveMemberParams = zod.object({
-  "projectId": zod.coerce.number(),
-  "memberId": zod.coerce.number()
-})
-
-export const RemoveMemberResponse = zod.void()
-
-
-/**
- * @summary List quizzes for a project
- */
-export const ListQuizzesParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const ListQuizzesResponseItem = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "title": zod.string(),
-  "description": zod.string().nullish(),
-  "questions": zod.array(zod.object({
-  "id": zod.string(),
-  "text": zod.string(),
-  "type": zod.enum(['multiple_choice', 'short_answer', 'essay']),
-  "options": zod.array(zod.object({
-  "id": zod.string().optional(),
-  "text": zod.string().optional()
-})).optional().describe('Available options (for multiple_choice)'),
-  "points": zod.number()
-})),
-  "metadata": zod.looseObject({
-
-}).nullish(),
-  "createdBy": zod.string(),
-  "createdAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-export const ListQuizzesResponse = zod.array(ListQuizzesResponseItem)
-
-
-/**
- * @summary AI-generate a new quiz
- */
-export const GenerateQuizParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-
-
-export const generateQuizBodyCountDefault = 5;
-export const generateQuizBodyCountMax = 50;
-
-export const generateQuizBodyDifficultyDefault = `medium`;
-export const generateQuizBodyIncludeAnswersDefault = false;
-
-export const GenerateQuizBody = zod.object({
-  "title": zod.string().min(1),
-  "description": zod.string().optional(),
-  "topic": zod.string().min(1).describe('Topic\/theme for the questions'),
-  "count": zod.number().min(1).max(generateQuizBodyCountMax).default(generateQuizBodyCountDefault),
-  "questionTypes": zod.array(zod.enum(['multiple_choice', 'short_answer', 'essay'])).default([`multiple_choice`]),
-  "difficulty": zod.enum(['easy', 'medium', 'hard']).default(generateQuizBodyDifficultyDefault),
-  "includeAnswers": zod.boolean().default(generateQuizBodyIncludeAnswersDefault).describe('Include correct answers in quiz (teachers only)'),
-  "tier": zod.string().optional().describe('AI tier to use (e.g. \"free\", \"standard\", \"premium\"). Defaults to user\'s preferred tier.')
-})
-
-export const GenerateQuizResponse = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "title": zod.string(),
-  "description": zod.string().nullish(),
-  "questions": zod.array(zod.object({
-  "id": zod.string(),
-  "text": zod.string(),
-  "type": zod.enum(['multiple_choice', 'short_answer', 'essay']),
-  "options": zod.array(zod.object({
-  "id": zod.string().optional(),
-  "text": zod.string().optional()
-})).optional().describe('Available options (for multiple_choice)'),
-  "points": zod.number()
-})),
-  "metadata": zod.looseObject({
-
-}).nullish(),
-  "createdBy": zod.string(),
-  "createdAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-
-
-/**
- * @summary Get a quiz by ID
- */
-export const GetQuizParams = zod.object({
-  "projectId": zod.coerce.number(),
-  "quizId": zod.coerce.number()
-})
-
-export const GetQuizResponse = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "title": zod.string(),
-  "description": zod.string().nullish(),
-  "questions": zod.array(zod.object({
-  "id": zod.string(),
-  "text": zod.string(),
-  "type": zod.enum(['multiple_choice', 'short_answer', 'essay']),
-  "options": zod.array(zod.object({
-  "id": zod.string().optional(),
-  "text": zod.string().optional()
-})).optional().describe('Available options (for multiple_choice)'),
-  "points": zod.number()
-})),
-  "metadata": zod.looseObject({
-
-}).nullish(),
-  "createdBy": zod.string(),
-  "createdAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-
-
-/**
- * @summary List submissions for a quiz (teachers)
- */
-export const ListQuizSubmissionsParams = zod.object({
-  "quizId": zod.coerce.number()
-})
-
-export const ListQuizSubmissionsResponseItem = zod.object({
-  "id": zod.number(),
-  "quizId": zod.number(),
-  "studentId": zod.string(),
-  "responses": zod.array(zod.object({
-  "questionId": zod.string().optional(),
-  "answer": zod.string().optional()
-})),
-  "score": zod.number().nullish(),
-  "maxScore": zod.number().nullish(),
-  "gradingDetails": zod.array(zod.object({
-  "questionId": zod.string().optional(),
-  "score": zod.number().optional(),
-  "maxScore": zod.number().optional()
-})).nullish(),
-  "gradedAt": zod.coerce.date().nullish(),
-  "submittedAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-export const ListQuizSubmissionsResponse = zod.array(ListQuizSubmissionsResponseItem)
-
-
-/**
- * @summary Submit quiz answers
- */
-export const SubmitQuizParams = zod.object({
-  "quizId": zod.coerce.number()
-})
-
-export const SubmitQuizBody = zod.object({
-  "responses": zod.array(zod.object({
-  "questionId": zod.string(),
-  "answer": zod.string()
-}))
-})
-
-export const SubmitQuizResponse = zod.object({
-  "id": zod.number(),
-  "quizId": zod.number(),
-  "studentId": zod.string(),
-  "responses": zod.array(zod.object({
-  "questionId": zod.string().optional(),
-  "answer": zod.string().optional()
-})),
-  "score": zod.number().nullish(),
-  "maxScore": zod.number().nullish(),
-  "gradingDetails": zod.array(zod.object({
-  "questionId": zod.string().optional(),
-  "score": zod.number().optional(),
-  "maxScore": zod.number().optional()
-})).nullish(),
-  "gradedAt": zod.coerce.date().nullish(),
-  "submittedAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-
-
-/**
- * @summary Get current user's submission for a quiz
- */
-export const GetMyQuizSubmissionParams = zod.object({
-  "quizId": zod.coerce.number()
-})
-
-export const GetMyQuizSubmissionResponse = zod.object({
-  "id": zod.number(),
-  "quizId": zod.number(),
-  "studentId": zod.string(),
-  "responses": zod.array(zod.object({
-  "questionId": zod.string().optional(),
-  "answer": zod.string().optional()
-})),
-  "score": zod.number().nullish(),
-  "maxScore": zod.number().nullish(),
-  "gradingDetails": zod.array(zod.object({
-  "questionId": zod.string().optional(),
-  "score": zod.number().optional(),
-  "maxScore": zod.number().optional()
-})).nullish(),
-  "gradedAt": zod.coerce.date().nullish(),
-  "submittedAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-
-
-/**
- * @summary Get rubric for a quiz
- */
-export const GetRubricParams = zod.object({
-  "projectId": zod.coerce.number(),
-  "quizId": zod.coerce.number()
-})
-
-export const getRubricResponseCriteriaItemKeywordThresholdDefault = 0.5;
-export const getRubricResponseCriteriaItemKeywordThresholdMin = 0;
-export const getRubricResponseCriteriaItemKeywordThresholdMax = 1;
-
-
-
-export const GetRubricResponse = zod.object({
-  "id": zod.number(),
-  "quizId": zod.number(),
-  "criteria": zod.array(zod.object({
-  "questionId": zod.string().describe('ID of the quiz question this criterion grades'),
-  "maxPoints": zod.number().describe('Maximum points for this question'),
-  "correctAnswer": zod.string().optional().describe('Correct answer for multiple choice (optional)'),
-  "keywords": zod.array(zod.string()).optional().describe('Keywords to check for short answer \/ essay grading'),
-  "keywordThreshold": zod.number().min(getRubricResponseCriteriaItemKeywordThresholdMin).max(getRubricResponseCriteriaItemKeywordThresholdMax).default(getRubricResponseCriteriaItemKeywordThresholdDefault).describe('Fraction of keywords required for partial credit')
-})),
-  "manualNotes": zod.string().nullish().describe('Manual grading notes for essay questions'),
-  "createdBy": zod.string(),
-  "createdAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-
-
-/**
- * @summary Generate AI rubric for a quiz
- */
-export const GenerateRubricParams = zod.object({
-  "projectId": zod.coerce.number(),
-  "quizId": zod.coerce.number()
-})
-
-export const GenerateRubricBody = zod.object({
-  "manualNotes": zod.string().optional(),
-  "tier": zod.string().optional().describe('AI tier to use (e.g. \"free\", \"standard\", \"premium\"). Defaults to user\'s preferred tier.')
-})
-
-export const generateRubricResponseCriteriaItemKeywordThresholdDefault = 0.5;
-export const generateRubricResponseCriteriaItemKeywordThresholdMin = 0;
-export const generateRubricResponseCriteriaItemKeywordThresholdMax = 1;
-
-
-
-export const GenerateRubricResponse = zod.object({
-  "id": zod.number(),
-  "quizId": zod.number(),
-  "criteria": zod.array(zod.object({
-  "questionId": zod.string().describe('ID of the quiz question this criterion grades'),
-  "maxPoints": zod.number().describe('Maximum points for this question'),
-  "correctAnswer": zod.string().optional().describe('Correct answer for multiple choice (optional)'),
-  "keywords": zod.array(zod.string()).optional().describe('Keywords to check for short answer \/ essay grading'),
-  "keywordThreshold": zod.number().min(generateRubricResponseCriteriaItemKeywordThresholdMin).max(generateRubricResponseCriteriaItemKeywordThresholdMax).default(generateRubricResponseCriteriaItemKeywordThresholdDefault).describe('Fraction of keywords required for partial credit')
-})),
-  "manualNotes": zod.string().nullish().describe('Manual grading notes for essay questions'),
-  "createdBy": zod.string(),
-  "createdAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-
-
-/**
- * @summary Update rubric criteria
- */
-export const UpdateRubricParams = zod.object({
-  "projectId": zod.coerce.number(),
-  "quizId": zod.coerce.number()
-})
-
-export const updateRubricBodyCriteriaItemKeywordThresholdDefault = 0.5;
-export const updateRubricBodyCriteriaItemKeywordThresholdMin = 0;
-export const updateRubricBodyCriteriaItemKeywordThresholdMax = 1;
-
-
-
-export const UpdateRubricBody = zod.object({
-  "criteria": zod.array(zod.object({
-  "questionId": zod.string().describe('ID of the quiz question this criterion grades'),
-  "maxPoints": zod.number().describe('Maximum points for this question'),
-  "correctAnswer": zod.string().optional().describe('Correct answer for multiple choice (optional)'),
-  "keywords": zod.array(zod.string()).optional().describe('Keywords to check for short answer \/ essay grading'),
-  "keywordThreshold": zod.number().min(updateRubricBodyCriteriaItemKeywordThresholdMin).max(updateRubricBodyCriteriaItemKeywordThresholdMax).default(updateRubricBodyCriteriaItemKeywordThresholdDefault).describe('Fraction of keywords required for partial credit')
-})).optional(),
-  "manualNotes": zod.string().optional()
-})
-
-export const updateRubricResponseCriteriaItemKeywordThresholdDefault = 0.5;
-export const updateRubricResponseCriteriaItemKeywordThresholdMin = 0;
-export const updateRubricResponseCriteriaItemKeywordThresholdMax = 1;
-
-
-
-export const UpdateRubricResponse = zod.object({
-  "id": zod.number(),
-  "quizId": zod.number(),
-  "criteria": zod.array(zod.object({
-  "questionId": zod.string().describe('ID of the quiz question this criterion grades'),
-  "maxPoints": zod.number().describe('Maximum points for this question'),
-  "correctAnswer": zod.string().optional().describe('Correct answer for multiple choice (optional)'),
-  "keywords": zod.array(zod.string()).optional().describe('Keywords to check for short answer \/ essay grading'),
-  "keywordThreshold": zod.number().min(updateRubricResponseCriteriaItemKeywordThresholdMin).max(updateRubricResponseCriteriaItemKeywordThresholdMax).default(updateRubricResponseCriteriaItemKeywordThresholdDefault).describe('Fraction of keywords required for partial credit')
-})),
-  "manualNotes": zod.string().nullish().describe('Manual grading notes for essay questions'),
-  "createdBy": zod.string(),
-  "createdAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-
-
-/**
- * @summary Delete rubric
- */
-export const DeleteRubricParams = zod.object({
-  "projectId": zod.coerce.number(),
-  "quizId": zod.coerce.number()
-})
-
-export const DeleteRubricResponse = zod.void()
-
-
-/**
- * @summary Get current user's writing style profile
- */
-export const getMyWritingStyleResponseStyleCharacteristicsFormalityMin = 0;
-export const getMyWritingStyleResponseStyleCharacteristicsFormalityMax = 1;
-
-export const getMyWritingStyleResponseStyleCharacteristicsVocabularyLevelMin = 0;
-export const getMyWritingStyleResponseStyleCharacteristicsVocabularyLevelMax = 1;
-
-export const getMyWritingStyleResponseStyleCharacteristicsPassiveVoiceRatioMin = 0;
-export const getMyWritingStyleResponseStyleCharacteristicsPassiveVoiceRatioMax = 1;
-
-export const getMyWritingStyleResponseStyleCharacteristicsReadabilityScoreMin = 0;
-export const getMyWritingStyleResponseStyleCharacteristicsReadabilityScoreMax = 100;
-
-
-
-export const GetMyWritingStyleResponse = zod.object({
-  "id": zod.number(),
-  "userId": zod.string(),
-  "projectId": zod.number().nullish(),
-  "styleCharacteristics": zod.object({
-  "formality": zod.number().min(getMyWritingStyleResponseStyleCharacteristicsFormalityMin).max(getMyWritingStyleResponseStyleCharacteristicsFormalityMax).optional(),
-  "vocabularyLevel": zod.number().min(getMyWritingStyleResponseStyleCharacteristicsVocabularyLevelMin).max(getMyWritingStyleResponseStyleCharacteristicsVocabularyLevelMax).optional(),
-  "avgSentenceLength": zod.number().optional(),
-  "avgParagraphLength": zod.number().optional(),
-  "passiveVoiceRatio": zod.number().min(getMyWritingStyleResponseStyleCharacteristicsPassiveVoiceRatioMin).max(getMyWritingStyleResponseStyleCharacteristicsPassiveVoiceRatioMax).optional(),
-  "readabilityScore": zod.number().min(getMyWritingStyleResponseStyleCharacteristicsReadabilityScoreMin).max(getMyWritingStyleResponseStyleCharacteristicsReadabilityScoreMax).optional(),
-  "dominantTone": zod.enum(['neutral', 'persuasive', 'analytical', 'descriptive', 'critical']).optional(),
-  "commonPhrases": zod.array(zod.string()).optional(),
-  "structuralPatterns": zod.array(zod.string()).optional()
-}),
-  "sampleSize": zod.number(),
-  "analyzedAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-
-
-/**
- * @summary Update writing style profile
- */
-export const updateMyWritingStyleBodyStyleCharacteristicsFormalityMin = 0;
-export const updateMyWritingStyleBodyStyleCharacteristicsFormalityMax = 1;
-
-export const updateMyWritingStyleBodyStyleCharacteristicsVocabularyLevelMin = 0;
-export const updateMyWritingStyleBodyStyleCharacteristicsVocabularyLevelMax = 1;
-
-export const updateMyWritingStyleBodyStyleCharacteristicsPassiveVoiceRatioMin = 0;
-export const updateMyWritingStyleBodyStyleCharacteristicsPassiveVoiceRatioMax = 1;
-
-export const updateMyWritingStyleBodyStyleCharacteristicsReadabilityScoreMin = 0;
-export const updateMyWritingStyleBodyStyleCharacteristicsReadabilityScoreMax = 100;
-
-
-
-export const UpdateMyWritingStyleBody = zod.object({
-  "styleCharacteristics": zod.object({
-  "formality": zod.number().min(updateMyWritingStyleBodyStyleCharacteristicsFormalityMin).max(updateMyWritingStyleBodyStyleCharacteristicsFormalityMax).optional(),
-  "vocabularyLevel": zod.number().min(updateMyWritingStyleBodyStyleCharacteristicsVocabularyLevelMin).max(updateMyWritingStyleBodyStyleCharacteristicsVocabularyLevelMax).optional(),
-  "avgSentenceLength": zod.number().optional(),
-  "avgParagraphLength": zod.number().optional(),
-  "passiveVoiceRatio": zod.number().min(updateMyWritingStyleBodyStyleCharacteristicsPassiveVoiceRatioMin).max(updateMyWritingStyleBodyStyleCharacteristicsPassiveVoiceRatioMax).optional(),
-  "readabilityScore": zod.number().min(updateMyWritingStyleBodyStyleCharacteristicsReadabilityScoreMin).max(updateMyWritingStyleBodyStyleCharacteristicsReadabilityScoreMax).optional(),
-  "dominantTone": zod.enum(['neutral', 'persuasive', 'analytical', 'descriptive', 'critical']).optional(),
-  "commonPhrases": zod.array(zod.string()).optional(),
-  "structuralPatterns": zod.array(zod.string()).optional()
-}).optional()
-})
-
-export const updateMyWritingStyleResponseStyleCharacteristicsFormalityMin = 0;
-export const updateMyWritingStyleResponseStyleCharacteristicsFormalityMax = 1;
-
-export const updateMyWritingStyleResponseStyleCharacteristicsVocabularyLevelMin = 0;
-export const updateMyWritingStyleResponseStyleCharacteristicsVocabularyLevelMax = 1;
-
-export const updateMyWritingStyleResponseStyleCharacteristicsPassiveVoiceRatioMin = 0;
-export const updateMyWritingStyleResponseStyleCharacteristicsPassiveVoiceRatioMax = 1;
-
-export const updateMyWritingStyleResponseStyleCharacteristicsReadabilityScoreMin = 0;
-export const updateMyWritingStyleResponseStyleCharacteristicsReadabilityScoreMax = 100;
-
-
-
-export const UpdateMyWritingStyleResponse = zod.object({
-  "id": zod.number(),
-  "userId": zod.string(),
-  "projectId": zod.number().nullish(),
-  "styleCharacteristics": zod.object({
-  "formality": zod.number().min(updateMyWritingStyleResponseStyleCharacteristicsFormalityMin).max(updateMyWritingStyleResponseStyleCharacteristicsFormalityMax).optional(),
-  "vocabularyLevel": zod.number().min(updateMyWritingStyleResponseStyleCharacteristicsVocabularyLevelMin).max(updateMyWritingStyleResponseStyleCharacteristicsVocabularyLevelMax).optional(),
-  "avgSentenceLength": zod.number().optional(),
-  "avgParagraphLength": zod.number().optional(),
-  "passiveVoiceRatio": zod.number().min(updateMyWritingStyleResponseStyleCharacteristicsPassiveVoiceRatioMin).max(updateMyWritingStyleResponseStyleCharacteristicsPassiveVoiceRatioMax).optional(),
-  "readabilityScore": zod.number().min(updateMyWritingStyleResponseStyleCharacteristicsReadabilityScoreMin).max(updateMyWritingStyleResponseStyleCharacteristicsReadabilityScoreMax).optional(),
-  "dominantTone": zod.enum(['neutral', 'persuasive', 'analytical', 'descriptive', 'critical']).optional(),
-  "commonPhrases": zod.array(zod.string()).optional(),
-  "structuralPatterns": zod.array(zod.string()).optional()
-}),
-  "sampleSize": zod.number(),
-  "analyzedAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-
-
-/**
- * @summary Analyze writing style from documents
- */
-export const analyzeMyWritingStyleBodyOneTextsMax = 20;
-
-
-
-export const AnalyzeMyWritingStyleBody = zod.object({
-  "texts": zod.array(zod.string()).min(1).max(analyzeMyWritingStyleBodyOneTextsMax).describe('Array of text samples to analyze (min 1, max 20)'),
-  "projectId": zod.number().optional().describe('Optional project scope for this analysis')
-}).and(zod.object({
-  "tier": zod.string().optional().describe('AI tier to use (e.g. \"free\", \"standard\", \"premium\"). Defaults to user\'s preferred tier.')
-}))
-
-export const analyzeMyWritingStyleResponseStyleCharacteristicsFormalityMin = 0;
-export const analyzeMyWritingStyleResponseStyleCharacteristicsFormalityMax = 1;
-
-export const analyzeMyWritingStyleResponseStyleCharacteristicsVocabularyLevelMin = 0;
-export const analyzeMyWritingStyleResponseStyleCharacteristicsVocabularyLevelMax = 1;
-
-export const analyzeMyWritingStyleResponseStyleCharacteristicsPassiveVoiceRatioMin = 0;
-export const analyzeMyWritingStyleResponseStyleCharacteristicsPassiveVoiceRatioMax = 1;
-
-export const analyzeMyWritingStyleResponseStyleCharacteristicsReadabilityScoreMin = 0;
-export const analyzeMyWritingStyleResponseStyleCharacteristicsReadabilityScoreMax = 100;
-
-
-
-export const AnalyzeMyWritingStyleResponse = zod.object({
-  "id": zod.number(),
-  "userId": zod.string(),
-  "projectId": zod.number().nullish(),
-  "styleCharacteristics": zod.object({
-  "formality": zod.number().min(analyzeMyWritingStyleResponseStyleCharacteristicsFormalityMin).max(analyzeMyWritingStyleResponseStyleCharacteristicsFormalityMax).optional(),
-  "vocabularyLevel": zod.number().min(analyzeMyWritingStyleResponseStyleCharacteristicsVocabularyLevelMin).max(analyzeMyWritingStyleResponseStyleCharacteristicsVocabularyLevelMax).optional(),
-  "avgSentenceLength": zod.number().optional(),
-  "avgParagraphLength": zod.number().optional(),
-  "passiveVoiceRatio": zod.number().min(analyzeMyWritingStyleResponseStyleCharacteristicsPassiveVoiceRatioMin).max(analyzeMyWritingStyleResponseStyleCharacteristicsPassiveVoiceRatioMax).optional(),
-  "readabilityScore": zod.number().min(analyzeMyWritingStyleResponseStyleCharacteristicsReadabilityScoreMin).max(analyzeMyWritingStyleResponseStyleCharacteristicsReadabilityScoreMax).optional(),
-  "dominantTone": zod.enum(['neutral', 'persuasive', 'analytical', 'descriptive', 'critical']).optional(),
-  "commonPhrases": zod.array(zod.string()).optional(),
-  "structuralPatterns": zod.array(zod.string()).optional()
-}),
-  "sampleSize": zod.number(),
-  "analyzedAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-
-
-/**
- * @summary Get writing style profile for a project
- */
-export const GetStyleProfileParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const getStyleProfileResponseStyleCharacteristicsFormalityMin = 0;
-export const getStyleProfileResponseStyleCharacteristicsFormalityMax = 1;
-
-export const getStyleProfileResponseStyleCharacteristicsVocabularyLevelMin = 0;
-export const getStyleProfileResponseStyleCharacteristicsVocabularyLevelMax = 1;
-
-export const getStyleProfileResponseStyleCharacteristicsPassiveVoiceRatioMin = 0;
-export const getStyleProfileResponseStyleCharacteristicsPassiveVoiceRatioMax = 1;
-
-export const getStyleProfileResponseStyleCharacteristicsReadabilityScoreMin = 0;
-export const getStyleProfileResponseStyleCharacteristicsReadabilityScoreMax = 100;
-
-
-
-export const GetStyleProfileResponse = zod.object({
-  "id": zod.number(),
-  "userId": zod.string(),
-  "projectId": zod.number().nullish(),
-  "styleCharacteristics": zod.object({
-  "formality": zod.number().min(getStyleProfileResponseStyleCharacteristicsFormalityMin).max(getStyleProfileResponseStyleCharacteristicsFormalityMax).optional(),
-  "vocabularyLevel": zod.number().min(getStyleProfileResponseStyleCharacteristicsVocabularyLevelMin).max(getStyleProfileResponseStyleCharacteristicsVocabularyLevelMax).optional(),
-  "avgSentenceLength": zod.number().optional(),
-  "avgParagraphLength": zod.number().optional(),
-  "passiveVoiceRatio": zod.number().min(getStyleProfileResponseStyleCharacteristicsPassiveVoiceRatioMin).max(getStyleProfileResponseStyleCharacteristicsPassiveVoiceRatioMax).optional(),
-  "readabilityScore": zod.number().min(getStyleProfileResponseStyleCharacteristicsReadabilityScoreMin).max(getStyleProfileResponseStyleCharacteristicsReadabilityScoreMax).optional(),
-  "dominantTone": zod.enum(['neutral', 'persuasive', 'analytical', 'descriptive', 'critical']).optional(),
-  "commonPhrases": zod.array(zod.string()).optional(),
-  "structuralPatterns": zod.array(zod.string()).optional()
-}),
-  "sampleSize": zod.number(),
-  "analyzedAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-
-
-/**
- * @summary Analyze writing style and store profile
- */
-export const AnalyzeStyleParams = zod.object({
-  "projectId": zod.coerce.number()
-})
-
-export const analyzeStyleBodyTextsMax = 20;
-
-
-
-export const AnalyzeStyleBody = zod.object({
-  "texts": zod.array(zod.string()).min(1).max(analyzeStyleBodyTextsMax).describe('Array of text samples to analyze (min 1, max 20)'),
-  "projectId": zod.number().optional().describe('Optional project scope for this analysis')
-})
-
-export const analyzeStyleResponseStyleCharacteristicsFormalityMin = 0;
-export const analyzeStyleResponseStyleCharacteristicsFormalityMax = 1;
-
-export const analyzeStyleResponseStyleCharacteristicsVocabularyLevelMin = 0;
-export const analyzeStyleResponseStyleCharacteristicsVocabularyLevelMax = 1;
-
-export const analyzeStyleResponseStyleCharacteristicsPassiveVoiceRatioMin = 0;
-export const analyzeStyleResponseStyleCharacteristicsPassiveVoiceRatioMax = 1;
-
-export const analyzeStyleResponseStyleCharacteristicsReadabilityScoreMin = 0;
-export const analyzeStyleResponseStyleCharacteristicsReadabilityScoreMax = 100;
-
-
-
-export const AnalyzeStyleResponse = zod.object({
-  "id": zod.number(),
-  "userId": zod.string(),
-  "projectId": zod.number().nullish(),
-  "styleCharacteristics": zod.object({
-  "formality": zod.number().min(analyzeStyleResponseStyleCharacteristicsFormalityMin).max(analyzeStyleResponseStyleCharacteristicsFormalityMax).optional(),
-  "vocabularyLevel": zod.number().min(analyzeStyleResponseStyleCharacteristicsVocabularyLevelMin).max(analyzeStyleResponseStyleCharacteristicsVocabularyLevelMax).optional(),
-  "avgSentenceLength": zod.number().optional(),
-  "avgParagraphLength": zod.number().optional(),
-  "passiveVoiceRatio": zod.number().min(analyzeStyleResponseStyleCharacteristicsPassiveVoiceRatioMin).max(analyzeStyleResponseStyleCharacteristicsPassiveVoiceRatioMax).optional(),
-  "readabilityScore": zod.number().min(analyzeStyleResponseStyleCharacteristicsReadabilityScoreMin).max(analyzeStyleResponseStyleCharacteristicsReadabilityScoreMax).optional(),
-  "dominantTone": zod.enum(['neutral', 'persuasive', 'analytical', 'descriptive', 'critical']).optional(),
-  "commonPhrases": zod.array(zod.string()).optional(),
-  "structuralPatterns": zod.array(zod.string()).optional()
-}),
-  "sampleSize": zod.number(),
-  "analyzedAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date()
-})
-
-
-/**
- * @summary List all active AI tiers (public price list)
- */
-export const GetAITiersResponse = zod.object({
-  "tiers": zod.array(zod.object({
-  "id": zod.string().optional(),
-  "name": zod.string().optional(),
-  "provider": zod.string().optional(),
-  "model": zod.string().optional(),
-  "pricePer1MInputCents": zod.int().optional().describe('Price per 1M input tokens in IDR cents'),
-  "pricePer1MOutputCents": zod.int().optional().describe('Price per 1M output tokens in IDR cents'),
-  "providerCostPer1MInputCents": zod.int().optional(),
-  "providerCostPer1MOutputCents": zod.int().optional(),
-  "rateLimitRpm": zod.int().nullish().describe('Requests per minute limit'),
-  "rateLimitTpd": zod.int().nullish().describe('Tokens per day limit'),
-  "isFree": zod.boolean().optional(),
-  "description": zod.string().optional(),
-  "usageTips": zod.string().nullish(),
-  "rateLimit": zod.string().optional().describe('Human-readable rate limit string'),
-  "priceDisplay": zod.string().optional().describe('Human-readable price')
-})).optional()
-})
-
-
-/**
- * @summary Get current balance and transaction history
- */
-export const GetMyBalanceResponse = zod.object({
-  "balanceCents": zod.int().optional(),
-  "balanceDisplay": zod.string().optional(),
-  "preferredTierId": zod.string().nullish(),
-  "recentTransactions": zod.array(zod.object({
-  "id": zod.string().optional(),
-  "type": zod.enum(['topup', 'ai_usage', 'refund', 'bonus', 'adjustment']).optional(),
-  "amountCents": zod.int().optional(),
-  "amountDisplay": zod.string().optional(),
-  "balanceAfterCents": zod.int().optional(),
-  "balanceAfterDisplay": zod.string().optional(),
-  "description": zod.string().optional(),
-  "createdAt": zod.coerce.date().optional()
-})).optional()
-})
-
-
-/**
- * @summary Set default AI tier preference
- */
-export const SetAITierPreferenceBody = zod.object({
-  "tierId": zod.string()
-})
-
-export const SetAITierPreferenceResponse = zod.object({
-  "preferredTierId": zod.string().optional()
-})
-
-
-/**
- * @summary Owner: list all AI tiers including inactive
- */
-export const GetAdminAITiersResponse = zod.object({
-  "tiers": zod.array(zod.object({
-  "id": zod.string().optional(),
-  "name": zod.string().optional(),
-  "provider": zod.string().optional(),
-  "model": zod.string().optional(),
-  "pricePer1MInputCents": zod.number().optional(),
-  "pricePer1MOutputCents": zod.number().optional(),
-  "providerCostPer1MInputCents": zod.number().optional(),
-  "providerCostPer1MOutputCents": zod.number().optional(),
-  "rateLimitRpm": zod.number().nullish(),
-  "rateLimitTpd": zod.number().nullish(),
-  "isFree": zod.boolean().optional(),
-  "isActive": zod.boolean().optional(),
-  "displayOrder": zod.number().optional(),
-  "description": zod.string().optional(),
-  "usageTips": zod.string().nullish(),
-  "createdAt": zod.coerce.date().optional(),
-  "updatedAt": zod.coerce.date().optional()
-})).optional()
-})
-
-
-/**
- * @summary Owner: update tier pricing, rate limits, and visibility
- */
-export const UpdateAdminAITierParams = zod.object({
-  "tierId": zod.coerce.string()
-})
-
-export const updateAdminAITierBodyNameMax = 50;
-
-export const updateAdminAITierBodyPricePer1MInputCentsMin = 0;
-
-export const updateAdminAITierBodyPricePer1MOutputCentsMin = 0;
-
-export const updateAdminAITierBodyProviderCostPer1MInputCentsMin = 0;
-
-export const updateAdminAITierBodyProviderCostPer1MOutputCentsMin = 0;
-
-export const updateAdminAITierBodyRateLimitRpmMax = 10000;
-
-
-export const updateAdminAITierBodyDescriptionMax = 500;
-
-export const updateAdminAITierBodyUsageTipsMax = 500;
-
-
-
-export const UpdateAdminAITierBody = zod.object({
-  "name": zod.string().min(1).max(updateAdminAITierBodyNameMax).optional(),
-  "pricePer1MInputCents": zod.number().min(updateAdminAITierBodyPricePer1MInputCentsMin).optional(),
-  "pricePer1MOutputCents": zod.number().min(updateAdminAITierBodyPricePer1MOutputCentsMin).optional(),
-  "providerCostPer1MInputCents": zod.number().min(updateAdminAITierBodyProviderCostPer1MInputCentsMin).optional(),
-  "providerCostPer1MOutputCents": zod.number().min(updateAdminAITierBodyProviderCostPer1MOutputCentsMin).optional(),
-  "rateLimitRpm": zod.number().min(1).max(updateAdminAITierBodyRateLimitRpmMax).nullish(),
-  "rateLimitTpd": zod.number().min(1).nullish(),
-  "isFree": zod.boolean().optional(),
-  "isActive": zod.boolean().optional(),
-  "description": zod.string().max(updateAdminAITierBodyDescriptionMax).optional(),
-  "usageTips": zod.string().max(updateAdminAITierBodyUsageTipsMax).nullish()
-})
-
-export const UpdateAdminAITierResponse = zod.object({
-  "tier": zod.object({
-  "id": zod.string().optional(),
-  "name": zod.string().optional(),
-  "provider": zod.string().optional(),
-  "model": zod.string().optional(),
-  "pricePer1MInputCents": zod.number().optional(),
-  "pricePer1MOutputCents": zod.number().optional(),
-  "providerCostPer1MInputCents": zod.number().optional(),
-  "providerCostPer1MOutputCents": zod.number().optional(),
-  "rateLimitRpm": zod.number().nullish(),
-  "rateLimitTpd": zod.number().nullish(),
-  "isFree": zod.boolean().optional(),
-  "isActive": zod.boolean().optional(),
-  "displayOrder": zod.number().optional(),
-  "description": zod.string().optional(),
-  "usageTips": zod.string().nullish(),
-  "createdAt": zod.coerce.date().optional(),
-  "updatedAt": zod.coerce.date().optional()
-}).optional()
-})
-
-
-/**
- * Returns display name, avatar URL, email, and account info.
- * @summary Get current user's public profile
- */
-export const GetMyProfileResponse = zod.object({
-  "id": zod.string(),
-  "email": zod.string(),
-  "username": zod.string(),
-  "displayName": zod.string().nullable(),
-  "avatarUrl": zod.string().nullable(),
-  "isOwner": zod.boolean(),
-  "referralCode": zod.string().nullish(),
-  "usernameChangedAt": zod.coerce.date().nullish().describe('When username was last changed (for 30-day rate limit)'),
-  "createdAt": zod.coerce.date()
-})
-
-
-/**
- * Update display name, avatar URL, and/or username. Username changes are rate-limited to once per 30 days (rolling window).
- * @summary Update current user's profile
- */
-export const updateMyProfileBodyDisplayNameMax = 100;
-
-export const updateMyProfileBodyUsernameMin = 3;
-export const updateMyProfileBodyUsernameMax = 30;
-
-
-export const updateMyProfileBodyUsernameRegExp = new RegExp('^[a-zA-Z0-9_]+$');
-
-
-export const UpdateMyProfileBody = zod.object({
-  "displayName": zod.string().min(1).max(updateMyProfileBodyDisplayNameMax).optional(),
-  "avatarUrl": zod.url().optional(),
-  "username": zod.string().min(updateMyProfileBodyUsernameMin).max(updateMyProfileBodyUsernameMax).regex(updateMyProfileBodyUsernameRegExp).optional().describe('Unique username for sharing (3-30 chars, alphanumeric + underscore)')
-})
-
-export const UpdateMyProfileResponse = zod.object({
-  "id": zod.string(),
-  "email": zod.string(),
-  "username": zod.string(),
-  "displayName": zod.string().nullable(),
-  "avatarUrl": zod.string().nullable(),
-  "isOwner": zod.boolean(),
-  "referralCode": zod.string().nullish(),
-  "usernameChangedAt": zod.coerce.date().nullish().describe('When username was last changed (for 30-day rate limit)'),
-  "createdAt": zod.coerce.date()
-})
-
-
-/**
- * Upload a profile picture to Supabase Storage. Accepts JPEG, PNG, or WebP up to 5MB.
- * @summary Upload avatar image
- */
-export const UploadMyAvatarBody = zod.object({
-  "base64Content": zod.string().describe('Base64-encoded image content (max 5MB, JPEG\/PNG\/WebP)'),
-  "filename": zod.string().describe('Original filename (e.g. \"avatar.jpg\")')
-})
-
-export const UploadMyAvatarResponse = zod.object({
-  "avatarUrl": zod.url().describe('Public URL of the uploaded avatar')
-})
-
-
-/**
- * Permanently deletes the user account and all associated data. Requires password confirmation.
- * @summary Delete current user account
- */
-export const DeleteMyAccountBody = zod.object({
-  "password": zod.string().describe('User\'s current password to confirm deletion')
-})
-
-export const DeleteMyAccountResponse = zod.object({
-  "message": zod.string()
-})
-
-
-/**
- * Returns the user's own templates plus all public system templates.
- * @summary List document templates
- */
-export const ListTemplatesQueryParams = zod.object({
-  "category": zod.coerce.string().optional()
-})
-
-export const ListTemplatesResponseItem = zod.object({
-  "id": zod.number().optional(),
-  "projectId": zod.number().optional(),
-  "title": zod.string().optional(),
-  "description": zod.string().optional(),
-  "content": zod.string().optional(),
-  "isActive": zod.boolean().optional(),
-  "createdAt": zod.coerce.date().optional(),
-  "updatedAt": zod.coerce.date().optional()
-})
-export const ListTemplatesResponse = zod.array(ListTemplatesResponseItem)
-
-
-/**
- * @summary Create a new document template
- */
-
-
-
-export const CreateTemplateBody = zod.object({
-  "title": zod.string().min(1),
-  "description": zod.string().optional(),
-  "content": zod.string().optional()
-})
-
-export const CreateTemplateResponse = zod.object({
-  "id": zod.number().optional(),
-  "projectId": zod.number().optional(),
-  "title": zod.string().optional(),
-  "description": zod.string().optional(),
-  "content": zod.string().optional(),
-  "isActive": zod.boolean().optional(),
-  "createdAt": zod.coerce.date().optional(),
-  "updatedAt": zod.coerce.date().optional()
-})
-
-
-/**
- * @summary List available template categories
- */
-export const ListTemplateCategoriesResponseItem = zod.string()
-export const ListTemplateCategoriesResponse = zod.array(ListTemplateCategoriesResponseItem)
-
-
-/**
- * @summary Get a template by ID
- */
-export const GetTemplateParams = zod.object({
-  "templateId": zod.coerce.number()
-})
-
-export const GetTemplateResponse = zod.object({
-  "id": zod.number().optional(),
-  "projectId": zod.number().optional(),
-  "title": zod.string().optional(),
-  "description": zod.string().optional(),
-  "content": zod.string().optional(),
-  "isActive": zod.boolean().optional(),
-  "createdAt": zod.coerce.date().optional(),
-  "updatedAt": zod.coerce.date().optional()
-})
-
-
-/**
- * Only the template owner can update. System templates are read-only.
- * @summary Update a template
- */
-export const UpdateTemplateParams = zod.object({
-  "templateId": zod.coerce.number()
-})
-
-
-
-
-export const UpdateTemplateBody = zod.object({
-  "title": zod.string().min(1).optional(),
-  "description": zod.string().optional(),
-  "content": zod.string().optional(),
-  "isActive": zod.boolean().optional()
-})
-
-export const UpdateTemplateResponse = zod.object({
-  "id": zod.number().optional(),
-  "projectId": zod.number().optional(),
-  "title": zod.string().optional(),
-  "description": zod.string().optional(),
-  "content": zod.string().optional(),
-  "isActive": zod.boolean().optional(),
-  "createdAt": zod.coerce.date().optional(),
-  "updatedAt": zod.coerce.date().optional()
-})
-
-
-/**
- * Only the template owner can delete. System templates cannot be deleted.
- * @summary Delete a template
- */
-export const DeleteTemplateParams = zod.object({
-  "templateId": zod.coerce.number()
-})
-
-export const DeleteTemplateResponse = zod.void()
-
-
-/**
- * Returns all references in the authenticated user's personal reference pool.
- * @summary List account-level references
- */
-export const ListAccountReferencesResponseItem = zod.object({
-  "id": zod.number(),
-  "userId": zod.string(),
-  "title": zod.string(),
-  "authors": zod.string().nullish(),
-  "year": zod.number().nullish(),
-  "journal": zod.string().nullish(),
-  "volume": zod.string().nullish(),
-  "issue": zod.string().nullish(),
-  "doi": zod.string().nullish(),
-  "url": zod.string().nullish(),
-  "createdAt": zod.coerce.date(),
-  "isSuggested": zod.boolean().optional().describe('Whether this reference was auto-suggested by CrossRef'),
-  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference')
-})
-export const ListAccountReferencesResponse = zod.array(ListAccountReferencesResponseItem)
-
-
-/**
- * Adds a new reference to the user's account-level library. Duplicate DOIs are rejected.
- * @summary Add reference to personal pool
- */
-
-export const createAccountReferenceBodyIsSuggestedDefault = false;
-export const createAccountReferenceBodySourceDefault = `manual`;
-
-export const CreateAccountReferenceBody = zod.object({
-  "title": zod.string().min(1),
-  "authors": zod.string().optional(),
-  "year": zod.number().optional(),
-  "journal": zod.string().optional(),
-  "volume": zod.string().optional(),
-  "issue": zod.string().optional(),
-  "doi": zod.string().optional(),
-  "url": zod.string().optional(),
-  "isSuggested": zod.boolean().default(createAccountReferenceBodyIsSuggestedDefault).describe('Whether this reference was auto-suggested by CrossRef'),
-  "source": zod.enum(['manual', 'crossref', 'file']).default(createAccountReferenceBodySourceDefault).describe('Source of the reference')
-})
-
-export const CreateAccountReferenceResponse = zod.object({
-  "id": zod.number(),
-  "userId": zod.string(),
-  "title": zod.string(),
-  "authors": zod.string().nullish(),
-  "year": zod.number().nullish(),
-  "journal": zod.string().nullish(),
-  "volume": zod.string().nullish(),
-  "issue": zod.string().nullish(),
-  "doi": zod.string().nullish(),
-  "url": zod.string().nullish(),
-  "createdAt": zod.coerce.date(),
-  "isSuggested": zod.boolean().optional().describe('Whether this reference was auto-suggested by CrossRef'),
-  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference')
-})
-
-
-/**
- * Fetches metadata from CrossRef for each DOI and adds valid references to the account library. Skips duplicates.
- * @summary Bulk import references from DOIs
- */
-export const importAccountReferencesBodyDoisMax = 50;
-
-
-
-export const ImportAccountReferencesBody = zod.object({
-  "dois": zod.array(zod.string()).min(1).max(importAccountReferencesBodyDoisMax).describe('Array of DOI strings to import (max 50)')
-})
-
-export const ImportAccountReferencesResponse = zod.object({
-  "imported": zod.array(zod.object({
-  "id": zod.number(),
-  "userId": zod.string(),
-  "title": zod.string(),
-  "authors": zod.string().nullish(),
-  "year": zod.number().nullish(),
-  "journal": zod.string().nullish(),
-  "volume": zod.string().nullish(),
-  "issue": zod.string().nullish(),
-  "doi": zod.string().nullish(),
-  "url": zod.string().nullish(),
-  "createdAt": zod.coerce.date(),
-  "isSuggested": zod.boolean().optional().describe('Whether this reference was auto-suggested by CrossRef'),
-  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference')
-})),
-  "skipped": zod.array(zod.string()).optional().describe('DOIs that were already in the user\'s library'),
-  "failed": zod.array(zod.object({
-  "doi": zod.string().optional(),
-  "error": zod.string().optional()
-})).optional().describe('DOIs that failed to import'),
-  "summary": zod.object({
-  "total": zod.number().optional(),
-  "imported": zod.number().optional(),
-  "skipped": zod.number().optional(),
-  "failed": zod.number().optional()
-})
-})
-
-
-/**
- * @summary Update an account reference
- */
-export const UpdateAccountReferenceParams = zod.object({
-  "id": zod.coerce.number()
-})
-
-
-export const updateAccountReferenceBodyIsSuggestedDefault = false;
-export const updateAccountReferenceBodySourceDefault = `manual`;
-
-export const UpdateAccountReferenceBody = zod.object({
-  "title": zod.string().min(1),
-  "authors": zod.string().optional(),
-  "year": zod.number().optional(),
-  "journal": zod.string().optional(),
-  "volume": zod.string().optional(),
-  "issue": zod.string().optional(),
-  "doi": zod.string().optional(),
-  "url": zod.string().optional(),
-  "isSuggested": zod.boolean().default(updateAccountReferenceBodyIsSuggestedDefault).describe('Whether this reference was auto-suggested by CrossRef'),
-  "source": zod.enum(['manual', 'crossref', 'file']).default(updateAccountReferenceBodySourceDefault).describe('Source of the reference')
-})
-
-export const UpdateAccountReferenceResponse = zod.object({
-  "id": zod.number(),
-  "userId": zod.string(),
-  "title": zod.string(),
-  "authors": zod.string().nullish(),
-  "year": zod.number().nullish(),
-  "journal": zod.string().nullish(),
-  "volume": zod.string().nullish(),
-  "issue": zod.string().nullish(),
-  "doi": zod.string().nullish(),
-  "url": zod.string().nullish(),
-  "createdAt": zod.coerce.date(),
-  "isSuggested": zod.boolean().optional().describe('Whether this reference was auto-suggested by CrossRef'),
-  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference')
-})
-
-
-/**
- * @summary Delete an account reference
- */
-export const DeleteAccountReferenceParams = zod.object({
-  "id": zod.coerce.number()
-})
-
-export const DeleteAccountReferenceResponse = zod.void()
-
-
-/**
- * Copies an account-level reference into a project's reference pool.
- * @summary Assign account reference to a project
- */
-export const AssignAccountReferenceParams = zod.object({
-  "id": zod.coerce.number()
-})
-
-export const AssignAccountReferenceBody = zod.object({
-  "projectId": zod.number()
-})
-
-export const AssignAccountReferenceResponse = zod.object({
-  "id": zod.number(),
-  "projectId": zod.number(),
-  "title": zod.string(),
-  "authors": zod.string().nullish(),
-  "year": zod.number().nullish(),
-  "journal": zod.string().nullish(),
-  "volume": zod.string().nullish(),
-  "issue": zod.string().nullish(),
-  "doi": zod.string().nullish(),
-  "url": zod.string().nullish(),
-  "validationStatus": zod.enum(['unverified', 'verified', 'invalid']),
-  "usedInChapters": zod.string().nullish(),
-  "createdAt": zod.coerce.date(),
-  "isSuggested": zod.boolean().optional().describe('Whether this reference was auto-suggested by CrossRef'),
-  "source": zod.enum(['manual', 'crossref', 'file']).optional().describe('Source of the reference'),
-  "isSelected": zod.boolean().optional().describe('Ceklist status — true means reference is included in bibliography and\neligible for AI auto-cite. (DECISION 014)\n')
-})
-
-
-/**
- * Returns all learning activities for the authenticated user, ordered by recency. Used by Practice to build quiz recommendations.
- * @summary List learning activities for recommendations
- */
-export const ListLearningActivitiesResponseItem = zod.object({
-  "id": zod.number(),
-  "userId": zod.string(),
-  "topics": zod.array(zod.string()).describe('Array of topic strings extracted from the source'),
-  "subject": zod.string().nullish().describe('Subject or course name if detectable'),
-  "sourceProjectId": zod.number().nullish().describe('Link to the Task Mentor project that generated this activity'),
-  "sourceProjectTitle": zod.string().nullish().describe('Denormalized title of the source project for display'),
-  "extractedFrom": zod.enum(['instruction', 'reference', 'chat']).describe('Where the topics were extracted from'),
-  "createdAt": zod.coerce.date()
-})
-export const ListLearningActivitiesResponse = zod.array(ListLearningActivitiesResponseItem)
-
-
-/**
- * Records topics extracted from a source (instruction, reference, or chat). Used to build the practice recommendation engine.
- * @summary Log a learning activity
- */
-
-export const createLearningActivityBodyExtractedFromDefault = `instruction`;
-
-export const CreateLearningActivityBody = zod.object({
-  "topics": zod.array(zod.string()).min(1).describe('Array of topic strings'),
-  "subject": zod.string().optional().describe('Optional subject\/course name'),
-  "sourceProjectId": zod.number().optional().describe('ID of the Task Mentor project this activity came from'),
-  "extractedFrom": zod.enum(['instruction', 'reference', 'chat']).default(createLearningActivityBodyExtractedFromDefault)
-})
-
-export const CreateLearningActivityResponse = zod.object({
-  "id": zod.number(),
-  "userId": zod.string(),
-  "topics": zod.array(zod.string()).describe('Array of topic strings extracted from the source'),
-  "subject": zod.string().nullish().describe('Subject or course name if detectable'),
-  "sourceProjectId": zod.number().nullish().describe('Link to the Task Mentor project that generated this activity'),
-  "sourceProjectTitle": zod.string().nullish().describe('Denormalized title of the source project for display'),
-  "extractedFrom": zod.enum(['instruction', 'reference', 'chat']).describe('Where the topics were extracted from'),
-  "createdAt": zod.coerce.date()
-})
-
-
-/**
- * Returns 2-3 quiz recommendations based on the user's learning activities. Recommendations prioritize recent activities and topics with quiz history.
- * @summary Get quiz recommendations
- */
-export const GetPracticeRecommendationsResponseItem = zod.object({
-  "learningActivity": zod.object({
-  "id": zod.number(),
-  "userId": zod.string(),
-  "topics": zod.array(zod.string()).describe('Array of topic strings extracted from the source'),
-  "subject": zod.string().nullish().describe('Subject or course name if detectable'),
-  "sourceProjectId": zod.number().nullish().describe('Link to the Task Mentor project that generated this activity'),
-  "sourceProjectTitle": zod.string().nullish().describe('Denormalized title of the source project for display'),
-  "extractedFrom": zod.enum(['instruction', 'reference', 'chat']).describe('Where the topics were extracted from'),
-  "createdAt": zod.coerce.date()
-}),
-  "reason": zod.string().describe('Human-readable reason for this recommendation'),
-  "type": zod.enum(['recent_task', 'frequent_topic', 'weak_topic']).describe('- recent_task: from the most recently created project\n- frequent_topic: topics that appear most across activities\n- weak_topic: topics where user scored poorly in past quizzes\n')
-})
-export const GetPracticeRecommendationsResponse = zod.array(GetPracticeRecommendationsResponseItem)
-
-
-/**
- * Returns whether the current user is the owner/admin.
- * @summary Get admin (owner) status
- */
-export const GetAdminStatusResponse = zod.object({
-  "isOwner": zod.boolean(),
-  "email": zod.string()
-})
-
-
-/**
- * @summary List all users (admin only)
- */
-export const listAdminUsersQueryPageDefault = 1;
-export const listAdminUsersQueryLimitDefault = 20;
-
-export const ListAdminUsersQueryParams = zod.object({
-  "search": zod.coerce.string().optional().describe('Search by email or display name'),
-  "page": zod.coerce.number().default(listAdminUsersQueryPageDefault),
-  "limit": zod.coerce.number().default(listAdminUsersQueryLimitDefault)
-})
-
-export const ListAdminUsersResponse = zod.object({
-  "users": zod.array(zod.object({
-  "id": zod.string().optional(),
-  "email": zod.string().optional(),
-  "displayName": zod.string().nullish(),
-  "avatarUrl": zod.string().nullish(),
-  "referralCode": zod.string().nullish(),
-  "createdAt": zod.coerce.date().optional(),
-  "projectCount": zod.number().optional(),
-  "totalRequests": zod.number().optional(),
-  "totalCostUsd": zod.number().optional()
-})),
-  "pagination": zod.object({
-  "page": zod.number(),
-  "limit": zod.number(),
-  "total": zod.number(),
-  "pages": zod.number()
-})
-})
-
-
-/**
- * @summary Get aggregate system stats (admin only)
- */
-export const getAdminStatsQueryPeriodDefault = `month`;
-
-export const GetAdminStatsQueryParams = zod.object({
-  "period": zod.enum(['today', 'week', 'month']).default(getAdminStatsQueryPeriodDefault)
-})
-
-export const GetAdminStatsResponse = zod.object({
-  "period": zod.string().optional(),
-  "totals": zod.object({
-  "users": zod.number().optional(),
-  "projects": zod.number().optional(),
-  "aiRequests": zod.number().optional(),
-  "aiCostUsd": zod.number().optional(),
-  "inputTokens": zod.number().optional(),
-  "outputTokens": zod.number().optional()
-}).optional(),
-  "revenue": zod.object({
-  "totalTopupCents": zod.number().optional(),
-  "totalRefundCents": zod.number().optional(),
-  "transactionCount": zod.number().optional(),
-  "grossMargin": zod.number().optional()
-}).optional(),
-  "ownerUsage": zod.object({
-  "totalRequests": zod.number().optional(),
-  "totalCostUsd": zod.number().optional()
-}).optional(),
-  "topConsumers": zod.array(zod.object({
-  "userId": zod.string().optional(),
-  "requests": zod.number().optional(),
-  "costUsd": zod.number().optional()
-})).optional()
-})
-
-
-/**
- * @summary Get AI usage breakdown (admin only)
- */
-export const getAdminUsageQueryPeriodDefault = `month`;
-
-export const GetAdminUsageQueryParams = zod.object({
-  "period": zod.enum(['today', 'week', 'month']).default(getAdminUsageQueryPeriodDefault)
-})
-
-export const GetAdminUsageResponse = zod.object({
-  "period": zod.string().optional(),
-  "byProvider": zod.array(zod.object({
-  "provider": zod.string().optional(),
-  "totalRequests": zod.number().optional(),
-  "totalCostUsd": zod.number().optional(),
-  "totalInputTokens": zod.number().optional(),
-  "totalOutputTokens": zod.number().optional()
-})).optional(),
-  "byModel": zod.array(zod.object({
-  "model": zod.string().optional(),
-  "provider": zod.string().optional(),
-  "totalRequests": zod.number().optional(),
-  "totalCostUsd": zod.number().optional(),
-  "totalInputTokens": zod.number().optional(),
-  "totalOutputTokens": zod.number().optional()
-})).optional(),
-  "byRequestType": zod.array(zod.object({
-  "requestType": zod.string().optional(),
-  "totalRequests": zod.number().optional(),
-  "totalCostUsd": zod.number().optional(),
-  "totalInputTokens": zod.number().optional(),
-  "totalOutputTokens": zod.number().optional()
-})).optional()
-})
-
-
-/**
- * @summary Get admin audit log (admin only)
- */
-export const getAdminAuditLogQueryPageDefault = 1;
-export const getAdminAuditLogQueryLimitDefault = 50;
-
-export const GetAdminAuditLogQueryParams = zod.object({
-  "action": zod.coerce.string().optional(),
-  "page": zod.coerce.number().default(getAdminAuditLogQueryPageDefault),
-  "limit": zod.coerce.number().default(getAdminAuditLogQueryLimitDefault)
-})
-
-export const GetAdminAuditLogResponse = zod.object({
-  "logs": zod.array(zod.object({
-  "id": zod.number().optional(),
-  "adminEmail": zod.string().optional(),
-  "action": zod.string().optional(),
-  "targetType": zod.string().optional(),
-  "targetId": zod.string().nullish(),
-  "details": zod.looseObject({
-
-}).nullish(),
-  "ipAddress": zod.string().nullish(),
-  "createdAt": zod.coerce.date().optional()
-})),
-  "pagination": zod.object({
-  "page": zod.number(),
-  "limit": zod.number(),
-  "total": zod.number(),
-  "pages": zod.number()
-})
-})
-
-
-/**
- * @summary Override user tier (admin only)
- */
-export const OverrideUserTierParams = zod.object({
-  "userId": zod.coerce.string()
-})
-
-export const OverrideUserTierBody = zod.object({
-  "tierId": zod.string().nullish().describe('Tier ID to set, or null to remove override')
-})
-
-export const OverrideUserTierResponse = zod.unknown()
-
-
-/**
- * @summary Suspend or unsuspend user (admin only)
- */
-export const SuspendUserParams = zod.object({
-  "userId": zod.coerce.string()
-})
-
-export const SuspendUserBody = zod.object({
-  "suspend": zod.boolean()
-})
-
-export const SuspendUserResponse = zod.unknown()
-
-
-/**
- * @summary List subscription packages
- */
-export const GetPackagesResponse = zod.object({
-  "packages": zod.array(zod.looseObject({
-
-})).optional()
-}).describe('Stub — full schema pending')
-
-
-/**
- * Returns the authenticated user's referral code (to share), number of
- * referees invited, total reward earned, current reward balance, and
- * whether the user has claimed their referee cashback.
- * @summary Get current user's referral program status
- */
-export const GetMyReferralInfoResponse = zod.object({
-  "referralCode": zod.string().nullable().describe('User\'s unique referral code to share'),
-  "email": zod.string().nullish(),
-  "displayName": zod.string().nullish(),
-  "referredCount": zod.number().describe('Total users who signed up with this user\'s referral code'),
-  "refereesWithFirstPayment": zod.number().describe('Referees who completed their first payment (qualify for referrer reward)'),
-  "totalRewardEarnedCents": zod.number().describe('Lifetime reward earned (IDR cents), non-withdrawable'),
-  "rewardBalanceCents": zod.number().describe('Current reward balance (IDR cents), usable for AI services'),
-  "refereeCashbackClaimed": zod.boolean().describe('Whether THIS user claimed their referee cashback of IDR 5000'),
-  "refereeCashbackAmountCents": zod.number().describe('Program constant: 500000 equals IDR 5000'),
-  "referrerRewardPercent": zod.number().describe('Program constant: 0.03 means 3 percent'),
-  "referrerRewardTxCap": zod.number().describe('Program constant: 5 transactions per referrer and referee pair')
-})
-
-
-/**
- * Endpoint that payment gateway webhooks call on successful payment.
- * Triggers referral rewards: referee cashback (Rp 5,000, first payment only)
- * + referrer reward (3% × payment amount, capped at 5 transactions).
- * Idempotent via `paymentEventId`.
- * Header: `x-webhook-signature: sha256=<hex>` (HMAC-SHA256 of body using
- * `REFERRAL_WEBHOOK_SECRET`).
- * @summary Payment gateway webhook — referral reward trigger (gateway-agnostic)
- */
-export const PaymentSuccessWebhookBody = zod.object({
-  "paymentEventId": zod.string().describe('Unique payment event ID from gateway (used for idempotency)'),
-  "userId": zod.string().describe('Supabase user ID of the payer'),
-  "paidAmountCents": zod.number().describe('Amount paid in IDR cents (gross, before any deductions)'),
-  "method": zod.enum(['subscription', 'topup']),
-  "paidAt": zod.coerce.date(),
-  "metadata": zod.record(zod.string(), zod.unknown()).optional()
-})
-
-export const PaymentSuccessWebhookResponse = zod.object({
-  "ok": zod.boolean().optional(),
-  "refereeCashback": zod.object({
-  "credited": zod.boolean().optional(),
-  "reason": zod.enum(['credited', 'already_claimed', 'no_referrer', 'no_user']).optional(),
-  "amountCents": zod.number().optional()
-}).optional(),
-  "referrerReward": zod.object({
-  "credited": zod.boolean().optional(),
-  "reason": zod.enum(['credited', 'cap_reached', 'no_referrer', 'amount_too_small', 'duplicate_event']).optional(),
-  "amountCents": zod.number().optional(),
-  "txCount": zod.number().optional()
-}).optional()
-})
-
-
-/**
- * @summary Get current subscription and usage
- */
-export const GetMySubscriptionResponse = zod.object({
-  "subscription": zod.object({
-  "id": zod.string().optional(),
-  "userId": zod.string().optional(),
-  "packageId": zod.string().optional(),
-  "status": zod.string().optional(),
-  "startsAt": zod.coerce.date().optional(),
-  "expiresAt": zod.coerce.date().optional()
-}).optional().describe('Stub — full schema to be added when backend subscription stabilizes')
-}).describe('Stub — full schema pending')
-
-
-/**
- * @summary Create a new subscription
- */
-export const CreateSubscriptionBody = zod.object({
-  "packageId": zod.string().optional()
-}).describe('Stub — full schema pending')
-
-export const CreateSubscriptionResponse = zod.object({
-  "id": zod.string().optional(),
-  "userId": zod.string().optional(),
-  "packageId": zod.string().optional(),
-  "status": zod.string().optional(),
-  "startsAt": zod.coerce.date().optional(),
-  "expiresAt": zod.coerce.date().optional()
-}).describe('Stub — full schema to be added when backend subscription stabilizes')
-
-
-/**
- * @summary Toggle hybrid autofallback setting
- */
-export const ToggleAutofallbackBody = zod.object({
-  "enabled": zod.boolean()
-})
-
-export const ToggleAutofallbackResponse = zod.unknown()

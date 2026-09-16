@@ -3,6 +3,7 @@ import { aiTiersTable, subscriptionsTable, packagesTable } from "@workspace/db";
 import { eq, and, gt } from "drizzle-orm";
 import { logger } from "./logger.js";
 import { countTokens, truncateToTokenLimit, estimateAnthropicInputTokens } from "./tokenizer.js";
+import { isOwnerEmail } from "../middlewares/owner.js";
 
 export interface AITierConfig {
   id: string;
@@ -21,6 +22,7 @@ export interface AITierConfig {
   rateLimitRpm: number | null;
   rateLimitTpd: number | null;
   isFree: boolean;
+  isOwnerOnly: boolean;
   description: string;
   usageTips: string | null;
 }
@@ -29,10 +31,15 @@ const _tierCache: Map<string, AITierConfig> = new Map();
 let _tierCacheTime = 0;
 const CACHE_TTL_MS = 60_000; // 1 minute
 
-export async function getTierConfig(tierId: string): Promise<AITierConfig | null> {
+export async function getTierConfig(
+  tierId: string,
+  userEmail?: string
+): Promise<AITierConfig | null> {
   const now = Date.now();
   if (now - _tierCacheTime < CACHE_TTL_MS && _tierCache.has(tierId)) {
-    return _tierCache.get(tierId) ?? null;
+    const cached = _tierCache.get(tierId) ?? null;
+    if (cached?.isOwnerOnly && !isOwnerEmail(userEmail)) return null;
+    return cached;
   }
 
   const [tier] = await db
@@ -41,6 +48,15 @@ export async function getTierConfig(tierId: string): Promise<AITierConfig | null
     .where(eq(aiTiersTable.id, tierId));
 
   if (!tier) return null;
+
+  // DECISION 019/020: Owner-only tier — block non-owner callers
+  if (tier.isOwnerOnly && !isOwnerEmail(userEmail)) {
+    logger.warn(
+      { tierId, userEmail: userEmail ?? "<none>" },
+      "Blocked non-owner access to owner-only AI tier"
+    );
+    return null;
+  }
 
   const config: AITierConfig = {
     id: tier.id,
@@ -57,6 +73,7 @@ export async function getTierConfig(tierId: string): Promise<AITierConfig | null
     rateLimitRpm: tier.rateLimitRpm,
     rateLimitTpd: tier.rateLimitTpd,
     isFree: tier.isFree,
+    isOwnerOnly: tier.isOwnerOnly,
     description: tier.description,
     usageTips: tier.usageTips,
   };
@@ -95,6 +112,7 @@ export async function getAllActiveTiers(): Promise<AITierConfig[]> {
       rateLimitRpm: tier.rateLimitRpm,
       rateLimitTpd: tier.rateLimitTpd,
       isFree: tier.isFree,
+      isOwnerOnly: tier.isOwnerOnly,
       description: tier.description,
       usageTips: tier.usageTips,
     });
@@ -258,13 +276,14 @@ export async function resolveOlagonTierOrFallback(
 
 export async function getTierForUser(
   userId: string,
-  preferredTierId?: string | null
+  preferredTierId?: string | null,
+  userEmail?: string
 ): Promise<AITierConfig | null> {
   // 1. Try user's preferred tier (if authorized)
   if (preferredTierId) {
     const authorized = await checkTierAccess(userId, preferredTierId);
     if (authorized) {
-      const tier = await getTierConfig(preferredTierId);
+      const tier = await getTierConfig(preferredTierId, userEmail);
       if (tier) return tier;
     }
   }

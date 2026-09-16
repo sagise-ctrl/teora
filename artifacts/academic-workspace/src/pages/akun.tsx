@@ -8,14 +8,22 @@ import {
   ChevronRight,
   Wallet,
   TrendingUp,
+  AlertCircle,
+  Bot,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   useGetMyBalance,
   useGetMyUsageStats,
+  useGetMyPreferences,
+  useUpdateMyPreferences,
 } from "@/lib/api-client-react";
+import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
 
 const AKUN_SECTIONS = [
   {
@@ -62,10 +70,43 @@ function formatUSD(cost: number | undefined | null): string {
 }
 
 export default function Akun() {
-  const { data: balanceData, isLoading: balanceLoading } = useGetMyBalance();
-  const { data: usageStats, isLoading: usageLoading } = useGetMyUsageStats({
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const { data: balanceData, isLoading: balanceLoading, isError: balanceError } = useGetMyBalance();
+  const { data: usageStats, isLoading: usageLoading, isError: usageError } = useGetMyUsageStats({
     period: "7d",
   });
+
+  const { data: preferences, isLoading: prefsLoading } = useGetMyPreferences();
+  const updatePrefs = useUpdateMyPreferences();
+
+  const currentProvider = preferences?.aiProvider ?? "anthropic";
+
+  const handleProviderChange = (value: string) => {
+    const provider = value as "anthropic" | "olagon";
+    updatePrefs.mutate(
+      { data: { aiProvider: provider } },
+      {
+        onSuccess: () => {
+          toast({
+            title: "Provider diperbarui",
+            description: `AI Provider sekarang: ${provider === "anthropic" ? "Anthropic (Production)" : "Olagon Gateway"}`,
+          });
+        },
+        onError: (err) => {
+          const msg = err instanceof Error ? err.message : String(err);
+          const isForbidden = msg.toLowerCase().includes("forbidden") || msg.toLowerCase().includes("403");
+          toast({
+            title: isForbidden ? "Akses ditolak" : "Gagal menyimpan",
+            description: isForbidden
+              ? "Olagon provider hanya untuk workspace owner"
+              : "Tidak dapat menyimpan preferensi AI",
+            variant: "destructive",
+          });
+        },
+      }
+    );
+  };
 
   const recentTransactions = balanceData?.recentTransactions ?? [];
   const topTransactions = recentTransactions.slice(0, 3);
@@ -92,6 +133,8 @@ export default function Akun() {
                 <p className="text-xs text-muted-foreground">Saldo Teora</p>
                 {balanceLoading ? (
                   <Skeleton className="h-6 w-32 mt-1" />
+                ) : balanceError ? (
+                  <p className="text-xl font-bold font-mono mt-0.5 text-destructive">Gagal memuat</p>
                 ) : (
                   <p className="text-xl font-bold font-mono mt-0.5">
                     {balanceData?.balanceDisplay ?? "Rp 0"}
@@ -114,6 +157,8 @@ export default function Akun() {
               </p>
               {usageLoading ? (
                 <Skeleton className="h-5 w-16" />
+              ) : usageError ? (
+                <p className="text-sm font-semibold font-mono text-muted-foreground">—</p>
               ) : (
                 <p className="text-sm font-semibold font-mono">
                   {formatNumber(usageStats?.totalRequests)}
@@ -126,6 +171,8 @@ export default function Akun() {
               </p>
               {usageLoading ? (
                 <Skeleton className="h-5 w-16" />
+              ) : usageError ? (
+                <p className="text-sm font-semibold font-mono text-muted-foreground">—</p>
               ) : (
                 <p className="text-sm font-semibold font-mono">
                   {formatUSD(usageStats?.totalCostUsd)}
@@ -176,6 +223,61 @@ export default function Akun() {
           </div>
         </CardContent>
       </Card>
+
+      {/* AI Provider Configuration (Owner-only) */}
+      {user?.isOwner && (
+        <Card className="border-[#8E54E9]/20 bg-gradient-to-br from-[#8E54E9]/5 to-[#2D79FF]/5">
+          <CardContent className="p-5 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#8E54E9] to-[#2D79FF] flex items-center justify-center">
+                <Bot className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <p className="text-sm font-medium">AI Provider</p>
+                <p className="text-xs text-muted-foreground">Konfigurasi gateway AI (owner only)</p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <label className="flex items-center justify-between cursor-pointer">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">Anthropic (Production)</p>
+                  <p className="text-xs text-muted-foreground">
+                    Haiku 4.5 / Sonnet 5 — untuk user umum
+                  </p>
+                </div>
+                <RadioGroup value={currentProvider} onValueChange={handleProviderChange}>
+                  <RadioGroupItem value="anthropic" />
+                </RadioGroup>
+              </label>
+
+              <label className="flex items-center justify-between cursor-pointer">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium flex items-center gap-1.5">
+                    Olagon Gateway
+                    <span className="text-[10px] bg-[#8E54E9]/10 text-[#8E54E9] px-1.5 py-0.5 rounded font-medium">
+                      Owner Only
+                    </span>
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Opus 4.8 / 4.6 — testing & maintenance, tidak dipotong saldo
+                  </p>
+                </div>
+                <RadioGroup value={currentProvider} onValueChange={handleProviderChange}>
+                  <RadioGroupItem value="olagon" />
+                </RadioGroup>
+              </label>
+            </div>
+
+            {currentProvider === "olagon" && (
+              <p className="text-xs text-muted-foreground bg-[#8E54E9]/5 rounded-lg p-2">
+                Olagon: auto-cascade opus-4-8 ke opus-4-6 jika quota habis.
+                HTTP 402 = quota window habis, tunggu 5h atau 7d.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Account sections */}
       <div className="space-y-3">
