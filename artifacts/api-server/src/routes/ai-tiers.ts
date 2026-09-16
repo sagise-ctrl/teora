@@ -3,6 +3,8 @@ import { db, aiTiersTable } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 import { isOwnerEmail } from "../middlewares/owner.js";
 
+const router: IRouter = Router();
+
 // GET /ai-tiers — List all active tiers (for price list page)
 // DECISION 019: filters out owner-only tiers unless caller is the owner.
 router.get("/ai-tiers", async (req, res): Promise<void> => {
