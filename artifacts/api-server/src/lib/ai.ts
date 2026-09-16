@@ -454,7 +454,6 @@ async function callAnthropicWithOlagonCascade(
   }
 }
 
-(fix(ai): attach cause to thrown OLAGON_QUOTA_EXHAUSTED)
 export async function callAI(
   messages: ChatMessage[],
   tierId: string,
