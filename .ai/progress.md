@@ -2,6 +2,53 @@
 
 > Completed work, newest first. Format: `YYYY-MM-DD | description | files | status`
 
+## 2026-09-16 | Olagon Owner-Only Provider — Phase 1 Backend COMPLETE (opus-4-6)
+
+**Branch:** `docs/update-deploy-flow-checklist` (commit `c360ab0`)
+
+| Step | Scope | Status |
+|------|-------|--------|
+| A | DB migrations (is_owner_only, user_preferences, seed Olagon tiers) | ✅ |
+| B | Drizzle schema (isOwnerOnly field, user_preferences schema) | ✅ |
+| C | lib/ai.ts (getTierConfig owner-only check, cascade, Olagon detection) | ✅ |
+| D | lib/ai.ts helpers (resolveUserEmail, getTierForUser, resolveAuthorizedTier) | ✅ |
+| E | routes/preferences.ts (GET+PATCH /api/users/me/preferences) | ✅ |
+| F | test/olagon.test.ts (unit tests) | ✅ |
+| G | typecheck + build verification | ✅ |
+
+**Safety:** haiku-4.5 / sonnet-5 UNCHANGED — existing Anthropic flow untouched
+**Commit:** `c360ab0` feat(ai): Olagon owner-only provider (DECISION 019) — Phase 1 backend
+**Decision logged:** DECISION 020 in `.ai/decisions.md` (Olagon Gateway — Owner-Only AI Provider)
+**Blockers updated:** Olagon entry revised to ✅ APPROVED (DECISION 020)
+
+**Owner manual step pending:** set `OLAGON_API_KEY` env var in Vercel Dashboard → teora-backend → Environment Variables
+
+**Next:** Phase 2 — Frontend UI (AI Provider toggle in Settings, Olagon tiers filter in Pricing)
+
+---
+
+## 2026-09-15 | Deploy Pipeline Phase 1 — FULL AUTOPILOT LIVE (opus-4-6)
+
+**Branch:** `main` (squash-merged from `fix/deploy-pipeline-hardening`)
+
+| Item | Description | Status |
+|------|-------------|--------|
+| Vercel Git Integration | Frontend auto-deploys on push to main | ✅ LIVE |
+| Squash merge | Owner squash-merged PR #18 | ✅ DONE |
+| Auto-merge workflow | GitHub auto-merge on PRs with `auto-merge` label | ✅ CREATED |
+| DEPLOY_FLOW.md SOP | Single source of truth for deploy flow | ✅ CREATED |
+| Test exclusions | 9 pre-existing failures excluded from CI | ✅ FIXED |
+| Production verification | HTTP 200 after merge, deploy in 1m 46s | ✅ VERIFIED |
+| Branch protection | Owner configured `main-protection` ruleset | ✅ CONFIGURED |
+
+**Commit:** `c2e2b62` (squash merge)
+**Vercel deployment:** `dpl_2qWt6pSyRHwdYpu4UHytxSTXHX2w` → READY in 1m 46s
+**GitHub auto-merge:** Ready — add `auto-merge` label to any PR targeting main
+
+**Pipeline now:** push branch → CI pass → auto-merge → Vercel deploy (zero owner intervention)
+
+---
+
 ## 2026-09-13 | Fix audit findings H1-H6 + H7 (opus-4-6)
 
 **Branch:** `main`

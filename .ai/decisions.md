@@ -1403,4 +1403,145 @@ Both checks return 413 with clear MB-based message. Both must pass because attac
 
 ---
 
+## [2026-09-15] DECISION 020: Olagon Gateway — Owner-Only AI Provider
 
+**Status:** ✅ COMPLETE — Phase 1 backend shipped (commit `c360ab0`)
+**Author:** AI Engineering + Owner
+**Trigger:** Owner 2026-09-15: Olagon subscription gateway untuk owner-only AI access. Owner confirm: Olagon sebagai provider khusus owner (bukan untuk user umum).
+
+### Context
+
+Owner punya subscription Olagon Gateway (`gateway.olagon.site`) — token hidup hanya di `C:\Users\E210MA\.claude\settings.json`, tidak pernah masuk repo.
+
+Owner wants:
+1. **Owner testing** — uji fitur AI langsung tanpa topup saldo
+2. **Future: AI team maintenance** — bot/agent yang maintain Teora
+
+Olagon TIDAK untuk user umum — hanya owner bisa akses tier Olagon (opus-4-8-olagon, opus-4-6-olagon).
+
+### Safety Principle
+
+> "Jangan merusak file terkait provider Anthropic platform resmi" — owner 2026-09-15
+
+Existing haiku-4.5 / sonnet-5 tiers UNCHANGED. Olagon tiers added as separate rows via `base_url` only.
+
+### Decision Summary
+
+1. **2 new Olagon tiers** in `ai_tiers`:
+   - `opus-4-8-olagon` (display_order=100) — owner only, `is_owner_only=true`
+   - `opus-4-6-olagon` (display_order=101) — owner only, cascade fallback
+   - Both: `base_url=https://gateway.olagon.site/anthropic`
+
+2. **Owner check**: `isOwnerEmail(email)` gate (`OWNER_EMAIL = sagiseainun@gmail.com`)
+
+3. **Cascade logic**:
+   ```
+   opus-4-8-olagon quota exhausted → retry opus-4-6-olagon
+   opus-4-6-olagon quota exhausted → throw OLAGON_QUOTA_EXHAUSTED (terminal)
+   ```
+
+4. **User preferences** (`user_preferences` table):
+   - GET /api/users/me/preferences → `{ aiProvider: 'anthropic' | 'olagon' }`
+   - PATCH /api/users/me/preferences → owner-only untuk `aiProvider='olagon'` (403 non-owner)
+
+5. **Fail-safe**: Non-owner tidak bisa lihat/pilih tier Olagon di pricing UI
+
+### Implementation Phases
+
+| Phase | Scope | Status |
+|-------|-------|--------|
+| Phase 1 — Backend | DB migrations, schema, lib/ai.ts, preferences endpoint, tests | ✅ Done (`c360ab0`) |
+| Phase 2 — Frontend UI | Settings: AI provider toggle, owner-only badge | ⏳ Pending |
+
+### Files Changed (Phase 1)
+
+| File | Change |
+|------|--------|
+| `lib/db/src/schema/ai_tiers.ts` | Added `isOwnerOnly` field |
+| `lib/db/src/schema/user_preferences.ts` | NEW file |
+| `lib/db/src/schema/index.ts` | Export new schema |
+| `lib/db/supabase/migrations/.../add_owner_only_tier_*.sql` | Migration: is_owner_only column |
+| `lib/db/supabase/migrations/.../create_user_preferences_*.sql` | Migration: user_preferences table |
+| `lib/db/supabase/migrations/.../seed_olagon_tiers_*.sql` | Migration: seed Olagon tiers |
+| `artifacts/api-server/src/lib/ai.ts` | getTierConfig owner-only check, cascade, helpers |
+| `artifacts/api-server/src/routes/preferences.ts` | NEW file (GET+PATCH /users/me/preferences) |
+| `artifacts/api-server/src/routes/index.ts` | Register preferences router |
+| `artifacts/api-server/src/test/olagon.test.ts` | Unit tests |
+| `artifacts/api-server/api/index.mjs` | Rebuilt bundle |
+
+### Safety Invariants
+
+✅ haiku-4.5, sonnet-5 UNCHANGED — existing Anthropic flow untouched
+✅ Olagon token NEVER in Teora codebase — only in owner's `~/.claude/settings.json`
+✅ `OWNER_EMAIL = sagiseainun@gmail.com` gates all Olagon access
+✅ Non-owner: 403 on PATCH `aiProvider='olagon'`, null on GET tier config for Olagon
+
+### Owner Manual Step (Post-Deploy)
+
+Set `OLAGON_API_KEY` env var di Vercel Dashboard → teora-backend → Environment Variables.
+
+### References
+
+- `.ai/discussions/2026-09-15-olagon-as-owner-provider.md` — full design discussion
+- `artifacts/api-server/src/lib/ai.ts` — owner-only check + cascade logic
+- `artifacts/api-server/src/routes/preferences.ts` — preferences endpoint
+- blockers.md: "AUDIT 2026-09-15 — Olagon token" entry REVISED (Olagon approved owner-only same date)
+
+---
+
+## [2026-09-15] DECISION 018: Circuit Breaker Spec Final — Section 12.3 Cascade by Design
+
+**Status:** ACTIVE
+**Author:** AI Engineering
+**Trigger:** Audit 2026-09-15 menulis blocker "Autofallback design mismatch P0" yang menuduh spec salah. Owner klarifikasi bahwa AI salah tafsir "circuit breaker".
+
+### Decision Summary
+
+1. **Subscription quota (5h/7d) = hard ceiling** untuk subscription user. Cap per-tier:
+   - Starter: 7d cap X token
+   - Standar: 7d cap Y token
+   - Premium/Pro/Ultra: scaled per tier
+   - 5h cap = 10% × 7d cap (anti-burst)
+   - Hard cap 15d = 2× base 7d, 30d = 4× base 7d
+
+2. **Hybrid autofallback cascade = BY DESIGN** (Section 12.3):
+   ```
+   1. Subscription quota (5h + 7d) masih ada?
+      → YA: pakai subscription, saldo TIDAK dipotong
+      → TIDAK: step 2
+   2. Autofallback ON & saldo IDR cukup?
+      → YA: pakai saldo, potong IDR = token_used × rate(model)
+      → TIDAK: step 3
+   3. Return 402 + insufficient-balance-dialog → topup
+   ```
+
+3. **Saldo cascade TIDAK boleh dianggap "circuit breaker failure"**. Saldo = duit sendiri user (self-funded). Owner tidak rugi kalau user boros pakai saldo:
+   - Subscription fee = fixed income owner (margin dilindungi 5h/7d cap)
+   - Saldo usage = user's own money → zero owner risk
+   - "Circuit breaker" semantics HANYA untuk subscription quota (Section 10.1)
+
+4. **Max spend cap untuk saldo = DITOLAK** (2026-09-15). Saldo self-funded, tidak perlu di-cap.
+
+5. **Default autofallback = ON**, user toggle di Settings → Billing. Default cascade ke saldo (kalau ada) lebih UX-friendly daripada hard 402.
+
+### Opsi yang Dipertimbangkan
+
+| Opsi | Verdict | Alasan |
+|------|---------|--------|
+| Cascade ke saldo (Section 12.3 current) | ✅ DIPILIH | Saldo self-funded, UX seamless, no owner risk |
+| Stop total 402 saat subscription habis | ❌ Ditolak | Tambah friction user (harus manual topup), padahal saldo sudah tersedia. Tidak perlu. |
+| Max spend cap untuk saldo | ❌ Ditolak | Saldo = duit sendiri user. Subscriber sudah ada 5h/7d cap. Saldo-only user = voluntary spend. |
+| Max spend cap untuk subscription | ✅ Sudah ADA | 5h/7d cap = max token per window. Section 10.1 sudah final. |
+
+### Lesson Learned (untuk AI Engineering)
+
+**WAJIB cross-check spec dengan owner via plain language sebelum tulis audit blocker.** AI tidak boleh asumsi istilah teknis ("circuit breaker", "cascading", "fallback") = generic term tanpa cek konteks spec. Section 12.3 eksplisit: cascade ke saldo by design, dengan risiko owner = zero (karena saldo = duit user).
+
+**Salah tafsir pattern yang harus dihindari:** kalau spec sudah final + approved + ada di knowledge base, audit yang menulis blocker untuk itu biasanya AI salah baca konteks, BUKAN spec yang salah. Re-read + tanya owner dalam plain language dulu.
+
+### Related Decisions
+
+- **Section 12.3 `pricing-strategy-2026-anthropic.md`** — spec final per owner 2026-09-08, cascade by design
+- **Section 10.1 `pricing-strategy-2026-anthropic.md`** — subscription quota cap (5h/7d) = circuit breaker untuk subscription tier
+- **Section 10.7 `pricing-strategy-2026-anthropic.md`** Anti-Gaming #10 — wording "auto-stop circuit breaker" mengarah ke cascade ke saldo, BUKAN stop total
+- **INC-006 (RLS Security Gap)** — unrelated, tetap P0 partially resolved (S5 leaked password protection outstanding)

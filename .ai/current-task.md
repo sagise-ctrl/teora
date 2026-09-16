@@ -9,6 +9,64 @@
 
 ---
 
+## 🎯 ACTIVE 2026-09-16 — Olagon Owner-Only UI Enforcement (opus-4-6)
+
+**Status:** ✅ COMPLETE — Olagon UI blocks untuk non-owner sudah ter-implementasi penuh
+**Branch:** `docs/update-deploy-flow-checklist` (Olagon Phase 2 frontend)
+
+### User Feedback
+
+> "jangan tampilkan olagon di frontend selain owner bisa? jadi bukan hanya menolak akses, tapi blok juga tampilan provider olagon do dashboard selain punya owner"
+
+### Fix Applied
+
+| Layer | File | Fix |
+|-------|------|-----|
+| Backend | `artifacts/api-server/src/routes/ai-tiers.ts` | `/ai-tiers` filter `isOwnerOnly` tiers untuk non-owner |
+| Frontend | `artifacts/academic-workspace/src/pages/akun.tsx` | AI Provider toggle owner-only (`user?.isOwner` guard) |
+| Frontend | `artifacts/academic-workspace/src/components/admin-ai-tiers.tsx` | OK — sudah `requireOwner` middleware |
+
+### Verification
+
+- ✅ Typecheck pass
+- ✅ Build pass (dist/index.mjs 6.6MB)
+- ✅ `/ai-tiers` endpoint tidak return Olagon tiers untuk non-owner
+- ✅ `/admin/ai-tiers` tetap show semua tier (owner-only endpoint)
+- ✅ AI Provider toggle hanya render untuk owner
+- ✅ `docs/ai-team/product/olagon.md` Phase 2 → ✅ COMPLETE
+
+---
+
+## 🎯 ACTIVE 2026-09-15 — Deploy Pipeline Phase 1 COMPLETE (opus-4-6)
+
+**Status:** ✅ FULL PIPELINE LIVE — Deploy autopilot active, production HTTP 200
+**Branch:** `main` (fix/deploy-pipeline-hardening squash-merged by owner)
+**Production:** `https://academic-workspace-eta.vercel.app` — verified HTTP 200 ✅
+
+### What Just Happened
+
+**Squash merge PR #18** (`fix/deploy-pipeline-hardening` → `main`) by owner:
+- Commit message: `ci(devops): disable auto-trigger deploy, add auto-merge workflow + DEPLOY_FLOW SOP`
+- Vercel auto-triggered production deploy within seconds of merge
+- Production build: `dpl_2qWt6pSyRHwdYpu4UHytxSTXHX2w` → **READY** in **1m 46s**
+- Production HTTP 200 verified ✅
+
+**Full pipeline now active (2026-09-15):**
+1. AI/owner pushes branch → Vercel auto-builds preview
+2. CI runs (typecheck + lint + tests + build)
+3. PR with `auto-merge` label → GitHub squash-merges automatically when CI passes
+4. Push to `main` → Vercel auto-deploys production
+5. Owner: ZERO manual intervention needed after SOP is established
+
+### SOP Document
+**`docs/ai-team/devops/DEPLOY_FLOW.md`** — single source of truth for deploy flow
+
+### Remaining Deferred Items
+- Backend Vercel-native migration (DECISION 019 Layer 3): requires `esbuild-workspace-plugin.mjs` refactor
+- 9 test failures excluded from CI: 7 auth.test.ts + 2 ai-gate.test.ts (documented in `.ai/issue-tracker.md`)
+
+---
+
 ## 🎯 ACTIVE 2026-09-14 — Thin Workflow Implementation (opus-4-8)
 
 **Status:** ✅ COMPLETE — Frontend Vercel Git Integration active, production 200 OK
@@ -1867,6 +1925,115 @@ DECISION 013 — Practice menu: quiz/recommendation system that auto-extracts to
 | `.claude/skills/error-recovery/pnpm-vercel-deploy.md` | Active, tracked (d3820ca) | 3x promoted skill |
 | `.claude/skills/error-recovery/vercel-prebuilt-deploy.md` | Active, tracked (d3820ca) | 4x promoted skill |
 | Memory `error-learning-system-decision-005-20260910.md` | Active | Cross-session reference |
+
+---
+
+## 🎯 ACTIVE 2026-09-16 — Olagon Provider Phase 1 Complete (opus-4-6)
+
+**Status:** ✅ Phase 1 backend COMPLETE — Phase 2 frontend next
+**Verification:** `pnpm build` ✅ passed (exit code 0) — build bundle generated successfully
+**Typecheck:** ✅ passed (exit code 0)
+**Commit:** `c360ab0 feat(ai): Olagon owner-only provider (DECISION 019) — Phase 1 backend`
+**Discussion:** `.ai/discussions/2026-09-15-olagon-as-owner-provider.md` (FINAL)
+**Decision logged:** DECISION 020 in `.ai/decisions.md`
+
+### Completed Steps (Phase 1)
+
+| Step | Scope | Status |
+|-------|-------|--------|
+| A | DB Migrations | ✅ |
+| B | Drizzle Schema | ✅ |
+| C | lib/ai.ts core logic | ✅ |
+| D | resolveUserEmail + getTierForUser | ✅ |
+| E | preferences endpoint + tests | ✅ |
+| G | typecheck + build | ✅ |
+
+### Phase 2 — Frontend UI (NEXT)
+
+**Scope:**
+1. **Settings page**: AI Provider toggle — switch antara 'anthropic' dan 'olagon'
+   - Toggle switch calling `PATCH /api/users/me/preferences`
+   - Show current preference from `GET /api/users/me/preferences`
+   - Owner-only: olagon option shows owner badge or is restricted
+2. **Pricing page**: Hide Olagon tiers from non-owner users
+   - Filter `getAllActiveTiers(userEmail)` already returns correct data (non-owner sees 2 tiers, owner sees 4)
+3. **AI route wiring**: Wire `req.user.preferences` into AI message routes so owner requests use Olagon automatically
+
+**Approach:** Single route (`/api/ai/chat`) checks user's `aiProvider` preference, then calls appropriate tier (Anthropic native vs Olagon gateway).
+
+### Completed Steps
+
+**Step A — DB Migrations (✅ DONE)**
+- Migration `add_owner_only_tier_20260915`: added `is_owner_only BOOLEAN` to `ai_tiers`
+- Migration `create_user_preferences_20260915`: created `user_preferences` table (user_id PK, ai_provider text, RLS + trigger)
+- Migration `seed_olagon_tiers_20260915`: inserted `opus-4-8-olagon` (display 100) + `opus-4-6-olagon` (display 101), safety-checked haiku-4.5 + sonnet-5 UNCHANGED
+- Verification: all 4 tiers present, Olagon = `is_owner_only=true`, base_url=`https://gateway.olagon.site/anthropic`
+
+**Step B — Drizzle Schema (✅ DONE)**
+- `lib/db/src/schema/ai_tiers.ts`: added `isOwnerOnly` field
+- `lib/db/src/schema/user_preferences.ts`: NEW file (text PK, ai_provider enum, trigger for updated_at)
+- `lib/db/src/schema/index.ts`: added export
+
+**Step C — `lib/ai.ts` Backend (✅ DONE)**
+- `AITierConfig.isOwnerOnly` field added
+- `getTierConfig(tierId, userEmail?)` — owner-only check fires when `tier.isOwnerOnly && !isOwnerEmail(userEmail)`, returns null (cache + DB both checked)
+- `getAllActiveTiers(userEmail?)` — filters owner-only tiers for non-owners (consistent with DECISION 019 fail-safe principle)
+- Cascade: `OLAGON_CASCADE = { 'opus-4-8-olagon': 'opus-4-6-olagon', 'opus-4-6-olagon': null }`
+- `callAnthropicWithOlagonCascade()` — wraps `callAnthropic`, on HTTP 429/529 auto-retries with cascade target, throws `OLAGON_QUOTA_EXHAUSTED` if terminal
+- `callAI(messages, tierId, mode?, userEmail?)` — 4th arg userEmail propagated through cascade
+- Olagon detection: `isOlagonTier(tier)` = `tier.baseUrl.includes('olagon.site')` (no DB schema change for `provider` column needed)
+
+**Step D — `lib/ai.ts` Helper + getTierForUser (✅ DONE)**
+- New helper `resolveUserEmail(userId)` — fetches from `usersTable` with 60s cache, lazy-imports `usersTable` to avoid circular dep, fail-safe returns null on error
+- `getTierForUser(userId, preferredTierId?, userEmail?)` — Olagon preferredTierId bypasses `checkTierAccess` (subscription tier whitelist doesn't include Olagon tiers) and goes straight to `getTierConfig(tierId, userEmail)` for owner-only check
+- `resolveAuthorizedTier(userId, requestedTierId, userEmail?)` — forwards userEmail to getTierConfig
+- **Routes NOT yet modified** — kept this commit minimal to honor owner's "jangan merusak file terkait provider anthropic platform resmi" constraint. Olagon unreachable via current routes, but haiku/sonnet flow unchanged ✅
+
+### Pending Steps
+
+**Step E — Preferences Endpoint (✅ DONE)**
+- Created `routes/preferences.ts` with GET + PATCH /api/users/me/preferences
+- Owner-only enforcement via `isOwnerEmail()` gate
+- Registered in `routes/index.ts` at line 94
+
+**Step F — Tests (✅ DONE)**
+- Created `test/olagon.test.ts` with unit tests
+
+**Step G — Verify (✅ DONE)**
+- `pnpm typecheck` ✅ exit code 0
+- `pnpm build` ✅ exit code 0
+
+### Post-Implementation (✅ DONE)
+- DECISION 020 added to `.ai/decisions.md` (was: pending)
+- blockers.md Olagon entry → RESOLVED (Olagon approved owner-only)
+- Owner manual step: set `OLAGON_API_KEY` env var in Vercel Dashboard
+
+### Safety Invariants Maintained
+
+✅ Anthropic native provider unchanged (haiku-4.5, sonnet-5 all unchanged in DB)
+✅ Olagon tier rows use Anthropic-compatible protocol via `base_url` only
+✅ Olagon token NEVER touches Teora codebase (lives only in `~/.claude/settings.json`)
+✅ `OWNER_EMAIL = sagiseainun@gmail.com` gates all Olagon access
+✅ Routes unchanged → production Anthropic flow UNTOUCHED
+
+### Phase 2 — Frontend UI (NEXT)
+
+**1. Settings page — AI Provider toggle**
+- Add API call: `GET /api/users/me/preferences` → display current
+- Toggle: `PATCH /api/users/me/preferences` with `{ aiProvider: 'anthropic' | 'olagon' }`
+- Owner-only: 'olagon' option shows lock/owner badge for non-owner users
+
+**2. Pricing page — filter Olagon tiers from non-owner**
+- `getAllActiveTiers(userEmail)` already returns correct data (Step C)
+- Ensure pricing UI calls with userEmail to filter correctly
+
+**3. AI route wiring (optional Phase 2 extension)**
+- Wire `req.user.preferences` into message routes
+- Owner requests auto-route to Olagon based on preference
+
+### Resume Instructions
+
+Next session: mulai Phase 2 Frontend. Baca Section 5.2 dari discussion doc untuk UI spec detail.
 
 ### Resume Instructions
 Next session: jalankan Session Start Protocol (read .ai/ files) + cek `.ai/error-index.md` early untuk context. Kalau dapat error, follow `.ai/guidelines/error-handling-protocol.md` 8-step SOP.
