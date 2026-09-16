@@ -757,3 +757,45 @@ Confidence labels (per Error Handling Protocol Step 3):
 **Memory:** `~/.claude/projects/E--teora/memory/auto-merge-peter-evans-fails-repo-allow-auto-merge.md`
 **Lifecycle:** WORKAROUND_APPLIED (real fix pending owner repo setting enable)
 **Pattern:** `ci_workflow_fails_repo_setting_not_yaml` (1x so far — not yet promoted)
+
+---
+
+## ERR-022 — Vercel `deploy --prod` does NOT update production alias
+
+**Class:** platform gap (Vercel deployment workflow)
+**Severity:** HIGH (deployments succeed but production serves stale code; "deploy worked but feature not in production")
+**First seen:** 2026-09-16 (initial Olagon deploy appeared successful, but `teora-backend.vercel.app` still served Sep 12 bundle)
+**Root cause:** `vercel deploy --prod --yes --token ...` creates a new deployment with `target: "production"` BUT does NOT automatically move the production alias to the new deployment. The alias (`teora-backend.vercel.app`) continues to point to whatever deployment was previously set via GitHub integration's auto-promotion. Result: new deploys exist (READY, target=production) but traffic goes to OLD deployment.
+
+**Why this happened specifically:**
+- Project was originally deployed via GitHub integration (commit `d80a7ca` from PR #17 merge, Sep 12)
+- That set production alias to `dpl_HsMepdHAbi1LUGVw3pujeEdsjyMy`
+- When I deployed via `vercel deploy --prod` later, a NEW deployment was created with target=production (visible at `dpl_J8RKYi1NJxiWCV8pFsz5hGNc1Zwd`)
+- BUT the production alias `teora-backend.vercel.app` was NOT moved — Vercel creates new deployment URLs but the alias stays on the original
+- `vercel promote <deployment-id>` is the explicit command to update the alias
+
+**Symptom:** `curl https://teora-backend.vercel.app/api/ai-tiers` returns 4 tiers (including Olagon) without auth, even though source code and bundle BOTH had the filter logic. `vercel inspect teora-backend.vercel.app --token ...` showed production pointing to `dpl_HsMepdHAbi1LUGVw3pujeEdsjyMy` (Sep 12).
+
+**Diagnosis path:**
+1. Check source code for expected behavior → has filter
+2. Check local build bundle → has filter
+3. Check production response → no filter
+4. `vercel inspect <alias-url>` → reveals which deployment the alias points to
+5. If alias points to older deployment than latest deploy → use `vercel promote` to swap
+
+**Fix applied 2026-09-16:**
+1. Rebuilt `api/index.mjs` from current source: `npm run build` in `artifacts/api-server`
+2. Deployed: `vercel deploy --prod --yes --token <token>` → `dpl_KtjqH7gRMbRjzFGT3Yom2RAwk885`
+3. Promoted: `vercel promote dpl_KtjqH7gRMbRjzFGT3Yom2RAwk885 --token <token>` → production alias now points to new deployment
+4. Verified: `/api/ai-tiers` returns 401 without auth (correct H5 behavior); bundle grep confirms filter
+
+**Prevention:**
+- **ALWAYS run `vercel promote <new-deployment-id>` after `vercel deploy --prod`** if you need the alias to point to the new deployment
+- Or use `--force` flag on `vercel deploy` to overwrite previous production deployment (NOT recommended — Vercel recommends promote instead)
+- Use `vercel inspect <alias>` before claiming "deployed" to verify which deployment is serving
+- Consider adding GitHub Action that auto-promotes latest successful deploy (would need Vercel project token with write access)
+- **WAJIB add to deployment SOP-001**: 5-step gate = build → deploy → promote → verify alias → smoke test
+
+**Memory:** Add new memory file `~/.claude/projects/E--teora/memory/vercel-promote-required-after-deploy-prod.md`
+**Lifecycle:** FIXED (2026-09-16, dpl_KtjqH7gRMbRjzFGT3Yom2RAwk885 promoted)
+**Pattern:** `vercel_deploy_prod_does_not_update_alias` (1x — promote to skill after 2x occurrence)
