@@ -1545,3 +1545,81 @@ Set `OLAGON_API_KEY` env var di Vercel Dashboard → teora-backend → Environme
 - **Section 10.1 `pricing-strategy-2026-anthropic.md`** — subscription quota cap (5h/7d) = circuit breaker untuk subscription tier
 - **Section 10.7 `pricing-strategy-2026-anthropic.md`** Anti-Gaming #10 — wording "auto-stop circuit breaker" mengarah ke cascade ke saldo, BUKAN stop total
 - **INC-006 (RLS Security Gap)** — unrelated, tetap P0 partially resolved (S5 leaked password protection outstanding)
+
+---
+
+## [2026-09-16] DECISION 021: SOP-003 — Universal Deploy Gate (3 paths × 6 properties)
+
+### Context
+
+Owner minta "rule deploy yang aman" sejak awal diskusi Olagon. SOP-001 dibuat (4-step gate, GitHub integration path only), tested in-vitro, claimed working. Tapi saat deploy Olagon production:
+1. Path B (Vercel CLI) dipakai untuk backend — SOP-001 tidak cover path ini
+2. `vercel deploy --prod` create deployment baru tapi tidak auto-promote alias (ERR-022)
+3. Deploy sukses per SOP tapi production masih serve bundle lama
+4. Owner observe: "kenapa ketika ini praktek langsung itu masih gk bisa?"
+
+Root cause analysis: SOP-001 adalah **path-conditional**, bukan universal. Owner tanya rule aman, dapat rule yang hanya jalan di 1 dari 3 jalur yang mungkin dipakai di Teora.
+
+### Decision
+
+**Replace SOP-001 dengan SOP-003 — Universal Deploy Gate.** Matrix 3 paths × 6 properties, dengan gate per-cell, rollback runbook executable per path, dan audit log wajib.
+
+**6 properties (definisi deploy aman):**
+
+1. **Atomic** — single source of truth, no half-state ke user
+2. **Reversible** — rollback <5 menit, no data loss
+3. **Observable** — 1 command verify status, deterministic
+4. **Idempotent** — re-run = no-op atau warn, bukan silent duplicate
+5. **Scoped** — authorization punya scope + expiry jelas, default deny
+6. **Auditable** — 1 entry di `.ai/deploy-log.md` per deploy dengan field tetap
+
+**3 paths (yang mungkin dipakai di Teora):**
+
+| Path | Trigger | Default behavior |
+|---|---|---|
+| A — GitHub Integration | push ke main / merge PR | Auto-build + auto-deploy + auto-promote (kalau GH integration handle production sejak awal) |
+| B — Vercel CLI Manual | `vercel deploy --prod --yes` dari lokal | Build + create deployment, **TAPI tidak auto-promote** (ERR-022 trap) |
+| C — GitHub PAT API Merge | `PUT /pulls/{n}/merge` pakai PAT | Bypass auto-merge workflow, **emergency only** |
+
+### Opsi yang Dipertimbangkan
+
+| Opsi | Verdict | Alasan |
+|------|---------|--------|
+| Perbaiki SOP-001 jadi cover 3 paths | ❌ Ditolak | SOP-001 fundamentally conditional; extend ≠ fix. Lebih bersih rewrite sebagai universal matrix |
+| Buat SOP-003 baru, deprecated SOP-001 | ✅ DIPILIH | Clear separation; SOP-001 tetap accessible untuk reference tapi marked deprecated |
+| Buat SOP universal tanpa matrix | ❌ Ditolak | Tanpa explicit matrix per path, gate jadi vague dan AI akan skip di kondisi abnormal |
+
+### Implementation
+
+**Files created:**
+- `.claude/skills/deploy-safe/SKILL.md` — SOP-003 dengan matrix + checklist + runbook
+- `.claude/commands/deploy.md` — `/deploy` command yang enforce SOP-003
+- `.ai/deploy-log.md` — audit log format, retroaktif diisi dengan deploy history
+
+**Files updated (akan di-commit):**
+- `.ai/decisions.md` — DECISION 021 entry ini
+- `.ai/current-task.md` — Handoff section dengan reference ke SOP-003
+- `.ai/error-index.md` — ERR-022 reference SOP-003 sebagai prevention
+
+**Rules (hard):**
+1. No deploy tanpa pre-deploy checklist complete
+2. No claim "deployed" tanpa audit log entry
+3. No Path C tanpa Path A/B attempted first (atau documented why impossible)
+4. No rollback tanpa recording reason in audit log
+5. No Path B tanpa explicit `vercel promote` (ERR-022 trap)
+
+### Lesson Learned
+
+**Saya (AI) claim SOP cukup padahal cuma tested in 1 jalur.** Owner bilang "buatkan rule deploy yang aman" — saya tulis SOP, test di GitHub integration path, dapat hijau, claim "clear." Itu jawaban yang terdengar benar tapi shallow.
+
+**Pattern yang harus dihindari:** SOP yang lulus in-vitro test di 1 path ≠ SOP yang handle production reality. SOP harus di-design untuk semua path yang mungkin dipakai, bukan cuma path yang di-test saat diskusi.
+
+**Self-correction:** setiap kali SOP/rule baru dibuat, wajib enumerate semua execution path yang mungkin, bukan cuma path yang obvious dari diskusi. Path B dan Path C tidak obvious dari diskusi "deploy Olagon" tapi keduanya terpakai di production.
+
+### Related
+
+- ERR-021 — Auto-merge broken (Path C justification)
+- ERR-022 — `vercel deploy --prod` does not update alias (Path B mandatory promote)
+- Memory `auto-merge-peter-evans-fails-repo-allow-auto-merge.md`
+- Memory `vercel-promote-required-after-deploy-prod.md`
+- Supersedes: SOP-001 (path-conditional, marked deprecated in this decision)

@@ -2139,3 +2139,47 @@ Next session: jalankan Session Start Protocol (read .ai/ files) + cek `.ai/error
 - **vercel promote vs vercel deploy --prod**: `deploy --prod` creates a new deployment with production target BUT does NOT update the production alias automatically. You must explicitly run `vercel promote <deployment-id>` to make the alias point to the new deployment. This is the key gap that caused this fix.
 - **Inspecting production target**: `vercel inspect teora-backend.vercel.app --token ...` shows which deployment the alias points to. The meta.githubCommitSha field reveals whether the alias has drifted from latest main.
 - **Why auto-merge keeps creating stale bundles**: GitHub Actions push to Vercel via git integration uses `gitRootDirectory: artifacts/api-server` — but if the workflow's working directory hasn't built the latest `api/index.mjs`, the deploy serves stale code. Auto-merge flow should also include a build step before deploy.
+
+---
+
+## Handoff 2026-09-16 12:30 — model opus-4-8 → opus-4-X
+
+**Task aktif:** SOP-003 Universal Deploy Gate — **COMPLETE & ENFORCED**
+
+**Status:** ✅ Created `.claude/skills/deploy-safe/SKILL.md` (SOP-003) with 3 paths × 6 properties matrix, rollback runbook per path, audit log mandatory. Created `.claude/commands/deploy.md` to enforce via `/deploy`. Created `.ai/deploy-log.md` with retroactive entries from Sep 12 to Sep 16.
+
+**Why this exists:** Owner observe "SOP sudah ada, test clear, kenapa pas praktek masih gk bisa?" — root cause: SOP-001 cuma cover 1 path (GitHub integration) padahal Teora punya 3 deploy paths. When Olagon deploy used Path B (Vercel CLI), SOP-001 didn't apply and ERR-022 (alias not auto-promoted) hit production.
+
+**What SOP-003 enforces:**
+- 6 properties (atomic, reversible, observable, idempotent, scoped, auditable) — gate per cell
+- 3 paths (A=Github integration, B=Vercel CLI, C=PAT API merge) — checklist per path
+- Pre-deploy checklist (9 items) — hard stop if incomplete
+- Post-deploy verification (5 commands) — deterministic PASS/FAIL
+- Rollback runbook per path — executable in <5 min
+- Audit log mandatory — one row per deploy to `.ai/deploy-log.md`
+
+**Hard rules (violation = ERR):**
+1. No deploy tanpa pre-deploy checklist complete
+2. No claim "deployed" tanpa audit log entry
+3. No Path C tanpa Path A/B attempted first
+4. No rollback tanpa recording reason in audit log
+5. No Path B tanpa explicit `vercel promote` (ERR-022 trap)
+
+**Last 3 actions:**
+1. Wrote `.claude/skills/deploy-safe/SKILL.md` with matrix + checklist + runbook
+2. Wrote `.claude/commands/deploy.md` wrapping SOP-003 as `/deploy` command
+3. Wrote `.ai/deploy-log.md` with retroactive entries from Sep 12 (first GH integration auto-deploy) through Sep 16 (PAT API merge + bundle rebuild fix)
+
+**Next 3 actions:**
+1. **Owner: live test Olagon** — login as sagiseainun@gmail.com → /akun → AI Provider toggle
+2. **Owner manual steps (recommended, not blocking):**
+   - Enable "Allow auto-merge" in Vercel repo Settings (sagise-ctrl/teora)
+   - Add backend deploy GitHub Action (avoid manual CLI deploys)
+   - Push commits `4e499d7` and `9d6c950` to origin (currently local-only; branch protection blocks direct push; could be cherry-picked into a new PR)
+3. **Optional SOP-003 testing:** next deploy (could be Olagon re-verify or any feature) — run via `/deploy B backend` (or appropriate path) to validate SOP-003 end-to-end in production.
+
+**Cross-session notes:**
+- **SOP-003 supersedes SOP-001** — SOP-001 kept for reference but marked deprecated in DECISION 021
+- **3 paths matrix is universal** — even if Teora adds GitHub Action for backend later, Path B (CLI) tetap applicable untuk hotfix; Path C tetap applicable untuk emergency
+- **Audit log retroactive fill** — deploys sebelum SOP-003 punya catatan minimal, tapi format lengkap. Future deploys harus pakai format penuh (8 kolom).
+- **Owner authorization scope** — masih open question. Currently relying on chat instruction. Need template/structure untuk scope + expiry. Suggested in DECISION 021 tapi belum implemented.
