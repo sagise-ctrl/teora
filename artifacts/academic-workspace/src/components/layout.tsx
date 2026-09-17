@@ -209,6 +209,8 @@ function SidebarNav({ onNavigate }: SidebarNavProps) {
 function SidebarFooter({ onNavigate }: SidebarNavProps) {
   const { user, logout } = useAuth();
   const { data: balanceData, isLoading: balanceLoading } = useGetMyBalance();
+  const { theme, setTheme } = useTheme();
+  const isDark = theme === "dark";
 
   return (
     <div className="p-3 border-t border-border space-y-3">
