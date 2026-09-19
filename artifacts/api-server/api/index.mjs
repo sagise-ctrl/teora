@@ -187841,8 +187841,8 @@ var require_node_domexception = __commonJS({
   "../../node_modules/.pnpm/node-domexception@1.0.0/node_modules/node-domexception/index.js"(exports, module) {
     if (!globalThis.DOMException) {
       try {
-        const { MessageChannel: MessageChannel2 } = __require("worker_threads"), port2 = new MessageChannel2().port1, ab = new ArrayBuffer();
-        port2.postMessage(ab, [ab, ab]);
+        const { MessageChannel: MessageChannel2 } = __require("worker_threads"), port = new MessageChannel2().port1, ab = new ArrayBuffer();
+        port.postMessage(ab, [ab, ab]);
       } catch (err) {
         err.constructor.name === "DOMException" && (globalThis.DOMException = err.constructor);
       }
@@ -194148,13 +194148,33 @@ function createRemoteJWKSet(url2, options) {
   });
 }
 
+// src/lib/logger.ts
+var import_pino = __toESM(require_pino(), 1);
+var isProduction = process.env.NODE_ENV === "production";
+var logger2 = (0, import_pino.default)({
+  level: process.env.LOG_LEVEL ?? "info",
+  redact: [
+    "req.headers.authorization",
+    "req.headers.cookie",
+    "res.headers['set-cookie']"
+  ],
+  ...isProduction ? {} : {
+    transport: {
+      target: "pino-pretty",
+      options: { colorize: true }
+    }
+  }
+});
+
 // src/middlewares/auth.ts
 var SUPABASE_URL = process.env.SUPABASE_URL ?? "";
 var SUPABASE_JWT_SECRET = process.env.SUPABASE_JWT_SECRET ?? "";
+logger2.info({ SUPABASE_URL, SUPABASE_JWT_SECRET_set: !!SUPABASE_JWT_SECRET }, "Auth middleware loaded");
 var jwks = null;
 async function getJwks() {
   if (jwks) return jwks;
   const jwksUrl = new URL(`${SUPABASE_URL}/auth/v1/.well-known/jwks.json`);
+  logger2.info({ jwksUrl: jwksUrl.toString() }, "getJwks: JWKS URL");
   jwks = createRemoteJWKSet(jwksUrl);
   return jwks;
 }
@@ -194185,8 +194205,11 @@ async function authMiddleware(req, res, next) {
       id: payload.sub,
       email: payload.email
     };
+    logger2.info({ userId: req.user.id, email: req.user.email }, "authMiddleware: token verified");
     next();
   } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    logger2.warn({ err: msg, hasSecret: !!SUPABASE_JWT_SECRET, supabaseUrl: SUPABASE_URL || "[EMPTY]" }, "authMiddleware: token verify failed");
     res.status(401).json({ error: "Invalid or expired token" });
   }
 }
@@ -196645,6 +196668,7 @@ var health_default = router;
 var import_express2 = __toESM(require_express2(), 1);
 var router2 = (0, import_express2.Router)();
 router2.get("/diag", (_req, res) => {
+  const allKeys = Object.keys(process.env).sort();
   res.json({
     envVars: {
       OLAGON_API_KEY: process.env.OLAGON_API_KEY ? "[SET]" : "[EMPTY]",
@@ -196652,9 +196676,14 @@ router2.get("/diag", (_req, res) => {
       AI_API_KEY: process.env.AI_API_KEY ? "[SET]" : "[EMPTY]",
       OWNER_EMAIL: process.env.OWNER_EMAIL ? "[SET]" : "[EMPTY]",
       AI_PROVIDER: process.env.AI_PROVIDER ?? "[NOT SET]",
-      AI_BASE_URL: process.env.AI_BASE_URL ?? "[NOT SET]"
-    },
-    allEnvKeys: Object.keys(process.env).filter((k) => k.includes("API") || k.includes("KEY") || k.includes("OWNER") || k.includes("AI_"))
+      AI_BASE_URL: process.env.AI_BASE_URL ?? "[NOT SET]",
+      SUPABASE_URL: process.env.SUPABASE_URL ?? "[NOT SET]",
+      SUPABASE_JWT_SECRET: process.env.SUPABASE_JWT_SECRET ? "[SET]" : "[EMPTY]",
+      SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY ? "[SET]" : "[EMPTY]",
+      DATABASE_URL: !!process.env.DATABASE_URL,
+      DATABASE_POOLER_URL: !!process.env.DATABASE_POOLER_URL,
+      VERBOSE_allKeys: allKeys
+    }
   });
 });
 var diag_default = router2;
@@ -204582,26 +204611,6 @@ function customAlphabet(alphabet, size = 21) {
 
 // src/routes/auth.ts
 init_src();
-
-// src/lib/logger.ts
-var import_pino = __toESM(require_pino(), 1);
-var isProduction = process.env.NODE_ENV === "production";
-var logger2 = (0, import_pino.default)({
-  level: process.env.LOG_LEVEL ?? "info",
-  redact: [
-    "req.headers.authorization",
-    "req.headers.cookie",
-    "res.headers['set-cookie']"
-  ],
-  ...isProduction ? {} : {
-    transport: {
-      target: "pino-pretty",
-      options: { colorize: true }
-    }
-  }
-});
-
-// src/routes/auth.ts
 var router3 = (0, import_express3.Router)();
 var SUPABASE_URL2 = process.env.SUPABASE_URL ?? "";
 var SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
@@ -205097,7 +205106,66 @@ function isOwnerEmail(email) {
 // src/lib/ai.ts
 var _tierCache = /* @__PURE__ */ new Map();
 var _tierCacheTime = 0;
-var CACHE_TTL_MS = 6e4;
+var CACHE_TTL_MS = 5e3;
+var OLAGON_TIERS = {
+  "haiku-4.5": {
+    id: "haiku-4.5",
+    name: "Haiku 4.5 (Free)",
+    provider: "anthropic",
+    model: "claude-haiku-4-5-20250514",
+    baseUrl: "https://gateway.olagon.site/anthropic",
+    apiKeyEnvVar: "OLAGON_API_KEY",
+    pricePer1MInputCents: 0,
+    pricePer1MOutputCents: 0,
+    providerCostPer1MInputCents: 0,
+    providerCostPer1MOutputCents: 0,
+    markupMultiplier: 1,
+    rateLimitRpm: null,
+    rateLimitTpd: null,
+    isFree: true,
+    isOwnerOnly: false,
+    description: "",
+    usageTips: null
+  },
+  "opus-4-8-olagon": {
+    id: "opus-4-8-olagon",
+    name: "Opus 4.8 (Olagon \u2014 Owner Only)",
+    provider: "anthropic",
+    model: "claude-opus-4-8",
+    baseUrl: "https://gateway.olagon.site/anthropic",
+    apiKeyEnvVar: "OLAGON_API_KEY",
+    pricePer1MInputCents: 0,
+    pricePer1MOutputCents: 0,
+    providerCostPer1MInputCents: 0,
+    providerCostPer1MOutputCents: 0,
+    markupMultiplier: 1,
+    rateLimitRpm: null,
+    rateLimitTpd: null,
+    isFree: true,
+    isOwnerOnly: true,
+    description: "",
+    usageTips: null
+  },
+  "opus-4-6-olagon": {
+    id: "opus-4-6-olagon",
+    name: "Opus 4.6 (Olagon \u2014 Owner Only, Cascade)",
+    provider: "anthropic",
+    model: "claude-opus-4-6",
+    baseUrl: "https://gateway.olagon.site/anthropic",
+    apiKeyEnvVar: "OLAGON_API_KEY",
+    pricePer1MInputCents: 0,
+    pricePer1MOutputCents: 0,
+    providerCostPer1MInputCents: 0,
+    providerCostPer1MOutputCents: 0,
+    markupMultiplier: 1,
+    rateLimitRpm: null,
+    rateLimitTpd: null,
+    isFree: true,
+    isOwnerOnly: true,
+    description: "",
+    usageTips: null
+  }
+};
 async function getTierConfig(tierId, userEmail) {
   const now = Date.now();
   if (now - _tierCacheTime < CACHE_TTL_MS && _tierCache.has(tierId)) {
@@ -205105,12 +205173,26 @@ async function getTierConfig(tierId, userEmail) {
     if (cached2?.isOwnerOnly && !isOwnerEmail(userEmail)) return null;
     return cached2;
   }
+  if (OLAGON_TIERS[tierId]) {
+    const config2 = OLAGON_TIERS[tierId];
+    if (config2.isOwnerOnly && !isOwnerEmail(userEmail)) {
+      logger2.warn({ tierId, userEmail }, "getTierConfig: Olagon tier blocked for non-owner");
+      return null;
+    }
+    _tierCache.set(tierId, config2);
+    _tierCacheTime = now;
+    logger2.info({ tierId }, "getTierConfig: using hardcoded Olagon config (no DB lookup)");
+    return config2;
+  }
   const [tier] = await db.select().from(aiTiersTable).where(eq4(aiTiersTable.id, tierId));
-  if (!tier) return null;
+  if (!tier) {
+    logger2.warn({ tierId, userEmail }, "getTierConfig: tier not found in DB");
+    return null;
+  }
   if (tier.isOwnerOnly && !isOwnerEmail(userEmail)) {
     logger2.warn(
-      { tierId, userEmail: userEmail ?? "<none>" },
-      "Blocked non-owner access to owner-only AI tier"
+      { tierId, userEmail, ownerEmail: process.env.OWNER_EMAIL, isOwner: isOwnerEmail(userEmail) },
+      "getTierConfig: blocked non-owner access to owner-only tier"
     );
     return null;
   }
@@ -205246,15 +205328,33 @@ function getApiKey(envVarName) {
     }
   }
 }
-async function callAI(messages, tierId, mode) {
-  const tier = await getTierConfig(tierId);
-  if (!tier) {
-    logger2.warn({ tierId }, "AI tier not found \u2014 falling back to haiku-4.5");
-    const haikuTier = await getTierConfig("haiku-4.5");
-    if (!haikuTier) {
-      throw new Error("Haiku 4.5 tier not configured");
+async function callAI(messages, tierId, mode, preResolvedTier) {
+  if (tierId === "opus-4-8-olagon" || tierId === "opus-4-6-olagon") {
+    const config = OLAGON_TIERS[tierId];
+    const apiKey2 = getApiKey(config.apiKeyEnvVar);
+    if (!apiKey2) {
+      logger2.warn({ tierId, apiKeyEnvVar: config.apiKeyEnvVar, OLAGON_API_KEY: !!process.env.OLAGON_API_KEY }, "callAI: Olagon API key empty");
+      return {
+        content: `AI belum dikonfigurasi. Tier "${config.name}" memerlukan ${config.apiKeyEnvVar} di environment variables.`,
+        usage: { inputTokens: 0, outputTokens: 0, estimatedCostUsd: 0, costCents: 0, tierId },
+        tierConfig: config
+      };
     }
-    return callAI(messages, "haiku-4.5", mode);
+    logger2.info({ tierId, model: config.model }, "callAI: using Olagon direct bypass");
+    return callAnthropic(messages, config, mode);
+  }
+  const tier = preResolvedTier ?? await getTierConfig(tierId);
+  if (!tier) {
+    if (OLAGON_TIERS["haiku-4.5"]) {
+      const haikuConfig = OLAGON_TIERS["haiku-4.5"];
+      const apiKey2 = getApiKey(haikuConfig.apiKeyEnvVar);
+      if (apiKey2) {
+        logger2.info({ tierId }, "callAI: tier not found \u2014 using hardcoded haiku-4.5 bypass");
+        return callAnthropic(messages, haikuConfig, mode);
+      }
+    }
+    logger2.warn({ tierId }, "callAI: tier not found and haiku fallback unavailable");
+    throw new Error("AI tier not found and haiku fallback unavailable");
   }
   const apiKey = getApiKey(tier.apiKeyEnvVar);
   if (!apiKey) {
@@ -253087,7 +253187,7 @@ router6.post("/projects/:projectId/messages", async (req, res) => {
   ];
   let usageResult;
   try {
-    usageResult = await callAI(aiMessages, selectedTier.id, mode);
+    usageResult = await callAI(aiMessages, selectedTier.id, mode, selectedTier);
   } catch (err) {
     const message2 = err instanceof Error ? err.message : String(err);
     if (message2 === "KONTEKS_TERLALU_PANJANG") {
@@ -259673,24 +259773,11 @@ app.use((err, req, res, _next) => {
 });
 var app_default = app;
 
-// src/index.ts
-var rawPort = process.env["PORT"];
-if (!rawPort) {
-  throw new Error(
-    "PORT environment variable is required but was not provided."
-  );
-}
-var port = Number(rawPort);
-if (Number.isNaN(port) || port <= 0) {
-  throw new Error(`Invalid PORT value: "${rawPort}"`);
-}
-app_default.listen(port, (err) => {
-  if (err) {
-    logger2.error({ err }, "Error listening on port");
-    process.exit(1);
-  }
-  logger2.info({ port }, "Server listening");
-});
+// api/_handler.ts
+var handler_default = app_default;
+export {
+  handler_default as default
+};
 /*! Bundled license information:
 
 depd/index.js:
@@ -260036,4 +260123,4 @@ docx/dist/index.mjs:
 @noble/ciphers/esm/utils.js:
   (*! noble-ciphers - MIT License (c) 2023 Paul Miller (paulmillr.com) *)
 */
-//# sourceMappingURL=index.mjs.map
+//# sourceMappingURL=_handler.mjs.map
