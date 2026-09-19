@@ -295,7 +295,7 @@ function TaskCard({ project, type }: { project: any; type: TaskType }) {
 
             {/* Title */}
             <h3 className="font-serif font-semibold text-base leading-snug line-clamp-2 group-hover:text-primary transition-colors">
-              {project.title}
+              {project.title ?? "Tanpa Judul"}
             </h3>
 
             {/* Meta row: type label */}

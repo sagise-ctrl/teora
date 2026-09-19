@@ -812,3 +812,213 @@ Owner catch jelas: "apa ini sudah didiskusikan dengan ai team?" — jawaban saya
 - ❌ Quit at session start protocol tanpa truly verify all 7 steps
 - ❌ Trust implicit, "sudah baca semua" tanpa explicit check
 
+---
+
+## [Dashboard CTA card mislabeled: chat-style copy but routes to create-task form] `[ERR-024]`
+
+**Tanggal:** 2026-09-17
+**Severity:** P2 UX / Copy mismatch
+**Kelas masalah:** CTA copy tidak match dengan destination page purpose
+
+### Gejala
+
+Owner report 2026-09-17:
+> "klik Teora Assistant [Mulai Chat] tapi masuk ke /projects/new ... kemungkinan /projects/new itu sisa halaman lama yg seharusnya sudah dihapus tolong cek lagi"
+
+Dashboard top CTA card pakai:
+- Title: "Teora Assistant"
+- Icon: `MessageSquare` (chat bubble)
+- Subtitle: "Tanya apa saja tentang tugas, referensi, atau penulisan akademik"
+- Button: "Mulai Chat"
+- Destination: `/projects/new`
+
+Destination adalah form CREATE task (Task Umum / Karya Ilmiah picker), BUKAN chat interface. Owner assumption: routing rusak atau `/projects/new` leftover.
+
+### Root cause
+
+**Class: `cta_label_mismatched_with_destination` — UX/copy bug, bukan code bug.**
+
+1. Dashboard CTA card text di-invent ulang dengan tema "AI Assistant" (generic)
+2. Icon `MessageSquare` dipilih untuk convey "chat"
+3. Owner click → dapat form (yang di `/projects/new`) — UX mismatch
+4. Route `/projects/new` sendiri TIDAK broken — aktif di App.tsx:87-93, linked dari 7 places, 80+ line form aktif di `new-project.tsx`
+5. Owner hypothesis "leftover page" SALAH — page adalah intentional create-task entry point
+
+### Kalau error berulang — apakah root cause sebelumnya sebenarnya belum teratasi?
+
+**Kelas masalah BARU — belum ada prior entry untuk `cta_label_mismatched_with_destination`.**
+
+Tapi pattern umum "user expectation vs actual UX" mirip dengan:
+- 2026-09-04 [ERR-006] Auth refresh — "No refresh token" error ditampilkan generic ke user, tidak actionable
+- Owner frustration sering muncul saat copy/UX暗示功能 X, tapi实际功能 Y
+
+Bukan code-level regression — lebih ke copy drift antara card design dan destination reality.
+
+### Opsi yang dipertimbangkan
+
+1. **Hapus card dashboard** — simplest, tapi kehilangan primary entry CTA
+2. **Rename route `/projects/new` jadi `/chat` atau `/assistant`** — misleading (destination tetap form), breaks 7 existing links, requires DECISION 010 update
+3. **Re-label card dengan copy yang match destination** — minimal blast radius, no route change, no DECISION update ✅
+4. **Build actual chat interface at `/projects/new`** — out of scope (bukan bug, fitur baru)
+
+### Kenapa pilih Opsi 3
+
+- Single file change (`dashboard.tsx`), 0 routing impact
+- Verbatim reuse dari `new-project.tsx` COPY.general.pageTitle/pageSubtitle/cta — single source of truth, kalau copy di `new-project.tsx` berubah, dashboard bisa di-sync kemudian
+- Route `/projects/new` tetap aktif (DECISION 010 default type=general), tidak perlu DECISION update
+- Zero risk ke live web (frontend text only, same destination)
+- Sesuai Autonomy Policy "DECIDE → EXECUTE → VERIFY → REPORT" — tidak butuh owner approval untuk frontend copy change
+
+### Yang harus dicek di masa depan supaya tidak terulang
+
+**WAJIB untuk setiap CTA card dengan `<Link>`:**
+
+- [ ] **Sebelum add/update CTA copy:** buka destination page, baca title + subtitle + main CTA — pastikan visible text match
+- [ ] **Source of truth:** untuk Task Mentor routes, pakai `new-project.tsx` COPY[type].pageTitle/pageSubtitle/cta sebagai authoritative — jangan re-invent similar text
+- [ ] **Icon selection:** `MessageSquare` = chat interface ONLY, `Sparkles` = generic AI-assisted, `FileText` = document/form, `Plus` = create action
+- [ ] **Pre-deploy UI review:** mental trace click → destination page → does copy match destination's H1 + button text?
+- [ ] **For DECISION 010 routes** (`/projects?type=general|academic` + `/projects/new`): cross-reference COPY[type] object sebelum edit dashboard / sidebar / landing CTA
+
+**Pattern class `cta_label_mismatched_with_destination` (1x so far — promote to skill setelah 2x):**
+
+- Cek `grep -rn 'MessageSquare\|Mulai Chat' artifacts/academic-workspace/src/pages/dashboard.tsx` → if returns 0 di context non-chat, fix
+- Code review checklist: setiap `<Link>` block, verify destination page has matching concept
+
+**Owner hint 2026-09-17**: "tolong cek lagi" — owner tidak minta fix total, hanya verify. Saya perlu confirm before assuming scale of fix. Di sini: 1 file edit cukup karena diagnosis menunjukkan bug di copy bukan di routing.
+
+---
+
+## [WAJIB cek diskusi + keputusan sebelumnya sebelum edit CTA/component yang punya established spec] `[Lesson 2026-09-17]`
+
+**Tanggal:** 2026-09-17
+**Severity:** P1 Process / Workflow
+**Kelas masalah:** Reaktif edit tanpa verify spec established — overwrote DECISION 016
+
+### Gejala
+
+Owner koreksi sore 2026-09-17:
+> "anda yg terburu2 untuk setup. apa urgensinya ada 'Mulai dengan Teora / Mulai tugas singkat. Teora bantu susun kerangka dan pahami instruksi Anda.' di dashboard?"
+
+Owner juga klarifikasi: CTA card "Teora Assistant / Mulai Chat" di dashboard seharusnya entry point ke **AI Chat Bot** (fitur yang BELUM dibangun), BUKAN ke `/projects/new` form. Diskusi khusus akan dilakukan nanti untuk fitur ini.
+
+### Root cause
+
+Saya (AI) menemukan bug copy mismatch pagi ini, lalu:
+1. ✅ Apply Decision 005 SOP — search `.ai/lessons-learned.md` + `.ai/error-index.md` (no prior pattern)
+2. ✅ Verify hipotesis owner (`/projects/new` is leftover) — REJECT dengan evidence
+3. ❌ **GAGAL cek DECISION 016 spec** — `docs/ai-team/product/user-dashboard.md:610-620` eksplisit specify CTA card dengan copy "AI Assistant / Mulai Chat / Tanya apa saja..."
+4. ❌ Edit copy dengan referensi dari `new-project.tsx` COPY.general (default form CTA), BUKAN dari spec DECISION 016
+5. ❌ Deploy ke production tanpa second-guess
+
+**Yang harusnya saya lakukan pagi ini:**
+- Sebelum edit, baca DECISION 016 spec di `.ai/decisions.md` DAN `docs/ai-team/product/user-dashboard.md`
+- Lihat bahwa CTA card punya spec established (owner-approved 2026-08-29)
+- Tanya owner: "DECISION 016 specify copy ini sebagai 'AI Assistant / Mulai Chat', tapi destination `/projects/new` adalah form (bukan chat). Apakah ini outdated spec, atau ada rencana chat route yang belum dibangun?"
+
+### Kalau error berulang
+
+**Pattern reaktif edit without spec verification** — kelas masalah SOP:
+
+- 2026-09-14 [ERR-018] "WAJIB consult AI team knowledge base BEFORE executing technical decisions" — lesson existing tapi tidak cover **UX/copy** component
+- 2026-09-17 ERR-024 ini — extend pattern ke UI/copy layer
+
+Bukan code-level regression — owner frustrasi karena waktu terbuang (saya reaktif + salah referensi + harus revert).
+
+### Opsi yang dipertimbangkan
+
+1. **Tambah rule baru di Session Start Protocol**: "WAJIB cek DECISION.md untuk komponen UI yang punya established spec sebelum edit copy/props" — minimally invasive ✅
+2. **Buat SOP khusus untuk edit UI component**: checklist + verifikasi owner sebelum deploy untuk perubahan copy/icon — overkill untuk perubahan kecil
+3. **Refactor dashboard CTA card jadi component terpisah**: extract copy ke constants file, single source of truth — good practice tapi out of scope
+
+### Kenapa pilih Opsi 1
+
+Session Start Protocol sudah ada di CLAUDE.md dan `.ai/decisions.md` adalah single source of truth untuk spec. Tidak perlu tambah rule baru — saya cukup **enforce** rule existing dengan extension:
+
+> "Sebelum edit UI component (copy, icon, layout, props) — cek `.ai/decisions.md` DAN `docs/ai-team/<division>/` apakah component punya spec established. Kalau iya, EDIT SESUAI SPEC, bukan dari copy file lain."
+
+### Yang harus dicek di masa depan supaya tidak terulang
+
+**WAJIB sebelum edit UI component (copy/icon/props/layout):**
+
+- [ ] **Cek `.ai/decisions.md`** — apakah component punya DECISION entry? (e.g., DECISION 016 untuk dashboard CTA card)
+- [ ] **Cek `docs/ai-team/<division>/`** — apakah component punya spec file? (e.g., `docs/ai-team/product/user-dashboard.md`)
+- [ ] **Cek `stitch-prmpt.md`** — apakah ada design spec original? (e.g., untuk dashboard ada spec di section "PAGE 4: /dashboard")
+- [ ] **Cek `.ai/current-task.md`** historical — apakah pernah ada diskusi sebelumnya tentang component ini?
+- [ ] **Cek git log** — `git log --oneline -- <file>` untuk lihat history perubahan
+
+**Kalau spec established ADA:**
+- [ ] Edit SESUAI SPEC, bukan dari referensi lain
+- [ ] Kalau destination/maksud spec tidak match dengan kenyataan (seperti DECISION 016 → `/projects/new` mismatch), **tanya owner dulu** sebelum edit
+- [ ] Update spec file (.ai/decisions.md atau docs/) kalau ternyata outdated — JANGAN overwrite spec silently
+
+**Kalau spec TIDAK ADA:**
+- [ ] Diskusi dengan owner sebelum add copy/icon/props baru
+- [ ] Buat spec entry di `.ai/decisions.md` setelah owner-approved
+
+**Owner warning style:** Owner mungkin kasih hint seperti "kita pernah diskusi tentang..." atau "ada spec-nya di..." — itu sinyal WAJIB cek DECISION/.ai files.
+
+---
+
+## Lesson: Revert harus sinkronkan SEMUA layer yang terkait
+
+**Source**: ERR-025 (2026-09-17)
+
+**Gejala**: POST /api/projects return HTML 500 saat owner submit form tanpa judul. Frontend Zod pass, backend Zod pass, tapi DB constraint violation karena title NOT NULL.
+
+**Root cause**: Revert commit `eea2757` (2026-08-29 12:07) me-revert commit `159ac0b` yang sebelumnya membuat title nullable. Revert berhasil mengembalikan:
+- DB schema `title` jadi NOT NULL lagi ✅
+- Handler: `title: parsed.data.title ?? null` jadi `title: parsed.data.title` (no fallback) ✅
+
+TAPI — handler tidak menambahkan logika fallback apapun untuk kasus title undefined, sedangkan frontend form baru (yang ditambahkan kemudian) memperlakukan title sebagai opsional. Hasil: 3 layer (frontend form opsional, Zod opsional, DB NOT NULL) tidak sinkron.
+
+**Kalau error berulang**: Bisa jadi class baru (revert_layer_inconsistency) atau salah satu revert sebelumnya yang masih punya orphan inconsistency. Setiap revert perlu audit full-stack, bukan hanya file yang di-revert.
+
+**Opsi yang dipertimbangkan**:
+1. Re-run `git show <revert-commit>` dan audit semua file yang disentuh + file yang bergantung padanya (Zod schema, OpenAPI spec, response schema)
+2. Tambahkan regression test sebelum revert supaya post-revert state bisa diverifikasi
+3. Pakai feature flag daripada hard revert untuk trial fitur
+
+**Kenapa pilih pendekatan ini**: Audit pasca-revert (opsi 1) paling murah dan paling applicable untuk project ini. Plus integration test untuk create-project-without-title sebagai regression guard.
+
+**Yang harus dicek di masa depan supaya tidak terulang**:
+- [ ] Setiap revert commit: WAJIB audit SEMUA file yang depend on schema yang di-revert (Zod schema, OpenAPI spec, response types, semua handler yang pakai field tersebut)
+- [ ] Cek juga frontend types — kalau backend Zod/response berubah, frontend types ikut berubah atau stale
+- [ ] Untuk field NOT NULL vs nullable: cek `?? null` fallback di SEMUA handler yang insert/update
+- [ ] Untuk Express backend: setiap app.ts WAJIB punya global error handler returning JSON (audit: `find . -name "app.ts" -path "*/api-server/*" -exec grep -L "internal_server_error" {} \;`)
+- [ ] Setelah revert, run smoke test untuk case "edge input" (title kosong, optional field tidak diisi, dll)
+- [ ] Jika ada keputusan untuk membuat field nullable (DECISION 021), apply ke: DB schema + handler `?? null` + OpenAPI + Zod + frontend fallback copy — **semua atau tidak sama sekali**
+
+---
+
+## Lesson: Tier-resolution pattern rollout harus cover SEMUA routes yang terima tierId
+
+**Source**: ERR-026 (2026-09-18)
+
+**Gejala**: POST /api/projects/9/messages return 403 Forbidden saat owner coba chat di workspace. Owner sudah set `aiProvider=olagon` di preferences. Chat input pilih Olagon tier (`opus-4-8-olagon`). Backend reject.
+
+**Root cause**: DECISION 019/020 (Olagon gateway as owner-only AI provider) originally updated tiga route (`analyze`, `outline`, `documents/generate`) untuk pakai `resolveOlagonTierOrFallback`. `messages.ts` TIDAK di-update karena saat itu dianggap "tidak relevan" (chat dianggap tier resolution-nya beda). Ketika DECISION 022 (universal AI tier selector) jadi semua AI route pakai selector, frontend mulai kirim Olagon tierId ke `messages.ts`, tapi backend masih pakai `getTierConfig + checkTierAccess` yang reject Olagon tier (karena Olagon tier tidak ada di subscription package allowed list). Partial rollout of new tier-resolution pattern → silent 403 yang baru muncul saat owner pakai Olagon tier.
+
+**Compound bug**: `messages.ts` juga tidak punya ownership check. A logged-in user bisa POST chat messages di project orang lain kalau tau projectId. Security gap yang fix menutup dua bug sekaligus.
+
+**Kalau error berulang**: Cek apakah ada DECISION baru tentang tier resolution / AI provider preference / Olagon gateway. Setiap keputusan itu WAJIB search semua route file untuk pattern yang harus berubah:
+- `grep -rn "checkTierAccess\|getTierConfig\b" artifacts/api-server/src/routes/` — semua match harus di-evaluate
+- `grep -rn "projectsTable" artifacts/api-server/src/routes/` — setiap select tanpa ownership check perlu ditambah
+
+**Opsi yang dipertimbangkan**:
+1. Search SEMUA route file untuk tier-resolution pattern, audit satu-satu
+2. Buat helper/wrapper (e.g., `resolveTierForRoute`) yang semua route panggil, sehingga tier-resolution logic terpusat dan tidak bisa di-skip
+3. Tambah integration test yang POST ke SEMUA AI endpoint dengan Olagon tier — catch partial rollout otomatis
+
+**Kenapa pilih pendekatan ini**: Opsi 1 (audit) paling applicable sekarang. Opsi 2 (helper terpusat) ideal tapi refactor besar — track terpisah. Opsi 3 (integration test) penting tapi tidak catch missing routes, hanya catch wrong behavior di existing routes.
+
+**Yang harus dicek di masa depan supaya tidak terulang**:
+- [ ] Setiap DECISION yang memperkenalkan tier-resolution pattern / provider preference / authorization rule: WAJIB search all routes yang accept tierId, ownership check, atau user preference. Pattern yang di-grep:
+  - `grep -rn "checkTierAccess" artifacts/api-server/src/`
+  - `grep -rn "getTierConfig" artifacts/api-server/src/`
+  - `grep -rn "getTierForUser" artifacts/api-server/src/`
+  - `grep -rn "projectsTable" artifacts/api-server/src/routes/` (cari yang tidak ada `userId` comparison)
+- [ ] Setiap AI route baru: WAJIB inherit dari template yang sudah include (a) ownership check (b) `resolveOlagonTierOrFallback` (c) pre-check quota. Lihat `analyze`, `outline`, `documents/generate` sebagai reference.
+- [ ] Frontend hooks untuk documents (atau entity apapun yang mungkin 404): WAJIB `enabled` guard berdasarkan existence check. `useGetDocument(id, 0)` tanpa guard = 404 spam.
+- [ ] Cross-validate OpenAPI spec dan Zod schema setelah setiap DECISION. Frontend TS types = derived, jadi kalau spec drift → frontend typecheck harus catch. Kalau typecheck pass tapi runtime error, berarti schema-spec drift.
+- [ ] Jangan lupa: tierId di body request = untrusted input. Selalu validate via `resolveOlagonTierOrFallback` (atau equivalent) yang check (a) tier exists, (b) user punya akses ke tier tsb (subscription OR owner-only Olagon).
+

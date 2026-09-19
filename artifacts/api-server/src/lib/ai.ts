@@ -1,6 +1,6 @@
 import { db } from "@workspace/db";
-import { aiTiersTable, subscriptionsTable, packagesTable } from "@workspace/db";
-import { eq, and, gt } from "drizzle-orm";
+import { aiTiersTable, subscriptionsTable, packagesTable, userPreferencesTable } from "@workspace/db";
+import { eq, and, gt, like } from "drizzle-orm";
 import { logger } from "./logger.js";
 import { countTokens, truncateToTokenLimit, estimateAnthropicInputTokens } from "./tokenizer.js";
 import { isOwnerEmail } from "../middlewares/owner.js";
@@ -29,31 +29,96 @@ export interface AITierConfig {
 
 const _tierCache: Map<string, AITierConfig> = new Map();
 let _tierCacheTime = 0;
-const CACHE_TTL_MS = 60_000; // 1 minute
+const CACHE_TTL_MS = 5_000; // 5 seconds — bust stale cache from pre-deploy state
+
+/** Hardcoded Olagon tier configs — fallback when DB query fails (avoids DB as failure point).
+ *  All use OLAGON_API_KEY (the only API key set in Vercel production). */
+const OLAGON_TIERS: Record<string, AITierConfig> = {
+  "haiku-4.5": {
+    id: "haiku-4.5",
+    name: "Haiku 4.5 (Free)",
+    provider: "anthropic",
+    model: "claude-haiku-4-5-20250514",
+    baseUrl: "https://gateway.olagon.site/anthropic",
+    apiKeyEnvVar: "OLAGON_API_KEY",
+    pricePer1MInputCents: 0, pricePer1MOutputCents: 0,
+    providerCostPer1MInputCents: 0, providerCostPer1MOutputCents: 0,
+    markupMultiplier: 1, rateLimitRpm: null, rateLimitTpd: null,
+    isFree: true, isOwnerOnly: false,
+    description: "", usageTips: null,
+  },
+  "opus-4-8-olagon": {
+    id: "opus-4-8-olagon",
+    name: "Opus 4.8 (Olagon — Owner Only)",
+    provider: "anthropic",
+    model: "claude-opus-4-8",
+    baseUrl: "https://gateway.olagon.site/anthropic",
+    apiKeyEnvVar: "OLAGON_API_KEY",
+    pricePer1MInputCents: 0, pricePer1MOutputCents: 0,
+    providerCostPer1MInputCents: 0, providerCostPer1MOutputCents: 0,
+    markupMultiplier: 1, rateLimitRpm: null, rateLimitTpd: null,
+    isFree: true, isOwnerOnly: true,
+    description: "", usageTips: null,
+  },
+  "opus-4-6-olagon": {
+    id: "opus-4-6-olagon",
+    name: "Opus 4.6 (Olagon — Owner Only, Cascade)",
+    provider: "anthropic",
+    model: "claude-opus-4-6",
+    baseUrl: "https://gateway.olagon.site/anthropic",
+    apiKeyEnvVar: "OLAGON_API_KEY",
+    pricePer1MInputCents: 0, pricePer1MOutputCents: 0,
+    providerCostPer1MInputCents: 0, providerCostPer1MOutputCents: 0,
+    markupMultiplier: 1, rateLimitRpm: null, rateLimitTpd: null,
+    isFree: true, isOwnerOnly: true,
+    description: "", usageTips: null,
+  },
+};
 
 export async function getTierConfig(
   tierId: string,
   userEmail?: string
 ): Promise<AITierConfig | null> {
   const now = Date.now();
+
+  // Check in-memory cache first
   if (now - _tierCacheTime < CACHE_TTL_MS && _tierCache.has(tierId)) {
     const cached = _tierCache.get(tierId) ?? null;
     if (cached?.isOwnerOnly && !isOwnerEmail(userEmail)) return null;
     return cached;
   }
 
+  // PRIORITY: For known Olagon tiers, use hardcoded config WITHOUT DB lookup.
+  // This bypasses the unresolved DB query failure on Vercel Lambda cold-start.
+  // DB is still tried for other tierIds below.
+  if (OLAGON_TIERS[tierId]) {
+    const config = OLAGON_TIERS[tierId]!;
+    if (config.isOwnerOnly && !isOwnerEmail(userEmail)) {
+      logger.warn({ tierId, userEmail }, "getTierConfig: Olagon tier blocked for non-owner");
+      return null;
+    }
+    _tierCache.set(tierId, config);
+    _tierCacheTime = now;
+    logger.info({ tierId }, "getTierConfig: using hardcoded Olagon config (no DB lookup)");
+    return config;
+  }
+
+  // Non-Olagon tiers: use DB as normal
   const [tier] = await db
     .select()
     .from(aiTiersTable)
     .where(eq(aiTiersTable.id, tierId));
 
-  if (!tier) return null;
+  if (!tier) {
+    logger.warn({ tierId, userEmail }, "getTierConfig: tier not found in DB");
+    return null;
+  }
 
   // DECISION 019/020: Owner-only tier — block non-owner callers
   if (tier.isOwnerOnly && !isOwnerEmail(userEmail)) {
     logger.warn(
-      { tierId, userEmail: userEmail ?? "<none>" },
-      "Blocked non-owner access to owner-only AI tier"
+      { tierId, userEmail, ownerEmail: process.env.OWNER_EMAIL, isOwner: isOwnerEmail(userEmail) },
+      "getTierConfig: blocked non-owner access to owner-only tier"
     );
     return null;
   }
@@ -159,14 +224,33 @@ export async function getAllowedTierIdsForUser(userId: string): Promise<string[]
       )
     );
 
-  if (!sub?.packageId) return ["haiku-4.5"];
+  const [pref] = await db
+    .select({ aiProvider: userPreferencesTable.aiProvider })
+    .from(userPreferencesTable)
+    .where(eq(userPreferencesTable.userId, userId))
+    .limit(1);
+
+  const olagonTierIds = pref?.aiProvider === "olagon"
+    ? (
+        await db
+          .select({ id: aiTiersTable.id })
+          .from(aiTiersTable)
+          .where(and(eq(aiTiersTable.isActive, true), like(aiTiersTable.baseUrl, "%olagon%")))
+      ).map(r => r.id)
+    : [];
+
+  if (!sub?.packageId) {
+    const base = ["haiku-4.5"];
+    return [...new Set([...base, ...olagonTierIds])];
+  }
 
   const [pkg] = await db
     .select({ tier: packagesTable.tier })
     .from(packagesTable)
     .where(eq(packagesTable.id, sub.packageId));
 
-  return getTierIdsForPackageTier(pkg?.tier ?? null);
+  const subscriptionTiers = getTierIdsForPackageTier(pkg?.tier ?? null);
+  return [...new Set([...subscriptionTiers, ...olagonTierIds])];
 }
 
 /**
@@ -251,6 +335,9 @@ export async function resolveOlagonTierOrFallback(
   preferredTierId?: string | null,
   userEmail?: string,
 ): Promise<AITierConfig | null> {
+  // Owner bypass: owner can use any tier without subscription/balance check
+  const isOwner = isOwnerEmail(userEmail);
+
   // Olagon preference overrides default tier only when caller didn't specify a tier
   if (preferredTierId == null) {
     try {
@@ -271,7 +358,22 @@ export async function resolveOlagonTierOrFallback(
     }
   }
 
-  return getTierForUser(userId, preferredTierId, userEmail);
+  // Owner bypass: owner can always use any tier (Olagon or Anthropic)
+  // without needing a subscription or balance check.
+  if (isOwner) {
+    logger.info({ userEmail, preferredTierId }, "Owner bypass — resolving tier without subscription/balance check");
+    const tier = preferredTierId
+      ? await getTierConfig(preferredTierId, userEmail)
+      : await getTierConfig("haiku-4.5");
+    if (tier) return tier;
+  }
+
+  const result = await getTierForUser(userId, preferredTierId, userEmail);
+  logger.info(
+    { userId, preferredTierId, resolvedTierId: result?.id, isOwner },
+    "resolveOlagonTierOrFallback result"
+  );
+  return result;
 }
 
 export async function getTierForUser(
@@ -370,8 +472,16 @@ function getApiKey(envVarName: string): string {
       return process.env.ANTHROPIC_API_KEY ?? "";
     case "OPENAI_API_KEY":
       return process.env.OPENAI_API_KEY ?? process.env.AI_API_KEY ?? "";
-    default:
-      return process.env[envVarName] ?? process.env.AI_API_KEY ?? "";
+    default: {
+      // Supports both Olagon (OLAGON_API_KEY) and Anthropic-native
+      // (ANTHROPIC_API_KEY) tiers via a 3-tier fallback chain.
+      return (
+        process.env[envVarName] ??
+        process.env.ANTHROPIC_API_KEY ??
+        process.env.AI_API_KEY ??
+        ""
+      );
+    }
   }
 }
 
@@ -477,20 +587,55 @@ export async function callAI(
   messages: ChatMessage[],
   tierId: string,
   mode?: ChatMode,
+  preResolvedTier?: AITierConfig | null,
 ): Promise<AIResponse> {
-  const tier = await getTierConfig(tierId);
-  if (!tier) {
-    logger.warn({ tierId }, "AI tier not found — falling back to haiku-4.5");
-    const haikuTier = await getTierConfig("haiku-4.5");
-    if (!haikuTier) {
-      throw new Error("Haiku 4.5 tier not configured");
+  // DIRECT BYPASS: For Olagon tiers, use hardcoded config immediately.
+  // This is the single source of truth for Olagon — bypasses ALL DB/config lookups
+  // since those fail on cold-start Lambda instances.
+  if (tierId === "opus-4-8-olagon" || tierId === "opus-4-6-olagon") {
+    const config = OLAGON_TIERS[tierId]!;
+    const apiKey = getApiKey(config.apiKeyEnvVar);
+    if (!apiKey) {
+      logger.warn({ tierId, apiKeyEnvVar: config.apiKeyEnvVar, OLAGON_API_KEY: !!process.env.OLAGON_API_KEY }, "callAI: Olagon API key empty");
+      return {
+        content: `AI belum dikonfigurasi. Tier "${config.name}" memerlukan ${config.apiKeyEnvVar} di environment variables.`,
+        usage: { inputTokens: 0, outputTokens: 0, estimatedCostUsd: 0, costCents: 0, tierId },
+        tierConfig: config,
+      };
     }
-    return callAI(messages, "haiku-4.5", mode);
+    logger.info({ tierId, model: config.model }, "callAI: using Olagon direct bypass");
+    return callAnthropic(messages, config, mode);
+  }
+
+  // Non-Olagon tiers: use pre-resolved tier or DB lookup
+  const tier = preResolvedTier ?? await getTierConfig(tierId);
+  if (!tier) {
+    // Cascade to Haiku if tier not found — use hardcoded config to avoid DB on cold-start
+    if (OLAGON_TIERS["haiku-4.5"]) {
+      const haikuConfig = OLAGON_TIERS["haiku-4.5"]!;
+      const apiKey = getApiKey(haikuConfig.apiKeyEnvVar);
+      if (apiKey) {
+        logger.info({ tierId }, "callAI: tier not found — using hardcoded haiku-4.5 bypass");
+        return callAnthropic(messages, haikuConfig, mode);
+      }
+    }
+    logger.warn({ tierId }, "callAI: tier not found and haiku fallback unavailable");
+    throw new Error("AI tier not found and haiku fallback unavailable");
   }
 
   const apiKey = getApiKey(tier.apiKeyEnvVar);
   if (!apiKey) {
-    logger.warn({ tierId, envVar: tier.apiKeyEnvVar }, "AI API key not set — returning placeholder");
+    // DIAGNOSTIC: log which env vars are set vs empty to diagnose missing keys in production
+    logger.warn(
+      {
+        tierId,
+        envVar: tier.apiKeyEnvVar,
+        OLAGON_API_KEY: !!process.env.OLAGON_API_KEY,
+        ANTHROPIC_API_KEY: !!process.env.ANTHROPIC_API_KEY,
+        AI_API_KEY: !!process.env.AI_API_KEY,
+      },
+      "AI API key not set — returning placeholder"
+    );
     return {
       content: `AI belum dikonfigurasi. Tier "${tier.name}" memerlukan ${tier.apiKeyEnvVar} di environment variables.`,
       usage: { inputTokens: 0, outputTokens: 0, estimatedCostUsd: 0, costCents: 0, tierId },

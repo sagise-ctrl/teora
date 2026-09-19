@@ -323,6 +323,7 @@ export type ProjectTaskType = typeof ProjectTaskType[keyof typeof ProjectTaskTyp
 export const ProjectTaskType = {
   general: 'general',
   academic: 'academic',
+  dashboard_chat: 'dashboard_chat',
 } as const;
 
 /**
@@ -344,7 +345,8 @@ export const ProjectCitationFormat = {
 
 export interface Project {
   id: number;
-  title: string;
+  /** @nullable */
+  title?: string | null;
   status: ProjectStatus;
   /** 0-100 percent */
   progress: number;
@@ -381,7 +383,7 @@ export const ProjectInputOutputFormat = {
 } as const;
 
 /**
- * Project type — "general" for short tasks, "academic" for multi-section works
+ * Project type — "general" for short tasks, "academic" for multi-section works. "dashboard_chat" sentinel for Dashboard Teora Assistant scratchpad (DECISION 023, hidden from main project list via client-side filter).
  */
 export type ProjectInputTaskType = typeof ProjectInputTaskType[keyof typeof ProjectInputTaskType];
 
@@ -389,6 +391,7 @@ export type ProjectInputTaskType = typeof ProjectInputTaskType[keyof typeof Proj
 export const ProjectInputTaskType = {
   general: 'general',
   academic: 'academic',
+  dashboard_chat: 'dashboard_chat',
 } as const;
 
 /**
@@ -426,7 +429,7 @@ export interface ProjectInput {
   minRefYear?: number;
   minRefCount?: number;
   aiDisclosure?: boolean;
-  /** Project type — "general" for short tasks, "academic" for multi-section works */
+  /** Project type — "general" for short tasks, "academic" for multi-section works. "dashboard_chat" sentinel for Dashboard Teora Assistant scratchpad (DECISION 023, hidden from main project list via client-side filter). */
   taskType?: ProjectInputTaskType;
   /**
      * DECISION 014. Citation format used for in-text/footnote markers and bibliography.
@@ -955,6 +958,7 @@ export type ProjectMetadataTaskType = typeof ProjectMetadataTaskType[keyof typeo
 export const ProjectMetadataTaskType = {
   general: 'general',
   academic: 'academic',
+  dashboard_chat: 'dashboard_chat',
 } as const;
 
 /**
@@ -1450,6 +1454,7 @@ export type SharedProjectTaskType = typeof SharedProjectTaskType[keyof typeof Sh
 export const SharedProjectTaskType = {
   general: 'general',
   academic: 'academic',
+  dashboard_chat: 'dashboard_chat',
 } as const;
 
 export type SharedProjectAccessMode = typeof SharedProjectAccessMode[keyof typeof SharedProjectAccessMode];
@@ -1463,7 +1468,8 @@ export const SharedProjectAccessMode = {
 
 export interface SharedProject {
   id: number;
-  title: string;
+  /** @nullable */
+  title?: string | null;
   status: SharedProjectStatus;
   /** @nullable */
   subject?: string | null;

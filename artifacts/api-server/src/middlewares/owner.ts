@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
+import { logger } from "../lib/logger.js";
 
 const OWNER_EMAIL = process.env.OWNER_EMAIL ?? "";
 
@@ -29,6 +30,16 @@ export function requireOwner(
  * Use this for conditional logic (e.g., adding owner-only UI elements).
  */
 export function isOwnerEmail(email: string | undefined): boolean {
-  if (!email || !OWNER_EMAIL) return false;
+  if (!email || !OWNER_EMAIL) {
+    // Only log when email looks like it could be the owner — avoids log spam.
+    // This is the exact failure mode: user has auth token but OWNER_EMAIL env var is not set.
+    if (email && !OWNER_EMAIL) {
+      logger.warn(
+        { email, OWNER_EMAIL_set: false },
+        "isOwnerEmail: OWNER_EMAIL env var NOT set — owner bypass will not fire"
+      );
+    }
+    return false;
+  }
   return email.toLowerCase() === OWNER_EMAIL.toLowerCase();
 }

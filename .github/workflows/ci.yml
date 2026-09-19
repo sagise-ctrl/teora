@@ -30,18 +30,40 @@ jobs:
       - name: Lint commit messages
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            # PR: check commits between base+1 and head (exclude base itself)
+            # PR: check commits in PR, skipping merge commits and base commits
             # commitlint --from/--to is inclusive on both ends, so use parent of base
             BASE="${{ github.event.pull_request.base.sha }}"
             HEAD="${{ github.event.pull_request.head.sha }}"
-            # git rev-parse BASE^1 handles both merge-base case and edge case
             FROM=$(git rev-parse "$BASE"^1 2>/dev/null || echo "$BASE")
-            npx commitlint --from="$FROM" --to="$HEAD" --verbose || {
-              echo "::error::Commit message(s) don't follow conventional commit format"
-              echo "Allowed types: feat, fix, refactor, test, docs, chore, perf, security, ci, build"
-              echo "Format: <type>(<scope>): <description>"
-              exit 1
-            }
+            # List commit SHAs in range, excluding:
+            # - true merge commits (multiple parents via --no-merges)
+            # - GitHub-style merge commits (subject starts with "Merge ")
+            COMMITS=$(git rev-list --no-merges "$FROM".."$HEAD" 2>/dev/null | while read sha; do
+              SUBJ=$(git log -1 --format="%s" "$sha")
+              case "$SUBJ" in
+                "Merge "*) ;;  # skip GitHub merge commits
+                *) echo "$sha" ;;
+              esac
+            done)
+            if [ -z "$COMMITS" ]; then
+              echo "No commits to lint."
+            else
+              echo "Linting commits:"
+              echo "$COMMITS" | sed 's/^/  /'
+              # Use commitlint with each SHA via --edit flag by piping messages
+              EXIT_CODE=0
+              for sha in $COMMITS; do
+                MSG=$(git log -1 --format="%B" "$sha")
+                echo "--- Checking $sha ---"
+                echo "$MSG" | npx commitlint --verbose || EXIT_CODE=$?
+              done
+              if [ $EXIT_CODE -ne 0 ]; then
+                echo "::error::Commit message(s) don't follow conventional commit format"
+                echo "Allowed types: feat, fix, refactor, test, docs, chore, perf, security, ci, build"
+                echo "Format: <type>(<scope>): <description>"
+                exit $EXIT_CODE
+              fi
+            fi
           else
             # Push: check the latest commit only
             npx commitlint --from="${{ github.sha }}~1" --to="${{ github.sha }}" --verbose || {

@@ -148,12 +148,12 @@ export const ListProjectsQueryParams = zod.object({
 
 export const ListProjectsResponseItem = zod.object({
   "id": zod.number(),
-  "title": zod.string(),
+  "title": zod.string().nullish(),
   "status": zod.enum(['draft', 'analyzing', 'writing', 'waiting_revision', 'completed', 'archived']),
   "progress": zod.number().describe('0-100 percent'),
   "instructionText": zod.string().nullish(),
   "subject": zod.string().nullish(),
-  "taskType": zod.enum(['general', 'academic']).nullish(),
+  "taskType": zod.enum(['general', 'academic', 'dashboard_chat']).nullish(),
   "citationFormat": zod.union([zod.literal('APA'),zod.literal('APA7'),zod.literal('IEEE'),zod.literal('Vancouver'),zod.literal('Chicago'),zod.literal('MLA'),zod.literal('Harvard'),zod.literal(null)]).nullish().describe('Citation format used for in-text\/footnote markers and bibliography. Default = APA.'),
   "outputFormat": zod.string().nullish(),
   "minRefYear": zod.number().nullish(),
@@ -178,18 +178,18 @@ export const CreateProjectBody = zod.object({
   "minRefYear": zod.number().optional(),
   "minRefCount": zod.number().optional(),
   "aiDisclosure": zod.boolean().optional(),
-  "taskType": zod.enum(['general', 'academic']).optional().describe('Project type — \"general\" for short tasks, \"academic\" for multi-section works'),
+  "taskType": zod.enum(['general', 'academic', 'dashboard_chat']).optional().describe('Project type — \"general\" for short tasks, \"academic\" for multi-section works. \"dashboard_chat\" sentinel for Dashboard Teora Assistant scratchpad (DECISION 023, hidden from main project list via client-side filter).'),
   "citationFormat": zod.enum(['APA', 'APA7', 'IEEE', 'Vancouver', 'Chicago', 'MLA', 'Harvard']).optional().describe('DECISION 014. Citation format used for in-text\/footnote markers and bibliography.\nDefaults to APA if omitted (workspace will create the project with APA and the\nuser can change via PATCH \/projects\/:id\/citation-format).\n')
 })
 
 export const CreateProjectResponse = zod.object({
   "id": zod.number(),
-  "title": zod.string(),
+  "title": zod.string().nullish(),
   "status": zod.enum(['draft', 'analyzing', 'writing', 'waiting_revision', 'completed', 'archived']),
   "progress": zod.number().describe('0-100 percent'),
   "instructionText": zod.string().nullish(),
   "subject": zod.string().nullish(),
-  "taskType": zod.enum(['general', 'academic']).nullish(),
+  "taskType": zod.enum(['general', 'academic', 'dashboard_chat']).nullish(),
   "citationFormat": zod.union([zod.literal('APA'),zod.literal('APA7'),zod.literal('IEEE'),zod.literal('Vancouver'),zod.literal('Chicago'),zod.literal('MLA'),zod.literal('Harvard'),zod.literal(null)]).nullish().describe('Citation format used for in-text\/footnote markers and bibliography. Default = APA.'),
   "outputFormat": zod.string().nullish(),
   "minRefYear": zod.number().nullish(),
@@ -226,12 +226,12 @@ export const GetProjectParams = zod.object({
 
 export const GetProjectResponse = zod.object({
   "id": zod.number(),
-  "title": zod.string(),
+  "title": zod.string().nullish(),
   "status": zod.enum(['draft', 'analyzing', 'writing', 'waiting_revision', 'completed', 'archived']),
   "progress": zod.number().describe('0-100 percent'),
   "instructionText": zod.string().nullish(),
   "subject": zod.string().nullish(),
-  "taskType": zod.enum(['general', 'academic']).nullish(),
+  "taskType": zod.enum(['general', 'academic', 'dashboard_chat']).nullish(),
   "citationFormat": zod.union([zod.literal('APA'),zod.literal('APA7'),zod.literal('IEEE'),zod.literal('Vancouver'),zod.literal('Chicago'),zod.literal('MLA'),zod.literal('Harvard'),zod.literal(null)]).nullish().describe('Citation format used for in-text\/footnote markers and bibliography. Default = APA.'),
   "outputFormat": zod.string().nullish(),
   "minRefYear": zod.number().nullish(),
@@ -265,12 +265,12 @@ export const UpdateProjectBody = zod.object({
 
 export const UpdateProjectResponse = zod.object({
   "id": zod.number(),
-  "title": zod.string(),
+  "title": zod.string().nullish(),
   "status": zod.enum(['draft', 'analyzing', 'writing', 'waiting_revision', 'completed', 'archived']),
   "progress": zod.number().describe('0-100 percent'),
   "instructionText": zod.string().nullish(),
   "subject": zod.string().nullish(),
-  "taskType": zod.enum(['general', 'academic']).nullish(),
+  "taskType": zod.enum(['general', 'academic', 'dashboard_chat']).nullish(),
   "citationFormat": zod.union([zod.literal('APA'),zod.literal('APA7'),zod.literal('IEEE'),zod.literal('Vancouver'),zod.literal('Chicago'),zod.literal('MLA'),zod.literal('Harvard'),zod.literal(null)]).nullish().describe('Citation format used for in-text\/footnote markers and bibliography. Default = APA.'),
   "outputFormat": zod.string().nullish(),
   "minRefYear": zod.number().nullish(),
@@ -1230,12 +1230,12 @@ export const SetProjectCitationFormatBody = zod.object({
 
 export const SetProjectCitationFormatResponse = zod.object({
   "id": zod.number(),
-  "title": zod.string(),
+  "title": zod.string().nullish(),
   "status": zod.enum(['draft', 'analyzing', 'writing', 'waiting_revision', 'completed', 'archived']),
   "progress": zod.number().describe('0-100 percent'),
   "instructionText": zod.string().nullish(),
   "subject": zod.string().nullish(),
-  "taskType": zod.enum(['general', 'academic']).nullish(),
+  "taskType": zod.enum(['general', 'academic', 'dashboard_chat']).nullish(),
   "citationFormat": zod.union([zod.literal('APA'),zod.literal('APA7'),zod.literal('IEEE'),zod.literal('Vancouver'),zod.literal('Chicago'),zod.literal('MLA'),zod.literal('Harvard'),zod.literal(null)]).nullish().describe('Citation format used for in-text\/footnote markers and bibliography. Default = APA.'),
   "outputFormat": zod.string().nullish(),
   "minRefYear": zod.number().nullish(),
@@ -1406,10 +1406,10 @@ export const AccessSharedProjectParams = zod.object({
 
 export const AccessSharedProjectResponse = zod.object({
   "id": zod.number(),
-  "title": zod.string(),
+  "title": zod.string().nullish(),
   "status": zod.enum(['draft', 'analyzing', 'writing', 'waiting_revision', 'completed', 'archived']),
   "subject": zod.string().nullish(),
-  "taskType": zod.enum(['general', 'academic']).nullish(),
+  "taskType": zod.enum(['general', 'academic', 'dashboard_chat']).nullish(),
   "latestDocument": zod.string().nullish().describe('Latest document content (if accessMode is view or edit)'),
   "accessMode": zod.enum(['view', 'comment', 'edit']),
   "ownerEmail": zod.string().optional().describe('Owner email (for display purposes only)'),
@@ -1536,7 +1536,7 @@ export const GetProjectMetadataResponse = zod.object({
   "projectId": zod.number(),
   "detectedTitle": zod.string().nullish(),
   "subject": zod.string().nullish(),
-  "taskType": zod.enum(['general', 'academic']).nullish(),
+  "taskType": zod.enum(['general', 'academic', 'dashboard_chat']).nullish(),
   "citationFormat": zod.union([zod.literal('APA'),zod.literal('APA7'),zod.literal('IEEE'),zod.literal('Vancouver'),zod.literal('Chicago'),zod.literal('MLA'),zod.literal('Harvard'),zod.literal(null)]).nullish().describe('Citation format used for in-text\/footnote markers and bibliography. Default = APA.'),
   "language": zod.string().nullish(),
   "outline": zod.string().nullish(),

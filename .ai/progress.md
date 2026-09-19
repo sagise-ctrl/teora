@@ -2,6 +2,74 @@
 
 > Completed work, newest first. Format: `YYYY-MM-DD | description | files | status`
 
+## 2026-09-17 | Dashboard CTA Card REVERTED — AI Chat Bot Deferred to Dedicated Discussion (opus-4-8)
+
+**Status:** ⏸️ DEFERRED per Owner instruction 2026-09-17
+**Production:** Reverted to DECISION 016 spec baseline (commit `4fd434e`)
+
+| Step | Description | Status |
+|------|-------------|--------|
+| Initial misdiagnosis | AI changed CTA copy from "Teora Assistant / Mulai Chat / Tanya apa saja..." → "Mulai dengan Teora / Mulai Kerjakan / Mulai tugas singkat..." (verbatim from `new-project.tsx` COPY.general — wrong reference) | ❌ WRONG |
+| Initial deploy | `dpl_C8ALCi9WyATgzWhcz3QGRfSokygg` with mislabeled copy | ⏸️ OVERWRITTEN |
+| Owner correction | "anda yg terburu2 untuk setup. apa urgensinya ada 'Mulai dengan Teora' di dashboard?" | ✅ |
+| Owner clarification | CTA card seharusnya entry point ke AI Chat Bot (belum dibangun), BUKAN form task creation | ✅ |
+| Owner directive | "ini diskusi simpen dulu, kita akan diskusikan khusus untuk ini" | ✅ |
+| Local revert | `git checkout -- artifacts/academic-workspace/src/pages/dashboard.tsx` | ✅ |
+| Local rebuild | Bundle `index-BKQwwSF0.js`, 1m 2s | ✅ |
+| Revert deploy | `dpl_BDkxzhqw6bsJh5zNVv7HcWdew1da` (production alias `academic-workspace-eta.vercel.app`) | ✅ |
+| Production verification | Bundle `index-BwJHTZ4k.js` (matches pre-misadventure baseline) | ✅ |
+| Diskusi simpan | Append ke `.ai/blockers.md` section "AI Chat Bot di Dashboard — Konteks untuk Diskusi Mendatang" | ✅ |
+| Lifecycle update | `.ai/error-index.md` ERR-024: FIXED → REVERTED | ✅ |
+| Lesson added | `.ai/lessons-learned.md`: "WAJIB cek diskusi + keputusan sebelumnya sebelum edit CTA/component" | ✅ |
+| `.ai/current-task.md` | Section updated to REVERTED status | ✅ |
+
+**Production state:** No net change vs `4fd434e` (SidebarFooter fix 2026-09-17 14:21). Dashboard CTA card kembali ke spec DECISION 016.
+
+**Lessons:**
+1. ERR-024 `cta_label_mismatched_with_destination` (REVERTED, not FIXED) — lesson preserved for future reference
+2. NEW lesson: WAJIB cek `.ai/decisions.md` + `docs/ai-team/<division>/` + `stitch-prmpt.md` sebelum edit UI component yang punya established spec
+3. Owner hint "kita pernah diskusi..." atau "ada batasan-batasan..." = sinyal WAJIB cek existing knowledge base
+
+**Next steps (when owner ready for dedicated discussion):**
+1. Open `.ai/blockers.md` section "💬 AI Chat Bot di Dashboard"
+2. Diskusi 5 open questions (route, AI tier, project history context, privacy enforcement)
+3. Tentukan apakah CTA card akan dibangun jadi AI Chat Bot (fitur baru) atau dihapus
+
+---
+
+## 2026-09-17 | Dashboard Mislabeled CTA Fix — INITIAL FIX (then REVERTED) (opus-4-8)
+
+**Branch:** `main` (uncommitted local change to dashboard.tsx; deployed via Vercel CLI)
+**Deploy:** `dpl_C8ALCi9WyATgzWhcz3QGRfSokygg` (alias `academic-workspace-eta.vercel.app` updated)
+**Bundle:** `index-DZO6oCR3.js` verified — `Mulai dengan Teora` ×2, `Mulai Kerjakan` ×2; old strings 0
+
+| Step | Description | Status |
+|------|-------------|--------|
+| Diagnosis (Decision 005 SOP) | Searched `.ai/lessons-learned.md` + `.ai/error-index.md` for routing/dashboard/CTA patterns — no prior entry | ✅ |
+| Owner hypothesis test | Verified `/projects/new` is active route (App.tsx:87-93, 7 internal links, 80+ line form) — HYPOTHESIS REJECTED | ✅ |
+| Real bug identification | Card LABELING was misleading, not the route | ✅ |
+| Fix (1 file) | `dashboard.tsx`: icon/Title/subtitle/button re-labeled to match `/projects/new` destination | ✅ |
+| Local typecheck | 0 errors in dashboard.tsx | ✅ |
+| Local build | Bundle 1.58 MB, 1m 46s | ✅ |
+| Local bundle grep | new strings ×2 each, old strings 0 | ✅ |
+| Vercel deploy | `vercel deploy --prod --yes` from monorepo root → READY in ~75s | ✅ |
+| Alias update | `https://academic-workspace-eta.vercel.app` → new deploy | ✅ |
+| Prod bundle grep | `Mulai dengan Teora` ×2, `Mulai Kerjakan` ×2; `Teora Assistant` 0, `Mulai Chat` 0 | ✅ |
+| Route smoke test | `/dashboard` 200, `/projects/new` 200 | ✅ |
+
+**Decision rationale:** Used verbatim copy from `new-project.tsx` COPY.general (pageTitle/pageSubtitle/cta) — single source of truth, matches DECISION 010 default type=general. Zero route change, zero risk to live web, zero DECISION update needed.
+
+**Files changed:** 1 (dashboard.tsx uncommitted local; `.ai/current-task.md` + `.ai/error-index.md` ERR-024 + `.ai/lessons-learned.md` ERR-024 entry added)
+
+**Owner verification (1 minute):**
+1. Hard-refresh dashboard (`Ctrl+Shift+R`)
+2. Top CTA card: title "Mulai dengan Teora", button "Mulai Kerjakan", no chat-style messaging
+3. Click → `/projects/new` (task creation form)
+
+**Lesson:** Pattern class `cta_label_mismatched_with_destination` tracked (1x — promote to skill after 2x). Prevention: before CTA copy edit, read destination page title/subtitle/button; match icon semantics (MessageSquare=chat, Sparkles=AI-generic, Plus=create).
+
+---
+
 ## 2026-09-16 | Olagon Owner-Only Provider — LIVE IN PRODUCTION (opus-4-8)
 
 **Branch:** `main` (commit `248e880` — PR #20 squash-merged via GitHub API at 11:45 UTC)
@@ -1240,3 +1308,95 @@ c7ab68a ci: exclude pre-existing broken tests (routes.integration + use-auth)
 - `artifacts/api-server/src/routes/simulasi.ts` — KONTEKS_TERLALU_PANJANG handled (2 sites)
 
 **Typecheck:** 0 new errors introduced (all remaining errors are pre-existing)
+
+---
+
+## 2026-09-17 — DECISION 021: Nullable Title + Global Error Handler (POST /api/projects 500 fix)
+
+**Issue:** ERR-025 — POST /api/projects returned HTML 500 when owner submitted form without title. 3-layer inconsistency (form/Zod/DB) + no Express error handler.
+
+**Changes:**
+- `lib/db/src/schema/projects.ts` — `title` nullable
+- `artifacts/api-server/src/routes/projects.ts` — `?? null` fallback + add taskType insert + 4 response normalizations + null-safe activity log
+- `artifacts/api-server/src/app.ts` — global Express error handler returning JSON 500 (not HTML)
+- `lib/api-spec/openapi.yaml` — Project + SharedProject title nullable
+- `lib/api-zod/src/generated/api.ts` — codegen regenerated
+- `lib/api-client-react/src/generated/api.schemas.ts` — codegen regenerated (×2 mirrors)
+- `artifacts/academic-workspace/src/lib/api-client-react/generated/api.schemas.ts` — codegen regenerated
+- `artifacts/api-server/api/index.mjs` — built bundle updated
+- Frontend: 4 places render `?? "Tanpa Judul"` fallback (tasks.tsx, dashboard.tsx, project.tsx, shared.tsx)
+
+**Migration applied:** Supabase `ALTER TABLE projects ALTER COLUMN title DROP NOT NULL` → `is_nullable: YES` confirmed
+
+**Deploys:**
+- Backend `dpl_EPsMReLnbRRFD122o5tDCy6VnLWn` READY → `teora-backend.vercel.app` aliased
+- Frontend `dpl_DEYPwETRrVYcSUJJk5zdGMQG13fM` READY → `academic-workspace-eta.vercel.app` aliased
+
+**Verification:**
+| Check | Result |
+|-------|--------|
+| `pnpm run typecheck` | pass |
+| `pnpm run build` | pass (6.5MB dist, 5.3s) |
+| `curl POST /api/projects -d '{bad json'` | 500 JSON (not HTML) ✅ |
+| `curl GET /test` | `{"ok":true,...}` ✅ |
+| Owner smoke test | pending — create project tanpa judul |
+
+**Branch:** `fix/null-title-post-projects` (commit `9f4e146`)
+
+---
+
+## 2026-09-18 — DECISION 024: messages.ts Olagon-aware tier resolution + ownership
+
+**Trigger:** Owner reported dashboard → task mentor → workspace → AI chat flow broke:
+- `GET /api/projects/8/documents/latest` → 404 (×N)
+- `GET /api/projects/8/documents/0` → 404 (×N)
+- `POST /api/projects/9/messages` → 403 (Forbidden)
+- Multiple ZodError at `index-CaxhS98m.js:14:86121` via React Hook Form
+
+**Plan executed:**
+
+| Plan | Description | Status |
+|------|-------------|--------|
+| **A** | Frontend `useGetDocument` + `useGetLatestDocument` `enabled` guards | ✅ DONE |
+| **B** | Backend `messages.ts`: ownership check + `resolveOlagonTierOrFallback` | ✅ DONE |
+| **C** | ZodError investigation via Supabase query_logs | ⚠️ INCONCLUSIVE (Backend error) |
+| **D** | Refactor all async handlers ke `asyncHandler` wrapper | ⏸️ DEFERRED |
+
+**Files modified:**
+- `artifacts/api-server/src/routes/messages.ts` — tier resolution, ownership check, req.user.email direct
+- `artifacts/academic-workspace/src/pages/project.tsx` — enabled guards on document hooks
+
+**Deploys (SOP-001 4-step gate):**
+- Backend preview `dpl_G7mhjGuG13XBHtRDr2D68hxiWv7B` → healthz 200, route loaded → promoted to `teora-backend.vercel.app`
+- Frontend preview `dpl_CPkTzxwQbYKzLXCww9Kz55QwiiJY` → root 200, SPA loaded → promoted to `academic-workspace-sagise-ctrls-projects.vercel.app`
+
+**Verification:**
+| Check | Result |
+|-------|--------|
+| `pnpm run typecheck` | pass |
+| `pnpm --filter @workspace/api-server run build` | pass (6.5MB bundle) |
+| `pnpm --filter @workspace/academic-workspace run build` | pass (1,593.38 kB bundle) |
+| Vercel preview api-server healthz | 200 |
+| Vercel preview frontend root | 200 |
+| Vercel production backend | 200 |
+| Vercel production frontend | 200 |
+| Owner smoke test | **pending** — full chat E2E |
+
+**Owner test path:**
+1. Login as `sagiseainun@gmail.com` (owner)
+2. Dashboard → "Task Mentor" / "Task Umum Baru"
+3. Submit form (with or without title)
+4. Open workspace → Chat tab
+5. Send chat message — expect 201, no 403
+6. Refresh browser — no 404 on documents/* for projects without docs
+
+**Commit:** `0dd8c9d` on `feat/ai-tier-selector-universal`
+**Docs:** `.ai/decisions.md` DECISION 024 + `.ai/error-index.md` ERR-026 + `.ai/lessons-learned.md` "Tier-resolution pattern rollout" entry
+
+**Outstanding (not blocking):**
+- ZodError root cause INCONCLUSIVE without runtime access — tracked separately
+- `asyncHandler` wrapper refactor — DECISION 024 doc says "DONE + VERIFIED by bundle" but Plan D still pending for full async safety across all handlers
+- Dashboard CTA Card (AI Chat Bot) — DECISION 023 follow-up still needs dedicated discussion
+
+**Branch:** `feat/ai-tier-selector-universal` (commit `0dd8c9d`)
+

@@ -13,8 +13,51 @@ import {
 let messageIdCounter = 100;
 let refIdCounter = 100;
 let attachIdCounter = 100;
+let accountRefIdCounter = 1000;
 
 const now = () => new Date().toISOString();
+
+// In-memory store for account-level references (Pustaka Saya)
+const accountReferences: Array<Record<string, unknown>> = [
+  {
+    id: 1,
+    userId: "mock-user-001",
+    title: "Metode Penelitian Kualitatif: Teori dan Praktik",
+    authors: "Moleong, L.J.",
+    year: 2017,
+    journal: "Remaja Rosdakarya",
+    volume: null,
+    issue: null,
+    doi: null,
+    url: null,
+    createdAt: now(),
+    isSuggested: false,
+    source: "manual",
+    abstract: null,
+    tags: ["metodologi", "kualitatif"],
+  },
+  {
+    id: 2,
+    userId: "mock-user-001",
+    title: "Deep Learning for Natural Language Processing",
+    authors: "Goldberg, Y.",
+    year: 2022,
+    journal: "Cambridge University Press",
+    volume: null,
+    issue: null,
+    doi: "10.1017/9781009025532",
+    url: "https://example.com/deep-learning-nlp",
+    createdAt: new Date(Date.now() - 86400000).toISOString(),
+    isSuggested: false,
+    source: "crossref",
+    abstract: null,
+    tags: ["NLP", "deep-learning"],
+  },
+];
+
+function getAccountReferences(): Array<Record<string, unknown>> {
+  return accountReferences;
+}
 
 export const handlers = [
   // Auth mock
@@ -684,6 +727,319 @@ export const handlers = [
       submittedAt: now(),
       createdAt: now(),
       updatedAt: now(),
+    });
+  }),
+
+  // ===== Account-level references (Pustaka Saya) =====
+  // In-memory store so create/update/delete survive within the session
+  http.get("/api/account/references", async () => {
+    await delay(150);
+    return HttpResponse.json(getAccountReferences());
+  }),
+
+  http.post("/api/account/references", async ({ request }) => {
+    await delay(150);
+    const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+    const ref = {
+      id: accountRefIdCounter++,
+      userId: "mock-user-001",
+      title: (body.title as string) ?? "Untitled",
+      authors: (body.authors as string | null) ?? null,
+      year: (body.year as number | null) ?? null,
+      journal: (body.journal as string | null) ?? null,
+      volume: (body.volume as string | null) ?? null,
+      issue: (body.issue as string | null) ?? null,
+      doi: (body.doi as string | null) ?? null,
+      url: (body.url as string | null) ?? null,
+      createdAt: now(),
+      isSuggested: false,
+      source: (body.source as string) ?? "manual",
+      abstract: (body.abstract as string | null) ?? null,
+      tags: (body.tags as string[] | null) ?? null,
+    };
+    accountReferences.push(ref);
+    return HttpResponse.json(ref, { status: 201 });
+  }),
+
+  http.put("/api/account/references/:referenceId", async ({ params, request }) => {
+    await delay(150);
+    const id = Number(params.referenceId);
+    const idx = accountReferences.findIndex((r) => r.id === id);
+    if (idx < 0) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+    accountReferences[idx] = { ...accountReferences[idx], ...body, id, userId: "mock-user-001" };
+    return HttpResponse.json(accountReferences[idx]);
+  }),
+
+  http.delete("/api/account/references/:referenceId", async ({ params }) => {
+    await delay(150);
+    const id = Number(params.referenceId);
+    const idx = accountReferences.findIndex((r) => r.id === id);
+    if (idx >= 0) accountReferences.splice(idx, 1);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.post("/api/account/references/assign", async ({ request }) => {
+    await delay(150);
+    const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+    return HttpResponse.json({
+      projectReferenceId: Math.floor(Math.random() * 10000),
+      accountReferenceId: body.accountReferenceId ?? 1,
+      projectId: body.projectId ?? 1,
+      createdAt: now(),
+    }, { status: 201 });
+  }),
+
+  http.post("/api/account/references/import", async ({ request }) => {
+    await delay(300);
+    const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+    const dois = Array.isArray(body.dois) ? body.dois : [];
+    const imported = dois.map((doi: string, i: number) => ({
+      id: accountRefIdCounter++,
+      userId: "mock-user-001",
+      title: `Imported reference ${i + 1}`,
+      authors: "Imported Author",
+      year: 2024,
+      journal: null,
+      volume: null,
+      issue: null,
+      doi,
+      url: `https://doi.org/${doi}`,
+      createdAt: now(),
+      isSuggested: false,
+      source: "crossref",
+      abstract: null,
+      tags: null,
+    }));
+    accountReferences.push(...imported);
+    return HttpResponse.json({ imported: imported.length, references: imported });
+  }),
+
+  // ===== User profile / usage / account endpoints =====
+  http.get("/api/users/me/profile", async () => {
+    await delay(150);
+    return HttpResponse.json({
+      id: "mock-user-001",
+      username: "owner",
+      displayName: "Owner",
+      email: "owner@teora.id",
+      avatarUrl: null,
+      bio: null,
+      createdAt: new Date(Date.now() - 30 * 86400000).toISOString(),
+      updatedAt: now(),
+    });
+  }),
+
+  http.put("/api/users/me/profile", async ({ request }) => {
+    await delay(150);
+    const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+    return HttpResponse.json({
+      id: "mock-user-001",
+      username: "owner",
+      displayName: body.displayName ?? "Owner",
+      email: "owner@teora.id",
+      avatarUrl: null,
+      bio: body.bio ?? null,
+      createdAt: new Date(Date.now() - 30 * 86400000).toISOString(),
+      updatedAt: now(),
+    });
+  }),
+
+  http.get("/api/users/me/usage", async () => {
+    await delay(200);
+    return HttpResponse.json({
+      totalRequests: 42,
+      totalInputTokens: 125000,
+      totalOutputTokens: 87500,
+      totalCostUsd: 0.1842,
+      periodStart: new Date(Date.now() - 30 * 86400000).toISOString(),
+      periodEnd: now(),
+    });
+  }),
+
+  http.get("/api/users/me/usage/daily", async () => {
+    await delay(150);
+    const days = Array.from({ length: 14 }).map((_, i) => ({
+      date: new Date(Date.now() - (13 - i) * 86400000).toISOString().slice(0, 10),
+      requests: Math.floor(Math.random() * 10),
+      inputTokens: Math.floor(Math.random() * 5000),
+      outputTokens: Math.floor(Math.random() * 3000),
+      costUsd: Math.random() * 0.02,
+    }));
+    return HttpResponse.json(days);
+  }),
+
+  http.get("/api/users/me/usage/windows", async () => {
+    await delay(150);
+    return HttpResponse.json({
+      daily: { requests: 5, inputTokens: 12000, outputTokens: 8000, costUsd: 0.021 },
+      weekly: { requests: 32, inputTokens: 78000, outputTokens: 54000, costUsd: 0.142 },
+      monthly: { requests: 42, totalInputTokens: 125000, totalOutputTokens: 87500, totalCostUsd: 0.1842 } as never,
+      // Note: monthly window keys are different (totalXxx) — keep both shapes
+    });
+  }),
+
+  http.get("/api/users/me/balance", async () => {
+    await delay(150);
+    return HttpResponse.json({
+      balance: 125000,
+      balanceDisplay: "Rp 125.000",
+      currency: "IDR",
+    });
+  }),
+
+  http.get("/api/users/me/subscription", async () => {
+    await delay(150);
+    return HttpResponse.json({
+      tier: "free",
+      status: "active",
+      currentPeriodEnd: null,
+      cancelAtPeriodEnd: false,
+    });
+  }),
+
+  http.get("/api/users/me/ai-tier-preference", async () => {
+    await delay(100);
+    return HttpResponse.json({ preferredTier: "haiku" });
+  }),
+
+  http.put("/api/users/me/ai-tier-preference", async ({ request }) => {
+    await delay(100);
+    const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+    return HttpResponse.json({ preferredTier: body.preferredTier ?? "haiku" });
+  }),
+
+  http.get("/api/users/me/autofallback", async () => {
+    await delay(100);
+    return HttpResponse.json({ enabled: true });
+  }),
+
+  http.put("/api/users/me/autofallback", async ({ request }) => {
+    await delay(100);
+    const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+    return HttpResponse.json({ enabled: Boolean(body.enabled) });
+  }),
+
+  http.get("/api/users/me/referral-info", async () => {
+    await delay(100);
+    return HttpResponse.json({
+      code: "OWNER123",
+      totalReferrals: 3,
+      successfulReferrals: 2,
+      pendingRewards: 5000,
+    });
+  }),
+
+  http.post("/api/users/me/avatar", async () => {
+    await delay(300);
+    return HttpResponse.json({ avatarUrl: "https://placehold.co/200x200?text=Avatar" });
+  }),
+
+  http.delete("/api/users/me/account", async () => {
+    await delay(200);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // ===== Auth: username availability check =====
+  http.get("/api/auth/check-username", async ({ request }) => {
+    await delay(150);
+    const url = new URL(request.url);
+    const username = url.searchParams.get("username") ?? "";
+    const taken = ["admin", "owner", "test", "user"].includes(username.toLowerCase());
+    return HttpResponse.json({ available: !taken, username });
+  }),
+
+  // ===== Templates =====
+  http.get("/api/templates", async () => {
+    await delay(150);
+    return HttpResponse.json([
+      {
+        id: 1,
+        title: "Template Skripsi",
+        description: "Struktur standar skripsi S1 Indonesia",
+        category: "academic",
+        citationFormat: "APA",
+      },
+      {
+        id: 2,
+        title: "Template Esai Argumentatif",
+        description: "Outline 5 paragraf untuk esai argumentatif",
+        category: "general",
+        citationFormat: null,
+      },
+    ]);
+  }),
+
+  http.get("/api/templates/categories", async () => {
+    await delay(100);
+    return HttpResponse.json([
+      { id: "academic", label: "Karya Ilmiah", count: 8 },
+      { id: "general", label: "Task Umum", count: 5 },
+    ]);
+  }),
+
+  // ===== Packages (Topup) =====
+  http.get("/api/packages", async () => {
+    await delay(150);
+    return HttpResponse.json([
+      {
+        id: "pkg-50k",
+        name: "Starter",
+        priceIdr: 50000,
+        balanceIdr: 50000,
+        bonusIdr: 0,
+        popular: false,
+      },
+      {
+        id: "pkg-100k",
+        name: "Populer",
+        priceIdr: 100000,
+        balanceIdr: 110000,
+        bonusIdr: 10000,
+        popular: true,
+      },
+      {
+        id: "pkg-250k",
+        name: "Pro",
+        priceIdr: 250000,
+        balanceIdr: 300000,
+        bonusIdr: 50000,
+        popular: false,
+      },
+    ]);
+  }),
+
+  // ===== References (cross-ref search) =====
+  http.get("/api/references/search", async ({ request }) => {
+    await delay(200);
+    const url = new URL(request.url);
+    const q = url.searchParams.get("q") ?? "";
+    return HttpResponse.json({
+      results: [
+        {
+          doi: `10.1234/mock-${encodeURIComponent(q).slice(0, 20)}`,
+          title: `Mock result for "${q}"`,
+          authors: "Mock, A.",
+          year: 2024,
+          journal: "Mock Journal",
+        },
+      ],
+      total: 1,
+    });
+  }),
+
+  http.post("/api/references/fetch-metadata", async ({ request }) => {
+    await delay(250);
+    const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+    return HttpResponse.json({
+      doi: body.doi ?? null,
+      title: "Mock fetched metadata",
+      authors: "Mock Author",
+      year: 2024,
+      journal: "Mock Journal",
+      volume: "1",
+      issue: "1",
+      url: body.doi ? `https://doi.org/${body.doi}` : null,
     });
   }),
 ];

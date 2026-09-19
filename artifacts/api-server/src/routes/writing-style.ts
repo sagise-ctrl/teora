@@ -75,6 +75,7 @@ router.post("/users/me/writing-style/analyze", async (req, res): Promise<void> =
       userId: req.user!.id,
       tierId: selectedTier.id,
       estimatedCostCents,
+      userEmail: req.user?.email,
     });
     if (!accessCheck.allowed) {
       if (accessCheck.reason === "saldo_insufficient") {

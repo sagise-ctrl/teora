@@ -59,6 +59,9 @@ Thumbs.db
 test-results/
 *.timestamp*.mjs
 
+# E2E test artifacts (full-sweep screenshots + reports; 8MB+ per run, regenerable)
+tests/e2e/artifacts/
+
 # Environment files — MUST NOT be committed
 # (templates like .env.example are explicitly allowed below)
 .env

@@ -101,6 +101,7 @@ router.post("/projects/:projectId/quizzes/:quizId/rubric", async (req, res): Pro
       userId: project.userId,
       tierId: selectedTier.id,
       estimatedCostCents,
+      userEmail: req.user?.email,
     });
     if (!accessCheck.allowed) {
       if (accessCheck.reason === "saldo_insufficient") {

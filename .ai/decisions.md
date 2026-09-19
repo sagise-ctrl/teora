@@ -1622,4 +1622,298 @@ Root cause analysis: SOP-001 adalah **path-conditional**, bukan universal. Owner
 - ERR-022 — `vercel deploy --prod` does not update alias (Path B mandatory promote)
 - Memory `auto-merge-peter-evans-fails-repo-allow-auto-merge.md`
 - Memory `vercel-promote-required-after-deploy-prod.md`
+
+---
+
+## DECISION 021 — Nullable Project Title + Global Express Error Handler (2026-09-17)
+
+**Status:** ✅ APPROVED + IMPLEMENTED + DEPLOYED (dpl_EPsMReLnbRRFD122o5tDCy6VnLWn + dpl_DEYPwETRrVYcSUJJk5zdGMQG13fM)
+
+**Context**: Owner di `/projects/new?type=general` submit form tanpa judul → POST /api/projects return HTML 500 (`<pre>Internal Server Error</pre>`). Frontend tidak bisa parse HTML sebagai JSON, tampilkan "ZodError" ke user.
+
+**Root cause**: 3-layer inconsistency (frontend form opsional, Zod opsional, DB NOT NULL) + no global error handler di Express → unhandled async throw bocor sebagai HTML.
+
+**Decision**:
+1. **DB schema**: `projects.title` jadi nullable via migration `ALTER TABLE projects ALTER COLUMN title DROP NOT NULL`. DECISION 010 (Task Umum = ringan) konsisten dengan judul opsional.
+2. **Handler POST /projects**: `title: parsed.data.title ?? null` + tambah `taskType: parsed.data.taskType ?? null` agar taskType ter-insert ke kolom `projects.task_type` (sebelumnya hanya di project_metadata, stats byType selalu null).
+3. **Response normalization**: 4 endpoint (GET list, GET by id, POST, PATCH) sekarang spread `title: p.title ?? null` agar response konsisten null (bukan undefined).
+4. **OpenAPI spec**: `Project.title` dan `SharedProject.title` jadi `type: ["string", "null"]`. Codegen di-regenerate.
+5. **Frontend fallback**: 4 tempat render `{project.title ?? "Tanpa Judul"}` (tasks.tsx, dashboard.tsx, project.tsx, shared.tsx).
+6. **Global Express error handler**: Tambah di akhir `app.ts` (sebelum `export default app`) — catch unhandled async errors, return JSON `{error: "internal_server_error", message: "Terjadi kesalahan..."}` dengan status 500. Logger Pino mencatat stack server-side tapi TIDAK bocor ke client.
+7. **Activity log**: Handle null title dengan conditional `${project.title ? \`"${project.title}"\` : "(tanpa judul)"}`.
+
+**Trade-offs**:
+- ❌ TIDAK implement auto-generate title via AI (DECISION 014 promises, tapi out of scope sekarang — track terpisah)
+- ❌ TIDAK refactor semua existing async handler ke `asyncHandler` wrapper (cukup global error handler untuk sekarang)
+- ❌ TIDAK tambah field `subject` ke `CreateProjectBody` Zod schema (owner payload tidak kirim subject — separate decision needed)
+
+**Verification**:
+- DB migration applied ke Supabase production (`is_nullable: YES`)
+- `pnpm run typecheck` pass
+- `pnpm run build` pass (6.5MB output)
+- Backend deployed: `dpl_EPsMReLnbRRFD122o5tDCy6VnLWn` — `https://teora-backend.vercel.app` aliased
+- Frontend deployed: `dpl_DEYPwETRrVYcSUJJk5zdGMQG13fM` — `https://academic-workspace-eta.vercel.app` aliased
+- Smoke test: `curl POST /api/projects -d '{bad json'` → 500 JSON `{"error":"internal_server_error","message":"Terjadi kesalahan pada server. Silakan coba lagi."}` ✅
+- Owner smoke test (pending): create project tanpa judul → 201 + redirect
+
+**Related**:
+- ERR-025 — POST /api/projects 500 HTML when title is null
+- Lesson "Revert harus sinkronkan SEMUA layer yang terkait"
+- Memory `vercel-promote-required-after-deploy-prod.md`
 - Supersedes: SOP-001 (path-conditional, marked deprecated in this decision)
+
+---
+
+## DECISION 022 — AI Tier Selector Universal Standard (2026-09-17)
+
+**Status**: ✅ APPROVED + IMPLEMENTED (pending deploy)
+**Trigger**: Owner requirement: "AI tier selector harusnya ada disemua fitur AI di teora"
+
+### Decision Summary
+
+**Setiap AI feature di Teora WAJIB menampilkan tier selector** — bukan opsional, bukan "di workspace saja". Standar universal untuk konsistensi UX dan kontrol biaya AI per user.
+
+**Prinsip**:
+1. **Default tier = global preference** — Di-load dari `balanceData.preferredTierId` (single source of truth di backend: `user_balances.preferred_tier_id`).
+2. **Inline override allowed tapi tidak persistent** — User bisa ganti tier per-session, tapi TIDAK auto-save ke global preference (existing pattern di Task Mentor).
+3. **Global change = persistent** — Perubahan via `/akun` "Default AI Tier" card langsung save ke backend via `PUT /users/me/ai-tier-preference` + invalidate `useGetMyBalance` query.
+4. **No price display inline** — Harga tier hanya di `/langganan` dan `/topup` (per owner: "gk usah, sudah ada di halaman subcreb dan topup"). Tier selector cuma menampilkan nama + FREE badge.
+
+### Implementation Scope
+
+| Lokasi | Tipe | Status |
+|--------|------|--------|
+| Task Mentor — Generate/Revise/Reflect/Socratic/Quiz/Summary (6 modes) | Per-session override | ✅ Sudah ada (`project.tsx` lines 1291, 1324, 1914, 2243) |
+| Simulasi Presentasi | Per-session persona selector | ✅ Custom chip UI (sesuai design language — biarkan) |
+| Dashboard Teora Assistant shortcut | Global indicator | ✅ BARU — `dashboard.tsx` lines 117-141 |
+| `/akun` Default AI Tier card | Global setting | ✅ BARU — `akun.tsx` |
+
+### Architecture Notes
+
+- Backend endpoint `PUT /users/me/ai-tier-preference` sudah ada sejak Olagon Phase 1 (DECISION 019). Hook `useSetAITierPreference` di-generate dari openapi spec.
+- Tidak perlu schema migration — kolom `preferred_tier_id` sudah ada di `user_balances`.
+- TierSelector component (`components/tier-selector.tsx`) auto-load preferred tier on mount via `queueMicrotask` + auto-fallback ke tier pertama.
+
+### UI Patterns
+
+**Dashboard entry point** (compact, side-by-side):
+```tsx
+<TierSelector value={activeTierId} onChange={setDashboardTierId} compact />
+<Button>Mulai Chat <ArrowRight /></Button>
+```
+
+**Global settings page** (full-width, dengan warning):
+```tsx
+<Card>
+  <TierSelector value={preferredTierId} onChange={handleAITierChange} />
+  <Alert>Mengubah ini akan mengubah semua fitur AI memakai model ini</Alert>
+</Card>
+```
+
+### Trade-offs
+
+- ❌ TIDAK paksa refactor Simulasi dari custom chip UI ke TierSelector dropdown — chip UX lebih cocok untuk 2-3 pilihan tier berdampingan. Force refactor akan menambah cognitive load (owner prefer pragmatic).
+- ❌ TIDAK tambah price display di tier selector (per owner "gk usah").
+- ❌ TIDAK implement "remember last selection" per-feature override — global preference sudah cukup sebagai default.
+
+### Verification
+
+- `pnpm --filter @workspace/academic-workspace run build` pass
+- `pnpm --filter @workspace/academic-workspace run typecheck` — zero errors in `dashboard.tsx` dan `akun.tsx` (errors lain pre-existing, unrelated)
+- Bundle `index-DPDR8OSA.js` includes TierSelector, Sparkles icon, "Default AI Tier" string
+
+### Related
+
+- DECISION 019 — Olagon provider Phase 1
+- DECISION 020 — Olagon owner-only provider
+- Hook: `useSetAITierPreference` (from openapi.yaml `setAITierPreference`)
+- Component: `components/tier-selector.tsx`
+
+---
+
+## DECISION 023 — Dashboard Teora Assistant Chat (2026-09-18)
+
+**Status**: ✅ APPROVED + IMPLEMENTED + DEPLOYED (pending this deploy)
+**Trigger**: Owner requirement: "chat bot di dashboard harus diimplementasikan". Sebelumnya Teora Assistant di Dashboard cuma link ke `/projects/new` (membuat user harus bikin project dulu sebelum bisa chat) — friction tidak perlu.
+
+### Decision Summary
+
+**Dashboard Teora Assistant adalah chat AI general-purpose yang langsung bisa dipakai, tanpa harus bikin project dulu.**
+
+UI: Sheet (slide-in dari kanan) full-screen dengan chat interface — match design language Panel di Task Mentor tapi standalone.
+
+### Arsitektur: Scratchpad Project Pattern
+
+Tidak membangun endpoint global chat baru. Reuse `POST /api/projects/:projectId/messages` yang sudah ada (DECISION 007), dengan trick:
+
+1. **Scratchpad project** — saat user pertama kali kirim pesan dari Dashboard, otomatis create project dengan `taskType: "dashboard_chat"`, `title: "Dashboard Chat"`. Project ID disimpan di `localStorage` keyed by `userId` (`dashboardChat.projectId.<userId>`).
+2. **Persistensi chat** — message history otomatis load dari scratchpad project via `useListMessages(projectId)`. Refetch every 3s untuk live update saat AI response stream masuk.
+3. **Mode `generate`** — pilih mode `generate` di `MessageInput` karena paling cocok untuk free-form Q&A (mode `socratic` cuma tanya balik, `revise` assume ada dokumen existing).
+4. **TierSelector** — sama dengan DECISION 022, default dari `preferredTierId`.
+5. **Filter** — Dashboard client-side filter `taskType !== "dashboard_chat"` di `projectList` agar scratchpad tidak muncul di "Your Tasks" grid. Backend tidak berubah (filter lain via existing `type` query param).
+
+### Trade-offs
+
+- ❌ TIDAK bikin endpoint global chat (`POST /api/chat/send`) — reuse `sendMessage(projectId)` lebih cepat (zero backend changes, zero migration) dan 100% compatible dengan AI gate, subscription, dan Olagon yang sudah ada.
+- ❌ TIDAK bikin table `dashboard_chats` terpisah — project table sudah handle multi-user, RLS, dan message storage.
+- ❌ TIDAK implement chat history sync antar-device — localStorage per browser. Cross-device sync bisa jadi follow-up.
+- ⚠️ **Acceptable quirk**: scratchpad project ada di database tapi hidden dari UI. Kalau owner lihat di admin panel `/admin/usage`, akan keliatan sebagai "Dashboard Chat" project. OK karena data structure consistent dan deletion via `handleClear` button (atau admin tools).
+
+### Files Affected
+
+| File | Change |
+|------|--------|
+| `artifacts/academic-workspace/src/components/dashboard-chat.tsx` | NEW — Sheet chat panel, scratchpad lifecycle, suggested prompts, clear history |
+| `artifacts/academic-workspace/src/pages/dashboard.tsx` | Replace `<Link>` wrapper dengan `<div onClick={openSheet}>`, filter `taskType === "dashboard_chat"` dari project list, render `<DashboardChat>` di top level |
+
+### Verification
+
+- `pnpm --filter @workspace/academic-workspace run build` — succeeds, bundle `index-DOcsj3Q8.js` 1,593.38 kB
+- `pnpm --filter @workspace/academic-workspace run typecheck` — zero errors di `dashboard-chat.tsx` dan `dashboard.tsx`
+- Bundle contains: "Dashboard Chat", "Mulai percakapan", "dashboard_chat", "Tanya Teora", "Teora bisa keliru", "Hapus riwayat chat", "dashboardChat.projectId"
+
+### Edge Cases Handled
+
+1. **Saldo habis** → HTTP 402 → `InsufficientBalanceDialog` terbuka (reused hook `useInsufficientBalanceDialog`)
+2. **First-time send** → create project otomatis, store ID in localStorage, lanjut chat
+3. **Clear history** → delete project via `useDeleteProject`, clear localStorage, scratchpad akan di-recreate pada next send
+4. **Multiple browsers** → masing-masing browser punya scratchpad sendiri (acceptable — owner belum request cross-device sync)
+5. **Project missing** (e.g., deleted manually elsewhere) → `useListMessages` returns error → user bisa klik "Hapus riwayat chat" untuk reset
+
+### Related
+
+- DECISION 022 — AI tier selector universal standard (TierSelector reused here)
+- DECISION 007 — Messages + AI assistant architecture
+- DECISION 021 — Nullable project title (DECISION 023 leverages this — scratchpad title is nullable-safe)
+- Memory `verify-requirement-scope-before-implementing.md` — same owner pattern (audit before assuming scope)
+
+---
+
+## [2026-09-18] DECISION 024: messages.ts Olagon-aware tier resolution + ownership check
+
+**Status:** ACTIVE
+**Author:** AI Engineering
+**Trigger:** Owner reported 403 (Forbidden) on `POST /api/projects/9/messages` after dashboard → task mentor → workspace → AI chat flow. Root cause: DECISION 019/020 (Olagon owner-only AI provider) was implemented in `analyze`, `outline`, and `documents/generate` routes but `messages.ts` was missed. Also surfaced 404 spam from frontend firing `GET /documents/0` and `GET /documents/latest` for projects with no documents yet.
+
+### Decision Summary
+
+1. **`messages.ts` had NO ownership check** — every other AI route uses `requireProjectOwnership(projectId, userId, res)`. messages.ts was the odd one out. A logged-in user could POST chat messages on someone else's project if they knew the projectId. Added inline ownership check matching requireProjectOwnership (saves a DB query by reusing the project we already loaded).
+
+2. **`messages.ts` used wrong tier resolution** — used `getTierConfig + checkTierAccess`, which rejects Olagon tiers (`opus-4-8-olagon`, `opus-4-6-olagon`) because Olagon tiers are NOT in any subscription package's allowed tier list (`getAllowedTierIdsForUser` returns `["sonnet-5", "haiku-4.5"]`). Owner's `aiProvider=olagon` preference was therefore ignored on chat, causing 403 even when owner tried to use their own Olagon tier. Switched to `resolveOlagonTierOrFallback` which is the DECISION 019/020-aware resolver that:
+   - If tierId is Olagon-tier AND user is owner → allow
+   - If tierId is non-Olagon → check via subscription package tier
+   - If tierId is null → fall back to user's preference (haiku-4.5 default)
+
+3. **`resolveUserEmail` was never exported** — code had dynamic `import("../middlewares/auth.js").then(m => m.resolveUserEmail(req.user!.id))` which would fail at runtime (undefined is not a function). Replaced with `req.user.email` directly (already set by `authMiddleware` from JWT payload).
+
+4. **Frontend guard for document fetches**:
+   - `useGetDocument(projectId, selectedDocId ?? 0)` was firing `GET /documents/0` whenever no document was selected. Added `enabled: selectedDocId !== null`.
+   - `useGetLatestDocument` was firing `GET /documents/latest` even when no documents exist. Added `enabled: !docsLoading && documents?.length > 0`.
+
+### Rationale
+
+DECISION 019/020 spec mandates that Olagon tiers are owner-only. When the spec was originally written, three routes (`analyze`, `outline`, `documents/generate`) were updated to use `resolveOlagonTierOrFallback`. `messages.ts` was missed in the original pass. **Lesson**: when adding a new tier-resolution pattern, ALL routes that accept user-supplied tierId must be updated in the same pass — partial rollout creates a silent 403 bug that only surfaces when the owner tries to use the new tier.
+
+### Files Affected
+
+| File | Change |
+|------|--------|
+| `artifacts/api-server/src/routes/messages.ts` | Switch to `resolveOlagonTierOrFallback`, add inline ownership check, use `req.user.email` directly |
+| `artifacts/academic-workspace/src/pages/project.tsx` | Add `enabled` guards to `useGetDocument` and `useGetLatestDocument` |
+
+### Verification
+
+- `pnpm run typecheck` — pass
+- `pnpm --filter @workspace/api-server run build` — pass, bundle `dist/index.mjs 6.5mb`
+- `pnpm --filter @workspace/academic-workspace run build` — pass, bundle `assets/index-DOcsj3Q8.js` 1,593.38 kB
+- Vercel preview `dpl_G7mhjGuG13XBHtRDr2D68hxiWv7B` (api-server) — healthz 200, route loaded
+- Vercel preview `dpl_CPkTzxwQbYKzLXCww9Kz55QwiiJY` (frontend) — root 200, SPA loaded
+- Vercel production `teora-backend.vercel.app/api/healthz` — 200
+- Vercel production `academic-workspace-sagise-ctrls-projects.vercel.app/` — 200
+- SOP-001 4-step gate: local smoke → preview → verify → promote — executed
+
+### Outstanding (NOT VERIFIED — owner smoke test required)
+
+- Frontend smoke test of full chat flow (owner to verify 403 → success)
+- ZodError root cause remains INCONCLUSIVE — pattern `Object.resolver → Bf → vD/Ui → mutationFn` is React Hook Form internal but neither `new-project.tsx`, `register.tsx`, nor `login.tsx` throw ZodError (zodResolver catches and converts to {errors, values}). Hypothesis: minor inconsistency between generated TS types and actual response shape (e.g., `new Date()` vs string for date-time). Owner can capture browser devtools network response for the failing request to confirm.
+
+### Related
+
+- DECISION 019/020 — Olagon gateway as owner-only AI provider
+- DECISION 022 — AI tier selector universal standard
+- DECISION 021 — Nullable project title + global error handler
+- ERR-026 — 404 documents spam + 403 chat messages
+
+---
+
+## DECISION 025 — Add `dashboard_chat` to `taskType` OpenAPI enum (2026-09-18)
+
+**Status:** ACTIVE (deployed to production)
+**Author:** AI Engineering
+**Trigger:** Owner reported 400 error `POST https://teora-backend.vercel.app/api/projects 400 (Bad Request)` triggered by sending a chat message in Dashboard Teora Assistant. Stack trace pointed at `dashboard-chat.tsx:106 onKeyDown` → `createProject.mutateAsync({ taskType: "dashboard_chat", ... })`.
+
+### Root Cause (CONFIRMED)
+
+DECISION 023 introduced the Scratchpad Project Pattern for dashboard chat — frontend sends `taskType: "dashboard_chat"` to mark hidden per-user chat history projects (filtered client-side from Tasks grid). However, DECISION 010 had previously constrained the `taskType` OpenAPI enum to `["general", "academic"]` to prevent garbage values. The two decisions affected the same enum independently — neither referenced the other. When DECISION 023 shipped to production frontend (`index-B8JDbFQG.js`), the backend Zod schema still rejected `dashboard_chat` with 400.
+
+### Decision
+
+**Add `dashboard_chat` to the `taskType` OpenAPI enum at all schema locations where the enum appears in the contract.**
+
+| Location | Field | Action |
+|---|---|---|
+| `openapi.yaml:3753` | `CreateProjectBody.taskType` | Add `dashboard_chat` (the rejected endpoint — required for fix) |
+| `openapi.yaml:3801` | `UpdateProjectBody.taskType` | Add `dashboard_chat` (consistency — projects could be re-categorized) |
+| `openapi.yaml:4425` | `Project.taskType` (response) | Add `dashboard_chat` (consistency — response shape must match input) |
+| `openapi.yaml:4980` | `ProjectInput.taskType` (type alias) | Add `dashboard_chat` (consistency) |
+| `openapi.yaml:212` | `ListProjectsQueryParams.type` (filter) | **DO NOT add** — user-facing filter stays restrictive (`[general, academic]`) so dashboard client-side filter (DECISION 023) continues to handle hiding scratchpads from the grid |
+
+### Trade-offs Considered
+
+| Option | Pros | Cons | Verdict |
+|---|---|---|---|
+| **A. Add `dashboard_chat` to enum** | Minimal change, fixes 400, OpenAPI stays source of truth | Enlarges public enum surface (internal sentinel now part of contract) | ✅ CHOSEN |
+| B. Remove enum constraint, accept any string | Flexible, no future drift | Re-opens the garbage-values problem DECISION 010 solved | ❌ Rejected |
+| C. Hide `dashboard_chat` via separate internal field | Cleaner public surface | Requires backend migration + new column + client-side logic change | ❌ Rejected — overkill for an internal sentinel |
+| D. Use a different field for "isDashboardScratchpad" boolean | Pure separation | Forces schema migration + DECISION 023 rewrite | ❌ Rejected — DECISION 023 already shipped |
+
+### Rationale
+
+- **Symmetry over cleanness.** Both DECISION 010 and DECISION 023 were correct in isolation. Adding the sentinel to the enum keeps both intact.
+- **Description field documents intent.** Each enum value now references its originating DECISION, so future readers see the rationale.
+- **Filter stays restrictive.** `ListProjectsQueryParams.type` filter unchanged so server-side filtering is still safe; client-side filter (DECISION 023) handles the scratchpad-hiding UX.
+- **`as any` cast in dashboard-chat.tsx:108** is now technically removable but left in place — would require frontend rebuild + redeploy for marginal benefit.
+
+### Files Affected
+
+| File | Change |
+|---|---|
+| `lib/api-spec/openapi.yaml` | 4 enum values added (lines 3753, 3801, 4425, 4980) |
+| `lib/api-zod/src/generated/api.ts` | Regen — 8 `dashboard_chat` occurrences (auto-generated) |
+| `lib/api-client-react/src/generated/api.schemas.ts` | Regen — `ProjectInputTaskType.dashboard_chat` (auto-generated) |
+| `artifacts/academic-workspace/src/lib/api-client-react/generated/api.schemas.ts` | Mirror regen (auto-generated) |
+| `artifacts/api-server/api/index.mjs` | Rebuilt — Vercel entrypoint (8 occurrences) |
+| `artifacts/api-server/dist/index.mjs` | Rebuilt — local dev entrypoint (8 occurrences) |
+
+### Verification
+
+- `pnpm --filter @workspace/api-spec run codegen` — succeeded, both generated files contain `dashboard_chat`
+- `pnpm --filter @workspace/api-server run build` — succeeded, `dist/index.mjs` 6.5MB, `api/index.mjs` rebuilt
+- `vercel deploy --prod --yes` from `artifacts/api-server/` → `dpl_HamBBEqL1JKvuJTa1rkKfKbuHmyy`, aliased to `teora-backend.vercel.app`
+- `curl -sS -o /dev/null -w "%{http_code}" https://teora-backend.vercel.app/api/health` → 401 (auth blocks, server alive)
+- `SWEEP_BASE_URL=https://academic-workspace-eta.vercel.app node tests/e2e/full-sweep.mjs` → 6/6 public PASS, 0 errors (production frontend bundle still `index-B8JDbFQG.js` — no frontend rebuild needed)
+- `vercel inspect dpl_HamBBEqL1JKvuJTa1rkKfKbuHmyy --logs` → build completed 2026-09-18T06:25:03Z, contains fix
+
+### Outstanding (NOT VERIFIED — owner smoke test required)
+
+- End-to-end POST `/api/projects` with `taskType: "dashboard_chat"` returning 201 — requires owner login + manual dashboard chat send
+- The first message sent by each user after the fix creates a new scratchpad project correctly (no silent failure)
+
+### Related
+
+- **DECISION 010** — taskType enum constraint (now extended, not removed)
+- **DECISION 023** — Dashboard Teora Assistant chat (sentinel value `dashboard_chat` now in OpenAPI)
+- **ERR-028** — full error analysis with prevention recommendations
+- **INC-008** — incident report (severity P3 Low, resolved)
+- **INC-007** — same-class incident (production fix shipped to branch but never promoted). SOP-001 deploy gate caught this earlier; the gap here was that the schema fix wasn't even in the branch when DECISION 023 shipped.
+

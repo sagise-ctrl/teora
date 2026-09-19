@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useLocation, useSearch } from "wouter"
 import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
+import { zodResolver } from "@/lib/zod-compat-resolver"
 import * as z from "zod"
 import { useCreateProject, type ProjectInputOutputFormat } from "../lib/api-client-react"
 import {

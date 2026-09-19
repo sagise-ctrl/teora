@@ -68,6 +68,7 @@ router.get("/projects", async (req, res): Promise<void> => {
   res.json(
     results.map((p) => ({
       ...p,
+      title: p.title ?? null, // DECISION 021: title is nullable (general tasks)
       instructionText: p.instructionText ?? null,
       subject: p.subject ?? null,
       taskType: p.taskType ?? null,
@@ -133,6 +134,7 @@ router.get("/projects/:projectId", async (req, res): Promise<void> => {
 
   res.json({
     ...project,
+    title: project.title ?? null, // DECISION 021
     instructionText: project.instructionText ?? null,
     subject: project.subject ?? null,
     taskType: project.taskType ?? null,
@@ -156,8 +158,9 @@ router.post("/projects", async (req, res): Promise<void> => {
     .insert(projectsTable)
     .values({
       userId,
-      title: parsed.data.title,
+      title: parsed.data.title ?? null, // DECISION 021: nullable (Task Umum)
       instructionText: parsed.data.instructionText,
+      taskType: parsed.data.taskType ?? null, // DECISION 010 + 021: store on projects
       outputFormat: parsed.data.outputFormat,
       minRefYear: parsed.data.minRefYear,
       minRefCount: parsed.data.minRefCount,
@@ -180,10 +183,15 @@ router.post("/projects", async (req, res): Promise<void> => {
       });
   }
 
-  await logActivity(project.id, "project_created", `Project "${project.title}" dibuat`);
+  await logActivity(
+    project.id,
+    "project_created",
+    `Project ${project.title ? `"${project.title}"` : "(tanpa judul)"} dibuat`,
+  );
 
   res.status(201).json({
     ...project,
+    title: project.title ?? null, // DECISION 021
     instructionText: project.instructionText ?? null,
     subject: project.subject ?? null,
     taskType: project.taskType ?? null,
@@ -232,6 +240,7 @@ router.patch("/projects/:projectId", async (req, res): Promise<void> => {
 
   res.json({
     ...project,
+    title: project.title ?? null, // DECISION 021
     instructionText: project.instructionText ?? null,
     subject: project.subject ?? null,
     taskType: project.taskType ?? null,
@@ -321,6 +330,7 @@ router.post("/projects/:projectId/analyze", async (req, res): Promise<void> => {
       userId: project.userId,
       tierId: selectedTier.id,
       estimatedCostCents,
+      userEmail: req.user?.email,
     });
     if (!accessCheck.allowed) {
       if (accessCheck.reason === "saldo_insufficient") {
@@ -618,6 +628,7 @@ router.post("/projects/:projectId/outline", async (req, res): Promise<void> => {
       userId: project.userId,
       tierId: selectedTier.id,
       estimatedCostCents,
+      userEmail: req.user?.email,
     });
     if (!accessCheck.allowed) {
       if (accessCheck.reason === "saldo_insufficient") {
@@ -783,6 +794,7 @@ router.post("/projects/:projectId/documents/generate", async (req, res): Promise
       userId: project.userId,
       tierId: selectedTier.id,
       estimatedCostCents,
+      userEmail: req.user?.email,
     });
     if (!accessCheck.allowed) {
       if (accessCheck.reason === "saldo_insufficient") {

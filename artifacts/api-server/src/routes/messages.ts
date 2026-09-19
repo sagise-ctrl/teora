@@ -15,7 +15,8 @@ import {
   SendMessageParams,
   SendMessageBody,
 } from "@workspace/api-zod";
-import { callAI, buildSystemPrompt, type ChatMode, getTierConfig, getTierForUser, checkTierAccess } from "../lib/ai.js";
+import { callAI, buildSystemPrompt, type ChatMode, resolveOlagonTierOrFallback } from "../lib/ai.js";
+import { isOwnerEmail } from "../middlewares/owner.js";
 import { logActivity } from "../lib/activity.js";
 import { checkAIAccess, consumeQuotaForAIRequest } from "../lib/subscription.js";
 import { sanitizeUserMessage } from "../lib/prompt-injection.js";
@@ -66,18 +67,37 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
     return;
   }
 
-  // Resolve tier: validate existence then authorization
-  const selectedTier = tierId
-    ? await (async () => {
-        const tier = await getTierConfig(tierId);
-        if (!tier) return null;
-        const authorized = await checkTierAccess(project.userId, tierId);
-        return authorized ? tier : null;
-      })()
-    : await getTierForUser(project.userId, null);
+  // Ownership check — was missing in pre-DECISION 019 implementation.
+  // Other AI routes (analyze, outline, documents/generate) use
+  // requireProjectOwnership. Messages route was the odd one out — a logged-in
+  // user could send chat messages on someone else's project if they knew
+  // the projectId.
+  if (!req.user?.id || project.userId !== req.user.id) {
+    res.status(403).json({ error: "Access denied" });
+    return;
+  }
+
+  // DECISION 019: Resolve tier via Olagon-aware path so owner's `aiProvider=olagon`
+  // preference is honored. Non-owner `checkTierAccess` still gates explicit
+  // tierId requests to their subscription package tier (sonnet-5 / haiku-4.5).
+  const userEmail = req.user.email;
+
+  const selectedTier = await resolveOlagonTierOrFallback(
+    project.userId,
+    tierId ?? null,
+    userEmail,
+  );
 
   if (!selectedTier) {
-    res.status(tierId ? 403 : 400).json({ error: tierId ? "Tier tidak diizinkan untuk paket Anda" : "Tier tidak valid" });
+    // Show the requested tier name in the error so it's clear what was rejected
+    const requestedTierName = tierId ?? "unknown";
+    const ownerBypass = isOwnerEmail(userEmail);
+    res.status(tierId ? 403 : 400).json({
+      error: tierId ? `Tier "${requestedTierName}" tidak diizinkan untuk paket Anda` : "Tier tidak valid",
+      tierName: requestedTierName,
+      // DIAGNOSTIC: reveal bypass state so we can see OWNER_EMAIL env var status in production
+      _diag: { userEmail, ownerBypass, OWNER_EMAIL_set: !!process.env.OWNER_EMAIL },
+    });
     return;
   }
 
@@ -92,6 +112,7 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
       userId: project.userId,
       tierId: selectedTier.id,
       estimatedCostCents,
+      userEmail,
     });
     if (!accessCheck.allowed) {
       if (accessCheck.reason === "saldo_insufficient") {
@@ -175,7 +196,7 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
   // Call AI with selected tier
   let usageResult: Awaited<ReturnType<typeof callAI>>;
   try {
-    usageResult = await callAI(aiMessages, selectedTier.id, mode);
+    usageResult = await callAI(aiMessages, selectedTier.id, mode, selectedTier);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     if (message === "KONTEKS_TERLALU_PANJANG") {

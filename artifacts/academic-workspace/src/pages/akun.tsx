@@ -10,6 +10,7 @@ import {
   TrendingUp,
   AlertCircle,
   Bot,
+  Sparkles,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,9 +22,12 @@ import {
   useGetMyUsageStats,
   useGetMyPreferences,
   useUpdateMyPreferences,
+  useSetAITierPreference,
 } from "@/lib/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
+import { TierSelector } from "@/components/tier-selector";
+import { useQueryClient } from "@tanstack/react-query";
 
 const AKUN_SECTIONS = [
   {
@@ -72,6 +76,7 @@ function formatUSD(cost: number | undefined | null): string {
 export default function Akun() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const { data: balanceData, isLoading: balanceLoading, isError: balanceError } = useGetMyBalance();
   const { data: usageStats, isLoading: usageLoading, isError: usageError } = useGetMyUsageStats({
     period: "7d",
@@ -79,8 +84,10 @@ export default function Akun() {
 
   const { data: preferences, isLoading: prefsLoading } = useGetMyPreferences();
   const updatePrefs = useUpdateMyPreferences();
+  const setAITierPreference = useSetAITierPreference();
 
   const currentProvider = preferences?.aiProvider ?? "anthropic";
+  const preferredTierId = balanceData?.preferredTierId ?? "";
 
   const handleProviderChange = (value: string) => {
     const provider = value as "anthropic" | "olagon";
@@ -101,6 +108,29 @@ export default function Akun() {
             description: isForbidden
               ? "Olagon provider hanya untuk workspace owner"
               : "Tidak dapat menyimpan preferensi AI",
+            variant: "destructive",
+          });
+        },
+      }
+    );
+  };
+
+  const handleAITierChange = (tierId: string) => {
+    setAITierPreference.mutate(
+      { data: { tierId } },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ["/api/users/me/balance"] });
+          toast({
+            title: "Default AI Tier diperbarui",
+            description: "Tier ini akan digunakan oleh semua fitur AI di Teora.",
+          });
+        },
+        onError: (err) => {
+          const msg = err instanceof Error ? err.message : String(err);
+          toast({
+            title: "Gagal menyimpan",
+            description: msg || "Tidak dapat menyimpan default AI tier",
             variant: "destructive",
           });
         },
@@ -221,6 +251,58 @@ export default function Akun() {
               </span>
             </Link>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Default AI Tier — Global Setting (all users) */}
+      <Card className="border-[#2D79FF]/20 bg-gradient-to-br from-[#2D79FF]/5 to-[#8E54E9]/5">
+        <CardContent className="p-5 space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#2D79FF] to-[#8E54E9] flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-sm font-medium">Default AI Tier</p>
+              <p className="text-xs text-muted-foreground">
+                Tier model yang dipakai semua fitur AI di Teora
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 flex-wrap">
+            {balanceLoading || prefsLoading ? (
+              <Skeleton className="h-9 w-[160px]" />
+            ) : (
+              <TierSelector
+                value={preferredTierId}
+                onChange={handleAITierChange}
+              />
+            )}
+            {balanceData && (
+              <span className="text-xs text-muted-foreground font-mono">
+                Saldo: {balanceData.balanceDisplay}
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-start gap-2 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 p-2.5">
+            <AlertCircle className="w-3.5 h-3.5 text-amber-700 dark:text-amber-500 shrink-0 mt-0.5" />
+            <p className="text-xs text-amber-900 dark:text-amber-200 leading-relaxed">
+              <strong>Mengubah ini akan mengubah semua fitur AI memakai model ini</strong> — termasuk
+              Task Mentor, Simulasi Presentasi, dan asisten AI lainnya.
+            </p>
+          </div>
+
+          <p className="text-xs text-muted-foreground">
+            Detail harga per tier tersedia di halaman{" "}
+            <Link href="/langganan">
+              <span className="text-[#2D79FF] hover:underline cursor-pointer">Langganan</span>
+            </Link>{" "}
+            dan{" "}
+            <Link href="/topup">
+              <span className="text-[#2D79FF] hover:underline cursor-pointer">Topup</span>
+            </Link>.
+          </p>
         </CardContent>
       </Card>
 

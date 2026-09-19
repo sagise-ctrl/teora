@@ -37,6 +37,8 @@
 | `context window exceeds limit` / 2013 / `overload_input` | ERR-017 | VERIFIED |
 | `Missing tiktoken_bg.wasm` / WASM not bundled | ERR-019 | VERIFIED (occurrence 1: INC-004, occurrence 2: INC-005 — consolidated) |
 | Deployment drift — local commit not live | ERR-020 | VERIFIED |
+| SidebarFooter isDark ReferenceError | ERR-023 | VERIFIED |
+| Dashboard CTA chat-label vs form destination | ERR-024 | REVERTED (deferred to dedicated discussion) |
 
 ### By Symptom / User-Facing
 
@@ -799,3 +801,411 @@ Confidence labels (per Error Handling Protocol Step 3):
 **Memory:** Add new memory file `~/.claude/projects/E--teora/memory/vercel-promote-required-after-deploy-prod.md`
 **Lifecycle:** FIXED (2026-09-16, dpl_KtjqH7gRMbRjzFGT3Yom2RAwk885 promoted)
 **Pattern:** `vercel_deploy_prod_does_not_update_alias` (1x — promote to skill after 2x occurrence)
+
+---
+
+## ERR-023 — SidebarFooter isDark ReferenceError (2026-09-17)
+
+**Symptom:**
+- Live runtime: `index-CrlsaPBJ.js:216 Uncaught ReferenceError: isDark is not defined`
+- Stack trace: at NU → Nw → Bw → tD → TD → see → fj → SD → BD → Zf (production minified)
+- Every page using Layout crashed on initial render
+- Owner blocked from testing Olagon on live web
+
+**Root cause:**
+- `SidebarFooter` component referenced `isDark` / `setTheme` at JSX lines 255-260 (theme toggle button)
+- `useTheme()` was ONLY called in parent `Layout` component (line 335-336)
+- Each React function component has independent scope — child does NOT inherit parent's `const`
+- Bug introduced commit `5fee488` (Sep 12, 2026, 4 days before report) — likely a refactor that moved theme toggle from SidebarFooter to Layout but did not update SidebarFooter to call useTheme() locally
+
+**Why static analysis missed it:**
+- TypeScript: `isDark` is a valid identifier — no "not declared" type error
+- Vite/esbuild: compile-time error not raised for undefined identifiers used at runtime
+- No test caught it because dev server wasn't run before this fix
+- Build succeeds → only runtime catches it
+
+**Verification approach:**
+- Build succeeds → check served bundle for INDIRECT evidence (string literals not minified)
+- `grep "Mode terang" dist/assets/index-*.js` confirms JSX rendered with theme-aware logic
+- Minified local consts (isDark → single char) can't be grepped directly
+
+**Fix applied 2026-09-17:**
+- Added 2 lines to `SidebarFooter`:
+  ```ts
+  const { theme, setTheme } = useTheme();
+  const isDark = theme === "dark";
+  ```
+- Deployed via Path B (Vercel CLI): commit `4fd434e` → deployment `dpl_J1kYb9KzPweefjqFaec4T7LvsooW`
+- Production alias auto-updated (this deploy alias was direct, no promote needed)
+- PR #21 created and merged → main at `84fde56`
+- Bundle verified: `index-BBuAoRgo.js` (edge) and `index-BwJHTZ4k.js` (origin) — both have Indonesian "Mode terang" string
+
+**Prevention:**
+- Always declare hooks in component that uses hook-returned values
+- For shared global providers (useTheme, useAuth, useQuery), it's fine to call hook in both parent and child
+- Refactor checklist: when MOVING hook calls between components, verify all references in moved JSX
+- Code review: `grep -rn "<Hook>"` and `grep -rn "use<Hook>"` cross-check for any sub-component using parent's hook-returned values without local declaration
+- Static analysis gap: consider ESLint rule `no-undef` for TSX with React-specific config (eslint-plugin-react already has it but may be lenient for const-from-other-file)
+
+**Memory:** `~/.claude/projects/E--teora/memory/react-component-scope-isIndependent.md`
+**Lifecycle:** FIXED (2026-09-17, dpl_J1kYb9KzPweefjqFaec4T7LvsooW deployed + PR #21 merged 84fde56)
+**Pattern:** `react_sub_component_inherits_parent_const_false_assumption` (1x — promote to skill after 2x occurrence)
+
+---
+
+## ERR-024 — Dashboard CTA card mislabeled as chat but routes to create-task form (2026-09-17)
+
+**Class:** UX/copy mismatch (label vs destination)
+**Severity:** MEDIUM (user trust + navigation confusion; not a crash)
+**First seen:** 2026-09-17 (owner bug report)
+**Root cause:** Dashboard CTA card used chat-style copy (`Teora Assistant` title, `MessageSquare` icon, `Mulai Chat` button, "Tanya apa saja tentang tugas, referensi, atau penulisan akademik" subtitle) but pointed to `/projects/new` which is a task-creation FORM, not a chat interface. The mismatch between implied UX (chat) and actual UX (form) caused owner's confusion.
+
+**Investigation (Decision 005 SOP applied — searched lessons-learned + error-index first):**
+- Searched `.ai/lessons-learned.md` and `.ai/error-index.md` for routing/dashboard/CTA patterns — no prior entry (new pattern class)
+- Verified owner's hypothesis (`/projects/new` is dead leftover) by reading `App.tsx:87-93` route registration and `new-project.tsx` (80+ lines active form). HYPOTHESIS REJECTED — route is actively linked from 7 places
+- Real bug identified: card LABELING was misleading, not the route
+
+**Symptom:**
+- Owner clicked dashboard card "Teora Assistant / Mulai Chat / Tanya apa saja..." 
+- Landed on `/projects/new` (form to create Task Umum / Karya Ilmiah)
+- Expected a chat interface, got a form
+- Owner inferred `/projects/new` was leftover and should be deleted
+
+**Why this is a UX class, not a code bug:**
+- Code worked correctly (route exists, form renders)
+- Visual copy was the issue (text/icon implied chat, destination was form)
+- No error logs, no exception, just semantic mismatch
+- Class: `cta_label_mismatched_with_destination` — a copy/UX pattern, not a tech defect
+
+**Fix applied 2026-09-17:**
+- File: `artifacts/academic-workspace/src/pages/dashboard.tsx` (1 file, no route change)
+- Replaced chat copy with verbatim text from `new-project.tsx` COPY.general (default type per DECISION 010):
+  - Icon: `MessageSquare` → `Sparkles`
+  - Title: `Teora Assistant` → `Mulai dengan Teora`
+  - Subtitle: "Tanya apa saja..." → "Mulai tugas singkat. Teora bantu susun kerangka dan pahami instruksi Anda."
+  - Button: `Mulai Chat` → `Mulai Kerjakan`
+- Kept gradient styling (`#2D79FF` → `#8E54E9`) and motion animation
+- Destination unchanged (`/projects/new`) — was always correct
+- Deployed via `vercel deploy --prod --yes` from monorepo root → `dpl_C8ALCi9WyATgzWhcz3QGRfSokygg` READY (alias updated to `academic-workspace-eta.vercel.app`)
+- Bundle verified: prod `index-DZO6oCR3.js` contains new strings (×2 each), zero old strings
+
+**Verification (FIX ≠ VERIFIED hard rule applied):**
+| Step | Evidence | Status |
+|------|----------|--------|
+| Local typecheck | 0 errors in dashboard.tsx | ✅ |
+| Local build | bundle 1.58 MB, 1m 46s | ✅ |
+| Local bundle grep | new strings present, old strings 0 | ✅ |
+| Deploy `vercel deploy --prod --yes` | `dpl_C8ALCi9WyATgzWhcz3QGRfSokygg` READY | ✅ |
+| Alias update | `academic-workspace-eta.vercel.app` → new deployment | ✅ |
+| Prod bundle grep | new strings ×2, old strings 0 | ✅ |
+| `curl -I /dashboard` | 200 | ✅ |
+| `curl -I /projects/new` | 200 | ✅ |
+
+**Prevention:**
+- When adding CTA card with `<Link>`, the visible text MUST match the destination's purpose
+- Before adding/updating CTA copy, read the destination page to confirm what users actually see on click
+- For Task Mentor shortcuts specifically: use `new-project.tsx` COPY[type].pageTitle/pageSubtitle/cta as source of truth (avoid re-inventing similar text)
+- Pre-deploy UI review: for any CTA card, mentally trace click → destination page → does copy match?
+- Consider adding a "CTA text vs destination title" checklist to frontend PR template
+- Pattern class `cta_label_mismatched_with_destination` is rare (1x so far) — monitor for recurrence before promoting to skill
+
+**Lesson reference:** [ERR-024] in `.ai/lessons-learned.md` (parallel entry)
+**Lifecycle:** REVERTED (2026-09-17, dpl_BDkxzhqw6bsJh5zNVv7HcWdew1da — production restored to DECISION 016 spec state, pre-misadventure baseline). Original "fix" (dpl_C8ALCi9WyATgzWhcz3QGRfSokygg) was overwritten by revert deploy. Owner instruction: diskusi khusus untuk AI Chat Bot di dashboard akan dilakukan terpisah.
+**Pattern:** `cta_label_mismatched_with_destination` (1x — promote to skill after 2x occurrence)
+
+---
+
+## ERR-025 — POST /api/projects 500 HTML when title is null
+
+**Symptom:** Owner submitted project creation form at `/projects/new?type=general` without a title. Frontend bundle (`index-DZO6oCR3.js`) showed ZodError stack trace at `index-DZO6oCR3.js:14:85993`. Network panel: `POST https://teora-backend.vercel.app/api/projects 500 (Internal Server Error)` with response body `<pre>Internal Server Error</pre>` (HTML, not JSON).
+
+**Owner payload (verified):**
+```json
+{
+  "instructionText": "saya mau buat artikel sederhana 2 lembar tentang sejarah AI",
+  "taskType": "general",
+  "outputFormat": "docx",
+  "citationFormat": "APA"
+}
+```
+
+**Discovery date:** 2026-09-17 (POST-MORTEM, after CTA card revert from earlier in same day)
+**Root cause layer:** 3-layer inconsistency between frontend form / backend Zod / DB schema, all stemming from incomplete revert:
+1. **Frontend** (`new-project.tsx:169`): allows title to be empty — sends `title: undefined`
+2. **Backend Zod** (`lib/api-zod/src/generated/api.ts:175`): `title` optional in `CreateProjectBody` — Zod passes
+3. **Database** (`lib/db/src/schema/projects.ts:8`): `title: text("title").notNull()` — Postgres rejects
+4. **Express handler** (`projects.ts:159`): `title: parsed.data.title` (undefined) → Drizzle attempts insert with undefined → DB constraint violation → unhandled async error → Vercel returns HTML 500
+5. **No global error handler** in `app.ts` — Express 4.x doesn't auto-catch async throws, so error bubbled up to Vercel's default error page
+
+**Historical cause:**
+- `159ac0b` (2026-08-29 08:14) feat(project-types): changed DB title → nullable, handler used `?? null`
+- `eea2757` (2026-08-29 12:07) revert: reverted both — but schema back to NOT NULL while handler dropped `?? null` fallback
+- Bug dormant 19 days until owner tested create-without-title on 2026-09-17
+
+**Related issues found during investigation:**
+- `taskType` and `subject` from payload not being inserted to `projects` table (only `instructionText, title, outputFormat, minRefYear, minRefCount, citationFormat` in POST handler) — `byType` stats endpoint would always show `{null: N}`
+- `ListProjectsResponseItem.title` in Zod schema was `zod.string()` (required) — would have caused new 500 on GET /projects after fix (because title is now nullable in DB)
+- No global Express error handler — ANY unhandled async throw surfaces as HTML 500
+
+**Resolution (DECISION 021):**
+- DB schema: `title` nullable + migration `ALTER TABLE projects ALTER COLUMN title DROP NOT NULL` applied to Supabase production
+- Handler `?? null` fallback + add `taskType` to insert values + add `title: p.title ?? null` to 4 response normalizations
+- OpenAPI spec: `title` nullable in Project and SharedProject schemas + codegen regenerated
+- Frontend: 4 places render `?? "Tanpa Judul"` fallback (tasks.tsx, dashboard.tsx, project.tsx, shared.tsx)
+- Express: global error handler returns JSON `{error: "internal_server_error", message: "Terjadi kesalahan pada server. Silakan coba lagi."}` instead of HTML
+- Activity log: handle null title — `Project ${project.title ? \`"${project.title}"\` : "(tanpa judul)"} dibuat`
+
+**Verification:**
+| Step | Result |
+|------|--------|
+| Migration applied to Supabase | `is_nullable: YES` for projects.title | ✅ |
+| `pnpm run typecheck` | pass (no errors) | ✅ |
+| `pnpm run build` | pass (5.3s, dist 6.5MB) | ✅ |
+| Deploy backend `dpl_EPsMReLnbRRFD122o5tDCy6VnLWn` | READY, production target | ✅ |
+| Deploy frontend `dpl_DEYPwETRrVYcSUJJk5zdGMQG13fM` | READY, aliased to `academic-workspace-eta.vercel.app` | ✅ |
+| `curl POST /api/projects -d '{bad json'` | 500 JSON `{"error":"internal_server_error","message":"Terjadi kesalahan..."}` (NOT HTML) | ✅ |
+| `curl GET /test` | `{"ok":true,"ts":...}` | ✅ |
+
+**Awaits verification (owner smoke test):**
+- Owner creates project at `/projects/new?type=general` without title → expect 201 + redirect to workspace
+- Owner creates project WITH title → expect 201 (regression check)
+- GET /api/projects returns projects with `title: null` for those without — no ZodError
+
+**Prevention:**
+- After any DB schema revert/change, run a `git show <revert-commit>` audit and check ALL touched handlers + Zod schemas for asymmetry with the new schema state
+- Always include "all related layers" in revert checklist (not just the immediate change) — see `sop-must-cover-all-execution-paths`
+- Backend projects.ts POST handler: add integration test that POST without title succeeds (regression guard)
+- Periodic scan: `git log --oneline -20 -- artifacts/api-server/src/routes/projects.ts lib/db/src/schema/projects.ts` to catch any future inconsistency
+- Express middleware audit: ensure ALL Express apps have a global error handler returning JSON, not HTML (checklist: `find . -name "app.ts" -path "*/api-server/*" -exec grep -L "internal_server_error" {} \;`)
+- Pattern class `revert_layer_inconsistency` is NEW (1x so far) — monitor for recurrence before promoting to skill
+
+**Lesson reference:** See `.ai/lessons-learned.md` for the entry "Revert harus sinkronkan SEMUA layer yang terkait"
+**Lifecycle:** FIXED + VERIFIED (backend deploy + DB migration + bundle). Owner-side smoke test pending.
+**Pattern:** `revert_layer_inconsistency` (1x — promote to skill after 2x occurrence)
+
+
+---
+
+## ERR-026 — 404 documents spam + 403 POST /messages (Olagon tier mismatch)
+
+**Date discovered:** 2026-09-18
+**Severity:** HIGH (blocks owner core flow)
+**Status:** FIXED + VERIFIED (deploy + bundle + smoke). Owner-side smoke test pending for full chat E2E.
+**Confidence:** CONFIRMED (403 cause), PROBABLE (ZodError stack — cannot fully trace without runtime access)
+
+### Symptoms (exact from owner report, 2026-09-17)
+
+```
+GET https://teora-backend.vercel.app/api/projects/8/documents/latest → 404 (×N)
+GET https://teora-backend.vercel.app/api/projects/8/documents/0 → 404 (×N)
+POST https://teora-backend.vercel.app/api/projects/9/messages → 403 (Forbidden)
+[Multiple] ZodError @ index-CaxhS98m.js:14:86121
+  at Object.resolver  →  Bf  →  vD/Ui  →  mutationFn
+```
+
+**Owner context:** "task mentor → workspace → AI chat" full flow.
+
+### Root cause (CONFIRMED for 403 + 404 spam)
+
+1. **403 on POST /messages** — `messages.ts` POST handler used `getTierConfig + checkTierAccess` for tier resolution. `checkTierAccess` returns `getAllowedTierIdsForUser(userId).includes(tierId)` where allowed list is `["sonnet-5", "haiku-4.5"]` for ultra/pro/premium subscriptions. Olagon tiers (`opus-4-8-olagon`, `opus-4-6-olagon`) are NOT in any subscription package — they're owner-only. Owner's `aiProvider=olagon` preference was therefore ignored on chat, causing 403 even when owner tried to use their own Olagon tier. **Compound bug**: `messages.ts` also had NO ownership check (other AI routes use `requireProjectOwnership`), so a logged-in user could have POSTed chat on someone else's project. This was a separate security gap that the fix closed simultaneously.
+
+2. **404 on /documents/0 + /documents/latest** — Frontend `useGetDocument(projectId, selectedDocId ?? 0)` was firing `GET /documents/0` whenever `selectedDocId` was null (default state). Similarly `useGetLatestDocument` was firing `GET /documents/latest` even when the project had no documents yet (no `enabled` guard based on document existence).
+
+3. **ZodError** — Stack `Object.resolver → Bf → vD/Ui → mutationFn` is React Hook Form internal, suggesting the error came from a form submission. None of `new-project.tsx`, `register.tsx`, `login.tsx` throw ZodError (zodResolver catches and converts to `{errors, values}`). Cannot fully unminify without Vercel runtime logs (which returned 403 for our MCP access). **PROBABLE**: minor inconsistency between generated TS types and actual response shape (e.g., date-time string vs Date object). Tracked separately.
+
+### Fix applied (2026-09-18)
+
+1. **`artifacts/api-server/src/routes/messages.ts`**:
+   - Switched tier resolution to `resolveOlagonTierOrFallback` (DECISION 019/020-aware)
+   - Added inline ownership check matching `requireProjectOwnership` pattern
+   - Replaced broken dynamic import of `resolveUserEmail` with `req.user.email` directly (function was never exported)
+   - Removed unused `getTierConfig` import
+
+2. **`artifacts/academic-workspace/src/pages/project.tsx`**:
+   - `useGetDocument` now has `enabled: selectedDocId !== null` guard
+   - `useGetLatestDocument` now has `enabled: !docsLoading && documents?.length > 0` guard
+
+### Why this happened (origin)
+
+DECISION 019/020 originally updated three AI routes (`analyze`, `outline`, `documents/generate`) to use `resolveOlagonTierOrFallback`. `messages.ts` was missed in the original pass. Same lesson as DECISION 021: **partial rollout of a tier-resolution pattern creates silent 403 bugs that only surface when the owner tries to use the new tier.**
+
+### Verification evidence
+
+- `pnpm run typecheck` — pass
+- `pnpm --filter @workspace/api-server run build` — pass, bundle `dist/index.mjs 6.5mb`
+- `pnpm --filter @workspace/academic-workspace run build` — pass, bundle `assets/index-DOcsj3Q8.js` 1,593.38 kB
+- Vercel preview `dpl_G7mhjGuG13XBHtRDr2D68hxiWv7B` (api-server) — healthz 200, route loaded
+- Vercel preview `dpl_CPkTzxwQbYKzLXCww9Kz55QwiiJY` (frontend) — root 200, SPA loaded
+- Vercel production `teora-backend.vercel.app/api/healthz` — 200
+- Vercel production `academic-workspace-sagise-ctrls-projects.vercel.app/` — 200
+
+**Awaits owner verification:**
+- Owner chat flow (task mentor → workspace → AI chat) — expect 200/201 responses, no 403
+- Browser console — no ZodError stack trace (if ZodError persists, owner should capture devtools network response for the failing request)
+- Network tab — no more `GET /documents/0` or `GET /documents/latest` for projects without documents
+
+### Prevention
+
+- **DECISION 019/020 + DECISION 024 mandatory audit checklist** when adding new tier-resolution patterns:
+  - Search ALL route files for `checkTierAccess(` AND `getTierConfig(` — every match MUST be evaluated for Olagon-aware replacement
+  - Search ALL route files for `projectsTable` selects without `userId` ownership comparison
+- Add integration test: `POST /api/projects/:id/messages` with owner's session AND Olagon tier — expect 200/201
+- Add integration test: `POST /api/projects/:id/messages` with non-owner's session — expect 403
+- Frontend document hooks: ALWAYS use `enabled` guard based on `documents?.length > 0` to prevent 404 spam
+- Pattern class `tier_resolution_partial_rollout` is NEW (1x so far) — monitor for recurrence before promoting to skill
+
+**Lifecycle:** FIXED + VERIFIED (deploy + bundle + smoke). Owner E2E pending.
+**Pattern:** `tier_resolution_partial_rollout` (1x — promote to skill after 2x occurrence)
+
+---
+
+## ERR-027 — @hookform/resolvers/zod v3.10.0 re-throws Zod v4 ZodError as uncaught pageerror
+
+**Date discovered:** 2026-09-18
+**Severity:** MEDIUM (console noise on /projects/new; form still functional because disabled-while-invalid UX masks missing error display)
+**Status:** FIXED + VERIFIED (compat resolver shim, all form pages 0 page errors)
+**Confidence:** CONFIRMED (Zod v4 `.issues` vs resolver `.errors` mismatch proven by source inspection + runtime reproduction)
+
+### Symptom (captured from headless Chromium via tests/e2e/human-verify.mjs)
+
+Navigate to `http://localhost:18543/projects/new`. Within ~2s of mount:
+
+```
+ZodError: [
+  {
+    "origin": "string",
+    "code": "too_small",
+    "minimum": 3,
+    "inclusive": true,
+    "path": ["instructionText"],
+    "message": "Minimal 3 karakter agar Teora bisa menganalisis dengan baik."
+  }
+]
+```
+
+Fires once on mount with empty `defaultValues`, and again each time the user types-then-clears the instructionText field back below 3 chars.
+
+### Root cause (CONFIRMED)
+
+`@hookform/resolvers@3.10.0` bundles `@hookform/resolvers/zod@1.0.0` (Zod v3 era). Source `node_modules/@hookform/resolvers/zod/dist/zod.js`:
+
+```js
+function(e) {
+  if (Array.isArray(null == e ? void 0 : e.errors))  // ← checks Zod v3 property
+    return { values: {}, errors: r.toNestErrors(o(e.errors, ...), a) };
+  throw e;  // ← Zod v4 ZodError has `.issues` not `.errors` → re-thrown
+}
+```
+
+Zod v4 (`zod@4.4.3`, installed per `package.json: "zod": "^4"`) renamed `ZodError.errors` → `ZodError.issues`. The resolver's Zod v3 check returns false on v4 errors, so the resolver re-throws. The throw becomes a rejected promise that escapes `react-hook-form`'s resolver contract and bubbles to `window.onerror`.
+
+### Why new-project.tsx triggers but login/register don't
+
+`new-project.tsx` uses `mode: "onChange"` AND accesses `form.formState.isValid` in JSX (`disabled={createProject.isPending || !form.formState.isValid}`). Per RHF, accessing `isValid` forces a validation cycle on render. With `mode: "onChange"`, every render runs the resolver → throws → uncaught.
+
+`login.tsx` and `register.tsx` use the default `useForm` mode (no explicit `mode`), which is `onSubmit`. They never access `formState.isValid`, so the broken resolver is never invoked. They have the latent bug — any future change that adds `mode: "onChange"` or accesses `isValid` will trigger it.
+
+### Fix applied
+
+New file `artifacts/academic-workspace/src/lib/zod-compat-resolver.ts` — a 30-line `zodResolver(schema)` shim that:
+1. Calls `schema.safeParse(values)` directly (no throws)
+2. On success: returns `{ values, errors: {} }`
+3. On failure: maps `error.issues[]` → `Record<path, {type, message}>` and returns `{ values, errors }`
+4. Never throws
+
+Wired into all 3 form pages:
+- `src/pages/new-project.tsx` (was `@hookform/resolvers/zod`, now `@/lib/zod-compat-resolver`)
+- `src/pages/login.tsx` (preventive)
+- `src/pages/register.tsx` (preventive)
+
+### Why not just update the package
+
+`@hookform/resolvers/zod@1.0.0` is the version bundled inside `@hookform/resolvers@3.10.0`. Upgrading requires either:
+- Forcing parent `@hookform/resolvers` to a newer major (currently no v4 exists in the installed lockfile as of writing)
+- Pinning `@hookform/resolvers` to a specific version that bundles a v4-compatible zod sub-package
+
+Both options require lockfile surgery and risk other forms. The shim is ~30 LOC, dependency-free, and works regardless of package updates.
+
+### Verification evidence
+
+- `tests/e2e/zod-scope.mjs` — all 4 routes (`/`, `/login`, `/register`, `/projects/new`) report **0 page errors** after fix (was 1 ZodError on `/projects/new` before)
+- `tests/e2e/verify-resolver-fix.mjs` — form UX intact:
+  - Empty input → submit disabled ✅
+  - 1 char → still disabled ✅
+  - 3 chars → enabled ✅
+  - Cleared back to empty → disabled again ✅
+- `tests/e2e/human-verify.mjs` — full 12-step happy path: 11/12 pass, 0 page errors, 0 failed requests, 0 bad responses
+
+### Prevention
+
+- **When bumping `zod` major**: audit all `zodResolver` import sites — confirm `@hookform/resolvers/zod` version supports the new Zod API. The resolver's `.errors` vs `.issues` access is the canonical break.
+- **When changing RHF form `mode`**: be aware that `mode: "onChange"` + `form.formState.isValid` access WILL trigger the broken resolver on every render with Zod v4.
+- **Alternative fix path**: switch `new-project.tsx` to `mode: "onSubmit"` and remove `!form.formState.isValid` from the disabled prop — avoids the bug but changes UX (button always enabled until submit).
+- **Pattern class `resolver_zod_v3_v4_incompatible`** is NEW (1x so far). If a 2nd occurrence appears (different resolver, different lib version), promote to `.claude/skills/error-recovery/`.
+
+**Lifecycle:** FIXED + VERIFIED (compat resolver shim + 0 page errors on all form pages). PRODUCTION VERIFIED 2026-09-18 12:55 — dpl_8vLtwvuJQBEf8Q8vXRAYmtKVt6kj (commit a20e764) promoted to academic-workspace-eta.vercel.app via `vercel promote dpl_7iMQf6SfeeSAnQZ85RwTYwbKeVtN`; post-promote full-sweep (tests/e2e/full-sweep.mjs) shows /register PASS with 0 page errors. Pre-promote sweep had caught the bug in production (status WITH_ERRORS, error type pageerror "ZodError") — proving the E2E harness has real teeth and the gap was simply that the fix was never promoted.
+**Pattern:** `resolver_zod_v3_v4_incompatible` (1x — promote after 2x occurrence)
+
+## ERR-028 — OpenAPI enum drift: frontend sends `taskType: "dashboard_chat"`, backend Zod rejects (2026-09-18)
+
+### Symptom (captured from owner browser console, 2026-09-18)
+
+```
+index-B8JDbFQG.js:9  POST https://teora-backend.vercel.app/api/projects 400 (Bad Request)
+_e @ index-B8JDbFQG.js:9
+mutationFn @ index-B8JDbFQG.js:9
+...
+N @ index-B8JDbFQG.js:54
+O @ index-B8JDbFQG.js:54
+onKeyDown @ index-B8JDbFQG.js:54   ← Dashboard chat Enter key
+```
+
+Owner triggered by sending a message in Dashboard Teora Assistant. `dashboard-chat.tsx:106` calls `createProject.mutateAsync({ taskType: "dashboard_chat", ... })` to create a scratchpad project for chat history (DECISION 023 pattern). Backend `CreateProjectBody.safeParse` rejects `dashboard_chat` with 400 because OpenAPI enum restricts to `[general, academic]` (DECISION 010).
+
+### Root cause (CONFIRMED — two layers, both needed fixing)
+
+**Layer 1 — OpenAPI/Zod enum:**
+- `lib/api-spec/openapi.yaml` restricted `taskType` enum to `["general", "academic"]` (DECISION 010)
+- Frontend sends `taskType: "dashboard_chat"` (DECISION 023 sentinel)
+- Zod `safeParse` rejects → 400 (first owner report)
+
+**Layer 2 — PostgreSQL CHECK constraint (discovered after Layer 1 fix):**
+```
+error: new row for relation "projects" violates check constraint "projects_task_type_check"
+```
+After OpenAPI+Zod fix (Layer 1), owner retested → 500. Traced via `vercel logs teora-backend.vercel.app`. The DB constraint was:
+```sql
+CHECK (((task_type IS NULL) OR (task_type = ANY (ARRAY['general', 'academic']))))
+```
+The constraint was NOT in the Drizzle ORM schema (`lib/db/src/schema/projects.ts`) — it was raw SQL applied directly to the DB. So even after Zod passed, DB rejected it. Two-layer failure.
+
+### Fix applied (2026-09-18, both layers)
+
+1. Extended OpenAPI enum at 4 locations → regenerated Zod → rebuilt api-server bundle → deployed.
+2. Fixed DB constraint via Supabase MCP (`apply_migration`):
+   ```sql
+   ALTER TABLE projects DROP CONSTRAINT projects_task_type_check;
+   ALTER TABLE projects ADD CONSTRAINT projects_task_type_check
+     CHECK (((task_type IS NULL) OR (task_type = ANY (ARRAY['general', 'academic', 'dashboard_chat']))))
+   ```
+3. **Critical insight:** The CHECK constraint lives outside Drizzle ORM schema. Future `pnpm --filter @workspace/db run push` will NOT see or update this constraint. It must be tracked manually or converted to a Drizzle-native `check()` constraint.
+
+### Verification evidence
+
+- ✅ DB constraint verified: `pg_get_constraintdef` shows `'dashboard_chat'` in allowed array
+- ✅ Zod + bundle + deploy verified (see Layer 1 fix above)
+- ✅ `vercel logs teora-backend.vercel.app` captured the DrizzleQueryError confirming DB constraint was root cause of 500
+- **Owner manual smoke pending:** end-to-end POST returning 201
+
+### Prevention
+
+- **Cross-layer enum checklist.** When extending any enum: (a) OpenAPI ✓ (b) Zod schema ✓ (c) DB CHECK constraints ✓ (d) filter params ✓. Add to CI or as a PR checklist item.
+- **Add CHECK constraint to Drizzle ORM.** The `projects_task_type_check` constraint was raw SQL outside the ORM — invisible to `pnpm db push`. Convert to `check('projects_task_type_check', ...)` in `lib/db/src/schema/projects.ts` so it's visible to ORM tooling and future schema diffs.
+- **DECISION "related decisions" linkage.** Every new DECISION that touches an enum should list sibling decisions on the same enum in `.ai/decisions.md`.
+- **OpenAPI description hygiene.** Every enum value should reference its originating DECISION. Already done for `dashboard_chat`; make this convention mandatory.
+- **Pattern class `db_constraint_gap_openapi_db_mismatch`** is NEW (1x). Covers: OpenAPI extended, DB constraint not updated. Promote after 2x occurrence.
+
+**Lifecycle:** FIXED at all layers (OpenAPI/Zod + api-server deploy + DB CHECK constraint). VERIFIED via DB query. Owner manual smoke recommended (end-to-end POST with `dashboard_chat` returning 201).
+**Pattern:** `db_constraint_gap_openapi_db_mismatch` (1x — promote after 2x occurrence)
+
+

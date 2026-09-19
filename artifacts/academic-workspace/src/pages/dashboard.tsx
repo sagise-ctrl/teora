@@ -19,6 +19,9 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription, EmptyIllustrationPapers } from "@/components/ui/empty"
+import { TierSelector } from "@/components/tier-selector"
+import { DashboardChat } from "@/components/dashboard-chat"
+import { useGetMyBalance } from "@/lib/api-client-react"
 import { format } from "date-fns"
 
 function StatusBadge({ status }: { status: string }) {
@@ -60,7 +63,7 @@ function ProjectCard({ project }: { project: any }) {
             </div>
           </div>
           <CardTitle className="line-clamp-2 leading-tight group-hover:text-[#2D79FF] transition-colors duration-200">
-            {project.title}
+            {project.title ?? "Tanpa Judul"}
           </CardTitle>
           {project.subject && <CardDescription>{project.subject}</CardDescription>}
         </CardHeader>
@@ -86,15 +89,23 @@ function ProjectCard({ project }: { project: any }) {
 
 export default function Dashboard() {
   const [search, setSearch] = useState("")
+  const [chatOpen, setChatOpen] = useState(false)
   const { user } = useAuth()
+  const { data: balanceData } = useGetMyBalance()
+  const [dashboardTierId, setDashboardTierId] = useState<string>("")
 
   const { data: projects, isLoading: projectsLoading } = useListProjects({
     search: search || undefined,
   })
 
-  const projectList = Array.isArray(projects) ? projects : []
+  // DECISION 023: filter out scratchpad projects (taskType === "dashboard_chat")
+  // from the "Your Tasks" grid so the persistent chat project doesn't pollute the dashboard.
+  const projectList = (Array.isArray(projects) ? projects : []).filter(
+    (p: any) => p.taskType !== "dashboard_chat"
+  )
   const displayName = user?.displayName || "Anda"
   const firstName = displayName.split(" ")[0]
+  const activeTierId = dashboardTierId || balanceData?.preferredTierId || ""
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -114,29 +125,37 @@ export default function Dashboard() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
       >
-        <Link href="/projects/new">
-          <div className="group relative overflow-hidden rounded-xl border border-border bg-gradient-to-br from-[#2D79FF]/5 via-[#8E54E9]/5 to-transparent p-6 cursor-pointer hover:border-[#2D79FF]/30 transition-all duration-200">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#2D79FF]/10 to-[#8E54E9]/10 rounded-full blur-3xl" />
-            <div className="relative flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#2D79FF] to-[#8E54E9] flex items-center justify-center shadow-lg shadow-[#2D79FF]/20 shrink-0">
-                <MessageSquare className="w-6 h-6 text-white" />
+        <div
+          onClick={() => setChatOpen(true)}
+          className="group relative overflow-hidden rounded-xl border border-border bg-gradient-to-br from-[#2D79FF]/5 via-[#8E54E9]/5 to-transparent p-6 cursor-pointer hover:border-[#2D79FF]/30 transition-all duration-200"
+        >
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#2D79FF]/10 to-[#8E54E9]/10 rounded-full blur-3xl" />
+          <div className="relative flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#2D79FF] to-[#8E54E9] flex items-center justify-center shadow-lg shadow-[#2D79FF]/20 shrink-0">
+              <MessageSquare className="w-6 h-6 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                <Sparkles className="w-5 h-5 text-[#2D79FF]" />
+                <h2 className="text-xl font-serif font-bold tracking-tight">Teora Assistant</h2>
               </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <Sparkles className="w-5 h-5 text-[#2D79FF]" />
-                  <h2 className="text-xl font-serif font-bold tracking-tight">Teora Assistant</h2>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Tanya apa saja tentang tugas, referensi, atau penulisan akademik
-                </p>
-              </div>
-              <Button className="shrink-0 bg-gradient-to-r from-[#2D79FF] to-[#8E54E9] hover:opacity-90 shadow-md shadow-[#2D79FF]/20">
+              <p className="text-sm text-muted-foreground">
+                Tanya apa saja tentang tugas, referensi, atau penulisan akademik
+              </p>
+            </div>
+            <div className="shrink-0 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+              <TierSelector
+                value={activeTierId}
+                onChange={setDashboardTierId}
+                compact
+              />
+              <Button className="bg-gradient-to-r from-[#2D79FF] to-[#8E54E9] hover:opacity-90 shadow-md shadow-[#2D79FF]/20">
                 Mulai Chat
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </div>
           </div>
-        </Link>
+        </div>
       </motion.div>
 
       {/* Your Tasks */}
@@ -209,6 +228,8 @@ export default function Dashboard() {
           </div>
         )}
       </div>
+
+      <DashboardChat open={chatOpen} onOpenChange={setChatOpen} />
     </div>
   )
 }

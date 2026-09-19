@@ -556,23 +556,25 @@ Teora: "Di bab ini saya menulis X karena [alasan akademis].
 
 ## AI Features Matrix
 
-| AI Feature | Lokasi | Scope |
-|-----------|--------|-------|
-| AI Assistant | Dashboard | Shortcut ke AI |
-| AI Search | Pustaka Saya | Cari paper dari internet |
-| Reference AI Chat | Pustaka Saya | Tanya tentang referensi & sitasi |
-| AI Analysis | Task Mentor | Analyze instruksi tugas |
-| AI Writer | Task Mentor | Generate/revise konten |
-| Task AI Chat | Task Mentor | Scope ke task aktif |
-| Section AI Chat | Task Mentor (per bab) | Section aktif + task context (Academic Work) |
-| Section References | Task Mentor (per bab) | Tag referensi ke bab (Academic Work) |
-| Quiz AI Assistant | Assessment | Context-aware chat saat bikin kuis |
-| Assessment AI Chat | Assessment | Chat scoped ke kuis aktif |
-| Auto-Grading | Assessment | Grade MCQ + short answer |
-| Bibliography Generator | Academic Work | Generate citation format dari Pustaka Saya |
-| Kerangka Awal + Refine Bareng | Academic Work | AI kasih kerangka + report pemahaman, user + AI refine bareng |
-| Section AI Chat | Academic Work (per bab) | Section aktif + task context |
-| Section References | Academic Work (per bab) | Tag referensi ke bab |
+| AI Feature | Lokasi | Scope | Tier Selector |
+|-----------|--------|-------|---------------|
+| AI Assistant (Dashboard) | Dashboard | General Q&A via chat panel (Sheet) — persistent scratchpad project | ✅ Compact TierSelector di header chat (DECISION 022 + 023) |
+| AI Search | Pustaka Saya | Cari paper dari internet | ⏳ N/A (search backend, no LLM call) |
+| Reference AI Chat | Pustaka Saya | Tanya tentang referensi & sitasi | ✅ WAJIB (DECISION 022) |
+| AI Analysis | Task Mentor | Analyze instruksi tugas | ✅ Ada di workspace |
+| AI Writer | Task Mentor | Generate/revise konten | ✅ Ada di workspace |
+| Task AI Chat | Task Mentor | Scope ke task aktif | ✅ Ada di workspace (6 modes: generate/revise/reflect/socratic/quiz/summary) |
+| Section AI Chat | Task Mentor (per bab) | Section aktif + task context (Academic Work) | ✅ Ada di workspace |
+| Section References | Task Mentor (per bab) | Tag referensi ke bab (Academic Work) | ✅ Ada di workspace |
+| Quiz AI Assistant | Assessment | Context-aware chat saat bikin kuis | ✅ WAJIB (DECISION 022) |
+| Assessment AI Chat | Assessment | Chat scoped ke kuis aktif | ✅ WAJIB (DECISION 022) |
+| Auto-Grading | Assessment | Grade MCQ + short answer | ⏳ N/A (non-LLM) |
+| Bibliography Generator | Academic Work | Generate citation format dari Pustaka Saya | ✅ Ada di workspace |
+| Kerangka Awal + Refine Bareng | Academic Work | AI kasih kerangka + report pemahaman, user + AI refine bareng | ✅ Ada di workspace |
+| Section AI Chat | Academic Work (per bab) | Section aktif + task context | ✅ Ada di workspace |
+| Section References | Academic Work (per bab) | Tag referensi ke bab | ✅ Ada di workspace |
+
+**Universal Standard (DECISION 022)**: AI tier selector WAJIB ada di setiap AI feature. Default tier di-load dari `user_balances.preferred_tier_id` (global preference). User bisa override per-session (in-memory only); perubahan persistent hanya via `/akun` → "Default AI Tier" card dengan warning "Mengubah ini akan mengubah semua fitur AI memakai model ini".
 
 ---
 
@@ -590,7 +592,7 @@ Teora: "Di bab ini saya menulis X karena [alasan akademis].
 | Progress stage | Idea → Writing → Revision → Done |
 | Menu name | "Task Mentor" |
 | Academic Work subtype | "Academic Work" |
-| AI tier selector | Di workspace, bukan di creation form |
+| AI tier selector | Universal standard (DECISION 022) — di setiap AI feature, default dari `/akun` |
 | Bibliography Generator | Academic Work only |
 | Sinkron Zotero | Label "Segera Hadir" |
 | Academic Work flow | AI kasih kerangka awal + report pemahaman, user + AI refine bareng, baru generate |
@@ -607,17 +609,16 @@ Teora: "Di bab ini saya menulis X karena [alasan akademis].
 - **Hapus** dari Dashboard
 - Cukup tampil di **sidebar bawah** (sudah ada: nominal Rp + link ke `/topup`)
 
-### AI Writing Tools → AI Assistant Shortcut
-- Hapus 4 cards (Thesis Outline, Task Helper, dll.)
-- Ganti 1 shortcut card besar:
-  ```
-  🤖 AI Assistant
-  Tanya apa saja tentang tugas, referensi, atau penulisan akademik
-  [ Mulai Chat ]
-  ```
-- Link: `/projects/new`
-- User pilih AI tier (Gratis / Standar / Premium / Ultra) **di dalam task workspace**, bukan di Dashboard
-- Reason: spec Dashboard poin "AI Assistant shortcut" bukan daftar tools, dan tier selection berada di scope task workspace
+### Teora Assistant Shortcut — Revisi 2026-09-18 (DECISION 023)
+
+- **BUKAN cuma link shortcut** — ini **chat panel** yang langsung bisa dipakai dari Dashboard, tanpa harus bikin project dulu.
+- **UI:** Sheet (slide-in dari kanan) full-screen dengan chat interface + TierSelector compact (DECISION 022) di header.
+- **Arsitektur:** Scratchpad project pattern — `taskType: "dashboard_chat"` di-reuse dari project-scoped chat API (zero backend changes). Project ID di-persist via `localStorage` (`dashboardChat.projectId.<userId>`).
+- **Filter:** Dashboard hide scratchpad project dari "Your Tasks" grid via client-side filter `taskType !== "dashboard_chat"` — backend tidak berubah.
+- **Mode:** `mode: "generate"` di `MessageInput` (cocok untuk free-form Q&A).
+- **Clear history:** Tombol trash di header → hapus scratchpad project + localStorage → next send akan recreate.
+- **Saldo habis:** HTTP 402 → `InsufficientBalanceDialog` terbuka otomatis.
+- **Related:** DECISION 023 di `.ai/decisions.md`
 
 ---
 
