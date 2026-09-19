@@ -1427,13 +1427,14 @@ function ChatTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosure:
     if (!content.trim()) return
 
     const messageContent = content
-    setContent("")
+    // setContent("") moved to onSuccess below to clear only after mutation succeeds
 
     sendMessage.mutate({
       projectId,
       data: { content: messageContent, mode, tier: selectedTierId || undefined }
     }, {
       onSuccess: () => {
+        setContent("")
         queryClient.invalidateQueries({ queryKey: getListMessagesQueryKey(projectId) })
         queryClient.invalidateQueries({ queryKey: ["getMyBalance"] })
       },
