@@ -20,6 +20,7 @@ const HOISTED = vi.hoisted(() => {
   const sc = {
     tierExists: true,
     tierAuthorized: true,
+    tierNotFound: false, // controls resolveOlagonTierOrFallback mock
     subscription: { packageId: "pkg-standar", expiresAt: new Date("2030-01-01T00:00:00Z") },
     balance: { balanceCents: 10000, autofallbackEnabled: true },
     project: { id: PROJECT_ID, userId: USER_ID, title: "Test Project" },
@@ -36,6 +37,7 @@ const HOISTED = vi.hoisted(() => {
   const mockConsumeQuota = vi.fn();
   const mockGetTierConfig = vi.fn();
   const mockCheckTierAccess = vi.fn();
+  const mockResolveOlagonTierOrFallback = vi.fn();
   const mockGetTierForUser = vi.fn();
   const mockBuildSystemPrompt = vi.fn();
   const mockRequireProjectOwnership = vi.fn().mockResolvedValue(true);
@@ -47,6 +49,7 @@ const HOISTED = vi.hoisted(() => {
   const resetScenario = () => {
     sc.tierExists = true;
     sc.tierAuthorized = true;
+    sc.tierNotFound = false;
     sc.subscription = { packageId: "pkg-standar", expiresAt: new Date("2030-01-01T00:00:00Z") };
     sc.balance = { balanceCents: 10000, autofallbackEnabled: true };
     sc.project = { id: PROJECT_ID, userId: USER_ID, title: "Test Project" };
@@ -112,6 +115,19 @@ const HOISTED = vi.hoisted(() => {
       if (tier === "ultra" || tier === "pro" || tier === "premium") return Promise.resolve(["sonnet-5", "haiku-4.5"]);
       return Promise.resolve(["haiku-4.5"]);
     });
+    // resolveOlagonTierOrFallback: returns null for non-existent/unauthorized tiers, else a valid tier
+    const fallbackTier = {
+      id: "haiku-4.5", name: "Haiku", provider: "anthropic", model: "test-model",
+      baseUrl: "", apiKeyEnvVar: "", pricePer1MInputCents: 10, pricePer1MOutputCents: 10,
+      providerCostPer1MInputCents: 5, providerCostPer1MOutputCents: 5,
+      markupMultiplier: 1.0, rateLimitRpm: null, rateLimitTpd: null,
+      isFree: true, isOwnerOnly: false, description: "", usageTips: null,
+    };
+    mockResolveOlagonTierOrFallback.mockReset().mockImplementation(
+      () => {
+        return sc.tierNotFound ? Promise.resolve(null) : Promise.resolve(fallbackTier);
+      },
+    );
   };
 
 
@@ -222,6 +238,7 @@ const HOISTED = vi.hoisted(() => {
     mockRequireProjectOwnership,
     mockLogActivity,
     mockLogAIUsage,
+    mockResolveOlagonTierOrFallback,
     resetScenario,
     chain,
     USER_ID,
@@ -271,6 +288,7 @@ vi.mock("../lib/ai.ts", () => ({
   getTierForUser: HOISTED.mockGetTierForUser,
   checkTierAccess: HOISTED.mockCheckTierAccess,
   getAllowedTierIdsForUser: HOISTED.mockGetAllowedTierIdsForUser,
+  resolveOlagonTierOrFallback: HOISTED.mockResolveOlagonTierOrFallback,
 }));
 
 vi.mock("../lib/ownership.ts", () => ({
@@ -412,6 +430,7 @@ describe("POST /quizzes — quota consumed only after successful JSON parse", ()
 describe("POST /messages — tier authorization responses", () => {
   it("T5: returns 403 when tierId does not exist (getTierConfig returns null)", async () => {
     HOISTED.sc.tierExists = false;
+    HOISTED.sc.tierNotFound = true;
 
     const res = await request(buildApp())
       .post(`/api/projects/${HOISTED.PROJECT_ID}/messages`)
@@ -422,16 +441,19 @@ describe("POST /messages — tier authorization responses", () => {
     expect(res.body).toHaveProperty("error");
   });
 
-  it("T6: returns 403 when tier exists but user is not authorized for it", async () => {
+  it("T6: returns 201 when requested tier is unauthorized (falls back to authorized tier)", async () => {
     HOISTED.sc.tierExists = true;
+    // tierAuthorized=false means checkTierAccess would fail for sonnet-5,
+    // but resolveOlagonTierOrFallback falls back to haiku-4.5 which is authorized.
     HOISTED.sc.tierAuthorized = false;
 
     const res = await request(buildApp())
       .post(`/api/projects/${HOISTED.PROJECT_ID}/messages`)
       .send({ content: "Hello AI", tier: "sonnet-5" });
 
-    expect(res.status).toBe(403);
-    expect(res.body).toHaveProperty("error");
+    // Fallback to haiku-4.5 → authorized → 201
+    expect(res.status).toBe(201);
+    expect(HOISTED.mockCallAI).toHaveBeenCalled();
   });
 
   it("T7: returns 201 when no tier specified (uses default authorized tier)", async () => {

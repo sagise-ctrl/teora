@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import { authMiddleware } from "../middlewares/auth.js";
 import { aiLimiter } from "../lib/ai-limiter.js";
 import healthRouter from "./health.js";
+import diagRouter from "./diag.js";
 import authRouter from "./auth.js";
 import sharedRouter from "./shared.js";
 import projectsRouter from "./projects.js";
@@ -39,6 +40,7 @@ import preferencesRouter from "./preferences.js";
 const router: IRouter = Router();
 
 router.use(healthRouter);
+router.use(diagRouter);
 router.use(authRouter);
 router.use(sharedRouter);
 // Webhook handler — no auth (signature-verified instead). MUST be registered

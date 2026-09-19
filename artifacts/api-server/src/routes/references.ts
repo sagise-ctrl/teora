@@ -450,6 +450,7 @@ router.post("/projects/:projectId/references/regenerate", async (req, res): Prom
       userId: project.userId,
       tierId: selectedTier.id,
       estimatedCostCents,
+      userEmail: req.user?.email,
     });
     if (!accessCheck.allowed) {
       if (accessCheck.reason === "saldo_insufficient") {
@@ -1156,6 +1157,7 @@ router.post("/projects/:projectId/references/auto-cite", async (req, res): Promi
       userId: project.userId,
       tierId: selectedTier.id,
       estimatedCostCents,
+      userEmail: req.user?.email,
     });
     if (!accessCheck.allowed) {
       if (accessCheck.reason === "saldo_insufficient") {

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { zodResolver } from "@/lib/zod-compat-resolver";
 import * as z from "zod";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { useAuth, getPostLoginPath } from "@/hooks/use-auth";

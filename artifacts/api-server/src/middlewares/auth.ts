@@ -1,8 +1,11 @@
 import type { Request, Response, NextFunction } from "express";
 import * as jose from "jose";
+import { logger } from "../lib/logger.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL ?? "";
 const SUPABASE_JWT_SECRET = process.env.SUPABASE_JWT_SECRET ?? "";
+
+logger.info({ SUPABASE_URL, SUPABASE_JWT_SECRET_set: !!SUPABASE_JWT_SECRET }, "Auth middleware loaded");
 
 // JWKS cache
 let jwks: jose.JWTVerifyGetKey | null = null;
@@ -13,6 +16,7 @@ async function getJwks(): Promise<jose.JWTVerifyGetKey> {
   // Modern Supabase (2024+) signs access tokens with ES256 (asymmetric, JWKS).
   // Legacy / local dev uses HS256 (symmetric, SUPABASE_JWT_SECRET).
   const jwksUrl = new URL(`${SUPABASE_URL}/auth/v1/.well-known/jwks.json`);
+  logger.info({ jwksUrl: jwksUrl.toString() }, "getJwks: JWKS URL");
   jwks = jose.createRemoteJWKSet(jwksUrl);
   return jwks;
 }
@@ -77,8 +81,11 @@ export async function authMiddleware(
       email: payload.email as string | undefined,
     };
 
+    logger.info({ userId: req.user.id, email: req.user.email }, "authMiddleware: token verified");
     next();
   } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    logger.warn({ err: msg, hasSecret: !!SUPABASE_JWT_SECRET, supabaseUrl: SUPABASE_URL || "[EMPTY]" }, "authMiddleware: token verify failed");
     res.status(401).json({ error: "Invalid or expired token" });
   }
 }

@@ -3730,12 +3730,14 @@ components:
     # ── Project ──────────────────────────────────────────────────────────────
     Project:
       type: object
-      required: [id, title, status, progress, createdAt, updatedAt]
+      required: [id, status, progress, createdAt, updatedAt]
       properties:
         id:
           type: number
         title:
-          type: string
+          # DECISION 021: title is nullable (Task Umum / general projects
+          # can be created without a title).
+          type: ["string", "null"]
         status:
           type: string
           enum: [draft, analyzing, writing, waiting_revision, completed, archived]
@@ -3748,7 +3750,7 @@ components:
           type: ["string", "null"]
         taskType:
           type: ["string", "null"]
-          enum: [general, academic]
+          enum: [general, academic, dashboard_chat]
         citationFormat:
           type: ["string", "null"]
           enum: [APA, APA7, IEEE, Vancouver, Chicago, MLA, Harvard, null]
@@ -3796,8 +3798,8 @@ components:
           type: boolean
         taskType:
           type: string
-          enum: [general, academic]
-          description: Project type — "general" for short tasks, "academic" for multi-section works
+          enum: [general, academic, dashboard_chat]
+          description: 'Project type — "general" for short tasks, "academic" for multi-section works. "dashboard_chat" sentinel for Dashboard Teora Assistant scratchpad (DECISION 023, hidden from main project list via client-side filter).'
         citationFormat:
           type: string
           enum: [APA, APA7, IEEE, Vancouver, Chicago, MLA, Harvard]
@@ -4420,7 +4422,7 @@ components:
           type: ["string", "null"]
         taskType:
           type: ["string", "null"]
-          enum: [general, academic]
+          enum: [general, academic, dashboard_chat]
         citationFormat:
           type: ["string", "null"]
           enum: [APA, APA7, IEEE, Vancouver, Chicago, MLA, Harvard, null]
@@ -4962,12 +4964,12 @@ components:
 
     SharedProject:
       type: object
-      required: [id, title, status, accessMode, createdAt]
+      required: [id, status, accessMode, createdAt]
       properties:
         id:
           type: number
         title:
-          type: string
+          type: ["string", "null"] # DECISION 021
         status:
           type: string
           enum: [draft, analyzing, writing, waiting_revision, completed, archived]
@@ -4975,7 +4977,7 @@ components:
           type: ["string", "null"]
         taskType:
           type: ["string", "null"]
-          enum: [general, academic]
+          enum: [general, academic, dashboard_chat]
         latestDocument:
           type: ["string", "null"]
           description: Latest document content (if accessMode is view or edit)

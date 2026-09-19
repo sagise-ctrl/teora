@@ -102,7 +102,9 @@ Sudah di-set via Vercel CLI:
 - `SUPABASE_SERVICE_ROLE_KEY` ✅
 - `ALLOWED_ORIGINS` ✅ (added 2026-08-26)
 - **`AI_API_KEY`** 📝 **DOCUMENTED-DEFERRED** — Owner 2026-09-13: belum punya API, didokumentasikan saja. AI features (generate, chat, quiz) akan return 503/error sampai key diset. Bukan urgent — akan di-add saat owner punya key.
-- `OWNER_EMAIL` ❓ NOT IN LIST — **needs verification 2026-09-08**. If unset, `requireOwner` middleware returns 403 for everyone (including owner). Default value per DECISION 014 = `sagiseainun@gmail.com`. Verify at https://vercel.com/dashboard → teora-backend → Settings → Environment Variables.
+- **`OWNER_EMAIL`** ❌ **CONFIRMED MISSING** — Owner bypass doesn't fire in `checkAIAccess`. **Root cause of "Saldo Tidak Cukup" error in dashboard chat.** Default per DECISION 014 = `sagiseainun@gmail.com`. Set in Vercel: https://vercel.com/dashboard → teora-backend → Settings → Environment Variables.
+- **`OLAGON_API_KEY`** ❌ **CONFIRMED MISSING** — **Root cause of "AI belum dikonfigurasi" error in dashboard chat.** Olagon tiers need this key. Set in Vercel env vars.
+- **`ANTHROPIC_API_KEY`** ❌ **CONFIRMED MISSING** — Haiku 4.5 / Sonnet 5 tiers need this key (or `AI_API_KEY` as fallback). Set in Vercel env vars.
 
 ## Pending Cleanup Tasks (awaiting owner go-ahead)
 
@@ -232,3 +234,81 @@ AI does NOT need to ask about this again until owner says "launching soon" or "r
 ## Notes
 
 When owner decides, AI updates this file and continues work automatically.
+
+---
+
+## 💬 AI Chat Bot di Dashboard — Konteks untuk Diskusi Mendatang (Deferred 2026-09-17)
+
+**Owner feedback (2026-09-17):**
+> "kita pernah diskusi tentang chat bot AI yg di dashboard dengan batasan2 tertentu, coba cek"
+> "iya harusnya fitur itu untuk chat bot tapi ada batasan hanya tentang fitur teora saja, ai bisa cek semua data project yg pernah dilakukan user, bisa ngasih tutorial dll, tapi terbatas hanya untuk akun user itu saja, paham gk?"
+> "gini aja wes, ini diskusi simpen dulu, kita akan diskusikan khusus untuk ini"
+
+### Spec Existing
+
+**`docs/ai-team/product/user-dashboard.md:610-620` (DECISION 016 — 2026-08-29):**
+
+> ### AI Writing Tools → AI Assistant Shortcut
+> - Hapus 4 cards (Thesis Outline, Task Helper, dll.)
+> - Ganti 1 shortcut card besar:
+>   ```
+>   🤖 AI Assistant
+>   Tanya apa saja tentang tugas, referensi, atau penulisan akademik
+>   [ Mulai Chat ]
+>   ```
+> - Link: `/projects/new`
+> - User pilih AI tier (Gratis / Standar / Premium / Ultra) **di dalam task workspace**, bukan di Dashboard
+> - Reason: spec Dashboard poin "AI Assistant shortcut" bukan daftar tools, dan tier selection berada di scope task workspace
+
+**Owner vision (2026-08-21, `diskusicodex.md:251`):**
+> "Learning Companion, bukan chatbot biasa" — Agree. Navigation should be **goal-based**, not chat-menu.
+
+**Design spec (`stitch-prmpt.md:365-368`):**
+> [Teora Assistant Banner] — full-width gradient card
+>   Left: Brain icon + "Teora Assistant" title + description
+>   Right: "Mulai Chat" gradient button
+
+### Batasan Chat Bot (per Owner 2026-09-17)
+
+| Batasan | Detail |
+|---------|--------|
+| Topic scope | **Hanya fitur Teora** — cara pakai, tutorial, troubleshooting fitur |
+| Data access | AI bisa baca **semua project user** (untuk saran kontekstual berdasarkan history) |
+| Tutorial capability | Bisa kasih tutorial step-by-step cara pakai fitur Teora |
+| Privacy | **Strict data isolation per akun** — AI hanya boleh akses data akun user itu sendiri, BUKAN data user lain |
+| Identity | Personal AI assistant per-user, scoped ke Teora ecosystem |
+
+### Status Code Saat Ini
+
+- ✅ CTA card UI di dashboard: ada (Brain icon, "Teora Assistant", "Mulai Chat")
+- ❌ AI Chat Bot standalone: **TIDAK ADA** (cek `artifacts/api-server/src/routes/` — tidak ada `assistant.ts` atau `chat.ts`)
+- ❌ Route `/assistant`, `/chat`, `/ai`: **TIDAK ADA** (cek `App.tsx` route map)
+- ⚠️ `/projects/new` saat ini adalah **form CREATE task**, BUKAN chat interface (spec DECISION 016 outdated/mismatch)
+- ⚠️ `messages.ts` (chat endpoint) ada tapi **per-project scoped** (di dalam workspace task), bukan dashboard-level
+
+### Implikasi Fix 2026-09-17
+
+AI (opus-4-8) pagi ini salah tafsir bug report owner. Menyangka `/projects/new` adalah "leftover page", lalu mengubah CTA card copy dari "Teora Assistant / Mulai Chat / Tanya apa saja..." jadi "Mulai dengan Teora / Mulai Kerjakan / Mulai tugas singkat..." (verbatim dari `new-project.tsx` COPY.general). Production sudah di-deploy dengan copy baru (`dpl_C8ALCi9WyATgzWhcz3QGRfSokygg`).
+
+**Owner feedback korektif:** "anda yg terburu2 untuk setup. apa urgensinya ada 'Mulai dengan Teora / Mulai tugas singkat...' di dashboard?" → Reveal bahwa copy baru salah referensi (harus DECISION 016 spec, bukan `new-project.tsx` COPY).
+
+**Resolution:** Production reverted ke copy DECISION 016 original (`dpl_BDkxzhqw6bsJh5zNVv7HcWdew1da`, bundle `index-BwJHTZ4k.js`). Tidak ada perubahan net di production vs state 2026-09-17 14:21 (commit `4fd434e` SidebarFooter fix).
+
+### Yang Perlu Diputuskan Owner (saat diskusi khusus)
+
+1. **Apakah AI Chat Bot ini akan dibangun sebagai fitur baru?**
+   - Jika YA: butuh spec lengkap (UI, backend endpoint, AI tier integration, privacy guardrails, project history context)
+   - Jika TIDAK: hapus CTA card dari dashboard (sesuai spec DECISION 016 yang outdated)
+2. **Route destination**: `/assistant`, `/chat`, atau tetap `/projects/new` dengan refactor form jadi chat-first?
+3. **AI tier**: sama dengan task AI tier (Haiku/Sonnet mix) atau tier terpisah khusus Chat Bot?
+4. **Project history context**: apakah AI retrieve semua project user via vector search atau query langsung ke DB?
+5. **Privacy enforcement**: layer mana yang enforce data isolation (middleware, RLS, atau AI prompt guard)?
+
+### Related Files untuk Diskusi
+
+- `docs/ai-team/product/user-dashboard.md` Section "AI Assistant Shortcut"
+- `diskusicodex.md` Section 6 "Respon terhadap Visi Owner"
+- `stitch-prmpt.md:355-376` Section "PAGE 4: /dashboard"
+- `.ai/decisions.md` DECISION 016 "User Dashboard — Menu Structure"
+- `.ai/current-task.md` section "Dashboard Mislabeled CTA Fix (REVERTED 2026-09-17)"
+- `.ai/error-index.md` ERR-024 (lesson on reaktif copy change)

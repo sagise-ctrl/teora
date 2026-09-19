@@ -17,8 +17,14 @@ import {
   usageWindowsTable,
   userBalancesTable,
   tokenTransactionsTable,
+  userPreferencesTable,
+  usersTable,
   type WindowType,
 } from "@workspace/db";
+import { eq, and, desc, gte, sql } from "drizzle-orm";
+import { addHours, addDays, isAfter } from "date-fns";
+import { logger } from "./logger.js";
+import { isOwnerEmail } from "../middlewares/owner.js";
 import { eq, and, desc, gte, sql } from "drizzle-orm";
 import { addHours, addDays, isAfter } from "date-fns";
 import { logger } from "./logger.js";
@@ -598,8 +604,17 @@ export async function checkAIAccess(params: {
   userId: string;
   tierId: string;
   estimatedCostCents: number;
+  userEmail?: string;
 }): Promise<AccessCheckResult> {
-  const { userId, tierId, estimatedCostCents } = params;
+  const { userId, tierId, estimatedCostCents, userEmail } = params;
+
+  // Owner bypass: owner can use any AI tier without subscription or balance.
+  // Owner policy (2026-09-18): owner tidak harus punya langganan/saldo untuk pakai
+  // Anthropic atau Olagon. If API key not configured, the AI call itself will error
+  // with a clear message (503/404), not "harus topup".
+  if (userEmail && isOwnerEmail(userEmail)) {
+    return { allowed: true, method: "owner" };
+  }
 
   // 1. Active subscription → always allowed (quota check happens on consume)
   const { subscription } = await getUserActiveSubscription(userId);

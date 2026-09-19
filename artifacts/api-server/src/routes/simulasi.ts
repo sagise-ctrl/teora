@@ -321,6 +321,7 @@ router.post("/projects/:projectId/simulasi/sessions", async (req, res): Promise<
       userId: projectData.userId,
       tierId: selectedTier.id,
       estimatedCostCents: 50,
+      userEmail: req.user?.email,
     });
     if (!accessCheck.allowed) {
       if (accessCheck.reason === "saldo_insufficient") {
@@ -531,6 +532,7 @@ router.post("/projects/:projectId/simulasi/sessions/:sessionId/messages", async 
       userId: session.userId,
       tierId: selectedTier.id,
       estimatedCostCents: 50,
+      userEmail: req.user?.email,
     });
     if (!accessCheck.allowed) {
       if (accessCheck.reason === "saldo_insufficient") {

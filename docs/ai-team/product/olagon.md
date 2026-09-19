@@ -157,7 +157,8 @@ CREATE TABLE user_preferences (
 - [x] `routes/preferences.ts` (GET + PATCH)
 - [x] Unit tests (`olagon.test.ts`)
 - [x] Typecheck + build pass
-- [ ] **Owner manual:** set `OLAGON_API_KEY` di Vercel Dashboard
+- [x] `getApiKey` fallback chain: tier-specific env var → `ANTHROPIC_API_KEY` → `AI_API_KEY` (supports multiple setup patterns)
+- [ ] **Owner manual:** set `OLAGON_API_KEY` (AND `ANTHROPIC_API_KEY` OR `AI_API_KEY`) di Vercel Dashboard
 
 ### Phase 2: Frontend UI ✅ COMPLETE
 
@@ -175,25 +176,43 @@ Diskusi terpisah. Olagon tiers ready untuk agent integration nanti.
 
 ## 6. Owner Action Required
 
-**Setup Olagon di Vercel:**
+**Setup Vercel Environment Variables:**
 
-1. Buka Vercel Dashboard → project `teora-backend`
-2. Environment Variables → Add:
-   - Name: `OLAGON_API_KEY`
-   - Value: `[Olagon token dari dashboard Olagon]`
-   - Environments: Production + Preview + Development
-3. Redeploy production
+> ⚠️ **CRITICAL — THREE missing env vars identified 2026-09-18:**
+> Without these, dashboard chat fails with "Saldo tidak cukup" (OWNER_EMAIL missing)
+> or "AI belum dikonfigurasi" (API key missing).
+
+**Vercel Dashboard → teora-backend → Settings → Environment Variables:**
+
+| Name | Value | Required For |
+|------|-------|-------------|
+| `OWNER_EMAIL` | `sagiseainun@gmail.com` | Owner bypass in `checkAIAccess` + `requireOwner` middleware |
+| `OLAGON_API_KEY` | `[Olagon token]` | Olagon tiers (`opus-4-8-olagon`, `opus-4-6-olagon`) |
+| `ANTHROPIC_API_KEY` | `[Anthropic API key]` | Haiku 4.5 / Sonnet 5 tiers (non-Olagon) |
+| `AI_API_KEY` | `[fallback key]` | Catch-all fallback if tier-specific key missing |
+
+Set all for **Production + Preview + Development**. Redeploy after adding.
+
+**Fallback chain** (in priority order):
+```
+Olagon tiers:   OLAGON_API_KEY → ANTHROPIC_API_KEY → AI_API_KEY
+Anthropic tiers: ANTHROPIC_API_KEY → AI_API_KEY
+```
 
 **Verify setup:**
 
 ```
-curl -X POST https://teora.vercel.app/api/messages \
+curl -X POST https://teora-backend.vercel.app/api/messages \
   -H "Authorization: Bearer <owner_jwt>" \
   -H "Content-Type: application/json" \
-  -d '{"projectId": "...", "content": "test"}'
+  -d '{"projectId": 1, "content": "test", "tier": "opus-4-8-olagon"}'
 ```
 
-Kalau dapat HTTP 200 dengan response dari model Opus → Olagon aktif.
+| Response | Meaning |
+|----------|---------|
+| HTTP 201 + AI response | Olagon aktif ✅ |
+| HTTP 402 "Saldo tidak cukup" | `OWNER_EMAIL` belum diset — bypass tidak fire |
+| HTTP 500 "AI belum dikonfigurasi" | Semua API key belum diset |
 
 ---
 

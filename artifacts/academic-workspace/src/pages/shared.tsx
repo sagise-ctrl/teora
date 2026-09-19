@@ -97,7 +97,7 @@ export default function SharedProject() {
                 {accessBadge.label}
               </Badge>
               <h1 className="text-2xl font-serif font-bold text-foreground tracking-tight">
-                {project.title}
+                {project.title ?? "Tanpa Judul"}
               </h1>
               <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1">

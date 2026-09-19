@@ -20827,27 +20827,27 @@ var require_router = __commonJS({
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var methods = METHODS.map((method) => method.toLowerCase());
-    module.exports = Router37;
+    module.exports = Router38;
     module.exports.Route = Route;
-    function Router37(options) {
-      if (!(this instanceof Router37)) {
-        return new Router37(options);
+    function Router38(options) {
+      if (!(this instanceof Router38)) {
+        return new Router38(options);
       }
       const opts = options || {};
-      function router37(req, res, next) {
-        router37.handle(req, res, next);
+      function router38(req, res, next) {
+        router38.handle(req, res, next);
       }
-      Object.setPrototypeOf(router37, this);
-      router37.caseSensitive = opts.caseSensitive;
-      router37.mergeParams = opts.mergeParams;
-      router37.params = {};
-      router37.strict = opts.strict;
-      router37.stack = [];
-      return router37;
+      Object.setPrototypeOf(router38, this);
+      router38.caseSensitive = opts.caseSensitive;
+      router38.mergeParams = opts.mergeParams;
+      router38.params = {};
+      router38.strict = opts.strict;
+      router38.stack = [];
+      return router38;
     }
-    Router37.prototype = function() {
+    Router38.prototype = function() {
     };
-    Router37.prototype.param = function param(name, fn) {
+    Router38.prototype.param = function param(name, fn) {
       if (!name) {
         throw new TypeError("argument name is required");
       }
@@ -20867,7 +20867,7 @@ var require_router = __commonJS({
       params.push(fn);
       return this;
     };
-    Router37.prototype.handle = function handle(req, res, callback) {
+    Router38.prototype.handle = function handle(req, res, callback) {
       if (!callback) {
         throw new TypeError("argument callback is required");
       }
@@ -20994,7 +20994,7 @@ var require_router = __commonJS({
         }
       }
     };
-    Router37.prototype.use = function use(handler) {
+    Router38.prototype.use = function use(handler) {
       let offset = 0;
       let path3 = "/";
       if (typeof handler !== "function") {
@@ -21027,7 +21027,7 @@ var require_router = __commonJS({
       }
       return this;
     };
-    Router37.prototype.route = function route(path3) {
+    Router38.prototype.route = function route(path3) {
       const route2 = new Route(path3);
       const layer = new Layer(path3, {
         sensitive: this.caseSensitive,
@@ -21042,7 +21042,7 @@ var require_router = __commonJS({
       return route2;
     };
     methods.concat("all").forEach(function(method) {
-      Router37.prototype[method] = function(path3) {
+      Router38.prototype[method] = function(path3) {
         const route = this.route(path3);
         route[method].apply(route, slice.call(arguments, 1));
         return this;
@@ -21225,13 +21225,13 @@ var require_application = __commonJS({
     var compileTrust = require_utils3().compileTrust;
     var resolve = __require("node:path").resolve;
     var once = require_once();
-    var Router37 = require_router();
+    var Router38 = require_router();
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var app2 = exports = module.exports = {};
     var trustProxyDefaultSymbol = "@@symbol:trust_proxy_default";
     app2.init = function init() {
-      var router37 = null;
+      var router38 = null;
       this.cache = /* @__PURE__ */ Object.create(null);
       this.engines = /* @__PURE__ */ Object.create(null);
       this.settings = /* @__PURE__ */ Object.create(null);
@@ -21240,13 +21240,13 @@ var require_application = __commonJS({
         configurable: true,
         enumerable: true,
         get: function getrouter() {
-          if (router37 === null) {
-            router37 = new Router37({
+          if (router38 === null) {
+            router38 = new Router38({
               caseSensitive: this.enabled("case sensitive routing"),
               strict: this.enabled("strict routing")
             });
           }
-          return router37;
+          return router38;
         }
       });
     };
@@ -21317,15 +21317,15 @@ var require_application = __commonJS({
       if (fns.length === 0) {
         throw new TypeError("app.use() requires a middleware function");
       }
-      var router37 = this.router;
+      var router38 = this.router;
       fns.forEach(function(fn2) {
         if (!fn2 || !fn2.handle || !fn2.set) {
-          return router37.use(path3, fn2);
+          return router38.use(path3, fn2);
         }
         debug(".use app under %s", path3);
         fn2.mountpath = path3;
         fn2.parent = this;
-        router37.use(path3, function mounted_app(req, res, next) {
+        router38.use(path3, function mounted_app(req, res, next) {
           var orig = req.app;
           fn2.handle(req, res, function(err) {
             Object.setPrototypeOf(req, orig.request);
@@ -23834,7 +23834,7 @@ var require_express = __commonJS({
     var EventEmitter2 = __require("node:events").EventEmitter;
     var mixin2 = require_merge_descriptors();
     var proto = require_application();
-    var Router37 = require_router();
+    var Router38 = require_router();
     var req = require_request();
     var res = require_response();
     exports = module.exports = createApplication;
@@ -23856,8 +23856,8 @@ var require_express = __commonJS({
     exports.application = proto;
     exports.request = req;
     exports.response = res;
-    exports.Route = Router37.Route;
-    exports.Router = Router37;
+    exports.Route = Router38.Route;
+    exports.Router = Router38;
     exports.json = bodyParser.json;
     exports.raw = bodyParser.raw;
     exports.static = require_serve_static();
@@ -42395,25 +42395,44 @@ var projectsTable, insertProjectSchema;
 var init_projects = __esm({
   "../../lib/db/src/schema/projects.ts"() {
     "use strict";
-    projectsTable = pgTable("projects", {
-      id: serial("id").primaryKey(),
-      userId: text("user_id").notNull(),
-      // FK to Supabase auth user ID
-      title: text("title").notNull(),
-      status: text("status").notNull().default("draft"),
-      progress: integer("progress").notNull().default(0),
-      instructionText: text("instruction_text"),
-      subject: text("subject"),
-      taskType: text("task_type"),
-      citationFormat: text("citation_format"),
-      outputFormat: text("output_format"),
-      minRefYear: integer("min_ref_year"),
-      minRefCount: integer("min_ref_count"),
-      /** Toggle AI disclosure labels — default true (ON) */
-      aiDisclosure: boolean2("ai_disclosure").notNull().default(true),
-      createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-      updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => /* @__PURE__ */ new Date())
-    });
+    projectsTable = pgTable(
+      "projects",
+      {
+        id: serial("id").primaryKey(),
+        userId: text("user_id").notNull(),
+        // FK to Supabase auth user ID
+        // Nullable: Task Umum (general) projects don't require a title.
+        // DECISION 021. The frontend treats title as "opsional" and the Zod
+        // CreateProjectBody marks it optional; the DB must agree or INSERT fails.
+        // Note: Karya Ilmiah (academic) flows may still want a title — UI can
+        // encourage it without making it required at the schema layer.
+        title: text("title"),
+        status: text("status").notNull().default("draft"),
+        progress: integer("progress").notNull().default(0),
+        instructionText: text("instruction_text"),
+        subject: text("subject"),
+        taskType: text("task_type"),
+        citationFormat: text("citation_format"),
+        outputFormat: text("output_format"),
+        minRefYear: integer("min_ref_year"),
+        minRefCount: integer("min_ref_count"),
+        /** Toggle AI disclosure labels — default true (ON) */
+        aiDisclosure: boolean2("ai_disclosure").notNull().default(true),
+        createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+        updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => /* @__PURE__ */ new Date())
+      },
+      (table2) => [
+        // NOTE: add CHECK constraint to Drizzle schema so `drizzle-kit push` diffs see it.
+        // INC-008: previously applied as raw SQL, invisible to ORM tooling.
+        // Constraint is NOT defined via Drizzle expression here (would try to re-apply
+        // and conflict with the already-existing DB constraint). The actual constraint
+        // expression is: task_type IS NULL OR task_type IN ('general','academic','dashboard_chat')
+        // Managed via raw SQL migration (Supabase MCP). See INC-008 recommendations.
+        // If `drizzle-kit push` ever starts supporting IF NOT EXISTS for CHECK constraints,
+        // this can be uncommented with the correct expression:
+        // check("projects_task_type_check", sql`(task_type IS NULL OR task_type IN ('general', 'academic', 'dashboard_chat'))`),
+      ]
+    );
     insertProjectSchema = createInsertSchema(projectsTable).omit({
       id: true,
       createdAt: true,
@@ -44022,6 +44041,97 @@ var init_schema = __esm({
 });
 
 // node_modules/@workspace/db/src/index.ts
+var src_exports = {};
+__export(src_exports, {
+  AI_PROVIDERS: () => AI_PROVIDERS,
+  accountReferencesTable: () => accountReferencesTable,
+  activitiesTable: () => activitiesTable,
+  adminActionTypes: () => adminActionTypes,
+  adminAuditLogTable: () => adminAuditLogTable,
+  aiTiersTable: () => aiTiersTable,
+  aiUsageLogTable: () => aiUsageLogTable,
+  aiUsageStatsSchema: () => aiUsageStatsSchema,
+  attachmentsTable: () => attachmentsTable,
+  commentsTable: () => commentsTable,
+  db: () => db,
+  documentTemplatesTable: () => documentTemplatesTable,
+  documentVersionsTable: () => documentVersionsTable,
+  documentsTable: () => documentsTable,
+  exportsTable: () => exportsTable,
+  insertAIUsageLogSchema: () => insertAIUsageLogSchema,
+  insertAccountReferenceSchema: () => insertAccountReferenceSchema,
+  insertActivitySchema: () => insertActivitySchema,
+  insertAdminAuditLogSchema: () => insertAdminAuditLogSchema,
+  insertAiTierSchema: () => insertAiTierSchema,
+  insertAttachmentSchema: () => insertAttachmentSchema,
+  insertCommentSchema: () => insertCommentSchema,
+  insertDocumentSchema: () => insertDocumentSchema,
+  insertDocumentTemplateSchema: () => insertDocumentTemplateSchema,
+  insertDocumentVersionSchema: () => insertDocumentVersionSchema,
+  insertExportSchema: () => insertExportSchema,
+  insertJobSchema: () => insertJobSchema,
+  insertLearningActivitySchema: () => insertLearningActivitySchema,
+  insertMessageSchema: () => insertMessageSchema,
+  insertProjectMemberSchema: () => insertProjectMemberSchema,
+  insertProjectMetadataSchema: () => insertProjectMetadataSchema,
+  insertProjectSchema: () => insertProjectSchema,
+  insertQuizSchema: () => insertQuizSchema,
+  insertQuizSubmissionSchema: () => insertQuizSubmissionSchema,
+  insertReferenceCitationSchema: () => insertReferenceCitationSchema,
+  insertReferenceSchema: () => insertReferenceSchema,
+  insertReferralEventSchema: () => insertReferralEventSchema,
+  insertReferralSchema: () => insertReferralSchema,
+  insertRubricSchema: () => insertRubricSchema,
+  insertShareTokenSchema: () => insertShareTokenSchema,
+  insertSimulationMessageSchema: () => insertSimulationMessageSchema,
+  insertSimulationReportSchema: () => insertSimulationReportSchema,
+  insertSimulationSessionSchema: () => insertSimulationSessionSchema,
+  insertTokenTransactionSchema: () => insertTokenTransactionSchema,
+  insertUserBalanceSchema: () => insertUserBalanceSchema,
+  insertUserSchema: () => insertUserSchema,
+  insertWritingStyleProfileSchema: () => insertWritingStyleProfileSchema,
+  jobsTable: () => jobsTable,
+  learningActivitiesTable: () => learningActivitiesTable,
+  messagesTable: () => messagesTable,
+  packagesTable: () => packagesTable,
+  pool: () => pool2,
+  projectMembersRoles: () => projectMembersRoles,
+  projectMembersTable: () => projectMembersTable,
+  projectMetadataTable: () => projectMetadataTable,
+  projectsTable: () => projectsTable,
+  questionSchema: () => questionSchema,
+  quizResponseSchema: () => quizResponseSchema,
+  quizSubmissionsTable: () => quizSubmissionsTable,
+  quizzesTable: () => quizzesTable,
+  referenceCitationsTable: () => referenceCitationsTable,
+  referencesTable: () => referencesTable,
+  referralEventsTable: () => referralEventsTable,
+  referralStatuses: () => referralStatuses,
+  referralsTable: () => referralsTable,
+  requestTypes: () => requestTypes,
+  rubricCriterionSchema: () => rubricCriterionSchema,
+  rubricsTable: () => rubricsTable,
+  saldoStatuses: () => saldoStatuses,
+  shareTokensTable: () => shareTokensTable,
+  simulationMessagesTable: () => simulationMessagesTable,
+  simulationPersonas: () => simulationPersonas,
+  simulationReportsTable: () => simulationReportsTable,
+  simulationRoles: () => simulationRoles,
+  simulationScoreSchema: () => simulationScoreSchema,
+  simulationSessionsTable: () => simulationSessionsTable,
+  simulationStatuses: () => simulationStatuses,
+  styleCharacteristicsSchema: () => styleCharacteristicsSchema,
+  subscriptionStatuses: () => subscriptionStatuses,
+  subscriptionsTable: () => subscriptionsTable,
+  tokenTransactionsTable: () => tokenTransactionsTable,
+  transactionTypes: () => transactionTypes,
+  usageWindowsTable: () => usageWindowsTable,
+  userBalancesTable: () => userBalancesTable,
+  userPreferencesTable: () => userPreferencesTable,
+  usersTable: () => usersTable,
+  windowTypes: () => windowTypes,
+  writingStyleProfilesTable: () => writingStyleProfilesTable
+});
 import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
 var connectionString, pool2, db;
@@ -187731,8 +187841,8 @@ var require_node_domexception = __commonJS({
   "../../node_modules/.pnpm/node-domexception@1.0.0/node_modules/node-domexception/index.js"(exports, module) {
     if (!globalThis.DOMException) {
       try {
-        const { MessageChannel: MessageChannel2 } = __require("worker_threads"), port = new MessageChannel2().port1, ab = new ArrayBuffer();
-        port.postMessage(ab, [ab, ab]);
+        const { MessageChannel: MessageChannel2 } = __require("worker_threads"), port2 = new MessageChannel2().port1, ab = new ArrayBuffer();
+        port2.postMessage(ab, [ab, ab]);
       } catch (err) {
         err.constructor.name === "DOMException" && (globalThis.DOMException = err.constructor);
       }
@@ -189132,8 +189242,8 @@ var init_abort_error = __esm({
 });
 
 // ../../node_modules/.pnpm/node-fetch@3.3.2/node_modules/node-fetch/src/index.js
-var src_exports = {};
-__export(src_exports, {
+var src_exports2 = {};
+__export(src_exports2, {
   AbortError: () => AbortError,
   Blob: () => fetch_blob_default,
   FetchError: () => FetchError,
@@ -189498,7 +189608,7 @@ var require_fetchFile = __commonJS({
     exports.fetchFileAsync = fetchFileAsync;
     exports.setUserAgent = setUserAgent;
     var _syncFetch = _interopRequireDefault(require_sync_fetch());
-    var _nodeFetch = _interopRequireWildcard((init_src2(), __toCommonJS(src_exports)));
+    var _nodeFetch = _interopRequireWildcard((init_src2(), __toCommonJS(src_exports2)));
     var _logger = _interopRequireDefault(require_logger2());
     var _package = _interopRequireDefault(require_package2());
     function _interopRequireWildcard(e2, t2) {
@@ -192276,7 +192386,7 @@ var require_input5 = __commonJS({
 });
 
 // src/app.ts
-var import_express37 = __toESM(require_express2(), 1);
+var import_express38 = __toESM(require_express2(), 1);
 var import_cors = __toESM(require_lib3(), 1);
 var import_pino_http = __toESM(require_logger(), 1);
 
@@ -193051,7 +193161,7 @@ var rateLimit = (passedOptions) => {
 var lib_default = rateLimit;
 
 // src/routes/index.ts
-var import_express34 = __toESM(require_express2(), 1);
+var import_express35 = __toESM(require_express2(), 1);
 
 // ../../node_modules/.pnpm/jose@6.2.10/node_modules/jose/dist/webapi/lib/buffer_utils.js
 var encoder = new TextEncoder();
@@ -194186,12 +194296,12 @@ var ListProjectsQueryParams = zod.object({
 });
 var ListProjectsResponseItem = zod.object({
   "id": zod.number(),
-  "title": zod.string(),
+  "title": zod.string().nullish(),
   "status": zod.enum(["draft", "analyzing", "writing", "waiting_revision", "completed", "archived"]),
   "progress": zod.number().describe("0-100 percent"),
   "instructionText": zod.string().nullish(),
   "subject": zod.string().nullish(),
-  "taskType": zod.enum(["general", "academic"]).nullish(),
+  "taskType": zod.enum(["general", "academic", "dashboard_chat"]).nullish(),
   "citationFormat": zod.union([zod.literal("APA"), zod.literal("APA7"), zod.literal("IEEE"), zod.literal("Vancouver"), zod.literal("Chicago"), zod.literal("MLA"), zod.literal("Harvard"), zod.literal(null)]).nullish().describe("Citation format used for in-text/footnote markers and bibliography. Default = APA."),
   "outputFormat": zod.string().nullish(),
   "minRefYear": zod.number().nullish(),
@@ -194208,17 +194318,17 @@ var CreateProjectBody = zod.object({
   "minRefYear": zod.number().optional(),
   "minRefCount": zod.number().optional(),
   "aiDisclosure": zod.boolean().optional(),
-  "taskType": zod.enum(["general", "academic"]).optional().describe('Project type \u2014 "general" for short tasks, "academic" for multi-section works'),
+  "taskType": zod.enum(["general", "academic", "dashboard_chat"]).optional().describe('Project type \u2014 "general" for short tasks, "academic" for multi-section works. "dashboard_chat" sentinel for Dashboard Teora Assistant scratchpad (DECISION 023, hidden from main project list via client-side filter).'),
   "citationFormat": zod.enum(["APA", "APA7", "IEEE", "Vancouver", "Chicago", "MLA", "Harvard"]).optional().describe("DECISION 014. Citation format used for in-text/footnote markers and bibliography.\nDefaults to APA if omitted (workspace will create the project with APA and the\nuser can change via PATCH /projects/:id/citation-format).\n")
 });
 var CreateProjectResponse = zod.object({
   "id": zod.number(),
-  "title": zod.string(),
+  "title": zod.string().nullish(),
   "status": zod.enum(["draft", "analyzing", "writing", "waiting_revision", "completed", "archived"]),
   "progress": zod.number().describe("0-100 percent"),
   "instructionText": zod.string().nullish(),
   "subject": zod.string().nullish(),
-  "taskType": zod.enum(["general", "academic"]).nullish(),
+  "taskType": zod.enum(["general", "academic", "dashboard_chat"]).nullish(),
   "citationFormat": zod.union([zod.literal("APA"), zod.literal("APA7"), zod.literal("IEEE"), zod.literal("Vancouver"), zod.literal("Chicago"), zod.literal("MLA"), zod.literal("Harvard"), zod.literal(null)]).nullish().describe("Citation format used for in-text/footnote markers and bibliography. Default = APA."),
   "outputFormat": zod.string().nullish(),
   "minRefYear": zod.number().nullish(),
@@ -194244,12 +194354,12 @@ var GetProjectParams = zod.object({
 });
 var GetProjectResponse = zod.object({
   "id": zod.number(),
-  "title": zod.string(),
+  "title": zod.string().nullish(),
   "status": zod.enum(["draft", "analyzing", "writing", "waiting_revision", "completed", "archived"]),
   "progress": zod.number().describe("0-100 percent"),
   "instructionText": zod.string().nullish(),
   "subject": zod.string().nullish(),
-  "taskType": zod.enum(["general", "academic"]).nullish(),
+  "taskType": zod.enum(["general", "academic", "dashboard_chat"]).nullish(),
   "citationFormat": zod.union([zod.literal("APA"), zod.literal("APA7"), zod.literal("IEEE"), zod.literal("Vancouver"), zod.literal("Chicago"), zod.literal("MLA"), zod.literal("Harvard"), zod.literal(null)]).nullish().describe("Citation format used for in-text/footnote markers and bibliography. Default = APA."),
   "outputFormat": zod.string().nullish(),
   "minRefYear": zod.number().nullish(),
@@ -194273,12 +194383,12 @@ var UpdateProjectBody = zod.object({
 });
 var UpdateProjectResponse = zod.object({
   "id": zod.number(),
-  "title": zod.string(),
+  "title": zod.string().nullish(),
   "status": zod.enum(["draft", "analyzing", "writing", "waiting_revision", "completed", "archived"]),
   "progress": zod.number().describe("0-100 percent"),
   "instructionText": zod.string().nullish(),
   "subject": zod.string().nullish(),
-  "taskType": zod.enum(["general", "academic"]).nullish(),
+  "taskType": zod.enum(["general", "academic", "dashboard_chat"]).nullish(),
   "citationFormat": zod.union([zod.literal("APA"), zod.literal("APA7"), zod.literal("IEEE"), zod.literal("Vancouver"), zod.literal("Chicago"), zod.literal("MLA"), zod.literal("Harvard"), zod.literal(null)]).nullish().describe("Citation format used for in-text/footnote markers and bibliography. Default = APA."),
   "outputFormat": zod.string().nullish(),
   "minRefYear": zod.number().nullish(),
@@ -194969,12 +195079,12 @@ var SetProjectCitationFormatBody = zod.object({
 });
 var SetProjectCitationFormatResponse = zod.object({
   "id": zod.number(),
-  "title": zod.string(),
+  "title": zod.string().nullish(),
   "status": zod.enum(["draft", "analyzing", "writing", "waiting_revision", "completed", "archived"]),
   "progress": zod.number().describe("0-100 percent"),
   "instructionText": zod.string().nullish(),
   "subject": zod.string().nullish(),
-  "taskType": zod.enum(["general", "academic"]).nullish(),
+  "taskType": zod.enum(["general", "academic", "dashboard_chat"]).nullish(),
   "citationFormat": zod.union([zod.literal("APA"), zod.literal("APA7"), zod.literal("IEEE"), zod.literal("Vancouver"), zod.literal("Chicago"), zod.literal("MLA"), zod.literal("Harvard"), zod.literal(null)]).nullish().describe("Citation format used for in-text/footnote markers and bibliography. Default = APA."),
   "outputFormat": zod.string().nullish(),
   "minRefYear": zod.number().nullish(),
@@ -195084,10 +195194,10 @@ var AccessSharedProjectParams = zod.object({
 });
 var AccessSharedProjectResponse = zod.object({
   "id": zod.number(),
-  "title": zod.string(),
+  "title": zod.string().nullish(),
   "status": zod.enum(["draft", "analyzing", "writing", "waiting_revision", "completed", "archived"]),
   "subject": zod.string().nullish(),
-  "taskType": zod.enum(["general", "academic"]).nullish(),
+  "taskType": zod.enum(["general", "academic", "dashboard_chat"]).nullish(),
   "latestDocument": zod.string().nullish().describe("Latest document content (if accessMode is view or edit)"),
   "accessMode": zod.enum(["view", "comment", "edit"]),
   "ownerEmail": zod.string().optional().describe("Owner email (for display purposes only)"),
@@ -195171,7 +195281,7 @@ var GetProjectMetadataResponse = zod.object({
   "projectId": zod.number(),
   "detectedTitle": zod.string().nullish(),
   "subject": zod.string().nullish(),
-  "taskType": zod.enum(["general", "academic"]).nullish(),
+  "taskType": zod.enum(["general", "academic", "dashboard_chat"]).nullish(),
   "citationFormat": zod.union([zod.literal("APA"), zod.literal("APA7"), zod.literal("IEEE"), zod.literal("Vancouver"), zod.literal("Chicago"), zod.literal("MLA"), zod.literal("Harvard"), zod.literal(null)]).nullish().describe("Citation format used for in-text/footnote markers and bibliography. Default = APA."),
   "language": zod.string().nullish(),
   "outline": zod.string().nullish(),
@@ -196531,8 +196641,26 @@ router.get("/healthz", (_req, res) => {
 });
 var health_default = router;
 
-// src/routes/auth.ts
+// src/routes/diag.ts
 var import_express2 = __toESM(require_express2(), 1);
+var router2 = (0, import_express2.Router)();
+router2.get("/diag", (_req, res) => {
+  res.json({
+    envVars: {
+      OLAGON_API_KEY: process.env.OLAGON_API_KEY ? "[SET]" : "[EMPTY]",
+      ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY ? "[SET]" : "[EMPTY]",
+      AI_API_KEY: process.env.AI_API_KEY ? "[SET]" : "[EMPTY]",
+      OWNER_EMAIL: process.env.OWNER_EMAIL ? "[SET]" : "[EMPTY]",
+      AI_PROVIDER: process.env.AI_PROVIDER ?? "[NOT SET]",
+      AI_BASE_URL: process.env.AI_BASE_URL ?? "[NOT SET]"
+    },
+    allEnvKeys: Object.keys(process.env).filter((k) => k.includes("API") || k.includes("KEY") || k.includes("OWNER") || k.includes("AI_"))
+  });
+});
+var diag_default = router2;
+
+// src/routes/auth.ts
+var import_express3 = __toESM(require_express2(), 1);
 import { eq, sql as sql5 } from "drizzle-orm";
 
 // ../../node_modules/.pnpm/@supabase+supabase-js@2.112.4/node_modules/@supabase/supabase-js/dist/index.mjs
@@ -204474,7 +204602,7 @@ var logger2 = (0, import_pino.default)({
 });
 
 // src/routes/auth.ts
-var router2 = (0, import_express2.Router)();
+var router3 = (0, import_express3.Router)();
 var SUPABASE_URL2 = process.env.SUPABASE_URL ?? "";
 var SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
 var supabaseAdmin = SUPABASE_SERVICE_ROLE_KEY ? createClient(SUPABASE_URL2, SUPABASE_SERVICE_ROLE_KEY, {
@@ -204514,7 +204642,7 @@ async function logReferralEvent(referralId, actorId, actorType, fromStatus, toSt
     metadata
   });
 }
-router2.get("/auth/me", authMiddleware, async (req, res) => {
+router3.get("/auth/me", authMiddleware, async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -204526,7 +204654,7 @@ router2.get("/auth/me", authMiddleware, async (req, res) => {
   }
   res.json(toUserJson(user));
 });
-router2.post("/auth/login", async (req, res) => {
+router3.post("/auth/login", async (req, res) => {
   try {
     const { access_token, refresh_token } = req.body;
     if (!access_token) {
@@ -204602,7 +204730,7 @@ router2.post("/auth/login", async (req, res) => {
     }
   }
 });
-router2.post("/auth/register", async (req, res) => {
+router3.post("/auth/register", async (req, res) => {
   const { email, password, username, displayName, referralCode } = req.body;
   if (!email || !password) {
     res.status(400).json({ error: "email and password are required" });
@@ -204732,12 +204860,12 @@ router2.post("/auth/register", async (req, res) => {
   }
   res.status(201).json(responseBody);
 });
-router2.post("/auth/logout", (_req, res) => {
+router3.post("/auth/logout", (_req, res) => {
   res.clearCookie("sb_access_token", { path: "/" });
   res.clearCookie("sb_refresh_token", { path: "/" });
   res.json({ message: "Logged out" });
 });
-router2.post("/auth/refresh", async (req, res) => {
+router3.post("/auth/refresh", async (req, res) => {
   const refreshToken = req.body?.refresh_token || req.cookies?.sb_refresh_token;
   if (!refreshToken || !supabaseAdmin) {
     res.status(401).json({ error: "No refresh token" });
@@ -204761,7 +204889,7 @@ router2.post("/auth/refresh", async (req, res) => {
   });
   res.json({ message: "Token refreshed" });
 });
-router2.get("/auth/referrals", authMiddleware, async (req, res) => {
+router3.get("/auth/referrals", authMiddleware, async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -204777,7 +204905,7 @@ router2.get("/auth/referrals", authMiddleware, async (req, res) => {
   };
   res.json({ stats, referrals });
 });
-router2.get("/auth/check-username", async (req, res) => {
+router3.get("/auth/check-username", async (req, res) => {
   const username = req.query.username?.trim().toLowerCase();
   if (!username) {
     res.status(400).json({ error: "username query parameter is required" });
@@ -204791,14 +204919,14 @@ router2.get("/auth/check-username", async (req, res) => {
   const [existing] = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.username, username));
   res.json({ available: !existing, username });
 });
-var auth_default = router2;
+var auth_default = router3;
 
 // src/routes/shared.ts
-var import_express3 = __toESM(require_express2(), 1);
+var import_express4 = __toESM(require_express2(), 1);
 init_src();
 import { eq as eq2, desc, and, isNull } from "drizzle-orm";
-var router3 = (0, import_express3.Router)();
-router3.get("/shared/:token", async (req, res) => {
+var router4 = (0, import_express4.Router)();
+router4.get("/shared/:token", async (req, res) => {
   const { token } = req.params;
   const [shareToken] = await db.select().from(shareTokensTable).where(eq2(shareTokensTable.token, token));
   if (!shareToken) {
@@ -204851,10 +204979,10 @@ router3.get("/shared/:token", async (req, res) => {
     createdAt: project.createdAt
   });
 });
-var shared_default = router3;
+var shared_default = router4;
 
 // src/routes/projects.ts
-var import_express4 = __toESM(require_express2(), 1);
+var import_express5 = __toESM(require_express2(), 1);
 init_src();
 import { eq as eq6, desc as desc3, sql as sql7, and as and5, isNull as isNull2 } from "drizzle-orm";
 import { randomBytes as randomBytes2 } from "crypto";
@@ -204909,7 +205037,7 @@ async function requireProjectWriteAccess(projectId, userId, res) {
 // src/lib/ai.ts
 init_src();
 init_src();
-import { eq as eq4, and as and3, gt } from "drizzle-orm";
+import { eq as eq4, and as and3, gt, like } from "drizzle-orm";
 
 // src/lib/tokenizer.ts
 var CHARS_PER_TOKEN = 3.5;
@@ -204954,7 +205082,15 @@ function requireOwner(req, res, next) {
   next();
 }
 function isOwnerEmail(email) {
-  if (!email || !OWNER_EMAIL) return false;
+  if (!email || !OWNER_EMAIL) {
+    if (email && !OWNER_EMAIL) {
+      logger2.warn(
+        { email, OWNER_EMAIL_set: false },
+        "isOwnerEmail: OWNER_EMAIL env var NOT set \u2014 owner bypass will not fire"
+      );
+    }
+    return false;
+  }
   return email.toLowerCase() === OWNER_EMAIL.toLowerCase();
 }
 
@@ -205024,13 +205160,44 @@ async function getAllowedTierIdsForUser(userId) {
       gt(subscriptionsTable.expiresAt, /* @__PURE__ */ new Date())
     )
   );
-  if (!sub?.packageId) return ["haiku-4.5"];
+  const [pref] = await db.select({ aiProvider: userPreferencesTable.aiProvider }).from(userPreferencesTable).where(eq4(userPreferencesTable.userId, userId)).limit(1);
+  const olagonTierIds = pref?.aiProvider === "olagon" ? (await db.select({ id: aiTiersTable.id }).from(aiTiersTable).where(and3(eq4(aiTiersTable.isActive, true), like(aiTiersTable.baseUrl, "%olagon%")))).map((r2) => r2.id) : [];
+  if (!sub?.packageId) {
+    const base = ["haiku-4.5"];
+    return [.../* @__PURE__ */ new Set([...base, ...olagonTierIds])];
+  }
   const [pkg] = await db.select({ tier: packagesTable.tier }).from(packagesTable).where(eq4(packagesTable.id, sub.packageId));
-  return getTierIdsForPackageTier(pkg?.tier ?? null);
+  const subscriptionTiers = getTierIdsForPackageTier(pkg?.tier ?? null);
+  return [.../* @__PURE__ */ new Set([...subscriptionTiers, ...olagonTierIds])];
 }
 async function checkTierAccess(userId, tierId) {
   const allowed = await getAllowedTierIdsForUser(userId);
   return allowed.includes(tierId);
+}
+async function resolveOlagonTierOrFallback(userId, preferredTierId, userEmail) {
+  const isOwner = isOwnerEmail(userEmail);
+  if (preferredTierId == null) {
+    try {
+      const { usersTable: usersTable5, userPreferencesTable: userPreferencesTable3 } = await Promise.resolve().then(() => (init_src(), src_exports));
+      const [pref] = await db.select({ aiProvider: userPreferencesTable3.aiProvider }).from(userPreferencesTable3).where(eq4(userPreferencesTable3.userId, userId)).limit(1);
+      if (pref?.aiProvider === "olagon") {
+        const olagonTier = await getTierConfig("opus-4-8-olagon", userEmail);
+        if (olagonTier) return olagonTier;
+      }
+    } catch {
+    }
+  }
+  if (isOwner) {
+    logger2.info({ userEmail, preferredTierId }, "Owner bypass \u2014 resolving tier without subscription/balance check");
+    const tier = preferredTierId ? await getTierConfig(preferredTierId, userEmail) : await getTierConfig("haiku-4.5");
+    if (tier) return tier;
+  }
+  const result = await getTierForUser(userId, preferredTierId, userEmail);
+  logger2.info(
+    { userId, preferredTierId, resolvedTierId: result?.id, isOwner },
+    "resolveOlagonTierOrFallback result"
+  );
+  return result;
 }
 async function getTierForUser(userId, preferredTierId, userEmail) {
   if (preferredTierId) {
@@ -205074,8 +205241,9 @@ function getApiKey(envVarName) {
       return process.env.ANTHROPIC_API_KEY ?? "";
     case "OPENAI_API_KEY":
       return process.env.OPENAI_API_KEY ?? process.env.AI_API_KEY ?? "";
-    default:
-      return process.env[envVarName] ?? process.env.AI_API_KEY ?? "";
+    default: {
+      return process.env[envVarName] ?? process.env.ANTHROPIC_API_KEY ?? process.env.AI_API_KEY ?? "";
+    }
   }
 }
 async function callAI(messages, tierId, mode) {
@@ -205090,7 +205258,16 @@ async function callAI(messages, tierId, mode) {
   }
   const apiKey = getApiKey(tier.apiKeyEnvVar);
   if (!apiKey) {
-    logger2.warn({ tierId, envVar: tier.apiKeyEnvVar }, "AI API key not set \u2014 returning placeholder");
+    logger2.warn(
+      {
+        tierId,
+        envVar: tier.apiKeyEnvVar,
+        OLAGON_API_KEY: !!process.env.OLAGON_API_KEY,
+        ANTHROPIC_API_KEY: !!process.env.ANTHROPIC_API_KEY,
+        AI_API_KEY: !!process.env.AI_API_KEY
+      },
+      "AI API key not set \u2014 returning placeholder"
+    );
     return {
       content: `AI belum dikonfigurasi. Tier "${tier.name}" memerlukan ${tier.apiKeyEnvVar} di environment variables.`,
       usage: { inputTokens: 0, outputTokens: 0, estimatedCostUsd: 0, costCents: 0, tierId },
@@ -205575,7 +205752,10 @@ async function checkQuotaAndAccumulate(params) {
   return { allowed: true, method: "saldo", deductCents: costCents };
 }
 async function checkAIAccess(params) {
-  const { userId, tierId, estimatedCostCents } = params;
+  const { userId, tierId, estimatedCostCents, userEmail } = params;
+  if (userEmail && isOwnerEmail(userEmail)) {
+    return { allowed: true, method: "owner" };
+  }
   const { subscription } = await getUserActiveSubscription(userId);
   if (subscription && subscription.status === "active" && /* @__PURE__ */ new Date() < subscription.expiresAt) {
     return { allowed: true, method: "subscription" };
@@ -251827,12 +252007,12 @@ async function generatePptx(projectTitle, documents, references, options) {
 }
 
 // src/routes/projects.ts
-var router4 = (0, import_express4.Router)();
+var router5 = (0, import_express5.Router)();
 function getUserId(req) {
   if (!req.user?.id) throw new Error("User not authenticated");
   return req.user.id;
 }
-router4.get("/projects", async (req, res) => {
+router5.get("/projects", async (req, res) => {
   const userId = getUserId(req);
   const query = ListProjectsQueryParams.safeParse(req.query);
   if (!query.success) {
@@ -251855,6 +252035,8 @@ router4.get("/projects", async (req, res) => {
   res.json(
     results.map((p) => ({
       ...p,
+      title: p.title ?? null,
+      // DECISION 021: title is nullable (general tasks)
       instructionText: p.instructionText ?? null,
       subject: p.subject ?? null,
       taskType: p.taskType ?? null,
@@ -251865,7 +252047,7 @@ router4.get("/projects", async (req, res) => {
     }))
   );
 });
-router4.get("/projects/stats", async (req, res) => {
+router5.get("/projects/stats", async (req, res) => {
   const userId = getUserId(req);
   const all = await db.select().from(projectsTable).where(eq6(projectsTable.userId, userId));
   const total = all.length;
@@ -251880,7 +252062,7 @@ router4.get("/projects/stats", async (req, res) => {
   const recent = projectIds.length > 0 ? await db.select().from(activitiesTable).where(sql7`${activitiesTable.projectId} in (${sql7.join(projectIds.map((id) => sql7`${id}`), sql7`, `)})`).orderBy(desc3(activitiesTable.createdAt)).limit(5) : [];
   res.json({ total, byStatus, byType, recentActivity: recent });
 });
-router4.get("/projects/:projectId", async (req, res) => {
+router5.get("/projects/:projectId", async (req, res) => {
   const userId = getUserId(req);
   const params = GetProjectParams.safeParse(req.params);
   if (!params.success) {
@@ -251898,6 +252080,8 @@ router4.get("/projects/:projectId", async (req, res) => {
   }
   res.json({
     ...project,
+    title: project.title ?? null,
+    // DECISION 021
     instructionText: project.instructionText ?? null,
     subject: project.subject ?? null,
     taskType: project.taskType ?? null,
@@ -251907,7 +252091,7 @@ router4.get("/projects/:projectId", async (req, res) => {
     minRefCount: project.minRefCount ?? null
   });
 });
-router4.post("/projects", async (req, res) => {
+router5.post("/projects", async (req, res) => {
   const userId = getUserId(req);
   const parsed = CreateProjectBody.safeParse(req.body);
   if (!parsed.success) {
@@ -251916,8 +252100,11 @@ router4.post("/projects", async (req, res) => {
   }
   const [project] = await db.insert(projectsTable).values({
     userId,
-    title: parsed.data.title,
+    title: parsed.data.title ?? null,
+    // DECISION 021: nullable (Task Umum)
     instructionText: parsed.data.instructionText,
+    taskType: parsed.data.taskType ?? null,
+    // DECISION 010 + 021: store on projects
     outputFormat: parsed.data.outputFormat,
     minRefYear: parsed.data.minRefYear,
     minRefCount: parsed.data.minRefCount,
@@ -251933,9 +252120,15 @@ router4.post("/projects", async (req, res) => {
       set: { citationFormat: parsed.data.citationFormat, updatedAt: /* @__PURE__ */ new Date() }
     });
   }
-  await logActivity(project.id, "project_created", `Project "${project.title}" dibuat`);
+  await logActivity(
+    project.id,
+    "project_created",
+    `Project ${project.title ? `"${project.title}"` : "(tanpa judul)"} dibuat`
+  );
   res.status(201).json({
     ...project,
+    title: project.title ?? null,
+    // DECISION 021
     instructionText: project.instructionText ?? null,
     subject: project.subject ?? null,
     taskType: project.taskType ?? null,
@@ -251945,7 +252138,7 @@ router4.post("/projects", async (req, res) => {
     minRefCount: project.minRefCount ?? null
   });
 });
-router4.patch("/projects/:projectId", async (req, res) => {
+router5.patch("/projects/:projectId", async (req, res) => {
   const userId = getUserId(req);
   const params = UpdateProjectParams.safeParse(req.params);
   if (!params.success) {
@@ -251969,6 +252162,8 @@ router4.patch("/projects/:projectId", async (req, res) => {
   const [project] = await db.update(projectsTable).set(parsed.data).where(eq6(projectsTable.id, params.data.projectId)).returning();
   res.json({
     ...project,
+    title: project.title ?? null,
+    // DECISION 021
     instructionText: project.instructionText ?? null,
     subject: project.subject ?? null,
     taskType: project.taskType ?? null,
@@ -251978,7 +252173,7 @@ router4.patch("/projects/:projectId", async (req, res) => {
     minRefCount: project.minRefCount ?? null
   });
 });
-router4.delete("/projects/:projectId", async (req, res) => {
+router5.delete("/projects/:projectId", async (req, res) => {
   const userId = getUserId(req);
   const params = DeleteProjectParams.safeParse(req.params);
   if (!params.success) {
@@ -251997,7 +252192,7 @@ router4.delete("/projects/:projectId", async (req, res) => {
   await db.delete(projectsTable).where(eq6(projectsTable.id, params.data.projectId));
   res.sendStatus(204);
 });
-router4.post("/projects/:projectId/analyze", async (req, res) => {
+router5.post("/projects/:projectId/analyze", async (req, res) => {
   const userId = getUserId(req);
   const params = AnalyzeProjectParams.safeParse(req.params);
   if (!params.success) {
@@ -252032,7 +252227,8 @@ router4.post("/projects/:projectId/analyze", async (req, res) => {
     const accessCheck = await checkAIAccess({
       userId: project.userId,
       tierId: selectedTier.id,
-      estimatedCostCents
+      estimatedCostCents,
+      userEmail: req.user?.email
     });
     if (!accessCheck.allowed) {
       if (accessCheck.reason === "saldo_insufficient") {
@@ -252229,7 +252425,7 @@ ${metadata.outline}`
     saldoUsedCents: writeQuota?.allowed && writeQuota.method === "saldo" ? writeQuota.deductCents ?? 0 : 0
   };
 }
-router4.post("/projects/:projectId/outline", async (req, res) => {
+router5.post("/projects/:projectId/outline", async (req, res) => {
   const userId = getUserId(req);
   const params = AnalyzeProjectParams.safeParse(req.params);
   if (!params.success) {
@@ -252264,7 +252460,8 @@ router4.post("/projects/:projectId/outline", async (req, res) => {
     const accessCheck = await checkAIAccess({
       userId: project.userId,
       tierId: selectedTier.id,
-      estimatedCostCents
+      estimatedCostCents,
+      userEmail: req.user?.email
     });
     if (!accessCheck.allowed) {
       if (accessCheck.reason === "saldo_insufficient") {
@@ -252373,7 +252570,7 @@ Format: outline lengkap dalam format markdown dengan bab dan sub-bab.`;
   await logActivity(params.data.projectId, "outline_regenerated", "Outline dokumen diperbarui");
   res.json({ outline: outlineContent, ...quotaInfo ?? {} });
 });
-router4.post("/projects/:projectId/documents/generate", async (req, res) => {
+router5.post("/projects/:projectId/documents/generate", async (req, res) => {
   const userId = getUserId(req);
   const params = AnalyzeProjectParams.safeParse(req.params);
   if (!params.success) {
@@ -252408,7 +252605,8 @@ router4.post("/projects/:projectId/documents/generate", async (req, res) => {
     const accessCheck = await checkAIAccess({
       userId: project.userId,
       tierId: selectedTier.id,
-      estimatedCostCents
+      estimatedCostCents,
+      userEmail: req.user?.email
     });
     if (!accessCheck.allowed) {
       if (accessCheck.reason === "saldo_insufficient") {
@@ -252545,7 +252743,7 @@ TULIS dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan b
     saldoUsedCents: quotaResult?.allowed && quotaResult.method === "saldo" ? quotaResult.deductCents ?? 0 : 0
   };
 }
-router4.get("/projects/:projectId/export/docx", async (req, res) => {
+router5.get("/projects/:projectId/export/docx", async (req, res) => {
   const projectId = Number(req.params.projectId);
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
@@ -252608,7 +252806,7 @@ router4.get("/projects/:projectId/export/docx", async (req, res) => {
     res.status(500).json({ error: "Gagal mengekspor dokumen" });
   }
 });
-router4.get("/projects/:projectId/export/pdf", async (req, res) => {
+router5.get("/projects/:projectId/export/pdf", async (req, res) => {
   const projectId = Number(req.params.projectId);
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
@@ -252653,7 +252851,7 @@ router4.get("/projects/:projectId/export/pdf", async (req, res) => {
     res.status(500).json({ error: "Gagal mengekspor PDF" });
   }
 });
-router4.get("/projects/:projectId/export/pptx", async (req, res) => {
+router5.get("/projects/:projectId/export/pptx", async (req, res) => {
   const projectId = Number(req.params.projectId);
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
@@ -252717,7 +252915,7 @@ router4.get("/projects/:projectId/export/pptx", async (req, res) => {
 function generateToken() {
   return randomBytes2(32).toString("base64url");
 }
-router4.get("/projects/:projectId/share", async (req, res) => {
+router5.get("/projects/:projectId/share", async (req, res) => {
   const projectId = Number(req.params.projectId);
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
@@ -252734,7 +252932,7 @@ router4.get("/projects/:projectId/share", async (req, res) => {
     }))
   );
 });
-router4.post("/projects/:projectId/share", async (req, res) => {
+router5.post("/projects/:projectId/share", async (req, res) => {
   const projectId = Number(req.params.projectId);
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
@@ -252763,7 +252961,7 @@ router4.post("/projects/:projectId/share", async (req, res) => {
     expiresAt: token.expiresAt ?? null
   });
 });
-router4.delete("/projects/:projectId/share/:shareId", async (req, res) => {
+router5.delete("/projects/:projectId/share/:shareId", async (req, res) => {
   const projectId = Number(req.params.projectId);
   const shareId = Number(req.params.shareId);
   if (!req.user?.id) {
@@ -252780,14 +252978,14 @@ router4.delete("/projects/:projectId/share/:shareId", async (req, res) => {
   await logActivity(projectId, "share_link_revoked", "Link berbagi dicabut");
   res.sendStatus(204);
 });
-var projects_default = router4;
+var projects_default = router5;
 
 // src/routes/messages.ts
-var import_express5 = __toESM(require_express2(), 1);
+var import_express6 = __toESM(require_express2(), 1);
 init_src();
 import { eq as eq7, asc, desc as desc4, and as and6, isNull as isNull3, sql as sql8 } from "drizzle-orm";
-var router5 = (0, import_express5.Router)();
-router5.get("/projects/:projectId/messages", async (req, res) => {
+var router6 = (0, import_express6.Router)();
+router6.get("/projects/:projectId/messages", async (req, res) => {
   const params = ListMessagesParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -252796,7 +252994,7 @@ router5.get("/projects/:projectId/messages", async (req, res) => {
   const messages = await db.select().from(messagesTable).where(eq7(messagesTable.projectId, params.data.projectId)).orderBy(asc(messagesTable.createdAt));
   res.json(messages);
 });
-router5.post("/projects/:projectId/messages", async (req, res) => {
+router6.post("/projects/:projectId/messages", async (req, res) => {
   const params = SendMessageParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -252813,14 +253011,25 @@ router5.post("/projects/:projectId/messages", async (req, res) => {
     res.status(404).json({ error: "Project not found" });
     return;
   }
-  const selectedTier = tierId ? await (async () => {
-    const tier = await getTierConfig(tierId);
-    if (!tier) return null;
-    const authorized = await checkTierAccess(project.userId, tierId);
-    return authorized ? tier : null;
-  })() : await getTierForUser(project.userId, null);
+  if (!req.user?.id || project.userId !== req.user.id) {
+    res.status(403).json({ error: "Access denied" });
+    return;
+  }
+  const userEmail = req.user.email;
+  const selectedTier = await resolveOlagonTierOrFallback(
+    project.userId,
+    tierId ?? null,
+    userEmail
+  );
   if (!selectedTier) {
-    res.status(tierId ? 403 : 400).json({ error: tierId ? "Tier tidak diizinkan untuk paket Anda" : "Tier tidak valid" });
+    const requestedTierName = tierId ?? "unknown";
+    const ownerBypass = isOwnerEmail(userEmail);
+    res.status(tierId ? 403 : 400).json({
+      error: tierId ? `Tier "${requestedTierName}" tidak diizinkan untuk paket Anda` : "Tier tidak valid",
+      tierName: requestedTierName,
+      // DIAGNOSTIC: reveal bypass state so we can see OWNER_EMAIL env var status in production
+      _diag: { userEmail, ownerBypass, OWNER_EMAIL_set: !!process.env.OWNER_EMAIL }
+    });
     return;
   }
   const estimatedCostCents = selectedTier.pricePer1MInputCents > 0 || selectedTier.pricePer1MOutputCents > 0 ? Math.max(100, selectedTier.pricePer1MInputCents + selectedTier.pricePer1MOutputCents) : 0;
@@ -252828,7 +253037,8 @@ router5.post("/projects/:projectId/messages", async (req, res) => {
     const accessCheck = await checkAIAccess({
       userId: project.userId,
       tierId: selectedTier.id,
-      estimatedCostCents
+      estimatedCostCents,
+      userEmail
     });
     if (!accessCheck.allowed) {
       if (accessCheck.reason === "saldo_insufficient") {
@@ -252981,10 +253191,10 @@ router5.post("/projects/:projectId/messages", async (req, res) => {
     }
   });
 });
-var messages_default = router5;
+var messages_default = router6;
 
 // src/routes/documents.ts
-var import_express6 = __toESM(require_express2(), 1);
+var import_express7 = __toESM(require_express2(), 1);
 init_src();
 import { eq as eq8, desc as desc5, and as and7, isNull as isNull4, sql as sql9, count } from "drizzle-orm";
 
@@ -253459,8 +253669,8 @@ function formatCitationMarker(ref, format, refId) {
 }
 
 // src/routes/documents.ts
-var router6 = (0, import_express6.Router)();
-router6.get("/projects/:projectId/documents", async (req, res) => {
+var router7 = (0, import_express7.Router)();
+router7.get("/projects/:projectId/documents", async (req, res) => {
   const params = ListDocumentsParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -253516,7 +253726,7 @@ router6.get("/projects/:projectId/documents", async (req, res) => {
   }
   res.json(docsWithVersions);
 });
-router6.post("/projects/:projectId/documents", async (req, res) => {
+router7.post("/projects/:projectId/documents", async (req, res) => {
   const params = CreateDocumentParams.safeParse(req.params);
   const body = CreateDocumentBody.safeParse(req.body);
   if (!params.success) {
@@ -253549,7 +253759,7 @@ router6.post("/projects/:projectId/documents", async (req, res) => {
   await logActivity(projectId, "document_created", `Created document: ${doc.title}`);
   res.status(201).json(doc);
 });
-router6.get("/projects/:projectId/documents/latest", async (req, res) => {
+router7.get("/projects/:projectId/documents/latest", async (req, res) => {
   const params = GetLatestDocumentParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -253602,7 +253812,7 @@ router6.get("/projects/:projectId/documents/latest", async (req, res) => {
   }
   res.status(404).json({ error: "No document yet" });
 });
-router6.get("/projects/:projectId/documents/:documentId", async (req, res) => {
+router7.get("/projects/:projectId/documents/:documentId", async (req, res) => {
   const params = GetDocumentParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -253634,7 +253844,7 @@ router6.get("/projects/:projectId/documents/:documentId", async (req, res) => {
     }))
   });
 });
-router6.patch("/projects/:projectId/documents/:documentId", async (req, res) => {
+router7.patch("/projects/:projectId/documents/:documentId", async (req, res) => {
   const params = UpdateDocumentParams.safeParse(req.params);
   const body = UpdateDocumentBody.safeParse(req.body);
   if (!params.success) {
@@ -253678,7 +253888,7 @@ router6.patch("/projects/:projectId/documents/:documentId", async (req, res) => 
   const [updated] = await db.update(documentsTable).set(updates).where(eq8(documentsTable.id, params.data.documentId)).returning();
   res.json(updated);
 });
-router6.delete("/projects/:projectId/documents/:documentId", async (req, res) => {
+router7.delete("/projects/:projectId/documents/:documentId", async (req, res) => {
   const params = DeleteDocumentParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -253721,7 +253931,7 @@ router6.delete("/projects/:projectId/documents/:documentId", async (req, res) =>
   await logActivity(projectId, "document_deleted", `Deleted document: ${doc.title}`);
   res.status(204).send();
 });
-router6.get("/projects/:projectId/document/preview", async (req, res) => {
+router7.get("/projects/:projectId/document/preview", async (req, res) => {
   const params = GetDocumentPreviewParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -253787,7 +253997,7 @@ router6.get("/projects/:projectId/document/preview", async (req, res) => {
     citationCount: rendered.citationCount
   });
 });
-router6.get("/projects/:projectId/bibliography", async (req, res) => {
+router7.get("/projects/:projectId/bibliography", async (req, res) => {
   const params = GetBibliographyParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -253825,10 +254035,10 @@ router6.get("/projects/:projectId/bibliography", async (req, res) => {
   const bibliography = formatBibliography(uniqueRefs, format);
   res.json({ bibliography, format });
 });
-var documents_default = router6;
+var documents_default = router7;
 
 // src/routes/references.ts
-var import_express7 = __toESM(require_express2(), 1);
+var import_express8 = __toESM(require_express2(), 1);
 init_src();
 import { eq as eq9, and as and8, desc as desc6, inArray } from "drizzle-orm";
 
@@ -254075,8 +254285,8 @@ async function searchCrossRef(query, options = {}) {
 }
 
 // src/routes/references.ts
-var router7 = (0, import_express7.Router)();
-router7.get("/projects/:projectId/references", async (req, res) => {
+var router8 = (0, import_express8.Router)();
+router8.get("/projects/:projectId/references", async (req, res) => {
   const params = ListReferencesParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -254105,7 +254315,7 @@ router7.get("/projects/:projectId/references", async (req, res) => {
     }))
   );
 });
-router7.post("/projects/:projectId/references", async (req, res) => {
+router8.post("/projects/:projectId/references", async (req, res) => {
   const params = CreateReferenceParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -254150,7 +254360,7 @@ router7.post("/projects/:projectId/references", async (req, res) => {
     source: ref.source
   });
 });
-router7.delete("/projects/:projectId/references/:referenceId", async (req, res) => {
+router8.delete("/projects/:projectId/references/:referenceId", async (req, res) => {
   const params = DeleteReferenceParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -254169,7 +254379,7 @@ router7.delete("/projects/:projectId/references/:referenceId", async (req, res) 
   }
   res.sendStatus(204);
 });
-router7.post("/projects/:projectId/references/bulk", async (req, res) => {
+router8.post("/projects/:projectId/references/bulk", async (req, res) => {
   const params = BulkAddReferencesParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -254241,7 +254451,7 @@ router7.post("/projects/:projectId/references/bulk", async (req, res) => {
     }))
   );
 });
-router7.post("/projects/:projectId/references/validate", async (req, res) => {
+router8.post("/projects/:projectId/references/validate", async (req, res) => {
   const params = ValidateReferencesParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -254293,7 +254503,7 @@ router7.post("/projects/:projectId/references/validate", async (req, res) => {
     results
   });
 });
-router7.post("/projects/:projectId/references/format", async (req, res) => {
+router8.post("/projects/:projectId/references/format", async (req, res) => {
   const params = FormatCSLBibliographyParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -254330,7 +254540,7 @@ router7.post("/projects/:projectId/references/format", async (req, res) => {
   );
   res.json({ bibliography: formatted, format: finalFormat });
 });
-router7.post("/projects/:projectId/references/regenerate", async (req, res) => {
+router8.post("/projects/:projectId/references/regenerate", async (req, res) => {
   const params = RegenerateBibliographyParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -254366,7 +254576,8 @@ router7.post("/projects/:projectId/references/regenerate", async (req, res) => {
     const accessCheck = await checkAIAccess({
       userId: project.userId,
       tierId: selectedTier.id,
-      estimatedCostCents
+      estimatedCostCents,
+      userEmail: req.user?.email
     });
     if (!accessCheck.allowed) {
       if (accessCheck.reason === "saldo_insufficient") {
@@ -254445,7 +254656,7 @@ Format output: daftar pustaka siap pakai dalam format ${citationFormat} yang ben
   await logActivity(params.data.projectId, "bibliography_regenerated", "Daftar pustaka diperbarui");
   res.json({ bibliography: aiResponse, ...quotaInfo ?? {} });
 });
-router7.get("/references/search", async (req, res) => {
+router8.get("/references/search", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -254466,7 +254677,7 @@ router7.get("/references/search", async (req, res) => {
     res.status(502).json({ error: message2 });
   }
 });
-router7.post("/references/fetch-metadata", async (req, res) => {
+router8.post("/references/fetch-metadata", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -254488,7 +254699,7 @@ router7.post("/references/fetch-metadata", async (req, res) => {
   }
   res.json(metadata);
 });
-router7.patch("/projects/:projectId/references/:referenceId/select", async (req, res) => {
+router8.patch("/projects/:projectId/references/:referenceId/select", async (req, res) => {
   const params = ToggleReferenceSelectionParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -254535,7 +254746,7 @@ router7.patch("/projects/:projectId/references/:referenceId/select", async (req,
     source: ref.source
   });
 });
-router7.get("/projects/:projectId/citations", async (req, res) => {
+router8.get("/projects/:projectId/citations", async (req, res) => {
   const params = ListCitationsParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -254562,7 +254773,7 @@ router7.get("/projects/:projectId/citations", async (req, res) => {
     }))
   );
 });
-router7.post("/projects/:projectId/citations", async (req, res) => {
+router8.post("/projects/:projectId/citations", async (req, res) => {
   const params = CreateCitationParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -254614,7 +254825,7 @@ router7.post("/projects/:projectId/citations", async (req, res) => {
     updatedAt: citation.updatedAt instanceof Date ? citation.updatedAt.toISOString() : citation.updatedAt
   });
 });
-router7.patch("/projects/:projectId/citations/:citationId", async (req, res) => {
+router8.patch("/projects/:projectId/citations/:citationId", async (req, res) => {
   const params = UpdateCitationParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -254659,7 +254870,7 @@ router7.patch("/projects/:projectId/citations/:citationId", async (req, res) => 
     updatedAt: updated.updatedAt instanceof Date ? updated.updatedAt.toISOString() : updated.updatedAt
   });
 });
-router7.delete("/projects/:projectId/citations/:citationId", async (req, res) => {
+router8.delete("/projects/:projectId/citations/:citationId", async (req, res) => {
   const params = DeleteCitationParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -254688,7 +254899,7 @@ router7.delete("/projects/:projectId/citations/:citationId", async (req, res) =>
   );
   res.sendStatus(204);
 });
-router7.patch("/projects/:projectId/citation-format", async (req, res) => {
+router8.patch("/projects/:projectId/citation-format", async (req, res) => {
   const params = SetProjectCitationFormatParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -254787,7 +254998,7 @@ router7.patch("/projects/:projectId/citation-format", async (req, res) => {
     progress: project.progress
   });
 });
-router7.post("/projects/:projectId/references/auto-cite", async (req, res) => {
+router8.post("/projects/:projectId/references/auto-cite", async (req, res) => {
   const params = AutoCiteReferencesParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -254866,7 +255077,8 @@ router7.post("/projects/:projectId/references/auto-cite", async (req, res) => {
     const accessCheck = await checkAIAccess({
       userId: project.userId,
       tierId: selectedTier.id,
-      estimatedCostCents
+      estimatedCostCents,
+      userEmail: req.user?.email
     });
     if (!accessCheck.allowed) {
       if (accessCheck.reason === "saldo_insufficient") {
@@ -255046,10 +255258,10 @@ ${candidateReferences.map(
     ...quotaInfo ?? {}
   });
 });
-var references_default = router7;
+var references_default = router8;
 
 // src/routes/attachments.ts
-var import_express8 = __toESM(require_express2(), 1);
+var import_express9 = __toESM(require_express2(), 1);
 init_src();
 import { eq as eq10 } from "drizzle-orm";
 
@@ -255088,8 +255300,8 @@ import path from "path";
 var BUCKET_ID = "attachments";
 var MAX_BINARY_BYTES = 10 * 1024 * 1024;
 var MAX_BASE64_CHARS = Math.ceil(MAX_BINARY_BYTES * 4 / 3);
-var router8 = (0, import_express8.Router)();
-router8.get("/projects/:projectId/attachments", async (req, res) => {
+var router9 = (0, import_express9.Router)();
+router9.get("/projects/:projectId/attachments", async (req, res) => {
   const params = ListAttachmentsParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -255111,7 +255323,7 @@ router8.get("/projects/:projectId/attachments", async (req, res) => {
     }))
   );
 });
-router8.post("/projects/:projectId/attachments", async (req, res) => {
+router9.post("/projects/:projectId/attachments", async (req, res) => {
   const params = UploadAttachmentParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -255177,7 +255389,7 @@ router8.post("/projects/:projectId/attachments", async (req, res) => {
     extractedText: attachment.extractedText ?? null
   });
 });
-router8.delete(
+router9.delete(
   "/projects/:projectId/attachments/:attachmentId",
   async (req, res) => {
     const params = DeleteAttachmentParams.safeParse(req.params);
@@ -255200,7 +255412,7 @@ router8.delete(
     res.sendStatus(204);
   }
 );
-router8.get(
+router9.get(
   "/projects/:projectId/attachments/:attachmentId/download",
   async (req, res) => {
     const params = DeleteAttachmentParams.safeParse(req.params);
@@ -255233,14 +255445,14 @@ router8.get(
     res.end(buffer);
   }
 );
-var attachments_default = router8;
+var attachments_default = router9;
 
 // src/routes/activities.ts
-var import_express9 = __toESM(require_express2(), 1);
+var import_express10 = __toESM(require_express2(), 1);
 init_src();
 import { eq as eq11, desc as desc7 } from "drizzle-orm";
-var router9 = (0, import_express9.Router)();
-router9.get("/projects/:projectId/activities", async (req, res) => {
+var router10 = (0, import_express10.Router)();
+router10.get("/projects/:projectId/activities", async (req, res) => {
   const params = ListActivitiesParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -255255,14 +255467,14 @@ router9.get("/projects/:projectId/activities", async (req, res) => {
   const activities = await db.select().from(activitiesTable).where(eq11(activitiesTable.projectId, params.data.projectId)).orderBy(desc7(activitiesTable.createdAt));
   res.json(activities);
 });
-var activities_default = router9;
+var activities_default = router10;
 
 // src/routes/jobs.ts
-var import_express10 = __toESM(require_express2(), 1);
+var import_express11 = __toESM(require_express2(), 1);
 init_src();
 import { eq as eq12, desc as desc8 } from "drizzle-orm";
-var router10 = (0, import_express10.Router)();
-router10.get("/projects/:projectId/jobs", async (req, res) => {
+var router11 = (0, import_express11.Router)();
+router11.get("/projects/:projectId/jobs", async (req, res) => {
   const params = ListJobsParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -255283,14 +255495,14 @@ router10.get("/projects/:projectId/jobs", async (req, res) => {
     }))
   );
 });
-var jobs_default = router10;
+var jobs_default = router11;
 
 // src/routes/metadata.ts
-var import_express11 = __toESM(require_express2(), 1);
+var import_express12 = __toESM(require_express2(), 1);
 init_src();
 import { eq as eq13 } from "drizzle-orm";
-var router11 = (0, import_express11.Router)();
-router11.get("/projects/:projectId/metadata", async (req, res) => {
+var router12 = (0, import_express12.Router)();
+router12.get("/projects/:projectId/metadata", async (req, res) => {
   const params = GetProjectMetadataParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -255318,17 +255530,17 @@ router11.get("/projects/:projectId/metadata", async (req, res) => {
     contextSummary: metadata.contextSummary ?? null
   });
 });
-var metadata_default = router11;
+var metadata_default = router12;
 
 // src/routes/exports.ts
-var import_express12 = __toESM(require_express2(), 1);
+var import_express13 = __toESM(require_express2(), 1);
 init_src();
 import { eq as eq14, desc as desc9, and as and9, isNull as isNull5 } from "drizzle-orm";
 import path2 from "path";
 import fs4 from "fs/promises";
 var EXPORT_DIR = process.env.EXPORT_DIR ?? "/tmp/academic-workspace-exports";
 var MAX_DOCX_SOURCE_BYTES = 5 * 1024 * 1024;
-var router12 = (0, import_express12.Router)();
+var router13 = (0, import_express13.Router)();
 function markdownToParagraphs(markdown) {
   const lines = markdown.split(/\r?\n/);
   const paragraphs = [];
@@ -255427,7 +255639,7 @@ function parseInlineRuns(text37) {
   }
   return runs;
 }
-router12.get("/projects/:projectId/exports", async (req, res) => {
+router13.get("/projects/:projectId/exports", async (req, res) => {
   const params = ListExportsParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -255447,7 +255659,7 @@ router12.get("/projects/:projectId/exports", async (req, res) => {
     }))
   );
 });
-router12.post("/projects/:projectId/exports", async (req, res) => {
+router13.post("/projects/:projectId/exports", async (req, res) => {
   const params = ListExportsParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -255537,7 +255749,7 @@ router12.post("/projects/:projectId/exports", async (req, res) => {
   );
   res.status(201).json({ ...exportRecord, filePath: exportRecord.filePath ?? null });
 });
-router12.get("/exports/download/:filename", async (req, res) => {
+router13.get("/exports/download/:filename", async (req, res) => {
   const { filename } = req.params;
   if (!filename) {
     res.status(400).json({ error: "Missing filename" });
@@ -255569,18 +255781,18 @@ router12.get("/exports/download/:filename", async (req, res) => {
   const fileBuffer = await fs4.readFile(filePath);
   res.send(fileBuffer);
 });
-var exports_default = router12;
+var exports_default = router13;
 
 // src/routes/ai-usage.ts
-var import_express13 = __toESM(require_express2(), 1);
+var import_express14 = __toESM(require_express2(), 1);
 init_src();
 import { eq as eq15, and as and10, gte as gte2, lte, sql as sql10 } from "drizzle-orm";
-var router13 = (0, import_express13.Router)();
+var router14 = (0, import_express14.Router)();
 function getUserId2(req) {
   if (!req.user?.id) throw new Error("User not authenticated");
   return req.user.id;
 }
-router13.get("/ai-usage", async (req, res) => {
+router14.get("/ai-usage", async (req, res) => {
   const userId = getUserId2(req);
   const limit = Number(req.query.limit ?? 50);
   const offset = Number(req.query.offset ?? 0);
@@ -255608,7 +255820,7 @@ router13.get("/ai-usage", async (req, res) => {
     total: Number(totalResult?.count ?? 0)
   });
 });
-router13.get("/ai-usage/stats", async (req, res) => {
+router14.get("/ai-usage/stats", async (req, res) => {
   const userId = getUserId2(req);
   const projectId = req.query.projectId ? Number(req.query.projectId) : void 0;
   const conditions = [eq15(aiUsageLogTable.userId, userId)];
@@ -255649,14 +255861,14 @@ router13.get("/ai-usage/stats", async (req, res) => {
     byRequestType
   });
 });
-var ai_usage_default = router13;
+var ai_usage_default = router14;
 
 // src/routes/comments.ts
-var import_express14 = __toESM(require_express2(), 1);
+var import_express15 = __toESM(require_express2(), 1);
 init_src();
 import { eq as eq16, and as and11, desc as desc10 } from "drizzle-orm";
-var router14 = (0, import_express14.Router)();
-router14.get("/projects/:projectId/documents/:documentId/comments", async (req, res) => {
+var router15 = (0, import_express15.Router)();
+router15.get("/projects/:projectId/documents/:documentId/comments", async (req, res) => {
   const projectId = Number(req.params.projectId);
   const documentId = Number(req.params.documentId);
   if (!projectId || isNaN(projectId) || !documentId || isNaN(documentId)) {
@@ -255672,7 +255884,7 @@ router14.get("/projects/:projectId/documents/:documentId/comments", async (req, 
   const comments = await db.select().from(commentsTable).where(and11(eq16(commentsTable.projectId, projectId), eq16(commentsTable.documentId, documentId))).orderBy(desc10(commentsTable.createdAt));
   res.json(comments);
 });
-router14.post("/projects/:projectId/documents/:documentId/comments", async (req, res) => {
+router15.post("/projects/:projectId/documents/:documentId/comments", async (req, res) => {
   const projectId = Number(req.params.projectId);
   const documentId = Number(req.params.documentId);
   if (!projectId || isNaN(projectId) || !documentId || isNaN(documentId)) {
@@ -255706,7 +255918,7 @@ router14.post("/projects/:projectId/documents/:documentId/comments", async (req,
   }).returning();
   res.status(201).json(comment);
 });
-router14.patch("/projects/:projectId/comments/:commentId", async (req, res) => {
+router15.patch("/projects/:projectId/comments/:commentId", async (req, res) => {
   const projectId = Number(req.params.projectId);
   const commentId = Number(req.params.commentId);
   if (!projectId || isNaN(projectId) || !commentId || isNaN(commentId)) {
@@ -255753,7 +255965,7 @@ router14.patch("/projects/:projectId/comments/:commentId", async (req, res) => {
   }
   res.json(existing);
 });
-router14.delete("/projects/:projectId/comments/:commentId", async (req, res) => {
+router15.delete("/projects/:projectId/comments/:commentId", async (req, res) => {
   const projectId = Number(req.params.projectId);
   const commentId = Number(req.params.commentId);
   if (!projectId || isNaN(projectId) || !commentId || isNaN(commentId)) {
@@ -255778,14 +255990,14 @@ router14.delete("/projects/:projectId/comments/:commentId", async (req, res) => 
   await db.delete(commentsTable).where(and11(eq16(commentsTable.id, commentId), eq16(commentsTable.projectId, projectId)));
   res.status(204).send();
 });
-var comments_default = router14;
+var comments_default = router15;
 
 // src/routes/project-members.ts
-var import_express15 = __toESM(require_express2(), 1);
+var import_express16 = __toESM(require_express2(), 1);
 init_src();
 import { eq as eq17, and as and12 } from "drizzle-orm";
-var router15 = (0, import_express15.Router)();
-router15.get("/projects/:projectId/members", async (req, res) => {
+var router16 = (0, import_express16.Router)();
+router16.get("/projects/:projectId/members", async (req, res) => {
   const projectId = Number(req.params.projectId);
   if (!projectId || isNaN(projectId)) {
     res.status(400).json({ error: "Invalid projectId" });
@@ -255800,7 +256012,7 @@ router15.get("/projects/:projectId/members", async (req, res) => {
   const members = await db.select().from(projectMembersTable).where(eq17(projectMembersTable.projectId, projectId));
   res.json(members);
 });
-router15.post("/projects/:projectId/members", async (req, res) => {
+router16.post("/projects/:projectId/members", async (req, res) => {
   const projectId = Number(req.params.projectId);
   if (!projectId || isNaN(projectId)) {
     res.status(400).json({ error: "Invalid projectId" });
@@ -255826,7 +256038,7 @@ router15.post("/projects/:projectId/members", async (req, res) => {
   }).returning();
   res.status(201).json(member);
 });
-router15.patch("/projects/:projectId/members/:memberId", async (req, res) => {
+router16.patch("/projects/:projectId/members/:memberId", async (req, res) => {
   const projectId = Number(req.params.projectId);
   const memberId = Number(req.params.memberId);
   if (!projectId || isNaN(projectId) || !memberId || isNaN(memberId)) {
@@ -255854,7 +256066,7 @@ router15.patch("/projects/:projectId/members/:memberId", async (req, res) => {
   const [updated] = await db.update(projectMembersTable).set({ role: updatedRole, updatedAt: /* @__PURE__ */ new Date() }).where(and12(eq17(projectMembersTable.id, memberId), eq17(projectMembersTable.projectId, projectId))).returning();
   res.json(updated);
 });
-router15.delete("/projects/:projectId/members/:memberId", async (req, res) => {
+router16.delete("/projects/:projectId/members/:memberId", async (req, res) => {
   const projectId = Number(req.params.projectId);
   const memberId = Number(req.params.memberId);
   if (!projectId || isNaN(projectId) || !memberId || isNaN(memberId)) {
@@ -255875,16 +256087,16 @@ router15.delete("/projects/:projectId/members/:memberId", async (req, res) => {
   await db.delete(projectMembersTable).where(and12(eq17(projectMembersTable.id, memberId), eq17(projectMembersTable.projectId, projectId)));
   res.status(204).send();
 });
-var project_members_default = router15;
+var project_members_default = router16;
 
 // src/routes/quizzes.ts
-var import_express16 = __toESM(require_express2(), 1);
+var import_express17 = __toESM(require_express2(), 1);
 init_src();
 import { eq as eq18, desc as desc11 } from "drizzle-orm";
 init_src();
 init_src();
-var router16 = (0, import_express16.Router)();
-router16.get("/projects/:projectId/quizzes", async (req, res) => {
+var router17 = (0, import_express17.Router)();
+router17.get("/projects/:projectId/quizzes", async (req, res) => {
   const projectId = Number(req.params.projectId);
   if (!projectId || isNaN(projectId)) {
     res.status(400).json({ error: "Invalid projectId" });
@@ -255899,7 +256111,7 @@ router16.get("/projects/:projectId/quizzes", async (req, res) => {
   const quizzes = await db.select().from(quizzesTable).where(eq18(quizzesTable.projectId, projectId)).orderBy(desc11(quizzesTable.createdAt));
   res.json(quizzes);
 });
-router16.get("/projects/:projectId/quizzes/:quizId", async (req, res) => {
+router17.get("/projects/:projectId/quizzes/:quizId", async (req, res) => {
   const projectId = Number(req.params.projectId);
   const quizId = Number(req.params.quizId);
   if (!projectId || isNaN(projectId) || !quizId || isNaN(quizId)) {
@@ -255919,7 +256131,7 @@ router16.get("/projects/:projectId/quizzes/:quizId", async (req, res) => {
   }
   res.json(quiz);
 });
-router16.post("/projects/:projectId/quizzes", async (req, res) => {
+router17.post("/projects/:projectId/quizzes", async (req, res) => {
   const projectId = Number(req.params.projectId);
   if (!projectId || isNaN(projectId)) {
     res.status(400).json({ error: "Invalid projectId" });
@@ -255959,7 +256171,8 @@ router16.post("/projects/:projectId/quizzes", async (req, res) => {
     const accessCheck = await checkAIAccess({
       userId: project.userId,
       tierId: selectedTier.id,
-      estimatedCostCents
+      estimatedCostCents,
+      userEmail: req.user?.email
     });
     if (!accessCheck.allowed) {
       if (accessCheck.reason === "saldo_insufficient") {
@@ -256085,7 +256298,7 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks, no explanation.`;
     res.status(500).json({ error: "Failed to generate quiz" });
   }
 });
-router16.get("/quizzes/:quizId/submissions", async (req, res) => {
+router17.get("/quizzes/:quizId/submissions", async (req, res) => {
   const quizId = Number(req.params.quizId);
   if (!quizId || isNaN(quizId)) {
     res.status(400).json({ error: "Invalid quizId" });
@@ -256098,7 +256311,7 @@ router16.get("/quizzes/:quizId/submissions", async (req, res) => {
   const submissions = await db.select().from(quizSubmissionsTable).where(eq18(quizSubmissionsTable.quizId, quizId)).orderBy(desc11(quizSubmissionsTable.submittedAt));
   res.json(submissions);
 });
-router16.post("/quizzes/:quizId/submissions", async (req, res) => {
+router17.post("/quizzes/:quizId/submissions", async (req, res) => {
   const quizId = Number(req.params.quizId);
   if (!quizId || isNaN(quizId)) {
     res.status(400).json({ error: "Invalid quizId" });
@@ -256133,7 +256346,7 @@ router16.post("/quizzes/:quizId/submissions", async (req, res) => {
   await logActivity(quiz.projectId, "quiz_submitted", `Submission untuk quiz #${quizId} oleh ${req.user.id}`);
   res.status(201).json(submission);
 });
-router16.get("/quizzes/:quizId/submissions/me", async (req, res) => {
+router17.get("/quizzes/:quizId/submissions/me", async (req, res) => {
   const quizId = Number(req.params.quizId);
   if (!quizId || isNaN(quizId)) {
     res.status(400).json({ error: "Invalid quizId" });
@@ -256150,15 +256363,15 @@ router16.get("/quizzes/:quizId/submissions/me", async (req, res) => {
   }
   res.json(submission);
 });
-var quizzes_default = router16;
+var quizzes_default = router17;
 
 // src/routes/rubrics.ts
-var import_express17 = __toESM(require_express2(), 1);
+var import_express18 = __toESM(require_express2(), 1);
 init_src();
 import { eq as eq19, desc as desc12 } from "drizzle-orm";
 init_src();
-var router17 = (0, import_express17.Router)();
-router17.get("/projects/:projectId/quizzes/:quizId/rubric", async (req, res) => {
+var router18 = (0, import_express18.Router)();
+router18.get("/projects/:projectId/quizzes/:quizId/rubric", async (req, res) => {
   const quizId = Number(req.params.quizId);
   if (!quizId || isNaN(quizId)) {
     res.status(400).json({ error: "Invalid quizId" });
@@ -256175,7 +256388,7 @@ router17.get("/projects/:projectId/quizzes/:quizId/rubric", async (req, res) => 
   }
   res.json(rubric[0]);
 });
-router17.post("/projects/:projectId/quizzes/:quizId/rubric", async (req, res) => {
+router18.post("/projects/:projectId/quizzes/:quizId/rubric", async (req, res) => {
   const quizId = Number(req.params.quizId);
   if (!quizId || isNaN(quizId)) {
     res.status(400).json({ error: "Invalid quizId" });
@@ -256216,7 +256429,8 @@ router17.post("/projects/:projectId/quizzes/:quizId/rubric", async (req, res) =>
     const accessCheck = await checkAIAccess({
       userId: project.userId,
       tierId: selectedTier.id,
-      estimatedCostCents
+      estimatedCostCents,
+      userEmail: req.user?.email
     });
     if (!accessCheck.allowed) {
       if (accessCheck.reason === "saldo_insufficient") {
@@ -256315,7 +256529,7 @@ IMPORTANT: Return ONLY the JSON, no markdown code blocks.`;
     res.status(500).json({ error: "Failed to generate rubric" });
   }
 });
-router17.patch("/projects/:projectId/quizzes/:quizId/rubric", async (req, res) => {
+router18.patch("/projects/:projectId/quizzes/:quizId/rubric", async (req, res) => {
   const quizId = Number(req.params.quizId);
   if (!quizId || isNaN(quizId)) {
     res.status(400).json({ error: "Invalid quizId" });
@@ -256341,7 +256555,7 @@ router17.patch("/projects/:projectId/quizzes/:quizId/rubric", async (req, res) =
   const [updated] = await db.update(rubricsTable).set(updateData).where(eq19(rubricsTable.id, rubric.id)).returning();
   res.json(updated);
 });
-router17.delete("/projects/:projectId/quizzes/:quizId/rubric", async (req, res) => {
+router18.delete("/projects/:projectId/quizzes/:quizId/rubric", async (req, res) => {
   const quizId = Number(req.params.quizId);
   if (!quizId || isNaN(quizId)) {
     res.status(400).json({ error: "Invalid quizId" });
@@ -256359,15 +256573,15 @@ router17.delete("/projects/:projectId/quizzes/:quizId/rubric", async (req, res) 
   await db.delete(rubricsTable).where(eq19(rubricsTable.id, rubric.id));
   res.status(204).send();
 });
-var rubrics_default = router17;
+var rubrics_default = router18;
 
 // src/routes/writing-style.ts
-var import_express18 = __toESM(require_express2(), 1);
+var import_express19 = __toESM(require_express2(), 1);
 init_src();
 import { eq as eq20, desc as desc13 } from "drizzle-orm";
 init_src();
-var router18 = (0, import_express18.Router)();
-router18.get("/users/me/writing-style", async (req, res) => {
+var router19 = (0, import_express19.Router)();
+router19.get("/users/me/writing-style", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -256379,7 +256593,7 @@ router18.get("/users/me/writing-style", async (req, res) => {
   }
   res.json(profile[0]);
 });
-router18.post("/users/me/writing-style/analyze", async (req, res) => {
+router19.post("/users/me/writing-style/analyze", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -256407,7 +256621,8 @@ router18.post("/users/me/writing-style/analyze", async (req, res) => {
     const accessCheck = await checkAIAccess({
       userId: req.user.id,
       tierId: selectedTier.id,
-      estimatedCostCents
+      estimatedCostCents,
+      userEmail: req.user?.email
     });
     if (!accessCheck.allowed) {
       if (accessCheck.reason === "saldo_insufficient") {
@@ -256500,7 +256715,7 @@ IMPORTANT: Return ONLY the JSON object, no markdown code blocks.`;
     res.status(500).json({ error: "Failed to analyze writing style" });
   }
 });
-router18.patch("/users/me/writing-style", async (req, res) => {
+router19.patch("/users/me/writing-style", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -256521,14 +256736,14 @@ router18.patch("/users/me/writing-style", async (req, res) => {
   }).where(eq20(writingStyleProfilesTable.id, existing.id)).returning();
   res.json(updated);
 });
-var writing_style_default = router18;
+var writing_style_default = router19;
 
 // src/routes/ai-tiers.ts
-var import_express19 = __toESM(require_express2(), 1);
+var import_express20 = __toESM(require_express2(), 1);
 init_src();
 import { eq as eq21, and as and13 } from "drizzle-orm";
-var router19 = (0, import_express19.Router)();
-router19.get("/ai-tiers", async (req, res) => {
+var router20 = (0, import_express20.Router)();
+router20.get("/ai-tiers", async (req, res) => {
   const userEmail = req.user?.email;
   const isOwner = isOwnerEmail(userEmail);
   const tiers = await db.select({
@@ -256557,14 +256772,14 @@ router19.get("/ai-tiers", async (req, res) => {
     }))
   });
 });
-var ai_tiers_default = router19;
+var ai_tiers_default = router20;
 
 // src/routes/packages.ts
-var import_express20 = __toESM(require_express2(), 1);
+var import_express21 = __toESM(require_express2(), 1);
 init_src();
 import { eq as eq22, asc as asc2 } from "drizzle-orm";
-var router20 = (0, import_express20.Router)();
-router20.get("/packages", async (_req, res) => {
+var router21 = (0, import_express21.Router)();
+router21.get("/packages", async (_req, res) => {
   const rows = await db.select().from(packagesTable).where(eq22(packagesTable.isActive, true)).orderBy(
     asc2(packagesTable.tierDisplayOrder),
     asc2(packagesTable.modelType),
@@ -256599,10 +256814,10 @@ router20.get("/packages", async (_req, res) => {
   );
   res.json({ packages, tiers, modelTypes, periods });
 });
-var packages_default = router20;
+var packages_default = router21;
 
 // src/routes/balance.ts
-var import_express21 = __toESM(require_express2(), 1);
+var import_express22 = __toESM(require_express2(), 1);
 init_src();
 import { eq as eq24 } from "drizzle-orm";
 
@@ -256628,8 +256843,8 @@ async function getUserBalance(userId) {
 }
 
 // src/routes/balance.ts
-var router21 = (0, import_express21.Router)();
-router21.get("/users/me/balance", async (req, res) => {
+var router22 = (0, import_express22.Router)();
+router22.get("/users/me/balance", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -256664,7 +256879,7 @@ router21.get("/users/me/balance", async (req, res) => {
     }))
   });
 });
-router21.put("/users/me/ai-tier-preference", async (req, res) => {
+router22.put("/users/me/ai-tier-preference", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -256690,15 +256905,15 @@ router21.put("/users/me/ai-tier-preference", async (req, res) => {
   }
   res.json({ preferredTierId: tierId });
 });
-var balance_default = router21;
+var balance_default = router22;
 
 // src/routes/autofallback.ts
-var import_express22 = __toESM(require_express2(), 1);
+var import_express23 = __toESM(require_express2(), 1);
 init_src();
 import { z as z7 } from "zod/v4";
 import { eq as eq25 } from "drizzle-orm";
-var router22 = (0, import_express22.Router)();
-router22.put("/autofallback", async (req, res) => {
+var router23 = (0, import_express23.Router)();
+router23.put("/autofallback", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -256729,14 +256944,14 @@ router22.put("/autofallback", async (req, res) => {
   }).where(eq25(userBalancesTable.userId, userId));
   res.json({ autofallbackEnabled: enabled });
 });
-var autofallback_default = router22;
+var autofallback_default = router23;
 
 // src/routes/subscriptions.ts
-var import_express23 = __toESM(require_express2(), 1);
+var import_express24 = __toESM(require_express2(), 1);
 init_src();
 import { z as z8 } from "zod/v4";
 import { eq as eq26, and as and15, lte as lte2, gte as gte4 } from "drizzle-orm";
-var router23 = (0, import_express23.Router)();
+var router24 = (0, import_express24.Router)();
 var createSubscriptionSchema = z8.object({
   packageId: z8.string().min(1),
   autoRenew: z8.boolean().default(false)
@@ -256765,7 +256980,7 @@ function formatPackage(pkg) {
     isDefault: pkg.isDefault
   };
 }
-router23.get("/users/me/subscription", async (req, res) => {
+router24.get("/users/me/subscription", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -256825,7 +257040,7 @@ router23.get("/users/me/subscription", async (req, res) => {
     maxWindows
   });
 });
-router23.post("/users/me/subscription", async (req, res) => {
+router24.post("/users/me/subscription", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -256861,14 +257076,14 @@ router23.post("/users/me/subscription", async (req, res) => {
     error: "Payment gateway not configured yet. Please contact support to subscribe."
   });
 });
-var subscriptions_default = router23;
+var subscriptions_default = router24;
 
 // src/routes/account-references.ts
-var import_express24 = __toESM(require_express2(), 1);
+var import_express25 = __toESM(require_express2(), 1);
 init_src();
 import { eq as eq27, desc as desc15, and as and16 } from "drizzle-orm";
-var router24 = (0, import_express24.Router)();
-router24.get("/account/references", async (req, res) => {
+var router25 = (0, import_express25.Router)();
+router25.get("/account/references", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -256887,7 +257102,7 @@ router24.get("/account/references", async (req, res) => {
     }))
   );
 });
-router24.post("/account/references", async (req, res) => {
+router25.post("/account/references", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -256933,7 +257148,7 @@ router24.post("/account/references", async (req, res) => {
     url: ref.url ?? null
   });
 });
-router24.put("/account/references/:id", async (req, res) => {
+router25.put("/account/references/:id", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -256994,7 +257209,7 @@ router24.put("/account/references/:id", async (req, res) => {
     url: updated.url ?? null
   });
 });
-router24.delete("/account/references/:id", async (req, res) => {
+router25.delete("/account/references/:id", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -257016,7 +257231,7 @@ router24.delete("/account/references/:id", async (req, res) => {
   }
   res.sendStatus(204);
 });
-router24.post("/account/references/:id/assign", async (req, res) => {
+router25.post("/account/references/:id/assign", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -257077,7 +257292,7 @@ router24.post("/account/references/:id/assign", async (req, res) => {
     url: projectRef.url ?? null
   });
 });
-router24.post("/account/references/import", async (req, res) => {
+router25.post("/account/references/import", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -257156,14 +257371,14 @@ router24.post("/account/references/import", async (req, res) => {
     }
   });
 });
-var account_references_default = router24;
+var account_references_default = router25;
 
 // src/routes/learning-activities.ts
-var import_express25 = __toESM(require_express2(), 1);
+var import_express26 = __toESM(require_express2(), 1);
 init_src();
 import { eq as eq28, desc as desc16, and as and17 } from "drizzle-orm";
-var router25 = (0, import_express25.Router)();
-router25.get("/learning-activities", async (req, res) => {
+var router26 = (0, import_express26.Router)();
+router26.get("/learning-activities", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -257171,7 +257386,7 @@ router25.get("/learning-activities", async (req, res) => {
   const activities = await db.select().from(learningActivitiesTable).where(eq28(learningActivitiesTable.userId, req.user.id)).orderBy(desc16(learningActivitiesTable.createdAt));
   res.json(activities);
 });
-router25.post("/learning-activities", async (req, res) => {
+router26.post("/learning-activities", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -257208,7 +257423,7 @@ router25.post("/learning-activities", async (req, res) => {
   }).returning();
   res.status(201).json(inserted[0]);
 });
-router25.get("/learning-activities/recommendations", async (req, res) => {
+router26.get("/learning-activities/recommendations", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -257288,15 +257503,15 @@ router25.get("/learning-activities/recommendations", async (req, res) => {
   });
   res.json(deduplicated.slice(0, 3));
 });
-var learning_activities_default = router25;
+var learning_activities_default = router26;
 
 // src/routes/usage.ts
-var import_express26 = __toESM(require_express2(), 1);
+var import_express27 = __toESM(require_express2(), 1);
 init_src();
 import { eq as eq29, and as and18, gte as gte5, sql as sql13, desc as desc17, lte as lte3 } from "drizzle-orm";
 import { z as z9 } from "zod/v4";
-var router26 = (0, import_express26.Router)();
-router26.use(authMiddleware);
+var router27 = (0, import_express27.Router)();
+router27.use(authMiddleware);
 var periodSchema = z9.enum(["7d", "30d", "all"]).default("all");
 function buildPeriodCondition(period) {
   if (period === "all") return void 0;
@@ -257353,7 +257568,7 @@ function aggregateRecords(records, groupByProject = false) {
     byProject
   };
 }
-router26.get("/users/me/usage", async (req, res) => {
+router27.get("/users/me/usage", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -257381,7 +257596,7 @@ router26.get("/users/me/usage", async (req, res) => {
     period
   });
 });
-router26.get("/users/me/usage/projects/:projectId", async (req, res) => {
+router27.get("/users/me/usage/projects/:projectId", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -257436,7 +257651,7 @@ router26.get("/users/me/usage/projects/:projectId", async (req, res) => {
     byRequestType
   });
 });
-router26.get("/admin/usage", async (req, res) => {
+router27.get("/admin/usage", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -257519,7 +257734,7 @@ router26.get("/admin/usage", async (req, res) => {
     dailyTotals
   });
 });
-router26.get("/users/me/usage/daily", async (req, res) => {
+router27.get("/users/me/usage/daily", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -257548,7 +257763,7 @@ router26.get("/users/me/usage/daily", async (req, res) => {
   }));
   res.json({ days, history });
 });
-router26.get("/users/me/usage/windows", async (req, res) => {
+router27.get("/users/me/usage/windows", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -257614,14 +257829,14 @@ router26.get("/users/me/usage/windows", async (req, res) => {
     }
   });
 });
-var usage_default = router26;
+var usage_default = router27;
 
 // src/routes/document-templates.ts
-var import_express27 = __toESM(require_express2(), 1);
+var import_express28 = __toESM(require_express2(), 1);
 init_src();
 import { eq as eq30, or, isNull as isNull6, desc as desc18 } from "drizzle-orm";
 import { z as z10 } from "zod/v4";
-var router27 = (0, import_express27.Router)();
+var router28 = (0, import_express28.Router)();
 var createTemplateSchema = z10.object({
   name: z10.string().min(1).max(120),
   category: z10.string().min(1).max(60).default("custom"),
@@ -257649,7 +257864,7 @@ function toTemplateJson(t2) {
     updatedAt: t2.updatedAt
   };
 }
-router27.get("/templates", async (req, res) => {
+router28.get("/templates", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -257662,7 +257877,7 @@ router27.get("/templates", async (req, res) => {
   ).orderBy(desc18(documentTemplatesTable.createdAt));
   res.json(templates.map(toTemplateJson));
 });
-router27.get("/templates/categories", async (req, res) => {
+router28.get("/templates/categories", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -257681,7 +257896,7 @@ router27.get("/templates/categories", async (req, res) => {
     ]
   });
 });
-router27.get("/templates/:templateId", async (req, res) => {
+router28.get("/templates/:templateId", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -257705,7 +257920,7 @@ router27.get("/templates/:templateId", async (req, res) => {
   }
   res.json(toTemplateJson(template));
 });
-router27.post("/templates", async (req, res) => {
+router28.post("/templates", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -257729,7 +257944,7 @@ router27.post("/templates", async (req, res) => {
   }).returning();
   res.status(201).json(toTemplateJson(template));
 });
-router27.put("/templates/:templateId", async (req, res) => {
+router28.put("/templates/:templateId", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -257771,7 +257986,7 @@ router27.put("/templates/:templateId", async (req, res) => {
   const [updated] = await db.update(documentTemplatesTable).set(updates).where(eq30(documentTemplatesTable.id, templateId)).returning();
   res.json(toTemplateJson(updated));
 });
-router27.delete("/templates/:templateId", async (req, res) => {
+router28.delete("/templates/:templateId", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -257797,14 +258012,14 @@ router27.delete("/templates/:templateId", async (req, res) => {
   await db.delete(documentTemplatesTable).where(eq30(documentTemplatesTable.id, templateId));
   res.sendStatus(204);
 });
-var document_templates_default = router27;
+var document_templates_default = router28;
 
 // src/routes/admin-ai-tiers.ts
-var import_express28 = __toESM(require_express2(), 1);
+var import_express29 = __toESM(require_express2(), 1);
 init_src();
 import { eq as eq31 } from "drizzle-orm";
 import { z as z11 } from "zod/v4";
-var router28 = (0, import_express28.Router)();
+var router29 = (0, import_express29.Router)();
 async function requireOwner2(req, res, next) {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
@@ -257830,11 +258045,11 @@ var updateTierSchema = z11.object({
   description: z11.string().max(500).optional(),
   usageTips: z11.string().max(500).nullable().optional()
 });
-router28.get("/admin/ai-tiers", requireOwner2, async (_req, res) => {
+router29.get("/admin/ai-tiers", requireOwner2, async (_req, res) => {
   const tiers = await db.select().from(aiTiersTable).orderBy(aiTiersTable.displayOrder);
   res.json({ tiers });
 });
-router28.put("/admin/ai-tiers/:id", requireOwner2, async (req, res) => {
+router29.put("/admin/ai-tiers/:id", requireOwner2, async (req, res) => {
   const parsed = updateTierSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -257856,10 +258071,10 @@ router28.put("/admin/ai-tiers/:id", requireOwner2, async (req, res) => {
   const [updated] = await db.update(aiTiersTable).set(updatePayload).where(eq31(aiTiersTable.id, tierId)).returning();
   res.json({ tier: updated });
 });
-var admin_ai_tiers_default = router28;
+var admin_ai_tiers_default = router29;
 
 // src/routes/admin.ts
-var import_express29 = __toESM(require_express2(), 1);
+var import_express30 = __toESM(require_express2(), 1);
 init_src();
 init_src();
 init_src();
@@ -257868,13 +258083,13 @@ init_src();
 init_src();
 init_src();
 import { sql as sql14, eq as eq32, count as count2, or as or2, and as and19, gte as gte6 } from "drizzle-orm";
-var router29 = (0, import_express29.Router)();
-router29.get("/me", authMiddleware, (req, res) => {
+var router30 = (0, import_express30.Router)();
+router30.get("/me", authMiddleware, (req, res) => {
   const OWNER_EMAIL2 = process.env.OWNER_EMAIL ?? "";
   const isOwner = req.user?.email?.toLowerCase() === OWNER_EMAIL2.toLowerCase();
   res.json({ isOwner, email: req.user?.email });
 });
-router29.get("/users", authMiddleware, requireOwner, async (req, res) => {
+router30.get("/users", authMiddleware, requireOwner, async (req, res) => {
   try {
     const search = req.query.search;
     const page = Math.max(1, parseInt(req.query.page) || 1);
@@ -257927,7 +258142,7 @@ router29.get("/users", authMiddleware, requireOwner, async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-router29.get("/stats", authMiddleware, requireOwner, async (req, res) => {
+router30.get("/stats", authMiddleware, requireOwner, async (req, res) => {
   try {
     const period = req.query.period || "month";
     const now = /* @__PURE__ */ new Date();
@@ -258012,7 +258227,7 @@ router29.get("/stats", authMiddleware, requireOwner, async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-router29.get("/usage-breakdown", authMiddleware, requireOwner, async (req, res) => {
+router30.get("/usage-breakdown", authMiddleware, requireOwner, async (req, res) => {
   try {
     const period = req.query.period || "month";
     const now = /* @__PURE__ */ new Date();
@@ -258077,7 +258292,7 @@ router29.get("/usage-breakdown", authMiddleware, requireOwner, async (req, res) 
     res.status(500).json({ error: "Internal server error" });
   }
 });
-router29.get("/audit-log", authMiddleware, requireOwner, async (req, res) => {
+router30.get("/audit-log", authMiddleware, requireOwner, async (req, res) => {
   try {
     const page = Math.max(1, parseInt(req.query.page) || 1);
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 50));
@@ -258102,7 +258317,7 @@ router29.get("/audit-log", authMiddleware, requireOwner, async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-router29.post("/users/:userId/tier", authMiddleware, requireOwner, async (req, res) => {
+router30.post("/users/:userId/tier", authMiddleware, requireOwner, async (req, res) => {
   try {
     const { userId } = req.params;
     const { tierId } = req.body;
@@ -258121,7 +258336,7 @@ router29.post("/users/:userId/tier", authMiddleware, requireOwner, async (req, r
     res.status(500).json({ error: "Internal server error" });
   }
 });
-router29.post("/users/:userId/suspend", authMiddleware, requireOwner, async (req, res) => {
+router30.post("/users/:userId/suspend", authMiddleware, requireOwner, async (req, res) => {
   try {
     const { userId } = req.params;
     const { suspend } = req.body;
@@ -258139,10 +258354,10 @@ router29.post("/users/:userId/suspend", authMiddleware, requireOwner, async (req
     res.status(500).json({ error: "Internal server error" });
   }
 });
-var admin_default = router29;
+var admin_default = router30;
 
 // src/routes/referral.ts
-var import_express30 = __toESM(require_express2(), 1);
+var import_express31 = __toESM(require_express2(), 1);
 init_src();
 import { eq as eq34 } from "drizzle-orm";
 
@@ -258382,8 +258597,8 @@ async function getReferralSummary(userId) {
 }
 
 // src/routes/referral.ts
-var router30 = (0, import_express30.Router)();
-router30.get("/users/me/referral-info", async (req, res) => {
+var router31 = (0, import_express31.Router)();
+router31.get("/users/me/referral-info", async (req, res) => {
   try {
     const userId = req.user?.id;
     if (!userId) {
@@ -258425,14 +258640,14 @@ router30.get("/users/me/referral-info", async (req, res) => {
     }
   }
 });
-var referral_default = router30;
+var referral_default = router31;
 
 // src/routes/simulasi.ts
-var import_express31 = __toESM(require_express2(), 1);
+var import_express32 = __toESM(require_express2(), 1);
 init_src();
 import { eq as eq35, asc as asc3, and as and21, desc as desc19 } from "drizzle-orm";
 import { randomBytes as randomBytes3 } from "crypto";
-var router31 = (0, import_express31.Router)();
+var router32 = (0, import_express32.Router)();
 var PERSONA_PROMPTS = {
   dosen_strict: {
     persona: "Dosen pembimbing yang ketat dan kritis",
@@ -258595,7 +258810,7 @@ HANYA KELUARKAN JSON. TANPA markdown, TANPA penjelasan, TANPA penutup.`;
 function getQuotaInfo(session) {
   return { saldoUsedCents: session.totalCostCents };
 }
-router31.post("/projects/:projectId/simulasi/sessions", async (req, res) => {
+router32.post("/projects/:projectId/simulasi/sessions", async (req, res) => {
   const params = CreateSimulationSessionParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -258624,7 +258839,8 @@ router31.post("/projects/:projectId/simulasi/sessions", async (req, res) => {
     const accessCheck = await checkAIAccess({
       userId: projectData.userId,
       tierId: selectedTier.id,
-      estimatedCostCents: 50
+      estimatedCostCents: 50,
+      userEmail: req.user?.email
     });
     if (!accessCheck.allowed) {
       if (accessCheck.reason === "saldo_insufficient") {
@@ -258694,7 +258910,7 @@ Anda siap?`;
     quotaInfo: getQuotaInfo(session)
   });
 });
-router31.get("/projects/:projectId/simulasi/sessions", async (req, res) => {
+router32.get("/projects/:projectId/simulasi/sessions", async (req, res) => {
   const params = CreateSimulationSessionParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -258708,7 +258924,7 @@ router31.get("/projects/:projectId/simulasi/sessions", async (req, res) => {
     quotaInfo: getQuotaInfo(s2)
   })));
 });
-router31.get("/projects/:projectId/simulasi/sessions/:sessionId/messages", async (req, res) => {
+router32.get("/projects/:projectId/simulasi/sessions/:sessionId/messages", async (req, res) => {
   const params = ListSimulationMessagesParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -258738,7 +258954,7 @@ router31.get("/projects/:projectId/simulasi/sessions/:sessionId/messages", async
     quotaInfo: getQuotaInfo(session)
   });
 });
-router31.post("/projects/:projectId/simulasi/sessions/:sessionId/messages", async (req, res) => {
+router32.post("/projects/:projectId/simulasi/sessions/:sessionId/messages", async (req, res) => {
   const params = SendSimulationMessageParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -258775,7 +258991,8 @@ router31.post("/projects/:projectId/simulasi/sessions/:sessionId/messages", asyn
     const accessCheck = await checkAIAccess({
       userId: session.userId,
       tierId: selectedTier.id,
-      estimatedCostCents: 50
+      estimatedCostCents: 50,
+      userEmail: req.user?.email
     });
     if (!accessCheck.allowed) {
       if (accessCheck.reason === "saldo_insufficient") {
@@ -258952,7 +259169,7 @@ Berdasarkan simulasi ini, berikut evaluasi singkat saya:
     quotaInfo: getQuotaInfo(updatedSession[0])
   });
 });
-router31.post("/projects/:projectId/simulasi/sessions/:sessionId/complete", async (req, res) => {
+router32.post("/projects/:projectId/simulasi/sessions/:sessionId/complete", async (req, res) => {
   const params = CompleteSimulationSessionParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -259036,7 +259253,7 @@ router31.post("/projects/:projectId/simulasi/sessions/:sessionId/complete", asyn
     quotaInfo: getQuotaInfo(updatedSession[0])
   });
 });
-router31.get("/projects/:projectId/simulasi/latest-report", async (req, res) => {
+router32.get("/projects/:projectId/simulasi/latest-report", async (req, res) => {
   const params = GetLatestSimulationReportParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -259054,7 +259271,7 @@ router31.get("/projects/:projectId/simulasi/latest-report", async (req, res) => 
   }
   res.json(report);
 });
-router31.post("/projects/:projectId/simulasi/sessions/:sessionId/share", async (req, res) => {
+router32.post("/projects/:projectId/simulasi/sessions/:sessionId/share", async (req, res) => {
   const { sessionId, projectId } = req.params;
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
@@ -259082,14 +259299,14 @@ router31.post("/projects/:projectId/simulasi/sessions/:sessionId/share", async (
   }).returning();
   res.status(201).json({ tokenId: token, expiresAt });
 });
-var simulasi_default = router31;
+var simulasi_default = router32;
 
 // src/routes/simulasi-shared.ts
-var import_express32 = __toESM(require_express2(), 1);
+var import_express33 = __toESM(require_express2(), 1);
 init_src();
 import { eq as eq36, and as and22 } from "drizzle-orm";
-var router32 = (0, import_express32.Router)();
-router32.get("/shared/simulasi/:tokenId", async (req, res) => {
+var router33 = (0, import_express33.Router)();
+router33.get("/shared/simulasi/:tokenId", async (req, res) => {
   const params = GetSharedSimulationReportParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -259137,18 +259354,18 @@ router32.get("/shared/simulasi/:tokenId", async (req, res) => {
     sharedAt: token.createdAt
   });
 });
-var simulasi_shared_default = router32;
+var simulasi_shared_default = router33;
 
 // src/routes/preferences.ts
-var import_express33 = __toESM(require_express2(), 1);
+var import_express34 = __toESM(require_express2(), 1);
 init_src();
 import { eq as eq37 } from "drizzle-orm";
 import { z as z12 } from "zod/v4";
-var router33 = (0, import_express33.Router)();
+var router34 = (0, import_express34.Router)();
 var updatePreferencesSchema = z12.object({
   aiProvider: z12.enum(["anthropic", "olagon"])
 });
-router33.get("/users/me/preferences", async (req, res) => {
+router34.get("/users/me/preferences", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -259162,7 +259379,7 @@ router33.get("/users/me/preferences", async (req, res) => {
   }
   res.json(pref);
 });
-router33.patch("/users/me/preferences", async (req, res) => {
+router34.patch("/users/me/preferences", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -259197,62 +259414,63 @@ router33.patch("/users/me/preferences", async (req, res) => {
     res.json(created);
   }
 });
-var preferences_default = router33;
+var preferences_default = router34;
 
 // src/routes/index.ts
-var router34 = (0, import_express34.Router)();
-router34.use(health_default);
-router34.use(auth_default);
-router34.use(shared_default);
-router34.use(authMiddleware);
-router34.use(ai_tiers_default);
-router34.use(packages_default);
-router34.use("/projects/:projectId/messages", aiLimiter);
-router34.use("/projects/:projectId/quizzes", aiLimiter);
-router34.use("/projects/:projectId/references", aiLimiter);
-router34.use("/projects/:projectId/analyze", aiLimiter);
-router34.use("/projects/:projectId/outline", aiLimiter);
-router34.use("/projects/:projectId/documents/generate", aiLimiter);
-router34.use("/users/me/writing-style/analyze", aiLimiter);
-router34.use("/projects/:projectId/simulasi", aiLimiter);
-router34.use(projects_default);
-router34.use(messages_default);
-router34.use(documents_default);
-router34.use(references_default);
-router34.use(account_references_default);
-router34.use(learning_activities_default);
-router34.use(attachments_default);
-router34.use(activities_default);
-router34.use(jobs_default);
-router34.use(metadata_default);
-router34.use(exports_default);
-router34.use(ai_usage_default);
-router34.use(comments_default);
-router34.use(project_members_default);
-router34.use(quizzes_default);
-router34.use(rubrics_default);
-router34.use(writing_style_default);
-router34.use(balance_default);
-router34.use(autofallback_default);
-router34.use(subscriptions_default);
-router34.use(usage_default);
-router34.use(document_templates_default);
-router34.use(admin_ai_tiers_default);
-router34.use(admin_default);
-router34.use(referral_default);
-router34.use(simulasi_default);
-router34.use(simulasi_shared_default);
-router34.use(preferences_default);
-var routes_default = router34;
+var router35 = (0, import_express35.Router)();
+router35.use(health_default);
+router35.use(diag_default);
+router35.use(auth_default);
+router35.use(shared_default);
+router35.use(authMiddleware);
+router35.use(ai_tiers_default);
+router35.use(packages_default);
+router35.use("/projects/:projectId/messages", aiLimiter);
+router35.use("/projects/:projectId/quizzes", aiLimiter);
+router35.use("/projects/:projectId/references", aiLimiter);
+router35.use("/projects/:projectId/analyze", aiLimiter);
+router35.use("/projects/:projectId/outline", aiLimiter);
+router35.use("/projects/:projectId/documents/generate", aiLimiter);
+router35.use("/users/me/writing-style/analyze", aiLimiter);
+router35.use("/projects/:projectId/simulasi", aiLimiter);
+router35.use(projects_default);
+router35.use(messages_default);
+router35.use(documents_default);
+router35.use(references_default);
+router35.use(account_references_default);
+router35.use(learning_activities_default);
+router35.use(attachments_default);
+router35.use(activities_default);
+router35.use(jobs_default);
+router35.use(metadata_default);
+router35.use(exports_default);
+router35.use(ai_usage_default);
+router35.use(comments_default);
+router35.use(project_members_default);
+router35.use(quizzes_default);
+router35.use(rubrics_default);
+router35.use(writing_style_default);
+router35.use(balance_default);
+router35.use(autofallback_default);
+router35.use(subscriptions_default);
+router35.use(usage_default);
+router35.use(document_templates_default);
+router35.use(admin_ai_tiers_default);
+router35.use(admin_default);
+router35.use(referral_default);
+router35.use(simulasi_default);
+router35.use(simulasi_shared_default);
+router35.use(preferences_default);
+var routes_default = router35;
 
 // src/routes/webhooks.ts
-var import_express35 = __toESM(require_express2(), 1);
+var import_express36 = __toESM(require_express2(), 1);
 init_src();
 import { eq as eq38 } from "drizzle-orm";
 import { timingSafeEqual } from "crypto";
-var router35 = (0, import_express35.Router)();
+var router36 = (0, import_express36.Router)();
 var WEBHOOK_SECRET = process.env.WEBHOOK_SECRET ?? "";
-router35.post("/webhooks/email-verified", async (req, res) => {
+router36.post("/webhooks/email-verified", async (req, res) => {
   if (!WEBHOOK_SECRET) {
     res.status(500).json({ error: "Webhook not configured" });
     return;
@@ -259294,13 +259512,13 @@ router35.post("/webhooks/email-verified", async (req, res) => {
   });
   res.sendStatus(200);
 });
-var webhooks_default = router35;
+var webhooks_default = router36;
 
 // src/routes/referral-webhook.ts
-var import_express36 = __toESM(require_express2(), 1);
+var import_express37 = __toESM(require_express2(), 1);
 import { createHmac, timingSafeEqual as timingSafeEqual2 } from "crypto";
 import { z as z13 } from "zod/v4";
-var router36 = (0, import_express36.Router)();
+var router37 = (0, import_express37.Router)();
 var WEBHOOK_SECRET2 = process.env.REFERRAL_WEBHOOK_SECRET ?? "";
 function verifyWebhookSignature(req) {
   if (!WEBHOOK_SECRET2) {
@@ -259334,7 +259552,7 @@ var WebhookPayloadSchema = z13.object({
   paidAt: z13.string().datetime().transform((s2) => new Date(s2)),
   metadata: z13.record(z13.string(), z13.unknown()).optional()
 });
-router36.post("/webhooks/payment-success", async (req, res) => {
+router37.post("/webhooks/payment-success", async (req, res) => {
   if (!verifyWebhookSignature(req)) {
     res.status(401).json({ error: "Invalid signature" });
     return;
@@ -259390,10 +259608,10 @@ router36.post("/webhooks/payment-success", async (req, res) => {
     }
   }
 });
-var referral_webhook_default = router36;
+var referral_webhook_default = router37;
 
 // src/app.ts
-var app = (0, import_express37.default)();
+var app = (0, import_express38.default)();
 app.set("trust proxy", 1);
 app.get("/test", (_req, res) => {
   res.json({ ok: true, ts: Date.now() });
@@ -259429,9 +259647,9 @@ app.use(
     credentials: true
   })
 );
-app.use(import_express37.default.json());
-app.use(import_express37.default.urlencoded({ extended: true }));
-app.use("/webhooks/payment-success", import_express37.default.raw({ type: "application/json" }), referral_webhook_default);
+app.use(import_express38.default.json());
+app.use(import_express38.default.urlencoded({ extended: true }));
+app.use("/webhooks/payment-success", import_express38.default.raw({ type: "application/json" }), referral_webhook_default);
 app.use("/webhooks", webhooks_default);
 var authLimiter = lib_default({
   windowMs: 60 * 1e3,
@@ -259443,13 +259661,36 @@ var authLimiter = lib_default({
 });
 app.use("/api/auth", authLimiter);
 app.use("/api", routes_default);
+app.use((err, req, res, _next) => {
+  logger2.error(
+    { err, url: req.url, method: req.method },
+    "Unhandled error in API request"
+  );
+  res.status(500).json({
+    error: "internal_server_error",
+    message: "Terjadi kesalahan pada server. Silakan coba lagi."
+  });
+});
 var app_default = app;
 
-// api/_handler.ts
-var handler_default = app_default;
-export {
-  handler_default as default
-};
+// src/index.ts
+var rawPort = process.env["PORT"];
+if (!rawPort) {
+  throw new Error(
+    "PORT environment variable is required but was not provided."
+  );
+}
+var port = Number(rawPort);
+if (Number.isNaN(port) || port <= 0) {
+  throw new Error(`Invalid PORT value: "${rawPort}"`);
+}
+app_default.listen(port, (err) => {
+  if (err) {
+    logger2.error({ err }, "Error listening on port");
+    process.exit(1);
+  }
+  logger2.info({ port }, "Server listening");
+});
 /*! Bundled license information:
 
 depd/index.js:
@@ -259795,4 +260036,4 @@ docx/dist/index.mjs:
 @noble/ciphers/esm/utils.js:
   (*! noble-ciphers - MIT License (c) 2023 Paul Miller (paulmillr.com) *)
 */
-//# sourceMappingURL=_handler.mjs.map
+//# sourceMappingURL=index.mjs.map

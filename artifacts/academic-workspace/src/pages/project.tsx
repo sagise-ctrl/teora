@@ -399,8 +399,18 @@ export default function ProjectWorkspace() {
 
   const { data: project, isLoading: projectLoading } = useGetProject(projectId)
   const { data: documents, isLoading: docsLoading } = useListDocuments(projectId)
-  const { data: selectedDoc } = useGetDocument(projectId, selectedDocId ?? 0)
-  const { data: latestDoc } = useGetLatestDocument(projectId)
+  // Skip the per-document fetch until a doc is actually selected — avoids
+  // firing GET /documents/0 (which 404s) for projects that haven't generated
+  // any documents yet.
+  const { data: selectedDoc } = useGetDocument(
+    projectId,
+    selectedDocId ?? 0,
+    { query: { enabled: selectedDocId !== null } }
+  )
+  const { data: latestDoc } = useGetLatestDocument(
+    projectId,
+    { query: { enabled: !docsLoading && (documents?.length ?? 0) > 0 } }
+  )
   const { data: documentPreview, isLoading: previewLoading } = useGetDocumentPreview(projectId)
   const { data: bibliographyData } = useGetBibliography(projectId)
   const { data: jobs } = useListJobs(projectId, { query: { queryKey: getListJobsQueryKey(projectId), refetchInterval: 5000 } })
@@ -493,7 +503,7 @@ export default function ProjectWorkspace() {
             </div>
           </Link>
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-serif font-bold text-foreground tracking-tight">{project.title}</h1>
+            <h1 className="text-3xl font-serif font-bold text-foreground tracking-tight">{project.title ?? "Tanpa Judul"}</h1>
             <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">
               {project.status.replace("_", " ")}
             </Badge>

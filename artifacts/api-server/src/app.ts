@@ -89,4 +89,21 @@ app.use("/api/auth", authLimiter);
 
 app.use("/api", router);
 
+// Global error handler — catches unhandled errors (including async rejections
+// from Express 4.x handlers) and returns a JSON 500 instead of letting
+// Vercel render an HTML error page. MUST be registered last so route-level
+// errors (e.g. res.status(401).json) are not intercepted.
+// DECISION 021. Owner encountered HTML <pre>Internal Server Error</pre> on
+// POST /api/projects when title was null and DB rejected the insert.
+app.use((err: Error, req: Request, res: import("express").Response, _next: import("express").NextFunction) => {
+  logger.error(
+    { err, url: req.url, method: req.method },
+    "Unhandled error in API request",
+  );
+  res.status(500).json({
+    error: "internal_server_error",
+    message: "Terjadi kesalahan pada server. Silakan coba lagi.",
+  });
+});
+
 export default app;
