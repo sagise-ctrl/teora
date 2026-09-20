@@ -9,6 +9,115 @@
 
 ---
 
+## 🎯 ACTIVE 2026-09-20 — INC-011: Analyze Pipeline Empty Workspace (opus-4-8)
+
+**Status:** ✅ FIXED + DEPLOYED (frontend + backend)
+**Branch:** `fix/analyze-pipeline-task-category-separation` — commit `f50e7a4`
+**Backend deploy:** `dpl_6U7rXUDQJo9wwYE9jN5ihNrK8YMQ` → `teora-backend.vercel.app` ✅ READY (auto-aliased)
+**Frontend deploy:** `dpl_CH9BpT5VPKnWjyqbYaqRCW2YmZmo` → `academic-workspace-eta.vercel.app` ✅ READY (auto-aliased)
+
+### Gejala (owner report)
+
+Owner buat Academic project 25 (academic), klik "Mulai Kerjakan" di Task Mentor, workspace kosong (no document preview, no outline). 404 untuk `/api/users/me/profile` sebelumnya sudah di-fix (INC-010), pipeline timeout juga sudah (INC-009) — tapi analyze pipeline masih silent-fail.
+
+### Root Cause (CONFIRMED — 3 bugs)
+
+**Bug 1: DB CHECK constraint rejects AI free-form taskType.**
+- `routes/projects.ts:429` AI prompt minta `taskType: "jenis tugas (makalah/skripsi/laporan/esai/dll)"` (free-form).
+- `project_metadata_task_type_check` (sama constraint dengan `projects_task_type_check`) hanya izinkan `general|academic|dashboard_chat`.
+- AI return `taskType: "artikel"` → CHECK constraint reject (ERROR 23514) → entire transaction rollback → no document + no outline + no job status update written.
+- **Verified live**: `SELECT task_type FROM project_metadata` → 6 rows, all NULL (semua attempt rollback). `UPDATE … SET task_type='artikel'` → `ERROR 23514 (check_violation)`.
+- **Owner chose Option C**: pisah jadi `task_category` (enum, mirror `projects.task_type`) + `task_subtype` (free-form, no constraint).
+
+**Bug 2: Pipeline failures silent — no UX feedback.**
+- Analyze + document generation routes use `waitUntil` + return 202. Client never sees the error.
+- Owner cuma lihat "kosong", tidak ada toast / alert / error message.
+
+**Bug 3: Error message truncated at 500 chars — hides DB constraint errors.**
+- `jobs.errorMessage = message.slice(0, 500)` cut off error di midpoint — Postgres CHECK violation message yang informatifnya di awal jadi terpotong, susah debug.
+
+### Fix Applied (commit `f50e7a4`)
+
+**DB Migration (Supabase MCP):**
+```sql
+ALTER TABLE project_metadata RENAME COLUMN task_type TO task_subtype;
+ALTER TABLE project_metadata ADD COLUMN task_category text;
+ALTER TABLE project_metadata ADD CONSTRAINT project_metadata_task_category_check
+  CHECK (task_category IS NULL OR task_category IN ('general', 'academic', 'dashboard_chat'));
+ALTER TABLE project_metadata DROP CONSTRAINT project_metadata_task_type_check; -- inherited from rename
+UPDATE project_metadata SET task_category = task_subtype
+  WHERE task_category IS NULL AND task_subtype IN ('general', 'academic', 'dashboard_chat');
+```
+
+**Schema (`lib/db/src/schema/project_metadata.ts`):**
+- `taskType: text("task_type")` → split into `taskCategory: text("task_category")` + `taskSubtype: text("task_subtype")`.
+- Drizzle CHECK NOT declared (managed via raw SQL per INC-008 pattern).
+
+**OpenAPI (`lib/api-spec/openapi.yaml`):**
+- `ProjectMetadata.taskType` → `taskCategory` (enum) + `taskSubtype` (free-form).
+- Codegen regenerated Zod + React Query schemas.
+
+**Code changes:**
+- `routes/projects.ts`:
+  - AI prompt: separate `taskCategory` (enum-only, WAJIB pilih) + `taskSubtype` (free-form, bebas string).
+  - Transaction block: `project_metadata` upsert writes both fields; `projects.task_type` mirrors `taskCategory` for routing/theme.
+  - Both error catch handlers: `message.slice(0, 500)` → `message.slice(0, 4000)` + full `logger.error({ err, ... })` (already captures stack).
+- `routes/metadata.ts`: expose `taskCategory` + `taskSubtype`.
+- `routes/messages.ts`: `taskType: metadata?.taskSubtype ?? project.taskType` — free-form subtype for richer AI context.
+- `pages/project.tsx`:
+  - `useRef<Set<number>>` + useEffect watches `useListJobs` polling (5s) and toasts new failed jobs (analyze + document generation).
+  - Reset tracker on `projectId` change.
+
+### Verification
+
+| Step | Result |
+|------|--------|
+| Migration | `project_metadata_task_category_check` present ✅; `project_metadata_task_type_check` (inherited) DROPPED ✅ |
+| DB smoke test | `UPDATE … SET task_subtype='makalah penelitian', task_category='academic'` → OK ✅ |
+| Typecheck | `pnpm run typecheck` — clean ✅ |
+| Build | `node build.mjs` → 12.8s, 6.6MB ✅; `vite build` → 1.59MB ✅ |
+| Bundle grep (backend) | `taskSubtype` + `taskCategory` ×21, `message2.slice(0, 4e3)` ×2, old `message2.slice(0, 500)` = 0 ✅ |
+| Bundle grep (frontend) | `notifiedFailedJobsRef` + `pipeline gagal` + `Document generation` failed-job toast in `index-CMsxrRS0.js` ✅ |
+| Vercel backend deploy | `dpl_6U7rXUDQJo9wwYE9jN5ihNrK8YMQ` → "already current production" (auto-aliased) ✅ |
+| Vercel frontend deploy | `dpl_CH9BpT5VPKnWjyqbYaqRCW2YmZmo` → "already current production" (auto-aliased) ✅ |
+| Post-deploy smoke (backend) | `curl /api/healthz` → 200 OK; `curl /api/ai-tiers` (no auth) → 401 (route wired) ✅ |
+| Owner E2E | **PENDING** — owner re-test Begin Analyze on a new project; document + outline should appear; failures toast instead of silent. |
+
+### Prevention Going Forward
+
+- **AI prompt + DB constraint contract**: when AI writes a value that goes to a CHECK-constrained column, prompt WAJIB restrict output to the enum. Free-form values get a separate free-form column.
+- **waitUntil UX**: any pipeline that uses `waitUntil` WAJIB expose failure to UI (polling + toast OR SSE OR notification).
+- **Error message size**: `jobs.errorMessage` slice ≥ 4000 chars (Postgres CHECK constraint messages can be ~800 chars; 500 is below midpoint).
+
+### Files Changed
+
+| File | Change |
+|------|--------|
+| `lib/db/src/schema/project_metadata.ts` | `taskType` → `taskCategory` + `taskSubtype` |
+| `lib/api-spec/openapi.yaml` | ProjectMetadata schema split |
+| `lib/api-zod/src/generated/api.ts` | Regenerated |
+| `lib/api-client-react/src/generated/api.schemas.ts` | Regenerated |
+| `artifacts/academic-workspace/src/lib/api-client-react/generated/api.schemas.ts` | Regenerated |
+| `artifacts/api-server/src/routes/projects.ts` | AI prompt split + transaction split + error slice 4000 (×2) |
+| `artifacts/api-server/src/routes/metadata.ts` | Response shape: taskCategory + taskSubtype |
+| `artifacts/api-server/src/routes/messages.ts` | Use taskSubtype for AI context |
+| `artifacts/api-server/api/index.mjs` | Rebuilt bundle (12.8s, 6.6MB) |
+| `artifacts/academic-workspace/src/pages/project.tsx` | Bug 2 useEffect + ref for failed-job toast |
+| `.ai/migrations/20260920_split_task_type.sql` | Migration record |
+
+### Related
+
+- Memory: `db-constraint-vs-ai-freeform-split-20260920.md` (NEW)
+- Memory: `waituntil-pipeline-ux-feedback-required-20260920.md` (NEW)
+- Memory: `error-message-slice-too-small-20260920.md` (NEW)
+- Error index: `ERR-2026-09-20-004` (new entry)
+- Lessons: `[ERR-2026-09-20-004]`
+- Incident: `20260920-004.md` (INC-011)
+- INC-009 (analyze timeout — waitUntil fix) — root cause that surfaced this bug
+- INC-010 (Olagon model + profileRouter) — both required before this one could surface
+
+---
+
 ## ACTIVE 2026-09-20 — Olagon Model Alias + profileRouter Wiring (opus-4-8)
 
 **Status:** ✅ FIXED + DEPLOYED + VERIFIED
@@ -3099,5 +3208,37 @@ Owner asked: "apakah tidak ada fitur hapus dokumen di task mentor?". Verifikasi:
 | `artifacts/api-server/package.json` | +3 -2 | adds @vercel/functions ^3.9.8 |
 | `artifacts/api-server/api/index.mjs` | rebuilt | bundle with new dep + new routes |
 | `artifacts/api-server/src/middlewares/auth.ts` | sync | JWKS allowedJWSSigParams (was in bundle, not source) |
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
+
+---
+
+## Handoff 2026-09-20 19:15 — model opus-4-8 → opus-4-X (next session)
+
+**Active deploy:** INC-011 — analyze pipeline empty workspace fix (commit `f50e7a4`)
+**Previous stable:** backend `dpl_HW6bHEK8tq9U7oNJ4hwAyAZxs8Ay` (INC-010) | frontend `dpl_HMFKcnV9aDMJVaiBd4xhqiZn1Haj` (DECISION 023 final)
+**New:** backend `dpl_6U7rXUDQJo9wwYE9jN5ihNrK8YMQ` | frontend `dpl_CH9BpT5VPKnWjyqbYaqRCW2YmZmo`
+**Status:** SUCCESS (path B - Vercel CLI manual, both auto-aliased)
+**Verified at:** 2026-09-20 19:12
+**Audit log:** see `.ai/deploy-log.md` (entries appended retroactively — INC-010 + INC-011 backend + INC-011 frontend + DB migration)
+**Rollback runbook tested:** `vercel promote <prev_id>` ready for both projects
+
+**Path justification:** Path B (Vercel CLI manual) used because backend is not auto-deployed via GitHub integration; Vercel CLI deploys directly with auto-alias. Atomic via same-window frontend+backend deploy.
+
+**Last 3 actions:**
+1. Appended deploy log entries for INC-010 (missing) + INC-011 (backend, frontend, DB migration)
+2. Updated INC-011 incident report with post-deploy smoke test result
+3. Updated `.ai/current-task.md` Handoff section (this entry)
+
+**Next 3 actions:**
+1. **Owner E2E verify** INC-011 fix — hard-refresh `/projects/25`, klik "Begin Analyze", confirm document + outline muncul dalam 10-30 detik
+2. Wait for owner confirmation or next instruction
+3. If E2E passes: task closed; next session can address any follow-up INC-011 prevention actions (audit waitUntil routes for missing frontend watchers; add CI grep guard for `slice(0, 5XX)`)
+
+**Open questions:**
+- E2E verify result (owner pending)
+- Whether to also add CI grep guard for `slice(0, 5[0-9][0-9])` (suggested in INC-011 prevention)
+
+---
 
 Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>

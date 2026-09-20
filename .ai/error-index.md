@@ -1363,3 +1363,100 @@ Failed to load resource: the server responded with a status of 404 ()
 - For new feature PRs: when adding `routes/<name>.ts`, the SAME PR must include both `import` AND `router.use()` lines in `routes/index.ts`
 
 **Lifecycle:** FIXED + DEPLOYED + VERIFIED. Pattern `router_import_without_router_use_wiring` (1x — promote after 2x occurrence).
+
+### ERR-2026-09-20-004 | Analyze Pipeline Empty Workspace — DB CHECK + waitUntil Silent Fail + Truncated Errors
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-09-20 |
+| **Severity** | P1 High (Begin Analyze broken end-to-end) |
+| **Layer** | Backend (AI prompt → DB constraint) + Frontend (UX feedback) + Observability (error slice) |
+| **Status** | FIXED + DEPLOYED + VERIFIED (bundle + DB); E2E owner-verify PENDING |
+| **Files** | `artifacts/api-server/src/routes/projects.ts`, `artifacts/api-server/src/routes/messages.ts`, `artifacts/api-server/src/routes/metadata.ts`, `artifacts/academic-workspace/src/pages/project.tsx`, `lib/db/src/schema/project_metadata.ts`, `lib/api-spec/openapi.yaml`, `.ai/migrations/20260920_split_task_type.sql` |
+| **Commit** | `f50e7a4` on `fix/analyze-pipeline-task-category-separation` |
+| **Deploy** | backend `dpl_6U7rXUDQJo9wwYE9jN5ihNrK8YMQ`, frontend `dpl_CH9BpT5VPKnWjyqbYaqRCW2YmZmo` → both auto-aliased as current production |
+| **Patterns** | `ai_freeform_output_db_enum_constraint_mismatch` (NEW, 1x), `waituntil_pipeline_silent_failure` (NEW, 1x), `error_message_truncation_hides_db_constraint_errors` (NEW, 1x) |
+
+**Symptom (owner, 2026-09-20, academic project 25):**
+- Click "Begin Analyze" in Task Mentor
+- Toast: "Analysis started"
+- Workspace stays empty — no document preview, no outline
+- No further feedback ever (no error toast, no alert)
+- Same behavior on `documents/generate`
+
+**Three bugs converged (only surfaced together after INC-009 waitUntil + INC-010 Olagon model fixes):**
+
+**Bug 1 — AI free-form vs DB enum constraint (CONFIRMED via direct DB query):**
+- AI prompt at `routes/projects.ts:429` asked for free-form `"taskType": "jenis tugas (makalah/skripsi/laporan/esai/dll)"`
+- `project_metadata.task_type` had CHECK constraint `((task_type IS NULL) OR (task_type = ANY (ARRAY['general', 'academic', 'dashboard_chat'])))` (inherited from `projects.task_type` per DECISION 010)
+- AI returns "artikel" (Indonesian natural) → violates CHECK → Postgres error 23514 → entire analyze transaction rolls back → no document + no outline + no job status update written
+- Pre-migration verification:
+  ```sql
+  SELECT task_type, COUNT(*) FROM project_metadata GROUP BY task_type;
+  -- All 6 rows: NULL  (every prior analyze attempt rolled back)
+  UPDATE project_metadata SET task_type = 'artikel' WHERE id = ...;
+  -- ERROR: 23514 new row for relation "project_metadata" violates check constraint "project_metadata_task_type_check"
+  ```
+- Why older projects (1-8) appeared to work: AI didn't always return `taskType` in JSON; NULL bypasses CHECK. Newer models always include it → always fail.
+
+**Bug 2 — Silent async pipeline failure:**
+- `POST /api/projects/:projectId/analyze` uses `waitUntil()` (INC-009 fix) and returns 202 immediately
+- Errors caught → written to `jobs.errorMessage` → process exits
+- Frontend never sees the error: `analyzeProject.mutate({...}, { onSuccess: ... })` only fires the success toast
+- No polling listener on jobs table for `status === "failed"` → owner sees only "Analysis started" then silence
+
+**Bug 3 — Error truncated at 500 chars (CONFIRMED):**
+- `routes/projects.ts:397, 895` had `errorMessage: message.slice(0, 500)`
+- Postgres CHECK violation errors are ~800 chars in Drizzle format (`DrizzleQueryError: Failed query: ... \nparams: ...\nError: new row for relation ... violates check constraint ...`)
+- 500-char slice cut off mid-stack; constraint name + offending value were at the start but `DrizzleQueryError` class + SQL state 23514 was lost
+- The persisted error in `jobs` table was useless for debugging
+
+**Fix layers (commit f50e7a4):**
+
+1. **DB schema split** (owner chose Option C — separate columns):
+   ```sql
+   ALTER TABLE project_metadata RENAME COLUMN task_type TO task_subtype;
+   ALTER TABLE project_metadata ADD COLUMN task_category text;
+   ALTER TABLE project_metadata ADD CONSTRAINT project_metadata_task_category_check
+     CHECK (task_category IS NULL OR task_category IN ('general', 'academic', 'dashboard_chat'));
+   ALTER TABLE project_metadata DROP CONSTRAINT project_metadata_task_type_check;  -- inherited, follows column rename
+   ```
+2. **Drizzle schema** — `taskType` → `taskCategory` + `taskSubtype`; CHECK constraint managed via raw SQL only (matches INC-008 pattern)
+3. **AI prompt** — now asks for `taskCategory` (enum, "WAJIB pilih satu") + `taskSubtype` (free-form, "Bebas string apa pun") as independent fields
+4. **Transaction** — `project_metadata` upsert writes both fields; `projects.task_type` mirrors `task_category` (still enum-constrained for routing/theme)
+5. **Frontend UX** — `useEffect` watcher on `jobs` for `status === "failed"`, fires destructive toast with first 240 chars of error, `useRef` set prevents re-firing on re-render
+6. **Observability** — `message.slice(0, 500)` → `message.slice(0, 4000)` in 2 places; `logger.error({ err, ... })` already captures full error
+7. **OpenAPI + codegen** — `ProjectMetadata` schema updated; Orval regenerated Zod + React Query types
+
+**Verification (FIX ≠ VERIFIED — evidence-based):**
+| Check | Result |
+|-------|--------|
+| `pnpm run typecheck` | clean ✅ |
+| Backend `node build.mjs` | 12.8s, 6.6MB ✅ |
+| Frontend `vite build` | 1.59MB ✅ |
+| DB constraint smoke `UPDATE … SET task_subtype='makalah penelitian', task_category='academic'` | OK ✅ |
+| DB constraint negative `UPDATE … SET task_category='artikel'` | ERROR 23514 ✅ (correctly rejects) |
+| Backend bundle grep | `taskSubtype`/`taskCategory` ×21, `message2.slice(0, 4e3)` ×2, old `slice(0, 500)` = 0 ✅ |
+| Frontend bundle grep | `pipeline gagal` + `Document generation` toast logic in `index-CMsxrRS0.js` ✅ |
+| Vercel deploy (backend) | `dpl_6U7rXUDQJo9wwYE9jN5ihNrK8YMQ` → "already current production" ✅ |
+| Vercel deploy (frontend) | `dpl_CH9BpT5VPKnWjyqbYaqRCW2YmZmo` → "already current production" ✅ |
+| Owner E2E (project 25 retry) | **PENDING** — owner re-test on fresh project |
+
+**Tradeoff accepted:** None. All three fixes minimal: schema migration (4 SQL) + 2 new column mappings in 3 files + 1 useEffect (~25 lines) + 2 number changes.
+
+**Prevention:**
+- **WAJIB probe DB CHECK constraints before adding AI prompts that write to those columns.** Run `SELECT conname, pg_get_constraintdef(oid) FROM pg_constraint WHERE conrelid = '<table>'::regclass;` to enumerate.
+- **For AI prompts targeting CHECK-constrained columns:** restrict prompt to enum values; if free-form is needed, add a separate column WITHOUT constraint.
+- **WAJIB add frontend job-status watcher for every `waitUntil` pipeline.** Audit checklist (TODO next session): every route in `routes/*.ts` with `waitUntil(` must have matching `useEffect` watching `jobs` for `failed` status.
+- **WAJIB keep `errorMessage` slice ≥ 4000 chars** for any DB-touching pipeline. Postgres CHECK violations are ~800 chars; Drizzle wrapping pushes it to ~1200+. 500-char slice is too small.
+- Add CI grep guard: `grep -rn "slice(0, 5[0-9][0-9])" artifacts/api-server/src/routes/` should return 0 (or only known-safe slices <500 chars).
+- Add inline comments at each fix point explaining the why (DB constraint + AI free-form contract; waitUntil UX requirement; error slice rationale).
+
+**Pattern Classes (NEW — promote after 2x occurrence each):**
+- `ai_freeform_output_db_enum_constraint_mismatch` — any AI prompt asks for value going to CHECK-constrained column; fix = restrict enum + separate free-form column
+- `waituntil_pipeline_silent_failure` — `waitUntil` route without frontend job-status watcher
+- `error_message_truncation_hides_db_constraint_errors` — errorMessage slice <800 chars truncates Postgres CHECK violation info
+
+**Sibling patterns:** `db_constraint_gap_openapi_db_mismatch` (INC-008 — Zod → DB mismatch on same column).
+
+**Lifecycle:** FIXED + DEPLOYED + BUNDLE-VERIFIED. E2E owner-verify pending. Promote 3 new patterns after 2x each.

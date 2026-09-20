@@ -2,6 +2,69 @@
 
 > Completed work, newest first. Format: `YYYY-MM-DD | description | files | status`
 
+## 2026-09-20 | Analyze Pipeline Empty Workspace — 3 Bugs (DB CHECK + UX + Observability) (opus-4-8)
+
+**Status:** ✅ COMPLETE — fixed + deployed + bundle-verified; E2E owner-verify PENDING
+**Branch:** `fix/analyze-pipeline-task-category-separation` — commit `f50e7a4`
+**Backend deploy:** `dpl_6U7rXUDQJo9wwYE9jN5ihNrK8YMQ` → `teora-backend.vercel.app` ✅ READY (auto-aliased)
+**Frontend deploy:** `dpl_CH9BpT5VPKnWjyqbYaqRCW2YmZmo` → `academic-workspace-eta.vercel.app` ✅ READY (auto-aliased)
+
+| Step | Description | Status |
+|------|-------------|--------|
+| Bug 1 (empty workspace) | Owner clicked "Begin Analyze" on academic project 25 → empty workspace, no document, no outline | ✅ CONFIRMED |
+| Bug 1 root cause | AI prompt asked free-form `taskType` ("artikel"); `project_metadata.task_type` had CHECK constraint `general\|academic\|dashboard_chat` → Postgres error 23514 → transaction rollback | ✅ CONFIRMED via direct DB query (6 rows all NULL) |
+| Bug 1 fix (owner chose Option C — split columns) | Migration: rename `task_type` → `task_subtype` (free-form) + add `task_category` (enum, CHECK-constrained) + drop inherited constraint. Drizzle schema + AI prompt + transaction + `messages.ts` system prompt all updated | ✅ FIXED |
+| Bug 2 (silent failure) | `waitUntil` route returns 202, frontend has no `failed`-job watcher → owner sees success toast only | ✅ CONFIRMED |
+| Bug 2 fix | `pages/project.tsx` — `useEffect` + `useRef<Set<number>>` watches `jobs` for `status === "failed"`, fires destructive toast with first 240 chars of error, resets on project change | ✅ FIXED |
+| Bug 3 (truncated error) | `errorMessage: message.slice(0, 500)` truncated Postgres CHECK errors (~800 chars in Drizzle format) mid-stack | ✅ CONFIRMED |
+| Bug 3 fix | `routes/projects.ts:397, 895` — `slice(0, 500)` → `slice(0, 4000)`; `logger.error({ err })` unchanged (Vercel runtime logs already capture full) | ✅ FIXED |
+| DB migration applied | Via Supabase MCP — `ALTER TABLE project_metadata RENAME/ADD/DROP` + new CHECK constraint | ✅ APPLIED |
+| Orval codegen | `lib/api-zod` + `lib/api-client-react` regenerated for `taskCategory` + `taskSubtype` fields | ✅ |
+| Typecheck | `pnpm run typecheck` — clean | ✅ |
+| Backend build | `node build.mjs` — 12.8s, 6.6MB | ✅ |
+| Frontend build | `vite build` — 1.59MB | ✅ |
+| Bundle verification (backend) | `taskSubtype`/`taskCategory` ×21, `message2.slice(0, 4e3)` ×2, old `slice(0, 500)` = 0 | ✅ |
+| Bundle verification (frontend) | `pipeline gagal` + `Document generation` failed-job toast in `index-CMsxrRS0.js` | ✅ |
+| Backend deploy | `dpl_6U7rXUDQJo9wwYE9jN5ihNrK8YMQ` → "already current production" | ✅ |
+| Frontend deploy | `dpl_CH9BpT5VPKnWjyqbYaqRCW2YmZmo` → "already current production" | ✅ |
+| DB constraint smoke | `UPDATE … SET task_subtype='makalah penelitian', task_category='academic'` → OK (would have failed before) | ✅ |
+| DB constraint negative | `UPDATE … SET task_category='artikel'` → ERROR 23514 (correctly rejects) | ✅ |
+| Owner E2E (project 25 retry) | **PENDING** — owner re-test Begin Analyze on fresh project | ⏳ |
+
+**Files changed:**
+- `.ai/migrations/20260920_split_task_type.sql` (NEW) — migration record
+- `lib/db/src/schema/project_metadata.ts` — split `taskType` → `taskCategory` + `taskSubtype`
+- `lib/api-spec/openapi.yaml` — `ProjectMetadata` schema updated
+- `lib/api-zod/` + `lib/api-client-react/` — regenerated via Orval
+- `artifacts/api-server/src/routes/projects.ts` — AI prompt, transaction, error slice (3 changes)
+- `artifacts/api-server/src/routes/metadata.ts` — response shape (taskCategory + taskSubtype)
+- `artifacts/api-server/src/routes/messages.ts` — system prompt uses free-form `taskSubtype`
+- `artifacts/academic-workspace/src/pages/project.tsx` — failed-job watcher (useEffect + useRef)
+- `.ai/current-task.md` — INC-011 ACTIVE section
+- `.ai/incidents/20260920-004.md` (NEW) — INC-011 incident report
+- `.ai/incidents/incident-registry.md` — INC-011 row
+- `.ai/error-index.md` — `ERR-2026-09-20-004` entry
+- `.ai/lessons-learned.md` — `[ERR-2026-09-20-004]` entry
+- 3 memory entries created + MEMORY.md pointers
+
+**Commits:** `f50e7a4`
+
+**Lessons cross-checked:**
+- `[ERR-2026-09-20-004] Tiga bug konvergen: AI free-form vs DB CHECK + waitUntil silent fail + error slice terlalu kecil` (NEW)
+- `[ERR-2026-09-18-003] OpenAPI enum drift dashboard_chat` (sibling INC-008 — same column family)
+
+**New patterns registered (1x each, promote after 2x):**
+- `ai_freeform_output_db_enum_constraint_mismatch`
+- `waituntil_pipeline_silent_failure`
+- `error_message_truncation_hides_db_constraint_errors`
+
+**Prevention actions pending:**
+- [ ] Audit: every `waitUntil` route in codebase has matching frontend watcher (TODO next session)
+- [ ] Add CI grep guard: `grep -rn "slice(0, 5[0-9][0-9])" artifacts/api-server/src/routes/` should return 0 for any errorMessage field
+- [ ] Promote 3 new patterns to skill files after 2x occurrence each
+
+---
+
 ## 2026-09-20 | Olagon Model Alias + profileRouter Wiring (opus-4-8)
 
 **Status:** ✅ COMPLETE — deployed + verified

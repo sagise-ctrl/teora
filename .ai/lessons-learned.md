@@ -1237,3 +1237,65 @@ const handleSend = (e: React.FormEvent) => {
 - Memory: `router-import-must-be-wired-20260920.md`
 - Files: `routes/index.ts:28` (import) + `routes/index.ts:92` (fix)
 - Deploy: `dpl_HW6bHEK8tq9U7oNJ4hwAyAZxs8Ay` on commit `83d5e18`
+
+## [ERR-2026-09-20-004] Tiga bug konvergen: AI free-form vs DB CHECK constraint + waitUntil silent fail + error slice terlalu kecil
+
+### Gejala
+- Owner: "Begin Analyze" di project Academic baru (project 25) → toast "Analysis started" muncul → workspace tetap KOSONG (no document preview, no outline)
+- Tidak ada toast error, tidak ada alert — owner cuma lihat empty workspace
+- Sama persis untuk "Begin Analyzer" button dan document generation
+- Investigasi: 6 row di `project_metadata` semua `task_type=NULL` (every previous attempt rolled back silently)
+
+### Root cause (3 bugs konvergen)
+1. **AI free-form vs DB CHECK constraint** (`routes/projects.ts:429` + `project_metadata` table)
+   - AI prompt minta free-form: `"taskType": "jenis tugas (makalah/skripsi/laporan/esai/dll)"`
+   - DB CHECK inherited from `projects.task_type`: `task_type = ANY (ARRAY['general', 'academic', 'dashboard_chat'])`
+   - AI output "artikel" → Postgres error 23514 → entire transaction rollback → no document + no outline + no job status
+   - Older projects (1-8) "worked" karena AI tidak selalu return `taskType` in JSON; NULL bypasses CHECK. Newer models always include it → always fail.
+2. **Silent async pipeline failure** (`pages/project.tsx` no failed-job watcher)
+   - `waitUntil()` returns 202 → client tidak lihat error
+   - Frontend punya no polling listener for `status === "failed"` jobs
+   - Owner cuma lihat success toast + silence forever
+3. **Error truncated at 500 chars** (`routes/projects.ts:397, 895`)
+   - `errorMessage: message.slice(0, 500)` cut Postgres CHECK errors (~800 chars in Drizzle format) mid-stack
+   - Most useful info (constraint name, offending value) at start tapi full error class + SQL state 23514 lost
+
+### Kalau error berulang
+- Setiap AI prompt yang target kolom DB dengan CHECK constraint → cek dulu constraint list sebelum tulis prompt
+- Setiap `waitUntil` route tanpa frontend job-status watcher → silent failure guaranteed (audit checklist)
+- Setiap `errorMessage.slice(<500)` di pipeline route → DB errors truncated, debugging blind
+
+### Opsi yang dipertimbangkan (untuk Bug 1 fix)
+1. **Restrict AI prompt to enum** ("taskType must be one of general/academic/dashboard_chat") — easiest, but loses natural-language task description ("artikel jurnal" vs "skripsi" rich context for downstream prompts)
+2. **Loosen DB CHECK constraint** (allow free-form taskType) — breaks routing/theme logic that depends on enum semantic, defeats DECISION 010
+3. **Split into 2 columns** — `task_category` (enum, semantic) + `task_subtype` (free-form, AI natural language). Owner chose this. **Chosen.**
+4. **Drop CHECK constraint entirely + Zod-only validation** — moves validation to app layer, but loses defense-in-depth + inconsistent with INC-008 pattern
+
+### Kenapa pilih Opsi 3 (split columns)
+- Preserves enum semantic untuk routing/theme (DECISION 010 tetap applicable)
+- Free-form `task_subtype` bisa carry richer context ("makalah", "artikel jurnal") untuk downstream AI prompts (e.g., `messages.ts` uses `metadata.taskSubtype` for system prompt)
+- Zero behavior change beyond fixing broken behavior — no migration data loss (column rename preserves data)
+- Matches sibling pattern (INC-008 dashboard_chat addition) — additive, not destructive
+- Defense-in-depth preserved: enum column tetap CHECK-constrained, free-form column intentionally unrestricted
+
+### Yang harus dicek di masa depan
+- [ ] **WAJIB probe DB CHECK constraints sebelum AI prompt writes to those columns.** Audit query: `SELECT conname, pg_get_constraintdef(oid) FROM pg_constraint WHERE conrelid = '<table>'::regclass;`
+- [ ] **AI prompt template WAJIB specify enum values explicitly** jika target column punya CHECK constraint. Prompt WAJIB kata "WAJIB pilih satu dari: A, B, C" — bukan "categorize freely"
+- [ ] **Audit: setiap `waitUntil` route di codebase punya matching frontend watcher?** Run: `grep -rn "waitUntil" artifacts/api-server/src/routes/` lalu cross-check dengan `grep -rn "failed.*job" artifacts/academic-workspace/src/pages/` (TODO next session — INC-011 prevention action)
+- [ ] **WAJIB keep `errorMessage` slice ≥ 4000 chars** untuk DB-touching pipelines. Add CI grep guard: `grep -rn "slice(0, 5[0-9][0-9])" artifacts/api-server/src/routes/` should return 0 untuk any errorMessage field
+- [ ] **Inheritance pitfall**: Postgres CHECK constraint follows column on RENAME — WAJIB drop old constraint explicitly if renaming column. (Migration step 4 in INC-011 fix)
+- [ ] **Postgres error truncation rule of thumb**: any error from Drizzle that touches a CHECK constraint is ~800 chars. Slice <800 = guaranteed truncation. Slice ≥ 4000 = safe headroom.
+- [ ] **Owner non-technical mental model**: bayangkan tiga hal yang harus jalan bareng supaya pipeline "kelihatan selesai":
+  1. AI prompt kasih format yang match kolom DB (contract)
+  2. Backend kasih feedback ke UI kalau gagal (visibility)
+  3. Error message cukup panjang untuk debug nanti (observability)
+  Kalau salah satu hilang, user cuma lihat "kosong" — dan kita debug berjam-jam tanpa tahu kenapa
+
+**Cross-reference:**
+- Error index: `ERR-2026-09-20-004`
+- Memory: `db-constraint-vs-ai-freeform-split-20260920.md`, `waituntil-pipeline-ux-feedback-required-20260920.md`, `error-message-slice-too-small-20260920.md`
+- Incident: `.ai/incidents/20260920-004.md` (INC-011)
+- Files: `routes/projects.ts:429` (AI prompt), `routes/projects.ts:484-518` (transaction), `routes/projects.ts:397, 895` (error slice), `pages/project.tsx` (failed-job watcher), `lib/db/src/schema/project_metadata.ts` (column split)
+- Migration: `.ai/migrations/20260920_split_task_type.sql`
+- Deploy: backend `dpl_6U7rXUDQJo9wwYE9jN5ihNrK8YMQ`, frontend `dpl_CH9BpT5VPKnWjyqbYaqRCW2YmZmo`, commit `f50e7a4`
+- Sibling: INC-008 `db_constraint_gap_openapi_db_mismatch` (Zod → DB mismatch on same column family)

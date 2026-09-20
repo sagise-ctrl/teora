@@ -4,6 +4,7 @@
 
 | ID | Date | Severity | Title | Status | Post-mortem |
 |----|------|----------|-------|--------|-------------|
+| INC-011 | 2026-09-20 | **P1 High** | Analyze pipeline empty workspace — AI free-form taskType violates DB CHECK constraint → transaction rollback (Bug 1) + waitUntil silent failure no UI feedback (Bug 2) + errorMessage truncated at 500 chars hides DB errors (Bug 3) | Resolved (commit f50e7a4; backend deploy dpl_6U7rXUDQJo9wwYE9jN5ihNrK8YMQ; frontend deploy dpl_CH9BpT5VPKnWjyqbYaqRCW2YmZmo; DB migration applied; E2E owner-verify pending) | [20260920-004](20260920-004.md) |
 | INC-010 | 2026-09-20 | **P1 High** | Analyze pipeline fail (Olagon model ID format) + profileRouter 404 (missing router.use wiring) | Resolved (commit 83d5e18, deploy dpl_HW6bHEK8tq9U7oNJ4hwAyAZxs8Ay; both fixes verified at HTTP layer; E2E owner-verify pending) | [20260920-002](20260920-002.md) |
 | INC-009 | 2026-09-20 | **P1 Critical** | Task Mentor "Begin Analyze" hangs, no document — analyze route awaits pipeline sync, Vercel Hobby 10s SIGKILL mid-pipeline → no transaction commit → project stuck | Resolved (commit 512f843, deploy dpl_4grH2isdjAy9S6Ffae21K9sazbBA; waitUntil + maxDuration=60; project 22 + job 6 manually unblocked; E2E pending owner verify) | [20260920-001](20260920-001.md) |
 | INC-006 | 2026-09-15 | **P0 Critical** | RLS gap: 10 user-facing tables RLS enabled but no policies + `rls_auto_enable()` SECURITY DEFINER anon-callable + leaked password protection disabled | **OPEN — awaiting owner authorization** | [20260915-001](20260915-001.md) |
