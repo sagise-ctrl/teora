@@ -9,6 +9,68 @@
 
 ---
 
+## ACTIVE 2026-09-20 — Bug Fixes: Mulai Chat Button + Chat Input Clear Pattern
+
+**Status:** ✅ FIXED + DEPLOYED
+**Branch:** `feat/ai-tier-selector-universal` — commit `fce9711`
+**Frontend deploy:** `academic-workspace-csk9jbkb4-sagise-ctrls-projects.vercel.app` ✅ READY (Production)
+
+### Bug 1: "Mulai Chat" button tidak bisa diklik pada area button sendiri
+
+**Gejala:** Owner klik tombol "Mulai Chat" di /dashboard → tidak terjadi apa-apa. Hanya klik di pinggiran/kotak utama (di luar button) yang membuka chat Sheet.
+
+**Root cause:** Wrapper `<div onClick={(e) => e.stopPropagation()}>` memblokir event bubbling. Button itu sendiri tidak punya `onClick` handler — visual-only. StopPropagation membuat click ditelan tanpa action.
+
+**Fix:** Tambah `onClick={() => setChatOpen(true)}` eksplisit di Button. Klik button langsung trigger action.
+
+### Bug 2: Input text chatbot tidak hilang saat Enter
+
+**Gejala:** User tekan Enter → pesan terkirim (muncul di chat) → input TIDAK kosong sampai AI response (5-30 detik). Owner UX expectation: input harus langsung kosong saat Enter (standar chat app).
+
+**Root cause:** Pattern lama `setContent("")` di dalam `onSuccess`. Input "lengket" sampai response tiba. Pattern ini salah arah — yang benar: optimistic clear SEBELUM mutation + restore di `onError`.
+
+**Fix:**
+- `dashboard-chat.tsx:128 handleSend` — optimistic clear sebelum mutate, restore di onError
+- `project.tsx:1424 handleSend` — same pattern (was incorrectly cleared-on-success)
+
+**Pattern BENAR sekarang:**
+```typescript
+const messageContent = content
+setContent("")  // ← clear SEGERA
+sendMessage.mutate({...}, {
+  onSuccess: () => { /* no setContent — already cleared */ },
+  onError: (err) => {
+    if (!insufficientBalance) {
+      toast({...})
+      setContent(messageContent)  // restore
+    }
+  }
+})
+```
+
+### Files Changed
+
+| File | Change |
+|------|--------|
+| `artifacts/academic-workspace/src/pages/dashboard.tsx` | Button onClick handler (line 152) |
+| `artifacts/academic-workspace/src/components/dashboard-chat.tsx` | handleSend optimistic clear + restore |
+| `artifacts/academic-workspace/src/pages/project.tsx` | handleSend same pattern |
+
+### Lesson Updated
+
+`[ERR-020]` di `.ai/lessons-learned.md` — pattern lama "clear on success" dibalik. Yang benar: optimistic clear + restore on error. Untuk chat-like UX.
+
+### Verification
+
+| Step | Result |
+|------|--------|
+| Typecheck | 42 errors (no new) ✅ |
+| Build | 54.98s, 1.59MB ✅ |
+| Frontend deploy | `academic-workspace-csk9jbkb4-sagise-ctrls-projects.vercel.app` ✅ |
+| Production smoke | `/dashboard` 200 OK ✅ |
+
+---
+
 ## ACTIVE 2026-09-20 — JWT ES256 Bearer Auth Fix + Audit Cleanup
 
 **Status:** ✅ FIXED + DEPLOYED + VERIFIED
@@ -2885,3 +2947,81 @@ INC-008 / ERR-028 — TWO-LAYER failure on `POST /api/projects` with `taskType: 
 - `.ai/incidents/20260918-003.md` — fully updated
 - `.ai/deploy-log.md` — two deploy rows (Layer 1 fix + Layer 2 DB fix)
 - `memory/openapi-enum-drift-dashboard-chat-20260918.md` — rewritten with two-layer analysis
+
+---
+
+## ACTIVE 2026-09-20 — Analyze Endpoint Timeout Fix (waitUntil + maxDuration)
+
+**Status:** ✅ FIXED + DEPLOYED + BACKEND VERIFIED
+**Branch:** `feat/ai-tier-selector-universal` — commit `512f843`
+**Backend deploy:** `dpl_4grH2isdjAy9S6Ffae21K9sazbBA` → `teora-backend.vercel.app` ✅ READY
+
+### Critical Bug: Task Mentor Workspace Empty
+
+**Gejala (Owner report 2026-09-20 05:39 UTC):**
+- "saya klik begin analyze cuman loading lama tapi gk ada hasil/masih kosong workspace nya"
+- Document preview kosong, outline kosong, references blank, no result from "Begin Analyze"
+
+**Root cause (CONFIRMED via DB):**
+- `POST /api/projects/:id/analyze` di `artifacts/api-server/src/routes/projects.ts` melakukan `await runAnalysisPipeline(...)` SYNC
+- Pipeline = 2 sequential AI calls + DB transaction (~10-30s total)
+- Vercel serverless timeout kills function mid-pipeline
+- → no transaction commit → job stuck in "pending" forever, no document/outline created
+
+**Evidence (DB query):**
+```
+project_id=7,  job_id=3, duration=3.39s, status=completed (Sep 18)
+project_id=8,  job_id=1, duration=3.51s, status=completed (Sep 18)
+project_id=22, job_id=6, duration=0.00s, status=pending  (Sep 20, STUCK)
+```
+Plus `activities` for project 22 only has `project_created` + `analysis_started`; missing `analysis_complete/writing_started/document_written` = pipeline killed before completion.
+
+### Fix Layers
+
+| Layer | Change | File |
+|-------|--------|------|
+| 1 | Install `@vercel/functions ^3.9.8` (provides `waitUntil`) | `package.json`, `pnpm-lock.yaml` |
+| 2 | Add `maxDuration: 60` to `builds[0].config` (Hobby max configurable) | `vercel.json` |
+| 3 | Refactor analyze: return 202 + `waitUntil(pipeline)` | `routes/projects.ts:354-405` |
+| 4 | Refactor document/generate: return 202 + `waitUntil(pipeline)` | `routes/projects.ts:855-903` |
+| 5 | DB manual cleanup: project 22 → `draft`, job 6 → `failed` (Server timeout) | `psql` via Supabase MCP |
+| 6 | Rebuild bundle with new dep + new config | `api/index.mjs` |
+
+### Verification
+
+| Check | Result |
+|-------|--------|
+| Typecheck (api-server) | No new errors (pre-existing 95 errors in simulasi.ts/writing-style.ts) ✅ |
+| Build (`node build.mjs`) | 22.9s, 6.6MB bundle ✅ |
+| Vercel deploy | `dpl_4grH2isdjAy9S6Ffae21K9sazbBA` ✅ READY |
+| Function config | `maxDuration: 60` confirmed in deployed lambda ✅ |
+| Health check | `GET /api/healthz` → 200 `{"status":"ok"}` ✅ |
+| Route wired | `POST /api/projects/22/analyze` without auth → 401 (route exists, middleware active) ✅ |
+| DB unblock | Project 22 status="draft", Job 6 status="failed" ✅ |
+
+**E2E test:** Owner should re-run Begin Analyze on project 22 → document should appear within 10-30s without page hang.
+
+### Tradeoff
+
+`KONTEKS_TERLALU_PANJANG` was previously returned as sync 422. Now returned via job `status="failed"` (client polls). This is acceptable — pipeline can no longer return sync error after 202 response, and the rare KONTEKS case is a minor UX cost.
+
+### "Hapus Dokumen" Feature — ALREADY EXISTS
+
+Owner asked: "apakah tidak ada fitur hapus dokumen di task mentor?". Verifikasi:
+- Backend: `DELETE /api/projects/:projectId/documents/:documentId` di `routes/documents.ts` ✅
+- Frontend: `useDeleteDocument()` + `handleDelete` di `src/pages/project.tsx:198,240-256` ✅
+- UI: DropdownMenu dengan Trash2 icon + "Delete" label di baris 340-346
+
+**Discovered UX gap:** Label English "Delete" bukan "Hapus" (inkonsisten dengan rest of app). Will fix in follow-up.
+
+### Files Changed (commit 512f843)
+
+| File | +/- | Notes |
+|------|-----|-------|
+| `artifacts/api-server/src/routes/projects.ts` | +68 -45 | analyze + document/generate → 202 + waitUntil |
+| `artifacts/api-server/vercel.json` | +6 -1 | adds maxDuration: 60 in builds[0].config |
+| `artifacts/api-server/package.json` | +3 -2 | adds @vercel/functions ^3.9.8 |
+| `artifacts/api-server/api/index.mjs` | rebuilt | bundle with new dep + new routes |
+| `artifacts/api-server/src/middlewares/auth.ts` | sync | JWKS allowedJWSSigParams (was in bundle, not source) |
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>

@@ -1209,3 +1209,57 @@ The constraint was NOT in the Drizzle ORM schema (`lib/db/src/schema/projects.ts
 **Pattern:** `db_constraint_gap_openapi_db_mismatch` (1x — promote after 2x occurrence)
 
 
+
+### ERR-2026-09-20-001 | Analyze Endpoint Timeout — Vercel Serverless SIGKILL
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-09-20 |
+| **Severity** | CRITICAL |
+| **Layer** | Backend (Express + Vercel serverless + Drizzle) |
+| **Status** | FIXED + DEPLOYED + VERIFIED (backend) |
+| **Files** | `artifacts/api-server/src/routes/projects.ts`, `vercel.json`, `package.json` |
+| **Commit** | `512f843` on `feat/ai-tier-selector-universal` |
+| **Deploy** | `dpl_4grH2isdjAy9S6Ffae21K9sazbBA` → teora-backend.vercel.app |
+| **Incident** | INC-2026-09-20-001 (Task Mentor empty workspace) |
+
+**Symptom:**
+- POST /api/projects/22/analyze returned no response (client timeout)
+- Project 22: status="analyzing" stuck since 2026-09-20 05:25:48 UTC
+- Job 6: status="pending", error_message=null, updated_at=created_at
+- Activities table: `analysis_started` (05:25:49) present, but `analysis_complete/writing_started/document_written` MISSING
+- Owner: "saya klik begin analyze cuman loading lama tapi gk ada hasil/masih kosong workspace nya"
+
+**Root cause (CONFIRMED via DB):**
+- `runAnalysisPipeline` at `routes/projects.ts:409-590` — 4 phases (analyze AI, write AI, quota consume, transaction commit)
+- Sequential AI calls = ~10-15s, transaction = 1-2s, total 11-17s
+- Express handler at line 370: `await runAnalysisPipeline(...)` — synchronous await
+- Vercel serverless default timeout = 10s (Hobby plan verified via `oidcTokenClaims.plan: "hobby"` in deployment metadata)
+- Function SIGKILLed mid-pipeline → response never sent → no transaction commit → state stuck
+
+**Why older jobs (project 7, 8) succeeded:**
+- Same code, but AI provider latency that day was lower (~3.5s total). Project 22 hit a slow AI response day.
+
+**Fix layers:**
+1. `vercel.json`: `maxDuration: 60` in `builds[0].config` (extended Hobby limit)
+2. `@vercel/functions ^3.9.8` installed (provides `waitUntil`)
+3. Analyze route: `res.status(202).json(...); waitUntil(runAnalysisPipeline(...).catch(...))` — return immediately, run in background
+4. Document/generate route: same pattern (write pipeline also >10s)
+5. Error catch block updates job="failed" + project="draft" (defensive — no client sees error)
+6. Manual DB unblock: project 22 reset, job 6 marked failed
+
+**Tradeoff accepted:**
+- 422 (KONTEKS_TERLALU_PANJANG) no longer sync — now via job status="failed" polling
+- Acceptable: pipeline can no longer return sync error after 202 sent, and KONTEKS is rare
+
+**Verification (backend):**
+- ✅ Typecheck: no new errors
+- ✅ Build: 22.9s, 6.6MB bundle
+- ✅ Deploy: dpl_4grH2isdjAy9S6Ffae21K9sazbBA READY
+- ✅ Lambda config: maxDuration=60, runtime timeout=300 (Hobby 5min override)
+- ✅ Health endpoint: 200 OK
+- ✅ Analyze route wired (401 without auth)
+- ⚠️ E2E test pending: owner must retry Begin Analyze on project 22
+
+**Prevention:**
+- Any new pipeline route MUST use waitUntil pattern. See memory entry `vercel-serverless-pipeline-waituntil-required.md`.

@@ -2,6 +2,39 @@
 
 > Completed work, newest first. Format: `YYYY-MM-DD | description | files | status`
 
+## 2026-09-20 | Bug Fixes: Mulai Chat Button + Chat Input Clear Pattern (opus-4-8)
+
+**Status:** ✅ COMPLETE — deployed + verified
+**Branch:** `feat/ai-tier-selector-universal` — commit `fce9711`
+**Frontend deploy:** `academic-workspace-csk9jbkb4-sagise-ctrls-projects.vercel.app` ✅ READY (Production)
+
+| Step | Description | Status |
+|------|-------------|--------|
+| Bug 1 identified | "Mulai Chat" button tidak bisa diklik pada area button sendiri | ✅ CONFIRMED |
+| Bug 1 root cause | Wrapper `<div onClick={e.stopPropagation()}>` memblokir click; Button tidak punya onClick handler | ✅ |
+| Bug 1 fix | Tambah `onClick={() => setChatOpen(true)}` ke Button | ✅ FIXED |
+| Bug 2 identified | Input text chatbot tidak hilang saat Enter — baru hilang setelah AI response | ✅ CONFIRMED |
+| Bug 2 root cause | Pattern `setContent("")` di dalam `onSuccess` callback (broken UX) | ✅ |
+| Bug 2 fix (dashboard-chat.tsx) | handleSend: optimistic clear sebelum mutate + restore di onError | ✅ FIXED |
+| Bug 2 fix (project.tsx) | handleSend: same pattern (was incorrectly cleared-on-success) | ✅ FIXED |
+| Lesson updated | `[ERR-020]` di `.ai/lessons-learned.md` — pattern dibalik ke optimistic clear | ✅ |
+| Typecheck | 42 errors (no new) | ✅ |
+| Build | 54.98s, 1.59MB | ✅ |
+| Production smoke | `/dashboard` 200 OK | ✅ |
+
+**Files changed:**
+- `artifacts/academic-workspace/src/pages/dashboard.tsx` — Button onClick handler
+- `artifacts/academic-workspace/src/components/dashboard-chat.tsx` — handleSend optimistic clear + restore
+- `artifacts/academic-workspace/src/pages/project.tsx` — handleSend same pattern
+
+**Lesson reversal:**
+- `[ERR-020]` sebelumnya: "setState clearing form input = DI dalam callback mutation" → WRONG UX
+- `[ERR-020]` sekarang: "setState clearing form input = SEBELUM mutation (optimistic) + restore di onError" → CORRECT chat UX
+
+**Commits:** `fce9711` (bug fixes)
+
+---
+
 ## 2026-09-20 | JWT ES256 Bearer Auth Fix + Audit Cleanup (opus-4-8)
 
 **Status:** ✅ COMPLETE — JWT deployed + verified + DB constraint fixed + dead-import cleanup deployed
@@ -1457,3 +1490,31 @@ c7ab68a ci: exclude pre-existing broken tests (routes.integration + use-auth)
 
 **Branch:** `feat/ai-tier-selector-universal` (commit `0dd8c9d`)
 
+
+## 2026-09-20 | CRITICAL Bug Fix: Task Mentor Empty Workspace — Analyze Pipeline Timeout (opus-4-8)
+
+**Status:** ✅ COMPLETE — deployed + backend verified
+**Branch:** `feat/ai-tier-selector-universal` — commit `512f843`
+**Backend deploy:** `dpl_4grH2isdjAy9S6Ffae21K9sazbBA` → `teora-backend.vercel.app` ✅ READY
+
+| Step | Description | Status |
+|------|-------------|--------|
+| Bug identified | "Task Mentor kosong, gk ada dokumen/outline, Begin Analyze loading lama no result" | ✅ CONFIRMED |
+| DB evidence | Project 22 status=analyzing stuck; Job 6 status=pending since 05:25:48 UTC; activity log missing post-analysis events | ✅ |
+| Root cause | `await runAnalysisPipeline(...)` SYNC; pipeline = 2 AI calls + tx (10-30s); Vercel serverless timeout kills mid-pipeline | ✅ |
+| Fix @vercel/functions | Install `^3.9.8` for `waitUntil` API | ✅ |
+| Fix vercel.json | Move `maxDuration: 60` into `builds[0].config` (cannot coexist with top-level `functions`) | ✅ |
+| Fix analyze route | Return 202 immediately + `waitUntil(pipeline.catch(...))` | ✅ |
+| Fix doc/generate route | Same pattern (write_chapter pipeline also > 10s) | ✅ |
+| DB cleanup | Project 22 → status=draft; Job 6 → status=failed + error_message | ✅ |
+| Build | 22.9s, 6.6MB bundle | ✅ |
+| Deploy | `dpl_4grH2isdjAy9S6Ffae21K9sazbBA` ✅ READY (auto-aliased by Vercel CLI --prod) | ✅ |
+| Function config verified | `maxDuration: 60` in deployed lambda; runtime timeout = 300s | ✅ |
+| Health check | `GET /api/healthz` → 200 | ✅ |
+| Route wired | `POST /api/projects/22/analyze` → 401 (auth active) | ✅ |
+
+**Owner next step:** Re-run "Begin Analyze" on project 22. Document should appear within 10-30s without page hang.
+
+**Side fix included:** `auth.ts` JWKS `allowedJWSSigParams` (ES256 support) — was in deployed bundle but not in source; now synced.
+
+**Open:** "Hapus Dokumen" UX gap — feature exists (English "Delete" label) but low discoverability. Will translate to "Hapus" in next sprint.

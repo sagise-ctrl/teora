@@ -4,6 +4,7 @@
 
 | ID | Date | Severity | Title | Status | Post-mortem |
 |----|------|----------|-------|--------|-------------|
+| INC-009 | 2026-09-20 | **P1 Critical** | Task Mentor "Begin Analyze" hangs, no document — analyze route awaits pipeline sync, Vercel Hobby 10s SIGKILL mid-pipeline → no transaction commit → project stuck | Resolved (commit 512f843, deploy dpl_4grH2isdjAy9S6Ffae21K9sazbBA; waitUntil + maxDuration=60; project 22 + job 6 manually unblocked; E2E pending owner verify) | [20260920-001](20260920-001.md) |
 | INC-006 | 2026-09-15 | **P0 Critical** | RLS gap: 10 user-facing tables RLS enabled but no policies + `rls_auto_enable()` SECURITY DEFINER anon-callable + leaked password protection disabled | **OPEN — awaiting owner authorization** | [20260915-001](20260915-001.md) |
 | INC-007 | 2026-09-18 | P3 Low | Production /register throws uncaught ZodError (ERR-027 fix committed but never promoted) | Resolved (commit a20e764 promoted via `vercel promote dpl_7iMQf6SfeeSAnQZ85RwTYwbKeVtN`; post-promote sweep clean) | [20260918-002](20260918-002.md) |
 | INC-008 | 2026-09-18 | P3 Low | Production POST /api/projects 400 → 500 — `taskType: "dashboard_chat"` rejected by Zod enum (DECISION 010) AND DB CHECK constraint | Resolved (OpenAPI enum extended, codegen, build, api-server deploy to dpl_HamBBEqL1JKvuJTa1rkKfKbuHmyy; DB CHECK constraint `projects_task_type_check` altered via Supabase MCP) | [20260918-003](20260918-003.md) |

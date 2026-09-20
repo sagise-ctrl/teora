@@ -1022,3 +1022,121 @@ TAPI — handler tidak menambahkan logika fallback apapun untuk kasus title unde
 - [ ] Cross-validate OpenAPI spec dan Zod schema setelah setiap DECISION. Frontend TS types = derived, jadi kalau spec drift → frontend typecheck harus catch. Kalau typecheck pass tapi runtime error, berarti schema-spec drift.
 - [ ] Jangan lupa: tierId di body request = untrusted input. Selalu validate via `resolveOlagonTierOrFallback` (atau equivalent) yang check (a) tier exists, (b) user punya akses ke tier tsb (subscription OR owner-only Olagon).
 
+---
+
+## [Input field doesn't clear on submit, only on success — bad chat UX] `[ERR-020]`
+
+**Tanggal:** 2026-09-20
+**Severity:** P3 UX / React state management
+**Kelas masalah:** `setContent("")` placement — before mutation vs in onSuccess
+
+### Gejala
+
+User ketik teks di input field chat → tekan Enter → teks TIDAK hilang dari input (tetap di sana sampai AI response baru clear). Owner UX expectation: input harus hilang SEGERA saat Enter (standar chat app seperti WhatsApp, Telegram, dsb.). Pattern `setContent("")` di dalam `onSuccess` membuat input "lengket" di UI sampai response tiba (5-30 detik).
+
+### Root cause
+
+```typescript
+// SALAH (project.tsx + dashboard-chat.tsx, broken UX):
+const handleSend = (e: React.FormEvent) => {
+  const messageContent = content
+  sendMessage.mutate({...}, {
+    onSuccess: () => setContent(""),  // ← input tetap "lengket" sampai AI response
+    onError: () => { setContent(messageContent); ... }
+  })
+}
+```
+
+`setContent("")` dipanggil DI DALAM `onSuccess` — yang hanya fires setelah server return 201. User melihat input penuh selama 5-30 detik (waktu tunggu AI). Owner harus melihat chat app behavior standar: input langsung kosong saat Enter.
+
+### Pattern BENAR (optimistic clear + restore on error)
+
+```typescript
+const handleSend = (e: React.FormEvent) => {
+  e.preventDefault()
+  if (!content.trim()) return
+
+  const messageContent = content
+  // Optimistic clear: input hilang SEGERA saat Enter
+  setContent("")
+
+  sendMessage.mutate({...}, {
+    onSuccess: () => {
+      // TIDAK perlu setContent("") lagi — sudah di-clear di atas
+      queryClient.invalidateQueries({...})
+    },
+    onError: (err) => {
+      // Restore kalau gagal (kecuali 402 insufficient balance — user perlu topup)
+      if (!insufficientBalance) {
+        toast({ variant: "destructive", ... })
+        setContent(messageContent)
+      }
+    }
+  })
+}
+```
+
+### Kalau error berulang
+
+**Kelas masalah:** `chat_input_clear_pattern`. Checkpoint: untuk chat-like UX, **SELALU** optimistic clear + error restore. JANGAN clear-on-success.
+
+### Yang harus dicek di masa depan supaya tidak terulang
+
+- [ ] **WAJIB cek pattern `setContent("")` / `setInput("")`** ada di SEBELUM `mutate({})` call (optimistic clear), BUKAN di dalam `onSuccess`
+- [ ] `onError` callback HARUS restore content via `setContent(previousContent)` kalau error bukan 402 insufficient balance
+- [ ] Untuk 402 (insufficient balance), JANGAN restore — user perlu topup dulu
+- [ ] Test UX manual: tekan Enter → input langsung kosong (tidak tunggu response)
+- [ ] Code review: cari `onSuccess.*setContent\(\"\"\)|onSuccess.*setInput\(\"\"\)` → RED FLAG
+
+**Cross-reference:**
+- `[ERR-016] useState async state management gap` (state mutation timing)
+- Pattern correct: `dashboard-chat.tsx:128 handleSend` + `project.tsx:1424 handleSend`
+## [ERR-2026-09-20] Long-running pipeline (>5s) MUST use waitUntil, not sync await
+
+### Gejala
+- Owner klik "Begin Analyze" di Task Mentor → loading lama, no result
+- POST /api/projects/:id/analyze return no response (client timeout)
+- Project status stuck = "analyzing"; job stuck = "pending" forever
+- Activities table: hanya `analysis_started` ada; `analysis_complete/writing_started/document_written` MISSING
+- DB query: `updated_at = created_at` (zero duration) untuk job yang stuck
+
+### Root cause
+- `artifacts/api-server/src/routes/projects.ts:370` melakukan `await runAnalysisPipeline(...)` synchronous
+- Pipeline = 2 sequential AI calls + DB transaction (~10-30s total)
+- Vercel Hobby serverless default timeout = 10s SIGKILL function mid-pipeline
+- Function killed sebelum transaction commit → state stuck
+- Older jobs (3.5s) sukses karena AI provider latency lebih rendah hari itu — same code, but variable outcome based on latency
+
+### Kalau error berulang
+- Tiap Vercel hobby serverless pipeline >5s WAJIB check `await` pattern di handler
+- Cek grep: `await run.*Pipeline\(\.\.\.\)|await long.*\(\.\.\.\)` di routes/*.ts
+- Vercel error "FUNCTION_INVOCATION_TIMEOUT" di logs = code smell SIGKILL di-sync
+- Tiap pipeline route baru atau dimodifikasi → review pattern ini sebelum merge
+
+### Opsi yang dipertimbangkan
+1. **waitUntil (dari @vercel/functions)** — return 202 immediately, run pipeline di background, function alive sampai maxDuration
+2. **Background job queue** (BullMQ + Redis) — overkill untuk Teora scale, butuh infra tambahan
+3. **Upgrade ke Vercel Pro** — kasih maxDuration 300s tapi TETAP butuh waitUntil untuk client UX (no hang)
+4. **Inline early-return validate then poll** — split ke 2 endpoint, client polls for status — complex
+
+### Kenapa pilih waitUntil
+- Single-file change, tidak butuh infra baru
+- Vercel official pattern untuk serverless background work
+- Keep Vercel Hobby plan (owner sudah hobby, no upgrade needed)
+- Pipeline masih run di same process (easy error tracking via existing logger)
+- Defensive `.catch` ensures stuck states self-clean (mark job="failed")
+
+### Yang harus dicek di masa depan
+- [ ] **WAJIB grep `await run[A-Z]` di routes/*.ts** sebelum commit pipeline changes
+- [ ] **WAJIB install `@vercel/functions`** sebelum add waitUntil pattern
+- [ ] `vercel.json` maxDuration HARUS di `builds[].config`, BUKAN top-level `functions` (conflict error)
+- [ ] `.catch` di waitUntil callback WAJIB update job+project status (defensive — no client sees error)
+- [ ] Vercel plan check via `oidcTokenClaims.plan` di deployment metadata (deployment API)
+- [ ] Audit existing routes: `outline`, `comments`, `writing-style`, `simulasi`, `references` — single AI call (~3s) OK on Hobby 10s default, tapi monitor
+
+**Cross-reference:**
+- Memory: `vercel-serverless-pipeline-waituntil-required.md`
+- Incident: INC-009 / `.ai/incidents/20260920-001.md`
+- Error index: `ERR-2026-09-20-001`
+- Files: `routes/projects.ts:284-406` (analyze) + `routes/projects.ts:748-904` (document/generate)
+- Deploy: `dpl_4grH2isdjAy9S6Ffae21K9sazbBA` on commit `512f843`
