@@ -1,6 +1,7 @@
 import { Router, type IRouter, type Request } from "express";
 import { eq, desc, sql, and, isNull } from "drizzle-orm";
 import { randomBytes } from "crypto";
+import { waitUntil } from "@vercel/functions";
 import {
   db,
   projectsTable,
@@ -362,34 +363,46 @@ router.post("/projects/:projectId/analyze", async (req, res): Promise<void> => {
 
   await logActivity(project.id, "analysis_started", "Analisis instruksi dimulai");
 
-  let quotaInfo: { method: string; saldoUsedCents: number } = {
-    method: "subscription",
-    saldoUsedCents: 0,
-  };
-  try {
-    await runAnalysisPipeline(project.id, job.id, selectedTier);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    if (message === "KONTEKS_TERLALU_PANJANG") {
-      await db.update(jobsTable).set({ status: "failed", errorMessage: "Konteks terlalu panjang." }).where(eq(jobsTable.id, job.id));
-      await db.update(projectsTable).set({ status: "draft" }).where(eq(projectsTable.id, project.id));
-      res.status(422).json({
-        error: "Konteks terlalu panjang.",
-        detail: "Dokumen atau instruksi terlalu panjang untuk diproses.",
-        code: "KONTEKS_TERLALU_PANJANG",
-      });
-      return;
-    }
-    req.log.error({ err, projectId: project.id }, "Analysis pipeline failed");
-    quotaInfo = { method: "subscription", saldoUsedCents: 0 };
-  }
-
+  // Return 202 immediately + run pipeline in background via waitUntil.
+  // Rationale: pipeline does 2 sequential AI calls + DB transaction (~10-30s).
+  // Vercel serverless functions have hard timeout (10s Hobby / 60s Pro).
+  // Without waitUntil, sync await causes client to hang AND pipeline gets killed mid-flight
+  // → no transaction commit → job stuck in "pending" forever (INC-2026-09-20-001).
+  // waitUntil keeps the function alive after response is sent, up to maxDuration.
   res.status(202).json({
     ...job,
     result: job.result ?? null,
     errorMessage: job.errorMessage ?? null,
-    ...quotaInfo,
   });
+
+  waitUntil(
+    runAnalysisPipeline(project.id, job.id, selectedTier).catch(async (err) => {
+      const message = err instanceof Error ? err.message : String(err);
+      logger.error({ err, projectId: project.id, jobId: job.id }, "Analysis pipeline failed");
+      if (message === "KONTEKS_TERLALU_PANJANG") {
+        await db
+          .update(jobsTable)
+          .set({ status: "failed", errorMessage: "Konteks terlalu panjang." })
+          .where(eq(jobsTable.id, job.id));
+        await db
+          .update(projectsTable)
+          .set({ status: "draft" })
+          .where(eq(projectsTable.id, project.id));
+        return;
+      }
+      await db
+        .update(jobsTable)
+        .set({
+          status: "failed",
+          errorMessage: message.slice(0, 500),
+        })
+        .where(eq(jobsTable.id, job.id));
+      await db
+        .update(projectsTable)
+        .set({ status: "draft" })
+        .where(eq(projectsTable.id, project.id));
+    })
+  );
 });
 
 async function runAnalysisPipeline(
@@ -856,28 +869,38 @@ router.post("/projects/:projectId/documents/generate", async (req, res): Promise
 
   await logActivity(project.id, "document_generation_started", "Penulisan dokumen dimulai");
 
-  let quotaInfo: { method: string; saldoUsedCents: number } = {
-    method: "subscription",
-    saldoUsedCents: 0,
-  };
-  try {
-    await runDocumentGeneration(project.id, job.id, outline, selectedTier);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    if (message === "KONTEKS_TERLALU_PANJANG") {
-      await db.update(jobsTable).set({ status: "failed", errorMessage: "Konteks terlalu panjang." }).where(eq(jobsTable.id, job.id));
-      res.status(422).json({
-        error: "Konteks terlalu panjang.",
-        detail: "Outline atau dokumen terlalu panjang untuk diproses.",
-        code: "KONTEKS_TERLALU_PANJANG",
-      });
-      return;
-    }
-    req.log.error({ err, projectId: project.id }, "Document generation failed");
-    quotaInfo = { method: "subscription", saldoUsedCents: 0 };
-  }
+  // Return 202 immediately + run generation in background via waitUntil.
+  // See analyze route for rationale (pipeline takes too long for sync Vercel function).
+  res.status(202).json({ jobId: job.id, status: "started" });
 
-  res.status(202).json({ jobId: job.id, status: "started", ...quotaInfo });
+  waitUntil(
+    runDocumentGeneration(project.id, job.id, outline, selectedTier).catch(async (err) => {
+      const message = err instanceof Error ? err.message : String(err);
+      logger.error({ err, projectId: project.id, jobId: job.id }, "Document generation failed");
+      if (message === "KONTEKS_TERLALU_PANJANG") {
+        await db
+          .update(jobsTable)
+          .set({ status: "failed", errorMessage: "Konteks terlalu panjang." })
+          .where(eq(jobsTable.id, job.id));
+        await db
+          .update(projectsTable)
+          .set({ status: "draft" })
+          .where(eq(projectsTable.id, project.id));
+        return;
+      }
+      await db
+        .update(jobsTable)
+        .set({
+          status: "failed",
+          errorMessage: message.slice(0, 500),
+        })
+        .where(eq(jobsTable.id, job.id));
+      await db
+        .update(projectsTable)
+        .set({ status: "draft" })
+        .where(eq(projectsTable.id, project.id));
+    })
+  );
 });
 
 async function runDocumentGeneration(

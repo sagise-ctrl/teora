@@ -7,7 +7,7 @@ const SUPABASE_JWT_SECRET = process.env.SUPABASE_JWT_SECRET ?? "";
 
 logger.info({ SUPABASE_URL, SUPABASE_JWT_SECRET_set: !!SUPABASE_JWT_SECRET }, "Auth middleware loaded");
 
-// JWKS cache
+// JWKS cache — cached indefinitely (keys rarely rotate)
 let jwks: jose.JWTVerifyGetKey | null = null;
 
 async function getJwks(): Promise<jose.JWTVerifyGetKey> {
@@ -17,7 +17,10 @@ async function getJwks(): Promise<jose.JWTVerifyGetKey> {
   // Legacy / local dev uses HS256 (symmetric, SUPABASE_JWT_SECRET).
   const jwksUrl = new URL(`${SUPABASE_URL}/auth/v1/.well-known/jwks.json`);
   logger.info({ jwksUrl: jwksUrl.toString() }, "getJwks: JWKS URL");
-  jwks = jose.createRemoteJWKSet(jwksUrl);
+  jwks = jose.createRemoteJWKSet(jwksUrl, {
+    // Allow ES256 — Supabase uses P-256 ECDSA keys
+    allowedJWSSigParams: new Set(["ES256", "ES384", "ES512"]),
+  });
   return jwks;
 }
 
@@ -32,6 +35,19 @@ declare global {
     interface Request {
       user?: AuthUser;
     }
+  }
+}
+
+/** Detect algorithm from JWT header without verification (safe — header is base64, not crypto).
+ *  Returns "unknown" if the token format is not recognized. */
+function detectJwtAlgorithm(token: string): string {
+  try {
+    const [headerB64] = token.split(".");
+    const headerJson = Buffer.from(headerB64, "base64url").toString("utf-8");
+    const header = JSON.parse(headerJson);
+    return header.alg ?? "unknown";
+  } catch {
+    return "unknown";
   }
 }
 
@@ -52,28 +68,26 @@ export async function authMiddleware(
   }
 
   try {
+    const alg = detectJwtAlgorithm(token);
     const secret = SUPABASE_JWT_SECRET || undefined;
     let payload: jose.JWTPayload;
 
-    // Try HS256 first (legacy / local dev tokens).
-    // If SUPABASE_JWT_SECRET is set but the token is signed with ES256 (modern Supabase
-    // Google OAuth), HS256 verify throws "Invalid Compact JWS" — fall back to JWKS.
-    let verified = false;
-    if (secret) {
-      try {
-        const { payload: p } = await jose.jwtVerify(token, new TextEncoder().encode(secret));
-        payload = p;
-        verified = true;
-      } catch {
-        // HS256 failed — fall through to JWKS
-      }
-    }
+    // Algorithm routing:
+    // - HS256/HS384/HS512: symmetric, verify with SUPABASE_JWT_SECRET
+    // - ES256/ES384/ES512/EdDSA/RS256/etc: asymmetric, verify with JWKS
+    const isSymmetricAlg = alg === "HS256" || alg === "HS384" || alg === "HS512";
 
-    if (!verified) {
-      // Production: verify with JWKS (covers ES256 and RS256).
+    if (isSymmetricAlg && secret) {
+      // Legacy Supabase (local dev): verify with symmetric secret
+      const { payload: p } = await jose.jwtVerify(token, new TextEncoder().encode(secret));
+      payload = p;
+      logger.info({ userId: payload.sub as string, email: payload.email as string, alg }, "authMiddleware: HS256 verified");
+    } else {
+      // Modern Supabase (Google OAuth / production): verify with JWKS
       const keySet = await getJwks();
       const { payload: p } = await jose.jwtVerify(token, keySet);
       payload = p;
+      logger.info({ userId: payload.sub as string, email: payload.email as string, alg }, "authMiddleware: JWKS verified");
     }
 
     req.user = {
@@ -81,11 +95,14 @@ export async function authMiddleware(
       email: payload.email as string | undefined,
     };
 
-    logger.info({ userId: req.user.id, email: req.user.email }, "authMiddleware: token verified");
     next();
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    logger.warn({ err: msg, hasSecret: !!SUPABASE_JWT_SECRET, supabaseUrl: SUPABASE_URL || "[EMPTY]" }, "authMiddleware: token verify failed");
+    const alg = detectJwtAlgorithm(token);
+    logger.warn(
+      { err: msg, alg, hasSecret: !!SUPABASE_JWT_SECRET, supabaseUrl: SUPABASE_URL || "[EMPTY]" },
+      "authMiddleware: token verify failed"
+    );
     res.status(401).json({ error: "Invalid or expired token" });
   }
 }
@@ -107,21 +124,16 @@ export async function optionalAuth(
   }
 
   try {
+    const alg = detectJwtAlgorithm(token);
     const secret = SUPABASE_JWT_SECRET || undefined;
     let payload: jose.JWTPayload;
 
-    let verified = false;
-    if (secret) {
-      try {
-        const { payload: p } = await jose.jwtVerify(token, new TextEncoder().encode(secret));
-        payload = p;
-        verified = true;
-      } catch {
-        // HS256 failed — fall through to JWKS
-      }
-    }
+    const isSymmetricAlg = alg === "HS256" || alg === "HS384" || alg === "HS512";
 
-    if (!verified) {
+    if (isSymmetricAlg && secret) {
+      const { payload: p } = await jose.jwtVerify(token, new TextEncoder().encode(secret));
+      payload = p;
+    } else {
       const keySet = await getJwks();
       const { payload: p } = await jose.jwtVerify(token, keySet);
       payload = p;
