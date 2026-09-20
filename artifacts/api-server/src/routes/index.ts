@@ -86,6 +86,10 @@ router.use(writingStyleRouter);
 router.use(balanceRouter);
 router.use(autofallbackRouter);
 router.use(subscriptionsRouter);
+// BUG FIX 2026-09-20: profileRouter imported at line 28 but never wired.
+// /api/users/me/profile was 404 since profile.ts was added.
+// Fix: register the router so GET/PATCH /users/me/profile resolve.
+router.use(profileRouter);
 router.use(usageRouter);
 router.use(documentTemplatesRouter);
 router.use(adminAiTiersRouter);

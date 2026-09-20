@@ -38,7 +38,12 @@ const OLAGON_TIERS: Record<string, AITierConfig> = {
     id: "haiku-4.5",
     name: "Haiku 4.5 (Free)",
     provider: "anthropic",
-    model: "claude-haiku-4-5-20250514",
+    // Olagon gateway rejects Anthropic-dated model IDs ("-20250514", "-20251001").
+    // Only the bare alias `claude-haiku-4-5` is supported (verified via
+    // GET https://gateway.olagon.site/v1/models on 2026-09-20).
+    // DECISION: keep OLAGON_API_KEY routing because ANTHROPIC_API_KEY env is empty
+    // in Vercel production (hotfix 7e27ef6). Revisit when ANTHROPIC_API_KEY is set.
+    model: "claude-haiku-4-5",
     baseUrl: "https://gateway.olagon.site/anthropic",
     apiKeyEnvVar: "OLAGON_API_KEY",
     pricePer1MInputCents: 0, pricePer1MOutputCents: 0,

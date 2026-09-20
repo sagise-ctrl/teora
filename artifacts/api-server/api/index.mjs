@@ -20827,27 +20827,27 @@ var require_router = __commonJS({
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var methods = METHODS.map((method) => method.toLowerCase());
-    module.exports = Router38;
+    module.exports = Router39;
     module.exports.Route = Route;
-    function Router38(options) {
-      if (!(this instanceof Router38)) {
-        return new Router38(options);
+    function Router39(options) {
+      if (!(this instanceof Router39)) {
+        return new Router39(options);
       }
       const opts = options || {};
-      function router38(req, res, next2) {
-        router38.handle(req, res, next2);
+      function router39(req, res, next2) {
+        router39.handle(req, res, next2);
       }
-      Object.setPrototypeOf(router38, this);
-      router38.caseSensitive = opts.caseSensitive;
-      router38.mergeParams = opts.mergeParams;
-      router38.params = {};
-      router38.strict = opts.strict;
-      router38.stack = [];
-      return router38;
+      Object.setPrototypeOf(router39, this);
+      router39.caseSensitive = opts.caseSensitive;
+      router39.mergeParams = opts.mergeParams;
+      router39.params = {};
+      router39.strict = opts.strict;
+      router39.stack = [];
+      return router39;
     }
-    Router38.prototype = function() {
+    Router39.prototype = function() {
     };
-    Router38.prototype.param = function param(name, fn) {
+    Router39.prototype.param = function param(name, fn) {
       if (!name) {
         throw new TypeError("argument name is required");
       }
@@ -20867,7 +20867,7 @@ var require_router = __commonJS({
       params.push(fn);
       return this;
     };
-    Router38.prototype.handle = function handle(req, res, callback) {
+    Router39.prototype.handle = function handle(req, res, callback) {
       if (!callback) {
         throw new TypeError("argument callback is required");
       }
@@ -20994,7 +20994,7 @@ var require_router = __commonJS({
         }
       }
     };
-    Router38.prototype.use = function use(handler) {
+    Router39.prototype.use = function use(handler) {
       let offset = 0;
       let path3 = "/";
       if (typeof handler !== "function") {
@@ -21027,7 +21027,7 @@ var require_router = __commonJS({
       }
       return this;
     };
-    Router38.prototype.route = function route(path3) {
+    Router39.prototype.route = function route(path3) {
       const route2 = new Route(path3);
       const layer = new Layer(path3, {
         sensitive: this.caseSensitive,
@@ -21042,7 +21042,7 @@ var require_router = __commonJS({
       return route2;
     };
     methods.concat("all").forEach(function(method) {
-      Router38.prototype[method] = function(path3) {
+      Router39.prototype[method] = function(path3) {
         const route = this.route(path3);
         route[method].apply(route, slice.call(arguments, 1));
         return this;
@@ -21225,13 +21225,13 @@ var require_application = __commonJS({
     var compileTrust = require_utils3().compileTrust;
     var resolve = __require("node:path").resolve;
     var once = require_once();
-    var Router38 = require_router();
+    var Router39 = require_router();
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var app2 = exports = module.exports = {};
     var trustProxyDefaultSymbol = "@@symbol:trust_proxy_default";
     app2.init = function init() {
-      var router38 = null;
+      var router39 = null;
       this.cache = /* @__PURE__ */ Object.create(null);
       this.engines = /* @__PURE__ */ Object.create(null);
       this.settings = /* @__PURE__ */ Object.create(null);
@@ -21240,13 +21240,13 @@ var require_application = __commonJS({
         configurable: true,
         enumerable: true,
         get: function getrouter() {
-          if (router38 === null) {
-            router38 = new Router38({
+          if (router39 === null) {
+            router39 = new Router39({
               caseSensitive: this.enabled("case sensitive routing"),
               strict: this.enabled("strict routing")
             });
           }
-          return router38;
+          return router39;
         }
       });
     };
@@ -21317,15 +21317,15 @@ var require_application = __commonJS({
       if (fns.length === 0) {
         throw new TypeError("app.use() requires a middleware function");
       }
-      var router38 = this.router;
+      var router39 = this.router;
       fns.forEach(function(fn2) {
         if (!fn2 || !fn2.handle || !fn2.set) {
-          return router38.use(path3, fn2);
+          return router39.use(path3, fn2);
         }
         debug(".use app under %s", path3);
         fn2.mountpath = path3;
         fn2.parent = this;
-        router38.use(path3, function mounted_app(req, res, next2) {
+        router39.use(path3, function mounted_app(req, res, next2) {
           var orig = req.app;
           fn2.handle(req, res, function(err) {
             Object.setPrototypeOf(req, orig.request);
@@ -23834,7 +23834,7 @@ var require_express = __commonJS({
     var EventEmitter2 = __require("node:events").EventEmitter;
     var mixin2 = require_merge_descriptors();
     var proto = require_application();
-    var Router38 = require_router();
+    var Router39 = require_router();
     var req = require_request();
     var res = require_response();
     exports = module.exports = createApplication;
@@ -23856,8 +23856,8 @@ var require_express = __commonJS({
     exports.application = proto;
     exports.request = req;
     exports.response = res;
-    exports.Route = Router38.Route;
-    exports.Router = Router38;
+    exports.Route = Router39.Route;
+    exports.Router = Router39;
     exports.json = bodyParser.json;
     exports.raw = bodyParser.raw;
     exports.static = require_serve_static();
@@ -193649,7 +193649,7 @@ var require_input5 = __commonJS({
 });
 
 // src/app.ts
-var import_express38 = __toESM(require_express2(), 1);
+var import_express39 = __toESM(require_express2(), 1);
 var import_cors = __toESM(require_lib3(), 1);
 var import_pino_http = __toESM(require_logger(), 1);
 
@@ -194424,7 +194424,7 @@ var rateLimit = (passedOptions) => {
 var lib_default = rateLimit;
 
 // src/routes/index.ts
-var import_express35 = __toESM(require_express2(), 1);
+var import_express36 = __toESM(require_express2(), 1);
 
 // ../../node_modules/.pnpm/jose@6.2.12/node_modules/jose/dist/webapi/lib/buffer_utils.js
 var encoder = new TextEncoder();
@@ -206121,7 +206121,12 @@ var OLAGON_TIERS = {
     id: "haiku-4.5",
     name: "Haiku 4.5 (Free)",
     provider: "anthropic",
-    model: "claude-haiku-4-5-20250514",
+    // Olagon gateway rejects Anthropic-dated model IDs ("-20250514", "-20251001").
+    // Only the bare alias `claude-haiku-4-5` is supported (verified via
+    // GET https://gateway.olagon.site/v1/models on 2026-09-20).
+    // DECISION: keep OLAGON_API_KEY routing because ANTHROPIC_API_KEY env is empty
+    // in Vercel production (hotfix 7e27ef6). Revisit when ANTHROPIC_API_KEY is set.
+    model: "claude-haiku-4-5",
     baseUrl: "https://gateway.olagon.site/anthropic",
     apiKeyEnvVar: "OLAGON_API_KEY",
     pricePer1MInputCents: 0,
@@ -215711,22 +215716,22 @@ var require_common$1 = /* @__PURE__ */ __commonJSMin(((exports) => {
 }));
 var require_common2 = /* @__PURE__ */ __commonJSMin(((exports) => {
   var rotr32 = require_utils4().rotr32;
-  function ft_1(s2, x2, y, z14) {
-    if (s2 === 0) return ch32(x2, y, z14);
-    if (s2 === 1 || s2 === 3) return p322(x2, y, z14);
-    if (s2 === 2) return maj32(x2, y, z14);
+  function ft_1(s2, x2, y, z15) {
+    if (s2 === 0) return ch32(x2, y, z15);
+    if (s2 === 1 || s2 === 3) return p322(x2, y, z15);
+    if (s2 === 2) return maj32(x2, y, z15);
   }
   exports.ft_1 = ft_1;
-  function ch32(x2, y, z14) {
-    return x2 & y ^ ~x2 & z14;
+  function ch32(x2, y, z15) {
+    return x2 & y ^ ~x2 & z15;
   }
   exports.ch32 = ch32;
-  function maj32(x2, y, z14) {
-    return x2 & y ^ x2 & z14 ^ y & z14;
+  function maj32(x2, y, z15) {
+    return x2 & y ^ x2 & z15 ^ y & z15;
   }
   exports.maj32 = maj32;
-  function p322(x2, y, z14) {
-    return x2 ^ y ^ z14;
+  function p322(x2, y, z15) {
+    return x2 ^ y ^ z15;
   }
   exports.p32 = p322;
   function s0_256(x2) {
@@ -216461,12 +216466,12 @@ var require_ripemd = /* @__PURE__ */ __commonJSMin(((exports) => {
     if (enc === "hex") return utils.toHex32(this.h, "little");
     else return utils.split32(this.h, "little");
   };
-  function f3(j, x2, y, z14) {
-    if (j <= 15) return x2 ^ y ^ z14;
-    else if (j <= 31) return x2 & y | ~x2 & z14;
-    else if (j <= 47) return (x2 | ~y) ^ z14;
-    else if (j <= 63) return x2 & z14 | y & ~z14;
-    else return x2 ^ (y | ~z14);
+  function f3(j, x2, y, z15) {
+    if (j <= 15) return x2 ^ y ^ z15;
+    else if (j <= 31) return x2 & y | ~x2 & z15;
+    else if (j <= 47) return (x2 | ~y) ^ z15;
+    else if (j <= 63) return x2 & z15 | y & ~z15;
+    else return x2 ^ (y | ~z15);
   }
   function K2(j) {
     if (j <= 15) return 0;
@@ -220336,17 +220341,17 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
           t3 && !r3 || (x2.crc32 = e3.crc32, x2.compressedSize = e3.compressedSize, x2.uncompressedSize = e3.uncompressedSize);
           var S2 = 0;
           t3 && (S2 |= 8), l || !_ && !g || (S2 |= 2048);
-          var z14 = 0, C = 0;
-          w && (z14 |= 16), "UNIX" === i3 ? (C = 798, z14 |= (function(e4, t4) {
+          var z15 = 0, C = 0;
+          w && (z15 |= 16), "UNIX" === i3 ? (C = 798, z15 |= (function(e4, t4) {
             var r4 = e4;
             return e4 || (r4 = t4 ? 16893 : 33204), (65535 & r4) << 16;
-          })(h2.unixPermissions, w)) : (C = 20, z14 |= (function(e4) {
+          })(h2.unixPermissions, w)) : (C = 20, z15 |= (function(e4) {
             return 63 & (e4 || 0);
           })(h2.dosPermissions)), a = k.getUTCHours(), a <<= 6, a |= k.getUTCMinutes(), a <<= 5, a |= k.getUTCSeconds() / 2, o = k.getUTCFullYear() - 1980, o <<= 4, o |= k.getUTCMonth() + 1, o <<= 5, o |= k.getUTCDate(), _ && (v = A2(1, 1) + A2(B(f3), 4) + c, b += "up" + A2(v.length, 2) + v), g && (y = A2(1, 1) + A2(B(p), 4) + m2, b += "uc" + A2(y.length, 2) + y);
           var E = "";
           return E += "\n\0", E += A2(S2, 2), E += u.magic, E += A2(a, 2), E += A2(o, 2), E += A2(x2.crc32, 4), E += A2(x2.compressedSize, 4), E += A2(x2.uncompressedSize, 4), E += A2(f3.length, 2), E += A2(b.length, 2), {
             fileRecord: R.LOCAL_FILE_HEADER + E + f3 + b,
-            dirRecord: R.CENTRAL_FILE_HEADER + A2(C, 2) + E + A2(p.length, 2) + "\0\0\0\0" + A2(z14, 4) + A2(n2, 4) + f3 + b + p
+            dirRecord: R.CENTRAL_FILE_HEADER + A2(C, 2) + E + A2(p.length, 2) + "\0\0\0\0" + A2(z15, 4) + A2(n2, 4) + f3 + b + p
           };
         }
         var I = e2("../utils"), i2 = e2("../stream/GenericWorker"), O = e2("../utf8"), B = e2("../crc32"), R = e2("../signature");
@@ -222034,7 +222039,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
       }, {}],
       46: [function(e2, t2, r2) {
         "use strict";
-        var h2, c = e2("../utils/common"), u = e2("./trees"), d = e2("./adler32"), p = e2("./crc32"), n = e2("./messages"), l = 0, f3 = 4, m2 = 0, _ = -2, g = -1, b = 4, i2 = 2, v = 8, y = 9, s2 = 286, a = 30, o = 19, w = 2 * s2 + 1, k = 15, x2 = 3, S2 = 258, z14 = S2 + x2 + 1, C = 42, E = 113, A2 = 1, I = 2, O = 3, B = 4;
+        var h2, c = e2("../utils/common"), u = e2("./trees"), d = e2("./adler32"), p = e2("./crc32"), n = e2("./messages"), l = 0, f3 = 4, m2 = 0, _ = -2, g = -1, b = 4, i2 = 2, v = 8, y = 9, s2 = 286, a = 30, o = 19, w = 2 * s2 + 1, k = 15, x2 = 3, S2 = 258, z15 = S2 + x2 + 1, C = 42, E = 113, A2 = 1, I = 2, O = 3, B = 4;
         function R(e3, t3) {
           return e3.msg = n[t3], t3;
         }
@@ -222058,7 +222063,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
           e3.pending_buf[e3.pending++] = t3 >>> 8 & 255, e3.pending_buf[e3.pending++] = 255 & t3;
         }
         function L(e3, t3) {
-          var r3, n2, i3 = e3.max_chain_length, s3 = e3.strstart, a2 = e3.prev_length, o2 = e3.nice_match, h3 = e3.strstart > e3.w_size - z14 ? e3.strstart - (e3.w_size - z14) : 0, u2 = e3.window, l2 = e3.w_mask, f4 = e3.prev, c2 = e3.strstart + S2, d2 = u2[s3 + a2 - 1], p2 = u2[s3 + a2];
+          var r3, n2, i3 = e3.max_chain_length, s3 = e3.strstart, a2 = e3.prev_length, o2 = e3.nice_match, h3 = e3.strstart > e3.w_size - z15 ? e3.strstart - (e3.w_size - z15) : 0, u2 = e3.window, l2 = e3.w_mask, f4 = e3.prev, c2 = e3.strstart + S2, d2 = u2[s3 + a2 - 1], p2 = u2[s3 + a2];
           e3.prev_length >= e3.good_match && (i3 >>= 2), o2 > e3.lookahead && (o2 = e3.lookahead);
           do
             if (u2[(r3 = t3) + a2] === p2 && u2[r3 + a2 - 1] === d2 && u2[r3] === u2[s3] && u2[++r3] === u2[s3 + 1]) {
@@ -222077,22 +222082,22 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
         function j(e3) {
           var t3, r3, n2, i3, s3, a2, o2, h3, u2, l2, f4 = e3.w_size;
           do {
-            if (i3 = e3.window_size - e3.lookahead - e3.strstart, e3.strstart >= f4 + (f4 - z14)) {
+            if (i3 = e3.window_size - e3.lookahead - e3.strstart, e3.strstart >= f4 + (f4 - z15)) {
               for (c.arraySet(e3.window, e3.window, f4, f4, 0), e3.match_start -= f4, e3.strstart -= f4, e3.block_start -= f4, t3 = r3 = e3.hash_size; n2 = e3.head[--t3], e3.head[t3] = f4 <= n2 ? n2 - f4 : 0, --r3; ) ;
               for (t3 = r3 = f4; n2 = e3.prev[--t3], e3.prev[t3] = f4 <= n2 ? n2 - f4 : 0, --r3; ) ;
               i3 += f4;
             }
             if (0 === e3.strm.avail_in) break;
             if (a2 = e3.strm, o2 = e3.window, h3 = e3.strstart + e3.lookahead, u2 = i3, l2 = void 0, l2 = a2.avail_in, u2 < l2 && (l2 = u2), r3 = 0 === l2 ? 0 : (a2.avail_in -= l2, c.arraySet(o2, a2.input, a2.next_in, l2, h3), 1 === a2.state.wrap ? a2.adler = d(a2.adler, o2, l2, h3) : 2 === a2.state.wrap && (a2.adler = p(a2.adler, o2, l2, h3)), a2.next_in += l2, a2.total_in += l2, l2), e3.lookahead += r3, e3.lookahead + e3.insert >= x2) for (s3 = e3.strstart - e3.insert, e3.ins_h = e3.window[s3], e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[s3 + 1]) & e3.hash_mask; e3.insert && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[s3 + x2 - 1]) & e3.hash_mask, e3.prev[s3 & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = s3, s3++, e3.insert--, !(e3.lookahead + e3.insert < x2)); ) ;
-          } while (e3.lookahead < z14 && 0 !== e3.strm.avail_in);
+          } while (e3.lookahead < z15 && 0 !== e3.strm.avail_in);
         }
         function Z2(e3, t3) {
           for (var r3, n2; ; ) {
-            if (e3.lookahead < z14) {
-              if (j(e3), e3.lookahead < z14 && t3 === l) return A2;
+            if (e3.lookahead < z15) {
+              if (j(e3), e3.lookahead < z15 && t3 === l) return A2;
               if (0 === e3.lookahead) break;
             }
-            if (r3 = 0, e3.lookahead >= x2 && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart), 0 !== r3 && e3.strstart - r3 <= e3.w_size - z14 && (e3.match_length = L(e3, r3)), e3.match_length >= x2) if (n2 = u._tr_tally(e3, e3.strstart - e3.match_start, e3.match_length - x2), e3.lookahead -= e3.match_length, e3.match_length <= e3.max_lazy_match && e3.lookahead >= x2) {
+            if (r3 = 0, e3.lookahead >= x2 && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart), 0 !== r3 && e3.strstart - r3 <= e3.w_size - z15 && (e3.match_length = L(e3, r3)), e3.match_length >= x2) if (n2 = u._tr_tally(e3, e3.strstart - e3.match_start, e3.match_length - x2), e3.lookahead -= e3.match_length, e3.match_length <= e3.max_lazy_match && e3.lookahead >= x2) {
               for (e3.match_length--; e3.strstart++, e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart, 0 != --e3.match_length; ) ;
               e3.strstart++;
             } else e3.strstart += e3.match_length, e3.match_length = 0, e3.ins_h = e3.window[e3.strstart], e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + 1]) & e3.hash_mask;
@@ -222103,11 +222108,11 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
         }
         function W(e3, t3) {
           for (var r3, n2, i3; ; ) {
-            if (e3.lookahead < z14) {
-              if (j(e3), e3.lookahead < z14 && t3 === l) return A2;
+            if (e3.lookahead < z15) {
+              if (j(e3), e3.lookahead < z15 && t3 === l) return A2;
               if (0 === e3.lookahead) break;
             }
-            if (r3 = 0, e3.lookahead >= x2 && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart), e3.prev_length = e3.match_length, e3.prev_match = e3.match_start, e3.match_length = x2 - 1, 0 !== r3 && e3.prev_length < e3.max_lazy_match && e3.strstart - r3 <= e3.w_size - z14 && (e3.match_length = L(e3, r3), e3.match_length <= 5 && (1 === e3.strategy || e3.match_length === x2 && 4096 < e3.strstart - e3.match_start) && (e3.match_length = x2 - 1)), e3.prev_length >= x2 && e3.match_length <= e3.prev_length) {
+            if (r3 = 0, e3.lookahead >= x2 && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart), e3.prev_length = e3.match_length, e3.prev_match = e3.match_start, e3.match_length = x2 - 1, 0 !== r3 && e3.prev_length < e3.max_lazy_match && e3.strstart - r3 <= e3.w_size - z15 && (e3.match_length = L(e3, r3), e3.match_length <= 5 && (1 === e3.strategy || e3.match_length === x2 && 4096 < e3.strstart - e3.match_start) && (e3.match_length = x2 - 1)), e3.prev_length >= x2 && e3.match_length <= e3.prev_length) {
               for (i3 = e3.strstart + e3.lookahead - x2, n2 = u._tr_tally(e3, e3.strstart - 1 - e3.prev_match, e3.prev_length - x2), e3.lookahead -= e3.prev_length - 1, e3.prev_length -= 2; ++e3.strstart <= i3 && (e3.ins_h = (e3.ins_h << e3.hash_shift ^ e3.window[e3.strstart + x2 - 1]) & e3.hash_mask, r3 = e3.prev[e3.strstart & e3.w_mask] = e3.head[e3.ins_h], e3.head[e3.ins_h] = e3.strstart), 0 != --e3.prev_length; ) ;
               if (e3.match_available = 0, e3.match_length = x2 - 1, e3.strstart++, n2 && (N(e3, false), 0 === e3.strm.avail_out)) return A2;
             } else if (e3.match_available) {
@@ -222151,7 +222156,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
               e3.strstart += e3.lookahead, e3.lookahead = 0;
               var n2 = e3.block_start + r3;
               if ((0 === e3.strstart || e3.strstart >= n2) && (e3.lookahead = e3.strstart - n2, e3.strstart = n2, N(e3, false), 0 === e3.strm.avail_out)) return A2;
-              if (e3.strstart - e3.block_start >= e3.w_size - z14 && (N(e3, false), 0 === e3.strm.avail_out)) return A2;
+              if (e3.strstart - e3.block_start >= e3.w_size - z15 && (N(e3, false), 0 === e3.strm.avail_out)) return A2;
             }
             return e3.insert = 0, t3 === f3 ? (N(e3, true), 0 === e3.strm.avail_out ? O : B) : (e3.strstart > e3.block_start && (N(e3, false), e3.strm.avail_out), A2);
           }),
@@ -222267,10 +222272,10 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
       48: [function(e2, t2, r2) {
         "use strict";
         t2.exports = function(e3, t3) {
-          var r3 = e3.state, n = e3.next_in, i2, s2, a, o, h2, u, l, f3, c, d, p, m2, _, g, b, v, y, w, k, x2, S2, z14 = e3.input, C;
+          var r3 = e3.state, n = e3.next_in, i2, s2, a, o, h2, u, l, f3, c, d, p, m2, _, g, b, v, y, w, k, x2, S2, z15 = e3.input, C;
           i2 = n + (e3.avail_in - 5), s2 = e3.next_out, C = e3.output, a = s2 - (t3 - e3.avail_out), o = s2 + (e3.avail_out - 257), h2 = r3.dmax, u = r3.wsize, l = r3.whave, f3 = r3.wnext, c = r3.window, d = r3.hold, p = r3.bits, m2 = r3.lencode, _ = r3.distcode, g = (1 << r3.lenbits) - 1, b = (1 << r3.distbits) - 1;
           e: do {
-            p < 15 && (d += z14[n++] << p, p += 8, d += z14[n++] << p, p += 8), v = m2[d & g];
+            p < 15 && (d += z15[n++] << p, p += 8, d += z15[n++] << p, p += 8), v = m2[d & g];
             t: for (; ; ) {
               if (d >>>= y = v >>> 24, p -= y, 0 === (y = v >>> 16 & 255)) C[s2++] = 65535 & v;
               else {
@@ -222286,7 +222291,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
                   e3.msg = "invalid literal/length code", r3.mode = 30;
                   break e;
                 }
-                w = 65535 & v, (y &= 15) && (p < y && (d += z14[n++] << p, p += 8), w += d & (1 << y) - 1, d >>>= y, p -= y), p < 15 && (d += z14[n++] << p, p += 8, d += z14[n++] << p, p += 8), v = _[d & b];
+                w = 65535 & v, (y &= 15) && (p < y && (d += z15[n++] << p, p += 8), w += d & (1 << y) - 1, d >>>= y, p -= y), p < 15 && (d += z15[n++] << p, p += 8, d += z15[n++] << p, p += 8), v = _[d & b];
                 r: for (; ; ) {
                   if (d >>>= y = v >>> 24, p -= y, !(16 & (y = v >>> 16 & 255))) {
                     if (0 == (64 & y)) {
@@ -222296,7 +222301,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
                     e3.msg = "invalid distance code", r3.mode = 30;
                     break e;
                   }
-                  if (k = 65535 & v, p < (y &= 15) && (d += z14[n++] << p, (p += 8) < y && (d += z14[n++] << p, p += 8)), h2 < (k += d & (1 << y) - 1)) {
+                  if (k = 65535 & v, p < (y &= 15) && (d += z15[n++] << p, (p += 8) < y && (d += z15[n++] << p, p += 8)), h2 < (k += d & (1 << y) - 1)) {
                     e3.msg = "invalid distance too far back", r3.mode = 30;
                     break e;
                   }
@@ -222382,7 +222387,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
         r2.inflateReset = o, r2.inflateReset2 = h2, r2.inflateResetKeep = a, r2.inflateInit = function(e3) {
           return u(e3, 15);
         }, r2.inflateInit2 = u, r2.inflate = function(e3, t3) {
-          var r3, n2, i3, s3, a2, o2, h3, u2, l2, f4, c2, d, p, m2, _, g, b, v, y, w, k, x2, S2, z14, C = 0, E = new I.Buf8(4), A2 = [
+          var r3, n2, i3, s3, a2, o2, h3, u2, l2, f4, c2, d, p, m2, _, g, b, v, y, w, k, x2, S2, z15, C = 0, E = new I.Buf8(4), A2 = [
             16,
             17,
             18,
@@ -222589,7 +222594,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
                 if (b < 16) u2 >>>= _, l2 -= _, r3.lens[r3.have++] = b;
                 else {
                   if (16 === b) {
-                    for (z14 = _ + 2; l2 < z14; ) {
+                    for (z15 = _ + 2; l2 < z15; ) {
                       if (0 === o2) break e;
                       o2--, u2 += n2[s3++] << l2, l2 += 8;
                     }
@@ -222599,13 +222604,13 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
                     }
                     k = r3.lens[r3.have - 1], d = 3 + (3 & u2), u2 >>>= 2, l2 -= 2;
                   } else if (17 === b) {
-                    for (z14 = _ + 3; l2 < z14; ) {
+                    for (z15 = _ + 3; l2 < z15; ) {
                       if (0 === o2) break e;
                       o2--, u2 += n2[s3++] << l2, l2 += 8;
                     }
                     l2 -= _, k = 0, d = 3 + (7 & (u2 >>>= _)), u2 >>>= 3, l2 -= 3;
                   } else {
-                    for (z14 = _ + 7; l2 < z14; ) {
+                    for (z15 = _ + 7; l2 < z15; ) {
                       if (0 === o2) break e;
                       o2--, u2 += n2[s3++] << l2, l2 += 8;
                     }
@@ -222665,7 +222670,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
               r3.extra = 15 & g, r3.mode = 22;
             case 22:
               if (r3.extra) {
-                for (z14 = r3.extra; l2 < z14; ) {
+                for (z15 = r3.extra; l2 < z15; ) {
                   if (0 === o2) break e;
                   o2--, u2 += n2[s3++] << l2, l2 += 8;
                 }
@@ -222691,7 +222696,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
               r3.offset = b, r3.extra = 15 & g, r3.mode = 24;
             case 24:
               if (r3.extra) {
-                for (z14 = r3.extra; l2 < z14; ) {
+                for (z15 = r3.extra; l2 < z15; ) {
                   if (0 === o2) break e;
                   o2--, u2 += n2[s3++] << l2, l2 += 8;
                 }
@@ -222909,14 +222914,14 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
           64
         ];
         t2.exports = function(e3, t3, r3, n, i2, s2, a, o) {
-          var h2, u, l, f3, c, d, p, m2, _, g = o.bits, b = 0, v = 0, y = 0, w = 0, k = 0, x2 = 0, S2 = 0, z14 = 0, C = 0, E = 0, A2 = null, I = 0, O = new D.Buf16(16), B = new D.Buf16(16), R = null, T = 0;
+          var h2, u, l, f3, c, d, p, m2, _, g = o.bits, b = 0, v = 0, y = 0, w = 0, k = 0, x2 = 0, S2 = 0, z15 = 0, C = 0, E = 0, A2 = null, I = 0, O = new D.Buf16(16), B = new D.Buf16(16), R = null, T = 0;
           for (b = 0; b <= 15; b++) O[b] = 0;
           for (v = 0; v < n; v++) O[t3[r3 + v]]++;
           for (k = g, w = 15; 1 <= w && 0 === O[w]; w--) ;
           if (w < k && (k = w), 0 === w) return i2[s2++] = 20971520, i2[s2++] = 20971520, o.bits = 1, 0;
           for (y = 1; y < w && 0 === O[y]; y++) ;
-          for (k < y && (k = y), b = z14 = 1; b <= 15; b++) if (z14 <<= 1, (z14 -= O[b]) < 0) return -1;
-          if (0 < z14 && (0 === e3 || 1 !== w)) return -1;
+          for (k < y && (k = y), b = z15 = 1; b <= 15; b++) if (z15 <<= 1, (z15 -= O[b]) < 0) return -1;
+          if (0 < z15 && (0 === e3 || 1 !== w)) return -1;
           for (B[1] = 0, b = 1; b < 15; b++) B[b + 1] = B[b] + O[b];
           for (v = 0; v < n; v++) 0 !== t3[r3 + v] && (a[B[t3[r3 + v]]++] = v);
           if (d = 0 === e3 ? (A2 = R = a, 19) : 1 === e3 ? (A2 = F2, I -= 257, R = N, T -= 257, 256) : (A2 = U, R = P, -1), b = y, c = s2, S2 = v = E = 0, l = -1, f3 = (C = 1 << (x2 = k)) - 1, 1 === e3 && 852 < C || 2 === e3 && 592 < C) return 1;
@@ -222928,7 +222933,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
               b = t3[r3 + a[v]];
             }
             if (k < b && (E & f3) !== l) {
-              for (0 === S2 && (S2 = k), c += y, z14 = 1 << (x2 = b - S2); x2 + S2 < w && !((z14 -= O[x2 + S2]) <= 0); ) x2++, z14 <<= 1;
+              for (0 === S2 && (S2 = k), c += y, z15 = 1 << (x2 = b - S2); x2 + S2 < w && !((z15 -= O[x2 + S2]) <= 0); ) x2++, z15 <<= 1;
               if (C += 1 << x2, 1 === e3 && 852 < C || 2 === e3 && 592 < C) return 1;
               i2[l = E & f3] = k << 24 | x2 << 16 | c - s2 | 0;
             }
@@ -223057,8 +223062,8 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
           14,
           1,
           15
-        ], z14 = new Array(2 * (l + 2));
-        n(z14);
+        ], z15 = new Array(2 * (l + 2));
+        n(z15);
         var C = new Array(2 * f3);
         n(C);
         var E = new Array(512);
@@ -223166,12 +223171,12 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
             for (A2[r3 - 1] = n2, n2 = i3 = 0; n2 < 16; n2++) for (T[n2] = i3, e4 = 0; e4 < 1 << k[n2]; e4++) E[i3++] = n2;
             for (i3 >>= 7; n2 < f3; n2++) for (T[n2] = i3 << 7, e4 = 0; e4 < 1 << k[n2] - 7; e4++) E[256 + i3++] = n2;
             for (t3 = 0; t3 <= g; t3++) s3[t3] = 0;
-            for (e4 = 0; e4 <= 143; ) z14[2 * e4 + 1] = 8, e4++, s3[8]++;
-            for (; e4 <= 255; ) z14[2 * e4 + 1] = 9, e4++, s3[9]++;
-            for (; e4 <= 279; ) z14[2 * e4 + 1] = 7, e4++, s3[7]++;
-            for (; e4 <= 287; ) z14[2 * e4 + 1] = 8, e4++, s3[8]++;
-            for (Z2(z14, l + 1, s3), e4 = 0; e4 < f3; e4++) C[2 * e4 + 1] = 5, C[2 * e4] = j(e4, 5);
-            O = new D(z14, w, u + 1, l, g), B = new D(C, k, 0, f3, g), R = new D(new Array(0), x2, 0, c, p);
+            for (e4 = 0; e4 <= 143; ) z15[2 * e4 + 1] = 8, e4++, s3[8]++;
+            for (; e4 <= 255; ) z15[2 * e4 + 1] = 9, e4++, s3[9]++;
+            for (; e4 <= 279; ) z15[2 * e4 + 1] = 7, e4++, s3[7]++;
+            for (; e4 <= 287; ) z15[2 * e4 + 1] = 8, e4++, s3[8]++;
+            for (Z2(z15, l + 1, s3), e4 = 0; e4 < f3; e4++) C[2 * e4 + 1] = 5, C[2 * e4] = j(e4, 5);
+            O = new D(z15, w, u + 1, l, g), B = new D(C, k, 0, f3, g), R = new D(new Array(0), x2, 0, c, p);
           })(), q = true), e3.l_desc = new F2(e3.dyn_ltree, O), e3.d_desc = new F2(e3.dyn_dtree, B), e3.bl_desc = new F2(e3.bl_tree, R), e3.bi_buf = 0, e3.bi_valid = 0, W(e3);
         }, r2._tr_stored_block = J, r2._tr_flush_block = function(e3, t3, r3, n2) {
           var i3, s3, a2 = 0;
@@ -223185,7 +223190,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
             var t4;
             for (X(e4, e4.dyn_ltree, e4.l_desc.max_code), X(e4, e4.dyn_dtree, e4.d_desc.max_code), Y(e4, e4.bl_desc), t4 = c - 1; 3 <= t4 && 0 === e4.bl_tree[2 * S2[t4] + 1]; t4--) ;
             return e4.opt_len += 3 * (t4 + 1) + 5 + 5 + 4, t4;
-          })(e3), i3 = e3.opt_len + 3 + 7 >>> 3, (s3 = e3.static_len + 3 + 7 >>> 3) <= i3 && (i3 = s3)) : i3 = s3 = r3 + 5, r3 + 4 <= i3 && -1 !== t3 ? J(e3, t3, r3, n2) : 4 === e3.strategy || s3 === i3 ? (P(e3, 2 + (n2 ? 1 : 0), 3), K2(e3, z14, C)) : (P(e3, 4 + (n2 ? 1 : 0), 3), (function(e4, t4, r4, n3) {
+          })(e3), i3 = e3.opt_len + 3 + 7 >>> 3, (s3 = e3.static_len + 3 + 7 >>> 3) <= i3 && (i3 = s3)) : i3 = s3 = r3 + 5, r3 + 4 <= i3 && -1 !== t3 ? J(e3, t3, r3, n2) : 4 === e3.strategy || s3 === i3 ? (P(e3, 2 + (n2 ? 1 : 0), 3), K2(e3, z15, C)) : (P(e3, 4 + (n2 ? 1 : 0), 3), (function(e4, t4, r4, n3) {
             var i4;
             for (P(e4, t4 - 257, 5), P(e4, r4 - 1, 5), P(e4, n3 - 4, 4), i4 = 0; i4 < n3; i4++) P(e4, e4.bl_tree[2 * S2[i4] + 1], 3);
             V(e4, e4.dyn_ltree, t4 - 1), V(e4, e4.dyn_dtree, r4 - 1);
@@ -223193,7 +223198,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
         }, r2._tr_tally = function(e3, t3, r3) {
           return e3.pending_buf[e3.d_buf + 2 * e3.last_lit] = t3 >>> 8 & 255, e3.pending_buf[e3.d_buf + 2 * e3.last_lit + 1] = 255 & t3, e3.pending_buf[e3.l_buf + e3.last_lit] = 255 & r3, e3.last_lit++, 0 === t3 ? e3.dyn_ltree[2 * r3]++ : (e3.matches++, t3--, e3.dyn_ltree[2 * (A2[r3] + u + 1)]++, e3.dyn_dtree[2 * N(t3)]++), e3.last_lit === e3.lit_bufsize - 1;
         }, r2._tr_align = function(e3) {
-          P(e3, 2, 3), L(e3, m2, z14), (function(e4) {
+          P(e3, 2, 3), L(e3, m2, z15), (function(e4) {
             16 === e4.bi_valid ? (U(e4, e4.bi_buf), e4.bi_buf = 0, e4.bi_valid = 0) : 8 <= e4.bi_valid && (e4.pending_buf[e4.pending++] = 255 & e4.bi_buf, e4.bi_buf >>= 8, e4.bi_valid -= 8);
           })(e3);
         };
@@ -224095,8 +224100,8 @@ var Packer = class Packer2 {
       type: "nodebuffer",
       mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       compression: "DEFLATE"
-    }).then((z14) => {
-      stream2.emit("data", z14);
+    }).then((z15) => {
+      stream2.emit("data", z15);
       stream2.emit("end");
     });
     return stream2;
@@ -241103,12 +241108,12 @@ var shiftsL160 = idxL.map((idx, i2) => idx.map((j) => shifts160[i2][j]));
 var shiftsR160 = idxR.map((idx, i2) => idx.map((j) => shifts160[i2][j]));
 var Kl160 = Uint32Array.from([0, 1518500249, 1859775393, 2400959708, 2840853838]);
 var Kr160 = Uint32Array.from([1352829926, 1548603684, 1836072691, 2053994217, 0]);
-function ripemd_f(group, x2, y, z14) {
-  if (group === 0) return x2 ^ y ^ z14;
-  if (group === 1) return x2 & y | ~x2 & z14;
-  if (group === 2) return (x2 | ~y) ^ z14;
-  if (group === 3) return x2 & z14 | y & ~z14;
-  return x2 ^ (y | ~z14);
+function ripemd_f(group, x2, y, z15) {
+  if (group === 0) return x2 ^ y ^ z15;
+  if (group === 1) return x2 & y | ~x2 & z15;
+  if (group === 2) return (x2 | ~y) ^ z15;
+  if (group === 3) return x2 & z15 | y & ~z15;
+  return x2 ^ (y | ~z15);
 }
 var BUF_160 = new Uint32Array(16);
 var RIPEMD160 = class extends HashMD {
@@ -258177,17 +258182,196 @@ router24.post("/users/me/subscription", async (req, res) => {
 });
 var subscriptions_default = router24;
 
-// src/routes/account-references.ts
+// src/routes/profile.ts
 var import_express25 = __toESM(require_express2(), 1);
 init_src();
-import { eq as eq27, desc as desc15, and as and16 } from "drizzle-orm";
+import { eq as eq27 } from "drizzle-orm";
+import { z as z9 } from "zod/v4";
 var router25 = (0, import_express25.Router)();
-router25.get("/account/references", async (req, res) => {
+var AVATAR_BUCKET = "avatars";
+var MAX_AVATAR_SIZE = 5 * 1024 * 1024;
+var ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+var updateProfileSchema = z9.object({
+  displayName: z9.string().min(1).max(100).optional(),
+  avatarUrl: z9.string().url().optional(),
+  username: z9.string().regex(/^[a-zA-Z0-9_]{3,30}$/, "Username must be 3-30 characters, letters, numbers, and underscores only").optional()
+});
+var avatarUploadSchema = z9.object({
+  base64Content: z9.string().min(1),
+  filename: z9.string().min(1).max(255)
+});
+var deleteAccountSchema = z9.object({
+  password: z9.string().min(1)
+});
+function toProfileJson(user) {
+  return {
+    id: user.id,
+    email: user.email,
+    username: user.username,
+    displayName: user.displayName,
+    avatarUrl: user.avatarUrl,
+    isOwner: user.isOwner,
+    referralCode: user.referralCode,
+    usernameChangedAt: user.usernameChangedAt,
+    createdAt: user.createdAt
+  };
+}
+router25.get("/users/me/profile", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const refs = await db.select().from(accountReferencesTable).where(eq27(accountReferencesTable.userId, req.user.id)).orderBy(desc15(accountReferencesTable.createdAt));
+  const [user] = await db.select().from(usersTable).where(eq27(usersTable.id, req.user.id));
+  if (!user) {
+    res.status(404).json({ error: "User not found" });
+    return;
+  }
+  res.json(toProfileJson(user));
+});
+router25.patch("/users/me/profile", async (req, res) => {
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const parsed = updateProfileSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+  const { displayName, avatarUrl, username } = parsed.data;
+  if (!displayName && avatarUrl === void 0 && username === void 0) {
+    res.status(400).json({ error: "No fields to update" });
+    return;
+  }
+  const updates = {};
+  if (displayName !== void 0) {
+    updates.displayName = displayName.trim() || null;
+  }
+  if (avatarUrl !== void 0) {
+    updates.avatarUrl = avatarUrl || null;
+  }
+  if (username !== void 0) {
+    const normalizedUsername = username.trim().toLowerCase();
+    const [currentUser] = await db.select({ usernameChangedAt: usersTable.usernameChangedAt }).from(usersTable).where(eq27(usersTable.id, req.user.id));
+    const thirtyDaysMs = 30 * 24 * 60 * 60 * 1e3;
+    if (currentUser?.usernameChangedAt) {
+      const diff = Date.now() - new Date(currentUser.usernameChangedAt).getTime();
+      if (diff < thirtyDaysMs) {
+        const daysLeft = Math.ceil((thirtyDaysMs - diff) / (24 * 60 * 60 * 1e3));
+        res.status(429).json({
+          error: `Username hanya bisa diganti setiap 30 hari. Masih ada ${daysLeft} hari lagi.`
+        });
+        return;
+      }
+    }
+    const [existing] = await db.select({ id: usersTable.id }).from(usersTable).where(eq27(usersTable.username, normalizedUsername));
+    if (existing && existing.id !== req.user.id) {
+      res.status(400).json({ error: "Username already taken" });
+      return;
+    }
+    updates.username = normalizedUsername;
+  }
+  const [updated] = await db.update(usersTable).set({ ...updates, updatedAt: /* @__PURE__ */ new Date(), ...updates.username ? { usernameChangedAt: /* @__PURE__ */ new Date() } : {} }).where(eq27(usersTable.id, req.user.id)).returning();
+  if (!updated) {
+    res.status(404).json({ error: "User not found" });
+    return;
+  }
+  res.json(toProfileJson(updated));
+});
+router25.post("/users/me/avatar", async (req, res) => {
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const parsed = avatarUploadSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+  const { base64Content, filename } = parsed.data;
+  const byteSize = Math.ceil(base64Content.length * 3 / 4);
+  if (byteSize > MAX_AVATAR_SIZE) {
+    res.status(400).json({ error: "File too large. Maximum size is 5MB." });
+    return;
+  }
+  let contentType = "image/jpeg";
+  if (base64Content.startsWith("/9j/")) contentType = "image/jpeg";
+  else if (base64Content.startsWith("iVBOR")) contentType = "image/png";
+  else if (base64Content.startsWith("UklGR")) contentType = "image/webp";
+  if (!ALLOWED_TYPES.includes(contentType)) {
+    res.status(400).json({ error: "Invalid file type. Accepted: JPEG, PNG, WebP." });
+    return;
+  }
+  const ext = contentType === "image/png" ? "png" : contentType === "image/webp" ? "webp" : "jpg";
+  const safeFilename = `${Date.now()}.${ext}`;
+  const storagePath = `${req.user.id}/${safeFilename}`;
+  if (!supabaseAdmin2) {
+    res.status(500).json({ error: "Storage not configured" });
+    return;
+  }
+  const buffer = Buffer.from(base64Content, "base64");
+  const { error: uploadError } = await supabaseAdmin2.storage.from(AVATAR_BUCKET).upload(storagePath, buffer, {
+    contentType,
+    upsert: true
+  });
+  if (uploadError) {
+    res.status(500).json({ error: "Failed to upload avatar" });
+    return;
+  }
+  const { data: urlData } = supabaseAdmin2.storage.from(AVATAR_BUCKET).getPublicUrl(storagePath);
+  const avatarUrl = urlData.publicUrl;
+  await db.update(usersTable).set({ avatarUrl, updatedAt: /* @__PURE__ */ new Date() }).where(eq27(usersTable.id, req.user.id));
+  res.json({ avatarUrl });
+});
+router25.delete("/users/me/account", async (req, res) => {
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const parsed = deleteAccountSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+  const { password } = parsed.data;
+  if (!supabaseAdmin2) {
+    res.status(500).json({ error: "Auth not configured" });
+    return;
+  }
+  const [userRecord] = await db.select().from(usersTable).where(eq27(usersTable.id, req.user.id));
+  if (!userRecord) {
+    res.status(404).json({ error: "User not found" });
+    return;
+  }
+  const { error: signInError } = await supabaseAdmin2.auth.signInWithPassword({
+    email: userRecord.email,
+    password
+  });
+  if (signInError) {
+    res.status(401).json({ error: "Incorrect password" });
+    return;
+  }
+  await db.delete(projectsTable).where(eq27(projectsTable.userId, req.user.id));
+  const { error: deleteAuthError } = await supabaseAdmin2.auth.admin.deleteUser(req.user.id);
+  if (deleteAuthError) {
+    res.status(500).json({ error: "Failed to delete account" });
+    return;
+  }
+  res.json({ message: "Account deleted successfully" });
+});
+var profile_default = router25;
+
+// src/routes/account-references.ts
+var import_express26 = __toESM(require_express2(), 1);
+init_src();
+import { eq as eq28, desc as desc15, and as and16 } from "drizzle-orm";
+var router26 = (0, import_express26.Router)();
+router26.get("/account/references", async (req, res) => {
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const refs = await db.select().from(accountReferencesTable).where(eq28(accountReferencesTable.userId, req.user.id)).orderBy(desc15(accountReferencesTable.createdAt));
   res.json(
     refs.map((r2) => ({
       ...r2,
@@ -258201,7 +258385,7 @@ router25.get("/account/references", async (req, res) => {
     }))
   );
 });
-router25.post("/account/references", async (req, res) => {
+router26.post("/account/references", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -258214,8 +258398,8 @@ router25.post("/account/references", async (req, res) => {
   if (doi && typeof doi === "string") {
     const existing = await db.select({ id: accountReferencesTable.id }).from(accountReferencesTable).where(
       and16(
-        eq27(accountReferencesTable.userId, req.user.id),
-        eq27(accountReferencesTable.doi, doi)
+        eq28(accountReferencesTable.userId, req.user.id),
+        eq28(accountReferencesTable.doi, doi)
       )
     ).limit(1);
     if (existing.length > 0) {
@@ -258247,7 +258431,7 @@ router25.post("/account/references", async (req, res) => {
     url: ref.url ?? null
   });
 });
-router25.put("/account/references/:id", async (req, res) => {
+router26.put("/account/references/:id", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -258259,8 +258443,8 @@ router25.put("/account/references/:id", async (req, res) => {
   }
   const [existing] = await db.select().from(accountReferencesTable).where(
     and16(
-      eq27(accountReferencesTable.id, id),
-      eq27(accountReferencesTable.userId, req.user.id)
+      eq28(accountReferencesTable.id, id),
+      eq28(accountReferencesTable.userId, req.user.id)
     )
   ).limit(1);
   if (!existing) {
@@ -258271,8 +258455,8 @@ router25.put("/account/references/:id", async (req, res) => {
   if (doi && doi !== existing.doi) {
     const duplicate = await db.select({ id: accountReferencesTable.id }).from(accountReferencesTable).where(
       and16(
-        eq27(accountReferencesTable.userId, req.user.id),
-        eq27(accountReferencesTable.doi, doi)
+        eq28(accountReferencesTable.userId, req.user.id),
+        eq28(accountReferencesTable.doi, doi)
       )
     ).limit(1);
     if (duplicate.length > 0) {
@@ -258293,8 +258477,8 @@ router25.put("/account/references/:id", async (req, res) => {
   if (source !== void 0) updates.source = source;
   const [updated] = await db.update(accountReferencesTable).set(updates).where(
     and16(
-      eq27(accountReferencesTable.id, id),
-      eq27(accountReferencesTable.userId, req.user.id)
+      eq28(accountReferencesTable.id, id),
+      eq28(accountReferencesTable.userId, req.user.id)
     )
   ).returning();
   res.json({
@@ -258308,7 +258492,7 @@ router25.put("/account/references/:id", async (req, res) => {
     url: updated.url ?? null
   });
 });
-router25.delete("/account/references/:id", async (req, res) => {
+router26.delete("/account/references/:id", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -258320,8 +258504,8 @@ router25.delete("/account/references/:id", async (req, res) => {
   }
   const [deleted] = await db.delete(accountReferencesTable).where(
     and16(
-      eq27(accountReferencesTable.id, id),
-      eq27(accountReferencesTable.userId, req.user.id)
+      eq28(accountReferencesTable.id, id),
+      eq28(accountReferencesTable.userId, req.user.id)
     )
   ).returning();
   if (!deleted) {
@@ -258330,7 +258514,7 @@ router25.delete("/account/references/:id", async (req, res) => {
   }
   res.sendStatus(204);
 });
-router25.post("/account/references/:id/assign", async (req, res) => {
+router26.post("/account/references/:id/assign", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -258347,8 +258531,8 @@ router25.post("/account/references/:id/assign", async (req, res) => {
   }
   const [accountRef] = await db.select().from(accountReferencesTable).where(
     and16(
-      eq27(accountReferencesTable.id, accountRefId),
-      eq27(accountReferencesTable.userId, req.user.id)
+      eq28(accountReferencesTable.id, accountRefId),
+      eq28(accountReferencesTable.userId, req.user.id)
     )
   ).limit(1);
   if (!accountRef) {
@@ -258358,8 +258542,8 @@ router25.post("/account/references/:id/assign", async (req, res) => {
   if (accountRef.doi) {
     const existingInProject = await db.select({ id: referencesTable.id }).from(referencesTable).where(
       and16(
-        eq27(referencesTable.projectId, projectId),
-        eq27(referencesTable.doi, accountRef.doi)
+        eq28(referencesTable.projectId, projectId),
+        eq28(referencesTable.doi, accountRef.doi)
       )
     ).limit(1);
     if (existingInProject.length > 0) {
@@ -258391,7 +258575,7 @@ router25.post("/account/references/:id/assign", async (req, res) => {
     url: projectRef.url ?? null
   });
 });
-router25.post("/account/references/import", async (req, res) => {
+router26.post("/account/references/import", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -258405,7 +258589,7 @@ router25.post("/account/references/import", async (req, res) => {
     res.status(400).json({ error: "Maximum 50 DOIs per import" });
     return;
   }
-  const existing = await db.select({ doi: accountReferencesTable.doi }).from(accountReferencesTable).where(eq27(accountReferencesTable.userId, req.user.id));
+  const existing = await db.select({ doi: accountReferencesTable.doi }).from(accountReferencesTable).where(eq28(accountReferencesTable.userId, req.user.id));
   const existingDois = new Set(
     existing.map((r2) => r2.doi).filter((d) => d !== null)
   );
@@ -258470,22 +258654,22 @@ router25.post("/account/references/import", async (req, res) => {
     }
   });
 });
-var account_references_default = router25;
+var account_references_default = router26;
 
 // src/routes/learning-activities.ts
-var import_express26 = __toESM(require_express2(), 1);
+var import_express27 = __toESM(require_express2(), 1);
 init_src();
-import { eq as eq28, desc as desc16, and as and17 } from "drizzle-orm";
-var router26 = (0, import_express26.Router)();
-router26.get("/learning-activities", async (req, res) => {
+import { eq as eq29, desc as desc16, and as and17 } from "drizzle-orm";
+var router27 = (0, import_express27.Router)();
+router27.get("/learning-activities", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const activities = await db.select().from(learningActivitiesTable).where(eq28(learningActivitiesTable.userId, req.user.id)).orderBy(desc16(learningActivitiesTable.createdAt));
+  const activities = await db.select().from(learningActivitiesTable).where(eq29(learningActivitiesTable.userId, req.user.id)).orderBy(desc16(learningActivitiesTable.createdAt));
   res.json(activities);
 });
-router26.post("/learning-activities", async (req, res) => {
+router27.post("/learning-activities", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -258498,8 +258682,8 @@ router26.post("/learning-activities", async (req, res) => {
   if (body.sourceProjectId) {
     const existing = await db.select().from(learningActivitiesTable).where(
       and17(
-        eq28(learningActivitiesTable.userId, req.user.id),
-        eq28(learningActivitiesTable.sourceProjectId, body.sourceProjectId)
+        eq29(learningActivitiesTable.userId, req.user.id),
+        eq29(learningActivitiesTable.sourceProjectId, body.sourceProjectId)
       )
     ).limit(1);
     if (existing.length > 0) {
@@ -258508,7 +258692,7 @@ router26.post("/learning-activities", async (req, res) => {
         subject: body.subject || null,
         extractedFrom: body.extractedFrom || "instruction",
         updatedAt: /* @__PURE__ */ new Date()
-      }).where(eq28(learningActivitiesTable.id, existing[0].id)).returning();
+      }).where(eq29(learningActivitiesTable.id, existing[0].id)).returning();
       res.status(200).json(updated[0]);
       return;
     }
@@ -258522,12 +258706,12 @@ router26.post("/learning-activities", async (req, res) => {
   }).returning();
   res.status(201).json(inserted[0]);
 });
-router26.get("/learning-activities/recommendations", async (req, res) => {
+router27.get("/learning-activities/recommendations", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const activities = await db.select().from(learningActivitiesTable).where(eq28(learningActivitiesTable.userId, req.user.id)).orderBy(desc16(learningActivitiesTable.createdAt));
+  const activities = await db.select().from(learningActivitiesTable).where(eq29(learningActivitiesTable.userId, req.user.id)).orderBy(desc16(learningActivitiesTable.createdAt));
   if (activities.length === 0) {
     res.json([]);
     return;
@@ -258574,7 +258758,7 @@ router26.get("/learning-activities/recommendations", async (req, res) => {
       });
     }
   }
-  const recentProjects = await db.select({ id: projectsTable.id, title: projectsTable.title }).from(projectsTable).where(eq28(projectsTable.userId, req.user.id)).orderBy(desc16(projectsTable.createdAt)).limit(5);
+  const recentProjects = await db.select({ id: projectsTable.id, title: projectsTable.title }).from(projectsTable).where(eq29(projectsTable.userId, req.user.id)).orderBy(desc16(projectsTable.createdAt)).limit(5);
   const existingProjectIds = new Set(
     activities.map((a) => a.sourceProjectId).filter(Boolean)
   );
@@ -258602,16 +258786,16 @@ router26.get("/learning-activities/recommendations", async (req, res) => {
   });
   res.json(deduplicated.slice(0, 3));
 });
-var learning_activities_default = router26;
+var learning_activities_default = router27;
 
 // src/routes/usage.ts
-var import_express27 = __toESM(require_express2(), 1);
+var import_express28 = __toESM(require_express2(), 1);
 init_src();
-import { eq as eq29, and as and18, gte as gte5, sql as sql13, desc as desc17, lte as lte3 } from "drizzle-orm";
-import { z as z9 } from "zod/v4";
-var router27 = (0, import_express27.Router)();
-router27.use(authMiddleware);
-var periodSchema = z9.enum(["7d", "30d", "all"]).default("all");
+import { eq as eq30, and as and18, gte as gte5, sql as sql13, desc as desc17, lte as lte3 } from "drizzle-orm";
+import { z as z10 } from "zod/v4";
+var router28 = (0, import_express28.Router)();
+router28.use(authMiddleware);
+var periodSchema = z10.enum(["7d", "30d", "all"]).default("all");
 function buildPeriodCondition(period) {
   if (period === "all") return void 0;
   const days = period === "7d" ? 7 : 30;
@@ -258667,7 +258851,7 @@ function aggregateRecords(records, groupByProject = false) {
     byProject
   };
 }
-router27.get("/users/me/usage", async (req, res) => {
+router28.get("/users/me/usage", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -258678,7 +258862,7 @@ router27.get("/users/me/usage", async (req, res) => {
     return;
   }
   const period = parsed.data;
-  const conditions = [eq29(aiUsageLogTable.userId, req.user.id)];
+  const conditions = [eq30(aiUsageLogTable.userId, req.user.id)];
   const periodCond = buildPeriodCondition(period);
   if (periodCond) conditions.push(periodCond);
   const records = await db.select({
@@ -258695,7 +258879,7 @@ router27.get("/users/me/usage", async (req, res) => {
     period
   });
 });
-router27.get("/users/me/usage/projects/:projectId", async (req, res) => {
+router28.get("/users/me/usage/projects/:projectId", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -258713,8 +258897,8 @@ router27.get("/users/me/usage/projects/:projectId", async (req, res) => {
     costCents: aiUsageLogTable.costCents
   }).from(aiUsageLogTable).where(
     and18(
-      eq29(aiUsageLogTable.userId, req.user.id),
-      eq29(aiUsageLogTable.projectId, projectId)
+      eq30(aiUsageLogTable.userId, req.user.id),
+      eq30(aiUsageLogTable.projectId, projectId)
     )
   );
   const byRequestType = {};
@@ -258750,12 +258934,12 @@ router27.get("/users/me/usage/projects/:projectId", async (req, res) => {
     byRequestType
   });
 });
-router27.get("/admin/usage", async (req, res) => {
+router28.get("/admin/usage", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const [userRecord] = await db.select({ isOwner: usersTable.isOwner }).from(usersTable).where(eq29(usersTable.id, req.user.id)).limit(1);
+  const [userRecord] = await db.select({ isOwner: usersTable.isOwner }).from(usersTable).where(eq30(usersTable.id, req.user.id)).limit(1);
   if (!userRecord?.isOwner) {
     res.status(403).json({ error: "Admin access required" });
     return;
@@ -258777,7 +258961,7 @@ router27.get("/admin/usage", async (req, res) => {
     totalInputTokens: sql13`sum(${aiUsageLogTable.inputTokens})`,
     totalOutputTokens: sql13`sum(${aiUsageLogTable.outputTokens})`,
     totalCostUsd: sql13`sum(${aiUsageLogTable.estimatedCostUsd})`
-  }).from(aiUsageLogTable).leftJoin(usersTable, eq29(aiUsageLogTable.userId, usersTable.id)).where(whereClause).groupBy(aiUsageLogTable.userId, usersTable.email).orderBy(desc17(sql13`sum(${aiUsageLogTable.estimatedCostUsd})`));
+  }).from(aiUsageLogTable).leftJoin(usersTable, eq30(aiUsageLogTable.userId, usersTable.id)).where(whereClause).groupBy(aiUsageLogTable.userId, usersTable.email).orderBy(desc17(sql13`sum(${aiUsageLogTable.estimatedCostUsd})`));
   const perUser = perUserRaw.map((r2) => ({
     userId: r2.userId,
     email: r2.email ?? "unknown",
@@ -258833,7 +259017,7 @@ router27.get("/admin/usage", async (req, res) => {
     dailyTotals
   });
 });
-router27.get("/users/me/usage/daily", async (req, res) => {
+router28.get("/users/me/usage/daily", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -258849,7 +259033,7 @@ router27.get("/users/me/usage/daily", async (req, res) => {
     requestCount: sql13`count(*)`
   }).from(aiUsageLogTable).where(
     and18(
-      eq29(aiUsageLogTable.userId, req.user.id),
+      eq30(aiUsageLogTable.userId, req.user.id),
       gte5(aiUsageLogTable.createdAt, cutoff)
     )
   ).groupBy(sql13`date(${aiUsageLogTable.createdAt})`).orderBy(desc17(sql13`date(${aiUsageLogTable.createdAt})`));
@@ -258862,7 +259046,7 @@ router27.get("/users/me/usage/daily", async (req, res) => {
   }));
   res.json({ days, history });
 });
-router27.get("/users/me/usage/windows", async (req, res) => {
+router28.get("/users/me/usage/windows", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -258871,8 +259055,8 @@ router27.get("/users/me/usage/windows", async (req, res) => {
   const now = /* @__PURE__ */ new Date();
   const [sub] = await db.select().from(subscriptionsTable).where(
     and18(
-      eq29(subscriptionsTable.userId, userId),
-      eq29(subscriptionsTable.status, "active"),
+      eq30(subscriptionsTable.userId, userId),
+      eq30(subscriptionsTable.status, "active"),
       lte3(subscriptionsTable.startsAt, now),
       gte5(subscriptionsTable.expiresAt, now)
     )
@@ -258881,8 +259065,8 @@ router27.get("/users/me/usage/windows", async (req, res) => {
     res.json({ subscription: null, windows5h: null, windows7d: null });
     return;
   }
-  const [pkg] = await db.select().from(packagesTable).where(eq29(packagesTable.id, sub.packageId)).limit(1);
-  const windows = await db.select().from(usageWindowsTable).where(eq29(usageWindowsTable.subscriptionId, sub.id));
+  const [pkg] = await db.select().from(packagesTable).where(eq30(packagesTable.id, sub.packageId)).limit(1);
+  const windows = await db.select().from(usageWindowsTable).where(eq30(usageWindowsTable.subscriptionId, sub.id));
   const windows5h = windows.filter((w) => w.windowType === "5h");
   const totalHaiku5h = windows5h.reduce((sum, w) => sum + Number(w.haikuTokensUsed), 0);
   const totalSonnet5h = windows5h.reduce((sum, w) => sum + Number(w.sonnetTokensUsed), 0);
@@ -258928,23 +259112,23 @@ router27.get("/users/me/usage/windows", async (req, res) => {
     }
   });
 });
-var usage_default = router27;
+var usage_default = router28;
 
 // src/routes/document-templates.ts
-var import_express28 = __toESM(require_express2(), 1);
+var import_express29 = __toESM(require_express2(), 1);
 init_src();
-import { eq as eq30, or, isNull as isNull6, desc as desc18 } from "drizzle-orm";
-import { z as z10 } from "zod/v4";
-var router28 = (0, import_express28.Router)();
-var createTemplateSchema = z10.object({
-  name: z10.string().min(1).max(120),
-  category: z10.string().min(1).max(60).default("custom"),
-  outline: z10.string().min(1),
-  citationFormat: z10.string().max(40).optional(),
-  minRefCount: z10.number().int().min(0).max(100).default(5),
-  description: z10.string().max(500).optional(),
-  tags: z10.string().max(255).optional(),
-  isPublic: z10.boolean().default(false)
+import { eq as eq31, or, isNull as isNull6, desc as desc18 } from "drizzle-orm";
+import { z as z11 } from "zod/v4";
+var router29 = (0, import_express29.Router)();
+var createTemplateSchema = z11.object({
+  name: z11.string().min(1).max(120),
+  category: z11.string().min(1).max(60).default("custom"),
+  outline: z11.string().min(1),
+  citationFormat: z11.string().max(40).optional(),
+  minRefCount: z11.number().int().min(0).max(100).default(5),
+  description: z11.string().max(500).optional(),
+  tags: z11.string().max(255).optional(),
+  isPublic: z11.boolean().default(false)
 });
 var updateTemplateSchema = createTemplateSchema.partial();
 function toTemplateJson(t2) {
@@ -258963,20 +259147,20 @@ function toTemplateJson(t2) {
     updatedAt: t2.updatedAt
   };
 }
-router28.get("/templates", async (req, res) => {
+router29.get("/templates", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
   const templates = await db.select().from(documentTemplatesTable).where(
     or(
-      eq30(documentTemplatesTable.userId, req.user.id),
+      eq31(documentTemplatesTable.userId, req.user.id),
       isNull6(documentTemplatesTable.userId)
     )
   ).orderBy(desc18(documentTemplatesTable.createdAt));
   res.json(templates.map(toTemplateJson));
 });
-router28.get("/templates/categories", async (req, res) => {
+router29.get("/templates/categories", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -258995,7 +259179,7 @@ router28.get("/templates/categories", async (req, res) => {
     ]
   });
 });
-router28.get("/templates/:templateId", async (req, res) => {
+router29.get("/templates/:templateId", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -259005,7 +259189,7 @@ router28.get("/templates/:templateId", async (req, res) => {
     res.status(400).json({ error: "Invalid template ID" });
     return;
   }
-  const [template] = await db.select().from(documentTemplatesTable).where(eq30(documentTemplatesTable.id, templateId)).limit(1);
+  const [template] = await db.select().from(documentTemplatesTable).where(eq31(documentTemplatesTable.id, templateId)).limit(1);
   if (!template) {
     res.status(404).json({ error: "Template not found" });
     return;
@@ -259019,7 +259203,7 @@ router28.get("/templates/:templateId", async (req, res) => {
   }
   res.json(toTemplateJson(template));
 });
-router28.post("/templates", async (req, res) => {
+router29.post("/templates", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -259043,7 +259227,7 @@ router28.post("/templates", async (req, res) => {
   }).returning();
   res.status(201).json(toTemplateJson(template));
 });
-router28.put("/templates/:templateId", async (req, res) => {
+router29.put("/templates/:templateId", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -259058,7 +259242,7 @@ router28.put("/templates/:templateId", async (req, res) => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
-  const [existing] = await db.select().from(documentTemplatesTable).where(eq30(documentTemplatesTable.id, templateId)).limit(1);
+  const [existing] = await db.select().from(documentTemplatesTable).where(eq31(documentTemplatesTable.id, templateId)).limit(1);
   if (!existing) {
     res.status(404).json({ error: "Template not found" });
     return;
@@ -259082,10 +259266,10 @@ router28.put("/templates/:templateId", async (req, res) => {
   if (data.tags !== void 0) updates.tags = data.tags;
   if (data.isPublic !== void 0) updates.isPublic = data.isPublic;
   updates.updatedAt = /* @__PURE__ */ new Date();
-  const [updated] = await db.update(documentTemplatesTable).set(updates).where(eq30(documentTemplatesTable.id, templateId)).returning();
+  const [updated] = await db.update(documentTemplatesTable).set(updates).where(eq31(documentTemplatesTable.id, templateId)).returning();
   res.json(toTemplateJson(updated));
 });
-router28.delete("/templates/:templateId", async (req, res) => {
+router29.delete("/templates/:templateId", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -259095,7 +259279,7 @@ router28.delete("/templates/:templateId", async (req, res) => {
     res.status(400).json({ error: "Invalid template ID" });
     return;
   }
-  const [existing] = await db.select().from(documentTemplatesTable).where(eq30(documentTemplatesTable.id, templateId)).limit(1);
+  const [existing] = await db.select().from(documentTemplatesTable).where(eq31(documentTemplatesTable.id, templateId)).limit(1);
   if (!existing) {
     res.status(404).json({ error: "Template not found" });
     return;
@@ -259108,47 +259292,47 @@ router28.delete("/templates/:templateId", async (req, res) => {
     res.status(403).json({ error: "Access denied" });
     return;
   }
-  await db.delete(documentTemplatesTable).where(eq30(documentTemplatesTable.id, templateId));
+  await db.delete(documentTemplatesTable).where(eq31(documentTemplatesTable.id, templateId));
   res.sendStatus(204);
 });
-var document_templates_default = router28;
+var document_templates_default = router29;
 
 // src/routes/admin-ai-tiers.ts
-var import_express29 = __toESM(require_express2(), 1);
+var import_express30 = __toESM(require_express2(), 1);
 init_src();
-import { eq as eq31 } from "drizzle-orm";
-import { z as z11 } from "zod/v4";
-var router29 = (0, import_express29.Router)();
+import { eq as eq32 } from "drizzle-orm";
+import { z as z12 } from "zod/v4";
+var router30 = (0, import_express30.Router)();
 async function requireOwner2(req, res, next2) {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const [user] = await db.select({ isOwner: usersTable.isOwner }).from(usersTable).where(eq31(usersTable.id, req.user.id)).limit(1);
+  const [user] = await db.select({ isOwner: usersTable.isOwner }).from(usersTable).where(eq32(usersTable.id, req.user.id)).limit(1);
   if (!user?.isOwner) {
     res.status(403).json({ error: "Owner access required" });
     return;
   }
   next2();
 }
-var updateTierSchema = z11.object({
-  name: z11.string().min(1).max(50).optional(),
-  pricePer1MInputCents: z11.number().int().min(0).optional(),
-  pricePer1MOutputCents: z11.number().int().min(0).optional(),
-  providerCostPer1MInputCents: z11.number().int().min(0).optional(),
-  providerCostPer1MOutputCents: z11.number().int().min(0).optional(),
-  rateLimitRpm: z11.number().int().min(1).max(1e4).nullable().optional(),
-  rateLimitTpd: z11.number().int().min(1).max(1e8).nullable().optional(),
-  isFree: z11.boolean().optional(),
-  isActive: z11.boolean().optional(),
-  description: z11.string().max(500).optional(),
-  usageTips: z11.string().max(500).nullable().optional()
+var updateTierSchema = z12.object({
+  name: z12.string().min(1).max(50).optional(),
+  pricePer1MInputCents: z12.number().int().min(0).optional(),
+  pricePer1MOutputCents: z12.number().int().min(0).optional(),
+  providerCostPer1MInputCents: z12.number().int().min(0).optional(),
+  providerCostPer1MOutputCents: z12.number().int().min(0).optional(),
+  rateLimitRpm: z12.number().int().min(1).max(1e4).nullable().optional(),
+  rateLimitTpd: z12.number().int().min(1).max(1e8).nullable().optional(),
+  isFree: z12.boolean().optional(),
+  isActive: z12.boolean().optional(),
+  description: z12.string().max(500).optional(),
+  usageTips: z12.string().max(500).nullable().optional()
 });
-router29.get("/admin/ai-tiers", requireOwner2, async (_req, res) => {
+router30.get("/admin/ai-tiers", requireOwner2, async (_req, res) => {
   const tiers = await db.select().from(aiTiersTable).orderBy(aiTiersTable.displayOrder);
   res.json({ tiers });
 });
-router29.put("/admin/ai-tiers/:id", requireOwner2, async (req, res) => {
+router30.put("/admin/ai-tiers/:id", requireOwner2, async (req, res) => {
   const parsed = updateTierSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -259156,7 +259340,7 @@ router29.put("/admin/ai-tiers/:id", requireOwner2, async (req, res) => {
   }
   const tierId = req.params.id;
   const update = parsed.data;
-  const [existing] = await db.select().from(aiTiersTable).where(eq31(aiTiersTable.id, tierId)).limit(1);
+  const [existing] = await db.select().from(aiTiersTable).where(eq32(aiTiersTable.id, tierId)).limit(1);
   if (!existing) {
     res.status(404).json({ error: `Tier '${tierId}' tidak ditemukan` });
     return;
@@ -259167,13 +259351,13 @@ router29.put("/admin/ai-tiers/:id", requireOwner2, async (req, res) => {
       updatePayload[key] = value;
     }
   }
-  const [updated] = await db.update(aiTiersTable).set(updatePayload).where(eq31(aiTiersTable.id, tierId)).returning();
+  const [updated] = await db.update(aiTiersTable).set(updatePayload).where(eq32(aiTiersTable.id, tierId)).returning();
   res.json({ tier: updated });
 });
-var admin_ai_tiers_default = router29;
+var admin_ai_tiers_default = router30;
 
 // src/routes/admin.ts
-var import_express30 = __toESM(require_express2(), 1);
+var import_express31 = __toESM(require_express2(), 1);
 init_src();
 init_src();
 init_src();
@@ -259181,14 +259365,14 @@ init_src();
 init_src();
 init_src();
 init_src();
-import { sql as sql14, eq as eq32, count as count2, or as or2, and as and19, gte as gte6 } from "drizzle-orm";
-var router30 = (0, import_express30.Router)();
-router30.get("/me", authMiddleware, (req, res) => {
+import { sql as sql14, eq as eq33, count as count2, or as or2, and as and19, gte as gte6 } from "drizzle-orm";
+var router31 = (0, import_express31.Router)();
+router31.get("/me", authMiddleware, (req, res) => {
   const OWNER_EMAIL2 = process.env.OWNER_EMAIL ?? "";
   const isOwner = req.user?.email?.toLowerCase() === OWNER_EMAIL2.toLowerCase();
   res.json({ isOwner, email: req.user?.email });
 });
-router30.get("/users", authMiddleware, requireOwner, async (req, res) => {
+router31.get("/users", authMiddleware, requireOwner, async (req, res) => {
   try {
     const search = req.query.search;
     const page = Math.max(1, parseInt(req.query.page) || 1);
@@ -259241,7 +259425,7 @@ router30.get("/users", authMiddleware, requireOwner, async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-router30.get("/stats", authMiddleware, requireOwner, async (req, res) => {
+router31.get("/stats", authMiddleware, requireOwner, async (req, res) => {
   try {
     const period = req.query.period || "month";
     const now = /* @__PURE__ */ new Date();
@@ -259287,7 +259471,7 @@ router30.get("/stats", authMiddleware, requireOwner, async (req, res) => {
         totalCostUsd: sql14`COALESCE(SUM(${aiUsageLogTable.estimatedCostUsd}), 0)`
       }).from(aiUsageLogTable).where(
         and19(
-          eq32(aiUsageLogTable.userId, ownerUser[0].id),
+          eq33(aiUsageLogTable.userId, ownerUser[0].id),
           gte6(aiUsageLogTable.createdAt, startDate)
         )
       );
@@ -259326,7 +259510,7 @@ router30.get("/stats", authMiddleware, requireOwner, async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-router30.get("/usage-breakdown", authMiddleware, requireOwner, async (req, res) => {
+router31.get("/usage-breakdown", authMiddleware, requireOwner, async (req, res) => {
   try {
     const period = req.query.period || "month";
     const now = /* @__PURE__ */ new Date();
@@ -259391,13 +259575,13 @@ router30.get("/usage-breakdown", authMiddleware, requireOwner, async (req, res) 
     res.status(500).json({ error: "Internal server error" });
   }
 });
-router30.get("/audit-log", authMiddleware, requireOwner, async (req, res) => {
+router31.get("/audit-log", authMiddleware, requireOwner, async (req, res) => {
   try {
     const page = Math.max(1, parseInt(req.query.page) || 1);
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 50));
     const offset = (page - 1) * limit;
     const action = req.query.action;
-    const actionCondition = action ? eq32(adminAuditLogTable.action, action) : void 0;
+    const actionCondition = action ? eq33(adminAuditLogTable.action, action) : void 0;
     const [logs, totalResult] = await Promise.all([
       db.select().from(adminAuditLogTable).where(actionCondition).orderBy(sql14`${adminAuditLogTable.createdAt} DESC`).limit(limit).offset(offset),
       db.select({ count: count2() }).from(adminAuditLogTable).where(actionCondition)
@@ -259416,11 +259600,11 @@ router30.get("/audit-log", authMiddleware, requireOwner, async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-router30.post("/users/:userId/tier", authMiddleware, requireOwner, async (req, res) => {
+router31.post("/users/:userId/tier", authMiddleware, requireOwner, async (req, res) => {
   try {
     const { userId } = req.params;
     const { tierId } = req.body;
-    await db.update(userBalancesTable).set({ preferredTierId: tierId ?? null, updatedAt: /* @__PURE__ */ new Date() }).where(eq32(userBalancesTable.userId, userId));
+    await db.update(userBalancesTable).set({ preferredTierId: tierId ?? null, updatedAt: /* @__PURE__ */ new Date() }).where(eq33(userBalancesTable.userId, userId));
     await db.insert(adminAuditLogTable).values({
       adminEmail: req.user.email,
       action: "tier_override",
@@ -259435,7 +259619,7 @@ router30.post("/users/:userId/tier", authMiddleware, requireOwner, async (req, r
     res.status(500).json({ error: "Internal server error" });
   }
 });
-router30.post("/users/:userId/suspend", authMiddleware, requireOwner, async (req, res) => {
+router31.post("/users/:userId/suspend", authMiddleware, requireOwner, async (req, res) => {
   try {
     const { userId } = req.params;
     const { suspend } = req.body;
@@ -259453,17 +259637,17 @@ router30.post("/users/:userId/suspend", authMiddleware, requireOwner, async (req
     res.status(500).json({ error: "Internal server error" });
   }
 });
-var admin_default = router30;
+var admin_default = router31;
 
 // src/routes/referral.ts
-var import_express31 = __toESM(require_express2(), 1);
+var import_express32 = __toESM(require_express2(), 1);
 init_src();
-import { eq as eq34 } from "drizzle-orm";
+import { eq as eq35 } from "drizzle-orm";
 
 // src/lib/referral-rewards.ts
 init_src();
 init_src();
-import { eq as eq33, and as and20, sql as sql15 } from "drizzle-orm";
+import { eq as eq34, and as and20, sql as sql15 } from "drizzle-orm";
 var REFEREE_CASHBACK_CENTS = 5e5;
 var REFERRER_REWARD_PERCENT = 0.03;
 var REFERRER_REWARD_TX_CAP = 5;
@@ -259481,7 +259665,7 @@ async function processReferralPayment(event) {
       txCount: 0
     }
   };
-  const [referral] = await db.select().from(referralsTable).where(eq33(referralsTable.referredId, event.userId));
+  const [referral] = await db.select().from(referralsTable).where(eq34(referralsTable.referredId, event.userId));
   if (!referral) {
     logger2.info(
       { userId: event.userId, paymentEventId: event.paymentEventId },
@@ -259507,15 +259691,15 @@ async function creditRefereeCashback(referral, event) {
     updatedAt: /* @__PURE__ */ new Date()
   }).where(
     and20(
-      eq33(referralsTable.id, referral.id),
-      eq33(referralsTable.refereeCashbackClaimed, false)
+      eq34(referralsTable.id, referral.id),
+      eq34(referralsTable.refereeCashbackClaimed, false)
     )
   ).returning();
   if (updated.length === 0) {
     return { credited: false, reason: "already_claimed", amountCents: 0 };
   }
   await db.transaction(async (tx) => {
-    const [existing] = await tx.select().from(userBalancesTable).where(eq33(userBalancesTable.userId, event.userId));
+    const [existing] = await tx.select().from(userBalancesTable).where(eq34(userBalancesTable.userId, event.userId));
     const currentBalance = existing?.balanceCents ?? 0;
     const newBalance = currentBalance + REFEREE_CASHBACK_CENTS;
     if (existing) {
@@ -259523,7 +259707,7 @@ async function creditRefereeCashback(referral, event) {
         balanceCents: newBalance,
         lastActiveAt: /* @__PURE__ */ new Date(),
         updatedAt: /* @__PURE__ */ new Date()
-      }).where(eq33(userBalancesTable.userId, event.userId));
+      }).where(eq34(userBalancesTable.userId, event.userId));
     } else {
       await tx.insert(userBalancesTable).values({
         userId: event.userId,
@@ -259572,8 +259756,8 @@ async function creditRefereeCashback(referral, event) {
 async function creditReferrerReward(referral, event) {
   const existing = await db.select({ id: referralEventsTable.id }).from(referralEventsTable).where(
     and20(
-      eq33(referralEventsTable.referralId, referral.id),
-      eq33(
+      eq34(referralEventsTable.referralId, referral.id),
+      eq34(
         sql15`${referralEventsTable.metadata}->>'paymentEventId'`,
         event.paymentEventId
       )
@@ -259620,16 +259804,16 @@ async function creditReferrerReward(referral, event) {
     referrerRewardPaidCents: referral.referrerRewardPaidCents + rewardCents,
     status: referral.status === "pending" ? "verified" : referral.status,
     updatedAt: /* @__PURE__ */ new Date()
-  }).where(eq33(referralsTable.id, referral.id));
+  }).where(eq34(referralsTable.id, referral.id));
   await db.transaction(async (tx) => {
-    const [existing2] = await tx.select().from(userBalancesTable).where(eq33(userBalancesTable.userId, referral.referrerId));
+    const [existing2] = await tx.select().from(userBalancesTable).where(eq34(userBalancesTable.userId, referral.referrerId));
     const currentReward = existing2?.rewardBalanceCents ?? 0;
     const newReward = currentReward + rewardCents;
     if (existing2) {
       await tx.update(userBalancesTable).set({
         rewardBalanceCents: newReward,
         updatedAt: /* @__PURE__ */ new Date()
-      }).where(eq33(userBalancesTable.userId, referral.referrerId));
+      }).where(eq34(userBalancesTable.userId, referral.referrerId));
     } else {
       await tx.insert(userBalancesTable).values({
         userId: referral.referrerId,
@@ -259673,8 +259857,8 @@ async function creditReferrerReward(referral, event) {
 async function getReferralSummary(userId) {
   const [balance] = await db.select({
     rewardBalanceCents: userBalancesTable.rewardBalanceCents
-  }).from(userBalancesTable).where(eq33(userBalancesTable.userId, userId));
-  const referees = await db.select().from(referralsTable).where(eq33(referralsTable.referrerId, userId));
+  }).from(userBalancesTable).where(eq34(userBalancesTable.userId, userId));
+  const referees = await db.select().from(referralsTable).where(eq34(referralsTable.referrerId, userId));
   const referredCount = referees.length;
   const refereesWithFirstPayment = referees.filter(
     (r2) => r2.firstPaymentAt !== null
@@ -259683,7 +259867,7 @@ async function getReferralSummary(userId) {
     (sum, r2) => sum + r2.referrerRewardPaidCents,
     0
   );
-  const [userAsReferee] = await db.select({ refereeCashbackClaimed: referralsTable.refereeCashbackClaimed }).from(referralsTable).where(eq33(referralsTable.referredId, userId)).limit(1);
+  const [userAsReferee] = await db.select({ refereeCashbackClaimed: referralsTable.refereeCashbackClaimed }).from(referralsTable).where(eq34(referralsTable.referredId, userId)).limit(1);
   return {
     referralCode: null,
     // filled in by route handler from user record
@@ -259696,8 +259880,8 @@ async function getReferralSummary(userId) {
 }
 
 // src/routes/referral.ts
-var router31 = (0, import_express31.Router)();
-router31.get("/users/me/referral-info", async (req, res) => {
+var router32 = (0, import_express32.Router)();
+router32.get("/users/me/referral-info", async (req, res) => {
   try {
     const userId = req.user?.id;
     if (!userId) {
@@ -259708,7 +259892,7 @@ router31.get("/users/me/referral-info", async (req, res) => {
       referralCode: usersTable.referralCode,
       email: usersTable.email,
       displayName: usersTable.displayName
-    }).from(usersTable).where(eq34(usersTable.id, userId));
+    }).from(usersTable).where(eq35(usersTable.id, userId));
     if (!user) {
       res.status(404).json({ error: "User not found" });
       return;
@@ -259739,14 +259923,14 @@ router31.get("/users/me/referral-info", async (req, res) => {
     }
   }
 });
-var referral_default = router31;
+var referral_default = router32;
 
 // src/routes/simulasi.ts
-var import_express32 = __toESM(require_express2(), 1);
+var import_express33 = __toESM(require_express2(), 1);
 init_src();
-import { eq as eq35, asc as asc3, and as and21, desc as desc19 } from "drizzle-orm";
+import { eq as eq36, asc as asc3, and as and21, desc as desc19 } from "drizzle-orm";
 import { randomBytes as randomBytes3 } from "crypto";
-var router32 = (0, import_express32.Router)();
+var router33 = (0, import_express33.Router)();
 var PERSONA_PROMPTS = {
   dosen_strict: {
     persona: "Dosen pembimbing yang ketat dan kritis",
@@ -259816,27 +260000,27 @@ Setelah bertanya, AKHIRI pesanmu dengan tepat di sini \u2014 tanpa penjelasan ta
   return contextParts.join("\n");
 }
 async function buildProjectContextSnapshot(projectId) {
-  const [project] = await db.select().from(projectsTable).where(eq35(projectsTable.id, projectId));
+  const [project] = await db.select().from(projectsTable).where(eq36(projectsTable.id, projectId));
   if (!project) return null;
   const [latestDoc] = await db.select({ content: documentsTable.content }).from(documentsTable).where(and21(
-    eq35(documentsTable.projectId, projectId),
-    eq35(documentsTable.isDeleted, false)
+    eq36(documentsTable.projectId, projectId),
+    eq36(documentsTable.isDeleted, false)
   )).orderBy(desc19(documentsTable.updatedAt)).limit(1);
   const [metaSubject] = await db.select({ value: projectMetadataTable.value }).from(projectMetadataTable).where(and21(
-    eq35(projectMetadataTable.projectId, projectId),
-    eq35(projectMetadataTable.key, "subject")
+    eq36(projectMetadataTable.projectId, projectId),
+    eq36(projectMetadataTable.key, "subject")
   )).limit(1);
   const [metaTaskType] = await db.select({ value: projectMetadataTable.value }).from(projectMetadataTable).where(and21(
-    eq35(projectMetadataTable.projectId, projectId),
-    eq35(projectMetadataTable.key, "taskType")
+    eq36(projectMetadataTable.projectId, projectId),
+    eq36(projectMetadataTable.key, "taskType")
   )).limit(1);
   const [metaOutline] = await db.select({ value: projectMetadataTable.value }).from(projectMetadataTable).where(and21(
-    eq35(projectMetadataTable.projectId, projectId),
-    eq35(projectMetadataTable.key, "outline")
+    eq36(projectMetadataTable.projectId, projectId),
+    eq36(projectMetadataTable.key, "outline")
   )).limit(1);
   const [metaInstruction] = await db.select({ value: projectMetadataTable.value }).from(projectMetadataTable).where(and21(
-    eq35(projectMetadataTable.projectId, projectId),
-    eq35(projectMetadataTable.key, "instructionText")
+    eq36(projectMetadataTable.projectId, projectId),
+    eq36(projectMetadataTable.key, "instructionText")
   )).limit(1);
   return {
     title: project.title,
@@ -259909,7 +260093,7 @@ HANYA KELUARKAN JSON. TANPA markdown, TANPA penjelasan, TANPA penutup.`;
 function getQuotaInfo(session) {
   return { saldoUsedCents: session.totalCostCents };
 }
-router32.post("/projects/:projectId/simulasi/sessions", async (req, res) => {
+router33.post("/projects/:projectId/simulasi/sessions", async (req, res) => {
   const params = CreateSimulationSessionParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -259923,7 +260107,7 @@ router32.post("/projects/:projectId/simulasi/sessions", async (req, res) => {
     return;
   }
   const { persona } = parsed.data;
-  const project = await db.select().from(projectsTable).where(eq35(projectsTable.id, params.data.projectId));
+  const project = await db.select().from(projectsTable).where(eq36(projectsTable.id, params.data.projectId));
   if (!project.length) {
     res.status(404).json({ error: "Project not found" });
     return;
@@ -260009,7 +260193,7 @@ Anda siap?`;
     quotaInfo: getQuotaInfo(session)
   });
 });
-router32.get("/projects/:projectId/simulasi/sessions", async (req, res) => {
+router33.get("/projects/:projectId/simulasi/sessions", async (req, res) => {
   const params = CreateSimulationSessionParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -260017,26 +260201,26 @@ router32.get("/projects/:projectId/simulasi/sessions", async (req, res) => {
   }
   const ok = await requireProjectOwnership(params.data.projectId, req.user?.id ?? "", res);
   if (!ok) return;
-  const sessions = await db.select().from(simulationSessionsTable).where(eq35(simulationSessionsTable.projectId, params.data.projectId)).orderBy(desc19(simulationSessionsTable.startedAt));
+  const sessions = await db.select().from(simulationSessionsTable).where(eq36(simulationSessionsTable.projectId, params.data.projectId)).orderBy(desc19(simulationSessionsTable.startedAt));
   res.json(sessions.map((s2) => ({
     ...s2,
     quotaInfo: getQuotaInfo(s2)
   })));
 });
-router32.get("/projects/:projectId/simulasi/sessions/:sessionId/messages", async (req, res) => {
+router33.get("/projects/:projectId/simulasi/sessions/:sessionId/messages", async (req, res) => {
   const params = ListSimulationMessagesParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
     return;
   }
-  const [session] = await db.select().from(simulationSessionsTable).where(eq35(simulationSessionsTable.id, params.data.sessionId));
+  const [session] = await db.select().from(simulationSessionsTable).where(eq36(simulationSessionsTable.id, params.data.sessionId));
   if (!session) {
     res.status(404).json({ error: "Session not found" });
     return;
   }
   const ok = await requireProjectOwnership(session.projectId, req.user?.id ?? "", res);
   if (!ok) return;
-  const messages = await db.select().from(simulationMessagesTable).where(eq35(simulationMessagesTable.sessionId, params.data.sessionId)).orderBy(asc3(simulationMessagesTable.sequenceIndex));
+  const messages = await db.select().from(simulationMessagesTable).where(eq36(simulationMessagesTable.sessionId, params.data.sessionId)).orderBy(asc3(simulationMessagesTable.sequenceIndex));
   res.json({
     ...session,
     messages: messages.map((m2) => ({
@@ -260053,13 +260237,13 @@ router32.get("/projects/:projectId/simulasi/sessions/:sessionId/messages", async
     quotaInfo: getQuotaInfo(session)
   });
 });
-router32.post("/projects/:projectId/simulasi/sessions/:sessionId/messages", async (req, res) => {
+router33.post("/projects/:projectId/simulasi/sessions/:sessionId/messages", async (req, res) => {
   const params = SendSimulationMessageParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
     return;
   }
-  const [session] = await db.select().from(simulationSessionsTable).where(eq35(simulationSessionsTable.id, params.data.sessionId));
+  const [session] = await db.select().from(simulationSessionsTable).where(eq36(simulationSessionsTable.id, params.data.sessionId));
   if (!session) {
     res.status(404).json({ error: "Session not found" });
     return;
@@ -260080,7 +260264,7 @@ router32.post("/projects/:projectId/simulasi/sessions/:sessionId/messages", asyn
     return;
   }
   const { content: userContent } = parsed.data;
-  const messages = await db.select().from(simulationMessagesTable).where(eq35(simulationMessagesTable.sessionId, params.data.sessionId)).orderBy(asc3(simulationMessagesTable.sequenceIndex));
+  const messages = await db.select().from(simulationMessagesTable).where(eq36(simulationMessagesTable.sessionId, params.data.sessionId)).orderBy(asc3(simulationMessagesTable.sequenceIndex));
   const selectedTier = await getTierConfig(session.tierId ?? "haiku-4.5");
   if (!selectedTier) {
     res.status(500).json({ error: "AI tier tidak ditemukan" });
@@ -260149,8 +260333,8 @@ Berdasarkan simulasi ini, berikut evaluasi singkat saya:
       costCents: 0,
       sequenceIndex: nextIndex + 1
     }).returning();
-    await db.update(simulationSessionsTable).where(eq35(simulationSessionsTable.id, params.data.sessionId));
-    const updatedSession2 = await db.select().from(simulationSessionsTable).where(eq35(simulationSessionsTable.id, params.data.sessionId));
+    await db.update(simulationSessionsTable).where(eq36(simulationSessionsTable.id, params.data.sessionId));
+    const updatedSession2 = await db.select().from(simulationSessionsTable).where(eq36(simulationSessionsTable.id, params.data.sessionId));
     res.json({
       ...updatedSession2[0],
       messages: [
@@ -260187,7 +260371,7 @@ Berdasarkan simulasi ini, berikut evaluasi singkat saya:
   } catch (err) {
     const message2 = err instanceof Error ? err.message : String(err);
     if (message2 === "KONTEKS_TERLALU_PANJANG") {
-      await db.delete(simulationMessagesTable).where(eq35(simulationMessagesTable.id, userMsg.id));
+      await db.delete(simulationMessagesTable).where(eq36(simulationMessagesTable.id, userMsg.id));
       res.status(422).json({
         error: "Konteks terlalu panjang.",
         detail: "Percakapan terlalu panjang. Coba mulai sesi baru.",
@@ -260196,7 +260380,7 @@ Berdasarkan simulasi ini, berikut evaluasi singkat saya:
       return;
     }
     logger2.error({ err, sessionId: params.data.sessionId }, "AI call failed in simulation");
-    await db.delete(simulationMessagesTable).where(eq35(simulationMessagesTable.id, userMsg.id));
+    await db.delete(simulationMessagesTable).where(eq36(simulationMessagesTable.id, userMsg.id));
     res.status(500).json({ error: "Gagal memproses respons AI. Silakan coba lagi." });
     return;
   }
@@ -260226,7 +260410,7 @@ Berdasarkan simulasi ini, berikut evaluasi singkat saya:
     totalCostCents: newTotalCost,
     questionsAsked: newQuestionsAsked,
     updatedAt: /* @__PURE__ */ new Date()
-  }).where(eq35(simulationSessionsTable.id, params.data.sessionId));
+  }).where(eq36(simulationSessionsTable.id, params.data.sessionId));
   await db.insert(aiUsageLogTable).values({
     userId: session.userId,
     projectId: session.projectId,
@@ -260238,7 +260422,7 @@ Berdasarkan simulasi ini, berikut evaluasi singkat saya:
     mode: "simulasi",
     feature: "simulasi_session"
   });
-  const updatedSession = await db.select().from(simulationSessionsTable).where(eq35(simulationSessionsTable.id, params.data.sessionId));
+  const updatedSession = await db.select().from(simulationSessionsTable).where(eq36(simulationSessionsTable.id, params.data.sessionId));
   res.json({
     ...updatedSession[0],
     messages: [
@@ -260268,13 +260452,13 @@ Berdasarkan simulasi ini, berikut evaluasi singkat saya:
     quotaInfo: getQuotaInfo(updatedSession[0])
   });
 });
-router32.post("/projects/:projectId/simulasi/sessions/:sessionId/complete", async (req, res) => {
+router33.post("/projects/:projectId/simulasi/sessions/:sessionId/complete", async (req, res) => {
   const params = CompleteSimulationSessionParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
     return;
   }
-  const [session] = await db.select().from(simulationSessionsTable).where(eq35(simulationSessionsTable.id, params.data.sessionId));
+  const [session] = await db.select().from(simulationSessionsTable).where(eq36(simulationSessionsTable.id, params.data.sessionId));
   if (!session) {
     res.status(404).json({ error: "Session not found" });
     return;
@@ -260285,7 +260469,7 @@ router32.post("/projects/:projectId/simulasi/sessions/:sessionId/complete", asyn
   }
   const ok = await requireProjectOwnership(session.projectId, req.user?.id ?? "", res);
   if (!ok) return;
-  const messages = await db.select().from(simulationMessagesTable).where(eq35(simulationMessagesTable.sessionId, params.data.sessionId)).orderBy(asc3(simulationMessagesTable.sequenceIndex));
+  const messages = await db.select().from(simulationMessagesTable).where(eq36(simulationMessagesTable.sessionId, params.data.sessionId)).orderBy(asc3(simulationMessagesTable.sequenceIndex));
   let reportData;
   try {
     reportData = await generateSimulationReport({
@@ -260321,8 +260505,8 @@ router32.post("/projects/:projectId/simulasi/sessions/:sessionId/complete", asyn
     return;
   }
   await db.update(simulationReportsTable).set({ isLatestForProject: false }).where(and21(
-    eq35(simulationReportsTable.projectId, session.projectId),
-    eq35(simulationReportsTable.isLatestForProject, true)
+    eq36(simulationReportsTable.projectId, session.projectId),
+    eq36(simulationReportsTable.isLatestForProject, true)
   ));
   let report = null;
   if (reportData) {
@@ -260344,15 +260528,15 @@ router32.post("/projects/:projectId/simulasi/sessions/:sessionId/complete", asyn
     status: "completed",
     endedAt: /* @__PURE__ */ new Date(),
     updatedAt: /* @__PURE__ */ new Date()
-  }).where(eq35(simulationSessionsTable.id, params.data.sessionId));
-  const updatedSession = await db.select().from(simulationSessionsTable).where(eq35(simulationSessionsTable.id, params.data.sessionId));
+  }).where(eq36(simulationSessionsTable.id, params.data.sessionId));
+  const updatedSession = await db.select().from(simulationSessionsTable).where(eq36(simulationSessionsTable.id, params.data.sessionId));
   res.json({
     ...updatedSession[0],
     report: report ?? void 0,
     quotaInfo: getQuotaInfo(updatedSession[0])
   });
 });
-router32.get("/projects/:projectId/simulasi/latest-report", async (req, res) => {
+router33.get("/projects/:projectId/simulasi/latest-report", async (req, res) => {
   const params = GetLatestSimulationReportParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -260361,8 +260545,8 @@ router32.get("/projects/:projectId/simulasi/latest-report", async (req, res) => 
   const ok = await requireProjectOwnership(params.data.projectId, req.user?.id ?? "", res);
   if (!ok) return;
   const [report] = await db.select().from(simulationReportsTable).where(and21(
-    eq35(simulationReportsTable.projectId, params.data.projectId),
-    eq35(simulationReportsTable.isLatestForProject, true)
+    eq36(simulationReportsTable.projectId, params.data.projectId),
+    eq36(simulationReportsTable.isLatestForProject, true)
   )).limit(1);
   if (!report) {
     res.status(404).json({ error: "Belum ada laporan simulasi untuk project ini" });
@@ -260370,7 +260554,7 @@ router32.get("/projects/:projectId/simulasi/latest-report", async (req, res) => 
   }
   res.json(report);
 });
-router32.post("/projects/:projectId/simulasi/sessions/:sessionId/share", async (req, res) => {
+router33.post("/projects/:projectId/simulasi/sessions/:sessionId/share", async (req, res) => {
   const { sessionId, projectId } = req.params;
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
@@ -260378,7 +260562,7 @@ router32.post("/projects/:projectId/simulasi/sessions/:sessionId/share", async (
   }
   const sessionPk = Number(sessionId);
   const projectPk = Number(projectId);
-  const [session] = await db.select().from(simulationSessionsTable).where(eq35(simulationSessionsTable.id, sessionPk));
+  const [session] = await db.select().from(simulationSessionsTable).where(eq36(simulationSessionsTable.id, sessionPk));
   if (!session) {
     res.status(404).json({ error: "Sesi tidak ditemukan" });
     return;
@@ -260398,14 +260582,14 @@ router32.post("/projects/:projectId/simulasi/sessions/:sessionId/share", async (
   }).returning();
   res.status(201).json({ tokenId: token, expiresAt });
 });
-var simulasi_default = router32;
+var simulasi_default = router33;
 
 // src/routes/simulasi-shared.ts
-var import_express33 = __toESM(require_express2(), 1);
+var import_express34 = __toESM(require_express2(), 1);
 init_src();
-import { eq as eq36, and as and22 } from "drizzle-orm";
-var router33 = (0, import_express33.Router)();
-router33.get("/shared/simulasi/:tokenId", async (req, res) => {
+import { eq as eq37, and as and22 } from "drizzle-orm";
+var router34 = (0, import_express34.Router)();
+router34.get("/shared/simulasi/:tokenId", async (req, res) => {
   const params = GetSharedSimulationReportParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -260413,9 +260597,9 @@ router33.get("/shared/simulasi/:tokenId", async (req, res) => {
   }
   const { tokenId } = params.data;
   const [token] = await db.select().from(shareTokensTable).where(and22(
-    eq36(shareTokensTable.token, tokenId),
-    eq36(shareTokensTable.type, "simulation_report"),
-    eq36(shareTokensTable.isRevoked, false)
+    eq37(shareTokensTable.token, tokenId),
+    eq37(shareTokensTable.type, "simulation_report"),
+    eq37(shareTokensTable.isRevoked, false)
   ));
   if (!token) {
     res.status(404).json({ error: "Token tidak valid atau sudah kadaluarsa" });
@@ -260425,13 +260609,13 @@ router33.get("/shared/simulasi/:tokenId", async (req, res) => {
     res.status(410).json({ error: "Link sudah kadaluarsa" });
     return;
   }
-  const [session] = await db.select().from(simulationSessionsTable).where(eq36(simulationSessionsTable.id, token.resourceId));
+  const [session] = await db.select().from(simulationSessionsTable).where(eq37(simulationSessionsTable.id, token.resourceId));
   if (!session) {
     res.status(404).json({ error: "Sesi simulasi tidak ditemukan" });
     return;
   }
-  const messages = await db.select().from(simulationMessagesTable).where(eq36(simulationMessagesTable.sessionId, session.id)).orderBy(simulationMessagesTable.sequenceIndex);
-  const [report] = await db.select().from(simulationReportsTable).where(eq36(simulationReportsTable.sessionId, session.id)).limit(1);
+  const messages = await db.select().from(simulationMessagesTable).where(eq37(simulationMessagesTable.sessionId, session.id)).orderBy(simulationMessagesTable.sequenceIndex);
+  const [report] = await db.select().from(simulationReportsTable).where(eq37(simulationReportsTable.sessionId, session.id)).limit(1);
   logger2.info({ tokenId, sessionId: session.id }, "Shared simulation report accessed");
   res.json({
     session: {
@@ -260453,24 +260637,24 @@ router33.get("/shared/simulasi/:tokenId", async (req, res) => {
     sharedAt: token.createdAt
   });
 });
-var simulasi_shared_default = router33;
+var simulasi_shared_default = router34;
 
 // src/routes/preferences.ts
-var import_express34 = __toESM(require_express2(), 1);
+var import_express35 = __toESM(require_express2(), 1);
 init_src();
-import { eq as eq37 } from "drizzle-orm";
-import { z as z12 } from "zod/v4";
-var router34 = (0, import_express34.Router)();
-var updatePreferencesSchema = z12.object({
-  aiProvider: z12.enum(["anthropic", "olagon"])
+import { eq as eq38 } from "drizzle-orm";
+import { z as z13 } from "zod/v4";
+var router35 = (0, import_express35.Router)();
+var updatePreferencesSchema = z13.object({
+  aiProvider: z13.enum(["anthropic", "olagon"])
 });
-router34.get("/users/me/preferences", async (req, res) => {
+router35.get("/users/me/preferences", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
   const userId = req.user.id;
-  const [pref] = await db.select().from(userPreferencesTable).where(eq37(userPreferencesTable.userId, userId)).limit(1);
+  const [pref] = await db.select().from(userPreferencesTable).where(eq38(userPreferencesTable.userId, userId)).limit(1);
   if (!pref) {
     const [created] = await db.insert(userPreferencesTable).values({ userId, aiProvider: "anthropic" }).returning();
     res.json(created);
@@ -260478,7 +260662,7 @@ router34.get("/users/me/preferences", async (req, res) => {
   }
   res.json(pref);
 });
-router34.patch("/users/me/preferences", async (req, res) => {
+router35.patch("/users/me/preferences", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -260501,75 +260685,76 @@ router34.patch("/users/me/preferences", async (req, res) => {
     return;
   }
   const userId = req.user.id;
-  const [existing] = await db.select().from(userPreferencesTable).where(eq37(userPreferencesTable.userId, userId)).limit(1);
+  const [existing] = await db.select().from(userPreferencesTable).where(eq38(userPreferencesTable.userId, userId)).limit(1);
   if (existing) {
     const [updated] = await db.update(userPreferencesTable).set({
       aiProvider,
       updatedAt: /* @__PURE__ */ new Date()
-    }).where(eq37(userPreferencesTable.userId, userId)).returning();
+    }).where(eq38(userPreferencesTable.userId, userId)).returning();
     res.json(updated);
   } else {
     const [created] = await db.insert(userPreferencesTable).values({ userId, aiProvider }).returning();
     res.json(created);
   }
 });
-var preferences_default = router34;
+var preferences_default = router35;
 
 // src/routes/index.ts
-var router35 = (0, import_express35.Router)();
-router35.use(health_default);
-router35.use(diag_default);
-router35.use(auth_default);
-router35.use(shared_default);
-router35.use(authMiddleware);
-router35.use(ai_tiers_default);
-router35.use(packages_default);
-router35.use("/projects/:projectId/messages", aiLimiter);
-router35.use("/projects/:projectId/quizzes", aiLimiter);
-router35.use("/projects/:projectId/references", aiLimiter);
-router35.use("/projects/:projectId/analyze", aiLimiter);
-router35.use("/projects/:projectId/outline", aiLimiter);
-router35.use("/projects/:projectId/documents/generate", aiLimiter);
-router35.use("/users/me/writing-style/analyze", aiLimiter);
-router35.use("/projects/:projectId/simulasi", aiLimiter);
-router35.use(projects_default);
-router35.use(messages_default);
-router35.use(documents_default);
-router35.use(references_default);
-router35.use(account_references_default);
-router35.use(learning_activities_default);
-router35.use(attachments_default);
-router35.use(activities_default);
-router35.use(jobs_default);
-router35.use(metadata_default);
-router35.use(exports_default);
-router35.use(ai_usage_default);
-router35.use(comments_default);
-router35.use(project_members_default);
-router35.use(quizzes_default);
-router35.use(rubrics_default);
-router35.use(writing_style_default);
-router35.use(balance_default);
-router35.use(autofallback_default);
-router35.use(subscriptions_default);
-router35.use(usage_default);
-router35.use(document_templates_default);
-router35.use(admin_ai_tiers_default);
-router35.use(admin_default);
-router35.use(referral_default);
-router35.use(simulasi_default);
-router35.use(simulasi_shared_default);
-router35.use(preferences_default);
-var routes_default = router35;
+var router36 = (0, import_express36.Router)();
+router36.use(health_default);
+router36.use(diag_default);
+router36.use(auth_default);
+router36.use(shared_default);
+router36.use(authMiddleware);
+router36.use(ai_tiers_default);
+router36.use(packages_default);
+router36.use("/projects/:projectId/messages", aiLimiter);
+router36.use("/projects/:projectId/quizzes", aiLimiter);
+router36.use("/projects/:projectId/references", aiLimiter);
+router36.use("/projects/:projectId/analyze", aiLimiter);
+router36.use("/projects/:projectId/outline", aiLimiter);
+router36.use("/projects/:projectId/documents/generate", aiLimiter);
+router36.use("/users/me/writing-style/analyze", aiLimiter);
+router36.use("/projects/:projectId/simulasi", aiLimiter);
+router36.use(projects_default);
+router36.use(messages_default);
+router36.use(documents_default);
+router36.use(references_default);
+router36.use(account_references_default);
+router36.use(learning_activities_default);
+router36.use(attachments_default);
+router36.use(activities_default);
+router36.use(jobs_default);
+router36.use(metadata_default);
+router36.use(exports_default);
+router36.use(ai_usage_default);
+router36.use(comments_default);
+router36.use(project_members_default);
+router36.use(quizzes_default);
+router36.use(rubrics_default);
+router36.use(writing_style_default);
+router36.use(balance_default);
+router36.use(autofallback_default);
+router36.use(subscriptions_default);
+router36.use(profile_default);
+router36.use(usage_default);
+router36.use(document_templates_default);
+router36.use(admin_ai_tiers_default);
+router36.use(admin_default);
+router36.use(referral_default);
+router36.use(simulasi_default);
+router36.use(simulasi_shared_default);
+router36.use(preferences_default);
+var routes_default = router36;
 
 // src/routes/webhooks.ts
-var import_express36 = __toESM(require_express2(), 1);
+var import_express37 = __toESM(require_express2(), 1);
 init_src();
-import { eq as eq38 } from "drizzle-orm";
+import { eq as eq39 } from "drizzle-orm";
 import { timingSafeEqual } from "crypto";
-var router36 = (0, import_express36.Router)();
+var router37 = (0, import_express37.Router)();
 var WEBHOOK_SECRET = process.env.WEBHOOK_SECRET ?? "";
-router36.post("/webhooks/email-verified", async (req, res) => {
+router37.post("/webhooks/email-verified", async (req, res) => {
   if (!WEBHOOK_SECRET) {
     res.status(500).json({ error: "Webhook not configured" });
     return;
@@ -260590,7 +260775,7 @@ router36.post("/webhooks/email-verified", async (req, res) => {
     res.sendStatus(200);
     return;
   }
-  const [referral] = await db.select().from(referralsTable).where(eq38(referralsTable.referredId, userId));
+  const [referral] = await db.select().from(referralsTable).where(eq39(referralsTable.referredId, userId));
   if (!referral) {
     res.sendStatus(200);
     return;
@@ -260599,7 +260784,7 @@ router36.post("/webhooks/email-verified", async (req, res) => {
     res.sendStatus(200);
     return;
   }
-  await db.update(referralsTable).set({ status: "verified", updatedAt: /* @__PURE__ */ new Date() }).where(eq38(referralsTable.id, referral.id));
+  await db.update(referralsTable).set({ status: "verified", updatedAt: /* @__PURE__ */ new Date() }).where(eq39(referralsTable.id, referral.id));
   await db.insert(referralEventsTable).values({
     referralId: referral.id,
     actorId: null,
@@ -260611,13 +260796,13 @@ router36.post("/webhooks/email-verified", async (req, res) => {
   });
   res.sendStatus(200);
 });
-var webhooks_default = router36;
+var webhooks_default = router37;
 
 // src/routes/referral-webhook.ts
-var import_express37 = __toESM(require_express2(), 1);
+var import_express38 = __toESM(require_express2(), 1);
 import { createHmac, timingSafeEqual as timingSafeEqual2 } from "crypto";
-import { z as z13 } from "zod/v4";
-var router37 = (0, import_express37.Router)();
+import { z as z14 } from "zod/v4";
+var router38 = (0, import_express38.Router)();
 var WEBHOOK_SECRET2 = process.env.REFERRAL_WEBHOOK_SECRET ?? "";
 function verifyWebhookSignature(req) {
   if (!WEBHOOK_SECRET2) {
@@ -260643,15 +260828,15 @@ function verifyWebhookSignature(req) {
     return false;
   }
 }
-var WebhookPayloadSchema = z13.object({
-  paymentEventId: z13.string().min(1),
-  userId: z13.string().min(1),
-  paidAmountCents: z13.number().int().positive(),
-  method: z13.enum(["subscription", "topup"]),
-  paidAt: z13.string().datetime().transform((s2) => new Date(s2)),
-  metadata: z13.record(z13.string(), z13.unknown()).optional()
+var WebhookPayloadSchema = z14.object({
+  paymentEventId: z14.string().min(1),
+  userId: z14.string().min(1),
+  paidAmountCents: z14.number().int().positive(),
+  method: z14.enum(["subscription", "topup"]),
+  paidAt: z14.string().datetime().transform((s2) => new Date(s2)),
+  metadata: z14.record(z14.string(), z14.unknown()).optional()
 });
-router37.post("/webhooks/payment-success", async (req, res) => {
+router38.post("/webhooks/payment-success", async (req, res) => {
   if (!verifyWebhookSignature(req)) {
     res.status(401).json({ error: "Invalid signature" });
     return;
@@ -260707,10 +260892,10 @@ router37.post("/webhooks/payment-success", async (req, res) => {
     }
   }
 });
-var referral_webhook_default = router37;
+var referral_webhook_default = router38;
 
 // src/app.ts
-var app = (0, import_express38.default)();
+var app = (0, import_express39.default)();
 app.set("trust proxy", 1);
 app.get("/test", (_req, res) => {
   res.json({ ok: true, ts: Date.now() });
@@ -260746,9 +260931,9 @@ app.use(
     credentials: true
   })
 );
-app.use(import_express38.default.json());
-app.use(import_express38.default.urlencoded({ extended: true }));
-app.use("/webhooks/payment-success", import_express38.default.raw({ type: "application/json" }), referral_webhook_default);
+app.use(import_express39.default.json());
+app.use(import_express39.default.urlencoded({ extended: true }));
+app.use("/webhooks/payment-success", import_express39.default.raw({ type: "application/json" }), referral_webhook_default);
 app.use("/webhooks", webhooks_default);
 var authLimiter = lib_default({
   windowMs: 60 * 1e3,
