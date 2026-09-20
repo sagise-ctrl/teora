@@ -170,7 +170,10 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
     title: project.title,
     instructionText: project.instructionText,
     subject: metadata?.subject ?? project.subject,
-    taskType: metadata?.taskType ?? project.taskType,
+    // INC-011: prefer free-form taskSubtype for AI prompt context (richer
+    // description — "makalah", "skripsi"); fall back to projects.taskType
+    // (enum — "academic"/"general") if metadata wasn't written yet.
+    taskType: metadata?.taskSubtype ?? project.taskType,
     citationFormat: metadata?.citationFormat ?? project.citationFormat,
     outline: metadata?.outline,
     latestDocument: latestDoc?.content,

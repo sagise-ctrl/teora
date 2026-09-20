@@ -42689,19 +42689,40 @@ var projectMetadataTable, insertProjectMetadataSchema;
 var init_project_metadata = __esm({
   "../../lib/db/src/schema/project_metadata.ts"() {
     "use strict";
-    projectMetadataTable = pgTable11("project_metadata", {
-      id: serial11("id").primaryKey(),
-      projectId: integer11("project_id").notNull().unique(),
-      detectedTitle: text11("detected_title"),
-      subject: text11("subject"),
-      taskType: text11("task_type"),
-      citationFormat: text11("citation_format"),
-      language: text11("language"),
-      outline: text11("outline"),
-      contextSummary: text11("context_summary"),
-      createdAt: timestamp11("created_at", { withTimezone: true }).notNull().defaultNow(),
-      updatedAt: timestamp11("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => /* @__PURE__ */ new Date())
-    });
+    projectMetadataTable = pgTable11(
+      "project_metadata",
+      {
+        id: serial11("id").primaryKey(),
+        projectId: integer11("project_id").notNull().unique(),
+        detectedTitle: text11("detected_title"),
+        subject: text11("subject"),
+        // INC-011: split taskType into category (enum) + subtype (free-form).
+        // - task_category mirrors projects.task_type — used for routing, filtering, theme.
+        //   CHECK constraint enforces enum: NULL OR 'general'/'academic'/'dashboard_chat'.
+        // - task_subtype is free-form — captures AI's natural-language description
+        //   ("makalah", "skripsi", "artikel", "esai", etc.). No CHECK constraint
+        //   so AI can write what it actually sees without being constrained.
+        // Previous single `taskType` column broke the analyze pipeline because AI
+        // free-form output ("artikel") violated the inherited DB CHECK constraint
+        // and rolled back the entire transaction (no document, outline, or job
+        // status update would be written). See INC-011 details.
+        taskCategory: text11("task_category"),
+        taskSubtype: text11("task_subtype"),
+        citationFormat: text11("citation_format"),
+        language: text11("language"),
+        outline: text11("outline"),
+        contextSummary: text11("context_summary"),
+        createdAt: timestamp11("created_at", { withTimezone: true }).notNull().defaultNow(),
+        updatedAt: timestamp11("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => /* @__PURE__ */ new Date())
+      }
+      // NOTE: project_metadata_task_category_check constraint is managed via raw
+      // SQL migration (Supabase MCP) and intentionally NOT declared in the Drizzle
+      // table expression here. See INC-011. The actual DB constraint is:
+      //   task_category IS NULL OR task_category IN ('general','academic','dashboard_chat')
+      // Keep this comment block in sync if the constraint definition ever changes.
+      // (Adding it here would cause `drizzle-kit push` to attempt to re-apply
+      // and conflict with the existing DB constraint.)
+    );
     insertProjectMetadataSchema = createInsertSchema11(projectMetadataTable).omit({
       id: true,
       createdAt: true,
@@ -196312,7 +196333,8 @@ var GetProjectMetadataResponse = zod.object({
   "projectId": zod.number(),
   "detectedTitle": zod.string().nullish(),
   "subject": zod.string().nullish(),
-  "taskType": zod.enum(["general", "academic", "dashboard_chat"]).nullish(),
+  "taskCategory": zod.enum(["general", "academic", "dashboard_chat"]).nullish().describe("Project category \u2014 used for routing, filtering, and theme selection. Mirrors projects.taskType."),
+  "taskSubtype": zod.string().nullish().describe('Free-form task subtype written by AI ("makalah", "skripsi", "artikel", "esai", etc.).'),
   "citationFormat": zod.union([zod.literal("APA"), zod.literal("APA7"), zod.literal("IEEE"), zod.literal("Vancouver"), zod.literal("Chicago"), zod.literal("MLA"), zod.literal("Harvard"), zod.literal(null)]).nullish().describe("Citation format used for in-text/footnote markers and bibliography. Default = APA."),
   "language": zod.string().nullish(),
   "outline": zod.string().nullish(),
@@ -253380,7 +253402,7 @@ router5.post("/projects/:projectId/analyze", async (req, res) => {
       }
       await db.update(jobsTable).set({
         status: "failed",
-        errorMessage: message2.slice(0, 500)
+        errorMessage: message2.slice(0, 4e3)
       }).where(eq6(jobsTable.id, job.id));
       await db.update(projectsTable).set({ status: "draft" }).where(eq6(projectsTable.id, project.id));
     })
@@ -253404,12 +253426,18 @@ Hasilkan JSON dengan struktur berikut (HANYA JSON, tanpa teks lain):
 {
   "detectedTitle": "judul yang tepat untuk tugas ini",
   "subject": "nama mata kuliah yang relevan",
-  "taskType": "jenis tugas (makalah/skripsi/laporan/esai/dll)",
+  "taskCategory": "kategori tugas \u2014 HARUS salah satu dari: 'general' (tugas pendek/sederhana), 'academic' (karya ilmiah multi-bab), 'dashboard_chat' (internal scratchpad). WAJIB pilih satu.",
+  "taskSubtype": "subtipe tugas dalam bahasa natural \u2014 contoh: 'makalah', 'skripsi', 'artikel jurnal', 'laporan', 'esai', 'review', 'thesis', 'dissertation', 'paper', 'studi kasus'. Bebas string apa pun.",
   "citationFormat": "format sitasi yang sesuai (APA/MLA/Chicago/IEEE/dll)",
   "language": "bahasa utama (Indonesia/Inggris)",
   "outline": "outline lengkap dalam format:\\nBAB I: ...\\nA. ...\\nB. ...\\n\\nBAB II: ...\\ndll",
   "contextSummary": "ringkasan konteks tugas dalam 2-3 kalimat"
-}` }
+}
+
+PENTING:
+- taskCategory WAJIB salah satu dari: general, academic, dashboard_chat. Jangan isi nilai lain.
+- taskSubtype BOLEH string bebas sesuai jenis tugas spesifik yang Anda deteksi.
+- Jangan satukan keduanya \u2014 keduanya terpisah dan independen.` }
     ],
     selectedTier.id
   );
@@ -253464,7 +253492,13 @@ Tulis dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan b
       projectId,
       detectedTitle: metadata.detectedTitle ?? null,
       subject: metadata.subject ?? null,
-      taskType: metadata.taskType ?? null,
+      // INC-011: taskCategory (enum) + taskSubtype (free-form). The DB
+      // CHECK constraint on task_category enforces general/academic/dashboard_chat
+      // (mirrors projects.task_type for routing/theme). task_subtype is free-form
+      // so AI can describe the actual work ("makalah", "skripsi", etc) without
+      // hitting the constraint.
+      taskCategory: metadata.taskCategory ?? null,
+      taskSubtype: metadata.taskSubtype ?? null,
       citationFormat: metadata.citationFormat ?? null,
       language: metadata.language ?? null,
       outline: metadata.outline ?? null,
@@ -253474,7 +253508,8 @@ Tulis dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan b
       set: {
         detectedTitle: metadata.detectedTitle ?? null,
         subject: metadata.subject ?? null,
-        taskType: metadata.taskType ?? null,
+        taskCategory: metadata.taskCategory ?? null,
+        taskSubtype: metadata.taskSubtype ?? null,
         citationFormat: metadata.citationFormat ?? null,
         language: metadata.language ?? null,
         outline: metadata.outline ?? null,
@@ -253483,7 +253518,9 @@ Tulis dalam format Markdown yang rapi. Sertakan semua bab dan sub-bab. Gunakan b
     });
     await tx.update(projectsTable).set({
       subject: metadata.subject ?? null,
-      taskType: metadata.taskType ?? null,
+      // projects.task_type column stays enum-aligned → mirror taskCategory here.
+      // taskSubtype is metadata-only (free-form) and does not propagate to projects.
+      taskType: metadata.taskCategory ?? null,
       citationFormat: metadata.citationFormat ?? null,
       status: "writing",
       progress: 25
@@ -253766,7 +253803,7 @@ router5.post("/projects/:projectId/documents/generate", async (req, res) => {
       }
       await db.update(jobsTable).set({
         status: "failed",
-        errorMessage: message2.slice(0, 500)
+        errorMessage: message2.slice(0, 4e3)
       }).where(eq6(jobsTable.id, job.id));
       await db.update(projectsTable).set({ status: "draft" }).where(eq6(projectsTable.id, project.id));
     })
@@ -254174,7 +254211,10 @@ router6.post("/projects/:projectId/messages", async (req, res) => {
     title: project.title,
     instructionText: project.instructionText,
     subject: metadata?.subject ?? project.subject,
-    taskType: metadata?.taskType ?? project.taskType,
+    // INC-011: prefer free-form taskSubtype for AI prompt context (richer
+    // description — "makalah", "skripsi"); fall back to projects.taskType
+    // (enum — "academic"/"general") if metadata wasn't written yet.
+    taskType: metadata?.taskSubtype ?? project.taskType,
     citationFormat: metadata?.citationFormat ?? project.citationFormat,
     outline: metadata?.outline,
     latestDocument: latestDoc?.content,
@@ -256627,7 +256667,9 @@ router12.get("/projects/:projectId/metadata", async (req, res) => {
     ...metadata,
     detectedTitle: metadata.detectedTitle ?? null,
     subject: metadata.subject ?? null,
-    taskType: metadata.taskType ?? null,
+    // INC-011: split into taskCategory (enum) + taskSubtype (free-form).
+    taskCategory: metadata.taskCategory ?? null,
+    taskSubtype: metadata.taskSubtype ?? null,
     citationFormat: metadata.citationFormat ?? null,
     language: metadata.language ?? null,
     outline: metadata.outline ?? null,

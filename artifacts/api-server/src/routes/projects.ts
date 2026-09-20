@@ -377,6 +377,10 @@ router.post("/projects/:projectId/analyze", async (req, res): Promise<void> => {
 
   waitUntil(
     runAnalysisPipeline(project.id, job.id, selectedTier).catch(async (err) => {
+      // INC-011 / Bug 3: log full error to Vercel runtime (logger captures
+      // stack + ctx), and persist a user-readable slice to the jobs table.
+      // Previously error_message was sliced at 500 chars which truncated
+      // Postgres CHECK constraint errors at the most uninformative point.
       const message = err instanceof Error ? err.message : String(err);
       logger.error({ err, projectId: project.id, jobId: job.id }, "Analysis pipeline failed");
       if (message === "KONTEKS_TERLALU_PANJANG") {
@@ -394,7 +398,7 @@ router.post("/projects/:projectId/analyze", async (req, res): Promise<void> => {
         .update(jobsTable)
         .set({
           status: "failed",
-          errorMessage: message.slice(0, 500),
+          errorMessage: message.slice(0, 4000),
         })
         .where(eq(jobsTable.id, job.id));
       await db
@@ -426,7 +430,7 @@ async function runAnalysisPipeline(
   const { content: aiResponse, usage: analysisUsage, tierConfig: analysisTier } = await callAI(
     [
       { role: "system", content: systemPrompt },
-      { role: "user", content: `Analisis instruksi tugas berikut dan berikan respons dalam format JSON:\n\nINSTRUKSI TUGAS:\n${safeInstructionText || project.title}\n\nHasilkan JSON dengan struktur berikut (HANYA JSON, tanpa teks lain):\n{\n  "detectedTitle": "judul yang tepat untuk tugas ini",\n  "subject": "nama mata kuliah yang relevan",\n  "taskType": "jenis tugas (makalah/skripsi/laporan/esai/dll)",\n  "citationFormat": "format sitasi yang sesuai (APA/MLA/Chicago/IEEE/dll)",\n  "language": "bahasa utama (Indonesia/Inggris)",\n  "outline": "outline lengkap dalam format:\\nBAB I: ...\\nA. ...\\nB. ...\\n\\nBAB II: ...\\ndll",\n  "contextSummary": "ringkasan konteks tugas dalam 2-3 kalimat"\n}` },
+      { role: "user", content: `Analisis instruksi tugas berikut dan berikan respons dalam format JSON:\n\nINSTRUKSI TUGAS:\n${safeInstructionText || project.title}\n\nHasilkan JSON dengan struktur berikut (HANYA JSON, tanpa teks lain):\n{\n  "detectedTitle": "judul yang tepat untuk tugas ini",\n  "subject": "nama mata kuliah yang relevan",\n  "taskCategory": "kategori tugas — HARUS salah satu dari: 'general' (tugas pendek/sederhana), 'academic' (karya ilmiah multi-bab), 'dashboard_chat' (internal scratchpad). WAJIB pilih satu.",\n  "taskSubtype": "subtipe tugas dalam bahasa natural — contoh: 'makalah', 'skripsi', 'artikel jurnal', 'laporan', 'esai', 'review', 'thesis', 'dissertation', 'paper', 'studi kasus'. Bebas string apa pun.",\n  "citationFormat": "format sitasi yang sesuai (APA/MLA/Chicago/IEEE/dll)",\n  "language": "bahasa utama (Indonesia/Inggris)",\n  "outline": "outline lengkap dalam format:\\nBAB I: ...\\nA. ...\\nB. ...\\n\\nBAB II: ...\\ndll",\n  "contextSummary": "ringkasan konteks tugas dalam 2-3 kalimat"\n}\n\nPENTING:\n- taskCategory WAJIB salah satu dari: general, academic, dashboard_chat. Jangan isi nilai lain.\n- taskSubtype BOLEH string bebas sesuai jenis tugas spesifik yang Anda deteksi.\n- Jangan satukan keduanya — keduanya terpisah dan independen.` },
     ],
     selectedTier.id,
   );
@@ -487,7 +491,13 @@ async function runAnalysisPipeline(
         projectId,
         detectedTitle: metadata.detectedTitle ?? null,
         subject: metadata.subject ?? null,
-        taskType: metadata.taskType ?? null,
+        // INC-011: taskCategory (enum) + taskSubtype (free-form). The DB
+        // CHECK constraint on task_category enforces general/academic/dashboard_chat
+        // (mirrors projects.task_type for routing/theme). task_subtype is free-form
+        // so AI can describe the actual work ("makalah", "skripsi", etc) without
+        // hitting the constraint.
+        taskCategory: metadata.taskCategory ?? null,
+        taskSubtype: metadata.taskSubtype ?? null,
         citationFormat: metadata.citationFormat ?? null,
         language: metadata.language ?? null,
         outline: metadata.outline ?? null,
@@ -498,7 +508,8 @@ async function runAnalysisPipeline(
         set: {
           detectedTitle: metadata.detectedTitle ?? null,
           subject: metadata.subject ?? null,
-          taskType: metadata.taskType ?? null,
+          taskCategory: metadata.taskCategory ?? null,
+          taskSubtype: metadata.taskSubtype ?? null,
           citationFormat: metadata.citationFormat ?? null,
           language: metadata.language ?? null,
           outline: metadata.outline ?? null,
@@ -510,7 +521,9 @@ async function runAnalysisPipeline(
       .update(projectsTable)
       .set({
         subject: metadata.subject ?? null,
-        taskType: metadata.taskType ?? null,
+        // projects.task_type column stays enum-aligned → mirror taskCategory here.
+        // taskSubtype is metadata-only (free-form) and does not propagate to projects.
+        taskType: metadata.taskCategory ?? null,
         citationFormat: metadata.citationFormat ?? null,
         status: "writing",
         progress: 25,
@@ -875,6 +888,7 @@ router.post("/projects/:projectId/documents/generate", async (req, res): Promise
 
   waitUntil(
     runDocumentGeneration(project.id, job.id, outline, selectedTier).catch(async (err) => {
+      // INC-011 / Bug 3: full error logged, 4000-char slice persisted (see analyze route).
       const message = err instanceof Error ? err.message : String(err);
       logger.error({ err, projectId: project.id, jobId: job.id }, "Document generation failed");
       if (message === "KONTEKS_TERLALU_PANJANG") {
@@ -892,7 +906,7 @@ router.post("/projects/:projectId/documents/generate", async (req, res): Promise
         .update(jobsTable)
         .set({
           status: "failed",
-          errorMessage: message.slice(0, 500),
+          errorMessage: message.slice(0, 4000),
         })
         .where(eq(jobsTable.id, job.id));
       await db

@@ -448,6 +448,34 @@ export default function ProjectWorkspace() {
   const isWorking = jobs?.some(j => j.status === "running" || j.status === "pending")
   const activeJob = jobs?.find(j => j.status === "running" || j.status === "pending")
 
+  // INC-011 / Bug 2: Surface async pipeline failures to the user.
+  // The analyze/document routes run via waitUntil and never surface errors
+  // back to the client (the 202 response is fire-and-forget). Watch the jobs
+  // query (already polling every 5s) and toast when a job transitions to
+  // "failed". Use a ref to avoid re-toasting on every refetch.
+  const notifiedFailedJobsRef = useRef<Set<number>>(new Set())
+  useEffect(() => {
+    if (!jobs) return
+    for (const job of jobs) {
+      if (job.status === "failed" && !notifiedFailedJobsRef.current.has(job.id)) {
+        notifiedFailedJobsRef.current.add(job.id)
+        const jobLabel = job.jobType === "analyze" ? "Analyze" : "Document generation"
+        const desc = (job.errorMessage ?? "").slice(0, 240) || "Pipeline gagal. Coba lagi."
+        toast({
+          title: `${jobLabel} gagal`,
+          description: desc,
+          variant: "destructive",
+          duration: 8000,
+        })
+      }
+    }
+  }, [jobs, toast])
+  // Reset tracker when project changes (so failures from a previous project
+  // don't suppress toasts on the new one).
+  useEffect(() => {
+    notifiedFailedJobsRef.current = new Set()
+  }, [projectId])
+
   if (projectLoading) {
     return (
       <div className="space-y-6">

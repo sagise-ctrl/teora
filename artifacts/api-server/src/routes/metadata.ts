@@ -36,7 +36,9 @@ router.get("/projects/:projectId/metadata", async (req, res): Promise<void> => {
     ...metadata,
     detectedTitle: metadata.detectedTitle ?? null,
     subject: metadata.subject ?? null,
-    taskType: metadata.taskType ?? null,
+    // INC-011: split into taskCategory (enum) + taskSubtype (free-form).
+    taskCategory: metadata.taskCategory ?? null,
+    taskSubtype: metadata.taskSubtype ?? null,
     citationFormat: metadata.citationFormat ?? null,
     language: metadata.language ?? null,
     outline: metadata.outline ?? null,

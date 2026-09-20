@@ -950,12 +950,13 @@ export interface Job {
 }
 
 /**
+ * Project category — used for routing, filtering, and theme selection. Mirrors projects.taskType.
  * @nullable
  */
-export type ProjectMetadataTaskType = typeof ProjectMetadataTaskType[keyof typeof ProjectMetadataTaskType] | null;
+export type ProjectMetadataTaskCategory = typeof ProjectMetadataTaskCategory[keyof typeof ProjectMetadataTaskCategory] | null;
 
 
-export const ProjectMetadataTaskType = {
+export const ProjectMetadataTaskCategory = {
   general: 'general',
   academic: 'academic',
   dashboard_chat: 'dashboard_chat',
@@ -985,8 +986,16 @@ export interface ProjectMetadata {
   detectedTitle?: string | null;
   /** @nullable */
   subject?: string | null;
-  /** @nullable */
-  taskType?: ProjectMetadataTaskType;
+  /**
+     * Project category — used for routing, filtering, and theme selection. Mirrors projects.taskType.
+     * @nullable
+     */
+  taskCategory?: ProjectMetadataTaskCategory;
+  /**
+     * Free-form task subtype written by AI ("makalah", "skripsi", "artikel", "esai", etc.).
+     * @nullable
+     */
+  taskSubtype?: string | null;
   /**
      * Citation format used for in-text/footnote markers and bibliography. Default = APA.
      * @nullable

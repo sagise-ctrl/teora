@@ -4420,9 +4420,16 @@ components:
           type: ["string", "null"]
         subject:
           type: ["string", "null"]
-        taskType:
+        # INC-011: taskType split into taskCategory (enum, mirrors
+        # projects.taskType for routing/theme) + taskSubtype (free-form
+        # natural language subtype — "makalah", "skripsi", "artikel", etc).
+        taskCategory:
           type: ["string", "null"]
           enum: [general, academic, dashboard_chat]
+          description: 'Project category — used for routing, filtering, and theme selection. Mirrors projects.taskType.'
+        taskSubtype:
+          type: ["string", "null"]
+          description: 'Free-form task subtype written by AI ("makalah", "skripsi", "artikel", "esai", etc.).'
         citationFormat:
           type: ["string", "null"]
           enum: [APA, APA7, IEEE, Vancouver, Chicago, MLA, Harvard, null]
