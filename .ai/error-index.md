@@ -1263,3 +1263,103 @@ The constraint was NOT in the Drizzle ORM schema (`lib/db/src/schema/projects.ts
 
 **Prevention:**
 - Any new pipeline route MUST use waitUntil pattern. See memory entry `vercel-serverless-pipeline-waituntil-required.md`.
+
+### ERR-2026-09-20-002 | Olagon Gateway: Anthropic-dated model IDs rejected
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-09-20 |
+| **Severity** | P1 High (Begin Analyze pipeline broken — no document produced) |
+| **Layer** | Backend AI integration (`ai.ts`) |
+| **Status** | FIXED + DEPLOYED + VERIFIED |
+| **Files** | `artifacts/api-server/src/lib/ai.ts`, `artifacts/api-server/api/index.mjs` |
+| **Commit** | `83d5e18` on `feat/ai-tier-selector-universal` |
+| **Deploy** | `dpl_HW6bHEK8tq9U7oNJ4hwAyAZxs8Ay` → teora-backend.vercel.app |
+| **Pattern** | `gateway_model_id_format_constraint` (NEW — 1x; promote after 2x occurrence) |
+
+**Symptom (owner browser console + Vercel logs, 2026-09-20):**
+```
+job_id=7 status="failed"
+error_message: "Anthropic API error 400: {\"error\":{\"message\":
+  \"The requested model 'claude-haiku-4-5-20250514' is not supported.
+   Please check our supported models list.\"}}"
+```
+Begin Analyzer clicks resulted in job failures; no document produced.
+
+**Root cause (CONFIRMED via direct probe):**
+- `OLAGON_TIERS["haiku-4.5"].model` was hardcoded to Anthropic-dated ID `claude-haiku-4-5-20250514`
+- Olagon gateway (`https://gateway.olagon.site/anthropic`) does NOT accept Anthropic-dated model IDs
+- Verified via `curl https://gateway.olagon.site/v1/models` — only **bare aliases** are listed:
+  - `claude-haiku-4-5` (bare alias) ✅
+  - `claude-haiku-4-5-20250514` (Anthropic-dated) ❌ rejected
+- Anthropic's own API accepts both formats; Olagon only the bare alias
+
+**Fix layers:**
+1. `ai.ts` — change model to `claude-haiku-4-5` (bare alias)
+2. Add inline comment explaining Olagon's bare-alias requirement + date when verified
+3. Local curl test with `claude-haiku-4-5` → 200 OK with valid Anthropic response shape
+4. Rebuild bundle + deploy
+
+**Verification:**
+- ✅ Bundle grep: `claude-haiku-4-5` ×2 in `api/index.mjs`; `claude-haiku-4-5-20250514` = 0
+- ✅ Local Olagon curl test passed
+- ✅ Deploy auto-aliased
+
+**Prevention:**
+- **WAJIB probe gateway model list** (`GET /v1/models`) sebelum hardcode any model ID
+- All Olagon tiers must use bare aliases: `claude-haiku-4-5`, `claude-opus-4-8`, `claude-opus-4-6`
+- Add CI grep guard: `grep -r "20[0-9][0-9][0-9][0-9][0-9][0-9]" artifacts/api-server/src/lib/ai.ts` should return empty for Olagon-routed tiers
+- Note for future: if Olagon adds dated support, this constraint may relax — re-verify via `/v1/models` periodically
+
+### ERR-2026-09-20-003 | Express Router Imported but Never Wired (404 since import)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-09-20 |
+| **Severity** | P2 Medium (4x 404s on user-facing flow; profile page broken) |
+| **Layer** | Backend routing (`routes/index.ts`) |
+| **Status** | FIXED + DEPLOYED + VERIFIED |
+| **Files** | `artifacts/api-server/src/routes/index.ts`, `artifacts/api-server/api/index.mjs` |
+| **Commit** | `83d5e18` on `feat/ai-tier-selector-universal` |
+| **Deploy** | `dpl_HW6bHEK8tq9U7oNJ4hwAyAZxs8Ay` → teora-backend.vercel.app |
+| **Pattern** | `router_import_without_router_use_wiring` (NEW — 1x; promote after 2x occurrence) |
+
+**Symptom (owner browser console, 2026-09-20):**
+```
+teora-backend.vercel.app/api/users/me/profile:1
+Failed to load resource: the server responded with a status of 404 ()
+```
+4 consecutive 404s triggered by "mulai kerjakan" click in Task Mentor.
+
+**Root cause (CONFIRMED via git history audit):**
+- `profileRouter` was imported at `routes/index.ts:28` but NEVER registered with `router.use(profileRouter)`
+- Verified via `git log --all -p -- artifacts/api-server/src/routes/index.ts | grep -c "router.use(profileRouter)"` → 0 occurrences
+- Latent bug existed since profile.ts was first added (long-standing)
+- Bug went undetected because profile page is only loaded on `/akun` route; click pattern (mulai kerjakan) was the first to trigger it
+
+**Fix layers:**
+1. `routes/index.ts` — add `router.use(profileRouter)` between `subscriptionsRouter` and `usageRouter` with explanatory comment
+2. Rebuild bundle + deploy
+
+**Verification:**
+- ✅ `curl /api/users/me/profile` (no auth) → **401 Unauthorized** (route now reaches auth middleware; was 404)
+- ✅ Bundle grep: `users/me/profile` ×2 in `api/index.mjs`
+
+**Why this bug escaped detection:**
+- profile.ts existed for weeks/months; worked when tested via direct route file invocation (bypasses index.ts)
+- No automated test covers the full route registration chain (would catch missing `router.use`)
+- Manual smoke tests covered happy paths; "mulai kerjakan" flow was the first to exercise `/users/me/profile` from the frontend
+
+**Prevention:**
+- **WAJIB add `router.use()` for every router import.** Add to PR review checklist.
+- Audit helper script (run before commit):
+  ```bash
+  # List all imports vs all router.use() calls — diff should be empty
+  grep -oE "^import \w+Router from" artifacts/api-server/src/routes/index.ts | sed 's/^import //; s/ from//' | sort > /tmp/imported.txt
+  grep -oE "router.use\(\w+Router\)" artifacts/api-server/src/routes/index.ts | sed 's/router\.use(/(/; s/)/)/' | sort > /tmp/wired.txt
+  diff /tmp/imported.txt /tmp/wired.txt  # empty = OK
+  ```
+- Consider a smoke test that loads index.ts and asserts every imported router file is also registered (e.g., integration test in `src/test/routes/router-wiring.test.ts`)
+- For new feature PRs: when adding `routes/<name>.ts`, the SAME PR must include both `import` AND `router.use()` lines in `routes/index.ts`
+
+**Lifecycle:** FIXED + DEPLOYED + VERIFIED. Pattern `router_import_without_router_use_wiring` (1x — promote after 2x occurrence).

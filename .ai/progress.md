@@ -2,6 +2,37 @@
 
 > Completed work, newest first. Format: `YYYY-MM-DD | description | files | status`
 
+## 2026-09-20 | Olagon Model Alias + profileRouter Wiring (opus-4-8)
+
+**Status:** ✅ COMPLETE — deployed + verified
+**Branch:** `feat/ai-tier-selector-universal` — commit `83d5e18`
+**Backend deploy:** `dpl_HW6bHEK8tq9U7oNJ4hwAyAZxs8Ay` → `teora-backend.vercel.app` ✅ READY (auto-aliased)
+
+| Step | Description | Status |
+|------|-------------|--------|
+| Bug 1 (AI pipeline fail) | Anthropic API 400: `'claude-haiku-4-5-20250514' is not supported` | ✅ CONFIRMED |
+| Bug 1 root cause | Olagon gateway uses bare alias `claude-haiku-4-5`, not Anthropic-dated ID | ✅ CONFIRMED via `curl /v1/models` |
+| Bug 1 fix | `ai.ts` — change `OLAGON_TIERS["haiku-4.5"].model` to `claude-haiku-4-5` | ✅ FIXED |
+| Bug 2 (404 profile) | 4x `GET /api/users/me/profile` → 404 from "mulai kerjakan" click | ✅ CONFIRMED |
+| Bug 2 root cause | `profileRouter` imported at `routes/index.ts:28` but NEVER `router.use()`d | ✅ CONFIRMED via git log search |
+| Bug 2 fix | `routes/index.ts` — add `router.use(profileRouter)` between subscriptions and usage | ✅ FIXED |
+| Bundle rebuild | `node build.mjs` → 21.4s, 6.6MB | ✅ |
+| Backend deploy | `dpl_HW6bHEK8tq9U7oNJ4hwAyAZxs8Ay` | ✅ READY (auto-aliased) |
+| Verification | `curl /api/users/me/profile` → 401 (route wired); bundle grep `claude-haiku-4-5` ×2, `claude-haiku-4-5-20250514` = 0 | ✅ |
+
+**Files changed:**
+- `artifacts/api-server/src/lib/ai.ts` — model ID fix + Olagon bare-alias comment
+- `artifacts/api-server/src/routes/index.ts` — wire `profileRouter`
+- `artifacts/api-server/api/index.mjs` — rebuilt bundle
+
+**Commits:** `83d5e18`
+
+**Lessons cross-checked:**
+- `[ERR-2026-09-20-002] Olagon model alias mismatch` (NEW)
+- `[ERR-2026-09-20-003] Express router imported but not wired` (NEW)
+
+---
+
 ## 2026-09-20 | Bug Fixes: Mulai Chat Button + Chat Input Clear Pattern (opus-4-8)
 
 **Status:** ✅ COMPLETE — deployed + verified

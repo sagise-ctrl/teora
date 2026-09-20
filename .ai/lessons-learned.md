@@ -1140,3 +1140,100 @@ const handleSend = (e: React.FormEvent) => {
 - Error index: `ERR-2026-09-20-001`
 - Files: `routes/projects.ts:284-406` (analyze) + `routes/projects.ts:748-904` (document/generate)
 - Deploy: `dpl_4grH2isdjAy9S6Ffae21K9sazbBA` on commit `512f843`
+
+## [ERR-2026-09-20-002] Olagon gateway: bare model alias only (no date suffix)
+
+### Gejala
+- Owner klik Begin Analyzer di workspace → job fail
+- Vercel log: `Anthropic API error 400: The requested model 'claude-haiku-4-5-20250514' is not supported`
+- Project stuck analyzing; no document produced
+- Pipeline: 2 sequential AI calls → first call (Haiku 4.5) → 400 → bubble up
+
+### Root cause
+- `artifacts/api-server/src/lib/ai.ts:40` hardcoded `model: "claude-haiku-4-5-20250514"` (Anthropic-dated ID)
+- Olagon gateway (`https://gateway.olagon.site/anthropic`) does NOT accept Anthropic-dated model IDs
+- Anthropic's own API accepts both formats; Olagon only bare alias
+- Verified via `curl https://gateway.olagon.site/v1/models` — only bare alias `claude-haiku-4-5` listed
+- Confounded by INC-2026-09-20-001 (analyze timeout): timeout happened before model error could surface in pipeline catch block
+
+### Kalau error berulang
+- Cek apakah model ID punya format `-YYYYMMDD` suffix (Anthropic convention)
+- Kalau via Olagon gateway → WAJIB strip date suffix
+- Probe Olagon `/v1/models` untuk list supported IDs
+- Cek audit yang sama: route `/projects/:id/analyze` punya chain `getTierConfig → OLAGON_TIERS → callAnthropic(model)` — setiap layer harus pakai alias yang sama
+
+### Opsi yang dipertimbangkan
+1. **Strip date suffix di OLAGON_TIERS** (chosen) — fix at config level, semua tier otomatis comply
+2. **Strip date suffix di `callAnthropic`** sebelum request — runtime strip, hides config error
+3. **Probe Olagon models dynamically** — cache at startup, fall back if missing — over-engineered untuk 3 tiers
+4. **Switch ke Anthropic direct** (set `ANTHROPIC_API_KEY`) — owner belum punya key, blocking
+
+### Kenapa pilih Opsi 1
+- Single source of truth (`OLAGON_TIERS`)
+- Comment di source menjelaskan constraint + verifikasi date (jaga kekinian)
+- Zero runtime overhead
+- Future Olagon tier additions: edit config, not runtime logic
+
+### Yang harus dicek di masa depan
+- [ ] **WAJIB probe `https://gateway.olagon.site/v1/models`** sebelum add tier baru ke `OLAGON_TIERS`
+- [ ] CI grep guard: `grep -rE "claude-[a-z0-9-]+-20[0-9]{6}" artifacts/api-server/src/lib/ai.ts` → untuk tier dengan `provider: "anthropic"` + `baseUrl` Olagon → harus return EMPTY
+- [ ] Kalau Olagon tambah Anthropic-dated support nanti → re-verify periodically, comment di `ai.ts` jadi source of truth
+- [ ] Tiap Analyzed/Writer pipeline fail dengan status="failed" → cek job.error_message untuk `"is not supported"` pattern
+- [ ] Owner non-technicals: Olagon = third-party AI gateway dengan model alias sendiri. Bukan mirror Anthropic API 1:1.
+
+**Cross-reference:**
+- Error index: `ERR-2026-09-20-002`
+- Memory: `olagon-model-id-no-date-suffix-20260920.md`
+- Files: `src/lib/ai.ts:38-50` (OLAGON_TIERS haiku-4.5 config)
+- Deploy: `dpl_HW6bHEK8tq9U7oNJ4hwAyAZxs8Ay` on commit `83d5e18`
+
+## [ERR-2026-09-20-003] Express router import tanpa `router.use()` = silent 404
+
+### Gejala
+- Owner klik "mulai kerjakan" di Task Mentor → 4 consecutive `GET /api/users/me/profile` → 404
+- Profile page (`/akun`) juga broken (data tidak load — fetch 404s silently di background)
+- Console: `teora-backend.vercel.app/api/users/me/profile:1 Failed to load resource: 404`
+
+### Root cause
+- `routes/index.ts:28` punya `import profileRouter from "./profile.js"` (typo-free import)
+- TAPI tidak ada `router.use(profileRouter)` line di seluruh file
+- Git log audit: `git log --all -p -- artifacts/api-server/src/routes/index.ts | grep -c "router.use(profileRouter)"` → 0 occurrences
+- Latent bug sejak profile.ts pertama di-add (minggu/bulan lalu)
+- TypeScript tidak complain (import unused by router = fine untuk module resolution)
+- Express tidak complain (no runtime check that all imports are wired)
+
+### Kalau error berulang
+- Tiap 404 di `/api/users/...` atau `/api/projects/...` endpoint → cek `routes/index.ts`: import line ada, tapi `router.use(<name>Router)` line ada?
+- Audit pattern untuk SEMUA router file di Teora: cek import + `router.use()` line berpasangan
+- Tambah smoke test: `node -e "require('./dist/index.mjs')"` + introspect `app._router.stack` (deep, fragile tapi works)
+
+### Opsi yang dipertimbangkan
+1. **Manual fix: tambah `router.use(profileRouter)` line** (chosen) — minimal diff, langsung resolve
+2. **Auto-registration pattern** (e.g., glob `routes/*.ts` and `router.use(each)`) — over-engineered, hides wiring visibility
+3. **Integration test `router-wiring.test.ts`** — scans `routes/index.ts`, asserts every imported router also has matching `router.use()` — defensive, catches future regressions
+4. **TypeScript compile-time check** (e.g., template literal type for router names) — fragile, requires custom tooling
+
+### Kenapa pilih Opsi 1 (saat ini) + rekomendasi Opsi 3 (next session)
+- Immediate fix: tambah `router.use(profileRouter)` line dengan explanatory comment (1 line code change, zero risk)
+- Defensive guard untuk next time: integration test (audit script di prevention section)
+- Opsi 2 auto-registration: terlalu magic, loses visibility. Teora monorepo kecil (40 routers), manual OK.
+
+### Yang harus dicek di masa depan
+- [ ] **PR review checklist WAJIB include**: untuk setiap import router baru di `routes/index.ts`, line `router.use(<name>Router)` harus di PR yang SAMA
+- [ ] Pre-commit audit script:
+  ```bash
+  grep -oE "^import \w+Router from" artifacts/api-server/src/routes/index.ts \
+    | sed 's/^import //; s/ from//' | sort > /tmp/imported.txt
+  grep -oE "router.use\(\w+Router\)" artifacts/api-server/src/routes/index.ts \
+    | sed 's/router\.use(/(/; s/)/)/' | sort > /tmp/wired.txt
+  diff /tmp/imported.txt /tmp/wired.txt  # empty = OK
+  ```
+- [ ] Pertimbangkan integration test `src/test/routes/router-wiring.test.ts` (next session) — defensive guard
+- [ ] Tiap new route file: nama file WAJIB match import name (e.g., `profile.ts` → `profileRouter` import) — konsistensi, grep-friendly
+- [ ] Owner non-technical: bayangkan "router use" seperti "colokan listrik yang terpasang tapi tidak ditancapkan ke stopkontak" — tersembunyi sampai alat dicoba
+
+**Cross-reference:**
+- Error index: `ERR-2026-09-20-003`
+- Memory: `router-import-must-be-wired-20260920.md`
+- Files: `routes/index.ts:28` (import) + `routes/index.ts:92` (fix)
+- Deploy: `dpl_HW6bHEK8tq9U7oNJ4hwAyAZxs8Ay` on commit `83d5e18`

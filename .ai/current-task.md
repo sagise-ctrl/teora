@@ -9,6 +9,82 @@
 
 ---
 
+## ACTIVE 2026-09-20 — Olagon Model Alias + profileRouter Wiring (opus-4-8)
+
+**Status:** ✅ FIXED + DEPLOYED + VERIFIED
+**Branch:** `feat/ai-tier-selector-universal` — commit `83d5e18`
+**Backend deploy:** `dpl_HW6bHEK8tq9U7oNJ4hwAyAZxs8Ay` → `teora-backend.vercel.app` ✅ READY (auto-aliased)
+
+### Bug 1: AI pipeline fail — `claude-haiku-4-5-20250514` not supported
+
+**Gejala (owner report):**
+```
+"Anthropic API error 400: The requested model 'claude-haiku-4-5-20250514' is not supported."
+```
+Job 7 failed; Begin Analyze produced no document.
+
+**Root cause (CONFIRMED):**
+- `OLAGON_TIERS["haiku-4.5"].model` was hardcoded to Anthropic-dated ID `claude-haiku-4-5-20250514`
+- Olagon gateway (`https://gateway.olagon.site/anthropic`) uses bare model aliases, NOT Anthropic-dated IDs
+- Verified via `curl https://gateway.olagon.site/v1/models` — only `claude-haiku-4-5` (bare) is supported
+
+**Fix:** `artifacts/api-server/src/lib/ai.ts` — change model to bare alias `claude-haiku-4-5`. Add explanatory comment about Olagon's bare-alias requirement.
+
+**Verification:**
+- ✅ Bundle grep: `claude-haiku-4-5` ×2 in `api/index.mjs`, `claude-haiku-4-5-20250514` = 0
+- ✅ Local curl to Olagon returned 200 OK with bare alias
+- ✅ Deploy `dpl_HW6bHEK8tq9U7oNJ4hwAyAZxs8Ay` auto-aliased
+
+### Bug 2: 404 on `/api/users/me/profile` (4 consecutive requests)
+
+**Gejala (owner report):**
+```
+teora-backend.vercel.app/api/users/me/profile:1
+Failed to load resource: the server responded with a status of 404 ()
+```
+Triggered by clicking "mulai kerjakan" di Task Mentor. 4 consecutive 404s → feature broken end-to-end.
+
+**Root cause (CONFIRMED):**
+- `profileRouter` was imported at `routes/index.ts:28` but never registered with `router.use(profileRouter)`
+- Verified via `git log --all -p -- artifacts/api-server/src/routes/index.ts | grep -c "router.use(profileRouter)"` → 0 (never wired in entire history)
+- Long-standing latent bug — existed since profile.ts was first added
+
+**Fix:** `artifacts/api-server/src/routes/index.ts` — add `router.use(profileRouter)` between `subscriptionsRouter` and `usageRouter` with explanatory comment.
+
+**Verification:**
+- ✅ Bundle grep: `users/me/profile` ×2 in `api/index.mjs`
+- ✅ `curl /api/users/me/profile` (no auth) → **401 Unauthorized** (route now reachable, was 404)
+- ✅ `curl /api/projects/999/analyze` (no auth) → **401 Unauthorized** (sanity check, unchanged)
+
+### Files Changed
+
+| File | Change |
+|------|--------|
+| `artifacts/api-server/src/lib/ai.ts` | `haiku-4.5` model: `claude-haiku-4-5-20250514` → `claude-haiku-4-5` + comment |
+| `artifacts/api-server/src/routes/index.ts` | Add `router.use(profileRouter)` between subscriptions and usage |
+| `artifacts/api-server/api/index.mjs` | Rebuilt bundle (21.4s, 6.6MB) |
+
+### Prevention Going Forward
+
+- **Olagon model IDs**: bare alias only (no date suffix). Verified via `GET /v1/models`. Add comment in `ai.ts` (done).
+- **Router wiring checklist**: when adding a new router file, BOTH import AND `router.use()` are mandatory. Add to PR review checklist.
+- **Audit pattern**: `grep -rn "import.*Router" artifacts/api-server/src/routes/index.ts` → for each import, verify matching `router.use(<name>Router)`.
+
+### Owner Verification
+
+1. Re-run "Begin Analyze" di workspace → document should appear within 10-30s (no hang)
+2. Open `/akun` (profile page) → no 404s in network tab, profile data loads
+3. Open Task Mentor → click "mulai kerjakan" → no `/users/me/profile` 404
+
+### Related
+
+- Memory: `olagon-model-id-no-date-suffix-20260920.md` (NEW)
+- Memory: `router-import-must-be-wired-20260920.md` (NEW)
+- Error index: `ERR-2026-09-20-002` (Olagon model mismatch), `ERR-2026-09-20-003` (profileRouter not wired)
+- Lessons: `[ERR-2026-09-20-002]`, `[ERR-2026-09-20-003]`
+
+---
+
 ## ACTIVE 2026-09-20 — Bug Fixes: Mulai Chat Button + Chat Input Clear Pattern
 
 **Status:** ✅ FIXED + DEPLOYED
