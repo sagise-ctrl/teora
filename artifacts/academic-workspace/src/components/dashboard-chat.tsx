@@ -132,6 +132,11 @@ export function DashboardChat({ open, onOpenChange }: DashboardChatProps) {
     const pid = await ensureProject();
     if (!pid) return;
 
+    // Optimistic clear: input hilang SEGERA saat Enter (UX standar chat).
+    // Restore di onError kalau gagal.
+    const previousContent = content;
+    setContent("");
+
     sendMessage.mutate(
       {
         projectId: pid,
@@ -142,7 +147,6 @@ export function DashboardChat({ open, onOpenChange }: DashboardChatProps) {
         },
       },
       {
-        onSuccess: () => setContent(""),
         onError: (err) => {
           if (!insufficient.handleError(err)) {
             const msg = err instanceof Error ? err.message : String(err);
@@ -151,6 +155,7 @@ export function DashboardChat({ open, onOpenChange }: DashboardChatProps) {
               description: msg,
               variant: "destructive",
             });
+            setContent(previousContent);
           }
         },
       }

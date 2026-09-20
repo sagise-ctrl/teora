@@ -149,7 +149,10 @@ export default function Dashboard() {
                 onChange={setDashboardTierId}
                 compact
               />
-              <Button className="bg-gradient-to-r from-[#2D79FF] to-[#8E54E9] hover:opacity-90 shadow-md shadow-[#2D79FF]/20">
+              <Button
+                onClick={() => setChatOpen(true)}
+                className="bg-gradient-to-r from-[#2D79FF] to-[#8E54E9] hover:opacity-90 shadow-md shadow-[#2D79FF]/20"
+              >
                 Mulai Chat
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>

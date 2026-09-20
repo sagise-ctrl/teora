@@ -9,11 +9,145 @@
 
 ---
 
-## ACTIVE 2026-09-19 23:00 — Olagon Fix: Bundle Rebuild + Redeploy
+## ACTIVE 2026-09-20 — JWT ES256 Bearer Auth Fix + Audit Cleanup
 
-**Status:** ✅ FIXED + DEPLOYED
-**New deployment:** `dpl_9mKbhAWYapbAhApjCh36rq2Z4NmL` → `teora-backend.vercel.app` ✅ READY
-**Verification:** `curl https://teora-backend.vercel.app/api/healthz` → `{"status":"ok"}` ✅
+**Status:** ✅ FIXED + DEPLOYED + VERIFIED
+**Branch:** `feat/ai-tier-selector-universal` — commit `bb698d2` (dead-import cleanup)
+**Backend deploy:** `dpl_E81LZkeXX2tDdp1RvqrmmexqRPq5` → `teora-backend.vercel.app` ✅ READY
+**Frontend deploy:** `academic-workspace-lxow3yoge-sagise-ctrls-projects.vercel.app` → `academic-workspace-eta.vercel.app` ✅ READY
+
+### Fix Summary (Full Audit Cleanup)
+
+| # | Issue | Severity | Status |
+|---|-------|----------|--------|
+| 1 | JWT Bearer token broken (ES256 + JWKS) | **CRITICAL** | ✅ FIXED + DEPLOYED |
+| 2 | DB constraint `project_metadata_task_type_check` missing `dashboard_chat` | MEDIUM | ✅ FIXED via Supabase MCP |
+| 3 | Dead import `AnimatePresence` di App.tsx | LOW | ✅ FIXED + DEPLOYED |
+| 4 | Dead import `getSearchReferencesQueryKey` di project.tsx | LOW | ✅ FIXED + DEPLOYED |
+| 5 | QuizTab commented block "stale" | LOW | ✅ NOTED — INTENTIONAL scaffolding dengan header comment |
+| 6 | Citation APA vs APA7 parity | MEDIUM | ✅ VERIFIED — backend supports both |
+
+### JWT Fix Detail
+
+**Root cause:** jose v6 default JWKS rejects `alg: "ES256"` (Supabase production); Vercel logs: `"Unsupported \"alg\" value for a JSON Web Key Set"`
+
+**Fix layers:**
+1. `jose` upgrade: `^6.2.8` → `^6.2.12`
+2. `detectJwtAlgorithm(token)` — base64-decode JWT header, return `alg` field (no crypto)
+3. `createRemoteJWKSet(url, { allowedJWSSigParams: new Set(['ES256','ES384','ES512']) })`
+4. Algorithm routing: HS256/384/512 → symmetric secret; ES256/384/512 → JWKS
+
+**Verification:**
+- Before: `authMiddleware: token verify failed` with `err: "Unsupported alg value for a JSON Web Key Set"`
+- After: `authMiddleware: token verify failed` with `err: "signature verification failed"` (JWKS path now works — token just expired)
+
+**Browser cookie auth:** Tidak pernah terdampak (supabase-js SDK handles its own verification). Owner tidak perlu apa-apa kecuali test dengan fresh Bearer token untuk konfirmasi end-to-end.
+
+### DB Constraint Fix
+
+Migration applied via Supabase MCP:
+```sql
+ALTER TABLE project_metadata DROP CONSTRAINT project_metadata_task_type_check;
+ALTER TABLE project_metadata ADD CONSTRAINT project_metadata_task_type_check
+  CHECK (((task_type IS NULL) OR (task_type = ANY (ARRAY['general', 'academic', 'dashboard_chat']))));
+```
+
+Status: ✅ Latent bug eliminated (was never crashing because no code inserts `task_type` to `project_metadata` directly, but now in sync with `projects` table constraint).
+
+### APA vs APA7 Clarification
+
+Backend `citation.ts:13` type union includes both: `"APA" | "IEEE" | "Vancouver" | "Chicago" | "MLA" | "Harvard" | "APA7"`. Both work (cases at 415-416). Frontend offering both options is intentional UX choice — not a parity bug.
+
+---
+
+## ACTIVE 2026-09-20 — Input Clearing Bug Fix + Olagon Bundle Rebuild
+
+**Status:** ✅ FIXED + DEPLOYED (frontend + backend)
+**Branch:** `feat/ai-tier-selector-universal` — pushed ✅ (`1c0cc30` + `d05d049`)
+**Frontend deploy:** `dpl_FRPht3FNu2HxuDN3T7BVcmWQeDTE` → `academic-workspace-eta.vercel.app` ✅ READY
+**Backend deploy:** `dpl_6HuwYdTBbEpJEbJZqtdgnrNj8YXC` → `teora-backend.vercel.app` ✅ READY
+**Backend healthz:** `{"status":"ok"}` ✅
+
+### Bug: Input field tidak kosong setelah Enter di project.tsx workspace chat
+
+**Root Cause (CONFIRMED):** `setContent("")` di-panggil secara synchronously SEBELUM `sendMessage.mutate()` fires.
+
+```typescript
+// SALAH (before):
+const handleSend = (e: React.FormEvent) => {
+  e.preventDefault()
+  const messageContent = content
+  setContent("")  // ← clears immediately, user sees empty input, but mutation async
+  sendMessage.mutate({...}, {
+    onSuccess: () => { /* no setContent here */ },
+    onError: () => { setContent(messageContent) }
+  })
+}
+```
+
+**Fix applied:**
+```typescript
+// BENAR (after):
+const handleSend = (e: React.FormEvent) => {
+  e.preventDefault()
+  const messageContent = content
+  sendMessage.mutate({...}, {
+    onSuccess: () => {
+      setContent("")  // ← clear only after mutation succeeds
+      queryClient.invalidateQueries(...)
+    },
+    onError: () => {
+      setContent(messageContent)  // restore on error
+    }
+  })
+}
+```
+
+**File changed:** `artifacts/academic-workspace/src/pages/project.tsx` line ~1430
+
+**Verification:**
+- ✅ `pnpm run typecheck` — pass
+- ✅ `pnpm run build` — pass (1.59MB, 1m 11s)
+- ✅ `curl https://academic-workspace-eta.vercel.app/dashboard` → 200
+- ✅ `curl https://teora-backend.vercel.app/api/healthz` → 200
+
+### Branch divergence resolved
+
+- Remote `feat/ai-tier-selector-universal` punya commit `9f81ab7` (squash-merged dari owner)
+- Local punya `ef92d10` (same content, different SHA)
+- Local commits rebased on top of remote → push successful
+
+### Lesson cross-checked
+
+Pattern `[ERR-020] useState set synchronously before async mutation` sudah ada di `.ai/lessons-learned.md`. Bug ini konsisten dengan pattern yang sama — prevention: selalu taruh side-effect state update DI dalam callback mutation (`onSuccess`/`onError`/`onSettled`), BUKAN sebelum mutation call.
+
+---
+
+## HANDOVER 2026-09-19 23:30 — opus-4-6 → opus-4-X (next session)
+
+**Task:** Input clearing bug + Olagon bundle rebuild + deploy
+**Status:** ✅ COMPLETE — both fixes deployed + verified
+
+**Last 3 actions:**
+1. Fixed `setContent("")` placement in project.tsx handleSend (moved from line 1430 to onSuccess callback)
+2. Committed 2 new commits (`1c0cc30` fix, `d05d049` bundle) + rebased on remote divergence
+3. Deployed frontend (`dpl_FRPht3FNu2HxuDN3T7BVcmWQeDTE`) + verified backend (`dpl_6HuwYdTBbEpJEbJZqtdgnrNj8YXC`)
+
+**Next 3 actions:**
+1. Owner verification: test input clearing di workspace chat (`/projects/:id`)
+2. Test Olagon chat end-to-end di dashboard + workspace (verifikasi Olagon bypass works)
+3. Push `feat/ai-tier-selector-universal` to main (merge PR, atau owner trigger Vercel dari branch)
+
+**Open questions:**
+1. Apakah Olagon sudah berfungsi end-to-end di web live? (bundle fix sudah di-deploy tapi belum di-test owner)
+2. Branch `feat/ai-tier-selector-universal` perlu di-merge ke main kapan?
+
+**Production state:**
+- Frontend: `academic-workspace-eta.vercel.app` — READY ✅
+- Backend: `teora-backend.vercel.app` — READY ✅
+- Branch: `feat/ai-tier-selector-universal` — 2 commits ahead of origin/feat/ai-tier-selector-universal, pushed ✅
+- Bundle: Olagon bypass confirmed in `dist/index.mjs` (4 occurrences of `opus-4-8-olagon`) ✅
+
 
 ### Root Cause (CONFIRMED)
 

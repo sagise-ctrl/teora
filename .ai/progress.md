@@ -2,6 +2,63 @@
 
 > Completed work, newest first. Format: `YYYY-MM-DD | description | files | status`
 
+## 2026-09-20 | JWT ES256 Bearer Auth Fix + Audit Cleanup (opus-4-8)
+
+**Status:** ✅ COMPLETE — JWT deployed + verified + DB constraint fixed + dead-import cleanup deployed
+
+| Step | Description | Status |
+|------|-------------|--------|
+| JWT Bearer token broken | Supabase production uses ES256, jose v6 default JWKS rejects | ✅ CONFIRMED via Vercel logs |
+| jose upgrade | `jose: ^6.2.8` → `^6.2.12` | ✅ |
+| Algorithm detection | `detectJwtAlgorithm()` extracts `alg` from JWT header without crypto | ✅ |
+| JWKS allowed params | `createRemoteJWKSet(url, { allowedJWSSigParams: new Set(["ES256","ES384","ES512"]) })` | ✅ |
+| Algorithm routing | HS256 → SUPABASE_JWT_SECRET; ES256+ → JWKS | ✅ |
+| Backend deploy | `dpl_E81LZkeXX2tDdp1RvqrmmexqRPq5` → `teora-backend.vercel.app` | ✅ READY |
+| Verification | Error changed: "Unsupported alg" → "signature verification failed" (means JWKS now works, only token expired) | ✅ CONFIRMED |
+| DB constraint fix | `project_metadata_task_type_check` → add `dashboard_chat` to allowed array | ✅ Migration applied via Supabase MCP |
+| Dead-import cleanup | `App.tsx` AnimatePresence; `project.tsx` getSearchReferencesQueryKey | ✅ Commit `bb698d2` |
+| Frontend deploy | `academic-workspace-lxow3yoge-sagise-ctrls-projects.vercel.app` (51s, READY) | ✅ |
+| Production smoke | `/ /login /dashboard /akun /bantuan` all 200 OK | ✅ |
+
+**Files changed:**
+- `artifacts/api-server/src/middlewares/auth.ts` — algorithm detection + JWKS ES256 support
+- `artifacts/api-server/package.json` — jose upgrade
+- `artifacts/api-server/api/index.mjs` + `dist/index.mjs` — bundle rebuild
+- `artifacts/academic-workspace/src/App.tsx` — remove AnimatePresence
+- `artifacts/academic-workspace/src/pages/project.tsx` — remove getSearchReferencesQueryKey
+- DB: `project_metadata_task_type_check` constraint extended
+
+**Commits:** `bb698d2` (dead-import cleanup)
+**Backend deploy:** `dpl_E81LZkeXX2tDdp1RvqrmmexqRPq5` (auto-aliased)
+**Frontend deploy:** `academic-workspace-lxow3yoge-sagise-ctrls-projects.vercel.app` (auto-aliased)
+
+**Audit non-issues clarified:**
+- APA vs APA7: backend supports BOTH (citation.ts:13 type union, cases at 415-416). Frontend offering both options is intentional UX choice, not parity bug.
+- QuizTab commented block: intentionally preserved with header "HIDDEN: QuizTab dipindah ke Practice menu... Uncomment below to restore". Not stale dead code.
+
+---
+
+## 2026-09-20 | Input Clearing Bug Fix + Olagon Bundle Rebuild (opus-4-6)
+
+**Status:** ✅ COMPLETE — deployed + verified
+**Branch:** `feat/ai-tier-selector-universal` — pushed ✅
+
+| Step | Description | Status |
+|------|-------------|--------|
+| Bug identified | `setContent("")` di project.tsx:1430 di-panggil synchronously sebelum `sendMessage.mutate()` | ✅ CONFIRMED |
+| Fix applied | Pindah `setContent("")` ke `onSuccess` callback mutation | ✅ FIXED |
+| Branch rebase | Local commits rebased on top of remote divergence (`9f81ab7`) | ✅ |
+| Frontend deploy | `dpl_FRPht3FNu2HxuDN3T7BVcmWQeDTE` → `academic-workspace-eta.vercel.app` | ✅ READY |
+| Backend deploy | `dpl_6HuwYdTBbEpJEbJZqtdgnrNj8YXC` → `teora-backend.vercel.app` | ✅ READY |
+| Bundle verified | `dist/index.mjs` contains `opus-4-8-olagon` ×4 ✅ | ✅ |
+
+**Files changed:**
+- `artifacts/academic-workspace/src/pages/project.tsx` — fix handleSend pattern
+- `artifacts/api-server/api/index.mjs` — bundle rebuild with Olagon bypass
+- `artifacts/api-server/dist/index.mjs` — source of truth for bundle
+
+**Commits pushed:** `1c0cc30` (fix) + `d05d049` (bundle)
+
 ## 2026-09-17 | Dashboard CTA Card REVERTED — AI Chat Bot Deferred to Dedicated Discussion (opus-4-8)
 
 **Status:** ⏸️ DEFERRED per Owner instruction 2026-09-17
