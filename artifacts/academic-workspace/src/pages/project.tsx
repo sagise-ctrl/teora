@@ -51,7 +51,6 @@ import {
   getGetProjectQueryKey,
   getListJobsQueryKey,
   getListShareLinksQueryKey,
-  getSearchReferencesQueryKey,
   getListCitationsQueryKey,
   useGetAITiers,
   useGetMyBalance,
