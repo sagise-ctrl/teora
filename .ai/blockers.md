@@ -66,7 +66,7 @@ Items di bawah bukan urgent. Owner akan discuss saat ready:
 | # | Item | Scope | Diskusi Needed? |
 |---|------|-------|----------------|
 | 1 | **Archive / merge `feat/daftar-task`** | Branch punya 19 commit ahead of main. Semua commit penting sudah di-merge ke main. Branch bisa di-archive atau di-fast-forward merge. Risiko: merge naif akan membawa Practice/Usage API stubs (mock mode). | ⚠️ Perlu diskusi: strategi merge? archive? |
-| 2 | **Delete 7 orphan files** (per audit 2026-09-05) | `_upload.js`, `_mcp_params.json` (2.3MB), `NUL`, `lib/api-spec/openapi.yaml.bak`, `screnshoot/` (24 PNGs ~5MB), `scripts/src/hello.ts` | ✅ Owner tinggal bilang "go" — AI execute. Tidak perlu diskusi teknis. |
+| 2 | **Delete 7 orphan files** (per audit 2026-09-05) | ✅ **AI-EXECUTED 2026-09-20** — branch `chore/cleanup-orphan-files`. Status: `_upload.js`, `_mcp_params.json`, `NUL` sudah tidak ada (sempat ada di audit, sudah hilang sebelumnya). `lib/api-spec/openapi.yaml.bak`, `screnshoot/` (24 PNG, 4.6MB), `scripts/src/hello.ts`, `diskusicodex.md`, `attached_assets/` dihapus di branch ini. Branch lokal sudah di-commit, BELUM push (perlu owner "go"). | ✅ Done — push saja |
 | 3 | **Set Supabase Site URL** | Fix OAuth URL exposure: set Site URL ke `https://academic-workspace-eta.vercel.app` di Supabase Dashboard → Authentication → URL Configuration. Proper fix: custom domain `teora.com` | ✅ Owner tinggal execute sendiri di Supabase dashboard. |
 
 ## Feature Taxonomy Decisions (from feature-taxonomy.md)

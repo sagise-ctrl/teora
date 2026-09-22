@@ -54,6 +54,9 @@ Thumbs.db
 # AI Engineering Team — operational state (gitignored, not in repo)
 .ai/
 
+# Manual .ai/ backup snapshots from major discussions (Sep 2026) — local safety copies, all superseded by current .ai/ state
+.ai-backup-*
+
 # Claude Code sessions
 .claude/sessions/
 test-results/
@@ -61,6 +64,9 @@ test-results/
 
 # E2E test artifacts (full-sweep screenshots + reports; 8MB+ per run, regenerable)
 tests/e2e/artifacts/
+
+# Replit-pasted prompts (not part of monorepo scope)
+attached_assets/
 
 # Environment files — MUST NOT be committed
 # (templates like .env.example are explicitly allowed below)
