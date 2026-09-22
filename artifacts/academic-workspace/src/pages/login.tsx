@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@/lib/zod-compat-resolver";
@@ -6,6 +6,11 @@ import * as z from "zod";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { useAuth, getPostLoginPath } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
+import {
+  getStoredToken,
+  hasManualLogout,
+  hasEverLoggedIn,
+} from "@/lib/session";
 import { TeoraLogo } from "@/components/brand/teora-logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +37,26 @@ export default function Login() {
   const { login, signInWithOAuth } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+
+  // Show "Sesi Anda sudah berakhir" toast when the user lands on /login
+  // without a valid session AND they have a prior session on this device
+  // AND the logout was not deliberate (i.e. it was caused by:
+  //   - token expiring mid-session (401 from customFetch)
+  //   - 7 days idle (idle timer fired)
+  // Manual logout (the user clicked the logout button) sets
+  // `teora_manual_logout` so we can skip the toast in that case. The flag
+  // is cleared by `useAuth.login()` on the next successful sign-in, so
+  // subsequent idle/401-driven logouts will show the toast again.
+  useEffect(() => {
+    if (getStoredToken()) return; // already logged in — should not be here
+    if (hasManualLogout()) return; // deliberate logout — no toast
+    if (!hasEverLoggedIn()) return; // first-time visitor — no toast
+    toast({
+      title: "Sesi Anda sudah berakhir",
+      description: "Silakan login ulang.",
+      variant: "destructive",
+    });
+  }, [toast]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),

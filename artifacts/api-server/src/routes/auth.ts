@@ -1,12 +1,35 @@
 import { Router, type IRouter } from "express";
 import { eq, sql } from "drizzle-orm";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import rateLimit from "express-rate-limit";
 import { customAlphabet } from "nanoid";
 import { db, usersTable, referralsTable, referralEventsTable } from "@workspace/db";
 import { authMiddleware } from "../middlewares/auth.js";
 import { logger } from "../lib/logger.js";
 
 const router: IRouter = Router();
+
+// Per-route limiters for genuine credential attempts.
+// NOTE: these are mounted only on POST /login and POST /register. Read-only
+// endpoints (/me, /refresh, /check-username, /referrals) and the auto-called
+// /refresh are NOT limited — Google OAuth flow uses 4–5 auth calls per
+// attempt, which would otherwise hit a 5/min blanket cap and lock users out.
+// See app.ts comment for the full rationale and `.ai/lessons-learned.md` ERR-007.
+const loginLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Terlalu banyak percobaan login. Silakan coba lagi setelah satu menit." },
+});
+
+const registerLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Terlalu banyak percobaan registrasi. Silakan coba lagi setelah satu menit." },
+});
 
 const SUPABASE_URL = process.env.SUPABASE_URL ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
@@ -92,8 +115,8 @@ router.get("/auth/me", authMiddleware, async (req, res): Promise<void> => {
   res.json(toUserJson(user));
 });
 
-// POST /auth/login
-router.post("/auth/login", async (req, res): Promise<void> => {
+// POST /auth/login (rate-limited: 5/min per IP — see loginLimiter above)
+router.post("/auth/login", loginLimiter, async (req, res): Promise<void> => {
   try {
     const { access_token, refresh_token } = req.body as {
       access_token?: string;
@@ -210,8 +233,8 @@ router.post("/auth/login", async (req, res): Promise<void> => {
   }
 });
 
-// POST /auth/register
-router.post("/auth/register", async (req, res): Promise<void> => {
+// POST /auth/register (rate-limited: 5/min per IP — see registerLimiter above)
+router.post("/auth/register", registerLimiter, async (req, res): Promise<void> => {
   const { email, password, username, displayName, referralCode } = req.body as {
     email?: string;
     password?: string;

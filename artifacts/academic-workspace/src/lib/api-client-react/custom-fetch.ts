@@ -372,6 +372,19 @@ export async function customFetch<T = unknown>(
   const response = await fetch(input, { ...init, method, headers });
 
   if (!response.ok) {
+    // Global 401 interceptor (Bug 3 — owner incident 2026-09-21):
+    // dispatch a window event so AuthProvider can react to a session
+    // expiring mid-session. Skip `/api/auth/login` and `/api/auth/register`
+    // because a 401 there means "wrong credentials", not "session expired".
+    if (response.status === 401 && typeof window !== "undefined") {
+      const isAuthEndpoint =
+        requestInfo.url.includes("/api/auth/login") ||
+        requestInfo.url.includes("/api/auth/register");
+      if (!isAuthEndpoint) {
+        window.dispatchEvent(new CustomEvent("auth:expired"));
+      }
+    }
+
     const errorData = await parseErrorBody(response, method);
     throw new ApiError(response, errorData, requestInfo);
   }

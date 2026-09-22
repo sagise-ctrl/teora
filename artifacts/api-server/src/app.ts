@@ -2,7 +2,6 @@ import express, { type Express } from "express";
 import type { Request } from "express";
 import cors from "cors";
 import { pinoHttp } from "pino-http";
-import rateLimit from "express-rate-limit";
 import router from "./routes/index.js";
 import webhooksRouter from "./routes/webhooks.js";
 import referralWebhookRouter from "./routes/referral-webhook.js";
@@ -70,22 +69,15 @@ app.use("/webhooks/payment-success", express.raw({ type: "application/json" }), 
 // email-verified webhook uses JSON body (parsed by express.json() above) — secret header check only
 app.use("/webhooks", webhooksRouter);
 
-// Rate limiter for auth endpoints (5 attempts per IP per minute)
-// Auth endpoints don't need req.user (they SET it via login/register), so
-// mounting at app level before the router is fine here.
-const authLimiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 5,
-  standardHeaders: true,
-  legacyHeaders: false,
-  skip: (req) => req.path === "/healthz",
-  message: { error: "Terlalu banyak percobaan. Silakan coba lagi setelah satu menit." },
-});
-
+// Rate limiting for auth endpoints lives PER-ROUTE inside routes/auth.ts
+// (loginLimiter + registerLimiter). It used to be mounted blanket at
+// `/api/auth` here, but a Google OAuth flow consumes ~5 calls per attempt
+// (login + me + refresh + me), so 2 OAuth attempts would hit the 5/min cap
+// and lock the user out — see `ERR-007` in `.ai/lessons-learned.md` and the
+// owner incident report from 2026-09-21.
+//
 // aiLimiter lives in lib/ai-limiter.ts and is mounted per-route in routes/index.ts
 // AFTER authMiddleware — see audit report .ai/ai-api-audit-report-20260905.md.
-
-app.use("/api/auth", authLimiter);
 
 app.use("/api", router);
 

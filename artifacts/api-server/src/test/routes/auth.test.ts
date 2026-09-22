@@ -183,6 +183,9 @@ import healthRouter from "../../routes/health.ts";
 /** App with user injected — req.user is set on every request */
 function buildAppWithAuth() {
   const app = express();
+  // Match production behavior so express-rate-limit trusts X-Forwarded-For
+  // for IP detection in the per-route limiter tests (Vercel uses proxy 1).
+  app.set("trust proxy", 1);
   app.use(express.json());
   app.use(cookieParser());
 
@@ -200,6 +203,7 @@ function buildAppWithAuth() {
 /** App WITHOUT user injection — simulates unauthenticated requests */
 function buildAppWithoutAuth() {
   const app = express();
+  app.set("trust proxy", 1);
   app.use(express.json());
   app.use(cookieParser());
   app.use("/", healthRouter);
@@ -386,5 +390,76 @@ describe("Auth: GET /api/auth/referrals", () => {
     const res = await request(buildAppWithoutAuth()).get("/api/auth/referrals");
     expect(res.status).toBe(401);
     expect(res.body).toHaveProperty("error");
+  });
+});
+
+describe("Auth: per-route rate limiting (loginLimiter / registerLimiter)", () => {
+  // These tests verify the 2026-09-21 fix that removed the blanket
+  // `app.use('/api/auth', authLimiter)` and replaced it with per-route
+  // limiters only on /auth/login and /auth/register. Read-only and
+  // auto-called endpoints (/me, /refresh, /referrals) must NOT be
+  // limited — Google OAuth flow consumes ~5 calls per attempt, which
+  // would otherwise hit the blanket 5/min cap and lock users out.
+  // See `.ai/lessons-learned.md` ERR-007.
+
+  it("POST /auth/login returns 429 after 5 rapid attempts", async () => {
+    // Use unique IPs (via X-Forwarded-For with trust proxy = 1) so the
+    // limiter's per-IP counter doesn't bleed across tests. Reusing the
+    // same IP across multiple tests in the same suite is the documented
+    // failure mode of express-rate-limit's default in-memory store.
+    const app = buildAppWithAuth();
+    const agent = request.agent(app);
+    let lastStatus = 0;
+    for (let i = 0; i < 6; i++) {
+      const res = await agent
+        .post("/api/auth/login")
+        .set("X-Forwarded-For", "10.0.0.1")
+        .send({ access_token: "valid.mock.token" });
+      lastStatus = res.status;
+    }
+    expect(lastStatus).toBe(429);
+    expect(lastStatus).not.toBe(200);
+  });
+
+  it("POST /auth/register returns 429 after 5 rapid attempts", async () => {
+    const app = buildAppWithAuth();
+    let lastStatus = 0;
+    for (let i = 0; i < 6; i++) {
+      const res = await request(app)
+        .post("/api/auth/register")
+        .set("X-Forwarded-For", "10.0.0.2")
+        .send({
+          email: `newuser${i}@example.com`,
+          username: `newuser${i}`,
+          password: "password123",
+        });
+      lastStatus = res.status;
+    }
+    expect(lastStatus).toBe(429);
+    expect(lastStatus).not.toBe(201);
+  });
+
+  it("GET /auth/me is NOT rate-limited (no 429 even after many calls)", async () => {
+    // /auth/me uses authMiddleware, so without a valid JWT it returns 401 —
+    // but we just need to verify the status is NOT 429 (no rate limit).
+    const app = buildAppWithAuth();
+    const agent = request.agent(app);
+    agent.set("X-Forwarded-For", "10.0.0.3");
+    for (let i = 0; i < 10; i++) {
+      const res = await agent.get("/api/auth/me");
+      expect(res.status).not.toBe(429);
+    }
+  });
+
+  it("POST /auth/refresh is NOT rate-limited (no 429 even after many calls)", async () => {
+    // Same as above — the endpoint may return 401 without a refresh cookie,
+    // but we verify it never returns 429 (rate limited).
+    const app = buildAppWithAuth();
+    const agent = request.agent(app);
+    agent.set("X-Forwarded-For", "10.0.0.4");
+    for (let i = 0; i < 10; i++) {
+      const res = await agent.post("/api/auth/refresh").send({});
+      expect(res.status).not.toBe(429);
+    }
   });
 });
