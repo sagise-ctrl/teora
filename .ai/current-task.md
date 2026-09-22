@@ -3242,3 +3242,83 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
 ---
 
 Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
+
+---
+
+## 🎯 ACTIVE 2026-09-20 — Dashboard Chatbot Audit Report (Owner Instruction)
+
+**Status:** ✅ DELIVERED (this is an audit/investigation task — no code changes)
+**Branch:** `chore/cleanup-orphan-files` (no edits required)
+**Trigger:** Owner asked in Indonesian: *"di dashboard utama ada chatbot AI, bagaimana aturan, logika, batasan, pengetahuan AI itu? cek lalu report ke saya"*
+
+### Scope
+
+Audit deliverable (NOT implementation) — comprehensive report on the dashboard AI chatbot covering:
+1. **Aturan** (rules) — what rules govern the AI behavior
+2. **Logika** (logic) — end-to-end chat flow
+3. **Batasan** (constraints) — limits and boundaries
+4. **Pengetahuan** (knowledge) — what context the AI has access to
+
+### Sources Reviewed
+
+- `.ai/decisions.md` DECISION 022, 023, 024, 025
+- `artifacts/academic-workspace/src/components/dashboard-chat.tsx` (Sheet UI, scratchpad lifecycle, suggested prompts)
+- `artifacts/academic-workspace/src/pages/dashboard.tsx` (integration + filter)
+- `artifacts/api-server/src/routes/messages.ts` (handler + ownership check + tier resolution)
+- `artifacts/api-server/src/lib/ai.ts` (Olagon tier resolution + cascade + buildSystemPrompt)
+- `artifacts/api-server/src/lib/prompt-injection.ts` (sanitization + defense-in-depth)
+- Vercel env vars (OLAGON_API_KEY ✅ Production, OWNER_EMAIL ✅ Prod/Preview/Dev, AI_API_KEY ✅ Prod/Preview)
+
+### Env Status (Verified 2026-09-20)
+
+```
+$ vercel env ls (api-server/teora-backend)
+OLAGON_API_KEY   [Hidden]  Secret  Production         6d ago  ✅
+OWNER_EMAIL      [Hidden]  Secret  Production, Preview, Development  14d ago ✅
+AI_API_KEY       [Hidden]  Secret  Production, Preview  27d ago ✅ (Anthropic fallback)
+ANTHROPIC_API_KEY NOT SET (AI_API_KEY fills the role)
+```
+
+### Outstanding (Open Questions from 2026-09-17 Deferred Discussion)
+
+Per `.ai/blockers.md` "💬 AI Chat Bot di Dashboard — Konteks untuk Diskusi Mendatang (Deferred 2026-09-17)":
+
+1. ❓ Apakah AI Chat Bot akan dibangun sebagai fitur baru? (vs hapus CTA) — **ANSWERED**: dibangun sebagai fitur (DECISION 023, shipped 2026-09-18)
+2. ❓ Route destination: `/assistant`, `/chat`, atau refactor `/projects/new`? — **ANSWERED via DECISION 023**: Sheet overlay dari Dashboard (zero route change)
+3. ❓ AI tier: sama dengan task tier atau terpisah? — **ANSWERED via DECISION 022**: sama dengan task tier (TierSelector universal, default dari `preferredTierId`)
+4. ❓ Project history context: vector search atau DB query langsung? — **PARTIALLY ANSWERED**: Dashboard chat = scratchpad baru (no history context from other projects); Task Mentor = DB query langsung (messages.ts:148-167)
+5. ❓ Privacy enforcement: middleware, RLS, atau AI prompt guard? — **ANSWERED via DECISION 024**: inline ownership check di messages.ts (`project.userId !== req.user.id` → 403) + AI prompt guard (system prompt mengunci perilaku)
+
+### Files Modified (this audit)
+
+None — audit only. Report delivered in chat reply.
+
+---
+
+## Handoff 2026-09-21 23:55 — model opus-4-8 → opus-4-Y
+
+**Task aktif:** Login bug fix (3 bugs sekaligus — owner incident 2026-09-21)
+**Branch:** `fix/login-rate-limit-and-session-expiry` — commit `0765618` (di-amend setelah localStorage revert 2026-09-22)
+**Last 3 actions:**
+1. Bug 1: Removed blanket `/api/auth` rate limiter dari `app.ts`, replaced with `loginLimiter` + `registerLimiter` mounted per-route di `auth.ts`. 5/min cap stays only on actual credential attempts (POST /login + /register).
+2. Bug 2 + 3: Switched to localStorage for tokens (per owner revision 2026-09-22: "tab close tetap ingat login"), added activity listener (mousemove/keydown/click/touchstart throttled 1/min), 7-day idle timer (setInterval 1h check), proactive refresh interval (50min), global 401 interceptor in `custom-fetch.ts` dispatching `auth:expired` event, AuthProvider listener → toast + `forceLogout()` redirect, login page reads `hasManualLogout()` + `hasEverLoggedIn()` flags. `clearManualLogout()` called on successful login so future idle expiries CAN show toast again.
+3. Added 5 new tests di `artifacts/api-server/src/test/routes/auth-rate-limit.test.ts` (CI-included, separate from excluded `routes/auth.test.ts`).
+
+**Next 3 actions (need owner "go" untuk push):**
+1. Commit documentation updates (.ai/ files)
+2. Deploy preview ke Vercel (backend `api-server` + frontend `academic-workspace`)
+3. Verify with owner E2E: 6 OAuth attempts → only 5 succeed; tab close → reopen → session still active; idle 7d simulation (manual lastActivityAt edit di DevTools); 401 → toast + redirect
+
+**Open questions:**
+- ❓ Apakah owner mau push branch ini langsung ke main, atau PR review dulu?
+- ❓ Apakah perlu tulis DECISION 024 untuk fix ini (policies: rate limit scope, session storage choice, idle timeout)?
+
+**Status:**
+- Backend: typecheck ✅ (clean untuk file yang diubah), build ✅ (6.6MB), tests ✅ (159/159 pass, +5 new)
+- Frontend: typecheck ✅, build ✅ (1.59MB), bundle grep ✅ (semua string verifications pass)
+- Commit: `0765618` amended with localStorage revert
+- Deploy: ⏳ menunggu owner "go"
+
+---
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>

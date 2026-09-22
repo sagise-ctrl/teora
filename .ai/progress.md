@@ -2,6 +2,30 @@
 
 > Completed work, newest first. Format: `YYYY-MM-DD | description | files | status`
 
+## 2026-09-20 | Orphan Files Cleanup (Project Bloat Audit) (opus-4-8)
+
+**Status:** ✅ COMPLETE — committed locally on `chore/cleanup-orphan-files`, push pending owner "go"
+**Branch:** `chore/cleanup-orphan-files` — commit `3a1f811`
+**Trigger:** Owner request 2026-09-20 "banyak file utama, file diskusi... ada yg perlu dirapikan"
+
+| Action | Description | Status |
+|--------|-------------|--------|
+| Delete tracked | 24 `screnshoot/*.png` (4.6MB), `lib/api-spec/openapi.yaml.bak` (127KB), `scripts/src/hello.ts`, `diskusicodex.md`, `attached_assets/Pasted-Prompt-*.txt` | ✅ DONE |
+| Delete untracked | 15 `.ai-backup-*` folders (60KB), `.ai/.ai/` nested empty | ✅ DONE |
+| Relocate + fix typo | `screnshoot/image.png` (INC-002 incident screenshot) → `docs/ai-team/incidents/screenshots/INC-002-deploy-stuck.png` + update incident 20260913-002.md reference | ✅ DONE |
+| `.gitignore` updates | `.ai-backup-*`, `attached_assets/`, `screnshoot/` (typo folder replaced by `docs/ai-team/incidents/screenshots/`) | ✅ DONE |
+| `scripts/package.json` cleanup | Remove orphan `hello` npm script (referenced deleted hello.ts) | ✅ DONE |
+| Verify | `pnpm typecheck` exit 0; no imports depended on hello.ts or openapi.bak | ✅ VERIFIED |
+| **Tracked repo savings** | 606 → 579 files (-27 net); **~5MB tracked size reduction** | ✅ |
+| **Filesystem noise reduction** | 15 backup folders + 1 nested empty folder + 4.6MB orphaned screenshots removed | ✅ |
+
+**Insight per `verify-requirement-scope-before-implementing` memory:** Branch `feat/daftar-task` ALREADY has screnshoot cleanup at commit `5838f1e`, but naively merging feat/daftar-task reverts C1/C2/M9 audit fixes (per `branch-divergence-reverts-audit-fixes-20260913`). Cherry-pick approach (INC-011 → fix/analyze-pipeline + chore/cleanup-orphan-files) is the safe path.
+
+**DEFERRED (not in this commit, awaiting owner):**
+- `feat/daftar-task` branch merge strategy (54 commits ahead of main)
+- 3 untracked sensitive files (`.env.production`, `check-workflow.js`, `scripts/setup-workspace.mjs`) — wait for token revocation
+- Push to remote (per CLAUDE.md Git Rules — needs owner "go")
+
 ## 2026-09-20 | Analyze Pipeline Empty Workspace — 3 Bugs (DB CHECK + UX + Observability) (opus-4-8)
 
 **Status:** ✅ COMPLETE — fixed + deployed + bundle-verified; E2E owner-verify PENDING
@@ -1612,3 +1636,55 @@ c7ab68a ci: exclude pre-existing broken tests (routes.integration + use-auth)
 **Side fix included:** `auth.ts` JWKS `allowedJWSSigParams` (ES256 support) — was in deployed bundle but not in source; now synced.
 
 **Open:** "Hapus Dokumen" UX gap — feature exists (English "Delete" label) but low discoverability. Will translate to "Hapus" in next sprint.
+
+---
+
+## 2026-09-21 | Login Bug — Google OAuth Rate Limit + Auto-Logout Mid-Session + Silent Stuck (opus-4-8)
+
+**Status:** ✅ FIXED locally on `fix/login-rate-limit-and-session-expiry`, typecheck+build+test verified, deploy PENDING owner go
+**Branch:** `fix/login-rate-limit-and-session-expiry`
+**Owner incident:** 2026-09-21 — *"2 kali uji coba login lalu kena limit percobaan tunggu 1 menit, padahal kan login via email google gk mungkin salah... kadang tiba2 logout... logout juga gk ada keterangan di fronted, dan web seakan jendela masih terbuka, tapi cek network devtol itu token experied"*
+
+**Owner decisions:**
+- Bug 1 (rate limit): Per-route limiter, NOT blanket
+- Bug 2 (auto-logout): Auto-logout if **7 days idle OR tab closed**
+- Bug 3 (UX): Show "Sesi Anda sudah berakhir, silakan login ulang" when condition 2 fires
+
+| Bug | Root cause | Fix | Status |
+|-----|-----------|-----|--------|
+| 1. Google OAuth lockout | `app.ts:88` blanket `app.use('/api/auth', authLimiter)` counted ALL /api/auth/* — Google OAuth flow uses 4–5 calls/attempt (login + me + refresh + me) so 2 attempts = 8–10 calls → 5/min cap | Move limiter to `loginLimiter` + `registerLimiter` mounted per-route in `routes/auth.ts` only on POST /login + POST /register | ✅ FIXED |
+| 2. Auto-logout mid-session | JWT access token TTL = 1h (`auth.ts:190`); no proactive refresh in `use-auth.tsx:88-95`; no global 401 interceptor in `custom-fetch.ts` | Switch to localStorage for tokens (tab close/reopen keeps session — owner revised 2026-09-22); throttle activity listener → `setLastActivity`; idle timer (`setInterval` 1h check, logout at 7d idle); proactive refresh interval (50min); `clearManualLogout()` on successful login so future expiries show toast again | ✅ FIXED |
+| 3. Stuck logged in after token expired | Toast "Sesi Anda habis" only on explicit `fetchMe`/`refresh` failure (lines 64, 83); other API calls throw ApiError silently | Add global 401 interceptor in `custom-fetch.ts` dispatching `auth:expired` event; `use-auth.tsx` listener → toast + `forceLogout()` redirect to /login | ✅ FIXED |
+
+**Files changed:**
+- `artifacts/api-server/src/app.ts` — remove blanket `app.use('/api/auth', authLimiter)`
+- `artifacts/api-server/src/routes/auth.ts` — define `loginLimiter` + `registerLimiter`, mount per-route
+- `artifacts/api-server/src/test/routes/auth-rate-limit.test.ts` — NEW: 5 tests covering 429-after-5-attempts + non-limited endpoints (CI-included; separate from excluded `routes/auth.test.ts`)
+- `artifacts/api-server/api/index.mjs` — rebuilt bundle
+- `artifacts/academic-workspace/src/lib/session.ts` — localStorage for tokens (tab close/reopen keeps session per owner revision); add `setLastActivity` / `getLastActivity` / `clearLastActivity` / `setManualLogout` / `hasManualLogout` / `clearManualLogout` / `hasEverLoggedIn` / `markLoggedIn`; export `IDLE_TIMEOUT_MS`
+- `artifacts/academic-workspace/src/lib/api-client-react/custom-fetch.ts` — 401 dispatch `auth:expired` for non-auth endpoints
+- `artifacts/academic-workspace/src/hooks/use-auth.tsx` — `forceLogout(reason)` helper; activity listener (mousemove/keydown/click/touchstart throttled 1/min); proactive refresh setInterval 50min; idle timer setInterval 1h; `auth:expired` event listener; `clearManualLogout()` on successful login
+- `artifacts/academic-workspace/src/pages/login.tsx` — on-mount `useEffect` reads `hasManualLogout()` + `hasEverLoggedIn()` → toast "Sesi Anda sudah berakhir, silakan login ulang" if prior session ended (NOT for deliberate logout or first-time visitor)
+
+**Verification:**
+- Backend typecheck: clean for `app.ts` + `auth.ts` (pre-existing errors in simulasi/writing-style/messages.ts untouched)
+- Backend build: `node build.mjs` 28s, 6.6MB; bundle grep confirms `loginLimiter` ×2 + `registerLimiter` ×2 + `loginLimiter`-mounted routes, blanket `/api/auth` limiter GONE
+- Frontend typecheck: clean for `session.ts` + `use-auth.tsx` + `custom-fetch.ts` + `login.tsx`
+- Frontend build: `vite build` 1m55s, 1.59MB; bundle grep confirms `auth:expired`, `Sesi Anda sudah berakhir`, `teora_has_logged_in`, `teora_last_activity`, `teora_manual_logout`
+- Tests: 9 files / 159 tests passing (was 154; +5 new rate-limit tests)
+- New tests pass: `POST /auth/login returns 429 after 5 attempts` ✓, `POST /auth/register returns 429 after 5 attempts` ✓, `/auth/me NOT rate-limited` ✓, `/auth/refresh NOT rate-limited` ✓, `/auth/check-username NOT rate-limited` ✓
+
+**Key design decisions (owner revisions 2026-09-22):**
+- **localStorage for tokens (REVISED)**: owner changed mind — "tab close tetap ingat login". Session survives tab close/reopen. Only `forceLogout()` (7d idle, 401, manual logout) ends the session.
+- **localStorage for `hasManualLogout`**: persists across tab close so ALL pages landing on /login after deliberate logout suppress the toast. Cleared on next successful login so future idle expiries CAN show the toast again.
+- **localStorage for `hasEverLoggedIn`**: survives tab close, lets login page decide whether to show "Sesi Anda sudah berakhir" toast without exposing prior session data
+- **Activity throttled to 1/min**: mousemove fires 60Hz; without throttle the localStorage write becomes a perf hot path.
+- **Proactive refresh at 50min**: access token TTL is 1h; refresh at 50min means tokens never expire while tab is open. 401 interceptor only fires on edge cases (network glitch, server restart, refresh-token expiry).
+
+**Caveats for owner manual test:**
+1. **Bug 1 verification**: do 6 OAuth login attempts in <1 min — only 5 should succeed; 6th should 429
+2. **Bug 2 verification (idle 7d)**: impractical to wait 7 days — but can manually edit `teora_last_activity` in DevTools localStorage to a 7-day-old timestamp and observe idle timer fires within 1h
+3. **Bug 2 verification (tab close)**: log in → close tab → reopen → session STILL ACTIVE (no redirect). Logout only at 7d idle.
+4. **Bug 3 verification**: manually delete `teora_access_token` in localStorage → make any API call → expect 401 + toast + redirect to /login
+
+**Owner next step:** Decide deploy strategy. SOP-001 suggests preview → verify → promote. Can do `vercel deploy --prod --yes` for both frontend (academic-workspace) and backend (api-server). Push to remote requires owner "go" per CLAUDE.md Git Rules.

@@ -1299,3 +1299,134 @@ const handleSend = (e: React.FormEvent) => {
 - Migration: `.ai/migrations/20260920_split_task_type.sql`
 - Deploy: backend `dpl_6U7rXUDQJo9wwYE9jN5ihNrK8YMQ`, frontend `dpl_CH9BpT5VPKnWjyqbYaqRCW2YmZmo`, commit `f50e7a4`
 - Sibling: INC-008 `db_constraint_gap_openapi_db_mismatch` (Zod → DB mismatch on same column family)
+
+---
+
+## 2026-09-20 — Orphan Files Cleanup (Project Bloat Audit) (opus-4-8)
+
+### Gejala
+Owner (non-programmer) 2026-09-20: *"banyak file utama, file diskusi, dan file2 yg lain, bisa bantu cek... ada yg perlu dirapikan?"*. Project terasa bloat dari owner perspective; tidak tahu file mana yang aktual vs orphan.
+
+### Root cause
+Tiga hal yang terakumulasi dari Aug-Sept 2026:
+1. **Audit findings** (2026-09-05) daftar 7 orphan files di `.ai/blockers.md` "Diskusi Berikutnya" section — owner belum bilang "go" selama ~2 minggu
+2. **Manual backup folders** `.ai-backup-*` (15 folder) dari diskusi Olagon 15 Sept — sudah lewat ~5 hari, masih di filesystem
+3. **Folder typo** `screnshoot/` (bukan `screenshots/`) — sudah ter-track 24 PNG + 1 INC-002 reference file yang harus diselamatkan
+
+### Kalau error berulang
+- Owner抱怨 project bloat → cek `.ai/blockers.md` "Diskusi Berikutnya" section DULU sebelum scan ulang. Cleanup items sering sudah ter-scope tapi belum dieksekusi
+- Branch divergence: `feat/daftar-task` sudah punya cleanup screnshoot di commit `5838f1e`, tapi cherry-pick pattern dipakai (bukan naive merge) untuk avoid reverts audit fixes (C1/C2/M9 per INC-006)
+
+### Opsi yang dipertimbangkan
+1. **Dari main branch (bukan current)** — cleaner history, tapi harus merge dengan INC-011 fix terpisah
+2. **Dari current branch** (`fix/analyze-pipeline-task-category-separation`) — INC-011 fix + cleanup jadi 1 PR, push sekali jadi 2 milestone
+3. **Cherry-pick individual commits dari feat/daftar-task** — overkill untuk orphan files, scope beda
+
+### Kenapa pilih Opsi 2 (dari current branch)
+- INC-011 fix (`f50e7a4`) sudah deployed & verified di current branch; cleanup logically coupled dengan checkpoint handoff
+- Owner tinggal review + push 1 branch dengan 2 commit berurutan (INC-011 → cleanup)
+- Meminimalkan branch divergence — branch ini sudah di-track, cleanup extension natural
+- Memory `branch-divergence-reverts-audit-fixes-20260913` jadi hard constraint: JANGAN naive merge feat/daftar-task
+
+### Yang harus dicek di masa depan
+- [ ] **WAJIB cross-check `.ai/blockers.md` "Diskusi Berikutnya" section SEBELUM jawab owner "apa yang perlu dirapikan"** — cleanup items sering sudah ter-scope. Audit lagi = duplikat effort
+- [ ] **Owner complaint soal "banyak file"** → first instinct = `git ls-files | xargs du -b | sort -rn | head -20` untuk find tracked bloat, BUKAN langsung scan filesystem
+- [ ] **Folder typo** (`screnshoot`, `refrensi`, dll) → cek apakah ada file di dalamnya yang referenced di docs sebelum delete. Tool: `grep -rn "<folder>/<file>" docs/ .ai/ 2>/dev/null`
+- [ ] **INC reference screenshots** → sebelum hapus folder screenshot, ALWAYS grep docs untuk path reference. INC-002 punya `screnshoot/image.png` yang referenced di `20260913-002.md:12`
+- [ ] **Backup folder convention** `.ai-backup-*` — kalau lebih dari ~3 hari dan belum dipakai untuk rollback, aman dihapus. Add `.ai-backup-*` ke `.gitignore` setelah cleanup pertama supaya auto-prevent
+- [ ] **Typecheck WAJIB sebelum commit deletion besar** — di project ini, `pnpm typecheck` exit 0 dalam ~3 menit, cukup reliable gate. Branch `chore/*` WAJIB lewat typecheck sebelum di-PR
+- [ ] **Pattern `verify-requirement-scope-before-implementing`**: owner scope estimate sering inflated ("5 missing features") tapi audit shows actual ~3-7 files. Cross-check codebase DULU, lalu present actual scope, jangan langsung trust estimasi
+
+**Cross-reference:**
+- Memory: `verify-requirement-scope-before-implementing.md`, `branch-divergence-reverts-audit-fixes-20260913.md`, `lessons-learned-mandatory-check-20260901.md`
+- Files: `branch chore/cleanup-orphan-files`, `commit 3a1f811`
+- Blockers updated: `.ai/blockers.md` Item #2 (cleanup orphan files) → AI-EXECUTED 2026-09-20
+
+---
+
+## 2026-09-21 — Login Bug (Google OAuth Lockout + Mid-Session Auto-Logout + Silent Stuck)
+
+**Tanggal:** 2026-09-21
+**Severity:** P1 Production — owner-facing UX, blocks normal login flow
+**Kelas masalah:** Auth UX — rate limiting scope, JWT expiry handling, session storage choice
+**Branch:** `fix/login-rate-limit-and-session-expiry` (commits pending)
+
+### Gejala (3 bugs reported together)
+
+1. **"2 kali uji coba login lalu kena limit percobaan tunggu 1 menit, padahal kan login via email google gk mungkin salah"** — Google OAuth locks out at 5/min blanket rate limit, even though Google login can't have "wrong password"
+2. **"kadang tiba2 logout, saat sedang buka web maupun tutup web"** — auto-logout mid-session (during active use) + on tab close
+3. **"logout juga gk ada keterangan di fronted, dan web seakan jendela masih terbuka, tapi cek network devtol itu token experied"** — token expired silently, frontend shows "still logged in" state, only DevTools reveals the 401
+
+### Root cause (3 bugs simultaneously)
+
+**Bug 1 — Blanket rate limiter scope too wide**
+- `src/app.ts:88` (before fix): `app.use('/api/auth', authLimiter)` mounted at app level
+- ANY `/api/auth/*` request counted toward the 5/min/IP cap — including read-only `/me`, auto-called `/refresh`, `/check-username`
+- Google OAuth flow = 4–5 auth calls per attempt (POST /login → GET /me → POST /refresh → GET /me)
+- 2 OAuth attempts = 8–10 calls → instantly hit the 5/min cap → 429 → user locked out
+- **This was identified in ERR-007 (2026-08-28) but the fix was never applied — regression.**
+
+**Bug 2 — No proactive token refresh + sessionStorage/localStorage mismatch with owner intent**
+- JWT access token TTL = 1h (`auth.ts:190` cookie maxAge), refresh token = 7 days
+- `use-auth.tsx:88-95` only refreshes ONCE on mount via single `useEffect`, no `setInterval`
+- `custom-fetch.ts` has NO 401 retry interceptor — token expires, next API call 401s, throws ApiError silently
+- Tokens in `localStorage` (survives tab close) — owner wants "tutup tab → logout"
+
+**Bug 3 — Global 401 missing + UX gap**
+- `use-auth.tsx:64, 83` toasts "Sesi Anda habis" ONLY on explicit `fetchMe`/`refresh` failure
+- TanStack Query hooks throw ApiError silently on 401 — no global handler
+- No coordination: ApiError thrown → React state stays stale → user sees "still logged in" while DevTools shows 401
+
+### Opsi yang dipertimbangkan (Bug 2)
+
+| Opsi | Pendekatan | Trade-off |
+|------|------------|-----------|
+| A | Sliding session: refresh token in use, prolong access token | Active user never sees logout; idle user sees logout after 7d (refresh token expiry); requires active refresh logic |
+| B | Long-lived JWT (extend to 7d, no refresh) | Simplest, but bigger security window if stolen; no in-tab refresh possible |
+| C | Hybrid: 1h access + proactive refresh + idle check (CHOSEN) | Active user always has fresh token; idle timer forces logout at 7d regardless of token expiry; aligns with owner "tutup tab = logout" + "no activity 7d = logout" |
+
+**Pilih C karena:**
+- Owner requirement eksplisit: 7 hari inactivity ATAU tutup tab = logout
+- sessionStorage tab-close behavior addresses "tutup tab" tanpa extra logic
+- Proactive refresh solves Bug 2 (mid-session logout from access token expiry)
+- Idle timer solves Bug 2 (7d no activity)
+
+### Opsi yang dipertimbangkan (Bug 3)
+
+| Opsi | Pendekatan | Trade-off |
+|------|------------|-----------|
+| A | Global 401 interceptor in customFetch dispatches window event; AuthProvider listens (CHOSEN) | Single source of truth, all API calls trigger same flow, decoupled from individual hooks |
+| B | Each TanStack Query hook has its own 401 handler | Scattered, error-prone, N places to update |
+| C | Wrap app in ErrorBoundary that detects 401s | Awkward — 401 is success response from fetch perspective, not error boundary |
+
+**Pilih A karena:**
+- Single point of failure detection (customFetch is the only API client)
+- Event-based dispatch is framework-agnostic, easy to test
+- One listener in AuthProvider handles ALL 401s uniformly
+
+### Yang harus dicek di masa depan supaya tidak terulang
+
+- [ ] **Rate limiter MUST be per-route for login flows that involve multiple API calls** (OAuth, magic link, MFA verify, etc.) — blanket `app.use('/api/auth', limiter)` is a footgun. Verify by reading `app.ts` for blanket mounts before shipping auth-related changes
+- [ ] **Token refresh MUST be proactive via setInterval** if access TTL < user-perceived session length. 1h access token with no proactive refresh = guaranteed 401 every hour
+- [ ] **Custom fetch MUST dispatch global events for terminal auth states** (401, 403-with-auth-required) so a single listener can coordinate logout across the app
+- [ ] **sessionStorage vs localStorage for tokens = explicit UX decision, not technical default** — pick based on whether "tab close = logout" is desired
+- [ ] **Toast wording must be owned by owner, not invented** — owner wrote "Sesi Anda sudah berakhir, silakan login ulang" specifically; reusing "Sesi Anda habis" (existing) would have been inconsistent
+- [ ] **Manual logout must NOT trigger "session expired" toast** — use a separate flag to distinguish "deliberate logout" from "forced logout". Otherwise every fresh login after clicking Logout shows misleading message
+- [ ] **Activity listeners MUST be throttled** — mousemove fires 60Hz, can be perf hot path. Throttle to 1/min for `setLastActivity` writes
+- [ ] **Proactive refresh interval MUST be < access token TTL** — if access TTL = 1h, refresh at 50min, never 65min (would always 401 before refresh)
+
+### Test coverage added
+
+`artifacts/api-server/src/test/routes/auth-rate-limit.test.ts` (NEW, CI-included):
+- POST /auth/login returns 429 after 5 rapid attempts
+- POST /auth/register returns 429 after 5 rapid attempts
+- GET /auth/me is NOT rate-limited (10 rapid calls, all return non-429)
+- POST /auth/refresh is NOT rate-limited (10 rapid calls, all return non-429)
+- GET /auth/check-username is NOT rate-limited (10 rapid calls, all return non-429)
+
+NOTE: `routes/auth.test.ts` is excluded from CI due to pre-existing mock-chain issues (see `vitest.config.ts`). New tests live in separate file with own mocks so they run today.
+
+**Cross-reference:**
+- Memory: `router-import-must-be-wired-20260920.md`, `cross-origin-auth-refresh-fix-20260828-v2.md`, `oauth-callback-requires-full-reload-20260828.md`
+- Sibling: ERR-007 (blanket rate limiter identified 2026-08-28, fix never applied → this regression)
+- Files: `branch fix/login-rate-limit-and-session-expiry`
