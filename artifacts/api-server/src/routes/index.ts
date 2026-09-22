@@ -21,6 +21,7 @@ import quizzesRouter from "./quizzes.js";
 import rubricsRouter from "./rubrics.js";
 import writingStyleRouter from "./writing-style.js";
 import aiTiersRouter from "./ai-tiers.js";
+import aiContextRouter from "./ai-context.js";
 import packagesRouter from "./packages.js";
 import balanceRouter from "./balance.js";
 import autofallbackRouter from "./autofallback.js";
@@ -50,6 +51,7 @@ router.use(sharedRouter);
 router.use(authMiddleware);
 
 router.use(aiTiersRouter);
+router.use(aiContextRouter);
 router.use(packagesRouter);
 
 // AI rate limiter — mounted AFTER authMiddleware so req.user.id is populated.
