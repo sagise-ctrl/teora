@@ -179,6 +179,8 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
     latestDocument: latestDoc?.content,
     contextSummary: metadata?.contextSummary,
     mode,
+    // DECISION 026: Scope guard — Task Mentor is workspace/project isolated
+    scope: "workspace.project",
   });
 
   // Build messages for AI (reversed to chronological)
