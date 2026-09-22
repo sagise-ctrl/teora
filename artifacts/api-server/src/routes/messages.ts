@@ -55,7 +55,7 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
     return;
   }
 
-  const { content: messageContent, mode = "revise", tier: tierId } = parsed.data;
+  const { content: messageContent, mode = "revise", tier: tierId, accountContext } = parsed.data;
 
   const [project] = await db
     .select()
@@ -166,6 +166,12 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
     .orderBy(desc(messagesTable.createdAt))
     .limit(10);
 
+  // DECISION 026: Determine scope based on whether accountContext is provided
+  // Dashboard Chat: accountContext present → scope="dashboard.global"
+  // Task Mentor: no accountContext → scope="workspace.project"
+  const isDashboardChat = !!accountContext;
+  const aiScope = isDashboardChat ? "dashboard.global" : "workspace.project";
+
   const systemPrompt = buildSystemPrompt({
     title: project.title,
     instructionText: project.instructionText,
@@ -179,8 +185,10 @@ router.post("/projects/:projectId/messages", async (req, res): Promise<void> => 
     latestDocument: latestDoc?.content,
     contextSummary: metadata?.contextSummary,
     mode,
-    // DECISION 026: Scope guard — Task Mentor is workspace/project isolated
-    scope: "workspace.project",
+    // DECISION 026: Scope guard — dashboard.global for Dashboard Chat, workspace.project for Task Mentor
+    scope: aiScope,
+    // Item 2: Account context enrichment (Dashboard Chat only)
+    accountContext: accountContext ?? undefined,
   });
 
   // Build messages for AI (reversed to chronological)

@@ -20,6 +20,7 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AIContextResponse,
   AITiersResponse,
   AIUsageStats,
   AccountReference,
@@ -5100,6 +5101,89 @@ export function useGetProjectMetadata<TData = Awaited<ReturnType<typeof getProje
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetProjectMetadataQueryOptions(projectId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetAIContextUrl = () => {
+
+
+
+
+  return `/api/ai/context`
+}
+
+/**
+ * Returns user account context for Dashboard Chat AI enrichment.
+ * Data includes: project list (titles, status, progress), subscription,
+ * balance, preferred tier, and Teora menu guide.
+ *
+ * DECISION 026: Powers the "dashboard.global" AI scope.
+ * Used by frontend to inject account context into AI system prompt.
+ * @summary Get user account context for AI enrichment
+ */
+export const getAIContext = async ( options?: Parameters<typeof customFetch>[1]): Promise<AIContextResponse> => {
+
+  return customFetch<AIContextResponse>(getGetAIContextUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAIContextQueryKey = () => {
+    return [
+    `/api/ai/context`
+    ] as const;
+    }
+
+
+export const getGetAIContextQueryOptions = <TData = Awaited<ReturnType<typeof getAIContext>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAIContext>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAIContextQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAIContext>>> = ({ signal }) => getAIContext({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAIContext>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAIContextQueryResult = NonNullable<Awaited<ReturnType<typeof getAIContext>>>
+export type GetAIContextQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get user account context for AI enrichment
+ */
+
+export function useGetAIContext<TData = Awaited<ReturnType<typeof getAIContext>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAIContext>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAIContextQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

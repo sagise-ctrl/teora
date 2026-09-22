@@ -533,6 +533,12 @@ export interface MessageInput {
   mode?: ChatMode;
   /** AI tier to use (e.g. "free", "standard", "premium"). Defaults to user's preferred tier. */
   tier?: string;
+  /**
+     * User account context for AI enrichment (Dashboard Chat only).
+     * Passed automatically by frontend. Contains: project list, subscription,
+     * balance, menu guide. DECISION 026: dashboard.global scope.
+     */
+  accountContext?: string;
 }
 
 export interface Document {
@@ -1864,6 +1870,74 @@ export interface SetTierPreferenceRequest {
 
 export interface TierPreferenceResponse {
   preferredTierId?: string;
+}
+
+export type AIContextResponseUser = {
+  id?: string;
+  email?: string;
+  isOwner?: boolean;
+};
+
+export type AIContextResponseProjectsItem = {
+  id?: number;
+  /** @nullable */
+  title?: string | null;
+  status?: string;
+  progress?: number;
+  /** @nullable */
+  subject?: string | null;
+  /** @nullable */
+  taskType?: string | null;
+  updatedAt?: string;
+};
+
+export type AIContextResponseSubscriptionStatus = typeof AIContextResponseSubscriptionStatus[keyof typeof AIContextResponseSubscriptionStatus];
+
+
+export const AIContextResponseSubscriptionStatus = {
+  active: 'active',
+  expired: 'expired',
+  none: 'none',
+} as const;
+
+export type AIContextResponseSubscription = {
+  tier?: string;
+  /** @nullable */
+  expiresAt?: string | null;
+  status?: AIContextResponseSubscriptionStatus;
+};
+
+export type AIContextResponseBalance = {
+  cents?: number;
+  display?: string;
+  autofallbackEnabled?: boolean;
+};
+
+/**
+ * @nullable
+ */
+export type AIContextResponsePreferredTier = {
+  id?: string;
+  name?: string;
+  isFree?: boolean;
+} | null;
+
+/**
+ * User account context for Dashboard Chat AI enrichment (DECISION 026)
+ */
+export interface AIContextResponse {
+  user?: AIContextResponseUser;
+  projects?: AIContextResponseProjectsItem[];
+  activeProjectCount?: number;
+  subscription?: AIContextResponseSubscription;
+  balance?: AIContextResponseBalance;
+  /** @nullable */
+  preferredTier?: AIContextResponsePreferredTier;
+  recentSubjects?: string[];
+  /** Teora menu structure and usage guide for AI */
+  menuGuide?: string;
+  /** Placeholder note about learning path feature status */
+  learningPathNote?: string;
 }
 
 /**

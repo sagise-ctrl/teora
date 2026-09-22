@@ -344,7 +344,8 @@ export const sendMessageBodyModeDefault = `revise`;
 export const SendMessageBody = zod.object({
   "content": zod.string().min(1),
   "mode": zod.enum(['generate', 'revise', 'reflect', 'socratic', 'quiz', 'summary']).default(sendMessageBodyModeDefault).describe('AI writing assistant mode'),
-  "tier": zod.string().optional().describe('AI tier to use (e.g. \"free\", \"standard\", \"premium\"). Defaults to user\'s preferred tier.')
+  "tier": zod.string().optional().describe('AI tier to use (e.g. \"free\", \"standard\", \"premium\"). Defaults to user\'s preferred tier.'),
+  "accountContext": zod.string().optional().describe('User account context for AI enrichment (Dashboard Chat only).\nPassed automatically by frontend. Contains: project list, subscription,\nbalance, menu guide. DECISION 026: dashboard.global scope.\n')
 })
 
 export const SendMessageResponse = zod.object({

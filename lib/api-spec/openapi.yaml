@@ -3913,6 +3913,12 @@ components:
           type: string
           description: AI tier to use (e.g. "free", "standard", "premium"). Defaults to user's preferred tier.
           example: "standard"
+        accountContext:
+          type: string
+          description: |
+            User account context for AI enrichment (Dashboard Chat only).
+            Passed automatically by frontend. Contains: project list, subscription,
+            balance, menu guide. DECISION 026: dashboard.global scope.
 
     # ── Document ─────────────────────────────────────────────────────────────────
     Document:

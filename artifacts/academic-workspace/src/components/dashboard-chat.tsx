@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import {
   Sheet,
   SheetContent,
@@ -21,6 +21,7 @@ import {
   useDeleteProject,
   useGetAITiers,
   useGetMyBalance,
+  useGetAIContext,
 } from "@/lib/api-client-react";
 import { TierSelector } from "@/components/tier-selector";
 import { useAuth } from "@/hooks/use-auth";
@@ -56,6 +57,7 @@ export function DashboardChat({ open, onOpenChange }: DashboardChatProps) {
   const [content, setContent] = useState("");
   const [selectedTierId, setSelectedTierId] = useState<string>("");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [accountContext, setAccountContext] = useState<string>("");
 
   const createProject = useCreateProject();
   const deleteProject = useDeleteProject();
@@ -69,6 +71,7 @@ export function DashboardChat({ open, onOpenChange }: DashboardChatProps) {
   });
   const { data: tiersData } = useGetAITiers();
   const { data: balanceData } = useGetMyBalance();
+  const { data: aiContext } = useGetAIContext();
 
   // Load scratchpad project ID from localStorage on mount / user change
   useEffect(() => {
@@ -95,6 +98,46 @@ export function DashboardChat({ open, onOpenChange }: DashboardChatProps) {
     const fallback = preferred ?? tiersData.tiers[0];
     if (fallback?.id) setSelectedTierId(fallback.id);
   }, [tiersData, balanceData?.preferredTierId, selectedTierId]);
+
+  // Build account context for AI enrichment (DECISION 026: dashboard.global scope)
+  useEffect(() => {
+    if (!aiContext?.projects) return;
+
+    const projectList = aiContext.projects
+      .slice(0, 10)
+      .map((p) => `- ${p.title ?? "Tanpa Judul"} (${p.status}, ${p.progress}%)`)
+      .join("\n");
+
+    const contextParts: string[] = [];
+
+    if (aiContext.projects.length > 0) {
+      contextParts.push(`PROJECT AKTIF ANDA (${aiContext.activeProjectCount ?? 0} project):\n${projectList}`);
+    }
+
+    if (aiContext.subscription && aiContext.subscription.status !== "none") {
+      const expiry = aiContext.subscription.expiresAt
+        ? format(new Date(aiContext.subscription.expiresAt), "dd MMM yyyy")
+        : "tidak diketahui";
+      contextParts.push(`PAKET: ${(aiContext.subscription.tier ?? "unknown").toUpperCase()} (aktif sampai ${expiry})`);
+    }
+
+    if (aiContext.balance && (aiContext.balance.cents ?? 0) > 0) {
+      contextParts.push(`SALDO: ${aiContext.balance.display}`);
+    }
+
+    if (aiContext.recentSubjects && aiContext.recentSubjects.length > 0) {
+      contextParts.push(`SUBJEK SERING DIGUNAKAN: ${aiContext.recentSubjects.join(", ")}`);
+    }
+
+    if (aiContext.menuGuide) {
+      contextParts.push(`\n${aiContext.menuGuide}`);
+    }
+    if (aiContext.learningPathNote) {
+      contextParts.push(`\n${aiContext.learningPathNote}`);
+    }
+
+    setAccountContext(contextParts.join("\n\n"));
+  }, [aiContext]);
 
   const ensureProject = async (): Promise<number | null> => {
     if (projectId) return projectId;
@@ -144,6 +187,8 @@ export function DashboardChat({ open, onOpenChange }: DashboardChatProps) {
           content: text,
           mode: "generate",
           tier: selectedTierId || undefined,
+          // DECISION 026 + Item 2: Pass account context for Dashboard Chat enrichment
+          accountContext: accountContext || undefined,
         },
       },
       {
