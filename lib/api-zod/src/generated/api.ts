@@ -1548,6 +1548,52 @@ export const GetProjectMetadataResponse = zod.object({
 
 
 /**
+ * Returns user account context for Dashboard Chat AI enrichment.
+ * Data includes: project list (titles, status, progress), subscription,
+ * balance, preferred tier, and Teora menu guide.
+ *
+ * DECISION 026: Powers the "dashboard.global" AI scope.
+ * Used by frontend to inject account context into AI system prompt.
+ * @summary Get user account context for AI enrichment
+ */
+export const GetAIContextResponse = zod.object({
+  "user": zod.object({
+  "id": zod.string().optional(),
+  "email": zod.string().optional(),
+  "isOwner": zod.boolean().optional()
+}).optional(),
+  "projects": zod.array(zod.object({
+  "id": zod.number().optional(),
+  "title": zod.string().nullish(),
+  "status": zod.string().optional(),
+  "progress": zod.number().optional(),
+  "subject": zod.string().nullish(),
+  "taskType": zod.string().nullish(),
+  "updatedAt": zod.coerce.date().optional()
+})).optional(),
+  "activeProjectCount": zod.number().optional(),
+  "subscription": zod.object({
+  "tier": zod.string().optional(),
+  "expiresAt": zod.coerce.date().nullish(),
+  "status": zod.enum(['active', 'expired', 'none']).optional()
+}).optional(),
+  "balance": zod.object({
+  "cents": zod.number().optional(),
+  "display": zod.string().optional(),
+  "autofallbackEnabled": zod.boolean().optional()
+}).optional(),
+  "preferredTier": zod.object({
+  "id": zod.string().optional(),
+  "name": zod.string().optional(),
+  "isFree": zod.boolean().optional()
+}).nullish(),
+  "recentSubjects": zod.array(zod.string()).optional(),
+  "menuGuide": zod.string().optional().describe('Teora menu structure and usage guide for AI'),
+  "learningPathNote": zod.string().optional().describe('Placeholder note about learning path feature status')
+}).describe('User account context for Dashboard Chat AI enrichment (DECISION 026)')
+
+
+/**
  * @summary List AI usage records
  */
 export const listAIUsageQueryLimitDefault = 50;
