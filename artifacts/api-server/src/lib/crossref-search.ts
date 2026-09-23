@@ -79,16 +79,29 @@ export async function searchCrossRef(
 
   const url = `${CROSSREF_BASE}?${params.toString()}`;
 
-  // Wrap fetch in rate limiter to respect CrossRef API limits
-  // (5 req/sec for polite pool, 10 req/sec for authenticated)
-  const response = await withCrossRefRateLimit(() =>
-    fetch(url, {
-      headers: {
-        "User-Agent": `Teora/1.0 (mailto:${POLITE_EMAIL})`,
-        "Accept": "application/json",
-      },
-    })
-  );
+  // Wrap fetch in rate limiter + 5-second timeout to avoid hanging on slow CrossRef responses
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5_000);
+  let response: Response;
+  try {
+    response = await withCrossRefRateLimit(() =>
+      fetch(url, {
+        headers: {
+          "User-Agent": `Teora/1.0 (mailto:${POLITE_EMAIL})`,
+          "Accept": "application/json",
+        },
+        signal: controller.signal,
+      })
+    );
+  } catch (err: unknown) {
+    clearTimeout(timeout);
+    if (err instanceof Error && err.name === "AbortError") {
+      throw new Error("CrossRef tidak merespons dalam 5 detik. Silakan coba lagi.");
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeout);
+  }
 
   if (!response.ok) {
     if (response.status === 429) {

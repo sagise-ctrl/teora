@@ -573,7 +573,9 @@ router.get("/references/search", async (req, res): Promise<void> => {
   } catch (err) {
     logger.error({ err }, "[CrossRef Search]");
     const message = err instanceof Error ? err.message : "Search failed";
-    res.status(502).json({ error: message });
+    // CrossRef timeout/unavailable → 503 Service Unavailable, not 502
+    const status = message.includes("tidak merespons") || message.includes("rate limit") ? 503 : 502;
+    res.status(status).json({ error: message });
   }
 });
 

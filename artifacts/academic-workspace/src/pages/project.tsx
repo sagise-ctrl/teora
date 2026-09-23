@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from "react"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 import { useParams, Link } from "wouter"
 import {
   useGetProject,
@@ -1498,7 +1500,11 @@ function ChatTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosure:
                     : "bg-secondary/90 text-secondary-foreground rounded-tl-sm border-l-[3px] border-l-primary border border-border/50"
                 )}>
                   {msg.role === "system" ? msg.content : (
-                    <div className={cn("whitespace-pre-wrap", msg.role === "assistant" && "font-serif")}>{msg.content}</div>
+                    <div className={cn("whitespace-pre-wrap", msg.role === "assistant" && "font-serif")}>
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {msg.content}
+                      </ReactMarkdown>
+                    </div>
                   )}
                   {msg.role === "assistant" && aiDisclosure && (
                     <div className="mt-2.5 pt-1.5 border-t border-border/30">
@@ -1632,8 +1638,8 @@ function ChatTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosure:
 }
 
 function ReferencesTab({ projectId, citationFormat }: { projectId: number; citationFormat: ProjectCitationFormat }) {
-  const { data: references, isLoading, isError } = useListReferences(projectId)
-  const { data: citations } = useListCitations(projectId)
+  const { data: references, isLoading, isError } = useListReferences(projectId, { query: { enabled: projectId > 0 } })
+  const { data: citations } = useListCitations(projectId, { query: { enabled: projectId > 0 } })
   const createRef = useCreateReference()
   const deleteRef = useDeleteReference()
   const regenBib = useRegenerateBibliography()
@@ -1644,7 +1650,7 @@ function ReferencesTab({ projectId, citationFormat }: { projectId: number; citat
   const createCitation = useCreateCitation()
   const searchCrossRef = useSearchReferences(
     { q: searchQuery },
-    { query: { enabled: false } }
+    { query: { enabled: searchQuery.trim().length >= 3 } }
   )
   const queryClient = useQueryClient()
   const { toast } = useToast()
@@ -2814,7 +2820,8 @@ function ExportButton({ projectId, projectTitle }: { projectId: number; projectT
     setLoading(format)
     try {
       const baseUrl = (import.meta as unknown as Record<string, Record<string, string>>).env?.VITE_API_URL ?? ""
-      const url = `${baseUrl}/projects/${projectId}/export/${format}`
+      const apiPrefix = baseUrl ? `${baseUrl}/api` : "/api"
+      const url = `${apiPrefix}/projects/${projectId}/export/${format}`
       const response = await fetch(url, { credentials: "include" })
       if (!response.ok) throw new Error(`HTTP ${response.status}`)
       const blob = await response.blob()
@@ -2931,7 +2938,8 @@ function PptTab({ projectId, projectTitle }: PptTabProps) {
   const handleDownload = async () => {
     try {
       const baseUrl = (import.meta as unknown as Record<string, Record<string, string>>).env?.VITE_API_URL ?? ""
-      const response = await fetch(`${baseUrl}/projects/${projectId}/export/pptx`, {
+      const apiPrefix = baseUrl ? `${baseUrl}/api` : "/api"
+      const response = await fetch(`${apiPrefix}/projects/${projectId}/export/pptx`, {
         credentials: "include",
       })
       if (!response.ok) throw new Error(`HTTP ${response.status}`)
