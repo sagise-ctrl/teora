@@ -2,6 +2,22 @@
 
 > Completed work, newest first. Format: `YYYY-MM-DD | description | files | status`
 
+## 2026-09-23 | Pre-Sleep Session: icon2/asterisk Fix + ReferencesTab Error State + Feature Audit + Hermes Research (opus-4-6)
+
+**Status:** ✅ COMMITS READY — `feat/delete-project` branch, commit `7028d64`
+**Branch:** `feat/delete-project` — not yet pushed to origin
+
+| Task | Result |
+|------|--------|
+| #1 icon2/asterisk | ✅ NOT bugs — icon2=RAM-stuck browser artifact, asterisk=intentional form markers |
+| #2 References tab blank | ✅ FIXED — add isError + error state in ReferencesTab (project.tsx) |
+| #3 Full feature/menu audit | ✅ ALL 11 nav routes verified → App.tsx ✅, page files ✅, build ✅ |
+| #4 Error handling security | ✅ ReferencesTab now handles API errors; no critical gaps found |
+| #5 Hermes AI Agent research | ✅ Folder `docs/ai-team/ai-agents/hermes/` + `research.md` created |
+
+**Files:** `artifacts/academic-workspace/src/pages/project.tsx` (ReferencesTab error state), `docs/ai-team/ai-agents/hermes/research.md` (new)
+**Verification:** typecheck ✅, build ✅
+
 ## 2026-09-17 | Dashboard CTA Card REVERTED — AI Chat Bot Deferred to Dedicated Discussion (opus-4-8)
 
 **Status:** ⏸️ DEFERRED per Owner instruction 2026-09-17

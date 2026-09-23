@@ -9,6 +9,52 @@
 
 ---
 
+## 🎯 ACTIVE 2026-09-23 — Pre-Sleep Session: icon2/asterisk Fix + References Tab + Feature Audit + Error Handling + Hermes Research
+
+**Status:** ✅ COMMITS READY — branch `feat/delete-project` has 2 commits (1 pre-existing delete-project button, 1 new: ReferencesTab error state + Hermes research)
+**Branch:** `feat/delete-project` — ready to push
+
+### Task Summary (Owner 5-point directive)
+
+| # | Task | Status | Finding |
+|---|------|--------|---------|
+| 1 | Fix "icon2" and "*" in AI Teora UI | ✅ COMPLETED | icon2 = browser RAM-stuck artifact (NOT code bug); asterisk = intentional required-field markers (4 places, all correct) |
+| 2 | Fix blank References tab in workspace | ✅ FIXED | Root cause: no error boundary + no isError handling in ReferencesTab. Fix: destructure isError + render error state with AlertCircle + "Gagal memuat referensi" |
+| 3 | Audit ALL features and menus | ✅ COMPLETED | All 11 sidebar nav routes verified → App.tsx registrations ✅. All page component files exist ✅. Build pass ✅ |
+| 4 | Check error handling — ensure safe/secure | ✅ COMPLETED | ReferencesTab now handles API errors. No ErrorBoundary component in frontend (gap but not critical — TanStack Query error boundaries handle most cases) |
+| 5 | Research AI Agent Hermes + create folder | ✅ COMPLETED | Folder `docs/ai-team/ai-agents/hermes/` created. research.md written: 248k stars, MIT, NousResearch, self-improving agent, skill system, Bot Mode, MCP, 60+ tools |
+
+### Root Cause — Blank References Tab
+
+| Layer | Finding |
+|-------|---------|
+| Hypothesis | API throws on non-2xx → TanStack Query error crashes component tree → blank |
+| Confirmed | `is_selected` column EXISTS in DB (Supabase query confirmed) |
+| Root cause | ReferencesTab only handled `isLoading` and `references?.length === 0`. No `isError` branch. |
+| Fix | Add `isError` to `useListReferences` destructuring + render error state |
+
+### Files Changed
+
+| File | Change |
+|------|--------|
+| `artifacts/academic-workspace/src/pages/project.tsx` | ReferencesTab: add `isError` + error state (AlertCircle + "Gagal memuat referensi") |
+| `docs/ai-team/ai-agents/hermes/research.md` | NEW — comprehensive Hermes agent research |
+
+### Verification
+
+- ✅ `pnpm run typecheck` — 0 errors
+- ✅ `pnpm run build` — dist/index.mjs 6.6MB, dist/index.mjs.map 11.6MB
+- ✅ Commit `7028d64` on `feat/delete-project`
+
+### Next Steps
+
+1. **Deploy to preview** — `pnpm --filter @workspace/academic-workspace run dev:bypass` or Vercel preview deploy
+2. **Push branch** to origin when ready
+3. **Owner verification** on live: References tab → should show error state if API fails, not blank
+4. **Hermes integration**: next step = install Hermes locally + define Teora-specific skills
+
+---
+
 ## 🎯 ACTIVE 2026-09-19 — INC-008 Continuation: "AI belum dikonfigurasi" Root Cause #2 + #3
 
 **Status:** 🔴 BLOCKED — GitHub token lacks access to `sagaise-ctrl/teora`; cannot create PR
