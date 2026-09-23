@@ -1632,7 +1632,7 @@ function ChatTab({ projectId, aiDisclosure }: { projectId: number; aiDisclosure:
 }
 
 function ReferencesTab({ projectId, citationFormat }: { projectId: number; citationFormat: ProjectCitationFormat }) {
-  const { data: references, isLoading } = useListReferences(projectId)
+  const { data: references, isLoading, isError } = useListReferences(projectId)
   const { data: citations } = useListCitations(projectId)
   const createRef = useCreateReference()
   const deleteRef = useDeleteReference()
@@ -2147,6 +2147,16 @@ function ReferencesTab({ projectId, citationFormat }: { projectId: number; citat
           <TableBody>
             {isLoading ? (
               <TableRow><TableCell colSpan={6} className="text-center py-8"><Loader2 className="w-6 h-6 animate-spin mx-auto text-muted-foreground" /></TableCell></TableRow>
+            ) : isError ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-16">
+                  <div className="flex flex-col items-center">
+                    <AlertCircle className="w-12 h-12 text-destructive mb-4" />
+                    <p className="text-sm font-medium text-destructive mb-1">Gagal memuat referensi</p>
+                    <p className="text-xs text-muted-foreground">Coba refresh halaman atau hubungi bantuan</p>
+                  </div>
+                </TableCell>
+              </TableRow>
             ) : references?.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-16">
