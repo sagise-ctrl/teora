@@ -9,10 +9,42 @@
 
 ---
 
-## 🎯 ACTIVE 2026-09-23 — Pre-Sleep Session: icon2/asterisk Fix + References Tab + Feature Audit + Error Handling + Hermes Research
+## 🎯 ACTIVE 2026-09-24 — DevTools Bugs Fix + Markdown Rendering (opus-4-6)
 
-**Status:** ✅ COMMITS READY — branch `feat/delete-project` has 2 commits (1 pre-existing delete-project button, 1 new: ReferencesTab error state + Hermes research)
-**Branch:** `feat/delete-project` — ready to push
+**Status:** ✅ ALL FIXES DONE — committed `cf39b3b`, pushed to `feat/delete-project`
+**Branch:** `feat/delete-project` — pushed ✅
+**Awaiting:** Owner merges via GitHub UI to trigger Vercel production deploy
+
+### 5 DevTools Bugs — All Fixed ✅
+
+| Bug | Fix | File |
+|-----|-----|------|
+| Bug 1: projectId=0 400 | `useListQuizzes`: enabled guard `projectId > 0`; `useListReferences/citations`: enabled guard `projectId > 0` | `practice-quiz-picker.tsx`, `project.tsx` |
+| Bug 2: Export URLs missing /api | `apiPrefix = baseUrl ? \`${baseUrl}/api\` : "/api"` — bundle verified contains `/api/projects/${e}/export/` | `project.tsx` |
+| Bug 3: Empty search q= 400 | `useSearchReferences`: enabled when `query.trim().length >= 3` | `project.tsx`, `pustaka-saya.tsx` |
+| Bug 4: Simulation sessions 500 | `try/catch` around DB query → user-friendly 500 response | `simulasi.ts` |
+| Bug 5: CrossRef 502 | 5s AbortController timeout + graceful degradation → 503 for timeout | `crossref-search.ts`, `references.ts` |
+
+### Markdown Rendering — Fixed ✅
+
+| File | Fix |
+|------|-----|
+| `project.tsx` | Added `ReactMarkdown` + `remarkGfm`; wrapped AI assistant message content |
+| `dashboard-chat.tsx` | Added `ReactMarkdown` + `remarkGfm`; wrapped AI assistant message content |
+| `package.json` | Added `react-markdown: ^10.1.0`, `remark-gfm: ^4.0.1` |
+
+### Verification
+
+- ✅ `pnpm run typecheck` — 0 errors
+- ✅ `pnpm run build` — frontend (4131 modules, 1m33s), backend (6.6MB)
+- ✅ Bundle contains `/api/projects/${e}/export/` with correct prefix
+- ✅ Commit `cf39b3b` on `feat/delete-project`, pushed to origin
+
+### Next Steps
+
+1. **Owner: merge via GitHub UI** — https://github.com/sagaise-ctrl/teora/compare/main...feat/delete-project → "Merge pull request"
+2. Vercel Git Integration auto-deploys production
+3. **Owner: verify live** — semua DevTools error harus hilang
 
 ### Task Summary (Owner 5-point directive)
 
