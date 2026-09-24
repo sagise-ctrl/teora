@@ -1,3 +1,4 @@
+// Force redeploy trigger 2026-09-24T23:53:00Z
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { Toaster } from "@/components/ui/toaster";
