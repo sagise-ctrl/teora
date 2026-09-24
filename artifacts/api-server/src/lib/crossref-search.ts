@@ -96,7 +96,7 @@ export async function searchCrossRef(
   } catch (err: unknown) {
     clearTimeout(timeout);
     if (err instanceof Error && err.name === "AbortError") {
-      throw new Error("CrossRef tidak merespons dalam 5 detik. Silakan coba lagi.");
+      throw new Error("CrossRef tidak merespons dalam 5 detik. Silakan coba lagi.", { cause: err });
     }
     throw err;
   } finally {
