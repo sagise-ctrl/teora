@@ -44040,7 +44040,7 @@ var init_schema = __esm({
   }
 });
 
-// node_modules/@workspace/db/src/index.ts
+// ../../node_modules/@workspace/db/src/index.ts
 var src_exports = {};
 __export(src_exports, {
   AI_PROVIDERS: () => AI_PROVIDERS,
@@ -44136,7 +44136,7 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
 var connectionString, pool2, db;
 var init_src = __esm({
-  "node_modules/@workspace/db/src/index.ts"() {
+  "../../node_modules/@workspace/db/src/index.ts"() {
     init_schema();
     init_schema();
     connectionString = process.env.DATABASE_POOLER_URL ?? process.env.DATABASE_URL;
@@ -187841,8 +187841,8 @@ var require_node_domexception = __commonJS({
   "../../node_modules/.pnpm/node-domexception@1.0.0/node_modules/node-domexception/index.js"(exports, module) {
     if (!globalThis.DOMException) {
       try {
-        const { MessageChannel: MessageChannel2 } = __require("worker_threads"), port2 = new MessageChannel2().port1, ab = new ArrayBuffer();
-        port2.postMessage(ab, [ab, ab]);
+        const { MessageChannel: MessageChannel2 } = __require("worker_threads"), port = new MessageChannel2().port1, ab = new ArrayBuffer();
+        port.postMessage(ab, [ab, ab]);
       } catch (err) {
         err.constructor.name === "DOMException" && (globalThis.DOMException = err.constructor);
       }
@@ -192390,776 +192390,6 @@ var import_express38 = __toESM(require_express2(), 1);
 var import_cors = __toESM(require_lib3(), 1);
 var import_pino_http = __toESM(require_logger(), 1);
 
-// ../../node_modules/.pnpm/express-rate-limit@7.5.1_express@5.2.1/node_modules/express-rate-limit/dist/index.mjs
-import { Buffer as Buffer2 } from "node:buffer";
-import { createHash } from "node:crypto";
-import { isIP } from "node:net";
-var SUPPORTED_DRAFT_VERSIONS = [
-  "draft-6",
-  "draft-7",
-  "draft-8"
-];
-var getResetSeconds = (resetTime, windowMs) => {
-  let resetSeconds = void 0;
-  if (resetTime) {
-    const deltaSeconds = Math.ceil((resetTime.getTime() - Date.now()) / 1e3);
-    resetSeconds = Math.max(0, deltaSeconds);
-  } else if (windowMs) {
-    resetSeconds = Math.ceil(windowMs / 1e3);
-  }
-  return resetSeconds;
-};
-var getPartitionKey = (key) => {
-  const hash = createHash("sha256");
-  hash.update(key);
-  const partitionKey = hash.digest("hex").slice(0, 12);
-  return Buffer2.from(partitionKey).toString("base64");
-};
-var setLegacyHeaders = (response, info) => {
-  if (response.headersSent) return;
-  response.setHeader("X-RateLimit-Limit", info.limit.toString());
-  response.setHeader("X-RateLimit-Remaining", info.remaining.toString());
-  if (info.resetTime instanceof Date) {
-    response.setHeader("Date", (/* @__PURE__ */ new Date()).toUTCString());
-    response.setHeader(
-      "X-RateLimit-Reset",
-      Math.ceil(info.resetTime.getTime() / 1e3).toString()
-    );
-  }
-};
-var setDraft6Headers = (response, info, windowMs) => {
-  if (response.headersSent) return;
-  const windowSeconds = Math.ceil(windowMs / 1e3);
-  const resetSeconds = getResetSeconds(info.resetTime);
-  response.setHeader("RateLimit-Policy", `${info.limit};w=${windowSeconds}`);
-  response.setHeader("RateLimit-Limit", info.limit.toString());
-  response.setHeader("RateLimit-Remaining", info.remaining.toString());
-  if (resetSeconds)
-    response.setHeader("RateLimit-Reset", resetSeconds.toString());
-};
-var setDraft7Headers = (response, info, windowMs) => {
-  if (response.headersSent) return;
-  const windowSeconds = Math.ceil(windowMs / 1e3);
-  const resetSeconds = getResetSeconds(info.resetTime, windowMs);
-  response.setHeader("RateLimit-Policy", `${info.limit};w=${windowSeconds}`);
-  response.setHeader(
-    "RateLimit",
-    `limit=${info.limit}, remaining=${info.remaining}, reset=${resetSeconds}`
-  );
-};
-var setDraft8Headers = (response, info, windowMs, name, key) => {
-  if (response.headersSent) return;
-  const windowSeconds = Math.ceil(windowMs / 1e3);
-  const resetSeconds = getResetSeconds(info.resetTime, windowMs);
-  const partitionKey = getPartitionKey(key);
-  const policy = `q=${info.limit}; w=${windowSeconds}; pk=:${partitionKey}:`;
-  const header = `r=${info.remaining}; t=${resetSeconds}`;
-  response.append("RateLimit-Policy", `"${name}"; ${policy}`);
-  response.append("RateLimit", `"${name}"; ${header}`);
-};
-var setRetryAfterHeader = (response, info, windowMs) => {
-  if (response.headersSent) return;
-  const resetSeconds = getResetSeconds(info.resetTime, windowMs);
-  response.setHeader("Retry-After", resetSeconds.toString());
-};
-var ValidationError = class extends Error {
-  /**
-   * The code must be a string, in snake case and all capital, that starts with
-   * the substring `ERR_ERL_`.
-   *
-   * The message must be a string, starting with an uppercase character,
-   * describing the issue in detail.
-   */
-  constructor(code, message2) {
-    const url2 = `https://express-rate-limit.github.io/${code}/`;
-    super(`${message2} See ${url2} for more information.`);
-    this.name = this.constructor.name;
-    this.code = code;
-    this.help = url2;
-  }
-};
-var ChangeWarning = class extends ValidationError {
-};
-var usedStores = /* @__PURE__ */ new Set();
-var singleCountKeys = /* @__PURE__ */ new WeakMap();
-var validations = {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-  enabled: {
-    default: true
-  },
-  // Should be EnabledValidations type, but that's a circular reference
-  disable() {
-    for (const k of Object.keys(this.enabled)) this.enabled[k] = false;
-  },
-  /**
-   * Checks whether the IP address is valid, and that it does not have a port
-   * number in it.
-   *
-   * See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_invalid_ip_address.
-   *
-   * @param ip {string | undefined} - The IP address provided by Express as request.ip.
-   *
-   * @returns {void}
-   */
-  ip(ip) {
-    if (ip === void 0) {
-      throw new ValidationError(
-        "ERR_ERL_UNDEFINED_IP_ADDRESS",
-        `An undefined 'request.ip' was detected. This might indicate a misconfiguration or the connection being destroyed prematurely.`
-      );
-    }
-    if (!isIP(ip)) {
-      throw new ValidationError(
-        "ERR_ERL_INVALID_IP_ADDRESS",
-        `An invalid 'request.ip' (${ip}) was detected. Consider passing a custom 'keyGenerator' function to the rate limiter.`
-      );
-    }
-  },
-  /**
-   * Makes sure the trust proxy setting is not set to `true`.
-   *
-   * See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_permissive_trust_proxy.
-   *
-   * @param request {Request} - The Express request object.
-   *
-   * @returns {void}
-   */
-  trustProxy(request) {
-    if (request.app.get("trust proxy") === true) {
-      throw new ValidationError(
-        "ERR_ERL_PERMISSIVE_TRUST_PROXY",
-        `The Express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting.`
-      );
-    }
-  },
-  /**
-   * Makes sure the trust proxy setting is set in case the `X-Forwarded-For`
-   * header is present.
-   *
-   * See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_unset_trust_proxy.
-   *
-   * @param request {Request} - The Express request object.
-   *
-   * @returns {void}
-   */
-  xForwardedForHeader(request) {
-    if (request.headers["x-forwarded-for"] && request.app.get("trust proxy") === false) {
-      throw new ValidationError(
-        "ERR_ERL_UNEXPECTED_X_FORWARDED_FOR",
-        `The 'X-Forwarded-For' header is set but the Express 'trust proxy' setting is false (default). This could indicate a misconfiguration which would prevent express-rate-limit from accurately identifying users.`
-      );
-    }
-  },
-  /**
-   * Ensures totalHits value from store is a positive integer.
-   *
-   * @param hits {any} - The `totalHits` returned by the store.
-   */
-  positiveHits(hits) {
-    if (typeof hits !== "number" || hits < 1 || hits !== Math.round(hits)) {
-      throw new ValidationError(
-        "ERR_ERL_INVALID_HITS",
-        `The totalHits value returned from the store must be a positive integer, got ${hits}`
-      );
-    }
-  },
-  /**
-   * Ensures a single store instance is not used with multiple express-rate-limit instances
-   */
-  unsharedStore(store) {
-    if (usedStores.has(store)) {
-      const maybeUniquePrefix = store?.localKeys ? "" : " (with a unique prefix)";
-      throw new ValidationError(
-        "ERR_ERL_STORE_REUSE",
-        `A Store instance must not be shared across multiple rate limiters. Create a new instance of ${store.constructor.name}${maybeUniquePrefix} for each limiter instead.`
-      );
-    }
-    usedStores.add(store);
-  },
-  /**
-   * Ensures a given key is incremented only once per request.
-   *
-   * @param request {Request} - The Express request object.
-   * @param store {Store} - The store class.
-   * @param key {string} - The key used to store the client's hit count.
-   *
-   * @returns {void}
-   */
-  singleCount(request, store, key) {
-    let storeKeys = singleCountKeys.get(request);
-    if (!storeKeys) {
-      storeKeys = /* @__PURE__ */ new Map();
-      singleCountKeys.set(request, storeKeys);
-    }
-    const storeKey = store.localKeys ? store : store.constructor.name;
-    let keys = storeKeys.get(storeKey);
-    if (!keys) {
-      keys = [];
-      storeKeys.set(storeKey, keys);
-    }
-    const prefixedKey = `${store.prefix ?? ""}${key}`;
-    if (keys.includes(prefixedKey)) {
-      throw new ValidationError(
-        "ERR_ERL_DOUBLE_COUNT",
-        `The hit count for ${key} was incremented more than once for a single request.`
-      );
-    }
-    keys.push(prefixedKey);
-  },
-  /**
-   * Warns the user that the behaviour for `max: 0` / `limit: 0` is
-   * changing in the next major release.
-   *
-   * @param limit {number} - The maximum number of hits per client.
-   *
-   * @returns {void}
-   */
-  limit(limit) {
-    if (limit === 0) {
-      throw new ChangeWarning(
-        "WRN_ERL_MAX_ZERO",
-        `Setting limit or max to 0 disables rate limiting in express-rate-limit v6 and older, but will cause all requests to be blocked in v7`
-      );
-    }
-  },
-  /**
-   * Warns the user that the `draft_polli_ratelimit_headers` option is deprecated
-   * and will be removed in the next major release.
-   *
-   * @param draft_polli_ratelimit_headers {any | undefined} - The now-deprecated setting that was used to enable standard headers.
-   *
-   * @returns {void}
-   */
-  draftPolliHeaders(draft_polli_ratelimit_headers) {
-    if (draft_polli_ratelimit_headers) {
-      throw new ChangeWarning(
-        "WRN_ERL_DEPRECATED_DRAFT_POLLI_HEADERS",
-        `The draft_polli_ratelimit_headers configuration option is deprecated and has been removed in express-rate-limit v7, please set standardHeaders: 'draft-6' instead.`
-      );
-    }
-  },
-  /**
-   * Warns the user that the `onLimitReached` option is deprecated and
-   * will be removed in the next major release.
-   *
-   * @param onLimitReached {any | undefined} - The maximum number of hits per client.
-   *
-   * @returns {void}
-   */
-  onLimitReached(onLimitReached) {
-    if (onLimitReached) {
-      throw new ChangeWarning(
-        "WRN_ERL_DEPRECATED_ON_LIMIT_REACHED",
-        `The onLimitReached configuration option is deprecated and has been removed in express-rate-limit v7.`
-      );
-    }
-  },
-  /**
-   * Warns the user when an invalid/unsupported version of the draft spec is passed.
-   *
-   * @param version {any | undefined} - The version passed by the user.
-   *
-   * @returns {void}
-   */
-  headersDraftVersion(version4) {
-    if (typeof version4 !== "string" || // @ts-expect-error This is fine. If version is not in the array, it will just return false.
-    !SUPPORTED_DRAFT_VERSIONS.includes(version4)) {
-      const versionString = SUPPORTED_DRAFT_VERSIONS.join(", ");
-      throw new ValidationError(
-        "ERR_ERL_HEADERS_UNSUPPORTED_DRAFT_VERSION",
-        `standardHeaders: only the following versions of the IETF draft specification are supported: ${versionString}.`
-      );
-    }
-  },
-  /**
-   * Warns the user when the selected headers option requires a reset time but
-   * the store does not provide one.
-   *
-   * @param resetTime {Date | undefined} - The timestamp when the client's hit count will be reset.
-   *
-   * @returns {void}
-   */
-  headersResetTime(resetTime) {
-    if (!resetTime) {
-      throw new ValidationError(
-        "ERR_ERL_HEADERS_NO_RESET",
-        `standardHeaders:  'draft-7' requires a 'resetTime', but the store did not provide one. The 'windowMs' value will be used instead, which may cause clients to wait longer than necessary.`
-      );
-    }
-  },
-  /**
-   * Checks the options.validate setting to ensure that only recognized
-   * validations are enabled or disabled.
-   *
-   * If any unrecognized values are found, an error is logged that
-   * includes the list of supported vaidations.
-   */
-  validationsConfig() {
-    const supportedValidations = Object.keys(this).filter(
-      (k) => !["enabled", "disable"].includes(k)
-    );
-    supportedValidations.push("default");
-    for (const key of Object.keys(this.enabled)) {
-      if (!supportedValidations.includes(key)) {
-        throw new ValidationError(
-          "ERR_ERL_UNKNOWN_VALIDATION",
-          `options.validate.${key} is not recognized. Supported validate options are: ${supportedValidations.join(
-            ", "
-          )}.`
-        );
-      }
-    }
-  },
-  /**
-   * Checks to see if the instance was created inside of a request handler,
-   * which would prevent it from working correctly, with the default memory
-   * store (or any other store with localKeys.)
-   */
-  creationStack(store) {
-    const { stack } = new Error(
-      "express-rate-limit validation check (set options.validate.creationStack=false to disable)"
-    );
-    if (stack?.includes("Layer.handle [as handle_request]")) {
-      if (!store.localKeys) {
-        throw new ValidationError(
-          "ERR_ERL_CREATED_IN_REQUEST_HANDLER",
-          "express-rate-limit instance should *usually* be created at app initialization, not when responding to a request."
-        );
-      }
-      throw new ValidationError(
-        "ERR_ERL_CREATED_IN_REQUEST_HANDLER",
-        `express-rate-limit instance should be created at app initialization, not when responding to a request.`
-      );
-    }
-  }
-};
-var getValidations = (_enabled) => {
-  let enabled;
-  if (typeof _enabled === "boolean") {
-    enabled = {
-      default: _enabled
-    };
-  } else {
-    enabled = {
-      default: true,
-      ..._enabled
-    };
-  }
-  const wrappedValidations = {
-    enabled
-  };
-  for (const [name, validation] of Object.entries(validations)) {
-    if (typeof validation === "function")
-      wrappedValidations[name] = (...args) => {
-        if (!(enabled[name] ?? enabled.default)) {
-          return;
-        }
-        try {
-          ;
-          validation.apply(
-            wrappedValidations,
-            args
-          );
-        } catch (error) {
-          if (error instanceof ChangeWarning) console.warn(error);
-          else console.error(error);
-        }
-      };
-  }
-  return wrappedValidations;
-};
-var MemoryStore = class {
-  constructor() {
-    this.previous = /* @__PURE__ */ new Map();
-    this.current = /* @__PURE__ */ new Map();
-    this.localKeys = true;
-  }
-  /**
-   * Method that initializes the store.
-   *
-   * @param options {Options} - The options used to setup the middleware.
-   */
-  init(options) {
-    this.windowMs = options.windowMs;
-    if (this.interval) clearInterval(this.interval);
-    this.interval = setInterval(() => {
-      this.clearExpired();
-    }, this.windowMs);
-    if (this.interval.unref) this.interval.unref();
-  }
-  /**
-   * Method to fetch a client's hit count and reset time.
-   *
-   * @param key {string} - The identifier for a client.
-   *
-   * @returns {ClientRateLimitInfo | undefined} - The number of hits and reset time for that client.
-   *
-   * @public
-   */
-  async get(key) {
-    return this.current.get(key) ?? this.previous.get(key);
-  }
-  /**
-   * Method to increment a client's hit counter.
-   *
-   * @param key {string} - The identifier for a client.
-   *
-   * @returns {ClientRateLimitInfo} - The number of hits and reset time for that client.
-   *
-   * @public
-   */
-  async increment(key) {
-    const client = this.getClient(key);
-    const now = Date.now();
-    if (client.resetTime.getTime() <= now) {
-      this.resetClient(client, now);
-    }
-    client.totalHits++;
-    return client;
-  }
-  /**
-   * Method to decrement a client's hit counter.
-   *
-   * @param key {string} - The identifier for a client.
-   *
-   * @public
-   */
-  async decrement(key) {
-    const client = this.getClient(key);
-    if (client.totalHits > 0) client.totalHits--;
-  }
-  /**
-   * Method to reset a client's hit counter.
-   *
-   * @param key {string} - The identifier for a client.
-   *
-   * @public
-   */
-  async resetKey(key) {
-    this.current.delete(key);
-    this.previous.delete(key);
-  }
-  /**
-   * Method to reset everyone's hit counter.
-   *
-   * @public
-   */
-  async resetAll() {
-    this.current.clear();
-    this.previous.clear();
-  }
-  /**
-   * Method to stop the timer (if currently running) and prevent any memory
-   * leaks.
-   *
-   * @public
-   */
-  shutdown() {
-    clearInterval(this.interval);
-    void this.resetAll();
-  }
-  /**
-   * Recycles a client by setting its hit count to zero, and reset time to
-   * `windowMs` milliseconds from now.
-   *
-   * NOT to be confused with `#resetKey()`, which removes a client from both the
-   * `current` and `previous` maps.
-   *
-   * @param client {Client} - The client to recycle.
-   * @param now {number} - The current time, to which the `windowMs` is added to get the `resetTime` for the client.
-   *
-   * @return {Client} - The modified client that was passed in, to allow for chaining.
-   */
-  resetClient(client, now = Date.now()) {
-    client.totalHits = 0;
-    client.resetTime.setTime(now + this.windowMs);
-    return client;
-  }
-  /**
-   * Retrieves or creates a client, given a key. Also ensures that the client being
-   * returned is in the `current` map.
-   *
-   * @param key {string} - The key under which the client is (or is to be) stored.
-   *
-   * @returns {Client} - The requested client.
-   */
-  getClient(key) {
-    if (this.current.has(key)) return this.current.get(key);
-    let client;
-    if (this.previous.has(key)) {
-      client = this.previous.get(key);
-      this.previous.delete(key);
-    } else {
-      client = { totalHits: 0, resetTime: /* @__PURE__ */ new Date() };
-      this.resetClient(client);
-    }
-    this.current.set(key, client);
-    return client;
-  }
-  /**
-   * Move current clients to previous, create a new map for current.
-   *
-   * This function is called every `windowMs`.
-   */
-  clearExpired() {
-    this.previous = this.current;
-    this.current = /* @__PURE__ */ new Map();
-  }
-};
-var isLegacyStore = (store) => (
-  // Check that `incr` exists but `increment` does not - store authors might want
-  // to keep both around for backwards compatibility.
-  typeof store.incr === "function" && typeof store.increment !== "function"
-);
-var promisifyStore = (passedStore) => {
-  if (!isLegacyStore(passedStore)) {
-    return passedStore;
-  }
-  const legacyStore = passedStore;
-  class PromisifiedStore {
-    async increment(key) {
-      return new Promise((resolve, reject) => {
-        legacyStore.incr(
-          key,
-          (error, totalHits, resetTime) => {
-            if (error) reject(error);
-            resolve({ totalHits, resetTime });
-          }
-        );
-      });
-    }
-    async decrement(key) {
-      return legacyStore.decrement(key);
-    }
-    async resetKey(key) {
-      return legacyStore.resetKey(key);
-    }
-    /* istanbul ignore next */
-    async resetAll() {
-      if (typeof legacyStore.resetAll === "function")
-        return legacyStore.resetAll();
-    }
-  }
-  return new PromisifiedStore();
-};
-var getOptionsFromConfig = (config) => {
-  const { validations: validations2, ...directlyPassableEntries } = config;
-  return {
-    ...directlyPassableEntries,
-    validate: validations2.enabled
-  };
-};
-var omitUndefinedOptions = (passedOptions) => {
-  const omittedOptions = {};
-  for (const k of Object.keys(passedOptions)) {
-    const key = k;
-    if (passedOptions[key] !== void 0) {
-      omittedOptions[key] = passedOptions[key];
-    }
-  }
-  return omittedOptions;
-};
-var parseOptions = (passedOptions) => {
-  const notUndefinedOptions = omitUndefinedOptions(passedOptions);
-  const validations2 = getValidations(notUndefinedOptions?.validate ?? true);
-  validations2.validationsConfig();
-  validations2.draftPolliHeaders(
-    // @ts-expect-error see the note above.
-    notUndefinedOptions.draft_polli_ratelimit_headers
-  );
-  validations2.onLimitReached(notUndefinedOptions.onLimitReached);
-  let standardHeaders = notUndefinedOptions.standardHeaders ?? false;
-  if (standardHeaders === true) standardHeaders = "draft-6";
-  const config = {
-    windowMs: 60 * 1e3,
-    limit: passedOptions.max ?? 5,
-    // `max` is deprecated, but support it anyways.
-    message: "Too many requests, please try again later.",
-    statusCode: 429,
-    legacyHeaders: passedOptions.headers ?? true,
-    identifier(request, _response) {
-      let duration = "";
-      const property = config.requestPropertyName;
-      const { limit } = request[property];
-      const seconds = config.windowMs / 1e3;
-      const minutes = config.windowMs / (1e3 * 60);
-      const hours = config.windowMs / (1e3 * 60 * 60);
-      const days = config.windowMs / (1e3 * 60 * 60 * 24);
-      if (seconds < 60) duration = `${seconds}sec`;
-      else if (minutes < 60) duration = `${minutes}min`;
-      else if (hours < 24) duration = `${hours}hr${hours > 1 ? "s" : ""}`;
-      else duration = `${days}day${days > 1 ? "s" : ""}`;
-      return `${limit}-in-${duration}`;
-    },
-    requestPropertyName: "rateLimit",
-    skipFailedRequests: false,
-    skipSuccessfulRequests: false,
-    requestWasSuccessful: (_request, response) => response.statusCode < 400,
-    skip: (_request, _response) => false,
-    keyGenerator(request, _response) {
-      validations2.ip(request.ip);
-      validations2.trustProxy(request);
-      validations2.xForwardedForHeader(request);
-      return request.ip;
-    },
-    async handler(request, response, _next, _optionsUsed) {
-      response.status(config.statusCode);
-      const message2 = typeof config.message === "function" ? await config.message(
-        request,
-        response
-      ) : config.message;
-      if (!response.writableEnded) {
-        response.send(message2);
-      }
-    },
-    passOnStoreError: false,
-    // Allow the default options to be overridden by the passed options.
-    ...notUndefinedOptions,
-    // `standardHeaders` is resolved into a draft version above, use that.
-    standardHeaders,
-    // Note that this field is declared after the user's options are spread in,
-    // so that this field doesn't get overridden with an un-promisified store!
-    store: promisifyStore(notUndefinedOptions.store ?? new MemoryStore()),
-    // Print an error to the console if a few known misconfigurations are detected.
-    validations: validations2
-  };
-  if (typeof config.store.increment !== "function" || typeof config.store.decrement !== "function" || typeof config.store.resetKey !== "function" || config.store.resetAll !== void 0 && typeof config.store.resetAll !== "function" || config.store.init !== void 0 && typeof config.store.init !== "function") {
-    throw new TypeError(
-      "An invalid store was passed. Please ensure that the store is a class that implements the `Store` interface."
-    );
-  }
-  return config;
-};
-var handleAsyncErrors = (fn) => async (request, response, next) => {
-  try {
-    await Promise.resolve(fn(request, response, next)).catch(next);
-  } catch (error) {
-    next(error);
-  }
-};
-var rateLimit = (passedOptions) => {
-  const config = parseOptions(passedOptions ?? {});
-  const options = getOptionsFromConfig(config);
-  config.validations.creationStack(config.store);
-  config.validations.unsharedStore(config.store);
-  if (typeof config.store.init === "function") config.store.init(options);
-  const middleware = handleAsyncErrors(
-    async (request, response, next) => {
-      const skip = await config.skip(request, response);
-      if (skip) {
-        next();
-        return;
-      }
-      const augmentedRequest = request;
-      const key = await config.keyGenerator(request, response);
-      let totalHits = 0;
-      let resetTime;
-      try {
-        const incrementResult = await config.store.increment(key);
-        totalHits = incrementResult.totalHits;
-        resetTime = incrementResult.resetTime;
-      } catch (error) {
-        if (config.passOnStoreError) {
-          console.error(
-            "express-rate-limit: error from store, allowing request without rate-limiting.",
-            error
-          );
-          next();
-          return;
-        }
-        throw error;
-      }
-      config.validations.positiveHits(totalHits);
-      config.validations.singleCount(request, config.store, key);
-      const retrieveLimit = typeof config.limit === "function" ? config.limit(request, response) : config.limit;
-      const limit = await retrieveLimit;
-      config.validations.limit(limit);
-      const info = {
-        limit,
-        used: totalHits,
-        remaining: Math.max(limit - totalHits, 0),
-        resetTime
-      };
-      Object.defineProperty(info, "current", {
-        configurable: false,
-        enumerable: false,
-        value: totalHits
-      });
-      augmentedRequest[config.requestPropertyName] = info;
-      if (config.legacyHeaders && !response.headersSent) {
-        setLegacyHeaders(response, info);
-      }
-      if (config.standardHeaders && !response.headersSent) {
-        switch (config.standardHeaders) {
-          case "draft-6": {
-            setDraft6Headers(response, info, config.windowMs);
-            break;
-          }
-          case "draft-7": {
-            config.validations.headersResetTime(info.resetTime);
-            setDraft7Headers(response, info, config.windowMs);
-            break;
-          }
-          case "draft-8": {
-            const retrieveName = typeof config.identifier === "function" ? config.identifier(request, response) : config.identifier;
-            const name = await retrieveName;
-            config.validations.headersResetTime(info.resetTime);
-            setDraft8Headers(response, info, config.windowMs, name, key);
-            break;
-          }
-          default: {
-            config.validations.headersDraftVersion(config.standardHeaders);
-            break;
-          }
-        }
-      }
-      if (config.skipFailedRequests || config.skipSuccessfulRequests) {
-        let decremented = false;
-        const decrementKey = async () => {
-          if (!decremented) {
-            await config.store.decrement(key);
-            decremented = true;
-          }
-        };
-        if (config.skipFailedRequests) {
-          response.on("finish", async () => {
-            if (!await config.requestWasSuccessful(request, response))
-              await decrementKey();
-          });
-          response.on("close", async () => {
-            if (!response.writableEnded) await decrementKey();
-          });
-          response.on("error", async () => {
-            await decrementKey();
-          });
-        }
-        if (config.skipSuccessfulRequests) {
-          response.on("finish", async () => {
-            if (await config.requestWasSuccessful(request, response))
-              await decrementKey();
-          });
-        }
-      }
-      config.validations.disable();
-      if (totalHits > limit) {
-        if (config.legacyHeaders || config.standardHeaders) {
-          setRetryAfterHeader(response, info, config.windowMs);
-        }
-        config.handler(request, response, next, options);
-        return;
-      }
-      next();
-    }
-  );
-  const getThrowFn = () => {
-    throw new Error("The current store does not support the get/getKey method");
-  };
-  middleware.resetKey = config.store.resetKey.bind(config.store);
-  middleware.getKey = typeof config.store.get === "function" ? config.store.get.bind(config.store) : getThrowFn;
-  return middleware;
-};
-var lib_default = rateLimit;
-
 // src/routes/index.ts
 var import_express35 = __toESM(require_express2(), 1);
 
@@ -194148,13 +193378,33 @@ function createRemoteJWKSet(url2, options) {
   });
 }
 
+// src/lib/logger.ts
+var import_pino = __toESM(require_pino(), 1);
+var isProduction = process.env.NODE_ENV === "production";
+var logger2 = (0, import_pino.default)({
+  level: process.env.LOG_LEVEL ?? "info",
+  redact: [
+    "req.headers.authorization",
+    "req.headers.cookie",
+    "res.headers['set-cookie']"
+  ],
+  ...isProduction ? {} : {
+    transport: {
+      target: "pino-pretty",
+      options: { colorize: true }
+    }
+  }
+});
+
 // src/middlewares/auth.ts
 var SUPABASE_URL = process.env.SUPABASE_URL ?? "";
 var SUPABASE_JWT_SECRET = process.env.SUPABASE_JWT_SECRET ?? "";
+logger2.info({ SUPABASE_URL, SUPABASE_JWT_SECRET_set: !!SUPABASE_JWT_SECRET }, "Auth middleware loaded");
 var jwks = null;
 async function getJwks() {
   if (jwks) return jwks;
   const jwksUrl = new URL(`${SUPABASE_URL}/auth/v1/.well-known/jwks.json`);
+  logger2.info({ jwksUrl: jwksUrl.toString() }, "getJwks: JWKS URL");
   jwks = createRemoteJWKSet(jwksUrl);
   return jwks;
 }
@@ -194185,11 +193435,784 @@ async function authMiddleware(req, res, next) {
       id: payload.sub,
       email: payload.email
     };
+    logger2.info({ userId: req.user.id, email: req.user.email }, "authMiddleware: token verified");
     next();
   } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    logger2.warn({ err: msg, hasSecret: !!SUPABASE_JWT_SECRET, supabaseUrl: SUPABASE_URL || "[EMPTY]" }, "authMiddleware: token verify failed");
     res.status(401).json({ error: "Invalid or expired token" });
   }
 }
+
+// ../../node_modules/.pnpm/express-rate-limit@7.5.1_express@5.2.1/node_modules/express-rate-limit/dist/index.mjs
+import { Buffer as Buffer2 } from "node:buffer";
+import { createHash } from "node:crypto";
+import { isIP } from "node:net";
+var SUPPORTED_DRAFT_VERSIONS = [
+  "draft-6",
+  "draft-7",
+  "draft-8"
+];
+var getResetSeconds = (resetTime, windowMs) => {
+  let resetSeconds = void 0;
+  if (resetTime) {
+    const deltaSeconds = Math.ceil((resetTime.getTime() - Date.now()) / 1e3);
+    resetSeconds = Math.max(0, deltaSeconds);
+  } else if (windowMs) {
+    resetSeconds = Math.ceil(windowMs / 1e3);
+  }
+  return resetSeconds;
+};
+var getPartitionKey = (key) => {
+  const hash = createHash("sha256");
+  hash.update(key);
+  const partitionKey = hash.digest("hex").slice(0, 12);
+  return Buffer2.from(partitionKey).toString("base64");
+};
+var setLegacyHeaders = (response, info) => {
+  if (response.headersSent) return;
+  response.setHeader("X-RateLimit-Limit", info.limit.toString());
+  response.setHeader("X-RateLimit-Remaining", info.remaining.toString());
+  if (info.resetTime instanceof Date) {
+    response.setHeader("Date", (/* @__PURE__ */ new Date()).toUTCString());
+    response.setHeader(
+      "X-RateLimit-Reset",
+      Math.ceil(info.resetTime.getTime() / 1e3).toString()
+    );
+  }
+};
+var setDraft6Headers = (response, info, windowMs) => {
+  if (response.headersSent) return;
+  const windowSeconds = Math.ceil(windowMs / 1e3);
+  const resetSeconds = getResetSeconds(info.resetTime);
+  response.setHeader("RateLimit-Policy", `${info.limit};w=${windowSeconds}`);
+  response.setHeader("RateLimit-Limit", info.limit.toString());
+  response.setHeader("RateLimit-Remaining", info.remaining.toString());
+  if (resetSeconds)
+    response.setHeader("RateLimit-Reset", resetSeconds.toString());
+};
+var setDraft7Headers = (response, info, windowMs) => {
+  if (response.headersSent) return;
+  const windowSeconds = Math.ceil(windowMs / 1e3);
+  const resetSeconds = getResetSeconds(info.resetTime, windowMs);
+  response.setHeader("RateLimit-Policy", `${info.limit};w=${windowSeconds}`);
+  response.setHeader(
+    "RateLimit",
+    `limit=${info.limit}, remaining=${info.remaining}, reset=${resetSeconds}`
+  );
+};
+var setDraft8Headers = (response, info, windowMs, name, key) => {
+  if (response.headersSent) return;
+  const windowSeconds = Math.ceil(windowMs / 1e3);
+  const resetSeconds = getResetSeconds(info.resetTime, windowMs);
+  const partitionKey = getPartitionKey(key);
+  const policy = `q=${info.limit}; w=${windowSeconds}; pk=:${partitionKey}:`;
+  const header = `r=${info.remaining}; t=${resetSeconds}`;
+  response.append("RateLimit-Policy", `"${name}"; ${policy}`);
+  response.append("RateLimit", `"${name}"; ${header}`);
+};
+var setRetryAfterHeader = (response, info, windowMs) => {
+  if (response.headersSent) return;
+  const resetSeconds = getResetSeconds(info.resetTime, windowMs);
+  response.setHeader("Retry-After", resetSeconds.toString());
+};
+var ValidationError = class extends Error {
+  /**
+   * The code must be a string, in snake case and all capital, that starts with
+   * the substring `ERR_ERL_`.
+   *
+   * The message must be a string, starting with an uppercase character,
+   * describing the issue in detail.
+   */
+  constructor(code, message2) {
+    const url2 = `https://express-rate-limit.github.io/${code}/`;
+    super(`${message2} See ${url2} for more information.`);
+    this.name = this.constructor.name;
+    this.code = code;
+    this.help = url2;
+  }
+};
+var ChangeWarning = class extends ValidationError {
+};
+var usedStores = /* @__PURE__ */ new Set();
+var singleCountKeys = /* @__PURE__ */ new WeakMap();
+var validations = {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  enabled: {
+    default: true
+  },
+  // Should be EnabledValidations type, but that's a circular reference
+  disable() {
+    for (const k of Object.keys(this.enabled)) this.enabled[k] = false;
+  },
+  /**
+   * Checks whether the IP address is valid, and that it does not have a port
+   * number in it.
+   *
+   * See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_invalid_ip_address.
+   *
+   * @param ip {string | undefined} - The IP address provided by Express as request.ip.
+   *
+   * @returns {void}
+   */
+  ip(ip) {
+    if (ip === void 0) {
+      throw new ValidationError(
+        "ERR_ERL_UNDEFINED_IP_ADDRESS",
+        `An undefined 'request.ip' was detected. This might indicate a misconfiguration or the connection being destroyed prematurely.`
+      );
+    }
+    if (!isIP(ip)) {
+      throw new ValidationError(
+        "ERR_ERL_INVALID_IP_ADDRESS",
+        `An invalid 'request.ip' (${ip}) was detected. Consider passing a custom 'keyGenerator' function to the rate limiter.`
+      );
+    }
+  },
+  /**
+   * Makes sure the trust proxy setting is not set to `true`.
+   *
+   * See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_permissive_trust_proxy.
+   *
+   * @param request {Request} - The Express request object.
+   *
+   * @returns {void}
+   */
+  trustProxy(request) {
+    if (request.app.get("trust proxy") === true) {
+      throw new ValidationError(
+        "ERR_ERL_PERMISSIVE_TRUST_PROXY",
+        `The Express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting.`
+      );
+    }
+  },
+  /**
+   * Makes sure the trust proxy setting is set in case the `X-Forwarded-For`
+   * header is present.
+   *
+   * See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_unset_trust_proxy.
+   *
+   * @param request {Request} - The Express request object.
+   *
+   * @returns {void}
+   */
+  xForwardedForHeader(request) {
+    if (request.headers["x-forwarded-for"] && request.app.get("trust proxy") === false) {
+      throw new ValidationError(
+        "ERR_ERL_UNEXPECTED_X_FORWARDED_FOR",
+        `The 'X-Forwarded-For' header is set but the Express 'trust proxy' setting is false (default). This could indicate a misconfiguration which would prevent express-rate-limit from accurately identifying users.`
+      );
+    }
+  },
+  /**
+   * Ensures totalHits value from store is a positive integer.
+   *
+   * @param hits {any} - The `totalHits` returned by the store.
+   */
+  positiveHits(hits) {
+    if (typeof hits !== "number" || hits < 1 || hits !== Math.round(hits)) {
+      throw new ValidationError(
+        "ERR_ERL_INVALID_HITS",
+        `The totalHits value returned from the store must be a positive integer, got ${hits}`
+      );
+    }
+  },
+  /**
+   * Ensures a single store instance is not used with multiple express-rate-limit instances
+   */
+  unsharedStore(store) {
+    if (usedStores.has(store)) {
+      const maybeUniquePrefix = store?.localKeys ? "" : " (with a unique prefix)";
+      throw new ValidationError(
+        "ERR_ERL_STORE_REUSE",
+        `A Store instance must not be shared across multiple rate limiters. Create a new instance of ${store.constructor.name}${maybeUniquePrefix} for each limiter instead.`
+      );
+    }
+    usedStores.add(store);
+  },
+  /**
+   * Ensures a given key is incremented only once per request.
+   *
+   * @param request {Request} - The Express request object.
+   * @param store {Store} - The store class.
+   * @param key {string} - The key used to store the client's hit count.
+   *
+   * @returns {void}
+   */
+  singleCount(request, store, key) {
+    let storeKeys = singleCountKeys.get(request);
+    if (!storeKeys) {
+      storeKeys = /* @__PURE__ */ new Map();
+      singleCountKeys.set(request, storeKeys);
+    }
+    const storeKey = store.localKeys ? store : store.constructor.name;
+    let keys = storeKeys.get(storeKey);
+    if (!keys) {
+      keys = [];
+      storeKeys.set(storeKey, keys);
+    }
+    const prefixedKey = `${store.prefix ?? ""}${key}`;
+    if (keys.includes(prefixedKey)) {
+      throw new ValidationError(
+        "ERR_ERL_DOUBLE_COUNT",
+        `The hit count for ${key} was incremented more than once for a single request.`
+      );
+    }
+    keys.push(prefixedKey);
+  },
+  /**
+   * Warns the user that the behaviour for `max: 0` / `limit: 0` is
+   * changing in the next major release.
+   *
+   * @param limit {number} - The maximum number of hits per client.
+   *
+   * @returns {void}
+   */
+  limit(limit) {
+    if (limit === 0) {
+      throw new ChangeWarning(
+        "WRN_ERL_MAX_ZERO",
+        `Setting limit or max to 0 disables rate limiting in express-rate-limit v6 and older, but will cause all requests to be blocked in v7`
+      );
+    }
+  },
+  /**
+   * Warns the user that the `draft_polli_ratelimit_headers` option is deprecated
+   * and will be removed in the next major release.
+   *
+   * @param draft_polli_ratelimit_headers {any | undefined} - The now-deprecated setting that was used to enable standard headers.
+   *
+   * @returns {void}
+   */
+  draftPolliHeaders(draft_polli_ratelimit_headers) {
+    if (draft_polli_ratelimit_headers) {
+      throw new ChangeWarning(
+        "WRN_ERL_DEPRECATED_DRAFT_POLLI_HEADERS",
+        `The draft_polli_ratelimit_headers configuration option is deprecated and has been removed in express-rate-limit v7, please set standardHeaders: 'draft-6' instead.`
+      );
+    }
+  },
+  /**
+   * Warns the user that the `onLimitReached` option is deprecated and
+   * will be removed in the next major release.
+   *
+   * @param onLimitReached {any | undefined} - The maximum number of hits per client.
+   *
+   * @returns {void}
+   */
+  onLimitReached(onLimitReached) {
+    if (onLimitReached) {
+      throw new ChangeWarning(
+        "WRN_ERL_DEPRECATED_ON_LIMIT_REACHED",
+        `The onLimitReached configuration option is deprecated and has been removed in express-rate-limit v7.`
+      );
+    }
+  },
+  /**
+   * Warns the user when an invalid/unsupported version of the draft spec is passed.
+   *
+   * @param version {any | undefined} - The version passed by the user.
+   *
+   * @returns {void}
+   */
+  headersDraftVersion(version4) {
+    if (typeof version4 !== "string" || // @ts-expect-error This is fine. If version is not in the array, it will just return false.
+    !SUPPORTED_DRAFT_VERSIONS.includes(version4)) {
+      const versionString = SUPPORTED_DRAFT_VERSIONS.join(", ");
+      throw new ValidationError(
+        "ERR_ERL_HEADERS_UNSUPPORTED_DRAFT_VERSION",
+        `standardHeaders: only the following versions of the IETF draft specification are supported: ${versionString}.`
+      );
+    }
+  },
+  /**
+   * Warns the user when the selected headers option requires a reset time but
+   * the store does not provide one.
+   *
+   * @param resetTime {Date | undefined} - The timestamp when the client's hit count will be reset.
+   *
+   * @returns {void}
+   */
+  headersResetTime(resetTime) {
+    if (!resetTime) {
+      throw new ValidationError(
+        "ERR_ERL_HEADERS_NO_RESET",
+        `standardHeaders:  'draft-7' requires a 'resetTime', but the store did not provide one. The 'windowMs' value will be used instead, which may cause clients to wait longer than necessary.`
+      );
+    }
+  },
+  /**
+   * Checks the options.validate setting to ensure that only recognized
+   * validations are enabled or disabled.
+   *
+   * If any unrecognized values are found, an error is logged that
+   * includes the list of supported vaidations.
+   */
+  validationsConfig() {
+    const supportedValidations = Object.keys(this).filter(
+      (k) => !["enabled", "disable"].includes(k)
+    );
+    supportedValidations.push("default");
+    for (const key of Object.keys(this.enabled)) {
+      if (!supportedValidations.includes(key)) {
+        throw new ValidationError(
+          "ERR_ERL_UNKNOWN_VALIDATION",
+          `options.validate.${key} is not recognized. Supported validate options are: ${supportedValidations.join(
+            ", "
+          )}.`
+        );
+      }
+    }
+  },
+  /**
+   * Checks to see if the instance was created inside of a request handler,
+   * which would prevent it from working correctly, with the default memory
+   * store (or any other store with localKeys.)
+   */
+  creationStack(store) {
+    const { stack } = new Error(
+      "express-rate-limit validation check (set options.validate.creationStack=false to disable)"
+    );
+    if (stack?.includes("Layer.handle [as handle_request]")) {
+      if (!store.localKeys) {
+        throw new ValidationError(
+          "ERR_ERL_CREATED_IN_REQUEST_HANDLER",
+          "express-rate-limit instance should *usually* be created at app initialization, not when responding to a request."
+        );
+      }
+      throw new ValidationError(
+        "ERR_ERL_CREATED_IN_REQUEST_HANDLER",
+        `express-rate-limit instance should be created at app initialization, not when responding to a request.`
+      );
+    }
+  }
+};
+var getValidations = (_enabled) => {
+  let enabled;
+  if (typeof _enabled === "boolean") {
+    enabled = {
+      default: _enabled
+    };
+  } else {
+    enabled = {
+      default: true,
+      ..._enabled
+    };
+  }
+  const wrappedValidations = {
+    enabled
+  };
+  for (const [name, validation] of Object.entries(validations)) {
+    if (typeof validation === "function")
+      wrappedValidations[name] = (...args) => {
+        if (!(enabled[name] ?? enabled.default)) {
+          return;
+        }
+        try {
+          ;
+          validation.apply(
+            wrappedValidations,
+            args
+          );
+        } catch (error) {
+          if (error instanceof ChangeWarning) console.warn(error);
+          else console.error(error);
+        }
+      };
+  }
+  return wrappedValidations;
+};
+var MemoryStore = class {
+  constructor() {
+    this.previous = /* @__PURE__ */ new Map();
+    this.current = /* @__PURE__ */ new Map();
+    this.localKeys = true;
+  }
+  /**
+   * Method that initializes the store.
+   *
+   * @param options {Options} - The options used to setup the middleware.
+   */
+  init(options) {
+    this.windowMs = options.windowMs;
+    if (this.interval) clearInterval(this.interval);
+    this.interval = setInterval(() => {
+      this.clearExpired();
+    }, this.windowMs);
+    if (this.interval.unref) this.interval.unref();
+  }
+  /**
+   * Method to fetch a client's hit count and reset time.
+   *
+   * @param key {string} - The identifier for a client.
+   *
+   * @returns {ClientRateLimitInfo | undefined} - The number of hits and reset time for that client.
+   *
+   * @public
+   */
+  async get(key) {
+    return this.current.get(key) ?? this.previous.get(key);
+  }
+  /**
+   * Method to increment a client's hit counter.
+   *
+   * @param key {string} - The identifier for a client.
+   *
+   * @returns {ClientRateLimitInfo} - The number of hits and reset time for that client.
+   *
+   * @public
+   */
+  async increment(key) {
+    const client = this.getClient(key);
+    const now = Date.now();
+    if (client.resetTime.getTime() <= now) {
+      this.resetClient(client, now);
+    }
+    client.totalHits++;
+    return client;
+  }
+  /**
+   * Method to decrement a client's hit counter.
+   *
+   * @param key {string} - The identifier for a client.
+   *
+   * @public
+   */
+  async decrement(key) {
+    const client = this.getClient(key);
+    if (client.totalHits > 0) client.totalHits--;
+  }
+  /**
+   * Method to reset a client's hit counter.
+   *
+   * @param key {string} - The identifier for a client.
+   *
+   * @public
+   */
+  async resetKey(key) {
+    this.current.delete(key);
+    this.previous.delete(key);
+  }
+  /**
+   * Method to reset everyone's hit counter.
+   *
+   * @public
+   */
+  async resetAll() {
+    this.current.clear();
+    this.previous.clear();
+  }
+  /**
+   * Method to stop the timer (if currently running) and prevent any memory
+   * leaks.
+   *
+   * @public
+   */
+  shutdown() {
+    clearInterval(this.interval);
+    void this.resetAll();
+  }
+  /**
+   * Recycles a client by setting its hit count to zero, and reset time to
+   * `windowMs` milliseconds from now.
+   *
+   * NOT to be confused with `#resetKey()`, which removes a client from both the
+   * `current` and `previous` maps.
+   *
+   * @param client {Client} - The client to recycle.
+   * @param now {number} - The current time, to which the `windowMs` is added to get the `resetTime` for the client.
+   *
+   * @return {Client} - The modified client that was passed in, to allow for chaining.
+   */
+  resetClient(client, now = Date.now()) {
+    client.totalHits = 0;
+    client.resetTime.setTime(now + this.windowMs);
+    return client;
+  }
+  /**
+   * Retrieves or creates a client, given a key. Also ensures that the client being
+   * returned is in the `current` map.
+   *
+   * @param key {string} - The key under which the client is (or is to be) stored.
+   *
+   * @returns {Client} - The requested client.
+   */
+  getClient(key) {
+    if (this.current.has(key)) return this.current.get(key);
+    let client;
+    if (this.previous.has(key)) {
+      client = this.previous.get(key);
+      this.previous.delete(key);
+    } else {
+      client = { totalHits: 0, resetTime: /* @__PURE__ */ new Date() };
+      this.resetClient(client);
+    }
+    this.current.set(key, client);
+    return client;
+  }
+  /**
+   * Move current clients to previous, create a new map for current.
+   *
+   * This function is called every `windowMs`.
+   */
+  clearExpired() {
+    this.previous = this.current;
+    this.current = /* @__PURE__ */ new Map();
+  }
+};
+var isLegacyStore = (store) => (
+  // Check that `incr` exists but `increment` does not - store authors might want
+  // to keep both around for backwards compatibility.
+  typeof store.incr === "function" && typeof store.increment !== "function"
+);
+var promisifyStore = (passedStore) => {
+  if (!isLegacyStore(passedStore)) {
+    return passedStore;
+  }
+  const legacyStore = passedStore;
+  class PromisifiedStore {
+    async increment(key) {
+      return new Promise((resolve, reject) => {
+        legacyStore.incr(
+          key,
+          (error, totalHits, resetTime) => {
+            if (error) reject(error);
+            resolve({ totalHits, resetTime });
+          }
+        );
+      });
+    }
+    async decrement(key) {
+      return legacyStore.decrement(key);
+    }
+    async resetKey(key) {
+      return legacyStore.resetKey(key);
+    }
+    /* istanbul ignore next */
+    async resetAll() {
+      if (typeof legacyStore.resetAll === "function")
+        return legacyStore.resetAll();
+    }
+  }
+  return new PromisifiedStore();
+};
+var getOptionsFromConfig = (config) => {
+  const { validations: validations2, ...directlyPassableEntries } = config;
+  return {
+    ...directlyPassableEntries,
+    validate: validations2.enabled
+  };
+};
+var omitUndefinedOptions = (passedOptions) => {
+  const omittedOptions = {};
+  for (const k of Object.keys(passedOptions)) {
+    const key = k;
+    if (passedOptions[key] !== void 0) {
+      omittedOptions[key] = passedOptions[key];
+    }
+  }
+  return omittedOptions;
+};
+var parseOptions = (passedOptions) => {
+  const notUndefinedOptions = omitUndefinedOptions(passedOptions);
+  const validations2 = getValidations(notUndefinedOptions?.validate ?? true);
+  validations2.validationsConfig();
+  validations2.draftPolliHeaders(
+    // @ts-expect-error see the note above.
+    notUndefinedOptions.draft_polli_ratelimit_headers
+  );
+  validations2.onLimitReached(notUndefinedOptions.onLimitReached);
+  let standardHeaders = notUndefinedOptions.standardHeaders ?? false;
+  if (standardHeaders === true) standardHeaders = "draft-6";
+  const config = {
+    windowMs: 60 * 1e3,
+    limit: passedOptions.max ?? 5,
+    // `max` is deprecated, but support it anyways.
+    message: "Too many requests, please try again later.",
+    statusCode: 429,
+    legacyHeaders: passedOptions.headers ?? true,
+    identifier(request, _response) {
+      let duration = "";
+      const property = config.requestPropertyName;
+      const { limit } = request[property];
+      const seconds = config.windowMs / 1e3;
+      const minutes = config.windowMs / (1e3 * 60);
+      const hours = config.windowMs / (1e3 * 60 * 60);
+      const days = config.windowMs / (1e3 * 60 * 60 * 24);
+      if (seconds < 60) duration = `${seconds}sec`;
+      else if (minutes < 60) duration = `${minutes}min`;
+      else if (hours < 24) duration = `${hours}hr${hours > 1 ? "s" : ""}`;
+      else duration = `${days}day${days > 1 ? "s" : ""}`;
+      return `${limit}-in-${duration}`;
+    },
+    requestPropertyName: "rateLimit",
+    skipFailedRequests: false,
+    skipSuccessfulRequests: false,
+    requestWasSuccessful: (_request, response) => response.statusCode < 400,
+    skip: (_request, _response) => false,
+    keyGenerator(request, _response) {
+      validations2.ip(request.ip);
+      validations2.trustProxy(request);
+      validations2.xForwardedForHeader(request);
+      return request.ip;
+    },
+    async handler(request, response, _next, _optionsUsed) {
+      response.status(config.statusCode);
+      const message2 = typeof config.message === "function" ? await config.message(
+        request,
+        response
+      ) : config.message;
+      if (!response.writableEnded) {
+        response.send(message2);
+      }
+    },
+    passOnStoreError: false,
+    // Allow the default options to be overridden by the passed options.
+    ...notUndefinedOptions,
+    // `standardHeaders` is resolved into a draft version above, use that.
+    standardHeaders,
+    // Note that this field is declared after the user's options are spread in,
+    // so that this field doesn't get overridden with an un-promisified store!
+    store: promisifyStore(notUndefinedOptions.store ?? new MemoryStore()),
+    // Print an error to the console if a few known misconfigurations are detected.
+    validations: validations2
+  };
+  if (typeof config.store.increment !== "function" || typeof config.store.decrement !== "function" || typeof config.store.resetKey !== "function" || config.store.resetAll !== void 0 && typeof config.store.resetAll !== "function" || config.store.init !== void 0 && typeof config.store.init !== "function") {
+    throw new TypeError(
+      "An invalid store was passed. Please ensure that the store is a class that implements the `Store` interface."
+    );
+  }
+  return config;
+};
+var handleAsyncErrors = (fn) => async (request, response, next) => {
+  try {
+    await Promise.resolve(fn(request, response, next)).catch(next);
+  } catch (error) {
+    next(error);
+  }
+};
+var rateLimit = (passedOptions) => {
+  const config = parseOptions(passedOptions ?? {});
+  const options = getOptionsFromConfig(config);
+  config.validations.creationStack(config.store);
+  config.validations.unsharedStore(config.store);
+  if (typeof config.store.init === "function") config.store.init(options);
+  const middleware = handleAsyncErrors(
+    async (request, response, next) => {
+      const skip = await config.skip(request, response);
+      if (skip) {
+        next();
+        return;
+      }
+      const augmentedRequest = request;
+      const key = await config.keyGenerator(request, response);
+      let totalHits = 0;
+      let resetTime;
+      try {
+        const incrementResult = await config.store.increment(key);
+        totalHits = incrementResult.totalHits;
+        resetTime = incrementResult.resetTime;
+      } catch (error) {
+        if (config.passOnStoreError) {
+          console.error(
+            "express-rate-limit: error from store, allowing request without rate-limiting.",
+            error
+          );
+          next();
+          return;
+        }
+        throw error;
+      }
+      config.validations.positiveHits(totalHits);
+      config.validations.singleCount(request, config.store, key);
+      const retrieveLimit = typeof config.limit === "function" ? config.limit(request, response) : config.limit;
+      const limit = await retrieveLimit;
+      config.validations.limit(limit);
+      const info = {
+        limit,
+        used: totalHits,
+        remaining: Math.max(limit - totalHits, 0),
+        resetTime
+      };
+      Object.defineProperty(info, "current", {
+        configurable: false,
+        enumerable: false,
+        value: totalHits
+      });
+      augmentedRequest[config.requestPropertyName] = info;
+      if (config.legacyHeaders && !response.headersSent) {
+        setLegacyHeaders(response, info);
+      }
+      if (config.standardHeaders && !response.headersSent) {
+        switch (config.standardHeaders) {
+          case "draft-6": {
+            setDraft6Headers(response, info, config.windowMs);
+            break;
+          }
+          case "draft-7": {
+            config.validations.headersResetTime(info.resetTime);
+            setDraft7Headers(response, info, config.windowMs);
+            break;
+          }
+          case "draft-8": {
+            const retrieveName = typeof config.identifier === "function" ? config.identifier(request, response) : config.identifier;
+            const name = await retrieveName;
+            config.validations.headersResetTime(info.resetTime);
+            setDraft8Headers(response, info, config.windowMs, name, key);
+            break;
+          }
+          default: {
+            config.validations.headersDraftVersion(config.standardHeaders);
+            break;
+          }
+        }
+      }
+      if (config.skipFailedRequests || config.skipSuccessfulRequests) {
+        let decremented = false;
+        const decrementKey = async () => {
+          if (!decremented) {
+            await config.store.decrement(key);
+            decremented = true;
+          }
+        };
+        if (config.skipFailedRequests) {
+          response.on("finish", async () => {
+            if (!await config.requestWasSuccessful(request, response))
+              await decrementKey();
+          });
+          response.on("close", async () => {
+            if (!response.writableEnded) await decrementKey();
+          });
+          response.on("error", async () => {
+            await decrementKey();
+          });
+        }
+        if (config.skipSuccessfulRequests) {
+          response.on("finish", async () => {
+            if (await config.requestWasSuccessful(request, response))
+              await decrementKey();
+          });
+        }
+      }
+      config.validations.disable();
+      if (totalHits > limit) {
+        if (config.legacyHeaders || config.standardHeaders) {
+          setRetryAfterHeader(response, info, config.windowMs);
+        }
+        config.handler(request, response, next, options);
+        return;
+      }
+      next();
+    }
+  );
+  const getThrowFn = () => {
+    throw new Error("The current store does not support the get/getKey method");
+  };
+  middleware.resetKey = config.store.resetKey.bind(config.store);
+  middleware.getKey = typeof config.store.get === "function" ? config.store.get.bind(config.store) : getThrowFn;
+  return middleware;
+};
+var lib_default = rateLimit;
 
 // src/lib/ai-limiter.ts
 var aiLimiter = lib_default({
@@ -196645,6 +196668,7 @@ var health_default = router;
 var import_express2 = __toESM(require_express2(), 1);
 var router2 = (0, import_express2.Router)();
 router2.get("/diag", (_req, res) => {
+  const allKeys = Object.keys(process.env).sort();
   res.json({
     envVars: {
       OLAGON_API_KEY: process.env.OLAGON_API_KEY ? "[SET]" : "[EMPTY]",
@@ -196652,9 +196676,14 @@ router2.get("/diag", (_req, res) => {
       AI_API_KEY: process.env.AI_API_KEY ? "[SET]" : "[EMPTY]",
       OWNER_EMAIL: process.env.OWNER_EMAIL ? "[SET]" : "[EMPTY]",
       AI_PROVIDER: process.env.AI_PROVIDER ?? "[NOT SET]",
-      AI_BASE_URL: process.env.AI_BASE_URL ?? "[NOT SET]"
-    },
-    allEnvKeys: Object.keys(process.env).filter((k) => k.includes("API") || k.includes("KEY") || k.includes("OWNER") || k.includes("AI_"))
+      AI_BASE_URL: process.env.AI_BASE_URL ?? "[NOT SET]",
+      SUPABASE_URL: process.env.SUPABASE_URL ?? "[NOT SET]",
+      SUPABASE_JWT_SECRET: process.env.SUPABASE_JWT_SECRET ? "[SET]" : "[EMPTY]",
+      SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY ? "[SET]" : "[EMPTY]",
+      DATABASE_URL: !!process.env.DATABASE_URL,
+      DATABASE_POOLER_URL: !!process.env.DATABASE_POOLER_URL,
+      VERBOSE_allKeys: allKeys
+    }
   });
 });
 var diag_default = router2;
@@ -204582,26 +204611,13 @@ function customAlphabet(alphabet, size = 21) {
 
 // src/routes/auth.ts
 init_src();
-
-// src/lib/logger.ts
-var import_pino = __toESM(require_pino(), 1);
-var isProduction = process.env.NODE_ENV === "production";
-var logger2 = (0, import_pino.default)({
-  level: process.env.LOG_LEVEL ?? "info",
-  redact: [
-    "req.headers.authorization",
-    "req.headers.cookie",
-    "res.headers['set-cookie']"
-  ],
-  ...isProduction ? {} : {
-    transport: {
-      target: "pino-pretty",
-      options: { colorize: true }
-    }
-  }
+var authLimiter = lib_default({
+  windowMs: 60 * 1e3,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Terlalu banyak percobaan. Silakan coba lagi setelah satu menit." }
 });
-
-// src/routes/auth.ts
 var router3 = (0, import_express3.Router)();
 var SUPABASE_URL2 = process.env.SUPABASE_URL ?? "";
 var SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
@@ -204654,7 +204670,7 @@ router3.get("/auth/me", authMiddleware, async (req, res) => {
   }
   res.json(toUserJson(user));
 });
-router3.post("/auth/login", async (req, res) => {
+router3.post("/auth/login", authLimiter, async (req, res) => {
   try {
     const { access_token, refresh_token } = req.body;
     if (!access_token) {
@@ -204730,7 +204746,7 @@ router3.post("/auth/login", async (req, res) => {
     }
   }
 });
-router3.post("/auth/register", async (req, res) => {
+router3.post("/auth/register", authLimiter, async (req, res) => {
   const { email, password, username, displayName, referralCode } = req.body;
   if (!email || !password) {
     res.status(400).json({ error: "email and password are required" });
@@ -204865,7 +204881,7 @@ router3.post("/auth/logout", (_req, res) => {
   res.clearCookie("sb_refresh_token", { path: "/" });
   res.json({ message: "Logged out" });
 });
-router3.post("/auth/refresh", async (req, res) => {
+router3.post("/auth/refresh", authLimiter, async (req, res) => {
   const refreshToken = req.body?.refresh_token || req.cookies?.sb_refresh_token;
   if (!refreshToken || !supabaseAdmin) {
     res.status(401).json({ error: "No refresh token" });
@@ -204905,7 +204921,7 @@ router3.get("/auth/referrals", authMiddleware, async (req, res) => {
   };
   res.json({ stats, referrals });
 });
-router3.get("/auth/check-username", async (req, res) => {
+router3.get("/auth/check-username", authLimiter, async (req, res) => {
   const username = req.query.username?.trim().toLowerCase();
   if (!username) {
     res.status(400).json({ error: "username query parameter is required" });
@@ -205097,7 +205113,66 @@ function isOwnerEmail(email) {
 // src/lib/ai.ts
 var _tierCache = /* @__PURE__ */ new Map();
 var _tierCacheTime = 0;
-var CACHE_TTL_MS = 6e4;
+var CACHE_TTL_MS = 5e3;
+var OLAGON_TIERS = {
+  "haiku-4.5": {
+    id: "haiku-4.5",
+    name: "Haiku 4.5 (Free)",
+    provider: "anthropic",
+    model: "claude-haiku-4-5-20250514",
+    baseUrl: "https://gateway.olagon.site/anthropic",
+    apiKeyEnvVar: "OLAGON_API_KEY",
+    pricePer1MInputCents: 0,
+    pricePer1MOutputCents: 0,
+    providerCostPer1MInputCents: 0,
+    providerCostPer1MOutputCents: 0,
+    markupMultiplier: 1,
+    rateLimitRpm: null,
+    rateLimitTpd: null,
+    isFree: true,
+    isOwnerOnly: false,
+    description: "",
+    usageTips: null
+  },
+  "opus-4-8-olagon": {
+    id: "opus-4-8-olagon",
+    name: "Opus 4.8 (Olagon \u2014 Owner Only)",
+    provider: "anthropic",
+    model: "claude-opus-4-8",
+    baseUrl: "https://gateway.olagon.site/anthropic",
+    apiKeyEnvVar: "OLAGON_API_KEY",
+    pricePer1MInputCents: 0,
+    pricePer1MOutputCents: 0,
+    providerCostPer1MInputCents: 0,
+    providerCostPer1MOutputCents: 0,
+    markupMultiplier: 1,
+    rateLimitRpm: null,
+    rateLimitTpd: null,
+    isFree: true,
+    isOwnerOnly: true,
+    description: "",
+    usageTips: null
+  },
+  "opus-4-6-olagon": {
+    id: "opus-4-6-olagon",
+    name: "Opus 4.6 (Olagon \u2014 Owner Only, Cascade)",
+    provider: "anthropic",
+    model: "claude-opus-4-6",
+    baseUrl: "https://gateway.olagon.site/anthropic",
+    apiKeyEnvVar: "OLAGON_API_KEY",
+    pricePer1MInputCents: 0,
+    pricePer1MOutputCents: 0,
+    providerCostPer1MInputCents: 0,
+    providerCostPer1MOutputCents: 0,
+    markupMultiplier: 1,
+    rateLimitRpm: null,
+    rateLimitTpd: null,
+    isFree: true,
+    isOwnerOnly: true,
+    description: "",
+    usageTips: null
+  }
+};
 async function getTierConfig(tierId, userEmail) {
   const now = Date.now();
   if (now - _tierCacheTime < CACHE_TTL_MS && _tierCache.has(tierId)) {
@@ -205105,12 +205180,26 @@ async function getTierConfig(tierId, userEmail) {
     if (cached2?.isOwnerOnly && !isOwnerEmail(userEmail)) return null;
     return cached2;
   }
+  if (OLAGON_TIERS[tierId]) {
+    const config2 = OLAGON_TIERS[tierId];
+    if (config2.isOwnerOnly && !isOwnerEmail(userEmail)) {
+      logger2.warn({ tierId, userEmail }, "getTierConfig: Olagon tier blocked for non-owner");
+      return null;
+    }
+    _tierCache.set(tierId, config2);
+    _tierCacheTime = now;
+    logger2.info({ tierId }, "getTierConfig: using hardcoded Olagon config (no DB lookup)");
+    return config2;
+  }
   const [tier] = await db.select().from(aiTiersTable).where(eq4(aiTiersTable.id, tierId));
-  if (!tier) return null;
+  if (!tier) {
+    logger2.warn({ tierId, userEmail }, "getTierConfig: tier not found in DB");
+    return null;
+  }
   if (tier.isOwnerOnly && !isOwnerEmail(userEmail)) {
     logger2.warn(
-      { tierId, userEmail: userEmail ?? "<none>" },
-      "Blocked non-owner access to owner-only AI tier"
+      { tierId, userEmail, ownerEmail: process.env.OWNER_EMAIL, isOwner: isOwnerEmail(userEmail) },
+      "getTierConfig: blocked non-owner access to owner-only tier"
     );
     return null;
   }
@@ -205246,15 +205335,33 @@ function getApiKey(envVarName) {
     }
   }
 }
-async function callAI(messages, tierId, mode) {
-  const tier = await getTierConfig(tierId);
-  if (!tier) {
-    logger2.warn({ tierId }, "AI tier not found \u2014 falling back to haiku-4.5");
-    const haikuTier = await getTierConfig("haiku-4.5");
-    if (!haikuTier) {
-      throw new Error("Haiku 4.5 tier not configured");
+async function callAI(messages, tierId, mode, preResolvedTier) {
+  if (tierId === "opus-4-8-olagon" || tierId === "opus-4-6-olagon") {
+    const config = OLAGON_TIERS[tierId];
+    const apiKey2 = getApiKey(config.apiKeyEnvVar);
+    if (!apiKey2) {
+      logger2.warn({ tierId, apiKeyEnvVar: config.apiKeyEnvVar, OLAGON_API_KEY: !!process.env.OLAGON_API_KEY }, "callAI: Olagon API key empty");
+      return {
+        content: `AI belum dikonfigurasi. Tier "${config.name}" memerlukan ${config.apiKeyEnvVar} di environment variables.`,
+        usage: { inputTokens: 0, outputTokens: 0, estimatedCostUsd: 0, costCents: 0, tierId },
+        tierConfig: config
+      };
     }
-    return callAI(messages, "haiku-4.5", mode);
+    logger2.info({ tierId, model: config.model }, "callAI: using Olagon direct bypass");
+    return callAnthropic(messages, config, mode);
+  }
+  const tier = preResolvedTier ?? await getTierConfig(tierId);
+  if (!tier) {
+    if (OLAGON_TIERS["haiku-4.5"]) {
+      const haikuConfig = OLAGON_TIERS["haiku-4.5"];
+      const apiKey2 = getApiKey(haikuConfig.apiKeyEnvVar);
+      if (apiKey2) {
+        logger2.info({ tierId }, "callAI: tier not found \u2014 using hardcoded haiku-4.5 bypass");
+        return callAnthropic(messages, haikuConfig, mode);
+      }
+    }
+    logger2.warn({ tierId }, "callAI: tier not found and haiku fallback unavailable");
+    throw new Error("AI tier not found and haiku fallback unavailable");
   }
   const apiKey = getApiKey(tier.apiKeyEnvVar);
   if (!apiKey) {
@@ -253087,7 +253194,7 @@ router6.post("/projects/:projectId/messages", async (req, res) => {
   ];
   let usageResult;
   try {
-    usageResult = await callAI(aiMessages, selectedTier.id, mode);
+    usageResult = await callAI(aiMessages, selectedTier.id, mode, selectedTier);
   } catch (err) {
     const message2 = err instanceof Error ? err.message : String(err);
     if (message2 === "KONTEKS_TERLALU_PANJANG") {
@@ -254241,14 +254348,28 @@ async function searchCrossRef(query, options = {}) {
     params.set("offset", String(options.offset));
   }
   const url2 = `${CROSSREF_BASE}?${params.toString()}`;
-  const response = await withCrossRefRateLimit(
-    () => fetch(url2, {
-      headers: {
-        "User-Agent": `Teora/1.0 (mailto:${POLITE_EMAIL})`,
-        "Accept": "application/json"
-      }
-    })
-  );
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5e3);
+  let response;
+  try {
+    response = await withCrossRefRateLimit(
+      () => fetch(url2, {
+        headers: {
+          "User-Agent": `Teora/1.0 (mailto:${POLITE_EMAIL})`,
+          "Accept": "application/json"
+        },
+        signal: controller.signal
+      })
+    );
+  } catch (err) {
+    clearTimeout(timeout);
+    if (err instanceof Error && err.name === "AbortError") {
+      throw new Error("CrossRef tidak merespons dalam 5 detik. Silakan coba lagi.");
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeout);
+  }
   if (!response.ok) {
     if (response.status === 429) {
       throw new Error("CrossRef rate limit exceeded. Please wait a moment and try again.");
@@ -254674,7 +254795,8 @@ router8.get("/references/search", async (req, res) => {
   } catch (err) {
     logger2.error({ err }, "[CrossRef Search]");
     const message2 = err instanceof Error ? err.message : "Search failed";
-    res.status(502).json({ error: message2 });
+    const status = message2.includes("tidak merespons") || message2.includes("rate limit") ? 503 : 502;
+    res.status(status).json({ error: message2 });
   }
 });
 router8.post("/references/fetch-metadata", async (req, res) => {
@@ -258918,11 +259040,16 @@ router32.get("/projects/:projectId/simulasi/sessions", async (req, res) => {
   }
   const ok = await requireProjectOwnership(params.data.projectId, req.user?.id ?? "", res);
   if (!ok) return;
-  const sessions = await db.select().from(simulationSessionsTable).where(eq35(simulationSessionsTable.projectId, params.data.projectId)).orderBy(desc19(simulationSessionsTable.startedAt));
-  res.json(sessions.map((s2) => ({
-    ...s2,
-    quotaInfo: getQuotaInfo(s2)
-  })));
+  try {
+    const sessions = await db.select().from(simulationSessionsTable).where(eq35(simulationSessionsTable.projectId, params.data.projectId)).orderBy(desc19(simulationSessionsTable.startedAt));
+    res.json(sessions.map((s2) => ({
+      ...s2,
+      quotaInfo: getQuotaInfo(s2)
+    })));
+  } catch (err) {
+    logger2.error({ err, projectId: params.data.projectId }, "Failed to list simulation sessions");
+    res.status(500).json({ error: "Gagal memuat sesi simulasi. Silakan coba lagi." });
+  }
 });
 router32.get("/projects/:projectId/simulasi/sessions/:sessionId/messages", async (req, res) => {
   const params = ListSimulationMessagesParams.safeParse(req.params);
@@ -259651,15 +259778,6 @@ app.use(import_express38.default.json());
 app.use(import_express38.default.urlencoded({ extended: true }));
 app.use("/webhooks/payment-success", import_express38.default.raw({ type: "application/json" }), referral_webhook_default);
 app.use("/webhooks", webhooks_default);
-var authLimiter = lib_default({
-  windowMs: 60 * 1e3,
-  max: 5,
-  standardHeaders: true,
-  legacyHeaders: false,
-  skip: (req) => req.path === "/healthz",
-  message: { error: "Terlalu banyak percobaan. Silakan coba lagi setelah satu menit." }
-});
-app.use("/api/auth", authLimiter);
 app.use("/api", routes_default);
 app.use((err, req, res, _next) => {
   logger2.error(
@@ -259673,24 +259791,11 @@ app.use((err, req, res, _next) => {
 });
 var app_default = app;
 
-// src/index.ts
-var rawPort = process.env["PORT"];
-if (!rawPort) {
-  throw new Error(
-    "PORT environment variable is required but was not provided."
-  );
-}
-var port = Number(rawPort);
-if (Number.isNaN(port) || port <= 0) {
-  throw new Error(`Invalid PORT value: "${rawPort}"`);
-}
-app_default.listen(port, (err) => {
-  if (err) {
-    logger2.error({ err }, "Error listening on port");
-    process.exit(1);
-  }
-  logger2.info({ port }, "Server listening");
-});
+// api/_handler.ts
+var handler_default = app_default;
+export {
+  handler_default as default
+};
 /*! Bundled license information:
 
 depd/index.js:
@@ -260036,4 +260141,4 @@ docx/dist/index.mjs:
 @noble/ciphers/esm/utils.js:
   (*! noble-ciphers - MIT License (c) 2023 Paul Miller (paulmillr.com) *)
 */
-//# sourceMappingURL=index.mjs.map
+//# sourceMappingURL=_handler.mjs.map

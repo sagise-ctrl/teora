@@ -43,8 +43,11 @@ export function PracticeQuizPicker({
   const projectsQuery = useListProjects({});
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
 
-  // Step 2: quizzes for selected project
-  const quizzesQuery = useListQuizzes(selectedProjectId ?? 0);
+  // Step 2: quizzes for selected project — only call when a project is selected
+  const quizzesQuery = useListQuizzes(
+    selectedProjectId ?? 0,
+    { query: { enabled: selectedProjectId !== null && selectedProjectId > 0 } }
+  );
   const generateQuiz = useGenerateQuiz();
 
   // Step 3: generate form

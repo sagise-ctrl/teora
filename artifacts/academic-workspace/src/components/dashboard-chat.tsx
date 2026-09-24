@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import {
   Sheet,
   SheetContent,
@@ -279,7 +281,9 @@ export function DashboardChat({ open, onOpenChange }: DashboardChatProps) {
                       )}
                     >
                       <div className="whitespace-pre-wrap font-serif">
-                        {msg.content}
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {msg.content}
+                        </ReactMarkdown>
                       </div>
                       <div
                         className={cn(

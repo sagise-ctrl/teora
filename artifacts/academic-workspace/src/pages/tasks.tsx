@@ -4,13 +4,25 @@ import { motion } from "framer-motion";
 import {
   useListProjects,
   useGetProjectStats,
+  useDeleteProject,
   type ListProjectsParams,
 } from "@/lib/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Empty,
   EmptyHeader,
@@ -19,7 +31,15 @@ import {
   EmptyDescription,
   EmptyIllustrationPapers,
 } from "@/components/ui/empty";
-import { Search, Plus, ArrowRight, FileText } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useToast } from "@/hooks/use-toast";
+import { Search, Plus, ArrowRight, FileText, MoreVertical, Trash2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { id as localeId } from "date-fns/locale";
 import {
@@ -53,10 +73,27 @@ export default function TaskListPage() {
   // Reactive to URL changes: re-renders when ?type= updates.
   const searchString = useSearch() ?? "";
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const activeType: TaskType = getActiveType(searchString);
 
   const [stageFilter, setStageFilter] = useState<StageFilter>(STAGE_FILTER_KEY);
   const [searchInput, setSearchInput] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<{ id: number; title: string } | null>(null);
+
+  const deleteProject = useDeleteProject({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["getListProjects"] });
+        toast({ title: "Project dihapus" });
+        setDeleteTarget(null);
+      },
+      onError: (err) => {
+        toast({ title: "Gagal menghapus project", description: String(err), variant: "destructive" });
+        setDeleteTarget(null);
+      },
+    },
+  });
 
   const listParams = useMemo<ListProjectsParams>(
     () => ({ type: activeType } as ListProjectsParams),
@@ -217,10 +254,41 @@ export default function TaskListPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filtered.map((p: any) => (
-                <TaskCard key={p.id} project={p} type={activeType} />
+                <TaskCard
+                  key={p.id}
+                  project={p}
+                  type={activeType}
+                  onDelete={() => setDeleteTarget({ id: p.id, title: p.title ?? "Project ini" })}
+                />
               ))}
             </div>
           )}
+
+          {/* Delete confirmation dialog */}
+          <AlertDialog open={deleteTarget !== null} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Hapus Project?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Apakah Anda yakin ingin menghapus "{deleteTarget?.title}"? Tindakan ini tidak dapat dibatalkan.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel onClick={() => setDeleteTarget(null)}>Batal</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-destructive text-white hover:bg-destructive/90"
+                  onClick={() => {
+                    if (deleteTarget) {
+                      deleteProject.mutate({ projectId: deleteTarget.id });
+                    }
+                  }}
+                  disabled={deleteProject.isPending}
+                >
+                  {deleteProject.isPending ? "Menghapus..." : "Hapus"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
     </div>
@@ -262,7 +330,7 @@ function FilterChip({
   );
 }
 
-function TaskCard({ project, type }: { project: any; type: TaskType }) {
+function TaskCard({ project, type, onDelete }: { project: any; type: TaskType; onDelete: () => void }) {
   const stage = backendStatusToStage(project.status);
   const meta = stageMeta(stage);
   const isDraft = project.status === "draft";
@@ -274,48 +342,61 @@ function TaskCard({ project, type }: { project: any; type: TaskType }) {
 
   return (
     <motion.div whileHover={{ y: -2, transition: { type: "spring", stiffness: 400, damping: 25 } }}>
-      <Link href={`/projects/${project.id}`}>
-        <Card className="cursor-pointer h-full relative overflow-hidden transition-all duration-200 hover:shadow-md hover:border-primary/30 group">
-          <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-[#2D79FF] to-[#8E54E9] opacity-0 group-hover:opacity-100 transition-opacity" />
-          <CardContent className="p-5 space-y-3">
-            {/* Stage badge + relative time */}
-            <div className="flex items-center justify-between gap-3">
-              <span
-                className={
-                  "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium " +
-                  meta.color +
-                  " " +
-                  meta.textColor
-                }
-              >
-                {meta.label}
-              </span>
-              <span className="text-xs text-muted-foreground">{updatedRelative}</span>
-            </div>
+      <Card className="cursor-pointer h-full relative overflow-hidden transition-all duration-200 hover:shadow-md hover:border-primary/30 group">
+        <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-[#2D79FF] to-[#8E54E9] opacity-0 group-hover:opacity-100 transition-opacity" />
+        <CardContent className="p-5 space-y-3">
+          {/* Stage badge + relative time */}
+          <div className="flex items-center justify-between gap-3">
+            <span
+              className={
+                "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium " +
+                meta.color +
+                " " +
+                meta.textColor
+              }
+            >
+              {meta.label}
+            </span>
+            <span className="text-xs text-muted-foreground">{updatedRelative}</span>
+          </div>
 
-            {/* Title */}
-            <h3 className="font-serif font-semibold text-base leading-snug line-clamp-2 group-hover:text-primary transition-colors">
-              {project.title ?? "Tanpa Judul"}
-            </h3>
+          {/* Title */}
+          <h3 className="font-serif font-semibold text-base leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+            {project.title ?? "Tanpa Judul"}
+          </h3>
 
-            {/* Meta row: type label */}
-            <p className="text-xs text-muted-foreground">
-              {TASK_TYPE_LABEL[type]}
-            </p>
+          {/* Meta row: type label */}
+          <p className="text-xs text-muted-foreground">
+            {TASK_TYPE_LABEL[type]}
+          </p>
 
-            {/* CTA */}
-            <div className="flex items-center gap-2 pt-1">
-              <Button size="sm" variant="default" className="flex-1">
+          {/* CTA row + delete menu */}
+          <div className="flex items-center gap-2 pt-1">
+            <Link href={`/projects/${project.id}`} className="flex-1">
+              <Button size="sm" variant="default" className="w-full">
                 {ctaLabel}
                 <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
               </Button>
-              <Button size="sm" variant="outline" title="Preview" type="button" onClick={(e) => { e.preventDefault(); /* TODO preview modal */ }}>
-                <FileText className="w-3.5 h-3.5" />
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </Link>
+            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="sm" variant="ghost" type="button" onClick={(e) => e.preventDefault()}>
+                  <MoreVertical className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  className="text-destructive focus:text-destructive"
+                  onClick={(e) => { e.preventDefault(); onDelete(); }}
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Hapus
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </CardContent>
+      </Card>
     </motion.div>
   );
 }

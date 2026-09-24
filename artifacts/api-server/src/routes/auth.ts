@@ -2,9 +2,18 @@ import { Router, type IRouter } from "express";
 import { eq, sql } from "drizzle-orm";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { customAlphabet } from "nanoid";
+import { rateLimit } from "express-rate-limit";
 import { db, usersTable, referralsTable, referralEventsTable } from "@workspace/db";
 import { authMiddleware } from "../middlewares/auth.js";
 import { logger } from "../lib/logger.js";
+
+const authLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Terlalu banyak percobaan. Silakan coba lagi setelah satu menit." },
+});
 
 const router: IRouter = Router();
 
@@ -93,7 +102,7 @@ router.get("/auth/me", authMiddleware, async (req, res): Promise<void> => {
 });
 
 // POST /auth/login
-router.post("/auth/login", async (req, res): Promise<void> => {
+router.post("/auth/login", authLimiter, async (req, res): Promise<void> => {
   try {
     const { access_token, refresh_token } = req.body as {
       access_token?: string;
@@ -211,7 +220,7 @@ router.post("/auth/login", async (req, res): Promise<void> => {
 });
 
 // POST /auth/register
-router.post("/auth/register", async (req, res): Promise<void> => {
+router.post("/auth/register", authLimiter, async (req, res): Promise<void> => {
   const { email, password, username, displayName, referralCode } = req.body as {
     email?: string;
     password?: string;
@@ -413,7 +422,7 @@ router.post("/auth/logout", (_req, res): void => {
 });
 
 // POST /auth/refresh
-router.post("/auth/refresh", async (req, res): Promise<void> => {
+router.post("/auth/refresh", authLimiter, async (req, res): Promise<void> => {
   const refreshToken =
     (req.body as { refresh_token?: string })?.refresh_token ||
     req.cookies?.sb_refresh_token;
@@ -470,7 +479,7 @@ router.get("/auth/referrals", authMiddleware, async (req, res): Promise<void> =>
 });
 
 // GET /auth/check-username?username=xxx
-router.get("/auth/check-username", async (req, res): Promise<void> => {
+router.get("/auth/check-username", authLimiter, async (req, res): Promise<void> => {
   const username = (req.query.username as string | undefined)?.trim().toLowerCase();
 
   if (!username) {

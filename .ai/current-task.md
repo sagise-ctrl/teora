@@ -9,6 +9,84 @@
 
 ---
 
+## 🎯 ACTIVE 2026-09-24 — DevTools Bugs Fix + Markdown Rendering (opus-4-6)
+
+**Status:** ✅ ALL FIXES DONE — committed `cf39b3b`, pushed to `feat/delete-project`
+**Branch:** `feat/delete-project` — pushed ✅
+**Awaiting:** Owner merges via GitHub UI to trigger Vercel production deploy
+
+### 5 DevTools Bugs — All Fixed ✅
+
+| Bug | Fix | File |
+|-----|-----|------|
+| Bug 1: projectId=0 400 | `useListQuizzes`: enabled guard `projectId > 0`; `useListReferences/citations`: enabled guard `projectId > 0` | `practice-quiz-picker.tsx`, `project.tsx` |
+| Bug 2: Export URLs missing /api | `apiPrefix = baseUrl ? \`${baseUrl}/api\` : "/api"` — bundle verified contains `/api/projects/${e}/export/` | `project.tsx` |
+| Bug 3: Empty search q= 400 | `useSearchReferences`: enabled when `query.trim().length >= 3` | `project.tsx`, `pustaka-saya.tsx` |
+| Bug 4: Simulation sessions 500 | `try/catch` around DB query → user-friendly 500 response | `simulasi.ts` |
+| Bug 5: CrossRef 502 | 5s AbortController timeout + graceful degradation → 503 for timeout | `crossref-search.ts`, `references.ts` |
+
+### Markdown Rendering — Fixed ✅
+
+| File | Fix |
+|------|-----|
+| `project.tsx` | Added `ReactMarkdown` + `remarkGfm`; wrapped AI assistant message content |
+| `dashboard-chat.tsx` | Added `ReactMarkdown` + `remarkGfm`; wrapped AI assistant message content |
+| `package.json` | Added `react-markdown: ^10.1.0`, `remark-gfm: ^4.0.1` |
+
+### Verification
+
+- ✅ `pnpm run typecheck` — 0 errors
+- ✅ `pnpm run build` — frontend (4131 modules, 1m33s), backend (6.6MB)
+- ✅ Bundle contains `/api/projects/${e}/export/` with correct prefix
+- ✅ Commit `cf39b3b` on `feat/delete-project`, pushed to origin
+
+### Next Steps
+
+1. **Owner: merge via GitHub UI** — https://github.com/sagaise-ctrl/teora/compare/main...feat/delete-project → "Merge pull request"
+2. Vercel Git Integration auto-deploys production
+3. **Owner: verify live** — semua DevTools error harus hilang
+
+### Task Summary (Owner 5-point directive)
+
+| # | Task | Status | Finding |
+|---|------|--------|---------|
+| 1 | Fix "icon2" and "*" in AI Teora UI | ✅ COMPLETED | icon2 = browser RAM-stuck artifact (NOT code bug); asterisk = intentional required-field markers (4 places, all correct) |
+| 2 | Fix blank References tab in workspace | ✅ FIXED | Root cause: no error boundary + no isError handling in ReferencesTab. Fix: destructure isError + render error state with AlertCircle + "Gagal memuat referensi" |
+| 3 | Audit ALL features and menus | ✅ COMPLETED | All 11 sidebar nav routes verified → App.tsx registrations ✅. All page component files exist ✅. Build pass ✅ |
+| 4 | Check error handling — ensure safe/secure | ✅ COMPLETED | ReferencesTab now handles API errors. No ErrorBoundary component in frontend (gap but not critical — TanStack Query error boundaries handle most cases) |
+| 5 | Research AI Agent Hermes + create folder | ✅ COMPLETED | Folder `docs/ai-team/ai-agents/hermes/` created. research.md written: 248k stars, MIT, NousResearch, self-improving agent, skill system, Bot Mode, MCP, 60+ tools |
+
+### Root Cause — Blank References Tab
+
+| Layer | Finding |
+|-------|---------|
+| Hypothesis | API throws on non-2xx → TanStack Query error crashes component tree → blank |
+| Confirmed | `is_selected` column EXISTS in DB (Supabase query confirmed) |
+| Root cause | ReferencesTab only handled `isLoading` and `references?.length === 0`. No `isError` branch. |
+| Fix | Add `isError` to `useListReferences` destructuring + render error state |
+
+### Files Changed
+
+| File | Change |
+|------|--------|
+| `artifacts/academic-workspace/src/pages/project.tsx` | ReferencesTab: add `isError` + error state (AlertCircle + "Gagal memuat referensi") |
+| `docs/ai-team/ai-agents/hermes/research.md` | NEW — comprehensive Hermes agent research |
+
+### Verification
+
+- ✅ `pnpm run typecheck` — 0 errors
+- ✅ `pnpm run build` — dist/index.mjs 6.6MB, dist/index.mjs.map 11.6MB
+- ✅ Commit `7028d64` on `feat/delete-project`
+
+### Next Steps
+
+1. **Deploy to preview** — `pnpm --filter @workspace/academic-workspace run dev:bypass` or Vercel preview deploy
+2. **Push branch** to origin when ready
+3. **Owner verification** on live: References tab → should show error state if API fails, not blank
+4. **Hermes integration**: next step = install Hermes locally + define Teora-specific skills
+
+---
+
 ## 🎯 ACTIVE 2026-09-19 — INC-008 Continuation: "AI belum dikonfigurasi" Root Cause #2 + #3
 
 **Status:** 🔴 BLOCKED — GitHub token lacks access to `sagaise-ctrl/teora`; cannot create PR

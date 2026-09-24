@@ -328,7 +328,7 @@ function CrossRefDialog({
   const [importing, setImporting] = useState<Set<string>>(new Set());
   const [imported, setImported] = useState<Set<string>>(new Set());
 
-  const search = useSearchReferences({ q: query, rows: 20 });
+  const search = useSearchReferences({ q: query, rows: 20 }, { query: { enabled: query.trim().length >= 3 } });
   const importRefs = useImportAccountReferences();
 
   const handleSearch = (e: React.FormEvent) => {

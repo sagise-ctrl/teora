@@ -70,22 +70,9 @@ app.use("/webhooks/payment-success", express.raw({ type: "application/json" }), 
 // email-verified webhook uses JSON body (parsed by express.json() above) — secret header check only
 app.use("/webhooks", webhooksRouter);
 
-// Rate limiter for auth endpoints (5 attempts per IP per minute)
-// Auth endpoints don't need req.user (they SET it via login/register), so
-// mounting at app level before the router is fine here.
-const authLimiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 5,
-  standardHeaders: true,
-  legacyHeaders: false,
-  skip: (req) => req.path === "/healthz",
-  message: { error: "Terlalu banyak percobaan. Silakan coba lagi setelah satu menit." },
-});
-
-// aiLimiter lives in lib/ai-limiter.ts and is mounted per-route in routes/index.ts
-// AFTER authMiddleware — see audit report .ai/ai-api-audit-report-20260905.md.
-
-app.use("/api/auth", authLimiter);
+// Rate limiter applied per-route in routes/auth.ts (not blanket on /api/auth)
+// to avoid rate-limiting /me (called on every page load).
+// See audit 2026-09-23.
 
 app.use("/api", router);
 

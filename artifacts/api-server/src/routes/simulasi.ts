@@ -418,16 +418,21 @@ router.get("/projects/:projectId/simulasi/sessions", async (req, res): Promise<v
   const ok = await requireProjectOwnership(params.data.projectId, req.user?.id ?? "", res);
   if (!ok) return;
 
-  const sessions: typeof simulationSessionsTable.$inferSelect[] = await db
-    .select()
-    .from(simulationSessionsTable)
-    .where(eq(simulationSessionsTable.projectId, params.data.projectId))
-    .orderBy(desc(simulationSessionsTable.startedAt));
+  try {
+    const sessions: typeof simulationSessionsTable.$inferSelect[] = await db
+      .select()
+      .from(simulationSessionsTable)
+      .where(eq(simulationSessionsTable.projectId, params.data.projectId))
+      .orderBy(desc(simulationSessionsTable.startedAt));
 
-  res.json(sessions.map((s) => ({
-    ...s,
-    quotaInfo: getQuotaInfo(s),
-  })));
+    res.json(sessions.map((s) => ({
+      ...s,
+      quotaInfo: getQuotaInfo(s),
+    })));
+  } catch (err) {
+    logger.error({ err, projectId: params.data.projectId }, "Failed to list simulation sessions");
+    res.status(500).json({ error: "Gagal memuat sesi simulasi. Silakan coba lagi." });
+  }
 });
 
 // GET /projects/:projectId/simulasi/sessions/:sessionId/messages — get messages
