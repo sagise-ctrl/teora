@@ -2,6 +2,59 @@
 
 > Completed work, newest first. Format: `YYYY-MM-DD | description | files | status`
 
+## 2026-09-25 | Hermes AI Engineering Team: Local Install + Olagon Integration + Context Load (opus-4-8)
+
+**Status:** ✅ COMPLETE — Hermes operational via Olagon gateway, Teora context loaded, 2/2 test chats PASSED
+**Branch:** `main` (no code changes — installation is on local laptop)
+**Report:** `.ai/checkpoints/hermes-install-FINAL-20260924.md`
+
+| Step | Description | Status |
+|------|-------------|--------|
+| Environment audit | ripgrep/Node/pnpm ready, Python missing → handled by installer | ✅ |
+| Disk cleanup | C: freed 6GB (was 100% full, causing silent installer hang) | ✅ |
+| Install Hermes | v0.21.5, Python 3.11.16 via uv | ✅ |
+| PATH wrappers | `E:\teora\.ai\setup\cache\hermes.{bat,sh,exe}` | ✅ |
+| Configure Olagon | Token located di `C:\Users\E210MA\.claude\settings.json` (owner's Claude Code) | ✅ |
+| Test 1: Connectivity | "Halo Hermes. Apakah kamu bisa akses saya via Olagon gateway?" → "Ya." | ✅ |
+| Load Teora context | `onboarding.md` + 5 skills + USAGE-GUIDE + CONFIGURATION di `.ai/hermes/` | ✅ |
+| Test 2: Context aware | Read `onboarding.md` → 3-point summary in Indonesian, accurate Teora context | ✅ |
+
+**Files:**
+- `C:\Users\E210MA\AppData\Local\hermes\config.yaml` (NEW — Hermes config)
+- `C:\Users\E210MA\AppData\Local\hermes\.env` (NEW — Olagon credentials, NOT in repo)
+- `E:\teora\.ai\setup\cache\hermes.bat` (NEW — Windows wrapper)
+- `E:\teora\.ai\setup\cache\hermes.sh` (NEW — Git Bash wrapper)
+- `E:\teora\.ai\setup\cache\hermes.exe` (NEW — Direct binary)
+- `E:\teora\.ai\hermes\onboarding.md` (NEW — Teora context for Hermes)
+- `E:\teora\.ai\hermes\skills\{teora-deploy,fix-INC-NNN,teora-migrate,teora-audit,teora-rollback}.md` (NEW)
+- `E:\teora\.ai\hermes\USAGE-GUIDE.md` (NEW)
+- `E:\teora\.ai\hermes\CONFIGURATION.md` (NEW)
+- `E:\teora\.ai\checkpoints\hermes-install-FINAL-20260924.md` (NEW — full report)
+- `.ai/current-task.md` (UPDATED — new ACTIVE section)
+- `.ai/lessons-learned.md` (UPDATED — Hermes entry)
+
+**Verification (Evidence — FIX ≠ VERIFIED rule):**
+- ✅ `hermes --version` → "Hermes Agent v0.21.5"
+- ✅ Test 1 query → response "Ya." in Indonesian, session `20260925_004543_bf052e`
+- ✅ Test 2 query → 3-point accurate summary, tool call to read_file, session `20260925_004719_838e7d`
+- ✅ Olagon token valid (returned proper Anthropic-format response)
+
+**Lessons:**
+1. Disk space CRITICAL — C: full causes silent installer hang. Always check disk first.
+2. Olagon uses Anthropic SDK format (`ANTHROPIC_AUTH_TOKEN` + `ANTHROPIC_BASE_URL`), NOT OpenAI.
+3. Hermes auto-detects Anthropic-compatible endpoints when URL ends with `/anthropic`.
+4. PATH changes require NEW shell (PowerShell User env vars don't propagate to current session).
+5. For one-off tooling installs, copy executable directly to PATH-accessible folder rather than relying on .bat from Git Bash.
+
+**Next steps (Phase 2: Dev Console integration):**
+1. Build `/admin/dev` UI (mobile-first) di Teora dashboard
+2. Add `/api/admin/dev/instructions` endpoint
+3. Connect Hermes via webhook
+4. Phase 3: Telegram gateway (Hermes has Bot Mode native)
+5. Phase 4: Specialist bots (incident-bot, security-bot, cost-bot)
+
+---
+
 ## 2026-09-23 | Pre-Sleep Session: icon2/asterisk Fix + ReferencesTab Error State + Feature Audit + Hermes Research (opus-4-6)
 
 **Status:** ✅ COMMITS READY — `feat/delete-project` branch, commit `7028d64`

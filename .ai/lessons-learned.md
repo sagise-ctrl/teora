@@ -1022,3 +1022,33 @@ TAPI — handler tidak menambahkan logika fallback apapun untuk kasus title unde
 - [ ] Cross-validate OpenAPI spec dan Zod schema setelah setiap DECISION. Frontend TS types = derived, jadi kalau spec drift → frontend typecheck harus catch. Kalau typecheck pass tapi runtime error, berarti schema-spec drift.
 - [ ] Jangan lupa: tierId di body request = untrusted input. Selalu validate via `resolveOlagonTierOrFallback` (atau equivalent) yang check (a) tier exists, (b) user punya akses ke tier tsb (subscription OR owner-only Olagon).
 
+
+---
+
+## Lesson: Vercel monorepo multi-project push TIDAK auto-deploy semua project (2026-09-24)
+
+**Source**: INC pending (this session — Vercel monorepo deploy gap)
+
+**Gejala**: PR #23 squash-merged to main dengan semua 5 DevTools bug fixes. Vercel Git Integration auto-deploy `academic-workspace` (frontend) sukses — bundle `CvljZeEO` punya Bug 1/2/3 + ReactMarkdown. Tapi Bug 4 (simulasi 500) dan Bug 5 (CrossRef timeout) BACKEND fixes tidak sampai ke production. Backend deployment terakhir: 1 hari sebelumnya. Frontend cek pass, tapi curl ke `teora-backend.vercel.app/api/simulasi/sessions` masih balikin error versi lama.
+
+**Root cause**: Monorepo punya DUA Vercel projects:
+1. `academic-workspace` (frontend, `artifacts/academic-workspace/`) — Vercel Git Integration aktif, auto-deploy on push to main
+2. `teora-backend` (API, `artifacts/api-server/`) — TIDAK ada Git Integration (mungkin di-link manual atau dibuat via CLI), sehingga push ke main TIDAK trigger deploy backend
+
+Frontend Vercel integration membaca root directory `artifacts/academic-workspace/` (auto-detected via `vercel.json` framework=null). Backend tidak punya linkage ini karena deploy manual atau via CLI tanpa GitHub integration.
+
+**Kalau error berulang**: Setiap kali merge PR ke main yang berisi perubahan ke `artifacts/api-server/`, cek `vercel ls teora-backend --limit 3` untuk verify backend sudah ter-deploy. Jangan asumsi Git Integration handle semuanya.
+
+**Opsi yang dipertimbangkan**:
+1. Set up Vercel Git Integration untuk `teora-backend` project juga → auto-deploy on push
+2. Tambah `.github/workflows/deploy-backend.yml` → manual trigger via GitHub Actions setelah push ke main
+3. Stick dengan CLI manual `cd artifacts/api-server && vercel deploy --prod --yes` setiap kali ada backend changes
+
+**Kenapa pilih pendekatan ini**: Opsi 1 (Vercel Git Integration) ideal tapi Vercel project linked dari `.vercel/project.json` lokal (`prj_xxx`), dan re-linking butuh web dashboard access. Opsi 2 (GH Actions workflow) reversible & idempotent, paling cepat untuk dipasang. Opsi 3 (CLI manual) status quo yang akan saya adopsi untuk sekarang sambil opsi 1/2 di-defer.
+
+**Yang harus dicek di masa depan supaya tidak terulang**:
+- [ ] Setiap `vercel ls <project> --limit 1` WAJIB dijalankan setelah PR merge ke main, untuk verify frontend + backend deployments sama-sama baru
+- [ ] Cek `vercel project ls` → cek kolom "Updated" untuk `teora-backend`. Kalau masih > 1 hari, backend STALE — perlu CLI redeploy
+- [ ] Untuk CI/CD ideal: tambah GitHub Actions workflow `.github/workflows/deploy-backend.yml` yang trigger on push to main dengan path filter `artifacts/api-server/**` → `vercel deploy --prod --yes --token=$VERCEL_TOKEN` (perlu Vercel PAT 30-day expiry, refresh)
+- [ ] Issue ini sudah ada sejak 2026-09-13 (lihat memory `deployment-drift-local-vs-live-20260913`). Add to incident-registry.md sebagai INC-012 (atau nomor berikutnya)
+- [ ] Untuk monorepo multi-project deploy: SETUP Git Integration di kedua project, atau pakai single `vercel.json` di root dengan `projects` config (Vercel monorepo mode)
