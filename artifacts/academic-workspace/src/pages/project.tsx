@@ -2820,6 +2820,7 @@ function ExportButton({ projectId, projectTitle }: { projectId: number; projectT
     setLoading(format)
     try {
       const baseUrl = (import.meta as unknown as Record<string, Record<string, string>>).env?.VITE_API_URL ?? ""
+      // Force rebuild 2026-09-25T00:01:00Z
       const apiPrefix = baseUrl ? `${baseUrl}/api` : "/api"
       const url = `${apiPrefix}/projects/${projectId}/export/${format}`
       const response = await fetch(url, { credentials: "include" })
