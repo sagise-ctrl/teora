@@ -1,5 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
-
+/* Self-hosted fonts (CORS-safe) — original: https://fonts.googleapis.com/css2?...
+   Originally loaded via @import url(...) which got blocked by browser CORS policy.
+   Fonts are bundled by Vite from src/assets/fonts/ via @font-face declarations below.
+*/
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @plugin "@tailwindcss/typography";
@@ -137,9 +139,9 @@
   --chart-4: 40 40% 60%;
   --chart-5: 220 20% 40%;
 
-  --app-font-sans: 'Inter', sans-serif;
-  --app-font-serif: 'Space Grotesk', sans-serif;
-  --app-font-mono: 'JetBrains Mono', monospace;
+  --app-font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --app-font-serif: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  --app-font-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
   
   --radius: 0.375rem; /* 6px */
   

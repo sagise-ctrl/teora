@@ -44,5 +44,6 @@
   },
   "dependencies": {
     "docx": "^9.7.1"
-  }
+  },
+  "packageManager": "pnpm@11.1.0"
 }
